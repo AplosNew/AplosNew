@@ -9670,7 +9670,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetSpecificMaterialStockBOQ(string pOId,string contractId,string masterOrderitemId,string salesOrderId, string issueDate)
+        public JsonResult GetSpecificMaterialStockBOQ(string pOId, string contractId, string masterOrderitemId, string salesOrderId, string issueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
@@ -9678,7 +9678,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateBOQIssue(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll)
+        public JsonResult CreateBOQIssue(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll, string BoqAllocationList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;

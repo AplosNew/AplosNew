@@ -361,7 +361,7 @@ namespace Library.OrderManagement.Production
             }
             catch (Exception ex)
             {
-                throw ex;
+                    throw ex;
             }
         }
 

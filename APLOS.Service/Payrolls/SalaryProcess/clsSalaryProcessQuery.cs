@@ -1195,9 +1195,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
                                         (
                                         select *
                                         ,IsEligible=case 
-                                        --when isnull(PrePostPolicy,'')='Pre' and isnull(PrePostTran,'')='Post' then 'NO'                                       
-                                        --else 'YES' end
-										 when isnull(IsPreApplied,0)=1 and isnull(PrePostTran,0)=1 then 'YES'
+                                         when isnull(IsPreApplied,0)=1 and isnull(PrePostTran,0)=1 then 'YES'
 										 when isnull(IsPreApplied,0)=0 then 'YES'
                                          else 'NO' end
 

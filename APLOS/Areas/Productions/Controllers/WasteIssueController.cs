@@ -55,7 +55,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select Cast(0 as bit) Active,WID.Id,WTD.Id WasteTransactionDataId,WM.Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+                var sql = @"select Cast(0 as bit) Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
 				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
 				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
 									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
@@ -344,12 +344,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetWasteReport(Dictionary<string, string> Id)
+        public ActionResult GetWasteReport(string Id)
         {
             try
             {
                 string fileName = "";
-                fileName = WasteReport(Id, "MeetingReport");
+                fileName = WasteReport(Id, "WasteReport");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -359,7 +359,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
 
-        public string WasteReport(Dictionary<string, string> Id, string SheetName)
+        public string WasteReport(string Id, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -368,17 +368,106 @@ namespace Aplos.Areas.Productions.Controllers
             var filePath = "";
             try
             {
-
-
+                var report = new ReportUtility();
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "MeetingReports";
+                workbook.Worksheets[0].Name = "WasteReports";
                 sheet = workbook.Worksheets[0];
-                DataTable data;
-                MeetingReportSQL(Id, out data);
 
-                int ROW = 6; int COL = 1;
+                DataTable data= WasteReportSQL(Id);
+                var header = WasteMasterReportSQL(Id);
+
+                int ROW = 5; int COL = 1;
+
+                #region Header
+                
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Entity");
+                sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, header["Entity"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 6, "Purpose");
+                sheet[ROW, 6].ColumnWidth = 25;
+                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 7, header["Purpose"].ToString());
+                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet[ROW, 7].ColumnWidth = 25;
+                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Date");
+                sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, header["Date"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 6, "Prepared By");
+                sheet[ROW, 6].ColumnWidth = 25;
+                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 7, header["PreparedBy"].ToString());
+                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet[ROW, 7].ColumnWidth = 25;
+                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Checked By");
+                sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, header["CheckedBy"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 6, "Approved By");
+                sheet[ROW, 6].ColumnWidth = 25;
+                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 7, header["ApprovedBy"].ToString());
+                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet[ROW, 7].ColumnWidth = 25;
+                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Remark");
+                sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, header["Remark"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 6, "Issue Id");
+                sheet[ROW, 6].ColumnWidth = 25;
+                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 7, header["IssueId"].ToString());
+                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet[ROW, 7].ColumnWidth = 25;
+                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+                
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Waste");
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                report.SetText(ref sheet, ROW, 2, header["Waste"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+                ROW++;
+
+                #endregion
 
                 #region columns
                 sheet[ROW, COL].Text = "Id";
@@ -467,7 +556,7 @@ namespace Aplos.Areas.Productions.Controllers
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
                     sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
-                    sheet[ROW, ColSequence].Text = clsStaticInfo.GetDate(data.Rows[i]["Sequence"].ToString());
+                    sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
                     sheet[ROW, ColWasteCategory].Text = data.Rows[i]["WasteCategory"].ToString();
                     sheet[ROW, ColWasteSubCategory].Text = data.Rows[i]["WasteSubCategory"].ToString();
                     sheet[ROW, ColWasteName].Text = data.Rows[i]["WasteName"].ToString();
@@ -480,7 +569,6 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
                     sheet[ROW, ColIssueValue].Text = data.Rows[i]["IssueValue"].ToString();
 
-                    //sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
 
                     sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
@@ -541,26 +629,26 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        public void MeetingReportSQL(Dictionary<string, string> Id, out DataTable data)
+        private DataTable WasteReportSQL(string Id)
         {
             try
             {
 
-                string strSQL = @"select WID.Id,WTD.Id WasteTransactionDataId,WM.Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
-				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
-				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
-									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
-									,((ISNULL(WTD.Quantity,0)*ISNULL(WM.StandardRate,0))-(ISNULL(WID.IssueQty,0)*ISNULL(WID.Rate,0))) as BalanceStkValue,ISNULL(WIDS.OtherQty,0) OtherQty
-				                    from WasteTransactionData WTD
-				                    left join WasteMaster WM on WM.Id=WTD.WasteMasterId
-				                    left join SCS.UnitOfMeasurement UOM on UOM.Id=WM.UOMId
-									LEFT JOIN WasteIssueDetails WID ON WID.WasteTransactionDataId=WTD.Id AND WID.WasteIssueId='" + Id + @"'
-									LEFT JOIN (select sum(IssueQty) OtherQty,WasteTransactionDataId,WasteIssueId from WasteIssueDetails group by WasteTransactionDataId,WasteIssueId) WIDS ON WIDS.WasteTransactionDataId=WTD.Id
-                                    AND WIDS.WasteIssueId<> '" + Id + @"'
+                string strSQL = @"select ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WID.Id,WID.WasteIssueId,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+									,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
+									,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
+									,ISNULL((WTD.Quantity-WID.IssueQty),0) as BalanceStock
+									,((ISNULL(WTD.Quantity,0)*ISNULL(WM.StandardRate,0))-(ISNULL(WID.IssueQty,0)*ISNULL(WID.Rate,0))) as BalanceStkValue
+									
+									from WasteIssueDetails WID
+									left join WasteTransactionData WTD on WTD.Id=WID.WasteTransactionDataId
+									left join WasteMaster WM on WM.Id=WTD.WasteMasterId
+									left join SCS.UnitOfMeasurement UOM on UOM.Id=WM.UOMId
+                                    left join HKP.Process P on P.Id=WID.ProcessId
 
-                                    left join HKP.Process P on P.Id=WID.ProcessId";
+									where WID.WasteIssueId='" + Id + @"'";
 
-                data = _sqlRepository.GetDataTable(strSQL);
+                return _sqlRepository.GetDataTable(strSQL);
             }
             catch (Exception ex)
             {
@@ -568,7 +656,30 @@ namespace Aplos.Areas.Productions.Controllers
             }
 
         }
+        
+        private Dictionary<string,object> WasteMasterReportSQL(string Id)
+        {
+            try
+            {
 
+                string strSQL = @"select WI.Id IssueId,E.UserName Entity,WI.Purpose,FORMAT(WI.Date,'dd-MMM-yyyy') Date,EI.EmployeeName PreparedBy,EmpI.EmployeeName ApprovedBy
+						                            ,EmpInfo.EmployeeName CheckedBy,WI.Remarks Remark,WI.Waste
+						                            from WasteIssue WI
+						                            left join ORG.Entity E on E.Id=WI.EntityId
+						                            left join EmployeeInformation EI on EI.SystemId=WI.PreparedById
+						                            left join EmployeeInformation EmpI on EmpI.SystemId=WI.ApprovedById
+						                            left join EmployeeInformation EmpInfo on EmpInfo.SystemId=WI.CheckedById
+
+									                where WI.Id='" + Id + @"'";
+
+                return _sqlRepository.GetData(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
         [HttpGet, Authorize]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
         {

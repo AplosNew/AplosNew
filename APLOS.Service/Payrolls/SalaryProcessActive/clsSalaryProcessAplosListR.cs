@@ -1171,9 +1171,9 @@ public class clsSalaryProcessAplosR
                                 dicCmpWeekOffDay = dsCmpWeekOffDay.Tables[0].ToList<dicCmpWeekOffDay>();
 
                             decimal TotWorkingDay = DaysInMonth - dsCmpOffDay.Tables[0].Rows.Count;
-                            decimal TotWorkingDayWithHoli = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
+                            decimal TotWorkingDayWithHoliDay = DaysInMonth - dsCmpWeekOffDay.Tables[0].Rows.Count;
                             decimal tempTotWorkingDay = TotWorkingDay;
-                            decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoli;
+                            decimal tempTotWorkingDayWithHoli = TotWorkingDayWithHoliDay;
                                                         
                             clsSalaryProcessQuery spq = new clsSalaryProcessQuery();
                             DataSet dsEOLILU = null;
@@ -1313,15 +1313,7 @@ public class clsSalaryProcessAplosR
 
                                 ds = new DataSet();
                                 dtValue = new List<SPvalueHeadWise>();
-                                ////dtValue = new DataTable();
-                                ////dtValue.TableName = "TempTable";
-                                ////dtValue.Columns.Add("EmpSystemID");
-                                ////dtValue.Columns.Add("SalaryHeadID");
-                                ////dtValue.Columns.Add("EntryCurrencyID");
-                                ////dtValue.Columns.Add("EntryAmount");
-                                ////dtValue.Columns.Add("EarningCurrencyID");
-                                ////dtValue.Columns.Add("EarningAmount");
-
+                              
                                 dsDw = new DataSet();
                                 dtDw = new DataTable();
                                 dtDw.TableName = "TempTable";
@@ -1331,7 +1323,6 @@ public class clsSalaryProcessAplosR
 
                                 #endregion Create Table
 
-                                //190911
                                 string _childPK_seed_fromDB = string.Empty;
                                 bplib.clsGenID objGEN = new bplib.clsGenID();
                                 objGEN.GenHRID(DateTime.Now.ToShortDateString().ToString(), "SAL_PROC_CHILD_PK", out _childPK_seed_fromDB);
@@ -1353,9 +1344,6 @@ public class clsSalaryProcessAplosR
 
                                     if (intMonthNo == Convert.ToInt32(Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim()).Month) & intYearNo == Convert.ToInt32(Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim()).Year))
                                     {
-                                        //firstDate = dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim();
-                                        //DisbursedBtnMonth = true;
-
                                         firstDate = dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim();
                                         string _datef = Convert.ToDateTime(firstDate).ToString("dd");
                                         if (Convert.ToInt32(_datef) == 1)
@@ -1380,7 +1368,6 @@ public class clsSalaryProcessAplosR
 
                                     if (para.IsMaternity)//going
                                     {
-                                        //lastDate = dsSelectedEmp.Tables[0].Rows[gd]["FromDate"].ToString().Trim();
                                         lastDate = Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["FromDate"].ToString().Trim()).AddDays(-1).ToString("dd-MMM-yyyy");
                                         DisbursedBtnMonth = true;
                                         _NewlyJoined_Dos = true;
@@ -1388,7 +1375,6 @@ public class clsSalaryProcessAplosR
 
                                     if (para.IsMaternityReturn)
                                     {
-                                        //firstDate = dsSelectedEmp.Tables[0].Rows[gd]["ToDate"].ToString().Trim();
                                         firstDate = Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["ToDate"].ToString().Trim()).AddDays(1).ToString("dd-MMM-yyyy");
                                         // DisbursedBtnMonth = true;
                                         _NewlyJoined_Dos = true;
@@ -1475,11 +1461,7 @@ public class clsSalaryProcessAplosR
                                         WkOFDay = dicMMDSSI_Sub.TotalWeekOff - _xtra_absent;
                                         HDDay = dicMMDSSI_Sub.TotalHoliDay - _xtra_absent_holiday;
                                         WkOFHDDay = dicMMDSSI_Sub.TotalWeekOffHoliDay;
-
-                                        //OTHDay = dicMMDSSI_Sub.TotalOTHr;
-                                        //NorOTHDay = dicMMDSSI_Sub.TotalNormalOTHr;
-                                        //ExtOTHDay = dicMMDSSI_Sub.TotalExtraOTHr;
-
+                                                                              
                                         ///new OT Hr calculation by monir
                                         OTHDay = 0;
                                         NorOTHDay = 0;
@@ -1515,12 +1497,7 @@ public class clsSalaryProcessAplosR
                                     string _EmployeeCode = dsSelectedEmp.Tables[0].Rows[gd]["EmployeeCode"].ToString().Trim();
                                     _emp_not_saved = _emp;
 
-                                    if (_emp == "2102168")
-                                    {
-
-                                    }
-                                    //sendMessage("Preparing employee " + _emp + " " + (gd + 1) + "/" + dsSelectedEmp.Tables[0].Rows.Count + ", Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
-
+                                    
                                     #region Weekoff Original
                                     int _emp_weekoff_count = 0;
                                     var weekOffOriginal = dicWeekOffOriginal.FindAll(x => x.EmpSystemID == _emp);
@@ -1678,8 +1655,6 @@ public class clsSalaryProcessAplosR
                                                 sAcltExcDisbSlrHDID = dicLocal_Sub[i].AcltExcDisbSlrHDID;
                                                 AcltExcDisbSlrHDAmt = 0;
                                                 IsNetPayEffect = dicLocal_Sub[i].IsNetPayEffect;
-                                                //IsBankPayment = dicLocal_Sub[i].IsBankPayment;
-                                                //IsCashPayment = dicLocal_Sub[i].IsCashPayment;
                                                 decTotalErnDedAmt = 0;
 
                                                 IsBaseOnNetPay = dicLocal_Sub[i].BaseOnNetPay;
@@ -1716,23 +1691,11 @@ public class clsSalaryProcessAplosR
                                                 FormulaDesID_NewJoin = dicLocal_Sub[i].FormulaDesID_NewJoin;
 
                                                 #endregion
-                                                ///
-
-                                                ///***
-                                                ///
+                                                
                                                 var pEmployeeSysID = dicLocal_Sub[i].EmpInfoSystemID;
 
-
-
                                                 var ss = dicLocal_Sub[i].SalaryHeadID;
-
-                                                if (ss == "SHD20214")//SHD202023 SHD202065
-                                                {
-
-                                                }
-
-
-
+                                                                                    
                                                 if (string.IsNullOrEmpty(sGNRApplicableMonthNo))
                                                 {
                                                     IsDisbustForThisMonth = true;
@@ -1757,8 +1720,6 @@ public class clsSalaryProcessAplosR
 
                                                 if (IsBaseOnNetPay == true)
                                                 {
-                                                    //bool _newlyJoined = false;
-                                                    //bool _onGross = false;
                                                     string _gross_headid = string.Empty;
 
                                                     if (string.IsNullOrEmpty(sFormulaDesID))
@@ -1768,9 +1729,6 @@ public class clsSalaryProcessAplosR
                                                     obSS.ReLoadFormulaWithValueSalaryProc(sEmployeeSysID, para, sFormulaDesID, out sFormulaValue, IsBaseOnNetPay, dtValue, dicSalaryHead);
 
                                                     DefCur = Convert.ToDecimal(clsSalaryUtility.Evaluate(sFormulaValue.Trim()));
-
-
-
 
                                                     if (EntCur == 0)//if ss is zero 
                                                     {
@@ -1816,8 +1774,6 @@ public class clsSalaryProcessAplosR
 
                                                     #region Disbusment Calculation
 
-                                                    //if (IsBaseOnNetPay == false)
-                                                    //{
                                                     #region Calculation WithOut DayStatus
                                                     if (string.IsNullOrEmpty(dicLocal_Sub[i].SalaryRuleDayStatusSystemID) == true)
                                                     {
@@ -1826,17 +1782,7 @@ public class clsSalaryProcessAplosR
                                                         {
                                                             if (dicLocal_Sub[i].RuleType == "Gen")
                                                             {
-                                                                //if (DisbursedBtnMonth == true)
-                                                                //{                                                                   
-                                                                //    DisbCur = (DefCur / FixMonthDay) * TotalDaysSlr;
-                                                                //}
-                                                                //else
-                                                                //{ DisbCur = DefCur; }
-
-                                                                //if (IsRefAbsentism == true)
-                                                                //{
-                                                                //    DisbCur = DisbCur - ((DefCur / FixMonthDay) * AbsDay);
-                                                                //}
+                                                               
                                                                 decimal _deductionDays = 0;
                                                                 if (_IsPayOnWeekoffForFixedMonthDay == false && _IsPayOnHolidayForFixedMonthDay == false)
                                                                 {
@@ -1949,24 +1895,7 @@ public class clsSalaryProcessAplosR
                                                                     }
                                                                 }
                                                                 else//DOJ DOS
-                                                                {
-                                                                    ////get week off        
-                                                                    //int _Week_off_count = 0;
-                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _Week_off_count);
-                                                                    ////if (dicMMDSSI_Sub.TotalWeekOff > 0)
-                                                                    //decimal PerDaySalary = DefCur / (DaysInMonth - _Week_off_count);
-
-                                                                    //_Week_off_count = dicMMDSSI_Sub.TotalWeekOff;
-                                                                    //decimal DivFactor = DaysInMonth - LocalWeekOff;
-                                                                    //DisbCur = (DefCur / DivFactor) * (TotalDaysSlr - _Week_off_count);//www
-
-                                                                    ////New Calculation (Tarek)
-                                                                    //int _MonthlyTotalWeekoffCount = 0;
-                                                                    //GetWeekoffCout(dsWeekOffAll, WeekOffList, _emp, out _MonthlyTotalWeekoffCount);
-                                                                    //int _WeekoffCountAfterJoin = dicMMDSSI_Sub.TotalWeekOff;
-                                                                    //decimal _PerDaySalary = DefCur / (DaysInMonth - _MonthlyTotalWeekoffCount);
-                                                                    //DisbCur = _PerDaySalary * (TotalDaysSlr - _WeekoffCountAfterJoin);
-
+                                                                {                                                                    
 
                                                                     //New Calculation (Tarek)
                                                                     int _MonthlyTotalWeekoffCount = 0;
@@ -1998,9 +1927,9 @@ public class clsSalaryProcessAplosR
                                                                 //DisbCur = (DefCur / (TotalDaysSlr - WkOFDay)) * AbsDay;
                                                             }
 
-                                                            tempDaysInMonth = TotWorkingDayWithHoli;
+                                                            tempDaysInMonth = TotWorkingDayWithHoliDay;
                                                             tempTotWorkingDay = (TotalDaysSlr - AbsDay);
-                                                            TotWorkingDay = TotWorkingDayWithHoli;
+                                                            TotWorkingDay = TotWorkingDayWithHoliDay;
                                                         }
                                                         #endregion working day(excluding W)
                                                         //by monir ends
@@ -2013,8 +1942,6 @@ public class clsSalaryProcessAplosR
                                                             tempTotWorkingDay = (TotalDaysSlr - AbsDay);
                                                         }
                                                         #endregion Fixed Disbusment
-                                                        //else if(dicLocal_Sub[i].SalaryCategory == "PF")
-                                                        //{ DisbCur = DefCur; }
                                                     }
                                                     #endregion Calculation WithOut DayStatus
                                                     #region DayStatus Wise Calculation
@@ -2175,48 +2102,25 @@ public class clsSalaryProcessAplosR
                                                     #region Check 'Bank Payment' Or 'Cash Payment' If Employee Have Bank Acc Or Not
 
 
-
-                                                    //by monir 190915
-                                                    // if (IsBankPayment == true && IsCashPayment == true)
-                                                    // {
                                                     IsPayment = true;
-                                                    //}
-                                                    //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim().ToUpper() == "BANK")
-                                                    //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim() == "Bank Payment")
-                                                    //{
-                                                    //    if (IsBankPayment == true)
-                                                    //    { IsPayment = true; }
-                                                    //    else if (IsCashPayment == true)
-                                                    //    { IsPayment = false; }
-                                                    //}
-                                                    ////else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim().ToUpper() == "CASH")
-                                                    //else if (dsSelectedEmp.Tables[0].Rows[gd]["BankAccountStatus"].ToString().Trim() == "Cash Payment")
-                                                    //{
-                                                    //    if (IsBankPayment == true)
-                                                    //    { IsPayment = false; }
-                                                    //    else if (IsCashPayment == true)
-                                                    //    { IsPayment = true; }
-                                                    //}
-
+                                                  
                                                     #endregion Check 'Bank Payment' Or 'Cash Payment' If Employee Have Bank Acc Or Not
 
                                                     if (IsPayment == true)
                                                     {
-                                                        ///190915
+
                                                         var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
 
-                                                        //SHD20209
 
                                                         #region body
                                                         if (string.IsNullOrEmpty(dicLocal_Sub[i].HeadCategory) == false)
                                                         {
                                                             if (dicLocal_Sub[i].HeadCategory.ToUpper() == "ABSENTEEISM")
                                                             {
-                                                                //if (DisbCur == 0)
-                                                                //{
+                                                                
                                                                 EntCur = 0;
                                                                 DefCur = 0;
-                                                                //}
+                                                                
                                                             }
                                                         }
                                                         //Absenteeism
@@ -4103,8 +4007,6 @@ public class clsSalaryProcessAplosR
                                         }
 
                                         #endregion Salary Value Uploaded Daily
-
-
 
                                         #region Salary Proc Attendence Summary
 

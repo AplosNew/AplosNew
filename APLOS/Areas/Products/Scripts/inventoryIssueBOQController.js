@@ -194,6 +194,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                     , inventoryIssue: $scope.productNew
                     , IssueTypeStatus: UIStatus
                     , entitiesAll: JSON.stringify($scope.detailList)//$scope.detailListNewAll
+                    , 'BoqAllocationList': JSON.stringify($scope.materialStockList)
                 }
                 , dataType: 'JSON'
             }).then(function (response) {
@@ -299,9 +300,9 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             $scope.detailModel.CostCenterId = $scope.CostCenterIdTemp;
             angular.element(document.querySelector('#detailPopUp')).modal('show');
         }
-        
+
     };
-  
+
     $scope.CountryLoadData = function () {
         $scope.countryList = [];
         $http({
@@ -517,7 +518,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
 
 
-   
+
     $scope.getCharacteristicsList = function (id) {
         $scope.clearCharNames();
         $http({
@@ -1790,6 +1791,11 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     };
     $scope.addMaterialStockNew = function () {
         $scope.detailList = [];
+        $scope.specificStockList = [];
+        var BOqList = [];
+        for (var i = 0; i < $scope.materialStockList.length; i++) {
+            BOqList.push(Object.assign({}, $scope.materialStockList[i]));
+        }
         try {
             var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
 
@@ -1802,7 +1808,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 return false;
             }
             for (var t1 = 0; t1 < baseService.arrayLength($scope.materialStockList); t1++) {
-               
+
                 if ($scope.materialStockList[t1].RequisitionQty > 0 && $scope.materialStockList[t1].Flag == 0) {
                     ShowResult("select The given qty row", 'failure', 'stockboqPopUp');
                     return false;
@@ -1830,30 +1836,42 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             //    }
             //}
             for (var n = 0; n < baseService.arrayLength($scope.materialStockList); n++) { // add
-                var nRow = $scope.materialStockList[n];
-                
+                var nRow = {};
+                nRow = $scope.materialStockList[n];
+
                 nRow.BaseQty = $scope.materialStockList[n].BaseQty;
                 nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
-                if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
-                    //$scope.detailModel.IsSpecific = true;
+                if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag) {
                     $scope.specificStockList.push(nRow);
+                }
+                else {
+                    for (var x = 0; x < $scope.specificStockList.length; x++) {
+                        if ($scope.specificStockList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId) {
+                            var Qty = nRow.RequisitionQty;
+                            $scope.specificStockList[x].RequisitionQty = $scope.specificStockList[x].RequisitionQty + parseFloat(Qty);
+                            Qty = 0;
+                        }
+                    }
+                }
+            }
+            for (var L = 0; L < BOqList.length; L++) {
                 if ($scope.detailList.length == 0) {
-                    $scope.detailList.push(nRow);
+                    $scope.detailList.push(BOqList[L]);
                 }
                 else {
                     for (var j = 0; j < $scope.detailList.length; j++) {
-                        if ($scope.detailList[j].MaterialMasterId === nRow.MaterialMasterId &&
-                            $scope.detailList[j].ArticleId === nRow.ArticleId &&
-                            $scope.detailList[j].FirstCharacteristicsValueId === nRow.FirstCharacteristicsValueId &&
-                            $scope.detailList[j].SecondCharacteristicsValueId === nRow.SecondCharacteristicsValueId &&
-                            $scope.detailList[j].ThirdCharacteristicsValueId === nRow.ThirdCharacteristicsValueId  
+                        if ($scope.detailList[j].MaterialMasterId === BOqList[L].MaterialMasterId &&
+                            $scope.detailList[j].ArticleId === BOqList[L].ArticleId &&
+                            $scope.detailList[j].FirstCharacteristicsValueId === BOqList[L].FirstCharacteristicsValueId &&
+                            $scope.detailList[j].SecondCharacteristicsValueId === BOqList[L].SecondCharacteristicsValueId &&
+                            $scope.detailList[j].ThirdCharacteristicsValueId === BOqList[L].ThirdCharacteristicsValueId
                         ) {
-                            var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(nRow.RequisitionQty.toFixed(4));
+                            var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
                             $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));
-                                trnqty = 0;
+                            trnqty = 0;
                         }
                         else {
-                            $scope.detailList.push(nRow);
+                            $scope.detailList.push(BOqList[L]);
 
                         }
                     }
