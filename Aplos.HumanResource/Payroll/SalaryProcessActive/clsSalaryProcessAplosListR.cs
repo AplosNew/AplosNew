@@ -684,10 +684,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             if ((dsGrid.Tables[0].Rows[GrdEmp]["ProcessStatus"].ToString().Trim()) == "OK" || bplib.clsWebLib.GetBoolData(dsGrid.Tables[0].Rows[GrdEmp]["IsApproved"].ToString().Trim()) == false)
                             {
                                 test_cocunt++;
-                                if (test_cocunt == 434)
-                                {
-
-                                }
+                
                                 grdEmpCntEmpForProc++;
                                 if (string.IsNullOrEmpty(sEmpInfoSysID) == true)
                                 {
@@ -704,7 +701,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }//Overlap OR GAP
                             else
                             {
-                                //throw new Exception("Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]");//EmployeeCode
                                 strAbstractEmp += "Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]";
                             }
                             #endregion
@@ -721,15 +717,14 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                             SelectedEmpCnt++;
                             string _emp_not_saved = string.Empty;
-                            bool _emp_is_saved = false;
+                           
                             if (SelectedEmpCnt == grdRowMaxCnt)
                             {
                                 // Once We get Desired No Then Process
 
                                 #region Start
                                 blockCount++;
-                                //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
-
+                               
                                 StringCollection sSalaryIDColl = new StringCollection();
                                 TotProcComp += grdRowMaxCnt;
 
@@ -808,6 +803,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #endregion DailyEmpService
 
                                 #endregion
+                               
                                 SendNotification("Deleting existing data");
 
                                 objSlrProc.DeleteSlrProcChild(intMonthNo, intYearNo, sEmpInfoSysID);
