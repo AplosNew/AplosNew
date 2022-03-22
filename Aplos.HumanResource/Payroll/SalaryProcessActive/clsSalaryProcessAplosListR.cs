@@ -292,13 +292,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet ds = new DataSet();
             DataSet dsDw = new DataSet();
             DataSet dsGrid = null;
-            //DataTable dtValue = null;
             List<SPvalueHeadWise> dtValue = null;
             DataTable dtDw = null;
             DataSet dsSelectedEmp = null;
             DataSet dsWeekOffCount = null;
 
-            //DataSet dsLocal = null;
             DataTable dtLocal = null;
 
             DataSet dsBonus = null;
@@ -311,7 +309,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataView dvSalRulDayStOnlyDayTp = null;
             DataTable dtSalRulDayStOnlyDayTp = null;
 
-            DataSet dsSalRulDayStOnlyLvTp = null;
             DataView dvSalRulDayStOnlyLvTp = null;
             DataTable dtSalRulDayStOnlyLvTp = null;
 
@@ -319,11 +316,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataView dvSalRulDayStSfTpDayTp = null;
             DataTable dtSalRulDayStSfTpDayTp = null;
 
-            DataSet dsSalRulDayStSfTpLvTp = null;
             DataView dvSalRulDayStSfTpLvTp = null;
             DataTable dtSalRulDayStSfTpLvTp = null;
 
-            DataSet dsSalRulDayStDayTpLvTp = null;
             DataView dvSalRulDayStDayTpLvTp = null;
             DataTable dtSalRulDayStDayTpLvTp = null;
 
@@ -333,14 +328,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataTable dtSPMst = null;
 
             DataSet dsSPChd = null;
-            DataRow drSPChd = null;
             DataView dvSPChd = null;
             DataTable dtSPChd = null;
 
-
-
             DataSet dsCarryForwardSalary = null;
-            DataRow drCarryForwardSalary = null;
             DataView dvCarryForwardSalary = null;
             DataTable dtCarryForwardSalary = null;
 
@@ -352,8 +343,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             DataSet dsExtraAbsent = null;
             DataSet dsExtraAbsentHoliday = null;
-
-
             DataSet dsRetenAllow = null;
             DataRow drRetenAllow = null;
             DataView dvRetenAllow = null;
@@ -362,14 +351,12 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet dsMntNo = null;
             DataTable dtMntNo = null;
             DataView dvMntNo = null;
-
             DataSet dsSalHd = null;
             DataSet dsCmpOffDay = null;
             DataSet dsCmpWeekOffDay = null;
             DataSet dsMMDSSI = null;
             DataSet dsLoanAdv = null;
             DataSet dsMonWiExtAmt = null;
-            DataSet dsDesigMst = null;
             DataSet dsAttdnBns = null;
             DataSet dsAttdnBnsDT = null;
             DataSet dsAttdnBnsLT = null;
@@ -382,23 +369,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet dsCrRulSlrHD = null;
             DataSet dsPF = null;
             DataSet dsBonusRetain = null;
-            DataSet dsVPF = null;
             DataSet dsESIC = null;
             DataSet dsRetentionAllow = null;
-
-            DataView dvEmpTaxFil = null;
-            DataView dvBonusFil = null;
-            DataView dvPFFil = null;
-            DataView dvVPFFil = null;
-            DataView dvESICFil = null;
-            DataView dvRetentionAllowFil = null;
-            DataView dvLoanAdvFil = null;
-            DataView dvAttdnBnsFil = null;
-            DataView dvSlrValMntBsFil = null;
-            DataView dvSlrValMntCntBsFil = null;
-            DataView dvSlrValDailyBsFil = null;
-            DataView dvMonWiExtAmtFil = null;
-            DataView dvSPChdFil = null;
                         
             clsSalaryProc objSlrProc = null;
             clsStaticInfo objStatic = null;
@@ -406,7 +378,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             
             objSlrProc = new clsSalaryProc();
             objStatic = new clsStaticInfo();
-            objTaxPoli = new OTSBD.clsTax();
+            objTaxPoli = new clsTax();
             clsPFProcess objPFGnt = new clsPFProcess();
             clsESICProcess objESICGnt = new clsESICProcess();
             clsBonusMonthlyRetain objBnsGnt = new clsBonusMonthlyRetain();
