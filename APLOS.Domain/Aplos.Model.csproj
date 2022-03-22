@@ -660,6 +660,7 @@
     <Compile Include="Inventory\FGInventoryReceive.cs" />
     <Compile Include="Inventory\GRNBOQMAP.cs" />
     <Compile Include="Inventory\GRNAcceptanceMap.cs" />
+    <Compile Include="Inventory\InventoryIssueHistoryBOQ.cs" />
     <Compile Include="Inventory\InventorySalesReturnDetail.cs" />
     <Compile Include="Inventory\InventorySalesReturn.cs" />
     <Compile Include="Inventory\InventorySalesReturnTax.cs" />
