@@ -55,7 +55,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select Cast(0 as bit) Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+                var sql = @"select case when WID.Id IS NULL then 0 else 1 end Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
 				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
 				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
 									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
@@ -329,7 +329,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public ActionResult GetWasteMasterData()
         {
             string sql = @"select WI.*,E.Id EntityId,E.UserName Entity,EI.EmployeeCode PreparedByCode,EI.EmployeeName PreparedBy,EmpI.EmployeeCode ApprovedByCode
@@ -381,12 +381,31 @@ namespace Aplos.Areas.Productions.Controllers
                 int ROW = 5; int COL = 1;
 
                 #region Header
-                
-                report.SetMasterHeaderText(ref sheet, ROW, 1, "Entity");
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Issue Id");
                 sheet[ROW, 1].ColumnWidth = 20;
                 sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                report.SetText(ref sheet, ROW, 2, header["Entity"].ToString());
+                report.SetText(ref sheet, ROW, 2, header["IssueId"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 6, "Entity");
+                sheet[ROW, 6].ColumnWidth = 25;
+                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop; 
+                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 7, header["Entity"].ToString());
+                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
+                sheet[ROW, 7].ColumnWidth = 25;
+                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+
+
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "Waste");
+                sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, header["Waste"].ToString());
                 sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
                 sheet[ROW, 2].ColumnWidth = 20;
                 sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -448,22 +467,6 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, 2].ColumnWidth = 20;
                 sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-                report.SetMasterHeaderText(ref sheet, ROW, 6, "Issue Id");
-                sheet[ROW, 6].ColumnWidth = 25;
-                sheet.Range[ROW, 6].VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[ROW, 6].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                report.SetText(ref sheet, ROW, 7, header["IssueId"].ToString());
-                sheet[report.GetColumnNameForXls(7) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
-                sheet[ROW, 7].ColumnWidth = 25;
-                sheet.Range[ROW, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
-                ROW++;
-                
-                report.SetMasterHeaderText(ref sheet, ROW, 1, "Waste");
-                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
-                report.SetText(ref sheet, ROW, 2, header["Waste"].ToString());
-                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(10) + ROW].Merge();
-                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
                 ROW++;
                 ROW++;
 
