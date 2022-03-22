@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace Aplos.Models
 {
-    public class IssueHKPService
+    public class PerformanceGroupService
     {
         ISqlRepository _sqlRepository;
-        public IssueHKPService()
+        public PerformanceGroupService()
         {
             _sqlRepository = new SqlRepository();
         }
@@ -24,7 +24,7 @@ namespace Aplos.Models
         {
             try
             {
-                string TableName = "HKP.Issue";
+                string TableName = "HKP.PerformanceGroup";
                 string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + "";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -38,7 +38,7 @@ namespace Aplos.Models
         {
             try
             {
-                var sql = "select * from HKP.Issue where Id = '" + Id + "' ";
+                var sql = "select * from HKP.PerformanceGroup where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace Aplos.Models
         {
             try
             {
-                string TableName = "HKP.Issue";
+                string TableName = "HKP.PerformanceGroup";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -71,7 +71,7 @@ namespace Aplos.Models
         {
             try
             {
-                string TableName = "HKP.Issue";
+                string TableName = "HKP.PerformanceGroup";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -123,7 +123,7 @@ namespace Aplos.Models
             try
             {
 
-                string TableName = "HKP.Issue";
+                string TableName = "HKP.PerformanceGroup";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 

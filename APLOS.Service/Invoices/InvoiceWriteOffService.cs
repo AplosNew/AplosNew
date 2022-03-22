@@ -7367,48 +7367,65 @@ namespace Library.Service.Invoices
                 var invoiceWriteOffDetail = _invoiceWriteOffDetailRepository.Query(r => r.InvoiceWriteOffId == invoiceWriteOffId).Select().ToList();
                 var invoiceTax = _invoiceTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var invoicetds = _additionalTaxRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
-                
-                foreach (var item in voucherdetailcurrnecy)
-                {
-                    _voucherService.DeleteVoucherDetailCurrency(item.Id);
-                }
-
-                foreach (var item in voucherdetail)
-                {
-                    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
-                    if (glTransactionDetail != null)
-                    {
-                        _voucherService.DeleteGLTransactionDetail(item.Id);
-                    }
-                    _voucherService.DeleteVoucherDetail(item.Id);
-                }
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                //foreach (var item in voucherdetailcurrnecy)
+                //{
+                //    _voucherService.DeleteVoucherDetailCurrency(item.Id);
+                //}
+               
+                vendorAdWrsql = @"delete trn.VoucherDetailCurrency where VoucherId = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from trn.GLTransactionDetail where VoucherDetailId in (select Id from TRN.VoucherDetail  where VoucherId= '" + voucherId + "')";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete trn.VoucherDetail where VoucherId= '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                //foreach (var item in voucherdetail)
+                //{
+                //    var glTransactionDetail = _voucherService.QueryGLTransactionDetail(item.Id).Select().FirstOrDefault();
+                //    if (glTransactionDetail != null)
+                //    {
+                //        _voucherService.DeleteGLTransactionDetail(item.Id);
+                //    }
+                //    _voucherService.DeleteVoucherDetail(item.Id);
+                //}
                
                 foreach (var item in invoiceWriteOffDetail)
                 {
+                    vendorAdWrsql = @"update TRN.InvoiceDetail set WrittenOffAmount=0,IsWrittenOff=0 where InvoiceId ='" + item.InvoiceId + "'";
+                    vendorAdWr.Append(vendorAdWrsql);
+                    vendorAdWrsql = @"update TRN.Invoice set WrittenOffAmount=0,IsWrittenOff=0 where Id ='" + item.InvoiceId + "'";
+                    vendorAdWr.Append(vendorAdWrsql);
+                    vendorAdWrsql = @"delete from TRN.InvoiceWriteOffDetail where Id='" + item.Id + "'";
+                    vendorAdWr.Append(vendorAdWrsql);
+                    
+                    //var invoice = _invoiceService.Find(item.InvoiceId);
+                    //var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
+                    //invoiceDetail.WrittenOffAmount -= item.Amount;
+                    //invoice.WrittenOffAmount -= item.Amount;
+                    //invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
+                    //invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
 
-                    var invoice = _invoiceService.Find(item.InvoiceId);
-                    var invoiceDetail = _invoiceService.FindInvoiceDetail(item.InvoiceDetailId);
-                    invoiceDetail.WrittenOffAmount -= item.Amount;
-                    invoice.WrittenOffAmount -= item.Amount;
-                    invoiceDetail.IsWrittenOff = invoiceDetail.NetAmount == invoiceDetail.WrittenOffAmount;
-                    invoice.IsWrittenOff = invoice.Amount == invoice.WrittenOffAmount;
-
-                    _invoiceService.UpdateInvoiceDetail(invoiceDetail);
-                    _invoiceService.Update(invoice);
-                    _invoiceWriteOffDetailRepository.Delete(item.Id);
+                    //_invoiceService.UpdateInvoiceDetail(invoiceDetail);
+                    //_invoiceService.Update(invoice);
+                    //_invoiceWriteOffDetailRepository.Delete(item.Id);
                 }
-                _invoiceWriteOffRepository.Delete(invoiceWriteOffId);
+                vendorAdWrsql = @"delete from TRN.InvoiceWriteOff where Id='" + invoiceWriteOffId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                //_invoiceWriteOffRepository.Delete(invoiceWriteOffId);
 
-                var vendorAdWr = new System.Text.StringBuilder();
-                var vendorAdWrsql = "";
+
                 vendorAdWrsql = @"delete from TRN.InvoiceDetail where InvoiceId in (select Id from TRN.Invoice  where VoucherId = '" + voucherId + "')";
                 vendorAdWr.Append(vendorAdWrsql);
                 vendorAdWrsql = @"delete from TRN.Invoice  where VoucherId = '" + voucherId + "'";
                 vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"delete from TRN.voucher  where Id = '" + voucherId + "'";
+                vendorAdWr.Append(vendorAdWrsql);
+                
                 _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
 
-                _voucherService.DeleteVoucher(voucher.Id);
-                _unitOfWork.SaveChanges();
+                //_voucherService.DeleteVoucher(voucher.Id);
+                //_unitOfWork.SaveChanges();
                 flag = false;
                 _unitOfWork.Commit();
             }
