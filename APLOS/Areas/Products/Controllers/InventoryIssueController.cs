@@ -9687,9 +9687,10 @@ namespace Aplos.Areas.Products.Controllers
             List<InventoryMaterialViewModel> entitiesVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entities);
             List<InventoryMaterialViewModel> specificStockListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(specificStockList);
             List<InventoryMaterialViewModel> entitiesAllVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entitiesAll);
+            List<InventoryIssueHistoryBOQ> BoqAllocationListVM = JsonConvert.DeserializeObject<List<InventoryIssueHistoryBOQ>>(BoqAllocationList);
 
 
-            _inventoryIssueService.InsertGraph(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM);
+            _inventoryIssueService.InsertGraphBOQ(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM, BoqAllocationListVM);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
     }
