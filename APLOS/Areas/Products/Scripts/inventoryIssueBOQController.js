@@ -1839,6 +1839,8 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 var nRow = {};
                 nRow = $scope.materialStockList[n];
 
+                $scope.materialStockList[n].Qty = $scope.materialStockList[n].RequisitionQty;
+                $scope.materialStockList[n].Rate = $scope.materialStockList[n].BaseRate;
                 nRow.BaseQty = $scope.materialStockList[n].BaseQty;
                 nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag) {

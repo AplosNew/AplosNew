@@ -248,6 +248,7 @@
     <Compile Include="Configurations\IE\SubsectionStructureMasterConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNBOQMAPConfiguration.cs" />
     <Compile Include="Configurations\Inventory\GRNAcceptanceMapConfiguration.cs" />
+    <Compile Include="Configurations\Inventory\InventoryIssueHistoryBOQConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnDetailConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnConfiguration.cs" />
     <Compile Include="Configurations\Inventory\InventorySalesReturnTaxConfiguration.cs" />

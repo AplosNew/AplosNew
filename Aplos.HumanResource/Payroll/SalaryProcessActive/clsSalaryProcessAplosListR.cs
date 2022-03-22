@@ -292,13 +292,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet ds = new DataSet();
             DataSet dsDw = new DataSet();
             DataSet dsGrid = null;
-            //DataTable dtValue = null;
             List<SPvalueHeadWise> dtValue = null;
             DataTable dtDw = null;
             DataSet dsSelectedEmp = null;
             DataSet dsWeekOffCount = null;
 
-            //DataSet dsLocal = null;
             DataTable dtLocal = null;
 
             DataSet dsBonus = null;
@@ -311,7 +309,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataView dvSalRulDayStOnlyDayTp = null;
             DataTable dtSalRulDayStOnlyDayTp = null;
 
-            DataSet dsSalRulDayStOnlyLvTp = null;
             DataView dvSalRulDayStOnlyLvTp = null;
             DataTable dtSalRulDayStOnlyLvTp = null;
 
@@ -319,11 +316,9 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataView dvSalRulDayStSfTpDayTp = null;
             DataTable dtSalRulDayStSfTpDayTp = null;
 
-            DataSet dsSalRulDayStSfTpLvTp = null;
             DataView dvSalRulDayStSfTpLvTp = null;
             DataTable dtSalRulDayStSfTpLvTp = null;
 
-            DataSet dsSalRulDayStDayTpLvTp = null;
             DataView dvSalRulDayStDayTpLvTp = null;
             DataTable dtSalRulDayStDayTpLvTp = null;
 
@@ -333,14 +328,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataTable dtSPMst = null;
 
             DataSet dsSPChd = null;
-            DataRow drSPChd = null;
             DataView dvSPChd = null;
             DataTable dtSPChd = null;
 
-
-
             DataSet dsCarryForwardSalary = null;
-            DataRow drCarryForwardSalary = null;
             DataView dvCarryForwardSalary = null;
             DataTable dtCarryForwardSalary = null;
 
@@ -352,8 +343,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             DataSet dsExtraAbsent = null;
             DataSet dsExtraAbsentHoliday = null;
-
-
             DataSet dsRetenAllow = null;
             DataRow drRetenAllow = null;
             DataView dvRetenAllow = null;
@@ -362,14 +351,12 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet dsMntNo = null;
             DataTable dtMntNo = null;
             DataView dvMntNo = null;
-
             DataSet dsSalHd = null;
             DataSet dsCmpOffDay = null;
             DataSet dsCmpWeekOffDay = null;
             DataSet dsMMDSSI = null;
             DataSet dsLoanAdv = null;
             DataSet dsMonWiExtAmt = null;
-            DataSet dsDesigMst = null;
             DataSet dsAttdnBns = null;
             DataSet dsAttdnBnsDT = null;
             DataSet dsAttdnBnsLT = null;
@@ -382,23 +369,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet dsCrRulSlrHD = null;
             DataSet dsPF = null;
             DataSet dsBonusRetain = null;
-            DataSet dsVPF = null;
             DataSet dsESIC = null;
             DataSet dsRetentionAllow = null;
-
-            DataView dvEmpTaxFil = null;
-            DataView dvBonusFil = null;
-            DataView dvPFFil = null;
-            DataView dvVPFFil = null;
-            DataView dvESICFil = null;
-            DataView dvRetentionAllowFil = null;
-            DataView dvLoanAdvFil = null;
-            DataView dvAttdnBnsFil = null;
-            DataView dvSlrValMntBsFil = null;
-            DataView dvSlrValMntCntBsFil = null;
-            DataView dvSlrValDailyBsFil = null;
-            DataView dvMonWiExtAmtFil = null;
-            DataView dvSPChdFil = null;
                         
             clsSalaryProc objSlrProc = null;
             clsStaticInfo objStatic = null;
@@ -406,7 +378,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             
             objSlrProc = new clsSalaryProc();
             objStatic = new clsStaticInfo();
-            objTaxPoli = new OTSBD.clsTax();
+            objTaxPoli = new clsTax();
             clsPFProcess objPFGnt = new clsPFProcess();
             clsESICProcess objESICGnt = new clsESICProcess();
             clsBonusMonthlyRetain objBnsGnt = new clsBonusMonthlyRetain();
@@ -633,11 +605,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 GetHRSettingPlantWise(para.PlantId, out dsHrsetting);
                 if (dsHrsetting.Tables[0].Rows.Count > 0)
                 {
-                    //bool _isToCheckDayLock = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["CheckAttendanceLockForSalaryProcess"].ToString());
-                    //bool _IsAttendanceLockApplicable = Convert.ToBoolean(dsHrsetting.Tables[0].Rows[0]["IsAttendanceLockApplicable"].ToString());
-                    //IsAttendanceLockApplicable
-                    //if (_isToCheckDayLock && _IsAttendanceLockApplicable)
-                    //{
                     if (para.IsMaternity || para.IsSeparated)
                     {
                         CheckIndividualAttendanceLock(para);
@@ -646,7 +613,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     {
                         LockValidation(para.PlantId, Convert.ToDateTime(para.FromDate).ToString("dd-MMM-yyyy"), Convert.ToDateTime(para.ToDate).ToString("dd-MMM-yyyy"));
                     }
-                    //}//
                 }
 
                 #endregion
@@ -718,10 +684,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             if ((dsGrid.Tables[0].Rows[GrdEmp]["ProcessStatus"].ToString().Trim()) == "OK" || bplib.clsWebLib.GetBoolData(dsGrid.Tables[0].Rows[GrdEmp]["IsApproved"].ToString().Trim()) == false)
                             {
                                 test_cocunt++;
-                                if (test_cocunt == 434)
-                                {
-
-                                }
+                
                                 grdEmpCntEmpForProc++;
                                 if (string.IsNullOrEmpty(sEmpInfoSysID) == true)
                                 {
@@ -738,7 +701,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }//Overlap OR GAP
                             else
                             {
-                                //throw new Exception("Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]");//EmployeeCode
                                 strAbstractEmp += "Salary of Employee [" + dsGrid.Tables[0].Rows[GrdEmp]["EmployeeCode"].ToString().Trim() + "] has already been processed upto [" + dsGrid.Tables[0].Rows[GrdEmp]["ToDate"].ToString().Trim() + "]";
                             }
                             #endregion
@@ -755,15 +717,14 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                             SelectedEmpCnt++;
                             string _emp_not_saved = string.Empty;
-                            bool _emp_is_saved = false;
+                           
                             if (SelectedEmpCnt == grdRowMaxCnt)
                             {
                                 // Once We get Desired No Then Process
 
                                 #region Start
                                 blockCount++;
-                                //sendMessage("Current block total employee: " + SelectedEmpCnt + " and block no" + blockCount);
-
+                               
                                 StringCollection sSalaryIDColl = new StringCollection();
                                 TotProcComp += grdRowMaxCnt;
 
@@ -842,6 +803,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 #endregion DailyEmpService
 
                                 #endregion
+                               
                                 SendNotification("Deleting existing data");
 
                                 objSlrProc.DeleteSlrProcChild(intMonthNo, intYearNo, sEmpInfoSysID);
@@ -5514,15 +5476,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //strSql = @"select 
-                //            offday =case when AlignWithCC = 1 then(select DefaultWeekOff from PlantWiseHRMSSetting where PlantID = '" + _plantid + @"')
-                //            else FstOffDay end
-                //            , w.EmpSystemID,AlignWithCC
-
-                //             from EmployeeWeekOffByDay w
-                //            inner join(select max(EffectiveDate) ed, EmpSystemID from EmployeeWeekOffByDay where EffectiveDate<= '" + ToDate + @"' group by EmpSystemID) m
-                //             on w.EmpSystemID = m.EmpSystemID and w.EffectiveDate = m.ed";
-
                 strSql = @"SELECT distinct ei.SystemId AS EmpSystemID,offday=CASE WHEN ISNULL(w.AlignWithCC,1)=1 THEN s.DefaultWeekOff ELSE w.FstOffDay END,
                             ISNULL(w.AlignWithCC,1) AS AlignWithCC
                               FROM EmployeeInformation AS ei

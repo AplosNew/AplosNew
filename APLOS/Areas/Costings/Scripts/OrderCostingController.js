@@ -649,11 +649,31 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         StandardWorkingHoursForProduct: 0,
         WorkCenterTargetPerDay: 0,
         StandardWorkingHourCost: 0,
-        AdditionalWorkingHourCostPerHour: 0
-
-
+        AdditionalWorkingHourCostPerHour: 0,
+        IsApprovalApplicable: false,
+        ApproveByWhomId: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelMain);
+
+    $scope.checkApprovalApplicable = function () {
+        if ($scope.ModelNew.IsApprovalApplicable)
+            $scope.ModelNew.ApproveByWhomId = $scope.ModelNew.ApproveByWhomId;
+        else
+            $scope.ModelNew.ApproveByWhomId = null;
+    }
+
+    $scope.approveByWhomList = [];
+    $scope.GetApproveByWhom = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetApprovedBY',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.approveByWhomList = response.data;
+        });
+    }
+    $scope.GetApproveByWhom();
+
     $scope.OrderPreCostingDirectMaterial = {
         Id: null,
         CostingItemId: null,
@@ -839,7 +859,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     //        $scope.PreCosting = 1;
     //        var file_src = $scope.path + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&ProductMasterId=' + $scope.ProductMasterId + '&preCosting=' + $scope.PreCosting ;
     //        $rootScope.report(file_src);
-       
+
     //    } catch (e) {
     //    }
     //}
@@ -4806,7 +4826,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 var eDialog = $("#GeneralSub").data("ejDialog");
                 eDialog.open();
             }
-            
+
 
             $scope.AddNewCostingItemPopUp();
 
@@ -4828,7 +4848,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.NewCostingItemList = response.data;
-            });            
+            });
         } catch (e) {
             ShowResult(e, "failure");
         }

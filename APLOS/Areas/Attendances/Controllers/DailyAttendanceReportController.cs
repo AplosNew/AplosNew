@@ -373,6 +373,19 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Subsection";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
                     sheet1.Range[xlsRow, xlsCol].Text = "Designation";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 13;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -500,6 +513,16 @@ namespace Aplos.Areas.Attendances.Controllers
 
 
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Section"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SubSection"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -943,6 +966,19 @@ namespace Aplos.Areas.Attendances.Controllers
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
+                    sheet1.Range[xlsRow, xlsCol].Text = "Subsection";
+                    sheet1.Range[xlsRow, xlsCol].ColumnWidth = 26;
+                    sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    xlsCol += 1;
+
                     sheet1.Range[xlsRow, xlsCol].Text = "Designation";
                     sheet1.Range[xlsRow, xlsCol].ColumnWidth = 19;
                     sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1100,6 +1136,16 @@ namespace Aplos.Areas.Attendances.Controllers
                             xlsCol += 1;
                         }
                         sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Department"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["Section"].ToString().ToUpper();
+                        sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
+                        sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                        sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        xlsCol += 1;
+                        sheet1.Range[xlsRow, xlsCol].Text = dvAttn[i]["SubSection"].ToString().ToUpper();
                         sheet1.Range[xlsRow, xlsCol].RowHeight = 13;
                         sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, xlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1558,7 +1604,7 @@ namespace Aplos.Areas.Attendances.Controllers
                         , LG.UserName Designation
                          , kk.PrvDayStatus
 						,kk.YesterdayOTHr,ap.IsManualInTime,ap.IsManualOutTime,hr.OTConsiderOn
-                        ,ISNULL(L.UserName,'') Line
+                        ,ISNULL(L.UserName,'') Line,s.UserName Section,ss.UserName SubSection
                         from EmployeeInformation e
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
                         left join DayType dt on dt.DayType = ap.DayStatus
