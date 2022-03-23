@@ -2005,8 +2005,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             dr["TargetCM"] = sourceData.TargetCM;
             dr["TargetProfit"] = sourceData.TargetProfit;
             dr["IsPercentage"] = sourceData.IsPercentage;
-            dr["IsApprovalApplicable"] = sourceData.IsApprovalApplicable;
-            dr["ApproveByWhomId"] = sourceData.ApproveByWhomId;
+            //dr["IsApprovalApplicable"] = sourceData.IsApprovalApplicable;
+            //dr["ApproveByWhomId"] = sourceData.ApproveByWhomId;
 
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -6153,8 +6153,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         public decimal TargetCM { get; set; }
         public decimal TargetProfit { get; set; }
         public bool IsPercentage { get; set; }
-        public bool IsApprovalApplicable { get; set; }
-        public string ApproveByWhomId { get; set; }
+        //public bool IsApprovalApplicable { get; set; }
+        //public string ApproveByWhomId { get; set; }
     }
     public class OrderOrderCostingDetailTemplate
     {

@@ -257,6 +257,7 @@
             <div e-column e-type="string" e-template="#templateSalesOrderSelected" e-headertext="" e-width="30"></div>
             <div e-column e-type="string" e-field="BOMList" e-headertext="BOM Id" e-width="60"></div>
             <div e-column e-type="string" e-field="OrderCostingMasterTemplateId" e-headertext="Cost Id" e-width="60"></div>
+            <div e-column e-type="string" e-field="Approved" e-headertext="Costing Approved" e-width="60"></div>
             <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="60"></div>
             <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="BuyerItemNo" e-width="100"></div>
             <div e-column e-type="string" e-field="OwnItemNo" e-headertext="OwnItemNo" e-width="100"></div>
@@ -285,7 +286,7 @@
         <input type="checkbox" ej-checkbox e-value="data.Selected" e-checked="data.Selected" class="nodetext" />
     </script>
     <ul class="common-btn list-inline text-right">
-        <li><button ng-click="ApplySelectSalesOrder();" class="btn"><i class="glyphicon glyphicon-plus"></i> Apply</button></li>>
+        <li><button ng-click="ApplySelectSalesOrder();" class="btn"><i class="glyphicon glyphicon-plus"></i> Apply</button></li>
     </ul>
 </ej-dialog>
 
