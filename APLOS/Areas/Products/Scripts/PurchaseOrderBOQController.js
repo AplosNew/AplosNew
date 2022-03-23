@@ -323,6 +323,13 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         , IsTradingPO: false
     };
     $scope.productNew = Object.assign({}, $scope.product);
+    $scope.Clear = function () {
+        $scope.product = {};
+        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId};
+        $scope.poBoqItemListNew = [];
+        $scope.tempList = [];
+        $scope.taxCategoryList = [];
+    };
 
     $http({
         method: 'GET',
@@ -701,6 +708,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.currencyExchangeRate = null;
         }
     };
+ 
 
     $scope.detailPOSaveForBOQ = function () {
         ;
@@ -1099,6 +1107,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             });
 
     }
+
     function checkSameValueInColumnList(list, fieldName) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
