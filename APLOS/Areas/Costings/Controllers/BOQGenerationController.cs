@@ -41,6 +41,12 @@ namespace Aplos.Areas.Costings.Controllers
             return View();
         }
 
+        public ActionResult Approval()
+        {
+            return View();
+        }
+
+
         [HttpPost, Authorize]
         public ActionResult GetCustomerList(string column, string value)
         {
