@@ -509,18 +509,10 @@ namespace Aplos.Areas.Payrolls.Controllers
             try
             {
                 DataTable dt = new DataView(ds.Tables[0]).ToTable(true, "EmployeeCode");
-                //DataTable dt = new DataView(ds.Tables[0]).ToTable(true, "workdate");
-                //DataTable dtTab = new DataView(ds.Tables[0]).ToTable(true, "SystemId", "EmployeeCode", "EmployeeName", "DOJ", "DOS", "GivenDesignation", "LegalDesignation", "EmployeeStatus", "Subsection", "Section");
-                // DGAttendanceNotLocked.DataSource = dtTab;
-                // DGAttendanceNotLocked.DataBind();
-                // tabAttNotLocked.Text = "Att. Not processed (" + dtTab.Rows.Count + ")";
-
-                //int cc = 0;
+               
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
-                    //cc++;
-                    //if (cc < 10)
-                    //{
+                    
                     if (r.Length == 0)
                     {
                         r = "Attendance is not locked (individual) for the following Employees:-" + Environment.NewLine;
@@ -530,17 +522,9 @@ namespace Aplos.Areas.Payrolls.Controllers
                     {
                         r += ", Employee [" + dt.Rows[i]["EmployeeCode"].ToString() + "]" + Environment.NewLine;
                     }
-                    //}
-                    //else
-                    //{
-
-                    //}
+                  
                 }
-                //if(r.Length>0)
-                //{
-                //    r += "...see employee list in [Attendance not processed] Tab...";
-                //    return r;
-                //}
+              
                 return r;
             }
             catch (Exception ex)
