@@ -70,6 +70,9 @@ function CostingsConfig($routeProvider, $locationProvider) {
             templateUrl: 'costings/ItemConsumption/Aplos',
             controller: 'ItemConsumptionController'
         })
-    
+        .when('/boq-approval', {
+            templateUrl: 'costings/BOQGeneration/Approval',
+            controller: 'BOQApprovalController'
+        })
         ;
 }

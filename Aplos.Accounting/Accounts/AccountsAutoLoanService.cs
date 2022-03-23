@@ -138,7 +138,7 @@ namespace Library.Accounting.Accounts
 							AND pda.id NOT in (SELECT isnull(PurchaseDocAcceptanceId,'') FROM LoanAgainstAcceptanceDetail )
 							--ORDER BY I.ActualDueDate ASC
 UNION ALL
-							SELECT  'Invoice' SourceType,I.Id PurchaseDocAcceptanceId,I.DocRefNo AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
+							SELECT  I.SourceType SourceType,I.Id PurchaseDocAcceptanceId,I.DocRefNo AcceptanceNo,format(V.PostingDate,'dd-MMM-yyyy') AcceptanceDate,V.VoucherNo,I.VoucherId
                                ,isnull( Format( V.PostingDate,'dd-MMM-yyyy'),'') as PostingDate
 							,P.UserName PartyName, PP.UserName PartyPlantName,I.PartyId,I.PartyPlantId
 							,CurrencyCode= XC.Code  ,I.CurrencyId
@@ -213,7 +213,8 @@ UNION ALL
 							WHERE  I.Plantid='" + plantId + "'  " + dateStatus + @"
                             --and I.PostingDate <= '13-Jan-2022' 
                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0 
-							AND ISNULL(I.PurchaseLCId,'')<>''
+							AND ISNULL(I.PurchaseLCId,'')=''
+							AND I.SourceType in ('InvoiceToAcceptance')
 							AND I.Id NOT in (SELECT isnull(InvoiceId,'') FROM LoanAgainstAcceptanceDetail )";
                 return _sqlRepository.GetDataCollection(sql);
             }

@@ -408,10 +408,14 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCboVoucherTypeAutoLoanList: getCboVoucherTypeAutoLoanList
         , getCbomeetingType: getCbomeetingType
         , getContractFundCbo: getContractFundCbo
+        , getPerformanceGroupListCbo: getPerformanceGroupListCbo
 
     };
 
 
+    function getPerformanceGroupListCbo(callback) {
+        base('HumanResource/PerformanceGroup/GetCbo', callback);
+    }
     function getContractFundCbo(callback) {
         base('Commercial/ContractFundUtilization/GetCbo', callback);
     }
