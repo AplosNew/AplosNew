@@ -4632,7 +4632,7 @@ UNION ALL
         }
 
         [HttpPost]
-        public JsonResult CreateGRNBOQPOSaad(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        public JsonResult CreateGRNBOQPOSaad(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti,string BOQAllocation)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -4651,6 +4651,7 @@ UNION ALL
 
             //IEnumerable<InventoryMaterialViewModel>
             List<InventoryMaterialViewModel> entityMatAndImat1 = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entityMatAndImat, settings);
+            IEnumerable<InventoryMaterialViewModel> BOQAllocationSave = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(BOQAllocation, settings);
             if (identity.EmployeeId == entity.CheckedBy)
             {
                 throw new CustomException("Please select another employee for Check by.");
@@ -4727,6 +4728,7 @@ UNION ALL
 
             DetailCreateSaad(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
             ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
+            _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
         public JsonResult DetailCreateSaad(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
