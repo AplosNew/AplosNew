@@ -599,6 +599,7 @@ namespace Library.Service.TaskScheduler
 
         public class Data
         {
+            public static int Count { get; set; }
             public int TaskId { get; set; } = 0;
             public string TaskName { get; set; } = "";
             public string StartDate { get; set; } = "";
