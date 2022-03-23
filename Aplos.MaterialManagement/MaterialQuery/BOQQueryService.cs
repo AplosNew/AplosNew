@@ -570,10 +570,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @"DECLARE @totalReceiveAmount DECIMAL(18, 4) = 0
-                            	,@totalServiceAmount DECIMAL(18, 4) = 0
-                            	,@totalSvcTaxAmount DECIMAL(18, 4) = 0
-                             SELECT
+                var sql = @"SELECT
                             	
                             	poboq.Id
                             	,poboq.BOQDetailId AS BOQDetailId
@@ -599,10 +596,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
+								,boq.RequiredQty BOQQty
                             	,poboq.POBOQQty AS POQty
-                            	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
-                            	,'' AS TransactionQty
-                            	,(poboq.POBOQQty - ISNULL(aa.TransactionQty, 0)) AS Balance
+                            	,ISNULL(aa.TransactionQty, 0) AS OtherPOQty
+                            	,poboq.POBOQQty TransactionQty
+                            	,(boq.RequiredQty - ISNULL(aa.TransactionQty, 0)) AS Balance
                             	,ISNULL(IRD.QtyStatus, 0) QtyStatus
 								,IRD.BaseUOMId
 								,IRD.BaseUoMFactor
@@ -645,6 +643,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,IRD.Tolerance
                             	,IRD.RefferenceNo
                             FROM TRN.POBOQMAP AS poboq
+							JOIN BOQ boq ON boq.Id=poboq.BOQDetailId
 							LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.Id=poboq.PODetailId
                             --LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
                             LEFT JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId = MM.Id
@@ -663,15 +662,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN [trn].MaterialRequsitionDetails MRD ON MRD.Id = IRD.RequisitionDetailId
                             LEFT JOIN scs.country C ON C.Id = IRD.CountryId
                             LEFT JOIN (
-                            	SELECT PODetailsId
-                            		,Sum(TransactionQty) TransactionQty
-                            	FROM trn.InventoryReceiveDetail
-                            	WHERE isnull(POId,'null') IN (" + POId + @")
-                            	GROUP BY PODetailsId
-                            	) aa ON aa.PODetailsId = IRD.Id
+                            	SELECT BOQDetailId,SUM(TransactionQty) TransactionQty,SUM(BaseQty) BaseQty
+                            	FROM trn.POBOQMAP
+                            	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='"+poDetailId+@"') AND PODetailId NOT IN ('22203-2')
+                            	GROUP BY BOQDetailId
+                            	) aa ON aa.BOQDetailId = poboq.BOQDetailId
                             WHERE IRD.QtyStatus = 0
                             	AND IRD.InventoryMaterialId IS NOT NULL
-                            	AND isnull(IRD.InventoryReceiveId,'null') IN (" + POId + ") AND ISNULL(poboq.PODetailId,'null') IN ("+poDetailId+ @")
+                            	AND isnull(IRD.InventoryReceiveId,'null') IN ('"+POId+"') AND ISNULL(poboq.PODetailId,'null') IN ('"+poDetailId+@"')
                             ";
 
                 return _sqlRepository.GetDataCollection(sql);

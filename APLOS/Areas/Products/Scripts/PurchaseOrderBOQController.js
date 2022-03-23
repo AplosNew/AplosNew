@@ -1237,5 +1237,22 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
         }
     }
+
+    $scope.updatePOBOQList = [];
+    $scope.getPOBOQItemList = function (data) {
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetPOBOQMapListForUpdate?poId=' + $scope.productNew.Id + '&poDatailId=' + data.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.updatePOBOQList = response.data;
+        });
+        angular.element(document.querySelector('#updatePOBOQPopUp')).modal('show');
+
+    }
+    $scope.CloseupdatePOBOQPopUp = function () {
+        angular.element(document.querySelector('#updatePOBOQPopUp')).modal('hide');
+
+    }
 }//End Of main
 
