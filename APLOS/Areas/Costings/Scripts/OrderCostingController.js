@@ -650,29 +650,29 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         WorkCenterTargetPerDay: 0,
         StandardWorkingHourCost: 0,
         AdditionalWorkingHourCostPerHour: 0,
-        IsApprovalApplicable: false,
-        ApproveByWhomId: null
+        //IsApprovalApplicable: false,
+        //ApproveByWhomId: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelMain);
 
-    $scope.checkApprovalApplicable = function () {
-        if ($scope.ModelNew.IsApprovalApplicable)
-            $scope.ModelNew.ApproveByWhomId = $scope.ModelNew.ApproveByWhomId;
-        else
-            $scope.ModelNew.ApproveByWhomId = null;
-    }
+    //$scope.checkApprovalApplicable = function () {
+    //    if ($scope.ModelNew.IsApprovalApplicable)
+    //        $scope.ModelNew.ApproveByWhomId = $scope.ModelNew.ApproveByWhomId;
+    //    else
+    //        $scope.ModelNew.ApproveByWhomId = null;
+    //}
 
-    $scope.approveByWhomList = [];
-    $scope.GetApproveByWhom = function () {
-        $http({
-            method: 'GET',
-            url: 'Costings/OrderCosting/GetApprovedBY',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.approveByWhomList = response.data;
-        });
-    }
-    $scope.GetApproveByWhom();
+    //$scope.approveByWhomList = [];
+    //$scope.GetApproveByWhom = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Costings/OrderCosting/GetApprovedBY',
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.approveByWhomList = response.data;
+    //    });
+    //}
+    //$scope.GetApproveByWhom();
 
     $scope.OrderPreCostingDirectMaterial = {
         Id: null,

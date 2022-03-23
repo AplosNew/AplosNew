@@ -1,0 +1,43 @@
+﻿<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="searchEdit">
+                                <option ng-repeat="option in searchByEdit" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="searchEditValue" ng-enter="GetEditList()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="GetEditList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="GridEditList" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="EditList" e-allowfiltering="true"
+         e-allowscrolling="true"
+         e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-recorddoubleclick="SelectEdit"
+         e-allowselection="true" e-filtersettings-filterType="excel">
+        <div e-columns>
+            <div e-column e-type="string" e-field="Id" e-headertext="BOM Id" e-width="80px"></div>
+            <div e-column e-field="BOMCreationDate" e-headertext="BOM Creation Dt" e-width="80px"></div>
+            <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="200px"></div>
+            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Responsible Person" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnOrderNo" e-headertext="Own Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="BuyerItemNo" e-headertext="Customer Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="OwnItemNo" e-headertext="Own Item No" e-width="100px"></div>
+            <div e-column e-type="string" e-field="Description" e-headertext="SO Description" e-width="120px"></div>
+            <div e-column e-type="string" e-field="ItemList" e-headertext="Selected Items" e-width="300px"></div>
+            <div e-column e-type="string" e-field="Remarks" e-headertext="Remarks" e-width="300px"></div>
+            <div e-column e-type="string" e-field="BuyerOrderNo" e-headertext="Customer Order#" e-width="100px"></div>
+            <div e-column e-type="string" e-field="SalesOrderId" e-headertext="Sales Order" e-width="80px"></div>
+            <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order#" e-width="100px"></div>
+        </div>
+    </div>
+</div>

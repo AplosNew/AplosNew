@@ -1831,6 +1831,7 @@
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
+    <Content Include="Areas\Costings\Scripts\BOQApprovalController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
     <Content Include="Areas\Costings\Scripts\BOQController.js" />
     <Content Include="Areas\Costings\Scripts\ItemConsumptionController.js" />
@@ -4052,6 +4053,7 @@
     <Content Include="Areas\Products\Views\InventoryIssue\_StockBOQPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGroup\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteLocation\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQGeneration\Approval.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
