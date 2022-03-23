@@ -93,6 +93,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
                         ShowResult(response.data.Message, 'success');
                         $scope.ModelNew.Id = response.data.Id;
                         $scope.Get();
+                        $scope.GetWasteMaster();
                         $scope.Clear();
                     }
                 }), function errorCallBack(response) {
@@ -119,6 +120,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.Get();
+                    $scope.GetWasteMaster();
                     $scope.Clear();
                 }
                 function errorCallBack(response) {
@@ -153,17 +155,7 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
         $scope.Action = 'Save';
     };
 
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.CompanyId = null;
-        $scope.PlantId = null;
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-        $scope.BudgetIds = [];
-        $scope.WasteDetailDataList = [];
-    }
-
+        
     // Addition of the Modal Operations for Budget Child
     $scope.closeBudPopUp = function () {
         angular.element(document.querySelector('#BudgetPop')).modal('hide');

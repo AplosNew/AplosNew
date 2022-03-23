@@ -62,6 +62,11 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             var _temp = _sel[0].OrderCostingMasterTemplateId;
             for (var i = 0; i < _sel.length; i++) {
 
+                if (_sel[i].OrderCostingMasterTemplateId!==null && _sel[i].Approved=="No") {
+                    ShowResult('Costing should be approved.', 'failure');
+                    return;
+                }
+
                 if (_sel[i].OrderCostingMasterTemplateId != _temp) {
                     ShowResult('Sales order with different costing id not allowed', 'failure');
                     return;
