@@ -212,6 +212,30 @@ namespace Aplos.MaterialManagement.MaterialQuery
             }
         }
 
+        public IEnumerable<object> GetItemListDetailsByList(string MaterialIds, string ArticleIds, string VendorRefNos, string CustomerRefNos, string OwnReferenceNo, string PartyId)
+        {
+            try
+            {
+                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId
+							FROM BOQ  boq 
+							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
+							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
+							LEFT JOIN TRN.MasterOrderItem moi on moi.Id=boq.MasterOrderItemId
+							LEFT JOIN TRN.MasterOrder mo on mo.Id=moi.MasterOrderId
+							LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
+							LEFT JOIN HKP.Party P ON P.Id=mo.PartyId
+							LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=pomap.PODetailId
+							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
+                            AND ISNULL(boq.OwnReferenceNo,'null') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'null') IN (" + CustomerRefNos + @")
+							AND ISNULL(boq.RMVendorSpec,'null') IN (" + VendorRefNos + @") AND boq.VendorId='" + PartyId + @"'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetSelectedItemListDetailsByList(string POId, string ContractId, string masterOrderitemId, string SalesOrderId, string MaterialMasterId, string ArticleId)
         {
             try
