@@ -16193,12 +16193,7 @@ INNER JOIN
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 
 												LEFT JOIN
-                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-            --                                    (
-            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-												--)EC ON EC.DesignationId=E.GivenDesignationId
-												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+                                                [HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
 											
 
                                
