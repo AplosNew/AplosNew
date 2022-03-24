@@ -50,6 +50,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
+        
+
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {

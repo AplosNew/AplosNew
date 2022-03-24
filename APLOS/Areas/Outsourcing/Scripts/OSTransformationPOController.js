@@ -725,6 +725,7 @@ function OSTransformationPOController(cboService, commonMessage, $scope, $rootSc
         , Description: null
         , Remarks: null
         , POType: null
+        ,IsPaymentHold:false
 
         , Date: $filter('dateFiltering')(new Date(), 'dd-M-yyyy'),
         Time: _Time,

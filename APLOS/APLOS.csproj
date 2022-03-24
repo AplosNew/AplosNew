@@ -4054,6 +4054,8 @@
     <Content Include="Areas\HumanResource\Views\PerformanceGroup\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteLocation\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\BOQGeneration\Approval.cshtml" />
+    <Content Include="Areas\Costings\Views\OrderCosting\PreCostingView.cshtml" />
+    <Content Include="Areas\Costings\Views\OrderCosting\ProcurementCostingView.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
