@@ -94,7 +94,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         ob.EmployeeCode = null;
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
-        ob.Qty = null;
+        ob.Qty = 0;
         //ob.Period2 = null;
         //ob.Period3 = null;
         //ob.Period4 = null;
@@ -132,7 +132,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $scope.NewList = [];
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
-            if ($scope.ModelList[i].isChanged == true) {
+            if ($scope.ModelList[i].isChanged == true || $scope.ModelList[i].Qty > 0) {
                 $scope.NewList.push($scope.ModelList[i]);
             }
         }
@@ -203,5 +203,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
         });
+    }
+
+    //Processing Button
+    $scope.processAll = function () {
+
     }
 }

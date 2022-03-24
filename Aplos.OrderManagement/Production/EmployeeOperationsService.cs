@@ -118,23 +118,53 @@ namespace Library.OrderManagement.Production
                 currPeriod = Period;
             }
 
-
-
-            var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
-                        Sum(owe.Qty) as Qty ,
-                        --Sum(owe.Period1) as Period1c , Sum(owe.Period2) as Period2 , Sum(owe.Period2) as Period2c , Sum(owe.Period3) as Period3 ,Sum(owe.Period3) as Period3c , 
-                        --Sum(owe.Period4) as Period4 ,Sum(owe.Period4) as Period4c , Sum(owe.Period5) as Period5 , Sum(owe.Period5) as Period5c , 
-                        --Sum(owe.Period6) as Period6 , Sum(owe.Period6) as Period6c , 
+            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
+                        isnull(Sum(owe.Qty),0) as Qty ,
+                      
                         ei.EmployeeCode
                         from mst.OperationVariation OP
                         left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                         left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
                         left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-                        left join dbo.OperationWiseEmployees owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId
+                        left join ( Select owe.ProductionOrderId , owe.OperationVariationId , owe.EmployeeId, owe.Date , isnull(owep.Qty,0) as Qty 
+						from dbo.OperationWiseEmployees owe 
+						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
+						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-						where pb.ProductionOrderId='"+PId+@"'  --and owe.PeriodId = '"+ currPeriod + @"' and owe.Date =  Convert(date, DateAdd(DAY, -1, GetDate())) 
-						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode
+						where pb.ProductionOrderId='" + PId + @"'
+						
+						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId
                         order by Sequence";
+
+      //      var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
+      //                  Sum(owe.Qty) as Qty ,
+      //                  --Sum(owe.Period1) as Period1c , Sum(owe.Period2) as Period2 , Sum(owe.Period2) as Period2c , Sum(owe.Period3) as Period3 ,Sum(owe.Period3) as Period3c , 
+      //                  --Sum(owe.Period4) as Period4 ,Sum(owe.Period4) as Period4c , Sum(owe.Period5) as Period5 , Sum(owe.Period5) as Period5c , 
+      //                  --Sum(owe.Period6) as Period6 , Sum(owe.Period6) as Period6c , 
+      //                  ei.EmployeeCode
+      //                  from mst.OperationVariation OP
+      //                  left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+      //                  left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+      //                  left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+      //                  left join ( Select owe.* from dbo.OperationWiseEmployees owe ) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
+      //                  and owe.PeriodId ='" + currPeriod + @"'
+      //                  left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
+						//where pb.ProductionOrderId='" + PId + @"'
+      //                  group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode
+      //                  order by Sequence
+      //                 ";
+
+      //       from mst.OperationVariation OP
+      //                  left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+      //                  left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+      //                  left join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+      //                  left join dbo.OperationWiseEmployees owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId
+      //                  left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
+						//where pb.ProductionOrderId='" + PId+@"'  --and owe.PeriodId = '"+ currPeriod + @"' and owe.Date =  Convert(date, DateAdd(DAY, -1, GetDate())) 
+						//group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode
+      //                  order by Sequence
+
+
             return _sqlRepository.GetDataCollection(str);
         }
 
@@ -205,8 +235,10 @@ namespace Library.OrderManagement.Production
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
+                    data[i]["Id"] = _Id;
                     dr["Id"] = _Id;
                     dr["ProcessId"] = ProcessId;
+                    dr["Sequence"] = data[i]["Sequence"];
                     dr["ShiftId"] = ShiftId;
                     dr["WorkCenterId"] = WorkCenter;
                     dr["ProductionOrderId"] = POId;
@@ -229,13 +261,14 @@ namespace Library.OrderManagement.Production
                 #region Summary
                 DataSet dsSum;
                 ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
-                c.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployeesSummary where ProductionOrderId = '"+POId+"' and WorkCenterId='"+WorkCenter+"'", out dsSum, false, "1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' ", out dsSum, false, "1");
                 string _SId = "";
-               
+
+                DataTable dtSum = dsSum.Tables[0];
 
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
-                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='"+data[i]["OperationId"].ToString()+"' and Sequence ='"+data[i]["Sequence"].ToString()+"'";
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='"+data[i]["OperationId"].ToString()+"' and OperationSequence ='"+data[i]["Sequence"].ToString()+"'";
                     if (dsSum.Tables[0].DefaultView.Count > 0)
                     {
                         dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
@@ -248,10 +281,9 @@ namespace Library.OrderManagement.Production
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID("dbo.OperationWiseEmployeesSummary", out _SId);
                         dd["Id"] = _SId;
-                        dd["WorkCenterId"] = WorkCenter;
                         dd["ProductionOrderId"] = POId;
                         dd["OperationVariationId"] = data[i]["OperationId"].ToString();
-                        dd["Sequence"] = data[i]["Sequence"].ToString();
+                        dd["OperationSequence"] = data[i]["Sequence"].ToString();
                         dd["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
                         dd["AddedBy"] = identity.Name;
                         dd["AddedDate"] = System.DateTime.Now.ToString();
@@ -261,17 +293,58 @@ namespace Library.OrderManagement.Production
                         dd["UpdatedFromIP"] = identity.IPAddress;
                         dsSum.Tables[0].Rows.Add(dd);
 
-//Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), '07:20', 108)
-//and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), '07:20', 108)
-//order by EndTime desc
 
                     }
+
+                    //dsSum.Tables[0].DefaultView.RowFilter = @"OpVariationId='" + data[i]["OperationId"].ToString() + "' and OperationSequence ='" + (int.Parse(data[i]["Sequence"].ToString()) + 1).ToString() + "'";
+                    //if (dsSum.Tables[0].DefaultView.Count > 0)
+                    //{
+                    //}
+
                 }
 
                 #endregion Summary
 
+                #region Employee Production Processing Half
+                DataSet dsPlan = null;
+                ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
+                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Date + "' and ProductionOrderId='" + POId + "'", out dsPlan, false, "1");
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsPlan.Tables[0].DefaultView.RowFilter = @"EmployeeId = '"+data[i]["EmployeeId"]+"' and OperationVariationId='"+ data[i]["OperationId"].ToString() + "'";
+                    if (dsPlan.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsPlan.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsPlan.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsPlan.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dsPlan.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsPlan.Tables[0].NewRow();
+                        dr["Id"] = (int.Parse(dsMaster.Tables[0].Rows[i]["Id"].ToString()) + i).ToString();
+                        dr["Date"] = Convert.ToDateTime(Date);
+                        dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
+                        dr["MasterOperationId"] = data[i]["MasterOperationId"];
+                        dr["OperationVariationId"] = data[i]["OperationId"].ToString();
+                        dr["ProductionOrderId"] = POId;
+                        dr["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsPlan.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+               
+
+                #endregion
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster , dsSum);
+                _info.SaveDataSets(dsMaster , dsSum , dsPlan);
             }
             catch (Exception ex)
             {
@@ -309,7 +382,8 @@ namespace Library.OrderManagement.Production
                             left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
                             left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
                             left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
-                            group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId ";
+                            group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
+                            order by Dates , ei.EmployeeName asc";
 
                 DataTable dtAll = _sqlRepository.GetDataTable(str);
 
@@ -340,10 +414,11 @@ namespace Library.OrderManagement.Production
                 //Filling the DataTable
                 string opCode = "";
                 string empCode = "";
+                DateTime datess = Convert.ToDateTime("01-Jan-1990");
                 DataRow dr = null;
                 for (int i = 0; i < dtAll.Rows.Count; i++)
                 {
-                    if (dtAll.Rows[i]["OperationCode"].ToString() != opCode && dtAll.Rows[i]["EmployeeCode"].ToString() != empCode)
+                    if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
                     {
                         dr = dtNew.NewRow();
                         dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
@@ -367,6 +442,7 @@ namespace Library.OrderManagement.Production
 
                     opCode = dtAll.Rows[i]["OperationCode"].ToString();
                     empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
+                    datess = Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString());
 
                 }
 
