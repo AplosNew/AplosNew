@@ -5,6 +5,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/GeneralWaste/';
+    $scope.downloadgriddataUrlPath = $scope.path + 'DownloadUsingFullPath';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
@@ -83,8 +84,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
         $http({
             method: 'POST',
             url: $scope.path + "getView",
-            data: {
-                'Id': $scope.EntityId, 'FromDate': $scope.FromDate},
+            data: {'Id': $scope.EntityId, 'FromDate': $scope.FromDate},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -115,20 +115,10 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             throw ("Invalid");
         }
 
-        // [{Quantity} , {} , {}]
-        /*for(var i = 0 ; i< $scope.VGP.length ; i++)
-        {
-            if($scope.VGP[i].Quantity >0)
-            {
-            arr.push($scope.VGp[i]);
-            }
-        }
-        //}*/
-
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: {'Data':$scope.ViewGridPop , 'Date': $scope.FromDate},
+                data: { 'Data': $scope.ViewGridPop, 'Date': $scope.FromDate, 'LocationId': $scope.WasteLocationId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -299,6 +289,8 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.EntityIds = [];
 
+    $scope.WasteLocationId = null;
+
     $scope.getWasteLocationList = function () {
         try {
             $http({
@@ -313,12 +305,31 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(ex, "failure");
         }
     };
+    $scope.getWasteLocationList();
 
-    $scope.WasteLocationList = [];
-    $scope.getWasteLocation = function () {
-        cboService.getCboWasteLocation($scope.WasteLocationNew.WasteLocationId, function (result) {
-            $scope.WasteLocationList = result;
-        });
+    $scope.Report = function () {
+        try {
+            $scope.fileName = "GeneralWasteReport.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetGeneralWasteReport",
+                data: { 'Id': $scope.EntityId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+
+                if (response.data.Error == false) {
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
     }
-    
 }
