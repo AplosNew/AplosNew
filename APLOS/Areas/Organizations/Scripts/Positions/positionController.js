@@ -61,7 +61,9 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         UserDefineGroup3: null,
         UserDefineGroup4: null,
         DirectManpowerCost: false,
-        CostCenterId: null
+        CostCenterId: null,
+        PerformanceGroupId: null,
+        PhysicalVarification: false
     };
 
     $scope.positionAllowance = {
@@ -111,6 +113,11 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
     $scope.CostCenterList = [];
     cboService.getCostCenterCbo(function (result) {
         $scope.CostCenterList = result;
+    });
+
+    $scope.PerformanceGroupList = [];
+    cboService.getPerformanceGroupListCbo(function (result) {
+        $scope.PerformanceGroupList = result;
     });
 
     //JobList for modal
@@ -456,6 +463,14 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '</div>' +
                         '</div>' +
                         '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Performance Group</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="select-style">' +
+                        '<select name="PerformanceGroup" ng-model="companyStructureSetup.PerformanceGroupId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in PerformanceGroupList"><option></option></select>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Description</label>' +
                         '<div class="col-sm-8">' +
                         '<textarea tabindex="12" maxlength="250" class="form-control" Rows="3" ng-model="companyStructureSetup.Description"></textarea>' +
@@ -514,7 +529,18 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<select tabindex="11" ng-model="companyStructureSetup.PaymentLink" class="form-control" ng-options="item.Value as item.Text for item in paymentLinkList" required name="PaymentLink"><option value=""></option></select>' +
                         '</div>' +
                         '</div>' +
-                        '</div>' +
+                    '</div>' +
+
+                    '<div class="form-group">' +
+                    '<label class="col-sm-4 control-label">Physical Varification</label>' +
+                    '<div class="col-sm-8">' +
+                    '<div class="checkbox-site">' +
+                    '<label><input tabindex="10" type="checkbox" ng-model="companyStructureSetup.PhysicalVarification">' +
+                    '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Remarks</label>' +
                         '<div class="col-sm-8">' +

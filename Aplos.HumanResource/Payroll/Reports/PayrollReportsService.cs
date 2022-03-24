@@ -14931,8 +14931,7 @@ ELSE CONVERT(BIT,0) END  ---No
 					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
 					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
 					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
-					--where EmpInfoSystemID = '1800118'
-                        )dd where EffectiveDate <= '" + effectiveDate + @"' 					
+					    )dd where EffectiveDate <= '" + effectiveDate + @"' 					
 
 					GROUP BY EmpInfoSystemID) effDateSalary
 
@@ -14947,14 +14946,12 @@ ELSE CONVERT(BIT,0) END  ---No
 					FROM SalaryInfoDefine EmpSlr
 					INNER JOIN SalaryInfoDefineMaster MST ON EmpSlr.SalaryID = MST.SystemID AND MST.IsApproved = 1
 					LEFT OUTER JOIN SalaryHead SH ON SH.SalaryHeadID = EmpSlr.SalaryHeadID
-				--	WHERE EmpInfoSystemID = '1800118'
 					UNION
 					SELECT SBM.EmpInfoSystemID,SH.SalaryHead,SIB.SalaryHeadID,SIB.EntryCurrencyID,SIB.EntryAmount,SIB.DefineCurrencyID,SIB.DefineAmount
 					,SIB.AmtDefinitionCurrencyID AmtDefinitionCurrencyID, SIB.AmtDefinitionRate, SBM.SalaryRuleMasterSystemID,SBM.EffectiveDate from SalaryInfoBack SIB
 					INNER JOIN SalaryInfoBackMaster SBM ON SIB.SalaryID = SBM.SystemID 
 					left outer join SalaryHead SH ON SH.SalaryHeadID = SIB.SalaryHeadID
-				--	where EmpInfoSystemID = '1800118'
-                )dd where EffectiveDate <= '" + effectiveDate + @"'  ) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
+				)dd where EffectiveDate <= '" + effectiveDate + @"'  ) SalaryDetails ON effDateSalary.EffectiveDate= SalaryDetails.EffectiveDate and effDateSalary.EmpInfoSystemID = SalaryDetails.EmpInfoSystemID
 
 
 
@@ -16196,12 +16193,7 @@ INNER JOIN
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 
 												LEFT JOIN
-                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-            --                                    (
-            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-												--)EC ON EC.DesignationId=E.GivenDesignationId
-												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+                                                [HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
 											
 
                                

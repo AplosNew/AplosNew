@@ -116,11 +116,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create( List<Dictionary<string, object>> Data , string Date)
+        public JsonResult Create( List<Dictionary<string, object>> Data , string Date, string LocationId)
         {
             try
             {
-                var data = ws.Create(Data , Date);
+                var data = ws.Create(Data , Date, LocationId);
                 return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
@@ -163,6 +163,21 @@ namespace Aplos.Areas.Productions.Controllers
             return 1;
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetWasteLocationList()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var sql = @"select MS.Id,MS.UserName StorageLocation from HKP.MaterialStorage MS where Active=1 and IsWasteLocation=1 and PlantId='" + identity.PlantId + "' ";
+
+                return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
 
