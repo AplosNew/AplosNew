@@ -299,17 +299,26 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.EntityIds = [];
 
-        //$scope.selectBudDetail = function () {
-        //    $scope.BudgetIds = [];
-        //    $scope.SelBudList = [];
-        //    for (var i = 0; i < $scope.BudgetList.length; i++) {
-        //        if ($scope.BudgetList[i].isSelected == true) {
-        //            $scope.BudgetIds.push($scope.BudgetList[i].Id);
-        //            $scope.SelBudList.push($scope.BudgetList[i]);
-        //        }
-        //    }
+    $scope.getWasteLocationList = function () {
+        try {
+            $http({
+                method: 'Get',
+                url: 'Productions/GeneralWaste/GetWasteLocationList',
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.WasteLocationList = response.data;
+            });
+        }
+        catch (ex) {
+            ShowResult(ex, "failure");
+        }
+    };
 
-        //    angular.element(document.querySelector('#BudgetPop')).modal('hide');
-        //}
+    $scope.WasteLocationList = [];
+    $scope.getWasteLocation = function () {
+        cboService.getCboWasteLocation($scope.WasteLocationNew.WasteLocationId, function (result) {
+            $scope.WasteLocationList = result;
+        });
+    }
     
 }

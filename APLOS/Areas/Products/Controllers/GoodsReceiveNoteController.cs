@@ -4728,7 +4728,7 @@ UNION ALL
 
             DetailCreateSaad(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
             ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
-            _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
+            //_gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
         public JsonResult DetailCreateSaad(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
