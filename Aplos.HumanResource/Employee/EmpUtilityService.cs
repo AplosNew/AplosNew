@@ -469,12 +469,14 @@ namespace Library.Service.EmployeeServices
                     }
                 }
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                //clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsMaster);
 
 
-                string MasterId = SaveDatax(items[0].SystemId, items[0].prevbudgetCode, items[0].LegalDesignationId, items[0].prevdesgnId, items[0].AddedBy, items[0].AddedFromIP, "");
-                return MasterId;
+                // string MasterId = SaveDatax(items[0].SystemId, items[0].prevbudgetCode, items[0].LegalDesignationId, items[0].prevdesgnId, items[0].AddedBy, items[0].AddedFromIP, "");
+                //return MasterId;
+                return "true"; //Stopping It for Now 
+                     
 
             }
             catch (Exception ex)
