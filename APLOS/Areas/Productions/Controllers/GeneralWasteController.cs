@@ -116,11 +116,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create( List<Dictionary<string, object>> Data , string Date)
+        public JsonResult Create( List<Dictionary<string, object>> Data , string Date, string LocationId)
         {
             try
             {
-                var data = ws.Create(Data , Date);
+                var data = ws.Create(Data , Date, LocationId);
                 return Json(new { Error = false, Data= data, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }

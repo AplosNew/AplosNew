@@ -133,7 +133,10 @@ namespace Aplos.Areas.Costings.Controllers
             string sql = @"select top 100 * from (select qcm.*, p.UserName as Customer, pm.UserName as ProductMaster 
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
-                             ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
+                            ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
+                            ,QApproved=CASE WHEN ISNULL(qcm.isQuickCostingApproved, 0)=0 THEN 'No' ELSE 'Yes' END
+							,PreApproved=CASE WHEN ISNULL(qcm.isPreCostingApproved, 0)=0 THEN 'No' ELSE 'Yes' END
+							,ProcApproved=CASE WHEN ISNULL(qcm.isProcurementCostingApproved, 0)=0 THEN 'No' ELSE 'Yes' END
 							from OrderCostingMasterTemplate qcm 
 							
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
@@ -217,10 +220,11 @@ namespace Aplos.Areas.Costings.Controllers
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"
-                                SELECT convert(bit,0) AS isChecked,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer, SO.Id AS SalesOrder, SO.DeliveryDate,pm.Id
+            string sql = @"SELECT convert(bit,0) AS isChecked,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer, moi.Id ItemId,SO.Id AS SalesOrder, FORMAT(SO.DeliveryDate,'dd-MMM-yyyy')DeliveryDate,pm.Id
+								,b.UserName Buyer,moi.BuyerReferenceNo
                                   FROM trn.MasterOrder AS mo
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
+                                INNER JOIN hkp.Buyer b ON b.Id=mo.BuyerId
                                 INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=moi.Id
                                 left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId
@@ -230,7 +234,7 @@ namespace Aplos.Areas.Costings.Controllers
 
                                 left outer join hkp.Party AS p ON p.Id=mo.PartyId
 
-                                WHERE isnull(so.OrderCostingMasterTemplateId,'')='" + TemplateId + @"'
+                                WHERE isnull(moi.OrderCostingMasterTemplateId,'')='" + TemplateId + @"'
                                 ORDER BY mo.Id,pm.UserName,so.Id
                             ";
 

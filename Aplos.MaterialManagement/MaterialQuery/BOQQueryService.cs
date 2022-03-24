@@ -663,7 +663,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN scs.country C ON C.Id = IRD.CountryId
                             LEFT JOIN (
                             	SELECT BOQDetailId,SUM(TransactionQty) TransactionQty,SUM(BaseQty) BaseQty
-                            	FROM trn.POBOQMAP
+                            	FROM trn.POBOQMAP 
                             	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='"+poDetailId+@"') AND PODetailId NOT IN ('22203-2')
                             	GROUP BY BOQDetailId
                             	) aa ON aa.BOQDetailId = poboq.BOQDetailId

@@ -55,12 +55,14 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select case when WID.Id IS NULL then 0 else 1 end Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+                var sql = @"select case when WID.Id IS NULL then 0 else 1 end Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName
 				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
 				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
 									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
 									,((ISNULL(WTD.Quantity,0)*ISNULL(WM.StandardRate,0))-(ISNULL(WID.IssueQty,0)*ISNULL(WID.Rate,0))) as BalanceStkValue,ISNULL(WIDS.OtherQty,0) OtherQty
+									,WTD.WasteLocationId,MS.UserName WasteLocation
 				                    from WasteTransactionData WTD
+									left join HKP.MaterialStorage MS on MS.Id=WTD.WasteLocationId
 				                    left join WasteMaster WM on WM.Id=WTD.WasteMasterId
 				                    left join SCS.UnitOfMeasurement UOM on UOM.Id=WM.UOMId
 									LEFT JOIN WasteIssueDetails WID ON WID.WasteTransactionDataId=WTD.Id AND WID.WasteIssueId='" + Id + @"'
@@ -487,6 +489,14 @@ namespace Aplos.Areas.Productions.Controllers
                 int ColSequence = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "ItemName";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColItemName = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColProcess = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Waste Category";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColWasteCategory = COL;
@@ -496,17 +506,13 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColWasteSubCategory = COL;
                 COL++;
-                sheet[ROW, COL].Text = "WasteName";
+                sheet[ROW, COL].Text = "Stock Quantity";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColWasteName = COL;
+                int ColStockQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColUOM = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Stock Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColStockQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Standard Rate";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -533,10 +539,6 @@ namespace Aplos.Areas.Productions.Controllers
                 int ColIssueValue = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Process";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColProcess = COL;
-                COL++;
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 12;
                 int ColRemarks = COL;
@@ -566,7 +568,7 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
                     sheet[ROW, ColWasteCategory].Text = data.Rows[i]["WasteCategory"].ToString();
                     sheet[ROW, ColWasteSubCategory].Text = data.Rows[i]["WasteSubCategory"].ToString();
-                    sheet[ROW, ColWasteName].Text = data.Rows[i]["WasteName"].ToString();
+                    sheet[ROW, ColItemName].Text = data.Rows[i]["ItemName"].ToString();
                     sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
                     sheet[ROW, ColStockQty].Text = data.Rows[i]["StockQty"].ToString();
                     sheet[ROW, ColStdRate].Text = data.Rows[i]["StdRate"].ToString();
@@ -641,7 +643,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
 
-                string strSQL = @"select ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WID.Id,WID.WasteIssueId,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName WasteName
+                string strSQL = @"select ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WID.Id,WID.WasteIssueId,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName
 									,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
 									,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
 									,ISNULL((WTD.Quantity-WID.IssueQty),0) as BalanceStock

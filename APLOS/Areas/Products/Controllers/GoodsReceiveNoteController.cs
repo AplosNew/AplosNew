@@ -4632,7 +4632,7 @@ UNION ALL
         }
 
         [HttpPost]
-        public JsonResult CreateGRNBOQPOSaad(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti,string BOQAllocation)
+        public JsonResult CreatePOGRNBOQ(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti,string BOQAllocation)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -4726,15 +4726,15 @@ UNION ALL
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreateSaad(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreateGRNBOQ(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, BOQAllocationSave);
             ServiceChargesCreateNewSaad(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
-            _gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
+            //_gRNPORequisitionAllocationService.InsertOrUpdateGraphNewGRNAllocationBOQ(BOQAllocationSave);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
-        public JsonResult DetailCreateSaad(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public JsonResult DetailCreateGRNBOQ(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNewBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            _inventoryDetailService.InsertOrUpdateGraphNewGRNBOQ(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, BOQAllocationSave);
             return Json(new { Message = AplosMessage.Success });
         }
         public JsonResult ServiceChargesCreateNewSaad(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string Id, string AcceptanceId)
