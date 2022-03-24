@@ -4454,6 +4454,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 
         }
 
+
        
         [HttpPost, Authorize]
 		public JsonResult detailPOSaveForBOQ(string entity, string groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
@@ -4493,6 +4494,13 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
 			}
 
 		}
+		[Authorize, HttpGet]
+		public JsonResult GetPOBOQMapListForUpdate(string poId, string poDatailId)
+		{
+			BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+			return Json(bOQQueryService.GetPOBOQMapListForUpdate(poId, poDatailId), JsonRequestBehavior.AllowGet);
+		}
+
 		[Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
 		//public JsonResult detailPOUpdateForBOQ(IEnumerable<InventoryMaterialViewModel> entity, IEnumerable<InventoryMaterialViewModel> groupList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
 		public JsonResult detailPOUpdateForBOQ(PurchaseOrder entity, string groupList, string boqmapList, IEnumerable<PurchaseOrderTax> taxCategoryList, string PoId)
