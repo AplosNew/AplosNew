@@ -18,8 +18,8 @@
                 <label class="col-sm-4 control-label">Waste Location<sup>*</sup></label>
                 <div class="col-sm-6  show-message">
                     <div class="select-style">
-                        <select name="Plant" ng-model="WasteLocationNew.WasteLocationId" class="col-sm-3 form-control"
-                                ng-options="item.Value as item.Text for item in WasteLocationList" ng-change="getWasteLocationList();" tabindex="2" required>
+                        <select name="Plant" ng-model="WasteLocationId" class="col-sm-3 form-control"
+                                ng-options="item.Id as item.StorageLocation for item in WasteLocationList" tabindex="2" required>
                             <option></option>
                         </select>
                     </div>

@@ -115,20 +115,10 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             throw ("Invalid");
         }
 
-        // [{Quantity} , {} , {}]
-        /*for(var i = 0 ; i< $scope.VGP.length ; i++)
-        {
-            if($scope.VGP[i].Quantity >0)
-            {
-            arr.push($scope.VGp[i]);
-            }
-        }
-        //}*/
-
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: {'Data':$scope.ViewGridPop , 'Date': $scope.FromDate},
+                data: { 'Data': $scope.ViewGridPop, 'Date': $scope.FromDate, 'LocationId': $scope.WasteLocationId },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -299,6 +289,8 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
 
         $scope.EntityIds = [];
 
+    $scope.WasteLocationId = null;
+
     $scope.getWasteLocationList = function () {
         try {
             $http({
@@ -313,12 +305,5 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(ex, "failure");
         }
     };
-
-    $scope.WasteLocationList = [];
-    $scope.getWasteLocation = function () {
-        cboService.getCboWasteLocation($scope.WasteLocationNew.WasteLocationId, function (result) {
-            $scope.WasteLocationList = result;
-        });
-    }
-    
+    $scope.getWasteLocationList();
 }
