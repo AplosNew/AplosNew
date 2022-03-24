@@ -165,7 +165,6 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
 
             $scope.ModelNew = response.data[0];
 
-
             if ($scope.ModelNew.SpecifyTo == 'Customer')
                 $scope.IsCustomer = true;
             if ($scope.ModelNew.IsPercentage == true) {
@@ -285,6 +284,159 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
 
 
             $scope.MakeSummaryBySegment();
+        });
+    }
+
+    $scope.NavigateToOrderCosting = function (args) {
+        
+
+        $scope.DirectMaterialList = [];
+        $scope.toatalItemGrossConsumption = 0;
+        $scope.totalItemGrossAmount = 0;
+
+        $scope.OperationList = [];
+        $scope.totalOperationValue = 0;
+
+        $scope.DirectProcessList = [];
+        $scope.totalDirectProcessAmount = 0;
+
+        $scope.SalesExpenseList = [];
+        $scope.totalSalesExpenseAmount = 0;
+
+        $scope.ValueLossList = [];
+        $scope.totalValueLossAmount = 0;
+
+        $scope.ProfitList = [];
+
+
+        $scope.DirectProcurementCostingMaterialList = [];
+        $scope.OperationProcurementCostingList = [];
+        $scope.DirectProcessProcurementCostingList = [];
+        $scope.SalesExpenseProcurementCostingList = [];
+        $scope.ValueLossProcurementCostingList = [];
+        $scope.ProfitProcurementCostingList = [];
+
+
+        $scope.SelectedOrderCostingComponent = args;
+        $scope.CostingComponentId = args.CostingComponentId;
+        $scope.Segment = args.CostingSegment;
+        if ($scope.Segment == 'DirectMaterial') {
+
+            $scope.GetDirectCostingMaterialWithItemByComponentId();
+        }
+        else if ($scope.Segment == 'Operation') {
+
+
+            $scope.GetOperationWithItemByComponentId();
+        }
+        else if ($scope.Segment == 'DirectProcess') {
+
+            $scope.GetDirectProcessWithItemByComponentId();
+        }
+        else if ($scope.Segment == 'SalesExpense') {
+
+            $scope.GetSalesExpenseWithItemByComponentId();
+        }
+        else if ($scope.Segment == 'ValueLoss') {
+
+            $scope.GetValueLossWithItemByComponentId();
+        }
+        else if ($scope.Segment == 'Profit') {
+
+            $scope.GetProfitWithItemByComponentId();
+        }
+        $scope.CalculateFinalCosting(null);
+        $scope.CalculateFinalCostingProcurement(null);
+
+    }
+
+    $scope.GetDirectCostingMaterialWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetDirectCostingMaterialWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DirectMaterialList = response.data.Pre;
+            $scope.DirectProcurementCostingMaterialList = response.data.Procurement;
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+        });
+    }
+
+    $scope.GetOperationWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetOperationWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.OperationList = response.data.Pre;
+            $scope.OperationProcurementCostingList = response.data.Procurement;
+
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+        });
+    }
+
+    $scope.GetDirectProcessWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetDirectProcessWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DirectProcessList = response.data.Pre;
+            $scope.DirectProcessProcurementCostingList = response.data.Procurement;
+
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+        });
+    }
+
+    $scope.GetSalesExpenseWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetSalesExpenseWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.SalesExpenseList = response.data.Pre;
+            $scope.SalesExpenseProcurementCostingList = response.data.Procurement;
+
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+        });
+    }
+
+    $scope.GetValueLossWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetValueLossWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ValueLossList = response.data.Pre;
+            $scope.ValueLossProcurementCostingList = response.data.Procurement;
+
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+        });
+    }
+
+    $scope.ProfitList = [];
+    $scope.GetProfitWithItemByComponentId = function () {
+        $http({
+            method: 'GET',
+            url: 'Costings/OrderCosting/GetProfitWithItemByComponentId?costingComponentId=' + $scope.CostingComponentId + '&OrderCostingMasterTemplateId=' + $scope.ModelNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ProfitList = response.data.Pre;
+            $scope.ProfitProcurementCostingList = response.data.Procurement;
+
+
+            var elmnt = document.getElementById("CostingItemsEntry");
+            elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
         });
     }
 
@@ -482,6 +634,411 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
     }
     $scope.TotalSegmentedValueByComponent = 0;
 
+    $scope.TooltipModel = {};
+    $scope.ShowToolTip = function (costingStage, SelectedData) {
+        $scope.CostingStage = costingStage;
+        $scope.TooltipModel = {};
+        if (costingStage == 'PRE') {
+
+            var ShowModel = {};
+
+            if ($scope.Segment == 'DirectMaterial') {
+                var saveList = ej.DataManager($scope.DirectProcurementCostingMaterialList).executeLocal(ej.Query().where("CostingItemId", "equal", SelectedData.CostingItemId));
+
+                if (saveList.length > 0)
+                    $scope.TooltipModel = Object.assign({}, saveList[0]);
+
+                var purchaseDocument = ej.DataManager($scope.PurchaseGroupList).executeLocal(ej.Query().where("Id", "equal", SelectedData.PurchaseGroupId));
+                if (purchaseDocument.length > 0)
+                    $scope.TooltipModel.PurchaseGroupId = purchaseDocument[0].UserName;
+
+
+                angular.element(document.querySelector("#itemDetailPopUp")).modal("show");
+                return;
+            }
+            else if ($scope.Segment == 'Operation') {
+
+                ShowModel = $scope.OperationProcurementCostingList;
+            }
+            else if ($scope.Segment == 'DirectProcess') {
+
+                ShowModel = $scope.DirectProcessProcurementCostingList;
+            }
+            else if ($scope.Segment == 'SalesExpense') {
+
+                ShowModel = $scope.SalesExpenseProcurementCostingList;
+            }
+            else if ($scope.Segment == 'ValueLoss') {
+
+                ShowModel = $scope.ValueLossProcurementCostingList;
+            }
+            else if ($scope.Segment == 'Profit') {
+
+                ShowModel = $scope.ProfitProcurementCostingList;
+            }
+
+            var saveList = ej.DataManager(ShowModel).executeLocal(ej.Query().where("CostingItemId", "equal", SelectedData.CostingItemId));
+            if (saveList.length > 0)
+                $scope.TooltipModel = Object.assign({}, saveList[0]);
+
+        }
+        else if (costingStage == 'PROCUREMENT') {
+
+            var ShowModel = {};
+
+            if ($scope.Segment == 'DirectMaterial') {
+                var saveList = ej.DataManager($scope.DirectMaterialList).executeLocal(ej.Query().where("CostingItemId", "equal", SelectedData.CostingItemId));
+
+                if (saveList.length > 0)
+                    $scope.TooltipModel = Object.assign({}, saveList[0]);
+
+                var purchaseDocument = ej.DataManager($scope.PurchaseGroupList).executeLocal(ej.Query().where("Id", "equal", SelectedData.PurchaseGroupId));
+                if (purchaseDocument.length > 0)
+                    $scope.TooltipModel.PurchaseGroupId = purchaseDocument[0].UserName;
+
+
+                angular.element(document.querySelector("#itemDetailPopUp")).modal("show");
+                return;
+            }
+            else if ($scope.Segment == 'Operation') {
+
+                ShowModel = $scope.OperationList;
+            }
+            else if ($scope.Segment == 'DirectProcess') {
+
+                ShowModel = $scope.DirectProcessList;
+            }
+            else if ($scope.Segment == 'SalesExpense') {
+
+                ShowModel = $scope.SalesExpenseList;
+            }
+            else if ($scope.Segment == 'ValueLoss') {
+
+                ShowModel = $scope.ValueLossList;
+            }
+            else if ($scope.Segment == 'Profit') {
+
+                ShowModel = $scope.ProfitList;
+            }
+
+            var saveList = ej.DataManager(ShowModel).executeLocal(ej.Query().where("CostingItemId", "equal", SelectedData.CostingItemId));
+            if (saveList.length > 0)
+                $scope.TooltipModel = Object.assign({}, saveList[0]);
+
+        }
+
+
+
+
+        angular.element(document.querySelector("#itemDetailPopUp")).modal("show");
+    }
+
+    $scope.NewCostingItemList = [];
+    $scope.AddNewCostingItemPopUp = function () {
+        try {
+            if (angular.isUndefinedOrNull($scope.OrderCostingMasterTemplateId))
+                throw 'Please save the costing master first';
+            $scope.$broadcast('show-errors-check-validity');
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetCostingItemForSubMaterial",
+                data: { CostingStage: $scope.CostingStage, OrderCostingMasterTemplateId: $scope.OrderCostingMasterTemplateId, costingComponentId: $scope.CostingComponentId, Segment: $scope.Segment },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.NewCostingItemList = response.data;
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    }
+
+    $scope.totalProcurementItemGrossAmount = 0;
+    $scope.totalProcurementOperationValue = 0;
+    $scope.totalProcurementDirectProcessAmount = 0;
+    $scope.totalProcurementSalesExpenseAmount = 0;
+    $scope.totalProcurementValueLossAmount = 0;
+    $scope.TotalProcurementSegmentedValueByComponent = 0;
+    $scope.CalculateFinalCostingProcurement = function (data) {
+
+        //first try to push the data into main list
+        try {
+            for (var i = 0; i < $scope.OrderCostingItemList.length; i++) {
+                if ($scope.OrderCostingItemList[i].Id == data.CostingItemId) {
+                    if ($scope.Segment == "SalesExpense" && data.CostingComponentId == $scope.CostingComponentId) {
+                        $scope.OrderCostingItemList[i].ProcurementProcurementValueType = data.Type;
+                        $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
+                    }
+                    if ($scope.Segment == "ValueLoss" && data.CostingComponentId == $scope.CostingComponentId) {
+                        $scope.OrderCostingItemList[i].ProcurementProcurementValueType = data.Type;
+                        $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
+                    }
+                    if ($scope.Segment == "Profit" && data.CostingComponentId == $scope.CostingComponentId) {
+                        $scope.OrderCostingItemList[i].ProcurementProcurementValueType = data.Type;
+                        $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
+                    }
+                    if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectMaterial') {
+                        data.GrossConsumption = data.Consumption / ((100 - data.ValueLoss) / 100); //(data.Consumption * data.ValueLoss / 100) + data.Consumption;
+                        data.GrossAmount = data.GrossConsumption * data.Rate;
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.GrossConsumption * data.Rate;
+
+
+                    }
+                    else if ($scope.OrderCostingItemList[i].CostingSegment == 'Operation') {
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.Value;
+
+                    }
+                    else if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectProcess') {
+                        //first push the 
+                        $scope.OrderCostingItemList[i].ProcurementRate = data.Rate;
+                        $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
+
+
+                        var totalPre = getProcurementFixedAmountDirectMaterial();
+
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - data.Value) / 100)) - totalPre;// totalPre * (data.Value / 100)
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += data.Rate;
+
+                        $scope.OrderCostingItemList[i].ProcurementRate = data.Rate;
+                        $scope.OrderCostingItemList[i].ProcurementValue = data.Value;
+
+                        data.Amount = $scope.OrderCostingItemList[i].TotalProcurementGrossAmount;
+                    }
+                    else if ($scope.OrderCostingItemList[i].CostingSegment == 'SalesExpense') {
+
+
+                        if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.Value;
+                        }
+                        else {
+                            var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+
+                            if (totalPercent >= 100) {
+                                data.Value = 0;
+                            }
+                            if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
+                            else
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+
+                        }
+                        data.Amount = $scope.OrderCostingItemList[i].TotalProcurementGrossAmount;
+                    }
+                    else if ($scope.OrderCostingItemList[i].CostingSegment == 'ValueLoss') {
+
+                        if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.Value;
+                        }
+                        else {
+
+                            var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+                            if (totalPercent >= 100) {
+                                data.Value = 0;
+                            }
+
+                            if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
+                            else
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+
+
+                            //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+
+                            //$scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
+
+                        }
+                        data.Amount = $scope.OrderCostingItemList[i].TotalProcurementGrossAmount;
+                    }
+                    else if ($scope.OrderCostingItemList[i].CostingSegment == 'Profit') {
+
+                        if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = data.Value;
+                        }
+                        else {
+
+                            var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                            var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+                            if (totalPercent >= 100) {
+                                data.Value = 0;
+                            }
+
+                            if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
+                            else
+                                $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * (data.Value / 100);
+
+                            //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+
+                            //$scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * (data.Value / 100);
+
+                        }
+                        data.Amount = $scope.OrderCostingItemList[i].TotalProcurementGrossAmount;
+                    }
+
+                }
+            }
+        } catch (e) {
+
+        }
+
+        try {
+            for (var i = 0; i < $scope.OrderCostingItemList.length; i++) {
+
+                if ($scope.OrderCostingItemList[i].CostingSegment == 'DirectProcess') {
+
+                    var totalPre = getProcurementFixedAmountDirectMaterial();
+
+                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = (totalPre / ((100 - $scope.OrderCostingItemList[i].ProcurementValue) / 100)) - totalPre;//totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                    $scope.OrderCostingItemList[i].TotalProcurementGrossAmount += $scope.OrderCostingItemList[i].ProcurementRate;
+
+                }
+                else if ($scope.OrderCostingItemList[i].CostingSegment == 'SalesExpense') {
+
+                    if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = $scope.OrderCostingItemList[i].ProcurementValue;
+                    }
+                    else {
+
+                        var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                        else
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+
+                        //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        //$scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+
+                    }
+                }
+                else if ($scope.OrderCostingItemList[i].CostingSegment == 'ValueLoss') {
+
+                    if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = $scope.OrderCostingItemList[i].ProcurementValue;
+                    }
+                    else {
+                        var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                        else
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+
+                        //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        //$scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+
+                    }
+                }
+                else if ($scope.OrderCostingItemList[i].CostingSegment == 'Profit') {
+
+
+                    if ($scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'FIXED' || $scope.OrderCostingItemList[i].ProcurementProcurementValueType == 'Fixed') {
+                        $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = $scope.OrderCostingItemList[i].ProcurementValue;
+                    }
+                    else {
+                        //var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        //$scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                        var totalPre = getProcurementFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalCurr = getProcurementCurrentFixedAmount($scope.OrderCostingItemList[i].ComponentSequence);
+                        var totalPercent = getProcurementCurrentPercent($scope.OrderCostingItemList[i].ComponentSequence);
+
+                        if ($scope.OrderCostingItemList[i].CalculationMethod.toUpperCase() == "CUMULATIVE")
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = totalPre * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+                        else
+                            $scope.OrderCostingItemList[i].TotalProcurementGrossAmount = ((totalPre + totalCurr) / ((100 - totalPercent) / 100)) * ($scope.OrderCostingItemList[i].ProcurementValue / 100);
+
+                    }
+                }
+
+                //}
+            }
+        } catch (e) {
+
+        }
+
+
+
+        try {
+            $scope.totalProcurementItemGrossAmount = 0;
+            $scope.totalProcurementOperationValue = 0;
+            $scope.totalProcurementDirectProcessAmount = 0;
+            $scope.totalProcurementSalesExpenseAmount = 0;
+            $scope.totalProcurementValueLossAmount = 0;
+            $scope.TotalProcurementSegmentedValueByComponent = 0;
+
+
+            $scope.CostingSummaryDataNew = Object.assign({}, $scope.CostingSummaryDataMain);
+
+            for (var i = 0; i < $scope.OrderCostingDetailList.length; i++) {
+
+
+                var TotalValue = 0;
+                for (var k = 0; k < $scope.OrderCostingItemList.length; k++) {
+                    if ($scope.OrderCostingDetailList[i].CostingComponentId == $scope.OrderCostingItemList[k].CostingComponentId) {
+                        TotalValue += $scope.OrderCostingItemList[k].TotalProcurementGrossAmount;
+                    }
+                }
+                $scope.OrderCostingDetailList[i].TotalProcurementGrossAmount = TotalValue;
+
+                if ($scope.OrderCostingDetailList[i].CostingComponentId == $scope.CostingComponentId) {
+                    $scope.TotalProcurementSegmentedValueByComponent = TotalValue;
+                }
+
+                //$scope.CostingSummaryDataMain = { BuyerTotal: 0, OrderCostingValue: 0, OrderCostingValue, ProfitBuyerCosting: 0, ProfitOrderCosting: 0, ProfitOrderCosting: 0 };
+
+                //calculation
+                if ($scope.OrderCostingDetailList[i].CostingSegment == 'Profit') {
+                    $scope.CostingSummaryDataNew.ProfitBuyerCosting += $scope.OrderCostingDetailList[i].BuyerTarget;
+                    $scope.CostingSummaryDataNew.ProfitQuickCosting += $scope.OrderCostingDetailList[i].CostingValue;
+                    $scope.CostingSummaryDataNew.ProfitOrderCosting += $scope.OrderCostingDetailList[i].TotalGrossAmount;
+                    $scope.CostingSummaryDataNew.ProfitProcurementCosting += $scope.OrderCostingDetailList[i].TotalProcurementGrossAmount;
+                }
+                else {
+                    $scope.CostingSummaryDataNew.BuyerTotal += $scope.OrderCostingDetailList[i].BuyerTarget;
+                    $scope.CostingSummaryDataNew.QuickCostingValue += $scope.OrderCostingDetailList[i].CostingValue;
+                    $scope.CostingSummaryDataNew.OrderCostingValue += $scope.OrderCostingDetailList[i].TotalGrossAmount;
+                    $scope.CostingSummaryDataNew.ProcurementCostingValue += $scope.OrderCostingDetailList[i].TotalProcurementGrossAmount;
+
+                }
+
+
+            }
+
+            liveUpdateProcurementCostingComponent();
+
+        } catch (e) {
+
+        }
+
+
+
+    }
+
+    $scope.BackToOrderCostingComponent = function () {
+        $scope.DirectMaterialList = [];
+        $scope.OperationList = [];
+        $scope.DirectProcessList = [];
+        $scope.SalesExpenseList = [];
+        $scope.ValueLossList = [];
+        $scope.ProfitList = [];
+        $scope.Segment = '';
+
+
+
+        var elmnt = document.getElementById("costingMain");
+        elmnt.scrollIntoView(false, { behavior: "smooth", block: "end", inline: "nearest" });
+    }
 
     function calValue(segmentName) {
         var sum = 0;
@@ -515,4 +1072,12 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
             $scope.buyerList = response.data;
         });
     }
+
+    $scope.tabCosting = 1;
+    $scope.setTabCosting = function (newTab) {
+        $scope.tabCosting = newTab;
+    }
+    $scope.isSetCosting = function (tabNum) {
+        return $scope.tabCosting === tabNum;
+    };
 }
