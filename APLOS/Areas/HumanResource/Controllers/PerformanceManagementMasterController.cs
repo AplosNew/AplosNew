@@ -43,11 +43,11 @@ namespace Aplos.Areas.HumanResource.Controllers
       
 
         [Authorize, HttpPost]
-        public ActionResult getEmployeetype()
+        public ActionResult getperformanceGroup()
         {
             try
             {
-                return Json(ps.getEmployeetype(), JsonRequestBehavior.AllowGet);
+                return Json(ps.getperformanceGroup(), JsonRequestBehavior.AllowGet);
             }
             catch(Exception ex)
             {
