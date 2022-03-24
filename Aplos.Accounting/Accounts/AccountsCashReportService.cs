@@ -82,15 +82,23 @@ namespace Library.Accounting.Accounts
 
                 // Detail Header
                 row++;
-                reportUtility.SetHeaderText(ref sheet, row, 1, "Voucher No", 12);
-                reportUtility.SetHeaderText(ref sheet, row, 2, "Posting Date", 12);
-                //reportUtility.SetHeaderText(ref sheet, row, 3, "Account Name", 12);
-                reportUtility.SetHeaderText(ref sheet, row, 4, "Narration", 32);
-
-
-
-
-                sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
+                int col = 1;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Voucher No", 12);
+                int colVoucherNo = col;
+                col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Posting Date", 12);
+                int colPostingDate = col; 
+                col++;
+                //reportUtility.SetHeaderText(ref sheet, row, col, "Account Name", 12);
+                //int colAccountName = col; 
+                //col++;                        
+                reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 32);
+                int colParticulars = col; 
+                col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Narration", 32);
+                int colNarration = col;
+                col++;
+                //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
                 reportUtility.SetHeaderText(ref sheet, row, 5, "Debit", 9, ExcelHAlign.HAlignRight); int colDebit = 5;
                 reportUtility.SetHeaderText(ref sheet, row, 6, "Credit", 9, ExcelHAlign.HAlignRight); int colCredit = 6;
                 reportUtility.SetHeaderText(ref sheet, row, 7, "Balance", 12, ExcelHAlign.HAlignRight);
@@ -129,11 +137,11 @@ namespace Library.Accounting.Accounts
                     {
                         reportUtility.SetText(ref sheet, row, 1, ledgerData.Rows[i]["VoucherNo"].ToString());
                         reportUtility.SetText(ref sheet, row, 2, Convert.ToDateTime(ledgerData.Rows[i]["PostingDate"].ToString()).ToString("dd-MMM-yyyy"));
-                        //reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
-                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["Narration"].ToString());
+                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
+                        //reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString());
                         //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
                         //sheet.Range[row, 3,row,4].WrapText = true;
-                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["Narration"].ToString(), false, true);
+                        reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString(), false, true);
                         sheet.Range[row, 3].WrapText = true;
 
 
@@ -192,8 +200,7 @@ namespace Library.Accounting.Accounts
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + 5 + ":" + reportUtility.GetColumnNameForXls(colLast) + 5].Merge();
 
 
-                sheet[row, 3].ColumnWidth = 50;
-                sheet[row, 4].ColumnWidth = 3;
+               
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
 
@@ -287,11 +294,33 @@ namespace Library.Accounting.Accounts
                          VD.CrAmount 
 						 , V.Narration
                         , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
-						, OtherSide=CASE 
-	                        WHEN P.UserName<>'' THEN P.UserName
-							WHEN BM.AccountTitle<>'' THEN BM.AccountTitle
-	                        WHEN CM.UserName<>'' THEN CM.UserName
-	                        ELSE ''	END
+						                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
+                    where XVD.VoucherId=V.Id AND XVD.PartyPlantId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XEI.AccountTitle from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
+					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    
+                    ,STUFF((select distinct ','+XEI.EmployeeName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join dbo.EmployeeInformation XEI ON XEI.SystemId=XVD.EmployeeId
+                    where XVD.VoucherId=V.Id AND XVD.EmployeeId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XCM.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    ,STUFF((select distinct ','+XA.UserName from
+                    TRN.VoucherDetail AS XVD
+                    left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
+                    left join HKP.Activity XA ON XA.Id=XVD.ActivityId
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
                         FROM  [TRN].[VoucherDetail] AS VD 
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId

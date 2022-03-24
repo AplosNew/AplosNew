@@ -870,7 +870,7 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
-        public void InsertOrUpdateGraphNewBOQ(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public void InsertOrUpdateGraphNewGRNBOQ(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave)
         {
             var flag = false;
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -1134,7 +1134,36 @@ namespace Library.MaterialManagement.Inventory
                                 _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                                 receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                 InsertGraph(receiveDetail);
+                                foreach (var boqallocat in BOQAllocationSave.Where(r=>r.PODetailsID== receiveDetail.PODetailsID))
+                                {
+                                    if (string.IsNullOrEmpty(boqallocat.Id))
+                                    {
 
+                                        var grnpoboqreqAll = new GRNPORequisitionAllocation
+                                        {
+
+                                            Id = base.GetAutoNumber(nameof(GRNPORequisitionAllocation), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                                            InventoryReceiveDetailId = receiveDetail.Id,
+                                            POBOQMapId = boqallocat.POBOQMapId,
+                                            POReqDetailsID = boqallocat.POReqDetailsID,
+                                            BOQDetailId = boqallocat.BOQDetailId,
+                                            TransactionQty = Convert.ToDecimal(boqallocat.TransactionQty),
+                                            TransactionUoMId = boqallocat.TransactionUoMId,
+                                            BaseQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.BaseUOMId.ToString(), Convert.ToDouble(boqallocat.TransactionQty)),
+                                            BaseUoMId = boqallocat.BaseUOMId,
+                                            POBOQQty = (decimal)conversion.Convert(boqallocat.MaterialMasterId, boqallocat.TransactionUoMId, boqallocat.POUoMId.ToString(), Convert.ToDouble(boqallocat.TransactionQty)),
+                                            POUoMId = boqallocat.POUoMId,
+                                            RejectQty = Convert.ToDecimal(boqallocat.RejectionQty),
+                                            RejectBaseQty = Convert.ToDecimal(boqallocat.RejectBaseQty),
+                                            SalesOrderId = boqallocat.SalesOrderId
+
+                                        };
+                                        AuditService.AddedLog(grnpoboqreqAll);
+                                        _gRNPOAllocationRepository.Insert(grnpoboqreqAll);
+
+                                    }
+
+                                }
 
 
                                 int rejectDetailId = 1;
@@ -1221,133 +1250,135 @@ namespace Library.MaterialManagement.Inventory
                         }
                     }
 
-                    if (Convert.ToDecimal(itemDetail.POQty) > (Convert.ToDecimal(itemDetail.GRNRcvQty + itemDetail.TransactionQty)))
-                    {
-                        entity.msgForAllocationNeed = "You have to allocate GRN Qty manually for Sales Order ! Please go to edit mode for allocation";
-                        //throw new CustomException("You have to allocate GRN Qty manually for Sales Order !");
-                    }
-                    else
-                    {
-                        var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select 
-											c.PODetailId
-											,C.BOQDetailId
-											,C.Id POBOQMAPID
-											,C.TransactionQty TransactionQtyForPO
-											,C.TransactionUoMId,uom.UserName TransactionUoM
-											,C.BaseQty
-											,C.BaseUoMId
-											,C.POBOQQty
-											,C.POUoMId
-											,d.BOMQty ReqQty
-											,0 allowQty
-											,b.TransactionQty POTransactionQty
-											,0 TransactionQty
-											,0 RejectionQty
-											,null Active				
-											,d.SalesOrderId
-											,b.Id
-											,isnull(AllocatedSOQty.AllocatedSOQty,0) AllocatedSOQty
-											From trn.PurchaseOrderDetail b 
-											left join trn.POBOQMAP c on c.PODetailId=b.Id
-											left join boq d On d.Id=c.BOQDetailId
-											left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId 
-											left JOIN(select POBOQMapId ,Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation  GROUP BY POBOQMapId)AllocatedSOQty ON AllocatedSOQty.POBOQMapId=c.Id
-											where b.Id='" + itemDetail.PODetailsID + @"'").ToList();
-                        if (receiveDetailList.IsNotNull())
-                        {
-                            bool isQtyAlocated = true;
-                            decimal temp = 0;
-                            int count = 0;
-                            foreach (var issue in receiveDetailList)
-                            {
-                                count++;
-                                if (count == 1)
-                                {
-                                    if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > itemDetail.TransactionQty)
-                                    {
+                    //         if (Convert.ToDecimal(itemDetail.POQty) > (Convert.ToDecimal(itemDetail.GRNRcvQty + itemDetail.TransactionQty)))
+                    //         {
+                    //             entity.msgForAllocationNeed = "You have to allocate GRN Qty manually for Sales Order ! Please go to edit mode for allocation";
+                    //             //throw new CustomException("You have to allocate GRN Qty manually for Sales Order !");
+                    //         }
+                    //         else
+                    //         {
+                    //             var receiveDetailList = _sqlRepository.GetModelCollection<InventoryMaterialViewModel>(@"select 
+                    //c.PODetailId
+                    //,C.BOQDetailId
+                    //,C.Id POBOQMAPID
+                    //,C.TransactionQty TransactionQtyForPO
+                    //,C.TransactionUoMId,uom.UserName TransactionUoM
+                    //,C.BaseQty
+                    //,C.BaseUoMId
+                    //,C.POBOQQty
+                    //,C.POUoMId
+                    //,d.BOMQty ReqQty
+                    //,0 allowQty
+                    //,b.TransactionQty POTransactionQty
+                    //,0 TransactionQty
+                    //,0 RejectionQty
+                    //,null Active				
+                    //,d.SalesOrderId
+                    //,b.Id
+                    //,isnull(AllocatedSOQty.AllocatedSOQty,0) AllocatedSOQty
+                    //From trn.PurchaseOrderDetail b 
+                    //left join trn.POBOQMAP c on c.PODetailId=b.Id
+                    //left join boq d On d.Id=c.BOQDetailId
+                    //left join scs.UnitOfMeasurement uom ON uom.Id=c.TransactionUoMId 
+                    //left JOIN(select POBOQMapId ,Sum(TransactionQty) AllocatedSOQty from trn.GRNPORequisitionAllocation  GROUP BY POBOQMapId)AllocatedSOQty ON AllocatedSOQty.POBOQMapId=c.Id
+                    //where b.Id='" + itemDetail.PODetailsID + @"'").ToList();
+                    //             if (receiveDetailList.IsNotNull())
+                    //             {
+                    //                 bool isQtyAlocated = true;
+                    //                 decimal temp = 0;
+                    //                 int count = 0;
+                    //                 foreach (var issue in receiveDetailList)
+                    //                 {
+                    //                     count++;
+                    //                     if (count == 1)
+                    //                     {
+                    //                         if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > itemDetail.TransactionQty)
+                    //                         {
 
-                                        itemDetail.TransactionQty = itemDetail.TransactionQty;
-                                        //temp += itemDetail.TransactionQty;
-                                        isQtyAlocated = false;
+                    //                             itemDetail.TransactionQty = itemDetail.TransactionQty;
+                    //                             //temp += itemDetail.TransactionQty;
+                    //                             isQtyAlocated = false;
 
-                                    }
-                                    else if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < itemDetail.TransactionQty)
-                                    {
-                                        temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                        //temp = issue.TransactionQtyForPO - issue.AllocatedSOQty;
-                                        itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
-                                        isQtyAlocated = true;
+                    //                         }
+                    //                         else if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < itemDetail.TransactionQty)
+                    //                         {
+                    //                             temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                    //                             //temp = issue.TransactionQtyForPO - issue.AllocatedSOQty;
+                    //                             itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
+                    //                             isQtyAlocated = true;
 
-                                    }
-                                    else
-                                    {
-                                        //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                        itemDetail.TransactionQty = itemDetail.TransactionQty;
-                                        isQtyAlocated = true;
+                    //                         }
+                    //                         else
+                    //                         {
+                    //                             //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                    //                             itemDetail.TransactionQty = itemDetail.TransactionQty;
+                    //                             isQtyAlocated = true;
 
-                                    }
-                                }
-                                if (count > 1)
-                                {
-                                    if (isQtyAlocated == true)
-                                    {
-                                        if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > temp)
-                                        {
-                                            //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
-                                            itemDetail.TransactionQty = itemDetail.TransactionQty;
-                                            isQtyAlocated = false;
-                                        }
-                                        if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < temp)
-                                        {
-                                            //temp = temp - issue.TransactionQtyForPO;
-                                            temp = (temp - (issue.TransactionQtyForPO - issue.AllocatedSOQty));
-                                            //itemDetail.TransactionQty = issue.TransactionQtyForPO;
-                                            itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
-                                            isQtyAlocated = true;
-                                        }
-                                        else
-                                        {
-                                            //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
-                                            itemDetail.TransactionQty = temp;
-                                            isQtyAlocated = true;
+                    //                         }
+                    //                     }
+                    //                     if (count > 1)
+                    //                     {
+                    //                         if (isQtyAlocated == true)
+                    //                         {
+                    //                             if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) > temp)
+                    //                             {
+                    //                                 //temp = itemDetail.TransactionQty- issue.TransactionQtyForPO;
+                    //                                 itemDetail.TransactionQty = itemDetail.TransactionQty;
+                    //                                 isQtyAlocated = false;
+                    //                             }
+                    //                             if ((issue.TransactionQtyForPO - issue.AllocatedSOQty) < temp)
+                    //                             {
+                    //                                 //temp = temp - issue.TransactionQtyForPO;
+                    //                                 temp = (temp - (issue.TransactionQtyForPO - issue.AllocatedSOQty));
+                    //                                 //itemDetail.TransactionQty = issue.TransactionQtyForPO;
+                    //                                 itemDetail.TransactionQty = (issue.TransactionQtyForPO - issue.AllocatedSOQty);
+                    //                                 isQtyAlocated = true;
+                    //                             }
+                    //                             else
+                    //                             {
+                    //                                 //temp = itemDetail.TransactionQty - issue.TransactionQtyForPO;
+                    //                                 itemDetail.TransactionQty = temp;
+                    //                                 isQtyAlocated = true;
 
-                                        }
+                    //                             }
 
-                                    }
-                                    else
-                                    {
-                                        itemDetail.TransactionQty = 0;
-                                    }
-                                }
+                    //                         }
+                    //                         else
+                    //                         {
+                    //                             itemDetail.TransactionQty = 0;
+                    //                         }
+                    //                     }
 
-                                var baseQqtynew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
-                                var POBOQQtyNew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
-                                var gRNPOAllocation = new GRNPORequisitionAllocation
-                                {
-                                    Id = base.GetAutoNumber(nameof(GRNPORequisitionAllocation), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                                    InventoryReceiveDetailId = grndId,
-                                    POBOQMapId = issue.POBOQMapId,
-                                    POReqDetailsID = issue.POReqDetailsID,
-                                    BOQDetailId = issue.BOQDetailId,
-                                    TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
-                                    TransactionUoMId = itemDetail.TransactionUoMId,
-                                    BaseQty = baseQqtynew,
-                                    //BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
-                                    BaseUoMId = issue.BaseUOMId,
-                                    //POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
-                                    POBOQQty = POBOQQtyNew,
-                                    POUoMId = itemDetail.POUoMId,
-                                    RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
-                                    RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
-                                    SalesOrderId = issue.SalesOrderId
-                                    //AutoAllocate = true
+                    //                     var baseQqtynew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
+                    //                     var POBOQQtyNew = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty));
+                    //                     var gRNPOAllocation = new GRNPORequisitionAllocation
+                    //                     {
+                    //                         Id = base.GetAutoNumber(nameof(GRNPORequisitionAllocation), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    //                         InventoryReceiveDetailId = grndId,
+                    //                         POBOQMapId = issue.POBOQMapId,
+                    //                         POReqDetailsID = issue.POReqDetailsID,
+                    //                         BOQDetailId = issue.BOQDetailId,
+                    //                         TransactionQty = Convert.ToDecimal(itemDetail.TransactionQty),
+                    //                         TransactionUoMId = itemDetail.TransactionUoMId,
+                    //                         BaseQty = baseQqtynew,
+                    //                         //BaseQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+                    //                         BaseUoMId = issue.BaseUOMId,
+                    //                         //POBOQQty = (decimal)conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(itemDetail.TransactionQty)),
+                    //                         POBOQQty = POBOQQtyNew,
+                    //                         POUoMId = itemDetail.POUoMId,
+                    //                         RejectQty = Convert.ToDecimal(itemDetail.RejectionQty),
+                    //                         RejectBaseQty = Convert.ToDecimal(itemDetail.RejectBaseQty),
+                    //                         SalesOrderId = issue.SalesOrderId
+                    //                         //AutoAllocate = true
 
-                                };
-                                AuditService.AddedLog(gRNPOAllocation);
-                                _gRNPOAllocationRepository.Insert(gRNPOAllocation);
-                            }
-                        }
-                    }
+                    //                     };
+                    //                     AuditService.AddedLog(gRNPOAllocation);
+                    //                     _gRNPOAllocationRepository.Insert(gRNPOAllocation);
+                    //                 }
+                    //             }
+                    //         }
+
+                    
 
                 }
                 _unitOfWork.SaveChanges();

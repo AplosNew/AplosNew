@@ -20,11 +20,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Constructor
 
-        public IEnumerable<object> getEmployeetype()
+        public IEnumerable<object> getperformanceGroup()
         {
             try
             {
-                var str = @"select Id,Username,StandardName from hkp.employeecategory";
+               var str = @"select * from HKP.PerformanceGroup";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -51,8 +51,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.Username from PMSChild pc
-			    left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
+                var str = @" select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,et.Username 
+                from PMSChild pc
+			    left join hkp.PerformanceGroup et on et.id=pc.PerformanceGroupId
                 where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -86,7 +87,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 if (Employee == null)
                 {
-                    throw new Exception("Please Select EmployeeType !!");
+                    throw new Exception("Please Select Performance Group !!");
                 }
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -94,12 +95,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same StandardName already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Username = '" + data["Username"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["Username"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same UserName already exists!!!");
 
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -142,7 +143,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                     dr["Id"] = "PMC" + _IdC;
                     dr["PMSMasterId"] = data["Id"].ToString();
-                    dr["EmployeeCategoryId"] = Employee[i].ToString();
+                    dr["PerformanceGroupId"] = Employee[i].ToString();
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -293,6 +294,21 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+        
+        public IEnumerable<object> getEmployeetype()
+        {
+            try
+            {
+                //var str = @"select Id,Username,StandardName from hkp.employeecategory";
+                var str = @"select Id,Username,StandardName from hkp.PerformanceGroup";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
         public Dictionary<string, object> Create(Dictionary<string, object> Data)
         {
             try
@@ -412,7 +428,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             _sqlRepository = new SqlRepository();
         }
-
+        
         public IEnumerable<object> GetCbo()
         {
             try

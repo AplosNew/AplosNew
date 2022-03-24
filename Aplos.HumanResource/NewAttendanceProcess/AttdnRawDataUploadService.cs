@@ -229,7 +229,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string Time { get; set; }
         public string EmployeeServiceCategoryId { get; set; }
         public string Quantity { get; set; }
-
+        public string Amount { get; set; }
+        public string BillOtherReferenceNo { get; set; }
+        public string Particulars { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
@@ -291,9 +293,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                 left join EmpServiceType et on et.Id=ec.EmpServiceTypeId
                 where et.Service='"+DataToSave[0].Service+"' and ec.Category='"+ DataToSave[0].Category + "'";
                 objCon.OpenDataSetThroughAdapter(sqlx, out dsCategory, false, "1");
-                var CategoryId = clsWebLib.RetValidLen(dsCategory.Tables[0].Rows[0][@"CategoryId"]).ToString();
                
-                if(CategoryId =="")
+                string CategoryId = "";
+                if (dsCategory.Tables[0].Rows.Count > 0)
+                {
+                    CategoryId = clsWebLib.RetValidLen(dsCategory.Tables[0].Rows[0][@"CategoryId"]).ToString();
+                }
+                
+
+                if (CategoryId =="")
                 {
                     return "Please Enter Valid Service Type and Category....";
                 }
@@ -355,8 +363,111 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 return ex.ToString();
             }
-        }    
-      
+        }
+
+        public string ShopData(List<ServiceScanModel> DataToSave)
+        {
+            try
+            {
+                if (DataToSave.Count() == 0)
+                    return "Either Data not in Correct Format or Missing....";
+
+                List<ServiceScanModel> items = DataToSave.ToList();
+
+                DataSet dsRef, dsEmpShift, dsCategory;
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                string strSql = @"select * from dbo.empservicedata where 1=2";
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");
+
+                string EmpId = "''";
+                foreach (ServiceScanModel item in DataToSave)
+                {
+                    EmpId += ",'" + item.EmployeeId + "'";
+                }
+
+                var sql = @"select e.SystemId, e.EmployeeCode,e.EmployeeName,
+                mb.Code as BudgetCode,mb.Id as BudgetId,
+                mb.ShiftDefinationId as BudgetedShift
+                from EmployeeInformation e left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
+                where e.SystemId in (" + EmpId + @")
+                and mb.ShiftDefinationId is not null";
+                objCon.OpenDataSetThroughAdapter(sql, out dsEmpShift, false, "1");
+
+                var sqlx = @"select et.Id as ServiceId,ec.Id as CategoryId from
+                EmpServiceCategory ec
+                left join EmpServiceType et on et.Id=ec.EmpServiceTypeId
+                where et.Service='Shop'";
+                objCon.OpenDataSetThroughAdapter(sqlx, out dsCategory, false, "1");
+               
+                string CategoryId = "";
+                if (dsCategory.Tables[0].Rows.Count > 0)
+                {
+                    CategoryId = clsWebLib.RetValidLen(dsCategory.Tables[0].Rows[0][@"CategoryId"]).ToString();
+                }
+                if (CategoryId == "")
+                {
+                    return "Please Configure Service First....";
+                }
+
+                foreach (ServiceScanModel item in DataToSave)
+                {
+
+                    if (clsWebLib.RetValidLen(item.EmployeeId).ToString() != "" && clsWebLib.RetValidLen(item.BillOtherReferenceNo).ToString() != ""
+                       && clsWebLib.RetValidLen(item.Amount).ToString() != "" && clsWebLib.RetValidLen(CategoryId).ToString() != "")
+                    {
+                        dsEmpShift.Tables[0].DefaultView.RowFilter = @"SystemId='" + item.EmployeeId + "'";
+                        if (dsEmpShift.Tables[0].DefaultView.Count > 0)
+                        {
+                            string ShiftId = clsWebLib.RetValidLen(dsEmpShift.Tables[0].DefaultView[0][@"BudgetedShift"]).ToString();
+
+                            DataRow dr = dsRef.Tables[0].NewRow();
+
+                            clsGenID genid = new clsGenID();
+                            genid.GenID("dbo.EmpServiceData", out string _Idx);
+
+                            dr["Id"] = "ED" + _Idx;
+                            dr["EmployeeId"] = item.EmployeeId;
+                            dr["Date"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                            dr["Time"] = DateTime.Now.ToString();
+                            dr["ShiftId"] = ShiftId;
+                            dr["EmployeeServiceCategoryId"] = CategoryId;
+                            dr["Chargeable"] = 1;
+                            dr["IsProcessed"] = false;
+                            dr["From"] = 0;
+                            dr["To"] = 0;
+                            dr["Quantity"] = 0;
+                            dr["Particulars"] = item.Particulars;
+                            dr["BillOtherReferenceNo"] = item.BillOtherReferenceNo;
+                            dr["Amount"] = item.Amount;
+
+                            dr["AddedBy"] = "API";
+                            dr["AddedDate"] = DateTime.Now.ToString();
+                            dr["AddedFromIP"] = "1";
+
+                            dsRef.Tables[0].Rows.Add(dr);
+
+                        }
+                    }
+                }
+                clsStaticInfo info = new clsStaticInfo();
+                info.SaveDataSets(dsRef);
+                var Counter = dsRef.Tables[0].Rows.Count;
+                if (Counter <= 1)
+                {
+                    return Counter.ToString() + " Row Uploaded... ";
+                }
+                else
+                {
+                    return Counter.ToString() + " Rows Uploaded... ";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
     }
 
 }
