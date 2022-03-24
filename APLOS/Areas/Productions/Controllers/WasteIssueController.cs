@@ -192,10 +192,12 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["ProcessId"] = WasteData[i]["ProcessId"];
                         dr["Remarks"] = WasteData[i]["Remarks"];
 
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
-
                         dr.EndEdit();
                     }
                     else
@@ -215,11 +217,13 @@ namespace Aplos.Areas.Productions.Controllers
                         dr["IssueValue"] = WasteData[i]["IssueValue"];
                         dr["ProcessId"] = WasteData[i]["ProcessId"];
                         dr["Remarks"] = WasteData[i]["Remarks"];
-
+                        
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
-
                         dsWasteDetail.Tables[0].Rows.Add(dr);
 
                     }
@@ -401,11 +405,11 @@ namespace Aplos.Areas.Productions.Controllers
                 ROW++;
 
 
-                report.SetMasterHeaderText(ref sheet, ROW, 1, "Waste");
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "User Reference");
                 sheet[ROW, 1].ColumnWidth = 20;
                 sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                report.SetText(ref sheet, ROW, 2, header["Waste"].ToString());
+                report.SetText(ref sheet, ROW, 2, header["UserReference"].ToString());
                 sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(5) + ROW].Merge();
                 sheet[ROW, 2].ColumnWidth = 20;
                 sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -666,7 +670,7 @@ namespace Aplos.Areas.Productions.Controllers
             {
 
                 string strSQL = @"select WI.Id IssueId,E.UserName Entity,WI.Purpose,FORMAT(WI.Date,'dd-MMM-yyyy') Date,EI.EmployeeName PreparedBy,EmpI.EmployeeName ApprovedBy
-						                            ,EmpInfo.EmployeeName CheckedBy,WI.Remarks Remark,WI.Waste
+						                            ,EmpInfo.EmployeeName CheckedBy,WI.Remarks Remark,WI.UserReference
 						                            from WasteIssue WI
 						                            left join ORG.Entity E on E.Id=WI.EntityId
 						                            left join EmployeeInformation EI on EI.SystemId=WI.PreparedById
