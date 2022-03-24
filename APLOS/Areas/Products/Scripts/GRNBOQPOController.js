@@ -10,7 +10,7 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.getListUrl1 = $scope.path + 'GetListForMasterData';
     $scope.getListUrl2 = $scope.path + 'GetListForMasterData2';
 
-    $scope.saveUrl = $scope.path + 'CreateGRNBOQPOSaad';
+    $scope.saveUrl = $scope.path + 'CreatePOGRNBOQ';
     $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPO';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'deleteGRNBYPO/';
@@ -1908,6 +1908,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                 nRow = $scope.MasterListNew[n];
 
                 $scope.MasterListNew[n].Qty = $scope.MasterListNew[n].TransactionQty;
+                $scope.MasterListNew[n].ApprovedQty = $scope.MasterListNew[n].TransactionQty;
+                $scope.MasterListNew[n].NetQty = $scope.MasterListNew[n].TransactionQty;
                 $scope.MasterListNew[n].Rate = $scope.MasterListNew[n].BaseRate;
                 nRow.BaseQty = $scope.MasterListNew[n].BaseQty;
                 nRow.BaseIssueQty = $scope.MasterListNew[n].BaseIssueQty;
@@ -1919,6 +1921,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                         if ($scope.MasterList[x].InventoryReceiveDetailId == nRow.InventoryReceiveDetailId) {
                             var Qty = nRow.TransactionQty;
                             $scope.MasterList[x].TransactionQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
+                            $scope.MasterList[x].ApprovedQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
+                            $scope.MasterList[x].NetQty = $scope.MasterList[x].TransactionQty + parseFloat(Qty);
                             Qty = 0;
                         }
                     }

@@ -10,7 +10,7 @@ namespace Library.MaterialManagement.Inventory
     public interface IInventoryReceiveDetailService : IService<InventoryReceiveDetail>
     {
         void InsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType);
-        void InsertOrUpdateGraphNewBOQ(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType);
+        void InsertOrUpdateGraphNewGRNBOQ(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType, IEnumerable<InventoryMaterialViewModel> BOQAllocationSave);
         void BOQInsertOrUpdateGraphNew(InventoryReceive entity,IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList,string id,string MaterialStorageId,string GRNType,List<InventoryMaterialViewModel> List);
         void InsertFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> List);
         void UpdateFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType);
