@@ -9670,7 +9670,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetSpecificMaterialStockBOQ(string pOId,string contractId,string masterOrderitemId,string salesOrderId, string issueDate)
+        public JsonResult GetSpecificMaterialStockBOQ(string pOId, string contractId, string masterOrderitemId, string salesOrderId, string issueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
@@ -9678,7 +9678,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateBOQIssue(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll)
+        public JsonResult CreateBOQIssue(string entities, string specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, string entitiesAll, string BoqAllocationList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             inventoryIssue.CompanyGroupId = identity.CompanyGroupId;
@@ -9687,9 +9687,10 @@ namespace Aplos.Areas.Products.Controllers
             List<InventoryMaterialViewModel> entitiesVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entities);
             List<InventoryMaterialViewModel> specificStockListVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(specificStockList);
             List<InventoryMaterialViewModel> entitiesAllVM = JsonConvert.DeserializeObject<List<InventoryMaterialViewModel>>(entitiesAll);
+            List<InventoryIssueHistoryBOQ> BoqAllocationListVM = JsonConvert.DeserializeObject<List<InventoryIssueHistoryBOQ>>(BoqAllocationList);
 
 
-            _inventoryIssueService.InsertGraph(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM);
+            _inventoryIssueService.InsertGraphBOQ(entitiesVM, specificStockListVM, inventoryIssue, IssueTypeStatus, entitiesAllVM, BoqAllocationListVM);
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
     }

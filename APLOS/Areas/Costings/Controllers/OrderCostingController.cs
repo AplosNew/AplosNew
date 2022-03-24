@@ -2005,6 +2005,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
             dr["TargetCM"] = sourceData.TargetCM;
             dr["TargetProfit"] = sourceData.TargetProfit;
             dr["IsPercentage"] = sourceData.IsPercentage;
+            //dr["IsApprovalApplicable"] = sourceData.IsApprovalApplicable;
+            //dr["ApproveByWhomId"] = sourceData.ApproveByWhomId;
 
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -6049,6 +6051,16 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
         #endregion
 
+        [Authorize, HttpGet]
+        public JsonResult GetApprovedBY()
+        {
+            string sql = @"SELECT E.SystemId As Value, E.EmployeeName As Text, A.ActionStatus from dbo.AuthorizationConfig A 
+                          INNER JOIN dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
+                          where  A.ActionStatus='OrderCostingApproveBy'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
     }
 
     public class OrderCostingBuyer
@@ -6141,6 +6153,8 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         public decimal TargetCM { get; set; }
         public decimal TargetProfit { get; set; }
         public bool IsPercentage { get; set; }
+        //public bool IsApprovalApplicable { get; set; }
+        //public string ApproveByWhomId { get; set; }
     }
     public class OrderOrderCostingDetailTemplate
     {

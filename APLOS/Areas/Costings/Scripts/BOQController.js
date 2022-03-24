@@ -68,7 +68,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
             $scope.MaterialQtyEditList = response.data.DATA;
         });
     }
-    $scope.GetItemList();
+    //$scope.GetItemList();
 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
     $scope.materialType = ['BOM'];

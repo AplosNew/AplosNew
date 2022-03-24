@@ -1624,7 +1624,7 @@ namespace Library.OrderManagement.Costing
                         dsMaster.Tables[0].DefaultView[0]["RMDescription"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMDescription"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["RMCustomerSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMCustomerSpec"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["RMVendorSpec"] = clsStaticInfo.nullrecorder(QuantityData[i]["RMVendorSpec"]).Trim();
-                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDesc"]).Trim();
+                        dsMaster.Tables[0].DefaultView[0]["SKUDesc"] = clsStaticInfo.nullrecorder(QuantityData[i]["SKUDescConcat"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["OwnReferenceNo"] = clsStaticInfo.nullrecorder(QuantityData[i]["OwnReferenceNo"]).Trim();
                         dsMaster.Tables[0].DefaultView[0]["Remark"] = QuantityData[i]["Remark"];
 

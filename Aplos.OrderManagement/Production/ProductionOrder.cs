@@ -121,7 +121,7 @@ from
         public string SalesOrderListForCostingBOQ(string CustomerId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"SELECT ROW_NUMBER() OVER (ORDER BY MasterOrderItemId) AS RN,0 AS Selected
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,0 AS Selected
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,MOI.OrderCostingMasterTemplateId
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName
@@ -140,8 +140,10 @@ from
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+,Approved=CASE WHEN OCMT.isPreCostingApproved=0 THEN 'Yes' WHEN OCMT.isQuickCostingApproved=1 THEN 'Yes' WHEN OCMT.isProcurementCostingApproved=1 THEN 'Yes' ELSE 'No' END
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
+                       LEFT JOIN dbo.OrderCostingMasterTemplate OCMT ON OCMT.Id=MOI.OrderCostingMasterTemplateId
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
                        LEFT JOIN [MST].[MaterialMaster] AS MM ON MOI.MaterialMasterId = MM.Id 
                        LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON MOI.ArticleId = ART.Id

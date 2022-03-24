@@ -80,9 +80,9 @@
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Waste<sup>*</sup></label>
+            <label class="col-sm-4 control-label">UserReference<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Waste" ng-model="ModelNew.Waste" class="form-control" required tabindex="2" maxlength="150">
+                <input type="text" name="UserReference" ng-model="ModelNew.UserReference" class="form-control" required tabindex="2" maxlength="150">
             </div>
         </div>
         <div class="form-group">
@@ -100,7 +100,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input id="datepicker" e-dateformat="dd-MMM-yyyy" ej-datepicker ng-model="ModelNew.Date" e-value="FromDate" e-width="100%" />
+                <input type="text" name="Date" ng-model="ModelNew.Date" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="3">
             </div>
         </div>
 
@@ -121,21 +121,22 @@
                     <div e-column e-headertext="" @*e-headertemplateid="#headerTemplate" *@ e-template="#checkboxTemplates" e-textalign="center" e-width="30"></div>
                     <div e-column e-field="Id" e-headertext="Id" e-width="60"></div>
                     <div e-column e-field="Sequence" e-headertext="Sequence" e-width="80"></div>
-                    <div e-column e-field="WasteCategory" e-headertext="Waste Category" e-width="80"></div>
-                    <div e-column e-field="WasteSubCategory" e-headertext="Waste Sub Category" e-width="80"></div>
-                    <div e-column e-field="WasteName" e-headertext="Waste Name" e-width="80"></div>
-                    <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
+                    <div e-column e-field="ItemName" e-headertext="Item Name" e-width="80"></div>
+                    <div e-column e-field="WasteLocation" e-headertext="Waste Location" e-width="80"></div>
+                    <div e-column e-headertext="Process" e-template="#processTemp" e-width="200"></div>
+                    <div e-column e-field="WasteCategory" e-headertext="Category" e-width="80"></div>
+                    <div e-column e-field="WasteSubCategory" e-headertext="Sub Category" e-width="80"></div>
                     <div e-column e-field="StockQty" e-headertext="Stock Quantity" e-width="80"></div>
+                    <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
                     <div e-column e-field="StdRate" e-headertext="Standard Rate" e-width="80"></div>
                     <div e-column e-field="StdValue" e-headertext="Standard Value" e-width="80"></div>
-                    <div e-column e-headertext="Issue Quantity" e-template="#issueQuantityTemp" e-width="80"></div>
-                    <div e-column e-headertext="Balance Stock" e-template="#balanceStockTemp" e-width="80"></div>
+                    <div e-column e-template="#otherStkValueTemp" e-headertext="Other Stock Value" e-width="100"></div>
+                    <div e-column e-headertext="Issue Quantity" e-template="#issueQuantityTemp" e-width="85"></div>
+                    <div e-column e-headertext="Balance Stock" e-template="#balanceStockTemp" e-width="85"></div>
                     <div e-column e-headertext="Rate" e-template="#rateTemp" e-width="80"></div>
                     <div e-column e-headertext="Issue Value" e-template="#issueValueTemp" e-width="80"></div>
-                    <div e-column e-headertext="Process" e-template="#processTemp" e-width="200"></div>
                     <div e-column e-headertext="Remarks" e-template="#remarksTemp" e-width="100"></div>
                     <div e-column e-template="#balanceStkValueTemp" e-headertext="Balance Stock Value" e-width="100"></div>
-                    <div e-column e-template="#otherStkValueTemp" e-headertext="Other Stock Value" e-width="100"></div>
 
                 </div>
             </div>
@@ -204,12 +205,13 @@
 </div>
 
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetWasteUpd" 
+
+    <div id="GridEditvsdvvd" ej-grid e-datasource="ModelList" e-recorddoubleclick="GetWasteUpd"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
             <div e-column e-field="Id" e-headertext="IssueId" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="Waste" e-headertext="Waste" e-width="2"></div>
+            <div e-column e-field="UserReference" e-headertext=" User Reference" e-width="2"></div>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
             <div e-column e-field="Purpose" e-headertext="Purpose" e-width="3"></div>
             <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="3"></div>
@@ -217,14 +219,15 @@
             <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="3"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="3"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-          @*  <div e-column e-template="#ReportTemp" e-headertext="Report" e-width="3"></div>*@
+            <div e-column e-template="#reportTemp" e-headertext="Reports" e-width="5"></div>
         </div>
     </div>
-    <script type="text/template" id="ReportTemp">
-        <button type="button" class="btn single-btn" ng-click="$parent.Report(this)" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
-    </script>
-</div>
+    
 
+</div>
+<script type="text/template" id="reportTemp">
+    <button type="button" class="btn single-btn" ng-click="$parent.Report(this)" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i></button>
+</script>
 
 
 

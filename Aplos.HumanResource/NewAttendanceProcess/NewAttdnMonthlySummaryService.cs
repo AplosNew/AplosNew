@@ -48,8 +48,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsMonthlyAttnSumm = null;
             DataView dvMonthlyAttnSumm = null;
             DataSet dsDaily = null;
-            DataTable dtDaily = null;
-            DataView dvDaily = null;
             DataSet dsCmp = null;
             DataSet dsFactory = null;
 
@@ -215,9 +213,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    //GetMonthlyDailyAttendanceDic(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
                     dicAttendance = objRpt.GetMonthlyDailyAttendanceDic(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
-                    //objRpt.GegMonthlyDaily(_FLAG, empParameters, objm, out dsDaily, isActive,  isSeperated,  isMaternity);
                 }
 
                 if (dicAttendance.Count == 0)
@@ -332,11 +328,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int iTtlPst = 0;
                     int ionlyP = 0;
                     int iTtlAbs = 0;
-                    int iTtlLte = 0;
-                    int iTtlLv = 0;
-                    int iTtlLWP = 0;
-                    int iTsl = 0;
-                    int iTtlMLv = 0;
+                    int iTtlLte = 0;                   
                     int iExtraAbs = 0;
                     int iWeekOffDays = 0;
                     int iLateIn = 0;
@@ -653,7 +645,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int _StartRow = xlsRow;
                     #endregion ------------------Column Header------------------
 
-                    //dvDaily.Table = dtDaily;
                     string attdnStatus = "";
                     string _day_status = "";
                     #region Attendance Data 
@@ -910,9 +901,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                                     sheet1.Range[xlsRow, tempLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
 
-                                //sheet1.Range[xlsRow, tempLv].Text = LIdList[j].ToString();
-                                //sheet1.Range[xlsRow, tempLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                //sheet1.Range[xlsRow, tempLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 tempLv++;
                             }
                         }
@@ -1449,16 +1437,18 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                 }
 
+                string Month= Convert.ToDateTime(objm.FDate).Month.ToString();
+                string Year= Convert.ToDateTime(objm.FDate).Year.ToString();
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 var sql = @"SELECT EmpSystemID,
                 WeekOffDays = STUFF((
                 SELECT '-' + format(WorkDate,'dd') as FF
                 FROM AttdnProcessData ap
                 WHERE ap.EmpSystemID = p.EmpSystemID and ap.WeekOffValue = '1' 
-                and WorkDate between '" + objm.FDate+"' and '"+objm.TDate+"' "+empStr+@"
+                and OtMonth='" + Month + "' and OtYear='" + Year + "'"+empStr+ @"
                 FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
                 FROM AttdnProcessData p
-                where WorkDate between '"+objm.FDate+"' and '"+objm.TDate+"' "+empStr+@"
+                where p.WeekOffValue='1' and OtMonth='" + Month+"' and OtYear='"+Year+"' "+empStr+@"
                 group by EmpSystemID";
 
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
@@ -1528,8 +1518,6 @@ namespace Library.HumanResource.NewAttendanceProcess
             DataSet dsMonthlyAttnSumm = null;
             DataView dvMonthlyAttnSumm = null;
             DataSet dsDaily = null;
-            DataTable dtDaily = null;
-            DataView dvDaily = null;
             DataSet dsCmp = null;
             DataSet dsFactory = null;
 
@@ -1612,7 +1600,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         sEmpSystemID += @"'" + empParameters["EmpSystemId"] + "'";
                     }
                 }
-                DataSet dsAttdnSumm = null;
+               // DataSet dsAttdnSumm = null;
                 Dictionary<string, List<DataRow>> dicAttendance = new Dictionary<string, List<DataRow>>();
 
                 GetMonthlyAttnSummaryRptForDetailsDateRange(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
@@ -1667,9 +1655,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 }
                 else
                 {
-                    //GetMonthlyDailyAttendanceDic(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
                     dicAttendance = objRpt.GetMonthlyDailyAttendanceDic(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
-                    //objRpt.GegMonthlyDaily(_FLAG, empParameters, objm, out dsDaily, isActive,  isSeperated,  isMaternity);
                 }
 
                 if (dicAttendance.Count == 0)
@@ -2093,7 +2079,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     int _StartRow = xlsRow;
                     #endregion ------------------Column Header------------------
 
-                    //dvDaily.Table = dtDaily;
                     string attdnStatus = "";
                     string _day_status = "";
                     //#region Attendance Data 
@@ -2756,18 +2741,21 @@ namespace Library.HumanResource.NewAttendanceProcess
                     }
                 }
 
+                string Month = Convert.ToDateTime(objm.FDate).Month.ToString();
+                string Year = Convert.ToDateTime(objm.FDate).Year.ToString();
                 objCon = new ConnectionManager.DAL.ConManager("1");
+                
                 var sql = @"SELECT EmpSystemID,
                 WeekOffDays = STUFF((
                 SELECT '-' + format(WorkDate,'dd') as FF
                 FROM AttdnProcessData ap
                 WHERE ap.EmpSystemID = p.EmpSystemID and ap.WeekOffValue = '1' 
-                and WorkDate between '" + objm.FDate + "' and '" + objm.TDate + "' " + empStr + @"
+                and OtMonth='" + Month + "' and OtYear='" + Year + "'" + empStr + @"
                 FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
                 FROM AttdnProcessData p
-                where WorkDate between '" + objm.FDate + "' and '" + objm.TDate + "' " + empStr + @"
+                where p.WeekOffValue='1' and OtMonth='" + Month + "' and OtYear='" + Year + "' " + empStr + @"
                 group by EmpSystemID";
-
+                
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
 
 

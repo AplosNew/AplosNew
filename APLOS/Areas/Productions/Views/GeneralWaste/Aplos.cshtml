@@ -14,6 +14,17 @@
                     <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                 </div>
             </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Waste Location<sup>*</sup></label>
+                <div class="col-sm-6  show-message">
+                    <div class="select-style">
+                        <select name="Plant" ng-model="WasteLocationId" class="col-sm-3 form-control"
+                                ng-options="item.Id as item.StorageLocation for item in WasteLocationList" tabindex="2" required>
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
@@ -23,8 +34,9 @@
                 </div>
             </div>
         </div>
+
+        </div>
     </div>
-</div>
 
 
 

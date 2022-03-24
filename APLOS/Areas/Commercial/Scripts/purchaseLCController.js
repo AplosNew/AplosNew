@@ -234,9 +234,10 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
     }
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
+   
+    $scope.closePartyPopUp = function (x) {
+       
+            var party = x.data;
             $scope.purchaseLCNew.VendorId = party.Id;
             $scope.purchaseLCNew.PartyCode = party.Code;
             $scope.purchaseLCNew.PartyName = party.UserName;
@@ -247,7 +248,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             } else {
                 $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
             }
-        }
+        
         $scope.hidePartyPopUp();
     };
 

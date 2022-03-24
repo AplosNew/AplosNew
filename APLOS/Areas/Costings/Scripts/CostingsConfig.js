@@ -32,7 +32,8 @@ function CostingsConfig($routeProvider, $locationProvider) {
         .when('/order-costing', {
             templateUrl: 'costings/OrderCosting/Aplos',
             controller: 'OrderCostingController'
-        }).when('/order-costing-approval', {
+        })
+        .when('/order-costing-approval', {
             templateUrl: 'costings/OrderCostingApproval/Aplos',
             controller: 'OrderCostingApprovalController'
         })
@@ -69,6 +70,9 @@ function CostingsConfig($routeProvider, $locationProvider) {
             templateUrl: 'costings/ItemConsumption/Aplos',
             controller: 'ItemConsumptionController'
         })
-    
+        .when('/boq-approval', {
+            templateUrl: 'costings/BOQGeneration/Approval',
+            controller: 'BOQApprovalController'
+        })
         ;
 }
