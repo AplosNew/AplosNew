@@ -570,18 +570,34 @@ namespace Aplos.Areas.Productions.Controllers
                     sheet[ROW, ColWasteSubCategory].Text = data.Rows[i]["WasteSubCategory"].ToString();
                     sheet[ROW, ColItemName].Text = data.Rows[i]["ItemName"].ToString();
                     sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
-                    sheet[ROW, ColStockQty].Text = data.Rows[i]["StockQty"].ToString();
-                    sheet[ROW, ColStdRate].Text = data.Rows[i]["StdRate"].ToString();
-                    sheet[ROW, ColStdValue].Text = data.Rows[i]["StdValue"].ToString();
-                    sheet[ROW, ColIssueQty].Text = data.Rows[i]["IssueQty"].ToString();
-                    sheet[ROW, ColBalanceStock].Text = data.Rows[i]["BalanceStock"].ToString();
-                    sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
-                    sheet[ROW, ColIssueValue].Text = data.Rows[i]["IssueValue"].ToString();
+                    
+                    sheet[ROW, ColStockQty].Number = clsStaticInfo.dbl(data.Rows[i]["StockQty"].ToString());
+                    sheet[ROW, ColStockQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColStdRate].Number = clsStaticInfo.dbl(data.Rows[i]["StdRate"].ToString());
+                    sheet[ROW, ColStdRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColStdValue].Number = clsStaticInfo.dbl(data.Rows[i]["StdValue"].ToString());
+                    sheet[ROW, ColStdValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
+                    sheet[ROW, ColIssueQty].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColBalanceStock].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceStock"].ToString());
+                    sheet[ROW, ColBalanceStock].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+                    sheet[ROW, ColRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+
+                    sheet[ROW, ColIssueValue].Number = clsStaticInfo.dbl(data.Rows[i]["IssueValue"].ToString());
+                    sheet[ROW, ColIssueValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
 
                     sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                    sheet[ROW, ColBalanceStockValue].Text = data.Rows[i]["BalanceStkValue"].ToString();
+
+                    sheet[ROW, ColBalanceStockValue].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceStkValue"].ToString());
+                    sheet[ROW, ColBalanceStockValue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
