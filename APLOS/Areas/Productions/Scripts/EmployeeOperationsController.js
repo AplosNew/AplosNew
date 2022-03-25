@@ -207,6 +207,22 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     //Processing Button
     $scope.processAll = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'processAll',
+            data: {
+                'Date': $scope.Date
+            },
+        }).then(function succ(resp) {
 
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(resp.data.Message, 'success');
+               
+            }
+
+        });
     }
 }

@@ -455,5 +455,73 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
+
+        public void processAll(string Date)
+        {
+            try
+            {
+                
+                #region 1. Getting The Current Parial Data
+
+                DataSet dsMasterHalf = null;
+                ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
+                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Date + "'  order by EmployeeId asc, Qty desc", out dsMasterHalf, false, "1");
+
+                DataTable dtMasterHalf = dsMasterHalf.Tables[0];
+
+                #endregion
+
+                #region 2. Getting the TotalSPT Data
+
+                var str = @"Select ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , pt.ProductionOrderId  from trn.ProductionBulletinTemplateDetail ptd
+                                left join  trn.ProductionBulletinTemplateMaster pm on pm.Id  = ptd.ProductionBulletinTemplateMasterId
+                                left join  trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId";
+                DataTable dtTotalSpt = _sqlRepository.GetDataTable(str);
+
+                #endregion
+
+                #region 3. Filling in the Sequences
+
+                if (dtMasterHalf.Rows.Count <= 0)
+                {
+                    throw new Exception("There is no data to Process!!");
+                }
+                else
+                {
+                    string empId = "";
+                    int k = 0;
+                    for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                    {
+                        k++;
+                        if (dtMasterHalf.Rows[i]["EmployeeId"].ToString() == empId)
+                        {
+                            dtMasterHalf.Rows[i]["Sequence"] = k;
+                        }
+                        else
+                        {
+                            k = 1;
+                            
+                            dtMasterHalf.Rows[i]["Sequence"] = k;
+                        }
+                        empId = dtMasterHalf.Rows[i]["EmployeeId"].ToString();
+                    }
+
+                }
+
+                #endregion
+
+                #region 4. Calculation and Filling of the MasterHalf DataTable
+
+
+
+                #endregion
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }
