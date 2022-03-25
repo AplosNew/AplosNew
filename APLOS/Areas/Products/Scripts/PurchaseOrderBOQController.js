@@ -1264,7 +1264,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 url: $scope.POBOQ1SaveUrl,
                 data: {
                     updatePOBOQList: $scope.updatePOBOQList
-                    , poBoqItemListNew: $scope.$scope.MaterialModels
+                    , poBoqItemListNew: $scope.MaterialModels
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -1272,6 +1272,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                     ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
                 else {
                     ShowResult(response.data.Message, 'success', 'updatePOBOQPopUp');
+                    getInventoryMaterialList($scope.productNew.Id);
+                    $scope.CloseupdatePOBOQPopUp();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');

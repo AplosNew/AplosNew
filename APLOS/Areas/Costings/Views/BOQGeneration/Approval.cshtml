@@ -1,4 +1,239 @@
-﻿<div class="aplos-grid-toggle">
+﻿<togglable name="BOQ"></togglable>
+<div class="form-elements" id="mainContainer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Customer</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="Customer" ng-model="Model.CustomerName" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-8">
+
+                    <input type="text" ng-model="Model.Remarks" name="Remarks" class="form-control" readonly>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                <div class="col-sm-8">
+                    <input type="text" name="SalesOrder" ng-model="Model.UserName" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="Model.EmployeeName" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material Attachment</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Info Update</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div id="GridMaterialAttachment" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="MaterialAttachmentList" e-allowfiltering="true"
+                                 e-allowscrolling="true"
+                                 e-allowpaging="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel">
+                                <div e-columns>
+                                    <div e-column e-type="string" e-field="CostingItem" e-headertext="CostingItem" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="BOMMaterialRefNo" e-headertext="Material Ref#" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="160px"></div>
+                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="160px"></div>
+                                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="160px"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div id="GridMaterialQuantity" ng-init="chkinit()" ej-grid e-actioncomplete="syncfusiongriddatabound" e-datasource="MaterialQtyEditList" e-allowfiltering="true"
+                                 e-allowscrolling="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true"e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateBOQ">
+                                <div e-columns>
+                                    <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                                    <div e-column e-type="string" e-field="CostingItemId" e-headertext="Costing Item Id" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="CostingItem" e-headertext="Costing Item" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="ItemRefNo" e-headertext="Item Ref." e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="BOQCriteria" e-headertext="BOQ Criteria" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="CriteriaDetail" e-headertext="Criteria Detail" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="Id" e-headertext="BOQ System Id" e-width="120px"></div>
+                                    <div e-column e-template="#ItemDesc" e-headertext="Item Desc" e-width="120px"></div>
+                                    <div e-column e-template="#VendorItem" e-headertext="Vendor Ref." e-width="120px"></div>
+                                    <div e-column e-template="#BuyerRef" e-headertext="Customer Ref." e-width="120px"></div>
+                                    <div e-column e-template="#OwnRef" e-headertext="Own Ref." e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="UOM" e-headertext="UoM" e-width="50px"></div>
+                                    <div e-column e-template="#EnterSKUTemplate" e-headertext="Required Qty" e-width="120px"></div>
+                                    <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="60px"></div>
+                                    <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>
+                                    <div e-column e-type="number" e-field="BOMAmount" e-headertext="Required Amount" e-width="60px"></div>
+                                    <div e-column e-type="number" e-field="PlanAmount" e-headertext="Plan Amount" e-width="60px"></div>
+                                    <div e-column e-type="string" e-field="Vendor" e-headertext="Vendor" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="MaterialCode" e-headertext="Material Code" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="ArticleCode" e-headertext="Article Code" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="SKU1" e-headertext="SKU1" e-width="50px"></div>
+                                    <div e-column e-type="string" e-field="SKU2" e-headertext="SKU2" e-width="50px"></div>
+                                    <div e-column e-template="#RMSKU" e-headertext="SKU Desc." e-width="120px"></div>
+                                    <div e-column e-type="string" e-field="SONumber" e-headertext="SO Id" e-width="80px"></div>
+                                    <div e-column e-type="string" e-field="Destination" e-headertext="Destination" e-width="100px"></div>
+                                    <div e-column e-type="number" e-field="BOMQty" e-headertext="BOM Qty" e-width="60px"></div>
+
+                                    <div e-column e-type="number" e-field="BalanceToPurchase" e-headertext="Reuse From Inventory" e-format="{0:N2}" e-width="100px"></div>
+                                    <div e-column e-type="string" e-field="POCriteria" e-headertext="PO Criteria" e-width="100px"></div>
+
+                                    <div e-column e-template="#TemplateRemark" e-headertext="Remark" e-width="100px"></div>
+                                    <div e-column e-template="#TemplateFileName" e-headertext="File Name" e-width="100px"></div>
+                                    <div e-column e-template="#TemplateStatus" e-headertext="Status" e-width="80" style="height: 20px;"></div>
+                                    <div e-column e-template="#TemplateReason" e-headertext="Reason" e-width="160px"></div>
+                                </div>
+                            </div>
+
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.RequiredQtyApproved" />
+                            </script>
+                            <script type="text/x-jsrender" id="headerTemplate">
+                                <input type="checkbox" id="headchk" />
+                            </script>
+
+                            <script type="text/template" id="TemplateStatus">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="data.Status" name="Status">
+                                        <option value="">--Select--</option>
+                                        <option value="Approved">Approved</option>
+                                        <option value="Reject">Reject</option>
+                                    </select>
+                                </div>
+                            </script>
+                            <script type="text/template" id="TemplateRemark">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.Remark" ng-disabled="true" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="TemplateReason">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-model="data.Reason" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="TemplateFileName">
+                                <a href="POPResources/BOQAttachment/{{data.FileName}}" target="_blank"> {{data.FileOriginalName}}</a>
+                            </script>
+                            <script type="text/template" id="EnterSKUTemplate">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="number" min="0" ng-disabled="true" ng-model="data.RequiredQty" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="ItemDesc">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-disabled="true" ng-model="data.RMDescription" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="BuyerRef">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-disabled="true" ng-model="data.RMCustomerSpec" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="OwnRef">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-disabled="true" ng-model="data.OwnReferenceNo" class="form-control">
+                                </div>
+                            </script>
+
+                            <script type="text/template" id="VendorItem">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-disabled="true" ng-model="data.RMVendorSpec" class="form-control">
+                                </div>
+                            </script>
+                            <script type="text/template" id="RMSKU">
+                                <div class="col-xs-12 col-sm-10 col-md-10" style="padding:0px;margin:0px;">
+                                    <input type="text" ng-disabled="true" ng-model="data.SKUDescConcat" class="form-control">
+                                </div>
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 text-right">
+            <div class="common-btn">
+                <ul class="list-inline small">
+                    <li>
+                        <button ng-click="Update();" class="btn small">
+                            <i class="glyphicon glyphicon-search"></i>Update
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<ej-dialog id="UploadBox" title="Upload File" e-enablemodal="true" e-position-y="0" e-showoninit="false" e-target="#mainContainer"
+           e-close="onDialogClose" e-minwidth="700" e-minheight="400" e-open="enableBtn">
+    <div class="row" style="height:360px!important;">
+        <div class="col-md-12">
+            <div class="col-md-4">
+                Item Name
+            </div>
+            <div class="col-md-8">
+                {{SelectedItemData.UserName}}
+            </div>
+            <div class="col-md-4">
+                File Name
+            </div>
+            <div class="col-md-8">
+                <button ng-hide="SelectedItemData.FileName==null || SelectedItemData.FileName==''" name="submit" ng-click="confirmFileDelete()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-trash"></i></button>
+                <a href="POPResources/OrderCosting/{{SelectedItemData.FileName}}" target="_blank">
+                    <span style="color:red;padding:4px;">  </span>
+                    <span style="height:20px;width:20px;color:blue;">
+                        {{SelectedItemData.FileOriginalName}}
+                    </span>
+                </a>
+            </div>
+
+
+            <div class="col-md-12">
+                <div id="UploadDefault" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="getFileList" e-showroundedcorner="false" e-height="30" e-dialogtext-title="File Attachments" e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" e-error="errorUpload"></div>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="form-group">
+
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="closePopup('UploadBox');" class="btn">Back</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</ej-dialog>
+<div class="aplos-grid-toggle">
     <div class="row text-right">
         <div class="col-xs-12 col-sm-12 col-sm-12">
             <div class="search-form">
@@ -41,3 +276,12 @@
         </div>
     </div>
 </div>
+
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
+@Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
+<confirm-modal></confirm-modal>
+<confirm-archive-generic modalid="confirmDelete" title="Confirmation" data-ng-click-left-button="closePopup('confirmDelete')" message="Are you sure to delete this transaction?" data-ng-click-right-button="Delete()"></confirm-archive-generic>
+
+

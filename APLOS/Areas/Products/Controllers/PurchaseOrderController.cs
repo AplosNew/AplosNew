@@ -5244,6 +5244,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster, dsBOq;
                 DataRow drMSave = null;
+                DataRow drSave = null;
                 if (poBoqItemListNew == null)
                 {
                     throw new CustomException("Please select Items");
@@ -5262,15 +5263,32 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
                     for (int i = 0; i < updatePOBOQList.Count; i++)
                     {
                         dsBOq.Tables[0].DefaultView.RowFilter = "Id = '" + updatePOBOQList[i]["Id"] + "' ";
-                        if (true)
+                        if (dsBOq.Tables[0].DefaultView.Count>0)
                         {
                             drMSave = dsBOq.Tables[0].DefaultView[0].Row;
                             drMSave.BeginEdit();
-                            drMSave["TransactionQty"] = clsStaticInfo.dbl(updatePOBOQList[i]["updatePOBOQList"].ToString());
-                            Total = Total + clsStaticInfo.dbl(updatePOBOQList[i]["updatePOBOQList"].ToString());
+                            drMSave["TransactionQty"] = clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString());
+                            Total = Total + clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString());
+
+                            drMSave["UpdatedBy"] = identity.Name;
+                            drMSave["UpdatedDate"] = DateTime.Now;
+                            drMSave["UpdatedFromIP"] = identity.IPAddress;
+
                             drMSave.EndEdit();
                         }
                     }
+                }
+                dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + poBoqItemListNew["Id"] + "' ";
+                if (dsMaster.Tables[0].DefaultView.Count > 0)
+                {
+                    drSave = dsMaster.Tables[0].DefaultView[0].Row;
+                    drSave.BeginEdit();
+                    drSave["TransactionQty"] = clsStaticInfo.dbl(Total.ToString());
+
+                    drSave["UpdatedBy"] = identity.Name;
+                    drSave["UpdatedDate"] = DateTime.Now;
+                    drSave["UpdatedFromIP"] = identity.IPAddress;
+                    drSave.EndEdit();
                 }
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsBOq,dsMaster);
