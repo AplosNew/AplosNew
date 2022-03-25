@@ -96,5 +96,20 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult processAll(string Date)
+        {
+            try
+            {
+                eo.processAll( Date);
+                return Json(new { Error = false, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
     }
 }
