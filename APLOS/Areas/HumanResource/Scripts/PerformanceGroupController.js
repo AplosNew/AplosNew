@@ -29,17 +29,7 @@ function PerformanceGroupController(cboService, commonMessage, $scope, $rootScop
         });
     }
     $scope.getData();
-    $scope.getEmployeetypeChild = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getEmployeetypeChild",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EmployeeList = response.data;
-        });
-    }
-
-    //$scope.getEmployeetypeChild();
+    
 
     $scope.ModelTemp = {
         Id: null,

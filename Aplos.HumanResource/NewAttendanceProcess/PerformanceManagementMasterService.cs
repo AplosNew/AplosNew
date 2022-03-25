@@ -504,7 +504,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "Is" + _Id;
+                    data["Id"] = "PG" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
