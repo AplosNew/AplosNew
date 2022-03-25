@@ -16,6 +16,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
+    $scope.POBOQ1SaveUrl = $scope.path + 'POBOQSave';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
     $scope.saveTitleUrl = $scope.path + 'SaveTitle';
     $scope.saveTermsDetail = $scope.path + 'SaveTermsDetail';
@@ -1238,8 +1239,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         }
     }
 
+    $scope.MaterialModels = {};
     $scope.updatePOBOQList = [];
     $scope.getPOBOQItemList = function (data) {
+        $scope.MaterialModels = data;
         $http({
             method: 'GET',
             url: 'Products/PurchaseOrder/GetPOBOQMapListForUpdate?poId=' + $scope.productNew.Id + '&poDatailId=' + data.Id,
@@ -1254,5 +1257,30 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         angular.element(document.querySelector('#updatePOBOQPopUp')).modal('hide');
 
     }
+    $scope.SaveOBOQPopUp = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.POBOQ1SaveUrl,
+                data: {
+                    updatePOBOQList: $scope.updatePOBOQList
+                    , poBoqItemListNew: $scope.MaterialModels
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
+                else {
+                    ShowResult(response.data.Message, 'success', 'updatePOBOQPopUp');
+                    getInventoryMaterialList($scope.productNew.Id);
+                    $scope.CloseupdatePOBOQPopUp();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
+            };
+        } catch (e) {
+            ShowResult(e,'info')
+        }
+    };
 }//End Of main
 

@@ -29,7 +29,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getEmployeetype",
+            url: $scope.path + "getperformanceGroup",
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.EmployeeList = response.data;
@@ -37,6 +37,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
     }
 
     $scope.getEmployee();
+
     $scope.selectEmployee = function () {
        
         angular.element(document.querySelector('#EmployeePop')).modal('show');
@@ -49,7 +50,7 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
         Category: null,
         SubCategory: null,
         StandardName: null,
-        UserName: null,
+        Username: null,
         ShortName: null,
         Code: null,
         Active: true,
@@ -79,8 +80,8 @@ function PerformanceManagementMasterController(cboService, commonMessage, $scope
             var child = resp.data.child;
             var ob = {};
             for (var i = 0; i < child.length; i++) {
-                ob[child[i].EmployeeCategoryId] = true;
-                $scope.EmployeeIds.push(child[i].EmployeeCategoryId);
+                ob[child[i].PerformanceGroupId] = true;
+                $scope.EmployeeIds.push(child[i].PerformanceGroupId);
 
             }
             //EmployeeList
