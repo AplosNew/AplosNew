@@ -51,9 +51,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @" select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,et.Username 
+                var str = @"select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,pg.Username 
                 from PMSChild pc
-			    left join hkp.PerformanceGroup et on et.id=pc.PerformanceGroupId
+			    left join hkp.PerformanceGroup pg on pg.Id=pc.PerformanceGroupId
                 where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -442,6 +442,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
+
+        
 
         public IEnumerable<object> Get(string Id)
         {

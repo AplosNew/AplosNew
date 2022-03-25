@@ -39,7 +39,7 @@ function PerformanceGroupController(cboService, commonMessage, $scope, $rootScop
         });
     }
 
-    $scope.getEmployeetypeChild();
+    //$scope.getEmployeetypeChild();
 
     $scope.ModelTemp = {
         Id: null,
