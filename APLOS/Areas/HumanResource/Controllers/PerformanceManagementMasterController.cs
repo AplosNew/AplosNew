@@ -40,7 +40,18 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-      
+        [Authorize, HttpPost]
+        public ActionResult GetMaster(string Id)
+        {
+            try
+            {
+                return Json(ps.GetMaster(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [Authorize, HttpPost]
         public ActionResult getperformanceGroup()
