@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Linq;
+using System.Collections.Specialized;
 
 namespace Library.OrderManagement.Production
 {
@@ -569,9 +570,21 @@ namespace Library.OrderManagement.Production
 
                 #region 2. Getting the TotalSPT Data
 
-                var str = @"Select ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , pt.ProductionOrderId  from trn.ProductionBulletinTemplateDetail ptd
+                //var str1 = @"Select pt.ProductionOrderId , ptd.OperationVariationId ,skc.Id as SkillCatId,  skc.UserName , ptd.TotalSPT as SkillCat
+                //            from trn.ProductionBulletinTemplateDetail ptd
+                //            left join trn.ProductionBulletinTemplateMaster pm on pm.Id = ptd.ProductionBulletinTemplateMasterId
+                //            left join trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId
+                //            left join hkp.Skill sk on sk.Id = ptd.SkillId
+                //            left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId";
+
+                var str = @"Select distinct ptd.OperationVariationId , pm.ProcessId , ptd.TotalSPT , skc.Id as SkillCatId,  skc.UserName ,pt.ProductionOrderId  from trn.ProductionBulletinTemplateDetail ptd
                                 left join  trn.ProductionBulletinTemplateMaster pm on pm.Id  = ptd.ProductionBulletinTemplateMasterId
-                                left join  trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId";
+                                left join  trn.ProductionBulletinTemplate pt on pt.Id = pm.ProductionBulletinTemplateId
+								left join hkp.Skill sk on sk.Id = ptd.SkillId
+                                left join hkp.SkillCategory skc on skc.Id = sk.SkillCategoryId";
+
+               
+
                 DataTable dtTotalSpt = _sqlRepository.GetDataTable(str);
 
                 #endregion
@@ -608,10 +621,42 @@ namespace Library.OrderManagement.Production
 
                 #region 4. Calculation and Filling of the MasterHalf DataTable
 
+                ListDictionary dicSkillCat = new ListDictionary(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
+
+                for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                {
+                    dtTotalSpt.DefaultView.RowFilter = @"ProductionOrderId='"+dtMasterHalf.Rows[i]["ProductionOrderId"].ToString()+"' and OperationVariationId='"+ dtMasterHalf.Rows[i]["OperationVariationId"].ToString() + "'";
+                    dicSkillCat.Add(dtMasterHalf.Rows[i]["Id"].ToString() , dtTotalSpt.DefaultView[0]["SkillCatId"].ToString());
+                    dtMasterHalf.Rows[i].BeginEdit();
+                    dtMasterHalf.Rows[i]["StandardProcessTime"] = clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
+                    dtMasterHalf.Rows[i]["TotalSPT"] = clsStaticInfo.dbl(dtMasterHalf.Rows[i]["Qty"].ToString())*clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
+                    dtMasterHalf.Rows[i].EndEdit();
+                }
+
+                #endregion
+
+                #region 5. Calculation of Allowances
+
+                var str2 = @"Select epp.Id, po.EntityId , owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
+                            left join trn.ProductionOrder po on po.Id = epp.ProductionOrderId
+                            left join ( Select distinct owe.Date , owe.EmployeeId , owe.OperationVariationId , owe.ProcessId from dbo.OperationWiseEmployees owe
+                             where Date='"+Date+ @"') owe on owe.EmployeeId = epp.EmployeeId and owe.Date = epp.Date and owe.OperationVariationId = epp.OperationVariationId
+                            where epp.Date='" + Date + @"'";
+
+                DataTable dtMainDict = _sqlRepository.GetDataTable(str2);
+
+                var str3 = @"Select ph.Id , pp.ProcessId , pe.EntityId , pc.SkillAllowance , pc.OperationSequence , pc.SkillCategoryId
+                            from dbo.ProducedMinAllowanceHeader ph
+                            left join dbo.ProducedMinAllowanceEntity pe on pe.HeaderId = ph.Id
+                            left join dbo.ProducedMinAllowanceProcess pp on pp.HeaderId = ph.Id
+                            left join dbo.ProducedMinAllowanceChild pc on pc.HeaderId = ph.Id";
+
+                DataTable dtAllowance = _sqlRepository.GetDataTable(str3);
 
 
                 #endregion
 
+                var jj = 0;
 
             }
             catch (Exception ex)
