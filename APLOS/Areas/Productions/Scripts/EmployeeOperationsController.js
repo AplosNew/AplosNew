@@ -5,7 +5,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/EmployeeOperations/';
-
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     
 
     //Variables
@@ -16,6 +16,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.Date = null;
     $scope.periodId = null;
     $scope.change = null;
+    $scope.ReportId = null;
+    $scope.selEo = null;
 
     //Arrays
     $scope.workCenterList = [];
@@ -68,6 +70,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.ShiftList = resp.data;
         });
 
+       
         
     }
 
@@ -202,6 +205,24 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             var gridObj = $("#summaryGrid").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
+        });
+    }
+    // Download Button Functionality
+    $scope.getReportDownload = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getReportDownload",
+            
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
     }
 
