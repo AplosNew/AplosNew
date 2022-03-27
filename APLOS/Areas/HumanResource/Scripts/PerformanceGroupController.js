@@ -10,6 +10,8 @@ function PerformanceGroupController(cboService, commonMessage, $scope, $rootScop
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.EmployeeList = [];
+    $scope.EmployeeId = null;
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
@@ -27,6 +29,7 @@ function PerformanceGroupController(cboService, commonMessage, $scope, $rootScop
         });
     }
     $scope.getData();
+    
 
     $scope.ModelTemp = {
         Id: null,

@@ -16,6 +16,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
     $scope.detailDeleteUrl = $scope.path + 'DetailDelete?receiveDetailId=';
     $scope.sreviceSaveUrl = $scope.path + 'servicechargescreate';
+    $scope.POBOQ1SaveUrl = $scope.path + 'POBOQSave';
     $scope.sreviceDeleteUrl = $scope.path + 'servicechargesdelete?serviceId=';
     $scope.saveTitleUrl = $scope.path + 'SaveTitle';
     $scope.saveTermsDetail = $scope.path + 'SaveTermsDetail';
@@ -323,6 +324,13 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         , IsTradingPO: false
     };
     $scope.productNew = Object.assign({}, $scope.product);
+    $scope.Clear = function () {
+        $scope.product = {};
+        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId};
+        $scope.poBoqItemListNew = [];
+        $scope.tempList = [];
+        $scope.taxCategoryList = [];
+    };
 
     $http({
         method: 'GET',
@@ -701,6 +709,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.currencyExchangeRate = null;
         }
     };
+ 
 
     $scope.detailPOSaveForBOQ = function () {
         ;
@@ -1099,6 +1108,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             });
 
     }
+
     function checkSameValueInColumnList(list, fieldName) {
         for (var i = 0; i < baseService.arrayLength(list); i++) {
             if (list[i][fieldName] === (i > 0 ? list[i - 1][fieldName] : list[i][fieldName]))
@@ -1228,5 +1238,49 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
 
         }
     }
+
+    $scope.MaterialModels = {};
+    $scope.updatePOBOQList = [];
+    $scope.getPOBOQItemList = function (data) {
+        $scope.MaterialModels = data;
+        $http({
+            method: 'GET',
+            url: 'Products/PurchaseOrder/GetPOBOQMapListForUpdate?poId=' + $scope.productNew.Id + '&poDatailId=' + data.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.updatePOBOQList = response.data;
+        });
+        angular.element(document.querySelector('#updatePOBOQPopUp')).modal('show');
+
+    }
+    $scope.CloseupdatePOBOQPopUp = function () {
+        angular.element(document.querySelector('#updatePOBOQPopUp')).modal('hide');
+
+    }
+    $scope.SaveOBOQPopUp = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.POBOQ1SaveUrl,
+                data: {
+                    updatePOBOQList: $scope.updatePOBOQList
+                    , poBoqItemListNew: $scope.MaterialModels
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
+                else {
+                    ShowResult(response.data.Message, 'success', 'updatePOBOQPopUp');
+                    getInventoryMaterialList($scope.productNew.Id);
+                    $scope.CloseupdatePOBOQPopUp();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
+            };
+        } catch (e) {
+            ShowResult(e,'info')
+        }
+    };
 }//End Of main
 

@@ -5,7 +5,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Productions/EmployeeOperations/';
-
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     
 
     //Variables
@@ -16,6 +16,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.Date = null;
     $scope.periodId = null;
     $scope.change = null;
+    $scope.ReportId = null;
+    $scope.selEo = null;
 
     //Arrays
     $scope.workCenterList = [];
@@ -68,6 +70,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.ShiftList = resp.data;
         });
 
+       
         
     }
 
@@ -94,7 +97,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         ob.EmployeeCode = null;
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
-        ob.Qty = null;
+        ob.Qty = 0;
         //ob.Period2 = null;
         //ob.Period3 = null;
         //ob.Period4 = null;
@@ -132,7 +135,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $scope.NewList = [];
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
-            if ($scope.ModelList[i].isChanged == true) {
+            if ($scope.ModelList[i].isChanged == true || $scope.ModelList[i].Qty > 0) {
                 $scope.NewList.push($scope.ModelList[i]);
             }
         }
@@ -202,6 +205,45 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             var gridObj = $("#summaryGrid").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
+        });
+    }
+    // Download Button Functionality
+    $scope.getReportDownload = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getReportDownload",
+            
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+    //Processing Button
+    $scope.processAll = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'processAll',
+            data: {
+                'Date': $scope.Date
+            },
+        }).then(function succ(resp) {
+
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(resp.data.Message, 'success');
+               
+            }
+
         });
     }
 }

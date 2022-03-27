@@ -1,17 +1,18 @@
 ﻿<togglable name="{{title}}">Costing Template</togglable>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm" id="costingMain">
+<div id="costingMain"></div>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <div class="col-xs-12 text-right">
 
         <span style="display:{{ModelNew.CostingStage==null?'none':''}}">
             <span style="font-size:{{ModelNew.CostingStage=='QuickCosting'?'2em':'1em'}}">Quick Costing</span>
             <span style="font-size:{{ModelNew.CostingStage=='QuickCosting'?'4em':'2em'}}; color:{{ModelNew.isQuickCostingApproved==true?'green':'gray'}};" ng-click="ApproveCostingPopup('QUICK');" class="glyphicon glyphicon-ok-circle"></span>
         </span>
-        
+
         <span style="display:{{ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?'':'none'}}">
             <span style="font-size:{{ModelNew.CostingStage=='PreCosting'?'2em':'1em'}}">Pre Costing</span>
             <span style="font-size:{{ModelNew.CostingStage=='PreCosting'?'4em':'2em'}}; color:{{ModelNew.isPreCostingApproved==true?'green':'gray'}};" ng-click="ApproveCostingPopup('PRE');" class="glyphicon glyphicon-ok-circle"></span>
         </span>
-        
+
         <span style="display:{{ModelNew.CostingStage=='ProcurementCosting'?'':'none'}}">
             <span style="font-size:{{ModelNew.CostingStage=='ProcurementCosting'?'2em':'1em'}}">Procurement Costing</span>
             <span style="font-size:{{ModelNew.CostingStage=='ProcurementCosting'?'4em':'2em'}}; color:{{ModelNew.isProcurementCostingApproved==true?'green':'gray'}};" ng-click="ApproveCostingPopup('PROCURemENT');" class="glyphicon glyphicon-ok-circle"></span>
@@ -197,9 +198,14 @@
                                 </tr>
                                 <tr ng-repeat="x in QuickCostingDetailList" style="background-color:{{x.isToBeDeleted=='DELETE'?'red':''}}; color:blue">
 
-                                    <td class="cellBorder" style="cursor:pointer;" ng-click="NavigateToOrderCosting(x);">
+                                    @*<td class="cellBorder" style="cursor:pointer;" ng-click="NavigateToOrderCosting(x);">
 
-                                        <label style="color:blue;font-weight:inherit;">{{x.UserName}}</label>
+                                            <label style="color:blue;font-weight:inherit;">{{x.UserName}}</label>
+
+                                        </td>*@
+                                    <td class="cellBorder" style="cursor:pointer;" ng-click="ModelNew.CostingStage=='PreCosting' || ModelNew.CostingStage=='ProcurementCosting'?NavigateToOrderCosting(x):null;">
+
+                                        <label style="color:blue;cursor:pointer; font-weight:inherit;">{{x.UserName}}</label>
 
                                     </td>
 
@@ -234,7 +240,29 @@
 
                     </div>
 
+                    <div class="row" id="CostingItemsEntry">
 
+                        <div class="col-md-12" ng-hide="Segment=='' || Segment==null">
+
+                            <h3 class="site-heading">
+                                <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>  {{SelectedOrderCostingComponent.UserName}}({{SelectedOrderCostingComponent.CostingSegment}})
+                            </h3>
+                            <div class="site-tab">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li role="presentation" ng-class="{ active: isSetCosting(1) }"><a ng-click="setTabCosting(1)" href="" data-toggle="tab">Pre Costing</a></li>
+                                    <li role="presentation" ng-show="ModelNew.CostingStage=='ProcurementCosting'" ng-class="{ active: isSetCosting(2) }"><a ng-click="setTabCosting(2)" href="" data-toggle="tab">Procurement Costing</a></li>
+                                </ul>
+                            </div>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(1), active: isSetCosting(1) }">
+                                    @Html.Partial("~/Areas/Costings/Views/OrderCosting/PreCostingView.cshtml")
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetCosting(2), active: isSetCosting(2) }">
+                                    @Html.Partial("~/Areas/Costings/Views/OrderCosting/ProcurementCostingView.cshtml")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
                 </div>
@@ -279,11 +307,14 @@
                                 <div e-columns>
 
                                     <div e-column e-type="string" e-field="MasterOrderId" e-headertext="Master Order" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="ItemId" e-headertext="ItemId" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
                                     <div e-column e-type="string" e-field="Customer" e-headertext="Customer" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="Buyer" e-headertext="Buyer" e-width="80"></div>
+                                    <div e-column e-type="string" e-field="BuyerReferenceNo" e-headertext="BuyerRef#" e-width="80"></div>
                                     <div e-column e-type="string" e-field="Product" e-headertext="Product" e-width="140"></div>
                                     <div e-column e-type="string" e-field="Material" e-headertext="Material" e-width="140"></div>
                                     <div e-column e-type="string" e-field="Article" e-headertext="Article" e-width="140"></div>
-                                    <div e-column e-type="string" e-field="SalesOrder" e-headertext="Sales Order" e-width="80"></div>
                                     <div e-column e-type="date" e-format="{0:dd-MMM-yyyy}" e-field="DeliveryDate" e-headertext="Delivery Date" e-width="80"></div>
 
                                 </div>
@@ -355,12 +386,13 @@
             <div e-column e-type="string" e-field="ProductMaster" e-headertext="Product" e-width="5"></div>
             <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="2"></div>
             <div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="2"></div>
-            <div e-column e-field="isQuickCostingApproved" e-headertext="Q.Approved" e-width="2"></div>
-            <div e-column e-field="isPreCostingApproved" e-headertext="Pre.Approved" e-width="2"></div>
-            <div e-column e-field="isProcurementCostingApproved" e-headertext="Proc.Approved" e-width="2"></div>
+            <div e-column e-field="QApproved" e-headertext="Q.Approved" e-width="2"></div>
+            <div e-column e-field="PreApproved" e-headertext="Pre.Approved" e-width="2"></div>
+            <div e-column e-field="ProcApproved" e-headertext="Proc.Approved" e-width="2"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
     </div>
 </div>
 
+@Html.Partial("~/Areas/Costings/Views/OrderCosting/ItemToolTip.cshtml")
 <confirm-archive-generic modalid="ApproveCosting" title="Confirmation" message="{{PopupMessage}}" data-ng-click-right-button="ApproveCosting();"></confirm-archive-generic>

@@ -3342,7 +3342,7 @@ namespace Library.MaterialManagement.Inventory
 				var NewId1 = "";
 				var currentId = _receiveDetailRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(substring(Id, CHARINDEX('-',id)+1,len(Id))    AS INT)), 0) Id FROM[TRN].[PurchaseOrderDetail] WHERE  InventoryReceiveId = '{PoId}'").First();
 				decimal TransactionQtyGroupSum = 0;
-				_inventoryReceiveService.InsertPOBOQMaster(entity);
+				_inventoryReceiveService.UpdateGraph(entity);
 
 				var groupListentity = groupList;
 				foreach (var itemDetail in groupListentity)
