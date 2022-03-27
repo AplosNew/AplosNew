@@ -100,7 +100,7 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Date" ng-model="ModelNew.Date" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="3">
+                <input type="text" name="Date" ng-model="ModelNew.Date" datepicker class="form-control" tabindex="3">
             </div>
         </div>
 
@@ -153,11 +153,11 @@
         </script>*@
 
     <script type="text/template" id="issueQuantityTemp">
-        <input type="text" ng-model="data.IssueQty" ng-change="$parent.ShowpIssueQuantityCal(this)" style="color:black; text-align:center" />
+        <input type="text" ng-model="data.IssueQty" ng-change="$parent.ShowIssueQuantityCal(this)" style="color:black; text-align:center" />
     </script>
 
     <script type="text/template" id="rateTemp">
-        <input type="text" ng-model="data.Rate" ng-change="$parent.ShowpIssueQuantityCal(this)" style="color:black; text-align:center" />
+        <input type="text" ng-model="data.Rate" ng-change="$parent.ShowIssueQuantityCal(this)" style="color:black; text-align:center" />
     </script>
 
     <script type="text/template" id="processTemp">
