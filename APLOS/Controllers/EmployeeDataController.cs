@@ -112,6 +112,22 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpPost]
+        public string ShopServiceData([FromBody] List<ServiceScanModel> DataToSave)
+        {
+            try
+            {
+                EmpServiceDataScanService _app = new EmpServiceDataScanService();
+                string Id = _app.ShopData(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
         [HttpGet]
         public IHttpActionResult GetEmpCodeId(string CompanyGroupId)
         {

@@ -20,12 +20,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Constructor
 
-        public IEnumerable<object> getEmployeetype()
+        public IEnumerable<object> getperformanceGroup()
         {
             try
             {
-               // select Id as Value, UserName as Text, StandardName from hkp.PerformanceGroup
-               var str = @"select Id,UserName,StandardName from HKP.PerformanceGroup";
+               var str = @"select * from HKP.PerformanceGroup";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -52,11 +51,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                //         var str = @" select pc.Id,pc.PMSMasterId,pc.EmployeeCategoryId,et.Username from PMSChild pc
-                //left join hkp.EmployeeCategory et on et.id=pc.EmployeeCategoryId
-                //         where PMSMasterId= '" + Id + "' ";
-                var str = @" select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,et.Username from PMSChild pc
-			    left join hkp.EmployeeCategory et on et.id=pc.PerformanceGroupId
+                var str = @"select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,pg.Username 
+                from PMSChild pc
+			    left join hkp.PerformanceGroup pg on pg.Id=pc.PerformanceGroupId
                 where PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -90,7 +87,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 if (Employee == null)
                 {
-                    throw new Exception("Please Select EmployeeType !!");
+                    throw new Exception("Please Select Performance Group !!");
                 }
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -147,7 +144,6 @@ namespace Library.HumanResource.NewAttendanceProcess
                     dr["Id"] = "PMC" + _IdC;
                     dr["PMSMasterId"] = data["Id"].ToString();
                     dr["PerformanceGroupId"] = Employee[i].ToString();
-                    //dr["EmployeeCategoryId"] = Employee[i].ToString();
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -447,6 +443,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        
+
         public IEnumerable<object> Get(string Id)
         {
             try
@@ -506,7 +504,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "Is" + _Id;
+                    data["Id"] = "PG" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
