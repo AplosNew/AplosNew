@@ -427,10 +427,17 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
 
-    $scope.ShowpIssueQuantityCal = function (obj) {
-        obj.data.BalanceStock = obj.data.StockQty - (parseFloat(obj.data.IssueQty) + obj.data.OtherQty);
-        obj.data.IssueValue = obj.data.Rate * parseFloat(obj.data.IssueQty);
-        obj.data.BalanceStkValue = obj.data.StdValue - obj.data.IssueValue;
+    $scope.ShowIssueQuantityCal = function (obj) {
+        try {
+                obj.data.BalanceStock = obj.data.StockQty - (parseFloat(obj.data.IssueQty) + obj.data.OtherQty);
+                obj.data.IssueValue= obj.data.Rate * parseFloat(obj.data.IssueQty);
+                obj.data.BalanceStkValue = obj.data.StdValue - obj.data.IssueValue;
+            
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+        
     }
 
     $scope.GetWasteUpd = function (args) {
