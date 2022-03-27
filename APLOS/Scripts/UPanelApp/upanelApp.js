@@ -1021,6 +1021,7 @@ upanelApp.controller("inventoryIssueBOQController", inventoryIssueBOQController)
 upanelApp.controller("WasteMasterController", WasteMasterController);
 upanelApp.controller("WasteLocationController", WasteLocationController);
 upanelApp.controller("BOQApprovalController", BOQApprovalController);
+upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

@@ -62,6 +62,12 @@ namespace Aplos.Areas.Costings.Controllers
             List<Dictionary<string, object>> data = new Library.OrderManagement.Costing.CostingBOQ().GetAllCostingDirectMaterialForQuantityEdit(CostingBOQMasterId);
             return Json(new { DATA = data }, JsonRequestBehavior.AllowGet);
         }
+        [HttpPost, Authorize]
+        public ActionResult GetAllBOQCosting(string CostingBOQMasterId)
+        {
+            List<Dictionary<string, object>> data = new Library.OrderManagement.Costing.CostingBOQ().GetAllBOQCosting(CostingBOQMasterId);
+            return Json(new { DATA = data }, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public ActionResult Save(string Id, List<Dictionary<string, object>> MaterialAttachmentData, List<Dictionary<string, object>> QuantityData)
@@ -78,6 +84,23 @@ namespace Aplos.Areas.Costings.Controllers
             }
 
         }
+
+        [HttpPost]
+        public ActionResult Update(List<Dictionary<string, object>> QuantityData)
+        {
+            try
+            {
+                new Library.OrderManagement.Costing.CostingBOQ().UpdateBOQ(QuantityData);
+                return Json(new { Error = false, Message = "BOM Updated Successfully" }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
         [HttpPost]
         public ActionResult Delete(string Id)
         {

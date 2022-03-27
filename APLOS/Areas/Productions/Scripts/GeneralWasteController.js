@@ -97,16 +97,7 @@ function GeneralWasteController(cboService, commonMessage, $scope, $rootScope, b
         });
     }
 
-     //$scope.saveAll = function () {
-     //       $http({
-     //           method: 'POST',
-     //           url: $scope.path + "",
-     //           dataType: 'JSON'
-     //       }).then(function successCallback(response) {
-     //           $scope.EntityList = response.data;
-     //       });
-     //}
-
+     
     $scope.SaveAll = function () {
         $scope.$broadcast('show-errors-check-validity');
 
