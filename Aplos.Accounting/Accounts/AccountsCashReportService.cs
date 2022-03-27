@@ -294,7 +294,7 @@ namespace Library.Accounting.Accounts
                          VD.CrAmount 
 						 , V.Narration
                         , CC.CompanyCurrencyDrAmount, CC.CompanyCurrencyCrAmount
-						                    ,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
+						,OtherSide = concat( STUFF((select distinct ','+XPP.UserName from
                     TRN.VoucherDetail AS XVD
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.PartyPlant XPP ON XPP.Id=XVD.PartyPlantId
@@ -304,7 +304,7 @@ namespace Library.Accounting.Accounts
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join mst.BankMaster XEI ON XEI.id=XVD.BankMasterId
 					LEFT JOIN HKP.Bank BX ON BX.Id=XEI.BankId
-                    where XVD.VoucherId=V.Id AND XVD.BankMasterId !=VD.BankMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    where XVD.VoucherId=V.Id AND XVD.BankMasterId <>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     
                     ,STUFF((select distinct ','+XEI.EmployeeName from
                     TRN.VoucherDetail AS XVD
@@ -315,12 +315,12 @@ namespace Library.Accounting.Accounts
                     TRN.VoucherDetail AS XVD
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join MST.CashMaster XCM ON XCM.Id=XVD.CashMasterId
-                    where XVD.VoucherId=V.Id AND XVD.CashMasterId<>'' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId!=vd.CashMasterId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                     ,STUFF((select distinct ','+XA.UserName from
                     TRN.VoucherDetail AS XVD
                     left join TRN.Voucher XV ON XV.Id=XVD.VoucherId
                     left join HKP.Activity XA ON XA.Id=XVD.ActivityId
-                    where XVD.VoucherId=V.Id AND XVD.BankMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
+                    where XVD.VoucherId=V.Id AND XVD.CashMasterId IS NULL AND XVD.EmployeeId IS NULL AND XVD.PartyPlantId IS NULL for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''))
                         FROM  [TRN].[VoucherDetail] AS VD 
                         LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId

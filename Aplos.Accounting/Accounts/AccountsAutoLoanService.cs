@@ -213,7 +213,7 @@ UNION ALL
 							WHERE  I.Plantid='" + plantId + "'  " + dateStatus + @"
                             --and I.PostingDate <= '13-Jan-2022' 
                             AND ISNULL(I.Amount,0)-ISNULL(I.WrittenOffAmount,0)>0 
-							AND ISNULL(I.PurchaseLCId,'')=''
+							AND ISNULL(I.PurchaseLCId,'')<>''
 							AND I.SourceType in ('InvoiceToAcceptance')
 							AND I.Id NOT in (SELECT isnull(InvoiceId,'') FROM LoanAgainstAcceptanceDetail )";
                 return _sqlRepository.GetDataCollection(sql);

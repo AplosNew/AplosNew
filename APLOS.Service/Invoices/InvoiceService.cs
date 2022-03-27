@@ -164,7 +164,8 @@ namespace Library.Service.Invoices
                 IsPark = voucherVM.IsPark,
                 PaymentSource = voucherVM.PaymentSource,
                 ExpenseBookingId = voucherVM.ExpenseBookingId,
-                InvoiceServiceMasterChargesId = voucherVM.InvoiceServiceMasterChargesId
+                InvoiceServiceMasterChargesId = voucherVM.InvoiceServiceMasterChargesId,
+                PurchaseLCId = voucherVM.PurchaseLCId
             };
 
             return InsertInvoice(invoice);
