@@ -18,7 +18,6 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
     $scope.isBankAmount = false;
     $controller("cashBaseController", { $scope: $scope, $http: $http });
     $controller("bankBaseController", { $scope: $scope, $http: $http });
-    baseService.init("Accounts/CustomerInvoice/GetCustomerInvoiceReceiptList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.url = "Accounts/Invoice";
     $scope.postUrl = $scope.url + "/PostCustomerInvoiceReceipt";
     $scope.deleteUrl = $scope.url + "/DeleteWriteOff";
@@ -145,7 +144,7 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         search: null,
         serverPagination: true
     };
-
+    baseService.init("Accounts/CustomerInvoice/GetCustomerInvoiceReceiptList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno, $scope.parameters)
             .then(function (result) {
