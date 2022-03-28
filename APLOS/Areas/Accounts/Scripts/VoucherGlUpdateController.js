@@ -1,23 +1,13 @@
 ﻿'use strict';
 VoucherGlUpdateController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'VoucherPark';
+    $rootScope.title = 'Voucher GL Update';
     $scope.Action = 'Save';
     $scope.path = 'Accounts/VoucherGlUpdate/';
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
     $scope.saveUrl = $scope.path + 'create';
     var dt = new Date();
-
-    //$scope.reportParameters = {
-    //    FromDate: $filter("dateFiltering")(new Date(dt.setDate(dt.getDate() - 10))), //$filter("dateFiltering")(Date.now()) - 10,
-    //    ToDate: $filter("dateFiltering")(Date.now()),
-    //    TransactionType: 'LoanTaken',
-    //    ReportFormat: 'Excel'
-    //    VoucherId: null
-    //    IsOrderSpecific: true,
-    //   FromDate: $filter('dateFiltering')(Date.now()),
-    //};
 
     $scope.voucher = {
         Id: null,
@@ -79,143 +69,6 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         });
         return true;
     };
-
-
-    //$scope.invoiceId = null;
-    //$scope.confirmDelete = function (invoiceId, voucherId) {
-    //    $scope.invoiceId = invoiceId;
-    //    $scope.voucherId = voucherId;
-    //    $scope.message_delete_confirmation = "Are you sure to Delete?";
-    //    angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
-    //};
-
-    //$scope.delete = function (invoiceId, voucherId) {
-    //    $http({
-    //        method: "POST",
-    //        url: $scope.deleteUrl,
-    //        data: {
-    //            "invoiceId": invoiceId, "voucherId": voucherId
-    //        },
-    //        dataType: "JSON"
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, "failure");
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, "success");
-    //            $scope.getData();
-    //            $scope.Clear();
-    //            $scope.invoiceId = null;
-    //            $scope.voucherId = null;
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.status.Message, "failure");
-    //    });
-    //    return true;
-    //};
-
-
-
-    //$scope.entityList = [];
-    //cboService.getCboEntityByPlant(null, null, "", function (result) {
-    //    $scope.entityList = result;
-    //});
-
-    //$scope.departmentList = [];
-    //cboService.getCboDepartmentByCompanyGroup(null, function (result) {
-    //    $scope.departmentList = result;
-    //});
-
-
-    //$scope.refreshTemplateEntityandDepartment = function (args) {
-    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEntityAndDepartment });
-    //};
-
-    //function CheckBoxSelectAllEntityAndDepartment(e) {
-
-    //    var ChkOrUnchk = false;
-    //    if (e.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-
-    //    }
-
-    //    var filtered = $("#GridEntityFixedAssetRegister").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
-    //            $scope.EntityFixedAssetRegisterList[i].isSelected = ChkOrUnchk;
-    //        }
-    //    }
-    //    else {
-
-    //        for (var j = 0; j < filtered.length; j++) {
-
-    //            filtered[j].isSelected = ChkOrUnchk;
-    //        }
-
-
-    //    }
-    //    var gridObj = $("#GridEntityFixedAssetRegister").data("ejGrid");
-    //    gridObj.refreshContent();
-    //};
-
-    //$scope.NewEntityFixedAssetRegisterList = [];
-    //$scope.validation = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fixedAsset.EntityId)) {
-    //        ShowResult('Please select Entity', 'failure');
-    //        return true;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fixedAsset.DepartmentId)) {
-    //        ShowResult('Please select Department', 'failure');
-    //        return true;
-    //    }
-    //    $scope.NewEntityFixedAssetRegisterList = [];
-    //    for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
-    //        if ($scope.EntityFixedAssetRegisterList[i].isSelected == true) {
-    //            $scope.NewEntityFixedAssetRegisterList.push($scope.EntityFixedAssetRegisterList[i]);
-    //        }
-    //    }
-
-    //    if ($scope.NewEntityFixedAssetRegisterList.length == 0) {
-    //        //(angular.isUndefinedOrNull(NewMasterLCList)) 
-    //        ShowResult('Please select at least one Fixed Assets', 'failure');
-    //        return true;
-    //    }
-
-    //    else {
-    //        return false;
-
-    //    }
-    //}
-
-    //$scope.Save = function () {
-    //    $scope.$broadcast('show-errors-check-validity');
-    //    if (!$scope.validation()) {
-
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveUrl,
-    //            data: { 'entityId': $scope.fixedAsset.EntityId, 'departmentId': $scope.fixedAsset.DepartmentId, 'entityFixedAssetList': $scope.NewEntityFixedAssetRegisterList },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, "success");
-    //                $scope.GetEntityFixedAssetRegisterData();
-    //                //$scope.Clear();
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    }
-    //   // $scope.GetEntityFixedAssetRegisterData();
-    //}
-
-
-    
-
-
 };
 
 
