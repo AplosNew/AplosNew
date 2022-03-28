@@ -4475,6 +4475,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[0].DiscountAmount) || $scope.inventoryMaterialList[0].DiscountAmount == 0) {
                     throw "Enter discount value at row 1";
                 }
+                else if ($scope.inventoryMaterialList[i].DiscountAmount > $scope.inventoryMaterialList[i].TrnAmount) {
+                    //$scope.inventoryMaterialList[i].DiscountAmount = 0;
+                }
                 else {
                     $scope.inventoryMaterialList[i].DiscountAmount = $scope.inventoryMaterialList[0].DiscountAmount;
                 }
