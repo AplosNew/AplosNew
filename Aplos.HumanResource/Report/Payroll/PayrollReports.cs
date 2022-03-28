@@ -207,11 +207,9 @@ namespace Library.HumanResource.Report.Payroll
                 string toDate = "";
                 var wcPayrollGroup = "";
 
-                var salaryProcessColumn = "";
                 string salaryProcessFlag = "";
                 string wcEmpStatus = " Where (1=0 ";
-                //string salaryProcessID = "";
-
+               
                 fromtoDateTaxYear(FromYear, FromMonth, ToYear, ToMonth, out fromDate, out toDate);
 
                 if (Convert.ToDateTime(fromDate) > Convert.ToDateTime(toDate))
@@ -254,22 +252,8 @@ namespace Library.HumanResource.Report.Payroll
                         wcPayrollGroup = @"";
                     }
 
-                    //wcPayrollGroup = @"AND E.SystemId  IN (SELECT employeeid from MST.PayrollGroupMaster where PayrollGroupId IN (SELECT PayrollGroupId FROM SEC.UserPayrollGroup where UserId = '" + userId + @"'))";
-                }
-
-
-                //string strSqlSal = @"SELECT  m.SystemID FROM SalaryProcMaster m
-                //                    INNER JOIN SalaryProcChild c on c.SlrProcMstSystemID=m.SystemID and c.PlantID='" + plantId + @"'
-                //                        WHERE 1=1 
-                //                        " + getMonthYear(fromDate, toDate, "MonthNo", "YearNo") + @"";
-
-                //DataTable dtSalPrcId = _sqlRepository.GetDataTable(strSqlSal);
-                //string salaryProcessId = "''";
-                //dtSalPrcId = dtSalPrcId.DefaultView.ToTable(true, "SystemID");
-                //for (int si = 0; si < dtSalPrcId.Rows.Count; si++)
-                //{
-                //    salaryProcessId += ",'" + dtSalPrcId.Rows[si]["SystemID"].ToString() + "'";
-                //}
+                   
+                }             
 
                 salaryProcessFlag = ", Case when Isnull(SPM.SalaryProcFlag,'') = '' THen 'Regular' else SalaryProcFlag end SalaryProcFlag";
                 wcEmpStatus = " Where (1=0 ";
@@ -294,11 +278,7 @@ namespace Library.HumanResource.Report.Payroll
 
                     }
                 }
-                //}
-
-
-
-
+               
 
                 wcEmpStatus += ")";
 
@@ -342,7 +322,6 @@ namespace Library.HumanResource.Report.Payroll
 								LEFT JOIN mst.DesignationMaster dm on dm.id=m.DesignationMasterId
 								LEFT JOIN hkp.EmployeeCategory EmpC on EmpC.Id = dm.EmployeeCategoryId
 								LEFT JOIN hkp.LegalDesignation ld on ld.Id = e.LegalDesignationId
-                                    --LEFT OUTER JOIN HKP.LegalDesignation  ld on ld.Id=SPLD.LegalDesignationId
                                    
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=E.BudgetCode
 									LEFT OUTER JOIN ORG.Position PO ON mpb.PositionId=PO.Id
