@@ -73,7 +73,12 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
 
             for (var i = 0; i < $scope.WasteDetailDataList.length; i++) {
                 if ($scope.WasteDetailDataList[i].Active) {
-                    tempItem.push($scope.WasteDetailDataList[i]);
+                    if ($scope.WasteDetailDataList[i].IssueQty <= $scope.WasteDetailDataList[i].StockQty) {
+                        tempItem.push($scope.WasteDetailDataList[i]);
+                    } else {
+                        throw 'Can not issue more than stock quantity.';
+                    }
+                   
                 }
             }
 
@@ -429,16 +434,25 @@ function WasteIssueController(cboService, commonMessage, $scope, $rootScope, bas
 
     $scope.ShowIssueQuantityCal = function (obj) {
         try {
+            if (obj.data.IssueQty <= obj.data.StockQty) {
                 obj.data.BalanceStock = obj.data.StockQty - (parseFloat(obj.data.IssueQty) + obj.data.OtherQty);
-                obj.data.IssueValue= obj.data.Rate * parseFloat(obj.data.IssueQty);
+                obj.data.IssueValue = obj.data.Rate * parseFloat(obj.data.IssueQty);
                 obj.data.BalanceStkValue = obj.data.StdValue - obj.data.IssueValue;
-            
+            } else {
+                obj.data.BalanceStock = 0;
+                obj.data.IssueValue = 0;
+                obj.data.BalanceStkValue = 0;
+                throw 'Can not issue more than stock quantity.';
+            }
         }
         catch (e) {
             ShowResult(e, 'failure');
         }
         
     }
+    
+
+
 
     $scope.GetWasteUpd = function (args) {
 
