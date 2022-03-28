@@ -80,7 +80,7 @@
     </div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">UserReference<sup>*</sup></label>
+            <label class="col-sm-4 control-label">User Reference<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="UserReference" ng-model="ModelNew.UserReference" class="form-control" required tabindex="2" maxlength="150">
             </div>
@@ -128,11 +128,11 @@
                     <div e-column e-field="WasteSubCategory" e-headertext="Sub Category" e-width="80"></div>
                     <div e-column e-field="StockQty" e-headertext="Stock Quantity" e-width="80"></div>
                     <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
-                    <div e-column e-field="StdRate" e-headertext="Standard Rate" e-width="80"></div>
-                    <div e-column e-field="StdValue" e-headertext="Standard Value" e-width="80"></div>
                     <div e-column e-template="#otherStkValueTemp" e-headertext="Other Stock Value" e-width="100"></div>
                     <div e-column e-headertext="Issue Quantity" e-template="#issueQuantityTemp" e-width="85"></div>
                     <div e-column e-headertext="Balance Stock" e-template="#balanceStockTemp" e-width="85"></div>
+                    <div e-column e-field="StdRate" e-headertext="Standard Rate" e-width="80"></div>
+                    <div e-column e-field="StdValue" e-headertext="Standard Value" e-width="80"></div>
                     <div e-column e-headertext="Rate" e-template="#rateTemp" e-width="80"></div>
                     <div e-column e-headertext="Issue Value" e-template="#issueValueTemp" e-width="80"></div>
                     <div e-column e-headertext="Remarks" e-template="#remarksTemp" e-width="100"></div>
@@ -219,7 +219,7 @@
             <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="3"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="3"></div>
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="3"></div>
-            <div e-column e-template="#reportTemp" e-headertext="Reports" e-width="5"></div>
+            <div e-column e-template="#reportTemp" e-headertext="Reports" e-width="3"></div>
         </div>
     </div>
     
