@@ -261,8 +261,17 @@ namespace Library.Service.Finances
                 sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
                 reportUtility.SetTextMiddle(ref sheet, row, 4, "Authorized By", true);
 
-                reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId,plantId, plantName, null);
-                reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+                if (sourceType == "AutoLoan")
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, colLast, "Auto Loan", companyId, plantId, plantName, null);
+                    reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+                }
+                else
+                {
+                    reportUtility.CompanyPlantHeader(ref sheet, colLast, header["VoucherTypeName"].ToString(), companyId, plantId, plantName, null);
+                    reportUtility.PageSetup(ref sheet, colLast, ExcelPageOrientation.Portrait);
+                }
+
             }
             else
             {

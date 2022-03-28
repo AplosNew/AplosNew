@@ -537,7 +537,7 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Master LC Ref No</label>
                 <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
-                    <input type="text" name="ContractId" ng-model="productNew.LCRef" class="form-control" maxlength="100" ng-autocomplete="off">
+                    <input type="text" name="ContractId" ng-model="productNew.LCRef" class="form-control" maxlength="100" autocomplete="off">
                 </div>
             </div>
             <div class="form-group" id="div_docDate">
@@ -697,7 +697,7 @@
             <li><button ng-click="detailPOSaveForBOQ();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{ActionPOBOQ}}</button></li>
             <li><button ng-click="confirmDelete();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Delete</button></li>
             <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            <li><button ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
+            <li><button  ng-hide="productNew.Id" ng-click="Back();" class="btn"><i class="glyphicon glyphicon-backward"></i> Back</button></li>
         </ul>
     </div>
     <div class="clearfix"></div>

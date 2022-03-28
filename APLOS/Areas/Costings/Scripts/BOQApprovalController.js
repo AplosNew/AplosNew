@@ -61,7 +61,7 @@ function BOQApprovalController(cboService, commonMessage, $scope, $rootScope, ba
 
         $http({
             method: 'POST',
-            url: $scope.path + "GetItemListForQtyEdit",
+            url: $scope.path + "GetAllBOQCosting",
             data: { CostingBOQMasterId: $scope.Model.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -288,28 +288,52 @@ function BOQApprovalController(cboService, commonMessage, $scope, $rootScope, ba
 
     };
 
+    $scope.Clear = function () {
+        $scope.MaterialQtyEditList = [];
+        $scope.MaterialAttachmentList = [];
+        $scope.ModelBase = { Id: null, CustomerId: null, CustomerName: null, EmployeeSystemId: null, EmployeeName: null, Remarks: null, UserName: null };
+        $scope.Model = Object.assign({}, $scope.ModelBase);
+    }
 
 
     $scope.Update = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "Save",
-            data: { Id: $scope.Model.Id, MaterialAttachmentData: $scope.MaterialAttachmentList, QuantityData: $scope.MaterialQtyEditList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            $scope.TempList = [];
+            for (var i = 0; i < $scope.MaterialQtyEditList.length; i++) {
+                if ($scope.MaterialQtyEditList[i].RequiredQtyApproved) {
+                    if (baseService.isUndefinedOrNull($scope.MaterialQtyEditList[i].Status)) {
+                        throw "Status is required.";
+                    }
+                    else if ($scope.MaterialQtyEditList[i].Status == "Reject" && baseService.isUndefinedOrNull($scope.MaterialQtyEditList[i].Reason)) {
+                        throw "Reason is required.";
+                    }
+                    else {
+                        $scope.TempList.push($scope.MaterialQtyEditList[i]);
+                    }
+                }
+                
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + "Update",
+                data: { QuantityData: $scope.TempList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetEditList();
+                    $scope.GetItemList();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                //$scope.Model = response.data.DATA;
-                $scope.GetEditList();
-                $scope.GetItemList();
-            }
-            // $scope.closeEntryDialog();
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        };
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
     // #region checkbox all
 

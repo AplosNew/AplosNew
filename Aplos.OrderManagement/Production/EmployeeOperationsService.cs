@@ -457,6 +457,102 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        // Get Employee DropDown
+       
+        #region Report Tab Download Function
+
+        public DataTable getReportDownload(out List<string> DynCols)
+        {
+            try
+            {
+                var str = @"Select ov.Code as OperationCode , ov.UserName as OperationName, p.UserName as Process , wcm.UserName as WorkCenter ,we.ProductionOrderId , 
+                            ei.EmployeeName , ei.EmployeeCode ,
+                            format(we.Date , 'dd-MMM-yyyy') as Dates , we.PeriodId , pb.UserName as Periods , Sum(we.Qty) as Qty
+                            --Select *
+                            from dbo.OperationWiseEmployees we
+                            left join hkp.ProductionBookingPeriod pb on pb.Id = we.PeriodId
+                            left join hkp.Process p on p.Id = we.ProcessId
+                            left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
+                            left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
+                            group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
+                            order by Dates , ei.EmployeeName asc";
+
+                DataTable dtAll = _sqlRepository.GetDataTable(str);
+
+                //Getting the Periods
+                List<string> ltPer = new List<string>();
+                DataTable periods = dtAll.DefaultView.ToTable(true, "Periods");
+                for (int i = 0; i < periods.Rows.Count; i++)
+                {
+                    ltPer.Add(periods.Rows[i]["Periods"].ToString());
+                }
+
+                ltPer = ltPer.OrderBy(k => k).ToList();
+
+                DataTable dtNew = new DataTable();
+                dtNew.Columns.Add("OperationCode", typeof(string));
+                dtNew.Columns.Add("OperationName", typeof(string));
+                dtNew.Columns.Add("Process", typeof(string));
+                dtNew.Columns.Add("WorkCenter", typeof(string));
+                dtNew.Columns.Add("ProductionOrderId", typeof(string));
+                dtNew.Columns.Add("EmployeeCode", typeof(string));
+                dtNew.Columns.Add("EmployeeName", typeof(string));
+                dtNew.Columns.Add("Qty", typeof(string));
+                dtNew.Columns.Add("Dates", typeof(string));
+                for (int i = 0; i < ltPer.Count; i++)
+                {
+                    dtNew.Columns.Add(ltPer[i], typeof(double));
+                }
+
+                //Filling the DataTable
+                string opCode = "";
+                string empCode = "";
+                DateTime datess = Convert.ToDateTime("01-Jan-1990");
+                DataRow dr = null;
+                for (int i = 0; i < dtAll.Rows.Count; i++)
+                {
+                    if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
+                    {
+                        dr = dtNew.NewRow();
+                        dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
+                        dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
+                        dr["Process"] = dtAll.Rows[i]["Process"].ToString();
+                        dr["WorkCenter"] = dtAll.Rows[i]["WorkCenter"].ToString();
+                        dr["ProductionOrderId"] = dtAll.Rows[i]["ProductionOrderId"].ToString();
+                        dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
+                        dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
+                        dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
+                        dr["Dates"] = dtAll.Rows[i]["Dates"].ToString();
+
+                        for (int j = 0; j < ltPer.Count; j++)
+                        {
+                            dr[ltPer[j]] = 0;
+                        }
+
+                        dtNew.Rows.Add(dr);
+                    }
+
+                    dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
+
+                    opCode = dtAll.Rows[i]["OperationCode"].ToString();
+                    empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
+                    datess = Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString());
+
+                }
+
+                DynCols = ltPer;
+
+                return dtNew;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        #endregion Report Tab Download Function
         public void processAll(string Date)
         {
             try

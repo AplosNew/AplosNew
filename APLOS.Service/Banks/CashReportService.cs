@@ -1488,13 +1488,10 @@ namespace Library.Service.Banks
                 row++;
                 reportUtility.SetHeaderText(ref sheet, row, 1, "Voucher No", 12);
                 reportUtility.SetHeaderText(ref sheet, row, 2, "Posting Date", 12);
-                //reportUtility.SetHeaderText(ref sheet, row, 3, "Account Name", 12);
+                reportUtility.SetHeaderText(ref sheet, row, 3, "Particulars", 12);
                 reportUtility.SetHeaderText(ref sheet, row, 4, "Narration", 32);
 
-
-
-
-                sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
+                //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
                 reportUtility.SetHeaderText(ref sheet, row, 5, "Debit", 9, ExcelHAlign.HAlignRight); int colDebit = 5;
                 reportUtility.SetHeaderText(ref sheet, row, 6, "Credit", 9, ExcelHAlign.HAlignRight); int colCredit = 6;
                 reportUtility.SetHeaderText(ref sheet, row, 7, "Balance", 12, ExcelHAlign.HAlignRight);
@@ -1533,11 +1530,11 @@ namespace Library.Service.Banks
                     {
                         reportUtility.SetText(ref sheet, row, 1, ledgerData.Rows[i]["VoucherNo"].ToString());
                         reportUtility.SetText(ref sheet, row, 2, Convert.ToDateTime(ledgerData.Rows[i]["PostingDate"].ToString()).ToString("dd-MMM-yyyy"));
-                        //reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
-                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["Narration"].ToString());
+                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["OtherSide"].ToString());
+                        reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString());
                         //sheet.Range[reportUtility.GetColumnNameForXls(3) + row + ": " + reportUtility.GetColumnNameForXls(4) + row].Merge();
                         //sheet.Range[row, 3,row,4].WrapText = true;
-                        reportUtility.SetText(ref sheet, row, 3, ledgerData.Rows[i]["Narration"].ToString(), false, true);
+                        reportUtility.SetText(ref sheet, row, 4, ledgerData.Rows[i]["Narration"].ToString(), false, true);
                         sheet.Range[row, 3].WrapText = true;
 
 
@@ -1596,8 +1593,8 @@ namespace Library.Service.Banks
                 sheet.Range[reportUtility.GetColumnNameForXls(1) + 5 + ":" + reportUtility.GetColumnNameForXls(colLast) + 5].Merge();
 
 
-                sheet[row, 3].ColumnWidth = 50;
-                sheet[row, 4].ColumnWidth = 3;
+                //sheet[row, 3].ColumnWidth = 50;
+                //sheet[row, 4].ColumnWidth = 3;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 
 

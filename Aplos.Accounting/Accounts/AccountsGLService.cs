@@ -685,7 +685,7 @@ namespace Library.Accounting.Accounts
 	                                    FROM [HKP].[Activity] AS A
 	                                    LEFT JOIN [MST].[BudgetMasterActivity] AS BA ON BA.ActivityId=A.Id
                                     ) AS A ON A.BudgetMasterId=B.BudgetMasterId
-                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' 
+                                    WHERE GLGI.Archive=0 AND GLGI.Active=1 AND GLCG.CompanyGroupId='" + companyGroupId + "' AND GLCI.CompanyId='" + companyId + @"' AND ACT.Id='" + AccountTypeEnum.Liability + @"'
                                     AND GLGI.Id NOT IN(SELECT BM.GLGeneralInfoId FROM [MST].[BankMaster] AS BM WHERE BM.GLGeneralInfoId <> '')
                                     AND GLGI.Id NOT IN(SELECT CM.GLGeneralInfoId FROM [MST].[CashMaster] AS CM WHERE CM.GLGeneralInfoId <> '') AND GLGI.IsPostingAutomaticOnly = 0
                                     AND GLGI.Id NOT IN(SELECT GLGeneralInfoId FROM [HKP].[GLAccountType] ) ";
