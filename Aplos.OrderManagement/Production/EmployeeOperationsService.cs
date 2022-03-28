@@ -557,14 +557,16 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
                 #region 1. Getting The Current Parial Data
 
                 DataSet dsMasterHalf = null;
                 ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
                 co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Date + "'  order by EmployeeId asc, Qty desc", out dsMasterHalf, false, "1");
 
-                DataTable dtMasterHalf = dsMasterHalf.Tables[0];
+                //DataTable dsMasterHalf.Tables[0] = dsMasterHalf.Tables[0];
 
                 #endregion
 
@@ -591,7 +593,7 @@ namespace Library.OrderManagement.Production
 
                 #region 3. Filling in the Sequences
 
-                if (dtMasterHalf.Rows.Count <= 0)
+                if (dsMasterHalf.Tables[0].Rows.Count <= 0)
                 {
                     throw new Exception("There is no data to Process!!");
                 }
@@ -599,20 +601,20 @@ namespace Library.OrderManagement.Production
                 {
                     string empId = "";
                     int k = 0;
-                    for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                    for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                     {
                         k++;
-                        if (dtMasterHalf.Rows[i]["EmployeeId"].ToString() == empId)
+                        if (dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString() == empId)
                         {
-                            dtMasterHalf.Rows[i]["Sequence"] = k;
+                            dsMasterHalf.Tables[0].Rows[i]["Sequence"] = k;
                         }
                         else
                         {
                             k = 1;
                             
-                            dtMasterHalf.Rows[i]["Sequence"] = k;
+                            dsMasterHalf.Tables[0].Rows[i]["Sequence"] = k;
                         }
-                        empId = dtMasterHalf.Rows[i]["EmployeeId"].ToString();
+                        empId = dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString();
                     }
 
                 }
@@ -621,16 +623,16 @@ namespace Library.OrderManagement.Production
 
                 #region 4. Calculation and Filling of the MasterHalf DataTable
 
-                ListDictionary dicSkillCat = new ListDictionary(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
+                Dictionary<string,string> dicSkillCat = new Dictionary<string, string>(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
 
-                for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                 {
-                    dtTotalSpt.DefaultView.RowFilter = @"ProductionOrderId='"+dtMasterHalf.Rows[i]["ProductionOrderId"].ToString()+"' and OperationVariationId='"+ dtMasterHalf.Rows[i]["OperationVariationId"].ToString() + "'";
-                    dicSkillCat.Add(dtMasterHalf.Rows[i]["Id"].ToString() , dtTotalSpt.DefaultView[0]["SkillCatId"].ToString());
-                    dtMasterHalf.Rows[i].BeginEdit();
-                    dtMasterHalf.Rows[i]["StandardProcessTime"] = clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
-                    dtMasterHalf.Rows[i]["TotalSPT"] = clsStaticInfo.dbl(dtMasterHalf.Rows[i]["Qty"].ToString())*clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
-                    dtMasterHalf.Rows[i].EndEdit();
+                    dtTotalSpt.DefaultView.RowFilter = @"ProductionOrderId='"+dsMasterHalf.Tables[0].Rows[i]["ProductionOrderId"].ToString()+"' and OperationVariationId='"+ dsMasterHalf.Tables[0].Rows[i]["OperationVariationId"].ToString() + "'";
+                    dicSkillCat.Add(dsMasterHalf.Tables[0].Rows[i]["Id"].ToString() , dtTotalSpt.DefaultView[0]["SkillCatId"].ToString());
+                    dsMasterHalf.Tables[0].Rows[i].BeginEdit();
+                    dsMasterHalf.Tables[0].Rows[i]["StandardProcessTime"] = clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
+                    dsMasterHalf.Tables[0].Rows[i]["TotalSPT"] = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["Qty"].ToString())*clsStaticInfo.dbl(dtTotalSpt.DefaultView[0]["TotalSPT"].ToString());
+                    dsMasterHalf.Tables[0].Rows[i].EndEdit();
                 }
 
                 #endregion
@@ -645,7 +647,7 @@ namespace Library.OrderManagement.Production
 
                 DataTable dtMainDict = _sqlRepository.GetDataTable(str2);
 
-                var str3 = @"Select ph.Id , pp.ProcessId , pe.EntityId , pc.SkillAllowance , pc.OperationSequence , pc.SkillCategoryId
+                var str3 = @"Select ph.Id ,ph.EffectiveDate, pp.ProcessId , pe.EntityId , pc.SkillAllowance , pc.AdditionOperationAllowance , pc.OperationSequence , pc.SkillCategoryId
                             from dbo.ProducedMinAllowanceHeader ph
                             left join dbo.ProducedMinAllowanceEntity pe on pe.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceProcess pp on pp.HeaderId = ph.Id
@@ -653,10 +655,150 @@ namespace Library.OrderManagement.Production
 
                 DataTable dtAllowance = _sqlRepository.GetDataTable(str3);
 
+                for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
+                {
+
+                    dtMainDict.DefaultView.RowFilter = @"Id = '" + dsMasterHalf.Tables[0].Rows[i]["Id"].ToString() + "'";
+
+                    string SkillCatId = dicSkillCat[dsMasterHalf.Tables[0].Rows[i]["Id"].ToString()].ToString();
+                    string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
+                    string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
+                    string OpSeq = dsMasterHalf.Tables[0].Rows[i]["Sequence"].ToString();
+
+                    dtAllowance.DefaultView.RowFilter = @"EntityId='" + EntityId+"' and ProcessId ='"+ProcessId+ @"' 
+                                                        and SkillCategoryId='"+ SkillCatId+ "' and OperationSequence='"+OpSeq+"'";
+                    dsMasterHalf.Tables[0].Rows[i].BeginEdit();
+                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString()) / 100;
+                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString()) / 100;
+
+                    double skAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                    double addAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+
+                    dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"] = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString()) + skAll + addAll;
+                    dsMasterHalf.Tables[0].Rows[i].EndEdit();
+                }
 
                 #endregion
 
-                var jj = 0;
+                #region 6. Getting the Rates Data
+
+                DataSet dsRatesHealf = null;
+                ConnectionManager.DAL.ConManager connec = new ConnectionManager.DAL.ConManager("1");
+                connec.OpenDataSetThroughAdapter("Select * from dbo.EmployeeEfficiencyProcess where Date='" + Date + "'  order by EmployeeId asc", out dsRatesHealf, false, "1");
+
+                int count = dsRatesHealf.Tables[0].Rows.Count;
+                //Overwrite The dsRatesHealf Table
+                while (dsRatesHealf.Tables[0].DefaultView.Count > 0)
+                {
+                    dsRatesHealf.Tables[0].DefaultView[0].Delete();
+                }
+
+                //DataTable dsRatesHealf.Tables[0] = dsRatesHealf.Tables[0];
+
+                var str4 = @"Select ih.Id , ih.EffectiveDate , ie.EntityId , ips.ProcessId , ics.Effeciency, ics.EffeciencyRate from dbo.IncentiveRateSetupHeader ih
+                            left join dbo.IncentiveRateSetupEntity ie on ie.HeaderId = ih.Id
+                            left join dbo.IncentiveRateSetupProcess ips on ips.HeaderId = ih.Id
+                            left join dbo.IncentiveRateSetupChild ics on ics.HeaderId = ih.Id";
+
+                DataTable dtRatesTable = _sqlRepository.GetDataTable(str4);
+
+
+                var str5 = @"Select EmpSystemId , isnull(Duration,0) as Duration , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
+                DataTable dtApd = _sqlRepository.GetDataTable(str5);
+
+                #endregion
+
+                #region 7. Calculation Of the Duration And Efficiency
+
+                for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
+                {
+                    dtApd.DefaultView.RowFilter = @"EmpSystemId ='"+dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString()+"'";
+                    double Dur = 500.0;
+                    if (dtApd.DefaultView.Count > 0)
+                    {
+                        Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+                    }
+                    
+
+                    dsRatesHealf.Tables[0].DefaultView.RowFilter = @"EmployeeId='"+ dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString() + "'";
+                    if (dsRatesHealf.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsRatesHealf.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) + clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                        dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) + clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString());
+                        dsRatesHealf.Tables[0].DefaultView[0]["WorkDuration"] = Dur;
+                        dsRatesHealf.Tables[0].DefaultView[0]["NetEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) / Dur)*100;
+                        dsRatesHealf.Tables[0].DefaultView[0]["GrossEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) / Dur)*100;
+                        dsRatesHealf.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsRatesHealf.Tables[0].NewRow();
+                        dr["Id"] = dsMasterHalf.Tables[0].Rows[i]["Id"].ToString();
+                        dr["EmployeeId"] = dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString();
+                        dr["TotalSPT"] = clsStaticInfo.dbl( dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                        dr["AllotedProducedMin"] = clsStaticInfo.dbl( dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString());
+                        dr["WorkDuration"] = Dur;
+                        dr["NetEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString())/Dur)*100;
+                        dr["GrossEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString())/Dur)*100;
+                        dr["Date"] = Convert.ToDateTime(Date);
+                        dr["Rate"] = 0;
+                        dr["Amount"] = 0;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsRatesHealf.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+                #endregion
+
+                #region 8. Calculation Of Efficiency Rate And Amount
+
+                for (int i = count; i < dsRatesHealf.Tables[0].Rows.Count; i++)
+                {
+
+
+                    dtMainDict.DefaultView.RowFilter = @"Id = '" + dsRatesHealf.Tables[0].Rows[i]["Id"].ToString() + "'";
+                    string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
+                    string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
+
+                    dtRatesTable.DefaultView.RowFilter = @"EntityId='"+EntityId+"' and ProcessId='"+ProcessId+"'";
+
+                    dtRatesTable.DefaultView.Sort = "Effeciency";
+
+                    DataTable dtTemp = dtRatesTable.DefaultView.ToTable();
+                    double Rate = 0.0;
+                    for (int j = 0; j < dtTemp.Rows.Count; j++)
+                    {
+                        if (clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["GrossEfficiency"].ToString()) <= clsStaticInfo.dbl(dtTemp.Rows[j]["Effeciency"].ToString()))
+                        {
+                            Rate = clsStaticInfo.dbl(dtTemp.Rows[j]["EffeciencyRate"].ToString());
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    dsRatesHealf.Tables[0].Rows[i].BeginEdit();
+                    dsRatesHealf.Tables[0].Rows[i]["Rate"] = Rate;
+                    dsRatesHealf.Tables[0].Rows[i]["Amount"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["GrossEfficiency"].ToString()) * Rate;
+                    dsRatesHealf.Tables[0].Rows[i].EndEdit();
+
+                }
+
+
+                #endregion
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMasterHalf , dsRatesHealf);
+                
 
             }
             catch (Exception ex)

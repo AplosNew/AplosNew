@@ -354,6 +354,7 @@
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GroupBalanceReportController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\VoucherGlUpdateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\VoucherParkController.cs" />
     <Compile Include="Areas\Accounts\Controllers\GeneralAccountDeterminateController.cs" />
     <Compile Include="Areas\Accounts\Controllers\InvoicePostController.cs" />
@@ -1632,6 +1633,7 @@
     <Content Include="Areas\Accounts\Scripts\GroupBalanceReportController.js" />
     <Content Include="Areas\Accounts\Scripts\inventorySalesReturnPost.js" />
     <Content Include="Areas\Accounts\Scripts\PostInvoiceController.js" />
+    <Content Include="Areas\Accounts\Scripts\VoucherGlUpdateController.js" />
     <Content Include="Areas\Accounts\Scripts\voucherParkController.js" />
     <Content Include="Areas\Accounts\Scripts\expenseRegisterReportController.js" />
     <Content Include="Areas\Accounts\Scripts\FixedAssetsRegisterReportController.js" />
@@ -4053,9 +4055,10 @@
     <Content Include="Areas\Products\Views\InventoryIssue\_StockBOQPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGroup\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteLocation\Aplos.cshtml" />
-    <Content Include="Areas\Costings\Views\BOQGeneration\Approval.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQ\Approval.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCosting\PreCostingView.cshtml" />
     <Content Include="Areas\Costings\Views\OrderCosting\ProcurementCostingView.cshtml" />
+    <Content Include="Areas\Accounts\Views\VoucherGlUpdate\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

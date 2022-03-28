@@ -55,7 +55,7 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select case when WID.Id IS NULL then 0 else 1 end Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName
+                var sql = @"select CAST(case when WID.Id IS NULL then 0 else 1 end as bit) Active,WID.Id,WTD.Id WasteTransactionDataId,ROW_NUMBER() OVER (ORDER BY WID.Id) AS Sequence,WM.Category WasteCategory,WM.SubCategory WasteSubCategory,WM.ItemName
 				                    ,UOM.UserName UOM,WTD.Quantity StockQty,WM.StandardRate StdRate,(WTD.Quantity*WM.StandardRate) StdValue
 				                    ,ISNULL(WID.IssueQty,0) IssueQty,ISNULL(WID.Rate,0) Rate,WID.ProcessId,P.UserName Process,WID.Remarks,(ISNULL(WID.IssueQty,0) * ISNULL(WID.Rate,0))as IssueValue
 									,ISNULL((WTD.Quantity-(WID.IssueQty+ISNULL(WIDS.OtherQty,0))),0) as BalanceStock
@@ -187,7 +187,6 @@ namespace Aplos.Areas.Productions.Controllers
                         dr.BeginEdit();
                         dr["WasteIssueId"] = MasterId;
                         dr["WasteTransactionDataId"] = WasteData[i]["WasteTransactionDataId"];
-                        dr["WasteMasterId"] = WasteData[i]["Id"];
                         dr["IssueQty"] = WasteData[i]["IssueQty"];
                         dr["Rate"] = WasteData[i]["Rate"];
                         dr["IssueValue"] = WasteData[i]["IssueValue"];
