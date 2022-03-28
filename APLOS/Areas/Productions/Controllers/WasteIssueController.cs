@@ -187,7 +187,6 @@ namespace Aplos.Areas.Productions.Controllers
                         dr.BeginEdit();
                         dr["WasteIssueId"] = MasterId;
                         dr["WasteTransactionDataId"] = WasteData[i]["WasteTransactionDataId"];
-                        dr["WasteMasterId"] = WasteData[i]["Id"];
                         dr["IssueQty"] = WasteData[i]["IssueQty"];
                         dr["Rate"] = WasteData[i]["Rate"];
                         dr["IssueValue"] = WasteData[i]["IssueValue"];
