@@ -621,7 +621,7 @@ namespace Library.OrderManagement.Production
 
                 #region 4. Calculation and Filling of the MasterHalf DataTable
 
-                ListDictionary dicSkillCat = new ListDictionary(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
+                Dictionary<string,string> dicSkillCat = new Dictionary<string, string>(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
 
                 for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
                 {
@@ -645,13 +645,129 @@ namespace Library.OrderManagement.Production
 
                 DataTable dtMainDict = _sqlRepository.GetDataTable(str2);
 
-                var str3 = @"Select ph.Id , pp.ProcessId , pe.EntityId , pc.SkillAllowance , pc.OperationSequence , pc.SkillCategoryId
+                var str3 = @"Select ph.Id ,ph.EffectiveDate, pp.ProcessId , pe.EntityId , pc.SkillAllowance , pc.AdditionOperationAllowance , pc.OperationSequence , pc.SkillCategoryId
                             from dbo.ProducedMinAllowanceHeader ph
                             left join dbo.ProducedMinAllowanceEntity pe on pe.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceProcess pp on pp.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceChild pc on pc.HeaderId = ph.Id";
 
                 DataTable dtAllowance = _sqlRepository.GetDataTable(str3);
+
+                for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                {
+
+                    dtMainDict.DefaultView.RowFilter = @"Id = '" + dtMasterHalf.Rows[i]["Id"].ToString() + "'";
+
+                    string SkillCatId = dicSkillCat[dtMasterHalf.Rows[i]["Id"].ToString()].ToString();
+                    string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
+                    string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
+                    string OpSeq = dtMasterHalf.Rows[i]["Sequence"].ToString();
+
+                    dtAllowance.DefaultView.RowFilter = @"EntityId='" + EntityId+"' and ProcessId ='"+ProcessId+ @"' 
+                                                        and SkillCategoryId='"+ SkillCatId+ "' and OperationSequence='"+OpSeq+"'";
+                    dtMasterHalf.Rows[i].BeginEdit();
+                    dtMasterHalf.Rows[i]["SkillAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString()) / 100;
+                    dtMasterHalf.Rows[i]["AdditionalOperationAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString()) / 100;
+
+                    double skAll = clsStaticInfo.dbl(dtMasterHalf.Rows[i]["SkillAllowance"].ToString()) * clsStaticInfo.dbl(dtMasterHalf.Rows[i]["TotalSPT"].ToString());
+                    double addAll = clsStaticInfo.dbl(dtMasterHalf.Rows[i]["AdditionalOperationAllowance"].ToString()) * clsStaticInfo.dbl(dtMasterHalf.Rows[i]["TotalSPT"].ToString());
+
+                    dtMasterHalf.Rows[i]["AllotedProducedMin"] = clsStaticInfo.dbl(dtMasterHalf.Rows[i]["TotalSPT"].ToString()) + skAll + addAll;
+                    dtMasterHalf.Rows[i].EndEdit();
+                }
+
+                #endregion
+
+                #region 6. Getting the Rates Data
+
+                DataSet dsRatesHealf = null;
+                ConnectionManager.DAL.ConManager connec = new ConnectionManager.DAL.ConManager("1");
+                connec.OpenDataSetThroughAdapter("Select * from dbo.EmployeeEfficiencyProcess where Date='" + Date + "'  order by EmployeeId asc", out dsRatesHealf, false, "1");
+
+                DataTable dtRatesHealf = dsRatesHealf.Tables[0];
+
+                var str4 = @"Select ih.Id , ih.EffectiveDate , ie.EntityId , ips.ProcessId , ics.Effeciency, ics.EffeciencyRate from dbo.IncentiveRateSetupHeader ih
+                            left join dbo.IncentiveRateSetupEntity ie on ie.HeaderId = ih.Id
+                            left join dbo.IncentiveRateSetupProcess ips on ips.HeaderId = ih.Id
+                            left join dbo.IncentiveRateSetupChild ics on ics.HeaderId = ih.Id";
+
+                DataTable dtRatesTable = _sqlRepository.GetDataTable(str4);
+
+
+                var str5 = @"Select EmpSystemId , isnull(Duration,0) as Duration , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
+                DataTable dtApd = _sqlRepository.GetDataTable(str5);
+
+                #endregion
+
+                #region 7. Calculation Of the Duration And Efficiency
+
+                for (int i = 0; i < dtMasterHalf.Rows.Count; i++)
+                {
+                    dtApd.DefaultView.RowFilter = @"EmpSystemId ='"+dtMasterHalf.Rows[i]["EmployeeId"].ToString()+"'";
+                    double Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+
+                    dtRatesHealf.DefaultView.RowFilter = @"EmployeeId='"+ dtMasterHalf.Rows[i]["EmployeeId"].ToString() + "'";
+                    if (dtRatesHealf.DefaultView.Count > 0)
+                    {
+                        dtRatesHealf.DefaultView[0].Row.BeginEdit();
+                        dtRatesHealf.DefaultView[0]["TotalSPT"] = clsStaticInfo.dbl(dtRatesHealf.DefaultView[0]["TotalSPT"].ToString()) + clsStaticInfo.dbl(dtMasterHalf.Rows[i]["TotalSPT"].ToString());
+                        dtRatesHealf.DefaultView[0]["AllotedProducedMin"] = clsStaticInfo.dbl(dtRatesHealf.DefaultView[0]["AllotedProducedMin"].ToString()) + clsStaticInfo.dbl(dtMasterHalf.Rows[i]["AllotedProducedMin"].ToString());
+                        dtRatesHealf.DefaultView[0]["WorkDuration"] = Dur;
+                        dtRatesHealf.DefaultView[0]["NetEfficiency"] = (clsStaticInfo.dbl(dtRatesHealf.DefaultView[0]["TotalSPT"].ToString()) / Dur)*100;
+                        dtRatesHealf.DefaultView[0]["GrossEfficiency"] = (clsStaticInfo.dbl(dtRatesHealf.DefaultView[0]["AllotedProducedMin"].ToString()) / Dur)*100;
+                        dtRatesHealf.DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dtRatesHealf.NewRow();
+                        dr["Id"] = dtMasterHalf.Rows[i]["Id"].ToString();
+                        dr["EmployeeId"] = dtMasterHalf.Rows[i]["EmployeeId"].ToString();
+                        dr["TotalSPT"] = clsStaticInfo.dbl( dtMasterHalf.Rows[i]["TotalSPT"].ToString());
+                        dr["AllotedProducedMin"] = clsStaticInfo.dbl( dtMasterHalf.Rows[i]["AllotedProducedMin"].ToString());
+                        dr["WorkDuration"] = Dur;
+                        dr["NetEfficiency"] = (clsStaticInfo.dbl(dtMasterHalf.Rows[i]["TotalSPT"].ToString())/Dur)*100;
+                        dr["GrossEfficiency"] = (clsStaticInfo.dbl(dtMasterHalf.Rows[i]["AllotedProducedMin"].ToString())/Dur)*100;
+                        dr["Rate"] = 0;
+                        dr["Amount"] = 0;
+                        dtRatesHealf.Rows.Add(dr);
+                    }
+                }
+
+
+                #endregion
+
+                #region 8. Calculation Of Efficiency Rate And Amount
+
+                for (int i = 0; i < dtRatesHealf.Rows.Count; i++)
+                {
+                    dtMainDict.DefaultView.RowFilter = @"Id = '" + dtRatesHealf.Rows[i]["Id"].ToString() + "'";
+                    string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
+                    string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
+
+                    dtRatesTable.DefaultView.RowFilter = @"EntityId='"+EntityId+"' and ProcessId='"+ProcessId+"'";
+
+                    dtRatesTable.DefaultView.Sort = "Efficiency";
+
+                    DataTable dtTemp = dtRatesTable.DefaultView.ToTable();
+                    double Rate = 0.0;
+                    for (int j = 0; j < dtTemp.Rows.Count; j++)
+                    {
+                        if (clsStaticInfo.dbl(dtRatesHealf.Rows[i]["GrossEfficiency"].ToString()) <= clsStaticInfo.dbl(dtTemp.Rows[j]["Efficiency"].ToString()))
+                        {
+                            Rate = clsStaticInfo.dbl(dtTemp.Rows[j]["EfficiencyRate"].ToString());
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    dtRatesHealf.Rows[i].BeginEdit();
+                    dtRatesHealf.Rows[i]["Rate"] = Rate;
+                    dtRatesHealf.Rows[i]["Amount"] = clsStaticInfo.dbl(dtRatesHealf.Rows[i]["GrossEfficiency"].ToString()) * Rate;
+                    dtRatesHealf.Rows[i].EndEdit();
+
+                }
 
 
                 #endregion

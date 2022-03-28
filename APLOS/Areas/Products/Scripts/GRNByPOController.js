@@ -419,18 +419,18 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             return true;
         }
         else if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) {
-             ShowResult('Invoicing by is required', 'failure');
+            ShowResult('Invoicing by is required', 'failure');
             return true;
         }
         else if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) {
-             ShowResult('Delivery by is required', 'failure');
+            ShowResult('Delivery by is required', 'failure');
             return true;
         }
         $scope.inventoryMaterialListPOnew = [];
         $scope.chargesListPOnew = [];
         for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
             if ($scope.inventoryMaterialListPO[i].TransactionQty > 0 && $scope.inventoryMaterialListPO[i].check == null) {
-                ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId , 'failure');
+                ShowResult("Please check in PORowId " + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                 return true;
             }
             if ($scope.inventoryMaterialListPO[i].check == true) {
@@ -468,7 +468,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         //$scope.detailModel.BaseUOMId = $filter("filter")($scope.inventoryMaterialListPO, { check: 1 })[0].Value;
         if ($scope.Action === 'Save') {
             if (!$scope.checkValidation()) {
-                
+
                 try {
                     if ($scope.Action === 'Update') {
                         $scope.modelValidation('div_grnNo', 'productNew', 'Id');
@@ -521,8 +521,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                 $scope.product = Object.assign({}, $scope.productNew);
                                 $scope.product.POId = $scope.POId;
                                 $scope.product.PurchaseDocumentAcceptanceId = $scope.AcceptanceId;
-                                
-                               
+
+
 
                                 //debugger;
                                 $http({
@@ -675,9 +675,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     throw e;
                 }
             }
-            
-            
-        
+
+
+
         }
     };
 
@@ -2461,21 +2461,21 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
                         }
                         if ($scope.productNew.IsNonCreditable == 1) {
-                                $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
+                            $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
 
                         }
                         else {
-                                $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                            $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
                     }
-                    
+
                 }
             }
-          
+
 
         }
         else {
@@ -2532,12 +2532,12 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                             $scope.inventoryMaterialListPO[i].NetQty = ($scope.inventoryMaterialListPO[i].TransactionQty - $scope.inventoryMaterialListPO[i].ShortageQty);
                         }
                         if ($scope.productNew.IsNonCreditable == 1) {
-                                $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
+                            $scope.inventoryMaterialListPO[i].TrnAmount = ($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate).toFixed(2);
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat(data.ServiceTax)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
                         else {
-                                $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
+                            $scope.inventoryMaterialListPO[i].TrnAmount = Math.round(($scope.inventoryMaterialListPO[i].NetQty * $scope.inventoryMaterialListPO[i].TransactionRate) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = Math.round((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * 100 + Number.EPSILON) / 100;
                             $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = Math.round(((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate) * 100 + Number.EPSILON) / 100;
                         }
@@ -4469,5 +4469,22 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             }
         }
     }
+    $scope.copyDiscount = function () {
+        try {
+            for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.inventoryMaterialList[0].DiscountAmount) || $scope.inventoryMaterialList[0].DiscountAmount == 0) {
+                    throw "Enter discount value at row 1";
+                }
+                else if ($scope.inventoryMaterialList[i].DiscountAmount > $scope.inventoryMaterialList[i].TrnAmount) {
+                    //$scope.inventoryMaterialList[i].DiscountAmount = 0;
+                }
+                else {
+                    $scope.inventoryMaterialList[i].DiscountAmount = $scope.inventoryMaterialList[0].DiscountAmount;
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
 
+    };
 }

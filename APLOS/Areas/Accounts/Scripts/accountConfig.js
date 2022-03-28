@@ -937,6 +937,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/VoucherPark/Aplos",
             controller: "voucherParkController"
         })
+        .when("/voucher-gl-update", {
+            templateUrl: "Accounts/VoucherGlUpdate/Aplos",
+            controller: "VoucherGlUpdateController"
+        })
         .when("/post-invoice", {
             templateUrl: "Accounts/PostInvoice/Aplos",
             controller: "PostInvoiceController"

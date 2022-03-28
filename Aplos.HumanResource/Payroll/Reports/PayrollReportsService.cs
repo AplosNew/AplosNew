@@ -9728,12 +9728,7 @@ namespace Library.HumanResource.Payroll
                             sheet1.Range[xlsRow, cGrade].Text = dtEmployees.Rows[i]["GradeCode"].ToString();
                         sheet1.Range[xlsRow, cGrade].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                         sheet1.Range[xlsRow, cGrade].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                        //if (string.IsNullOrEmpty(dtEmployees.Rows[i]["IsDirect"].ToString()) == false)
-                        //    sheet1.Range[xlsRow, cDMP].Text = dtEmployees.Rows[i]["IsDirect"].ToString();
-                        //sheet1.Range[xlsRow, cDMP].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                        //sheet1.Range[xlsRow, cDMP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
+                                             
 
                         if (string.IsNullOrEmpty(dtEmployees.Rows[i]["DirectManpowerCost"].ToString()) == false)
                             sheet1.Range[xlsRow, colDirectManpowerCost].Text = dtEmployees.Rows[i]["DirectManpowerCost"].ToString();
@@ -16002,12 +15997,7 @@ INNER JOIN
 												LEFT JOIN org.SubSection SS ON PO.SubSectionID = SS.Id
 
 												LEFT JOIN
-                                                --hkp.EmployeeCategory EC ON E.EmployeeCategorySystemID = EC.Id
-            --                                    (
-            --                                    SELECT ECT.Id, ECT.UserName, DM.DesignationId FROM [HKP].[EmployeeCategory] ECT
-												--LEFT JOIN MST.DesignationMaster DM ON ECT.Id=DM.EmployeeCategoryId
-												--)EC ON EC.DesignationId=E.GivenDesignationId
-												[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
+            									[HKP].[EmployeeCategory] EC ON EC.Id = SPLD.EmployeeCategoryId
 											
 
                                
@@ -16060,7 +16050,7 @@ INNER JOIN
 
                 strSQL += @"Order by EmpBasic.EmployeeCodePreFix,EmpBasic.EmployeeCodeNumeric ";
 
-                ConnectionManager.clsConnectionManager con = new clsConnectionManager(3600);
+                clsConnectionManager con = new clsConnectionManager(3600);
                 con.getDataSet(strSQL, out dsRef);
 
 

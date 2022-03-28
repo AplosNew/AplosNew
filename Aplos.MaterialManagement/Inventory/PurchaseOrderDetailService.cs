@@ -3103,6 +3103,7 @@ namespace Library.MaterialManagement.Inventory
 							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
+
 							itemDetail.BaseAmount = itemDetail.TransactionAmount * itemDetail.ToCurrencyRate;
 
 						}
@@ -3110,22 +3111,23 @@ namespace Library.MaterialManagement.Inventory
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
-							itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
-							itemDetail.BaseAmount = itemDetail.TransactionAmount;
+							itemDetail.BaseUoMFactor = 1;
+							itemDetail.BaseAmount = itemDetail.BaseQty * itemDetail.ToCurrencyRate;
 
 						}
 						else if (itemDetail.BaseUOMId != itemDetail.TransactionUoMId && entity.CurrencyId == entity.BaseCurrencyId && (baseUoMFactorList != null && baseUoMFactorList.Count() > 0))
 						{
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
-							itemDetail.BaseAmount = itemDetail.TransactionAmount;
+							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
+							itemDetail.BaseAmount = itemDetail.BaseQty*itemDetail.TransactionRate;
 
 
 						}
 						else
 						{
 
-							itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
+							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
 							itemDetail.BaseAmount = itemDetail.TransactionAmount;
@@ -3253,7 +3255,7 @@ namespace Library.MaterialManagement.Inventory
 								BOQDetailId = POReqDetail.BOQId,
 								TransactionQty = POReqDetail.TransactionQty,
 								TransactionUoMId = POReqDetail.TransactionUoMId,
-								BaseQty = Convert.ToDecimal(itemDetail.BaseQty),
+								BaseQty = Convert.ToDecimal(itemDetail.BaseUoMFactor* POReqDetail.TransactionQty),
 								BaseUoMId = itemDetail.BaseUOMId,
 								POUoMId = itemDetail.POUoMId,
 								POBOQQty = Convert.ToDecimal(conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.POUoMId.ToString(), Convert.ToDouble(POReqDetail.TransactionQty)).ToString("F2")),
