@@ -57,9 +57,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IsNULL(v2.UserName,'') AS SecondCharacteristicsValue
 						,IsNULL(v3.UserName,'') AS ThirdCharacteristicsValue
 
-						,b.FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
-						,b.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
-						,b.ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
+						,b.FGFirstCharacteristicsValueId FirstCharacteristicsValueId,FC.Id FirstCharacteristicsId
+						,b.FGSecondCharacteristicsValueId SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
+						,b.FGThirdCharacteristicsValueId ThirdCharacteristicsValueId,TC.Id ThirdCharacteristicsId
 						,RequiredQtyApproved=Case When CONVERT(BIT, isnull(b.RequiredQtyApproved,0))=0 Then 'No' ELSE 'Yes' END
 						,IncompleteMaterial=CASE WHEN CONVERT(BIT, isnull(b.IncompleteMaterial,0))=1 THEN 'Yes' ELSE 'No' END 
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
@@ -109,9 +109,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
 						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FirstCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.SecondCharacteristicsValueId
-						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.ThirdCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FGFirstCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.FGSecondCharacteristicsValueId
+						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V3 ON v3.Id=b.FGThirdCharacteristicsValueId
 
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
