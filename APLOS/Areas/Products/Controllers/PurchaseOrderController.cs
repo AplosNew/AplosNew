@@ -5258,6 +5258,7 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
                 objCon.OpenDataSetThroughAdapter(sql1, out dsBOq, false, "1");
 
                 double Total = 0;
+                dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + poBoqItemListNew["Id"] + "' ";
                 if (dsBOq.Tables[0].DefaultView.Count > 0)
                 {
                     for (int i = 0; i < updatePOBOQList.Count; i++)
@@ -5268,6 +5269,8 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
                             drMSave = dsBOq.Tables[0].DefaultView[0].Row;
                             drMSave.BeginEdit();
                             drMSave["TransactionQty"] = clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString());
+                            drMSave["POBOQQty"] = clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString());
+                            drMSave["BaseQty"] = clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString()) * clsStaticInfo.dbl(dsMaster.Tables[0].Rows[0]["BaseUoMFactor"].ToString());
                             Total = Total + clsStaticInfo.dbl(updatePOBOQList[i]["TransactionQty"].ToString());
 
                             drMSave["UpdatedBy"] = identity.Name;
@@ -5278,12 +5281,15 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
                         }
                     }
                 }
-                dsMaster.Tables[0].DefaultView.RowFilter = "Id = '" + poBoqItemListNew["Id"] + "' ";
+                
                 if (dsMaster.Tables[0].DefaultView.Count > 0)
                 {
                     drSave = dsMaster.Tables[0].DefaultView[0].Row;
                     drSave.BeginEdit();
                     drSave["TransactionQty"] = clsStaticInfo.dbl(Total.ToString());
+                    drSave["BaseQty"] = clsStaticInfo.dbl(Total.ToString()) * clsStaticInfo.dbl(dsMaster.Tables[0].Rows[0]["BaseUoMFactor"].ToString());
+                    drSave["TransactionAmount"] = clsStaticInfo.dbl(Total.ToString()) * clsStaticInfo.dbl(dsMaster.Tables[0].Rows[0]["TransactionRate"].ToString());
+                    drSave["BaseAmount"] = clsStaticInfo.dbl(drSave["BaseQty"].ToString()) * clsStaticInfo.dbl(dsMaster.Tables[0].Rows[0]["TransactionRate"].ToString());
 
                     drSave["UpdatedBy"] = identity.Name;
                     drSave["UpdatedDate"] = DateTime.Now;
