@@ -158,6 +158,45 @@ namespace Library.OrderManagement.Costing
 
             return _sqlRepository.GetDataCollection(sql);
         }
+
+        public List<Dictionary<string, object>> GetAllBOQCosting(string CostingBOQMasterId)
+        {
+
+            string sql = @"SELECT convert(bit,isnull(BOQ.RequiredQtyApproved,0)) RequiredQtyApproved,convert(bit,isnull(mm.WithSKU,0)) AS WithSKU,BOQ.CostingItemId,boq.SalesOrderId,d.UserName AS Destination,
+                            cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+                                    BOQ.Id, ci.Sequence,ci.UserName AS CostingItem,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+                                    mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
+                                    boq.BOMQty,boq.RequiredQty,boq.BOMQty-boq.RequiredQty AS BalanceToPurchase,uom.UserName AS UOM,boq.rate*boq.RequiredQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency,
+                                    BOQ.RMDescription,BOQ.RMCustomerSpec,BOQ.RMVendorSpec,BOQ.SKUDesc,ci.Id CostingItemId,
+  boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount ,BOQ.OwnReferenceNo,BOQ.Remark,
+  SKUDescConcat= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ CriteriaDetail= ISNULL(BOQ.SKUDesc,CONCAT(boq.SalesOrderId,' ',d.UserName,' ',cv1.UserName,' ',cv2.UserName)),
+ BOQ.FileName,BOQ.FileOriginalName,BOQ.Extension,BOQ.POCriteria,BOQ.[Status],BOQ.Reason
+,SONumber=STUFF((select distinct ','+XSO.Id 
+                                         from   trn.SalesOrder XSO 	                                    
+							             where XSO.Id=boq.SalesOrderId     	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    FROM BOQ
+                                    LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
+                                    LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+                                    LEFT JOIN employeeinformation emp ON emp.SystemId=cb.EmployeeSystemId
+
+                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=boq.SalesOrderId
+                                    LEFT JOIN mst.Destination AS d ON d.Id=so.DestinationId
+                                    LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+                                    LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+                                    LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+                                    LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
+                                    LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                                    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                                    WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"' 
+                                    
+                                    ORDER BY ci.Sequence";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         public List<Dictionary<string, object>> GetCustomerList(string column, string value)
         {
             string strkey = "1=1";
@@ -1680,5 +1719,58 @@ namespace Library.OrderManagement.Costing
                 throw ex;
             }
         }
+
+        public void UpdateBOQ(List<Dictionary<string, object>> QuantityData)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            string id = string.Empty;
+            try
+            {
+                foreach (var item in QuantityData)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+                string mosql = "SELECT * FROM dbo.BOQ WHERE Id IN (" + id + ")";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMaster, false, "1");
+
+                string cId = string.Empty;
+                foreach (var item in QuantityData)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+
+                        drmo["Status"] = item["Status"];
+                        drmo["Reason"] = item["Reason"];
+                        drmo["RequiredQtyApproved"] = item["RequiredQtyApproved"];
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
+
+                        drmo.EndEdit();
+
+                    }
+
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 }

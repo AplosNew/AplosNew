@@ -741,6 +741,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             $scope.LoadTermsAndConditionDetailGrid();
                             $scope.Action = "Update";
                             $scope.ActionPOBOQ = "Update";
+                            $scope.poBoqItemList = [];
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure', 'ListOfPOMaterial');
@@ -769,6 +770,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         else {
                             ShowResult(response.data.Message, 'success');
                             getInventoryMaterialList($scope.productNew.Id);
+                            $scope.poBoqItemList = [];
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');

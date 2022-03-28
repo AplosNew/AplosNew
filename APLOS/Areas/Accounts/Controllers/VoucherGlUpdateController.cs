@@ -11,11 +11,11 @@ using System.Web.Mvc;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
-    public class VoucherParkController : BaseController
+    public class VoucherGlUpdateController : BaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
-        public VoucherParkController(
+        public VoucherGlUpdateController(
              IUnitOfWork unitOfWork
             , ISqlRepository sqlRepository
             )
