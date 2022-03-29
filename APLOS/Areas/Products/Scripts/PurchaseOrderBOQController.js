@@ -50,7 +50,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus+'&poType='+'POBOQ',
+            url: 'Products/PurchaseOrder/GetPOTypeList?POTypeStatus=' + $scope.POTypeStatus + '&poType=' + 'POBOQ',
         }).then(function successCallback(response) {
 
             for (var i = 0; i < $scope.Griddata.length; i++) {
@@ -61,7 +61,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     };
     $scope.getalldata();
     //#region Tab
-    
+
     //#region all Tab Function of PO Index
 
     $scope.POTypeStatus = '';
@@ -326,7 +326,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.Clear = function () {
         $scope.product = {};
-        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId};
+        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId };
         $scope.poBoqItemListNew = [];
         $scope.tempList = [];
         $scope.taxCategoryList = [];
@@ -503,7 +503,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.productNew.CustomerName = $scope.SubmitCustomerName;
         $scope.isSubmitted = 'Yes';
         $scope.submitBOQItem();
-        
+
     }
     $scope.Back = function () {
         $scope.isSubmitted = 'No';
@@ -547,7 +547,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         $scope.isSubmitted = 'No';
                         return false;
                     }
-                    
+
                     if (poboqlist[i].TransactionQty === 0 || poboqlist[i].TransactionQty === 0.00 || poboqlist[i].TransactionQty === 0.0) {
                         ShowResult('Enter the current Qty.Zero not allowed', 'failure');
                         return false;
@@ -623,7 +623,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                                 }
                             }
                         }
-                       
+
                     }
                 }
             }
@@ -692,7 +692,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-  
+
     $scope.GetCurrencyExchangeRateList = function () {
 
         //if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
@@ -709,7 +709,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.currencyExchangeRate = null;
         }
     };
- 
+
 
     $scope.detailPOSaveForBOQ = function () {
         ;
@@ -741,6 +741,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             $scope.LoadTermsAndConditionDetailGrid();
                             $scope.Action = "Update";
                             $scope.ActionPOBOQ = "Update";
+                            $scope.getalldata();
                             $scope.poBoqItemList = [];
                         }
                     }), function errorCallBack(response) {
@@ -1105,8 +1106,8 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     }
     function getPOBOQMAPList(inveReveiveId) {
         $http.get($scope.path + 'GetPOBOQMAPList?inveReveiveId=' + inveReveiveId)
-            .then(function (response) {                
-                $scope.tempList = response.data.Rows;                
+            .then(function (response) {
+                $scope.tempList = response.data.Rows;
             });
 
     }
@@ -1191,7 +1192,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         getPOBOQMAPList($scope.productNew.Id);
         getServiceChargeList($scope.productNew.Id);
         $scope.productNew.OrderSpecific = 'Yes';
-        $scope.isSubmitted='Yes'
+        $scope.isSubmitted = 'Yes'
         $scope.BOQItemDisabled = 'GridClick';
         if (baseService.isUndefinedOrNull(x.data.CheckedBy) && !baseService.isUndefinedOrNull(x.data.AuthorizedBy)) {
             $scope.CheckedByStatusForNoti = false;
@@ -1204,7 +1205,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             $scope.productNew.CheckedBy = x.data.CheckedById;
         }
         $scope.ContractWiseData(x.data.ContractId);
-       // $scope.ImagedataLoad($scope.productNew.Id);
+        // $scope.ImagedataLoad($scope.productNew.Id);
         $scope.GetCheckedByAndApprovedBy1();
         if (baseService.isUndefinedOrNull(x.data.CheckedById) && !baseService.isUndefinedOrNull(x.data.ApprovedById)) {
             $scope.GetCheckedByAndApprovedBy1();
@@ -1281,7 +1282,75 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 ShowResult(response.data.Message, 'failure', 'updatePOBOQPopUp');
             };
         } catch (e) {
-            ShowResult(e,'info')
+            ShowResult(e, 'info')
+        }
+    };
+    $scope.UpdatepoBoqItemList = [];
+    $scope.detailPopUp = function () {
+        try {
+            $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.productNew.ContractId + '&VendorId=' + $scope.productNew.PartyCode)
+                .then(
+                    function successCallback(response) {
+                        if (baseService.arrayLength(response.data) > 0) {
+                            $scope.UpdatepoBoqItemList = response.data;
+                            angular.element(document.querySelector('#AddMaterialPopUp')).modal('show');
+                        }
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+    };
+    $scope.CloseMaterialPopUp = function () {
+        angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
+    }
+    $scope.UpdatesubmitBOQItem = function () {        
+        try {
+            $scope.poBoqItemListNew;
+            for (var i = 0; i < $scope.UpdatepoBoqItemList.length; i++) {
+                if ($scope.UpdatepoBoqItemList[i].CheckedStatus) {
+                    if ((parseFloat($scope.UpdatepoBoqItemList[i].TransactionQty) + parseFloat($scope.UpdatepoBoqItemList[i].OtherPOQty)) > parseFloat($scope.UpdatepoBoqItemList[i].RequiredQtyPO)) {
+                        $scope.UpdatepoBoqItemList[i].TransactionQty = '';
+                        throw "Trasaction qty can not grater than booking Qty";
+                    }
+                    if (baseService.isUndefinedOrNull($scope.UpdatepoBoqItemList[i].TransactionQty)) {
+                        throw "Enter the current Qty.Zero not allowed";
+                    }
+                    if ($scope.UpdatepoBoqItemList[i].TransactionQty < 0) {
+                        throw('Negative Qty  not allowed');
+                    }
+                    if ($scope.UpdatepoBoqItemList[i].BalanceQty < $scope.UpdatepoBoqItemList[i].TransactionQty) {
+                        throw('Transaction QTY can not grater than Balance BOQ Qty');
+                    }
+
+                    if ($scope.UpdatepoBoqItemList[i].TransactionQty === 0 || $scope.UpdatepoBoqItemList[i].TransactionQty === 0.00 || $scope.UpdatepoBoqItemList[i].TransactionQty === 0.0) {
+                        throw('Enter the current Qty.Zero not allowed');
+                    }
+                    if (baseService.isUndefinedOrNull($scope.UpdatepoBoqItemList[i].TransactionRate)) {
+                        throw('Enter the current rate.Zero not allowed');
+                    }
+                    if ($scope.UpdatepoBoqItemList[i].TransactionRate === 0 || $scope.UpdatepoBoqItemList[i].TransactionRate === 0.0 || $scope.UpdatepoBoqItemList[i].TransactionRate === 0.00) {
+                        throw('Enter the current rate.Zero not allowed');
+                    }
+                    if ($scope.UpdatepoBoqItemList[i].RequiredQtyApproved === 'No') {
+                        throw('Required Qty not yet Approved.So you can not take this material');
+                    }
+                    if ($scope.UpdatepoBoqItemList[i].IncompleteMaterial === 'Yes') {
+                        throw('This is incomplete material.So you can not take this material');
+                    }
+                    else {
+                        for (var j = 0; j < $scope.poBoqItemListNew.length; j++) {
+                            //if ($scope.poBoqItemListNew[j]) {
+
+                            //}
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'info', 'AddMaterialPopUp');
         }
     };
 }//End Of main
