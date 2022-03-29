@@ -436,6 +436,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var iTelephoneNo = 0;
                 var iOutTime = 0;
                 var iRawPunch = 0;
+                var iManualByWhom = 0;
                 var iSection = 0;
                 var iSubSection = 0;
                 var iEntity = 0;
@@ -8420,6 +8421,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet29.Range[xlsRow, iRawPunch].Text = "PunchTime";
                     sheet29.Range[xlsRow, iRawPunch].ColumnWidth = 18;
 
+                    xlsCol += 1;
+                    iManualByWhom = xlsCol;
+                    sheet29.Range[xlsRow, iManualByWhom].Text = "By Whom";
+                    sheet29.Range[xlsRow, iManualByWhom].ColumnWidth = 18;
 
 
                     sheet29.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -8458,6 +8463,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet29.Range[xlsRow, iDOJ].Text = dtManualInEntry.Rows[i]["DOJ"].ToString();
 
                             sheet29.Range[xlsRow, iRawPunch].Text = dtManualInEntry.Rows[i]["PunchTime"].ToString();
+                          
+                            sheet29.Range[xlsRow, iManualByWhom].Text = dtManualInEntry.Rows[i]["ManualByWhom"].ToString();
 
                             xlsRow++;
                             SLNo++;
@@ -8701,6 +8708,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet30.Range[xlsRow, iRawPunch].Text = "PunchTime";
                     sheet30.Range[xlsRow, iRawPunch].ColumnWidth = 18;
 
+                    xlsCol += 1;
+                    iManualByWhom = xlsCol;
+                    sheet30.Range[xlsRow, iManualByWhom].Text = "By Whom";
+                    sheet30.Range[xlsRow, iManualByWhom].ColumnWidth = 18;
 
 
                     sheet30.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -8714,10 +8725,11 @@ namespace Library.HumanResource.NewAttendanceProcess
                     SLNo = 1;
                     if (dtManualOutEntry.Rows.Count > 0)
                     {
+                        #region ----------------------Data-----------------------
+
                         for (int i = 0; i < dtManualOutEntry.Rows.Count; i++)
                         {
 
-                            #region ----------------------Data-----------------------
                             sheet30.Range[xlsRow, isl].Text = SLNo.ToString();
 
                             sheet30.Range[xlsRow, iEmployeeCode].Text = dtManualOutEntry.Rows[i]["EmployeeCode"].ToString();
@@ -8739,6 +8751,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet30.Range[xlsRow, iDOJ].Text = dtManualOutEntry.Rows[i]["DOJ"].ToString();
 
                             sheet30.Range[xlsRow, iRawPunch].Text = dtManualOutEntry.Rows[i]["PunchTime"].ToString();
+
+                            sheet30.Range[xlsRow, iManualByWhom].Text = dtManualOutEntry.Rows[i]["ManualByWhom"].ToString();
 
                             xlsRow++;
                             SLNo++;
@@ -8987,6 +9001,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     sheet31.Range[xlsRow, iManualDayStatus].Text = "ManualDayStaus";
                     sheet31.Range[xlsRow, iManualDayStatus].ColumnWidth = 18;
 
+                    xlsCol += 1;
+                    iManualByWhom = xlsCol;
+                    sheet31.Range[xlsRow, iManualByWhom].Text = "By Whom";
+                    sheet31.Range[xlsRow, iManualByWhom].ColumnWidth = 18;
 
 
                     sheet31.Range[xlsRow, 1, xlsRow, xlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -9025,7 +9043,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                             sheet31.Range[xlsRow, iDOJ].Text = dtManualDayStatusEntry.Rows[i]["DOJ"].ToString();
 
                             sheet31.Range[xlsRow, iManualDayStatus].Text = dtManualDayStatusEntry.Rows[i]["ManualDayStatus"].ToString();
+                            
                             sheet31.Range[xlsRow, WorkDate].Text = dtManualDayStatusEntry.Rows[i]["WorkDate"].ToString();
+
+                            sheet31.Range[xlsRow, iManualByWhom].Text = dtManualDayStatusEntry.Rows[i]["ManualByWhom"].ToString();
 
                             xlsRow++;
                             SLNo++;
@@ -10184,7 +10205,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         		WHEN cs.InTime IS NULL
                         			THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)
                         		ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100)
-                        		END
+                        		END,ap.ManualByWhom
                         FROM AttdnProcessData AP
                         
                         LEFT JOIN EmployeeInformation EI ON AP.EmpSystemID = EI.SystemId
@@ -10214,7 +10235,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                         LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
                         WHERE (ap.ManualInTime is not null and ap.IsManualInTime=1) and 
-                              AP.WorkDate between '"+FromDate+@"' and  '"+ToDate+@"'   
+                              AP.WorkDate between '" + FromDate+@"' and  '"+ToDate+@"'   
                            and ei.PlantId='"+plantId+@"' and ei.CompanyId='"+companyId+@"'	
                        ORDER BY 
                         	EmployeeCodePreFix,EmployeeCodeNumeric
@@ -10241,7 +10262,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
                         	,EI.SystemId,EI.CellPhnNo TelePhnNo
                             ,EI.EmployeeCode
-                        	,EI.EmployeeName
+                        	,EI.EmployeeName,ap.ManualByWhom
                         	,PMB.Code BudgetCode
                             , LGD.userName LegalDesignation
                             , DeG.UserName Designation
@@ -10323,7 +10344,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 strSql = @"SELECT  FORMAT(AP.WorkDate, 'dd-MMM-yyyy') WorkDate
                         	,EI.SystemId,EI.CellPhnNo TelePhnNo
-                            ,EI.EmployeeCode
+                            ,EI.EmployeeCode,ap.ManualByWhom
                         	,EI.EmployeeName
                         	,PMB.Code BudgetCode
                             , LGD.userName LegalDesignation
@@ -10398,7 +10419,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         public void GetLongAbsentism(string FromDate, string ToDate, string plantId, string companyId, string companyGroupId, out DataSet dsRef)
         {
-            ConnectionManager.clsConnectionManager con = new clsConnectionManager(120);
+            clsConnectionManager con = new clsConnectionManager(120);
             string strSql = string.Empty;
 
             try
@@ -10456,12 +10477,12 @@ namespace Library.HumanResource.NewAttendanceProcess
     public class NewAuditReportSummaryService
     {
         SqlRepository _sqlRepository;
-        ConnectionManager.clsConnectionManager ConManager;
+        clsConnectionManager ConManager;
 
         public NewAuditReportSummaryService()
         {
             _sqlRepository = new SqlRepository();
-            ConManager = new ConnectionManager.clsConnectionManager();
+            ConManager = new clsConnectionManager();
         }
         public void GetInMissingReports(string FromDate, string plantId, string companyId, string companyGroupId, string ToDate, out DataSet dsRef)
         {
