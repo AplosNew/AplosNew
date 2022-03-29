@@ -514,6 +514,7 @@ namespace Library.OrderManagement.Production
                 {
                     if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
                     {
+                        
                         dr = dtNew.NewRow();
                         dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
                         dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();

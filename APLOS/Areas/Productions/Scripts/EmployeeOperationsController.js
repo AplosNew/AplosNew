@@ -226,6 +226,46 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    $scope.getProcessDownload = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getProcessDownload",
+            data: {
+                'Date': $scope.Date
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+   $scope.getEmployeeWorkDurationReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeWorkDurationReport",
+            data: {
+                'Date': $scope.Date
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
     //Processing Button
     $scope.processAll = function () {
         $http({
