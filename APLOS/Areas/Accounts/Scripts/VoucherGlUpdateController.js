@@ -1,7 +1,7 @@
 ﻿'use strict';
 VoucherGlUpdateController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'VoucherPark';
+    $rootScope.title = 'Voucher GL Update';
     $scope.Action = 'Save';
     $scope.path = 'Accounts/VoucherGlUpdate/';
     $scope.url = "Accounts/VoucherGlUpdate";
@@ -9,19 +9,26 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'create';
     var dt = new Date();
 
-    //$scope.reportParameters = {
-    //    FromDate: $filter("dateFiltering")(new Date(dt.setDate(dt.getDate() - 10))), //$filter("dateFiltering")(Date.now()) - 10,
-    //    ToDate: $filter("dateFiltering")(Date.now()),
-    //    TransactionType: 'LoanTaken',
-    //    ReportFormat: 'Excel'
-    //    VoucherId: null
-    //    IsOrderSpecific: true,
-    //   FromDate: $filter('dateFiltering')(Date.now()),
+    //$scope.voucher = {
+    //    Id: null,
+    //    VoucherNo: null
     //};
 
     $scope.voucher = {
         Id: null,
-        VoucherNo: null
+        PartyId: null,
+        PartyName: null,
+        PartyType: null,
+        CurrencyId: null,
+        Type: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Amount: 0,
+        Narration: null,
+        CompanyCurrencyRate: 1
     };
 
 
@@ -56,166 +63,58 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.message_confirmation = "Are you sure to Park Mode?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
-    $scope.park = function (vId, vSourceType) {
+
+    $scope.Clear = function () {
+        $scope.Action = "Save";
+        $scope.voucher.Active = true;
+        $scope.voucher.Amount = 0;
+        $scope.voucher.DocRefNo = null;
+        $scope.voucher.Narration = null;
+        $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.getCboVoucherTypeJournalVoucherList();
+        $scope.currencyDisable = false;
+        //$scope.currencyExchangeRate = [];
+        //$scope.voucherDetailList = [];
+    };
+    $scope.Get = function (data) {
+        $scope.voucher.Id = data.Id;
+        $scope.voucher.PostingDate = data.PostingDate;
+        $scope.voucher.DocDate = data.DocDate;
+        $scope.voucher.DocRefNo = data.DocRefNo;
+        $scope.voucher.Narration = data.Narration;
+        $scope.voucher.CurrencyId = data.CurrencyId;
+        $scope.voucher.EntityId = data.EntityId;
+        $scope.GetCurrencyExchangeRateList();
+        $scope.currencyDisable = true;
+        $scope.Action = "Update";
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+        $scope.getJournalVoucherDetailList($scope.voucher.Id);
+    };
+    $scope.getJournalVoucherDetailList = function (id) {
         $http({
-            method: "POST",
-            url: $scope.parkUrl,
-            data: {
-                "voucherId": vId,
-                "sourceType": vSourceType
-            },
-            dataType: "JSON"
+            method: "get",
+            url: "accounts/VoucherGlUpdate/GetJournalVoucherDetailList?voucherId=" + id
         }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, "failure");
-            }
-            else {
-                ShowResult(response.data.Message, "success");
-                $scope.getVoucherData();
-                //$scope.Clear();
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.status.Message, "failure");
+            $scope.voucherDetailList = response.data;
         });
-        return true;
     };
 
-
-    //$scope.invoiceId = null;
-    //$scope.confirmDelete = function (invoiceId, voucherId) {
-    //    $scope.invoiceId = invoiceId;
-    //    $scope.voucherId = voucherId;
-    //    $scope.message_delete_confirmation = "Are you sure to Delete?";
-    //    angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
-    //};
-
-    //$scope.delete = function (invoiceId, voucherId) {
-    //    $http({
-    //        method: "POST",
-    //        url: $scope.deleteUrl,
-    //        data: {
-    //            "invoiceId": invoiceId, "voucherId": voucherId
-    //        },
-    //        dataType: "JSON"
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, "failure");
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, "success");
-    //            $scope.getData();
-    //            $scope.Clear();
-    //            $scope.invoiceId = null;
-    //            $scope.voucherId = null;
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult(response.status.Message, "failure");
-    //    });
-    //    return true;
-    //};
-
-
-
-    //$scope.entityList = [];
-    //cboService.getCboEntityByPlant(null, null, "", function (result) {
-    //    $scope.entityList = result;
-    //});
-
-    //$scope.departmentList = [];
-    //cboService.getCboDepartmentByCompanyGroup(null, function (result) {
-    //    $scope.departmentList = result;
-    //});
-
-
-    //$scope.refreshTemplateEntityandDepartment = function (args) {
-    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEntityAndDepartment });
-    //};
-
-    //function CheckBoxSelectAllEntityAndDepartment(e) {
-
-    //    var ChkOrUnchk = false;
-    //    if (e.model.checkState === "check") {
-    //        ChkOrUnchk = true;
-
-    //    }
-
-    //    var filtered = $("#GridEntityFixedAssetRegister").data("ejGrid").getFilteredRecords();
-    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-    //        for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
-    //            $scope.EntityFixedAssetRegisterList[i].isSelected = ChkOrUnchk;
-    //        }
-    //    }
-    //    else {
-
-    //        for (var j = 0; j < filtered.length; j++) {
-
-    //            filtered[j].isSelected = ChkOrUnchk;
-    //        }
-
-
-    //    }
-    //    var gridObj = $("#GridEntityFixedAssetRegister").data("ejGrid");
-    //    gridObj.refreshContent();
-    //};
-
-    //$scope.NewEntityFixedAssetRegisterList = [];
-    //$scope.validation = function () {
-    //    if (baseService.isUndefinedOrNull($scope.fixedAsset.EntityId)) {
-    //        ShowResult('Please select Entity', 'failure');
-    //        return true;
-    //    }
-    //    if (baseService.isUndefinedOrNull($scope.fixedAsset.DepartmentId)) {
-    //        ShowResult('Please select Department', 'failure');
-    //        return true;
-    //    }
-    //    $scope.NewEntityFixedAssetRegisterList = [];
-    //    for (var i = 0; i < $scope.EntityFixedAssetRegisterList.length; i++) {
-    //        if ($scope.EntityFixedAssetRegisterList[i].isSelected == true) {
-    //            $scope.NewEntityFixedAssetRegisterList.push($scope.EntityFixedAssetRegisterList[i]);
-    //        }
-    //    }
-
-    //    if ($scope.NewEntityFixedAssetRegisterList.length == 0) {
-    //        //(angular.isUndefinedOrNull(NewMasterLCList)) 
-    //        ShowResult('Please select at least one Fixed Assets', 'failure');
-    //        return true;
-    //    }
-
-    //    else {
-    //        return false;
-
-    //    }
-    //}
-
-    //$scope.Save = function () {
-    //    $scope.$broadcast('show-errors-check-validity');
-    //    if (!$scope.validation()) {
-
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveUrl,
-    //            data: { 'entityId': $scope.fixedAsset.EntityId, 'departmentId': $scope.fixedAsset.DepartmentId, 'entityFixedAssetList': $scope.NewEntityFixedAssetRegisterList },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, "success");
-    //                $scope.GetEntityFixedAssetRegisterData();
-    //                //$scope.Clear();
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //    }
-    //   // $scope.GetEntityFixedAssetRegisterData();
-    //}
-
-
-    
-
-
+    $scope.GetCurrencyExchangeRateList = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRate = response.data;
+                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRate = null;
+        }
+    };
 };
 
 

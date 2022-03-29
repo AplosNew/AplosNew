@@ -772,7 +772,16 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
 
         }
-
         #endregion getVoucherDataList
+
+        #region getVoucherGLDataList
+        public List<Dictionary<string, object>> getVoucherGLDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
+        {
+            var sql = @"SELECTV.Id, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId,C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration                                    FROM TRN.[Voucher] AS V                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId                                    ) AS VD ON VD.VoucherId=V.Id
+where VoucherNo='" + voucherNo + "' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"' AND SourceType IN ('VendorInvoice','VendorPayment') ";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+        #endregion getVoucherGLDataList
     }
 }

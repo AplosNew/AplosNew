@@ -6,6 +6,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
+using Library.Service.Vouchers;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -13,6 +14,7 @@ namespace Aplos.Areas.Accounts.Controllers
 {
     public class VoucherGlUpdateController : BaseController
     {
+        private readonly IVoucherService _voucharService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISqlRepository _sqlRepository;
         public VoucherGlUpdateController(
@@ -26,7 +28,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         public ActionResult Aplos()
         {
-            return View("~/Areas/Accounts/Views/VoucherPark/Aplos.cshtml");
+            return View("~/Areas/Accounts/Views/VoucherGlUpdate/Aplos.cshtml");
         }
 
 
@@ -35,217 +37,13 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsCommonService.getVoucherGLDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
-
-        [HttpPost]
-        public ActionResult ParkModeVoucher(string voucherId,string sourceType)
+        [HttpGet, Authorize]
+        public JsonResult GetJournalVoucherDetailList(string voucherId)
         {
-            var flag = false;
-            try
-            {
-                _unitOfWork.BeginTransaction();
-                flag = true;
-                var rdBuilder = new System.Text.StringBuilder();
-                if(sourceType== SourceType.JournalVoucher.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.BankJournal.ToString() || sourceType == SourceType.CashJournal.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].BankJournal SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.VendorInvoice.ToString()|| sourceType == SourceType.InventoryPayable.ToString()||sourceType == SourceType.CustomerInvoice.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(InvoiceSql);
-                }
-                if (sourceType == SourceType.InvoiceToAcceptance.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(bankJournalSql);
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(InvoiceSql);
-                    
-                }
-                if (sourceType == SourceType.VendorPayment.ToString() || sourceType == SourceType.CustomerReceipt.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.CustomerAdvance.ToString() || sourceType == SourceType.VendorAdvance.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].Advance SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.VendorAdvanceWriteOff.ToString() || sourceType == SourceType.CustomerAdvanceWriteOff.ToString() || sourceType == SourceType.EmployeeAdvanceWriteOff.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].AdvanceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.Loan.ToString()|| sourceType == SourceType.Investment.ToString() || sourceType == SourceType.AutoLoan.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].Financing SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == "AdditionalLoanPayable")
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.LoanPayment.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
-                    var subTrn = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                    rdBuilder.Append(subTrn);
-                }
-                if (sourceType == SourceType.DebitNote.ToString() || sourceType == SourceType.CreditNote.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].AdjustmentNote SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.DebitNoteSetOff.ToString() || sourceType == SourceType.CreditNoteSetOff.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.EmployeePayable.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].EmployeePayable SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.EmployeePayment.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].EmployeePayableWriteOff SET RowState='Parked' WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(bankJournalSql);
-                }
-                if (sourceType == SourceType.SalaryPayable.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.SalaryDisbursement.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.FixedAssetCapitalizeJournal.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.ServicePayable.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.EmployeeAdvance.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var advanceSql = @"UPDATE [TRN].Advance SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(advanceSql);
-                }
-                if (sourceType == SourceType.SalesInvoice.ToString() || sourceType == SourceType.PostInvoice.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var invoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    var salesSql = @"UPDATE [TRN].Sales SET RowState='Parked' WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(invoiceSql);
-                    rdBuilder.Append(salesSql);
-                }
-                if (sourceType == SourceType.LoanInterestPayable.ToString() || sourceType == SourceType.LoanInterestPayableReverse.ToString() || sourceType == "OtherExpensesPayable")
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var invoiceSql = @"UPDATE TRN.FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(invoiceSql);
-                }
-                if (sourceType == SourceType.VendorInvoiceCharge.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var invoiceSql = @"UPDATE TRN.InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(invoiceSql);
-                }
-                if (sourceType == SourceType.IssueJournal.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.SalaryJournal.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                }
-                if (sourceType == SourceType.CustomerBanksReceipt.ToString())
-                {
-                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
-                    var invoiceWriteOffSql = @"UPDATE [TRN].InvoiceWriteOff SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    var bankJournalSql = @"UPDATE [TRN].FinancingWriteOff SET ISPark=1,IsPosted=0 WHERE VoucherId='" + voucherId + "'";
-                    var subTrn = @"UPDATE [TRN].FinancingSubsequentTransaction SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
-                    rdBuilder.Append(voucherSql);
-                    rdBuilder.Append(invoiceWriteOffSql);
-                    rdBuilder.Append(bankJournalSql);
-                    rdBuilder.Append(subTrn);
-                }
-
-                _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
-                _unitOfWork.SaveChanges();
-                flag = false;
-                _unitOfWork.Commit();
-                return Json(new { Message = " Successfully Parked" });
-            }
-            catch (CustomException)
-            {
-                throw;
-            }
-
-            finally
-            {
-                if (flag)
-                    _unitOfWork.Rollback();
-            }
+            return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
         }
-
-
-
-
-
-
-
-
-
-
+    
     }
 }
