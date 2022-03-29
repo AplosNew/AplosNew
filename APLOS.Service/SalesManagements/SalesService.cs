@@ -951,7 +951,8 @@ namespace Library.Service.SalesManagements
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(updatasc, true, "1");
+                if (secondCharacteristicsData != 0)
+                    objCon.ExecuteNonQueryWrapper(updatasc, true, "1");
                 objCon.CommitTransaction();
             }
             catch (Exception ex)
