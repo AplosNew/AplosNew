@@ -59,7 +59,8 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult GetPeriod()
         {
-            return Json(eo.GetPeriod(), JsonRequestBehavior.AllowGet);
+            var dS = eo.GetPeriod(out string CurrPer);
+            return Json(new { Data = dS , Current = CurrPer }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -75,9 +76,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetOperationsData(string PId , string Period)
+        public ActionResult GetOperationsData(string PId , string Period , string ProcessId)
         {
-            return Json(eo.GetOperationsData(PId , Period) , JsonRequestBehavior.AllowGet);
+            return Json(eo.GetOperationsData(PId , Period , ProcessId) , JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
