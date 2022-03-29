@@ -52,12 +52,20 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetPeriod()
+        public IEnumerable<object> GetPeriod(out string CurrPer)
         {
             try
             {
                 // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = "Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod order by StartTime asc";
+
+                var periodSql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                DataTable dtPeriod = _sqlRepository.GetDataTable(periodSql);
+               
+                CurrPer = dtPeriod.Rows[0]["Value"].ToString();
+
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -97,7 +105,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetOperationsData(string PId , string Period)
+        public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
             string currPeriod = "";
@@ -132,7 +140,7 @@ namespace Library.OrderManagement.Production
 						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
 						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-						where pb.ProductionOrderId='" + PId + @"'
+						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+@"'
 						
 						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId
                         order by Sequence";
@@ -514,6 +522,7 @@ namespace Library.OrderManagement.Production
                 {
                     if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
                     {
+                        
                         dr = dtNew.NewRow();
                         dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
                         dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
