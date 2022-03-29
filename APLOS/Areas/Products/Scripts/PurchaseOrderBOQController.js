@@ -741,6 +741,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             $scope.LoadTermsAndConditionDetailGrid();
                             $scope.Action = "Update";
                             $scope.ActionPOBOQ = "Update";
+                            $scope.getalldata();
                             $scope.poBoqItemList = [];
                         }
                     }), function errorCallBack(response) {
