@@ -26,7 +26,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         public ActionResult Aplos()
         {
-            return View("~/Areas/Accounts/Views/VoucherPark/Aplos.cshtml");
+            return View("~/Areas/Accounts/Views/VoucherGlUpdate/Aplos.cshtml");
         }
 
 
@@ -35,7 +35,7 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsCommonService.getVoucherDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsCommonService.getVoucherGLDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

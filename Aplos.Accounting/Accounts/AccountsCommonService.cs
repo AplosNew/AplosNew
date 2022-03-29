@@ -772,7 +772,15 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
 
         }
-
         #endregion getVoucherDataList
+
+        #region getVoucherGLDataList
+        public List<Dictionary<string, object>> getVoucherGLDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
+        {
+            var sql = @"select * from trn.Voucher where VoucherNo='" + voucherNo + "' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"' AND SourceType IN ('VendorInvoice','VendorPayment') ";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+        #endregion getVoucherGLDataList
     }
 }

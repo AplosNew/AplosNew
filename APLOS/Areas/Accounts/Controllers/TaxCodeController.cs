@@ -185,7 +185,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetOutputTDSCreditableTaxCodeCbo(DateTime postingDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
