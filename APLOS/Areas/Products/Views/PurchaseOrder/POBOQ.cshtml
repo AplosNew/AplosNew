@@ -780,7 +780,7 @@
                                 </td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
-                                        <li ng-hide="productNew.OrderSpecific==='No'"><button ng-click="getPOBOQItemList(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
+                                        <li ng-hide="productNew.OrderSpecific==='No' || productNew.Id==null"><button ng-click="getPOBOQItemList(x)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="Edit"><i class="glyphicon glyphicon-edit"></i>&nbsp;{{MAction}}</button></li>
                                         <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
                                         <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
                                     </ul>

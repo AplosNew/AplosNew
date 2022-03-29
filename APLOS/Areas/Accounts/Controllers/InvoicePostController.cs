@@ -43,7 +43,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public JsonResult GRNPost(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
          , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
          , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
