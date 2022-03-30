@@ -1839,8 +1839,6 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 var nRow = {};
                 nRow = $scope.materialStockList[n];
 
-                $scope.materialStockList[n].Qty = $scope.materialStockList[n].RequisitionQty;
-                $scope.materialStockList[n].Rate = $scope.materialStockList[n].BaseRate;
                 nRow.BaseQty = $scope.materialStockList[n].BaseQty;
                 nRow.BaseIssueQty = $scope.materialStockList[n].BaseIssueQty;
                 if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag) {
@@ -1881,7 +1879,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             }
             //$scope.detailList[$scope.index].TransactionQty = issueQty;
             angular.element(document.querySelector('#stockboqPopUp')).modal('hide');
-            CloseModalShowResult();
+          /*  CloseModalShowResult();*/
         } catch (e) {
             ShowResult(e, 'failure', 'stockboqPopUp');
         }

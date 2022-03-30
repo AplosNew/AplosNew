@@ -484,10 +484,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	,TC.UserName AS ThirdCharacteristics
                             	,IRD.ThirdCharacteristicsValueId
                             	,TCV.UserName AS ThirdCharacteristicsValue
-                            	,poboq.POBOQQty AS POQty
+                            	,poboq.TransactionQty AS POQty
                             	,ISNULL(aa.TransactionQty, 0) AS GRNRcvQty
                             	,'' AS TransactionQty
-                            	,(poboq.POBOQQty - ISNULL(aa.TransactionQty, 0)) AS Balance
+                            	,(poboq.TransactionQty - ISNULL(aa.TransactionQty, 0)) AS Balance
                             	,ISNULL(IRD.QtyStatus, 0) QtyStatus
 								,IRD.BaseUOMId
 								,IRD.BaseUoMFactor
@@ -556,8 +556,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             	) aa ON aa.PODetailsId = IRD.Id
                             WHERE IRD.QtyStatus = 0
                             	AND IRD.InventoryMaterialId IS NOT NULL
-                            	AND isnull(IRD.InventoryReceiveId,'null') IN (" + POId + @")
-                            ";
+                            	AND ISNULL(IRD.InventoryReceiveId,'null') IN (" + POId + @")
+                                AND ISNULL(MM.Id,'null') IN ("+ MaterialMasterId + ") AND ISNULL(ART.Id,'null') IN ("+ ArticleId + @")
+                            AND IR.IsApproved=1  and IR.IsClosed=0";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

@@ -1068,7 +1068,7 @@ namespace Library.MaterialManagement.Inventory
                             var receiveDetail = new InventoryReceiveDetail
                             {
                                 Id = NewId + currentId1, //MakePK(NewId + currentId, 0,0),
-                                MaterialStorageId = itemDetail.MaterialStorageId,//MaterialStorageId
+                                MaterialStorageId = entity.MaterialStorageId,//MaterialStorageId
                                 InventoryReceiveId = entity.Id,//itemDetail.InventoryReceiveId,
                                                                //InventoryMaterialId = entity.InventoryMaterialId,
                                 TransactionQty = itemDetail.NetQty,//itemDetail.TransactionQty,
