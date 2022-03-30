@@ -377,7 +377,7 @@ namespace Aplos.Areas.Productions.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "WasteReports";
+                workbook.Worksheets[0].Name = "WasteReport";
                 sheet = workbook.Worksheets[0];
 
                 DataTable data= WasteReportSQL(Id);
@@ -479,62 +479,69 @@ namespace Aplos.Areas.Productions.Controllers
 
                 #region columns
                 sheet[ROW, COL].Text = "Id";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColId = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Sequence";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColSequence = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "ItemName";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 30;
                 int ColItemName = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Process";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColProcess = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Waste Category";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColWasteCategory = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Waste Sub Category";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColWasteSubCategory = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Stock Quantity";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColStockQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "UOM";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 8;
                 int ColUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Standard Rate";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColStdRate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Standard Value";
-                sheet[ROW, COL].ColumnWidth = 22;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColStdValue = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Issue Quantity";
                 sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColIssueQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Balance Stock";
                 sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBalanceStock = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Rate";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColRate = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Issue Value";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColIssueValue = COL;
                 COL++;
 
@@ -544,6 +551,7 @@ namespace Aplos.Areas.Productions.Controllers
                 COL++;
                 sheet[ROW, COL].Text = "Balance Stock Value";
                 sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int ColBalanceStockValue = COL;
                 
 
