@@ -821,58 +821,74 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"select format(ewpp.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName
+                var str = @"select format(ewpp.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName, 
+                            ov.UserName, ov.Code, ewpp.ProductionOrderId as poId, ewpp.Sequence, ewpp.Qty, ewpp.StandardProcessTime, ewpp.TotalSPT,
+                            ewpp.SkillAllowance, ewpp.AdditionalOperationAllowance, ewpp.AllotedProducedMin
                             from dbo.EmployeeWiseProductionProcessing ewpp
                             left join dbo.EmployeeInformation ei on ei.SystemId = ewpp.EmployeeId
-                            left join mst.OperationVariation ov on ov.OperationId = ewpp.EmployeeId";
+                            left join mst.OperationVariation ov on ov.OperationMasterId = ewpp.MasterOperationId";
 
                 DataTable dtAll = _sqlRepository.GetDataTable(str);
 
                 //Getting the Periods
                 List<string> ltPer = new List<string>();
-                DataTable periods = dtAll.DefaultView.ToTable(true, "Periods");
+                DataTable periods = dtAll.DefaultView.ToTable(true, "poId");
                 for (int i = 0; i < periods.Rows.Count; i++)
                 {
-                    ltPer.Add(periods.Rows[i]["Periods"].ToString());
+                    ltPer.Add(periods.Rows[i]["poId"].ToString());
                 }
 
                 ltPer = ltPer.OrderBy(k => k).ToList();
 
                 DataTable dtNew = new DataTable();
-                dtNew.Columns.Add("OperationCode", typeof(string));
-                dtNew.Columns.Add("OperationName", typeof(string));
-                dtNew.Columns.Add("Process", typeof(string));
-                dtNew.Columns.Add("WorkCenter", typeof(string));
-                dtNew.Columns.Add("ProductionOrderId", typeof(string));
+                dtNew.Columns.Add("Date", typeof(string));
                 dtNew.Columns.Add("EmployeeCode", typeof(string));
                 dtNew.Columns.Add("EmployeeName", typeof(string));
+                dtNew.Columns.Add("UserName", typeof(string));
+                dtNew.Columns.Add("Code", typeof(string));
+                dtNew.Columns.Add("poId", typeof(string));
                 dtNew.Columns.Add("Qty", typeof(string));
-                dtNew.Columns.Add("Dates", typeof(string));
+                dtNew.Columns.Add("StandardProcessTime", typeof(string));
+                dtNew.Columns.Add("TotalSPT", typeof(string));
+                dtNew.Columns.Add("SkillAllowance", typeof(string));
+                dtNew.Columns.Add("AdditionalOperationAllowance", typeof(string));
+                dtNew.Columns.Add("AllotedProducedMin", typeof(string));
+                
+  
                 for (int i = 0; i < ltPer.Count; i++)
                 {
                     dtNew.Columns.Add(ltPer[i], typeof(double));
                 }
 
                 //Filling the DataTable
-                string opCode = "";
+               // string opCode = "";
                 string empCode = "";
                 DateTime datess = Convert.ToDateTime("01-Jan-1990");
                 DataRow dr = null;
                 for (int i = 0; i < dtAll.Rows.Count; i++)
                 {
-                    if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
+                    if (dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString()) != datess)
                     {
 
                         dr = dtNew.NewRow();
-                        dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
-                        dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
-                        dr["Process"] = dtAll.Rows[i]["Process"].ToString();
-                        dr["WorkCenter"] = dtAll.Rows[i]["WorkCenter"].ToString();
-                        dr["ProductionOrderId"] = dtAll.Rows[i]["ProductionOrderId"].ToString();
+                        dr["Date"] = dtAll.Rows[i]["Date"].ToString();
                         dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
                         dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
+                        dr["UserName"] = dtAll.Rows[i]["UserName"].ToString();
+                        
+                        dr["Code"] = dtAll.Rows[i]["Code"].ToString();
+                        dr["poId"] = dtAll.Rows[i]["poId"].ToString();
+                        //dr["Sequence"] = dtAll.Rows[i]["Sequence"].ToString();
                         dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
-                        dr["Dates"] = dtAll.Rows[i]["Dates"].ToString();
+                        dr["StandardProcessTime"] = dtAll.Rows[i]["StandardProcessTime"].ToString();
+                        dr["TotalSPT"] = dtAll.Rows[i]["TotalSPT"].ToString();
+                        dr["SkillAllowance"] = dtAll.Rows[i]["SkillAllowance"].ToString();
+                        dr["AdditionalOperationAllowance"] = dtAll.Rows[i]["AdditionalOperationAllowance"].ToString();
+                        dr["AllotedProducedMin"] = dtAll.Rows[i]["AllotedProducedMin"].ToString();
+                        
+                        
+                        
+                        
 
                         for (int j = 0; j < ltPer.Count; j++)
                         {
@@ -882,11 +898,11 @@ namespace Library.OrderManagement.Production
                         dtNew.Rows.Add(dr);
                     }
 
-                    dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
+                    //dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
 
-                    opCode = dtAll.Rows[i]["OperationCode"].ToString();
+                   // opCode = dtAll.Rows[i]["OperationCode"].ToString();
                     empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
-                    datess = Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString());
+                    datess = Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString());
 
                 }
 
@@ -901,5 +917,96 @@ namespace Library.OrderManagement.Production
 
         }
         #endregion getProcessDownload
+
+        #region getEmployeeWorkDurationReport
+        public DataTable getEmployeeWorkDurationReport(out List<string> DynCols)
+        {
+            try
+            {
+                var str = @"select format(eep.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName, eep.TotalSPT,
+                            eep.AllotedProducedMin, eep.WorkDuration, eep.NetEfficiency, eep.GrossEfficiency, eep.Rate, eep.Amount
+                            from dbo.EmployeeEfficiencyProcess eep
+                            left join dbo.EmployeeInformation ei on ei.SystemId = eep.EmployeeId";
+
+                DataTable dtAll = _sqlRepository.GetDataTable(str);
+
+                //Getting the Periods
+                List<string> ltPer = new List<string>();
+                DataTable periods = dtAll.DefaultView.ToTable(true, "EmployeeCode");
+                for (int i = 0; i < periods.Rows.Count; i++)
+                {
+                    ltPer.Add(periods.Rows[i]["EmployeeCode"].ToString());
+                }
+
+                ltPer = ltPer.OrderBy(k => k).ToList();
+
+                DataTable dtNew = new DataTable();
+                dtNew.Columns.Add("Date", typeof(string));
+                dtNew.Columns.Add("EmployeeCode", typeof(string));
+                dtNew.Columns.Add("EmployeeName", typeof(string));
+                dtNew.Columns.Add("TotalSPT", typeof(string));
+                dtNew.Columns.Add("AllotedProducedMin", typeof(string));
+                dtNew.Columns.Add("WorkDuration", typeof(string));
+                dtNew.Columns.Add("NetEfficiency", typeof(string));
+                dtNew.Columns.Add("GrossEfficiency", typeof(string));
+                dtNew.Columns.Add("Rate", typeof(string));
+                dtNew.Columns.Add("Amount", typeof(string));
+             
+
+                for (int i = 0; i < ltPer.Count; i++)
+                {
+                    dtNew.Columns.Add(ltPer[i], typeof(double));
+                }
+
+                //Filling the DataTable
+               
+                string empCode = "";
+                DateTime datess = Convert.ToDateTime("01-Jan-1990");
+                DataRow dr = null;
+                for (int i = 0; i < dtAll.Rows.Count; i++)
+                {
+                    if (dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString()) != datess)
+                    {
+
+                        dr = dtNew.NewRow();
+                        dr["Date"] = dtAll.Rows[i]["Date"].ToString();
+                        dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
+                        dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
+                        dr["TotalSPT"] = dtAll.Rows[i]["TotalSPT"].ToString();
+                        dr["AllotedProducedMin"] = dtAll.Rows[i]["AllotedProducedMin"].ToString();
+                        dr["WorkDuration"] = dtAll.Rows[i]["WorkDuration"].ToString();
+                        //dr["Sequence"] = dtAll.Rows[i]["Sequence"].ToString();
+                        dr["NetEfficiency"] = dtAll.Rows[i]["NetEfficiency"].ToString();
+                        dr["GrossEfficiency"] = dtAll.Rows[i]["GrossEfficiency"].ToString();
+                        dr["Rate"] = dtAll.Rows[i]["Rate"].ToString();
+                        dr["Amount"] = dtAll.Rows[i]["Amount"].ToString();
+                        
+                        for (int j = 0; j < ltPer.Count; j++)
+                        {
+                            dr[ltPer[j]] = 0;
+                        }
+
+                        dtNew.Rows.Add(dr);
+                    }
+
+                    
+                    empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
+                    datess = Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString());
+
+                }
+
+                DynCols = ltPer;
+
+                return dtNew;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        #endregion getEmployeeWorkDurationReport
+
+
     }
 }

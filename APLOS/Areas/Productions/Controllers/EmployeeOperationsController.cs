@@ -280,303 +280,303 @@ namespace Aplos.Areas.Productions.Controllers
         #region Process Tab
         #region Process Download
 
-/*
-        [HttpPost, Authorize]
-        public ActionResult getProcessDownload(string PO)
-        {
-
-            try
-            {
-                var workbook = GenerateProcessForm(PO);
-
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EfficiencyReport.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
-
-        [HttpPost, Authorize]
-        private IWorkbook GenerateProcessForm(string PO)
-        {
-            var excelEngine = new ExcelEngine();
-            var report = new ReportUtility();
-            var workbook = report.GetWorkbook(ref excelEngine, 3);
-            workbook.Version = ExcelVersion.Excel2016;
-
-            var data = eo.getProcessDownload(out List<string> DynCols);
-
-            var sheet = workbook.Worksheets[0];
-
-
-            #region sheet1
-            sheet.Name = "Efficiency Report";
-
-            int ROW = 6;
-            int endCol = 1;
-            int COL = 1;
-
-
-            #region Grid Headers
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignCenter);
-            int ColDate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 10, ExcelHAlign.HAlignCenter);
-            int ColEC = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 20, ExcelHAlign.HAlignCenter);
-            int ColEN = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Operation Variation Code", 10, ExcelHAlign.HAlignCenter);
-            int ColOVC = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Operation Variation", 10, ExcelHAlign.HAlignCenter);
-            int ColOV = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Production Order Id", 15, ExcelHAlign.HAlignCenter);
-            int ColPOI = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Qty", 10, ExcelHAlign.HAlignCenter);
-            int ColQty = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Standard Process Time", 12, ExcelHAlign.HAlignCenter);
-            int ColSPT = COL;
-            COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Sequence", 10, ExcelHAlign.HAlignCenter);
-            //int ColSeq = COL;
-            //COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Total SPT", 10, ExcelHAlign.HAlignCenter);
-            int ColTotalSPT = COL;
-            COL++;
-            
-            report.SetHeaderText(ref sheet, ROW, COL, "Skill Allowance", 10, ExcelHAlign.HAlignCenter);
-            int ColSA = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Additional Operation Allowance", 10, ExcelHAlign.HAlignCenter);
-            int ColAOA = COL;
-            COL++;
-            // Add code
-            report.SetHeaderText(ref sheet, ROW, COL, "Alloted Produced Min", 10, ExcelHAlign.HAlignCenter);
-            int ColAPM = COL;
-            COL++;
-
-            int ColSt = COL;
        
-            ROW++;
-            endCol = COL;
-            #endregion Headers
+                [HttpPost, Authorize]
+                public ActionResult getProcessDownload(string PO)
+                {
+
+                    try
+                    {
+                        var workbook = GenerateProcessForm(PO);
+
+                        var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EfficiencyReport.xlsx";
+                        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                        workbook.SaveAs(fullPath);
 
 
-            var startRow = 0;
-            var endRow = 0;
-            int RowIndex = ROW;
-            startRow = ROW;
+                        return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                    }
+                    catch (Exception ex)
+                    {
 
-            string Article = "";
-            string LotNum = "";
-            int ArtRow = 0;
-            int LotRow = 0;
+                        throw ex;
+                    }
+                }
 
-            double[] arr = new double[3];
+                [HttpPost, Authorize]
+                private IWorkbook GenerateProcessForm(string PO)
+                {
+                    var excelEngine = new ExcelEngine();
+                    var report = new ReportUtility();
+                    var workbook = report.GetWorkbook(ref excelEngine, 3);
+                    workbook.Version = ExcelVersion.Excel2016;
 
-            for (int i = 0; i < data.Rows.Count; i++)
-            {
-                sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
-                sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
-                sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColOVC].Text = data.Rows[i]["Code"].ToString();        
-                sheet[ROW, ColOV].Text = data.Rows[i]["OperationVariation"].ToString();        
-                sheet[ROW, ColPOI].Text = data.Rows[i]["poId"].ToString();
-                sheet[ROW, ColQty].Text = data.Rows[i]["Qty"].ToString();              
-                sheet[ROW, ColSPT].Text = data.Rows[i]["StandardProcessTime"].ToString();
-               // sheet[ROW, ColSeq].Text = data.Rows[i]["Sequence"].ToString();
-                sheet[ROW, ColTotalSPT].Text = data.Rows[i]["TotalSPT"].ToString();
-                sheet[ROW, ColSA].Text = data.Rows[i]["SkillAllowance"].ToString();
-                sheet[ROW, ColAOA].Text = data.Rows[i]["AdditionalOperationAllowance"].ToString();
-                sheet[ROW, ColAPM].Text = data.Rows[i]["AllotedProducedMin"].ToString();
+                    var data = eo.getProcessDownload(out List<string> DynCols);
 
-                ROW++;
+                    var sheet = workbook.Worksheets[0];
 
-            }
 
-            ROW++;
+                    #region sheet1
+                    sheet.Name = "Efficiency Report";
 
-            endRow = ROW - 1;
-            endRow = ROW - 1;
-            #endregion sheet1
+                    int ROW = 6;
+                    int endCol = 1;
+                    int COL = 1;
 
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            sheet.UsedRange.WrapText = true;
-            sheet.UsedRange.CellStyle.Font.Size = 8;
 
-            ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Efficiency Report", identity.CompanyId);
-            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-            return workbook;
-        }*/
+                    #region Grid Headers
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignCenter);
+                    int ColDate = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 10, ExcelHAlign.HAlignCenter);
+                    int ColEC = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 20, ExcelHAlign.HAlignCenter);
+                    int ColEN = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Operation Variation Code", 10, ExcelHAlign.HAlignCenter);
+                    int ColOVC = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Operation Variation", 10, ExcelHAlign.HAlignCenter);
+                    int ColOV = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Production Order Id", 15, ExcelHAlign.HAlignCenter);
+                    int ColPOI = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Qty", 10, ExcelHAlign.HAlignCenter);
+                    int ColQty = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Standard Process Time", 12, ExcelHAlign.HAlignCenter);
+                    int ColSPT = COL;
+                    COL++;
+
+                    //report.SetHeaderText(ref sheet, ROW, COL, "Sequence", 10, ExcelHAlign.HAlignCenter);
+                    //int ColSeq = COL;
+                    //COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Total SPT", 10, ExcelHAlign.HAlignCenter);
+                    int ColTotalSPT = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Skill Allowance", 10, ExcelHAlign.HAlignCenter);
+                    int ColSA = COL;
+                    COL++;
+
+                    report.SetHeaderText(ref sheet, ROW, COL, "Additional Operation Allowance", 10, ExcelHAlign.HAlignCenter);
+                    int ColAOA = COL;
+                    COL++;
+                    
+                    report.SetHeaderText(ref sheet, ROW, COL, "Alloted Produced Min", 10, ExcelHAlign.HAlignCenter);
+                    int ColAPM = COL;
+                    COL++;
+
+                    int ColSt = COL;
+
+                    ROW++;
+                    endCol = COL;
+                    #endregion Headers
+
+
+                    var startRow = 0;
+                    var endRow = 0;
+                    int RowIndex = ROW;
+                    startRow = ROW;
+
+                    string Article = "";
+                    string LotNum = "";
+                    int ArtRow = 0;
+                    int LotRow = 0;
+
+                    double[] arr = new double[3];
+
+                    for (int i = 0; i < data.Rows.Count; i++)
+                    {
+                        sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
+                        sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
+                        sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
+                        sheet[ROW, ColOVC].Text = data.Rows[i]["Code"].ToString();        
+                        sheet[ROW, ColOV].Text = data.Rows[i]["UserName"].ToString();        
+                        sheet[ROW, ColPOI].Text = data.Rows[i]["poId"].ToString();
+                        sheet[ROW, ColQty].Text = data.Rows[i]["Qty"].ToString();              
+                        sheet[ROW, ColSPT].Text = data.Rows[i]["StandardProcessTime"].ToString();
+                       // sheet[ROW, ColSeq].Text = data.Rows[i]["Sequence"].ToString();
+                        sheet[ROW, ColTotalSPT].Text = data.Rows[i]["TotalSPT"].ToString();
+                        sheet[ROW, ColSA].Text = data.Rows[i]["SkillAllowance"].ToString();
+                        sheet[ROW, ColAOA].Text = data.Rows[i]["AdditionalOperationAllowance"].ToString();
+                        sheet[ROW, ColAPM].Text = data.Rows[i]["AllotedProducedMin"].ToString();
+
+                        ROW++;
+
+                    }
+
+                    ROW++;
+
+                    endRow = ROW - 1;
+                    endRow = ROW - 1;
+                    #endregion sheet1
+
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                    sheet.UsedRange.WrapText = true;
+                    sheet.UsedRange.CellStyle.Font.Size = 8;
+
+                    ReportUtility reportUtility = new ReportUtility();
+                    reportUtility.CompanyHeader(ref sheet, endCol, "Efficiency Report", identity.CompanyId);
+                    reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                    return workbook;
+                }
         #endregion Process Download
 
-//----------------------------------------------------------------------------
+        //----------------------------------------------------------------------------
 
-#region Employee Work Duration Report
-/* [HttpPost, Authorize]
- public ActionResult getEmployeeWorkDurationReport(string PO)
- {
+        #region Employee Work Duration Report
+         [HttpPost, Authorize]
+         public ActionResult getEmployeeWorkDurationReport(string PO)
+         {
 
-     try
-     {
-         var workbook = GenerateEmployeeWorkDuration(PO);
+             try
+             {
+                 var workbook = GenerateEmployeeWorkDuration(PO);
 
-         var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EmployeeWorkDurationReport.xlsx";
-         string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-         workbook.SaveAs(fullPath);
-
-
-         return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-     }
-     catch (Exception ex)
-     {
-
-         throw ex;
-     }
- }
-
- [HttpPost, Authorize]
- private IWorkbook GenerateEmployeeWorkDuration(string PO)
- {
-     var excelEngine = new ExcelEngine();
-     var report = new ReportUtility();
-     var workbook = report.GetWorkbook(ref excelEngine, 3);
-     workbook.Version = ExcelVersion.Excel2016;
-
-     var data = eo.getEmployeeWorkDurationReport(out List<string> DynCols);
-
-     var sheet = workbook.Worksheets[0];
+                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EmployeeWorkDurationReport.xlsx";
+                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                 workbook.SaveAs(fullPath);
 
 
-     #region sheet1
-     sheet.Name = "Employee Work Duration Report";
+                 return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+             }
+             catch (Exception ex)
+             {
 
-     int ROW = 6;
-     int endCol = 1;
-     int COL = 1;
+                 throw ex;
+             }
+         }
 
+         [HttpPost, Authorize]
+         private IWorkbook GenerateEmployeeWorkDuration(string PO)
+         {
+             var excelEngine = new ExcelEngine();
+             var report = new ReportUtility();
+             var workbook = report.GetWorkbook(ref excelEngine, 3);
+             workbook.Version = ExcelVersion.Excel2016;
 
-     #region Grid Headers
+             var data = eo.getEmployeeWorkDurationReport(out List<string> DynCols);
 
-     report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignCenter);
-     int ColDate = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
-     int ColEC = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 12, ExcelHAlign.HAlignCenter);
-     int ColEN = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Total SPT", 10, ExcelHAlign.HAlignCenter);
-     int ColTotalSPT = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Alloted Produced Min", 10, ExcelHAlign.HAlignCenter);
-     int ColAPM = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Work Duration", 10, ExcelHAlign.HAlignCenter);
-     int ColWorkDur = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Net Efficiency", 15, ExcelHAlign.HAlignCenter);
-     int ColNE = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Gross Efficiency", 10, ExcelHAlign.HAlignCenter);
-     int ColGE = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
-     int ColRate = COL;
-     COL++;
-
-     report.SetHeaderText(ref sheet, ROW, COL, "Amount", 10, ExcelHAlign.HAlignCenter);
-     int ColAmount = COL;
-     COL++;
+             var sheet = workbook.Worksheets[0];
 
 
-     int ColSt = COL;
+             #region sheet1
+             sheet.Name = "Employee Work Duration Report";
 
-     ROW++;
-     endCol = COL;
-     #endregion Headers
-
-
-     var startRow = 0;
-     var endRow = 0;
-     int RowIndex = ROW;
-     startRow = ROW;
-
-     string Article = "";
-     string LotNum = "";
-     int ArtRow = 0;
-     int LotRow = 0;
-
-     double[] arr = new double[3];
-
-     for (int i = 0; i < data.Rows.Count; i++)
-     {
-         sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
-         sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
-         sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
-         sheet[ROW, ColTotalSPT].Text = data.Rows[i]["TotalSPT"].ToString();
-         sheet[ROW, ColAPM].Text = data.Rows[i]["AllotedProducedMin"].ToString();
-         sheet[ROW, ColWorkDur].Text = data.Rows[i]["WorkDuration"].ToString();
-         sheet[ROW, ColNE].Text = data.Rows[i]["NetEfficiency"].ToString();
-         sheet[ROW, ColGE].Text = data.Rows[i]["GrossEfficiency"].ToString();
-         sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
-         sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
-
-         ROW++;
-
-     }
-
-     ROW++;
-
-     endRow = ROW - 1;
-     endRow = ROW - 1;
-     #endregion sheet1
-
-     var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-     sheet.UsedRange.WrapText = true;
-     sheet.UsedRange.CellStyle.Font.Size = 8;
-
-     ReportUtility reportUtility = new ReportUtility();
-     reportUtility.CompanyHeader(ref sheet, endCol, "Employee Work Duration Report", identity.CompanyId);
-     reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-     return workbook;
- }*/
- #endregion Employee Work Duration Report
- #endregion Process Tab
+             int ROW = 6;
+             int endCol = 1;
+             int COL = 1;
 
 
-}
+             #region Grid Headers
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignCenter);
+             int ColDate = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
+             int ColEC = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 12, ExcelHAlign.HAlignCenter);
+             int ColEN = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Total SPT", 10, ExcelHAlign.HAlignCenter);
+             int ColTotalSPT = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Alloted Produced Min", 10, ExcelHAlign.HAlignCenter);
+             int ColAPM = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Work Duration", 10, ExcelHAlign.HAlignCenter);
+             int ColWorkDur = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Net Efficiency", 15, ExcelHAlign.HAlignCenter);
+             int ColNE = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Gross Efficiency", 10, ExcelHAlign.HAlignCenter);
+             int ColGE = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
+             int ColRate = COL;
+             COL++;
+
+             report.SetHeaderText(ref sheet, ROW, COL, "Amount", 10, ExcelHAlign.HAlignCenter);
+             int ColAmount = COL;
+             COL++;
+
+
+             int ColSt = COL;
+
+             ROW++;
+             endCol = COL;
+             #endregion Headers
+
+
+             var startRow = 0;
+             var endRow = 0;
+             int RowIndex = ROW;
+             startRow = ROW;
+
+             string Article = "";
+             string LotNum = "";
+             int ArtRow = 0;
+             int LotRow = 0;
+
+             double[] arr = new double[3];
+
+             for (int i = 0; i < data.Rows.Count; i++)
+             {
+                 sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
+                 sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
+                 sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();          
+                 sheet[ROW, ColTotalSPT].Text = data.Rows[i]["TotalSPT"].ToString();
+                 sheet[ROW, ColAPM].Text = data.Rows[i]["AllotedProducedMin"].ToString();
+                 sheet[ROW, ColWorkDur].Text = data.Rows[i]["WorkDuration"].ToString();
+                 sheet[ROW, ColNE].Text = data.Rows[i]["NetEfficiency"].ToString();
+                 sheet[ROW, ColGE].Text = data.Rows[i]["GrossEfficiency"].ToString();
+                 sheet[ROW, ColRate].Text = data.Rows[i]["Rate"].ToString();
+                 sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+
+                 ROW++;
+
+             }
+
+             ROW++;
+
+             endRow = ROW - 1;
+             endRow = ROW - 1;
+             #endregion sheet1
+
+             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+             sheet.UsedRange.WrapText = true;
+             sheet.UsedRange.CellStyle.Font.Size = 8;
+
+             ReportUtility reportUtility = new ReportUtility();
+             reportUtility.CompanyHeader(ref sheet, endCol, "Employee Work Duration Report", identity.CompanyId);
+             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+             return workbook;
+         }
+        #endregion Employee Work Duration Report
+        #endregion Process Tab
+
+
+    }
 }
