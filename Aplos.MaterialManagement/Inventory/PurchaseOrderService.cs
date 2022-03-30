@@ -12924,13 +12924,13 @@ ORDER BY IR.ID DESC";
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServicePOCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServicePOCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "true")
                 {
                     sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='ServicePOApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='ServicePOApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
                 }
                 else if (CheckedBy == "false" && ApprovedBy == "false")
                 {

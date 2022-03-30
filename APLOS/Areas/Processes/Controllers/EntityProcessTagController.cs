@@ -73,7 +73,7 @@ namespace Aplos.Areas.Processes.Controllers
                 sql = @"SELECT distinct e2.* FROM [SEC].[UserEntity] E
                         LEFT JOIN org.Entity AS e2 ON e2.Id=e.EntityId
                         LEFT JOIN dbo.EntityConfig ECC ON ECC.EntityId=E2.Id
-                        WHERE E.UserId='" + plantId + @"' AND e.PlantId='" + plantId + "' AND ECC.IsProductionEntity=1 AND E2.[Active]=1 ORDER BY E2.Code";
+                        WHERE E.UserId='" + identity.UserId + @"' AND e.PlantId='" + plantId + "' AND ECC.IsProductionEntity=1 AND E2.[Active]=1 ORDER BY E2.Code";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 
