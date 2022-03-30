@@ -145,59 +145,6 @@ namespace Aplos.Controllers
             return "";
 
         }
-
-        [HttpPost]
-        public string DeleteOp([FromBody] IEnumerable<operationwise> DataToDelete)
-        {
-            try
-            {
-                _DailyProduction.DeleteOp(DataToDelete);
-            }
-            catch (Exception ex)
-            {
-
-                return ex.ToString();
-
-            }
-            return "";
-
-        }
-
-        [HttpPost]
-        public string CreateOp([FromBody] IEnumerable<operationwise> DataToSavex)
-        {
-            try
-            {
-                string Id = _DailyProduction.CreateOp(DataToSavex);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetOPSkill(string Operation)
-        {
-            try
-            {
-                var result = _DailyProduction.GetOPSkill(Operation);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-
-
-
-        }
               
     }
 }
