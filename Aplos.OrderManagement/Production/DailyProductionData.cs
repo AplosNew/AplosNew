@@ -17,22 +17,7 @@ namespace Library.OrderManagement.Production
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
         }
-        public IEnumerable<object> GetOperation(string ProdOrderId)
-        {
-            try
-            {
-                var Sql = @"select OP.ID as Value,OP.UserName as Text from mst.OperationVariation OP
-                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
-                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
-                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-                            where pb.ProductionOrderId='" + ProdOrderId + "'";
-                return _sqlRepository.GetDataCollection(Sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+      
 
         public string Create(IEnumerable<DailyProduction> DataToSave)
         {

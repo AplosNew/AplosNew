@@ -20,6 +20,8 @@ namespace Aplos.Controllers
 
         #endregion Constructor
 
+        #region Get Functions
+
         [HttpGet]
         public IHttpActionResult GetPeriod()
         {
@@ -38,5 +40,24 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult GetOperation(string ProdOrderId)
+        {
+            try
+            {
+                var result = _empOpt.GetOperation(ProdOrderId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+      
+        #endregion
     }
 }
