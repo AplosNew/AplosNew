@@ -25,7 +25,7 @@
                             </div>
                             <div class="col-sm-2 show-message" style="padding-left:0px;">
                                 <div class="common-btn">
-                                    <button ng-click="GetItemVendor();" class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i>Select</button>
+                                    <button ng-click="GetItemVendor();" class="btn"><i class="glyphicon glyphicon-circle-arrow-down"></i>Select Material</button>
                                 </div>
                             </div>
                         </div>
@@ -393,7 +393,6 @@
                                         <th>Sku1</th>
                                         <th>Sku2</th>
                                         <th>Sku3</th>
-                                        <th>StorageLocation</th>
                                         <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
                                         <th colspan="2" ng-show="GriddataSelected.length>0">POQty</th>
                                         <th colspan="2" ng-show="GriddataSelected.length===0">AcceptanceQty</th>
@@ -405,8 +404,6 @@
                                         <th ng-hide="false">Balance</th>
                                         <th>IsClosed</th>
                                         <th>ShortageQty</th>
-
-
                                         <th>RejectionQty</th>
                                         <th>ApprovedQty</th>
                                         <th>NetQty</th>
@@ -496,12 +493,6 @@
                                         <td>{{x.FirstCharacteristicsValue}}</td>
                                         <td>{{x.SecondCharacteristicsValue}}</td>
                                         <td>{{x.ThirdCharacteristicsValue}}</td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select style="width:150px;" name="Storage Location" ng-model="x.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList"></select>
-                                            </div>
-                                        </td>
-
                                         <td ng-show="GriddataSelected.length===0" style="width:100px;">{{x.OriginalPOQty}}</td>
                                         <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
 
@@ -2068,7 +2059,6 @@
                         <th>Sku1</th>
                         <th>Sku2</th>
                         <th>Sku3</th>
-                        <th>StorageLocation</th>
                         <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
                         <th colspan="2" ng-show="GriddataSelected.length>0">POQty</th>
                         <th colspan="2" ng-show="GriddataSelected.length===0">AcceptanceQty</th>
@@ -2080,12 +2070,9 @@
                         <th ng-hide="false">Balance</th>
                         <th>IsClosed</th>
                         <th>ShortageQty</th>
-
-
                         <th>RejectionQty</th>
                         <th>ApprovedQty</th>
                         <th>NetQty</th>
-
                         <th>MaterialRate(TRN)</th>
                         <th>MaterialAmount(TRN)</th>
                         <th>Discount</th>
@@ -2096,11 +2083,6 @@
                         <th>TotalMaterialAmount(BC)</th>
                         <th>CountryName</th>
                         <th>RefferenceNo</th>
-                        <th>MaterialDetail</th>
-                        <th>MaterialLotNumber </th>
-                        <th>MaterialDiameter</th>
-                        <th>MaterialType</th>
-                        <th>QualityStatus</th>
                         <th class="col-sm-1" colspan="2"></th>
                     </tr>
                 </thead>
@@ -2121,12 +2103,6 @@
                         <td>{{x.FirstCharacteristicsValue}}</td>
                         <td>{{x.SecondCharacteristicsValue}}</td>
                         <td>{{x.ThirdCharacteristicsValue}}</td>
-                        <td>
-                            <div class="select-style">
-                                <select style="width:150px;" name="Storage Location" ng-model="x.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList"></select>
-                            </div>
-                        </td>
-
                         <td ng-show="GriddataSelected.length===0" style="width:100px;">{{x.OriginalPOQty}}</td>
                         <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
 
@@ -2164,27 +2140,6 @@
                         <td>{{x.CountryName}}</td>
                         <td>{{x.RefferenceNo}}</td>
                         <td>{{x.MaterialDetail}}</td>
-                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
-                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
-                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                        <td>
-                            <div class="select-style">
-                                <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
-                                    <option value=""></option>
-                                    <option value="Approved">Approved</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Reject">Reject</option>
-                                </select>
-                            </div>
-
-
-                        </td>
-
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li><button ng-click="getReceiveTaxListPO(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                            </ul>
-                        </td>
                         <td></td>
                     </tr>
                     <tr ng-show="MasterListNew.length">
@@ -2213,11 +2168,6 @@
                         <td></td>
                         <td class="text-right">
                         </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>
