@@ -1152,7 +1152,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select SUM(ps.Qty)Quantity,ps.OperationVariationId,ps.ProductionOrderId, ps.ProcessId,Pr.UserName as Process ,
+                var Sql = @"select SUM(ps.Qty)Quantity,FORMAT(ps.Date,'dd-MMM-yyyy')Date,ps.OperationVariationId,ps.ProductionOrderId, ps.ProcessId,Pr.UserName as Process ,
                 opv.UserName as Operation,sh.UserName as ProductionShift
                                                             from OperationWiseEmployees ps
 															left join trn.ProductionOrder po on po.Id=ps.ProductionOrderId
@@ -1166,7 +1166,7 @@ namespace Library.OrderManagement.Production
 															isnull(ps.ShiftId,'')= '"+ShiftId+@"'
                                                             and isnull(ps.WorkCenterId,'')= '"+WkId+"' and ISNULL(po.EntityId,'')='"+EntityId+ @"'
 															GROUP BY ps.OperationVariationId,
-                                                            ps.ProcessId,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName";
+                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception)
