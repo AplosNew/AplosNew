@@ -377,17 +377,17 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 strSQL = @"SELECT  P.PackingId, moi.Id MasterOrderItemID,c.Id as ContractId,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
-                                ,PLC.LCRef,Format(PLC.LCDate,'dd-MMM-yyyy') LCDate,B.UserName as IssueingBank,AM.Address1 IssueingBankAddress,sc.GWeight,sc.NetWeight, sc.NoOfPackages
+                                ,PLC.LCRef,Format(PLC.LCDate,'dd-MMM-yyyy') LCDate,B.UserName as IssueingBank,AM.Address1 IssueingBankAddress,ISNULL(sc.GWeight,0)GWeight,ISNULL(sc.NetWeight,0)NetWeight, ISNULL(sc.NoOfPackages,0)NoOfPackages
 
                                 ,CartonSerialNo = (Select Stuff((Select distinct ','+isc.RefNo
                                 from dbo.ItemScanChild isc 
 								left join trn.POLotReference pol on pol.Id = isc.PackingId
 							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '"+ PackingId + @"'
+                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '210110'
                                 for xml path('')
                                 ),1,1,''))
 
-                                ,sc.TotalQtyNetWeight,sc.GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
+                                ,ISNULL(sc.TotalQtyNetWeight,0)TotalQtyNetWeight,ISNULL(sc.GrossWeight,0)GrossWeight,sc.ProductCode, sc.LotNo,FORMAT(p.AddedDate,'dd-MMM-yyyy') PackingDate,
                                 u.UserName as UoM,pbt.UserName as ConsigneeBilltoName,pst.UserName as ConsigneeShiptoName,pst.UserName as AcceptedBy,c.InvoicingByAddress as ConsigneeBillToAddress,c.DeliveryByAddress as ConsigneeShipToAddress,cu.Code as CurrencyName,cu.Id CurrencyId,
                                 c.ContractNo,FORMAT(c.AddedDate,'dd-MMM-yyyy') AddedDate,PT.UserName PaymentTerm
                               ,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate

@@ -52,12 +52,20 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetPeriod()
+        public IEnumerable<object> GetPeriod(out string CurrPer)
         {
             try
             {
                 // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = "Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod order by StartTime asc";
+
+                var periodSql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                DataTable dtPeriod = _sqlRepository.GetDataTable(periodSql);
+               
+                CurrPer = dtPeriod.Rows[0]["Value"].ToString();
+
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -97,7 +105,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetOperationsData(string PId , string Period)
+        public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
             string currPeriod = "";
@@ -132,7 +140,7 @@ namespace Library.OrderManagement.Production
 						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
 						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-						where pb.ProductionOrderId='" + PId + @"'
+						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+@"'
 						
 						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId
                         order by Sequence";
@@ -514,6 +522,7 @@ namespace Library.OrderManagement.Production
                 {
                     if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
                     {
+                        
                         dr = dtNew.NewRow();
                         dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
                         dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
@@ -806,5 +815,91 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
+
+        #region getProcessDownload
+        public DataTable getProcessDownload(out List<string> DynCols)
+        {
+            try
+            {
+                var str = @"select format(ewpp.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName
+                            from dbo.EmployeeWiseProductionProcessing ewpp
+                            left join dbo.EmployeeInformation ei on ei.SystemId = ewpp.EmployeeId
+                            left join mst.OperationVariation ov on ov.OperationId = ewpp.EmployeeId";
+
+                DataTable dtAll = _sqlRepository.GetDataTable(str);
+
+                //Getting the Periods
+                List<string> ltPer = new List<string>();
+                DataTable periods = dtAll.DefaultView.ToTable(true, "Periods");
+                for (int i = 0; i < periods.Rows.Count; i++)
+                {
+                    ltPer.Add(periods.Rows[i]["Periods"].ToString());
+                }
+
+                ltPer = ltPer.OrderBy(k => k).ToList();
+
+                DataTable dtNew = new DataTable();
+                dtNew.Columns.Add("OperationCode", typeof(string));
+                dtNew.Columns.Add("OperationName", typeof(string));
+                dtNew.Columns.Add("Process", typeof(string));
+                dtNew.Columns.Add("WorkCenter", typeof(string));
+                dtNew.Columns.Add("ProductionOrderId", typeof(string));
+                dtNew.Columns.Add("EmployeeCode", typeof(string));
+                dtNew.Columns.Add("EmployeeName", typeof(string));
+                dtNew.Columns.Add("Qty", typeof(string));
+                dtNew.Columns.Add("Dates", typeof(string));
+                for (int i = 0; i < ltPer.Count; i++)
+                {
+                    dtNew.Columns.Add(ltPer[i], typeof(double));
+                }
+
+                //Filling the DataTable
+                string opCode = "";
+                string empCode = "";
+                DateTime datess = Convert.ToDateTime("01-Jan-1990");
+                DataRow dr = null;
+                for (int i = 0; i < dtAll.Rows.Count; i++)
+                {
+                    if (dtAll.Rows[i]["OperationCode"].ToString() != opCode || dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString()) != datess)
+                    {
+
+                        dr = dtNew.NewRow();
+                        dr["OperationCode"] = dtAll.Rows[i]["OperationCode"].ToString();
+                        dr["OperationName"] = dtAll.Rows[i]["OperationName"].ToString();
+                        dr["Process"] = dtAll.Rows[i]["Process"].ToString();
+                        dr["WorkCenter"] = dtAll.Rows[i]["WorkCenter"].ToString();
+                        dr["ProductionOrderId"] = dtAll.Rows[i]["ProductionOrderId"].ToString();
+                        dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
+                        dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
+                        dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
+                        dr["Dates"] = dtAll.Rows[i]["Dates"].ToString();
+
+                        for (int j = 0; j < ltPer.Count; j++)
+                        {
+                            dr[ltPer[j]] = 0;
+                        }
+
+                        dtNew.Rows.Add(dr);
+                    }
+
+                    dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
+
+                    opCode = dtAll.Rows[i]["OperationCode"].ToString();
+                    empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
+                    datess = Convert.ToDateTime(dtAll.Rows[i]["Dates"].ToString());
+
+                }
+
+                DynCols = ltPer;
+
+                return dtNew;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+        #endregion getProcessDownload
     }
 }
