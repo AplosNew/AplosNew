@@ -22,24 +22,9 @@ namespace Aplos.Controllers
 
         }
 
-
         #endregion Constructor       
 
-        [HttpPost]
-        public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
-        {
-            try
-            {
-                string Id = _DailyProduction.Create(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
+    
         [HttpGet]
         public IHttpActionResult GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
         {
@@ -81,24 +66,6 @@ namespace Aplos.Controllers
             try
             {
                 var result = _DailyProduction.GetWk(AddedBy);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetEmp(string AddedBy, string WkId, string OPId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetEmp(AddedBy, WkId, OPId);
                 return Json(result);
             }
             catch (Exception ex)

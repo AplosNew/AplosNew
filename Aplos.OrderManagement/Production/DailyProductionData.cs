@@ -16,79 +16,9 @@ namespace Library.OrderManagement.Production
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-        }
-      
+        }     
 
-        public string Create(IEnumerable<DailyProduction> DataToSave)
-        {
-
-            try
-            {
-                DataSet dsMaster;
-                string TableName = "TRN.DailyProduction";
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                if (DataToSave.Count() == 0)
-                    return "";
-
-                List<DailyProduction> items = DataToSave.ToList();
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + items[0].Id + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                foreach (DailyProduction item in DataToSave)
-                {
-                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == null)
-                    {
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
-
-                        dr["Id"] = "PS" + _Id;
-                        dr["PlantId"] = item.PlantId;
-                        dr["ProcessId"] = item.ProcessId;
-                        dr["SalesOrderMasterId"] = item.SalesOrderMasterID;
-                        dr["MaterialMasterId"] = item.MaterialMasterId;
-                        dr["MaterialMasterArticleId"] = item.MaterialMasterArticleId;
-                        dr["WorkCenterMasterId"] = item.WorkCenterMasterId;
-                        dr["ProductionDate"] = item.ProductionDate;
-                        dr["Grade"] = item.Grade;
-                        dr["EntityId"] = item.EntityId;
-                        dr["ShiftId"] = item.ShiftId;
-                        dr["Quantity"] = item.Quantity;
-                        dr["ProductionBookingPeriodId"] = item.ProductionBookingPeriodId;
-                        dr["ProductionOrderId"] = item.ProductionOrderId;
-                        dr["OperationVariationId"] = item.OperationVariationId;
-                        dr["ResponsiblePersonId"] = item.ResponsiblePersonId;
-                        dr["Remarks"] = item.Remarks;
-                        dr["EmployeeInformationSystemID"] = item.EmployeeInformationSystemID;
-                        dr["RefNo"] = item.RefNo;
-                        dr["WorkStationDailyID"] = item.WorkStationDailyID;
-                        dr["FLAG"] = item.FLAG;
-                        dr["AddedBy"] = item.AddedBy;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-
-
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
-                }
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                return MasterId;
-
-
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
+       
         public IEnumerable<object> GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
         {
             try
@@ -147,22 +77,7 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
-
-        public IEnumerable<object> GetEmp(string AddedBy, string WkId, string OPId)
-        {
-            try
-            {
-                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text from dbo.OperationWiseEmployee ope 
-                    left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
-                    where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
-                return _sqlRepository.GetDataCollection(Sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+              
         public string Delete(IEnumerable<DailyProduction> DataToDelete)
         {
             ConnectionManager.DAL.ConManager objCon = null;
@@ -247,46 +162,29 @@ namespace Library.OrderManagement.Production
         #region Scalar Properties
 
         public string Id { get; set; }
-        public DateTime? ProductionDate { get; set; }
-        public decimal Quantity { get; set; }
+        public DateTime? Date { get; set; }
+        public decimal Qty { get; set; }
         public string ShiftId { get; set; }
-        public string EntityId { get; set; }
-        public string ProductionBookingPeriodId { get; set; }
-        public string Grade { get; set; }
-        public string ResponsiblePersonId { get; set; }
+        public string PeriodId { get; set; }
         public string Remarks { get; set; }
+        public string ProcessId { get; set; }
+        public string ProductionOrderId { get; set; }
+        public string WorkCenterId { get; set; }
+        public string OperationVariationId { get; set; }
+        public string EmployeeId { get; set; }
 
         #endregion Scalar Properties
 
         #region Audit Properties
 
-        public string AddedBy { get; set; }
+    public string AddedBy { get; set; }
+    public DateTime AddedDate { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string AddedFromIP { get; set; }
+    public string UpdatedFromIP { get; set; }
 
-        public DateTime AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-
-        public DateTime? UpdatedDate { get; set; }
-
-
-        #endregion Audit Properties
-
-        #region Navigation
-
-        public string PlantId { get; set; }
-        public string ProcessId { get; set; }
-        public string SalesOrderMasterID { get; set; }
-        public string ProductionOrderId { get; set; }
-        public string MaterialMasterId { get; set; }
-        public string MaterialMasterArticleId { get; set; }
-        public string WorkCenterMasterId { get; set; }
-        public string OperationVariationId { get; set; }
-        public string EmployeeInformationSystemID { get; set; }
-        public string RefNo { get; set; }
-        public string WorkStationDailyID { get; set; }
-        public string FLAG { get; set; }
-
-
-        #endregion Navigation
+    #endregion Audit Properties
 
     }
 

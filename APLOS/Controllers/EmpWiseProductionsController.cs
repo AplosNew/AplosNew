@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using Library.OrderManagement.Production;
 using APLOS;
+using System.Collections.Generic;
 
 namespace Aplos.Controllers
 {
@@ -20,7 +21,22 @@ namespace Aplos.Controllers
 
         #endregion Constructor
 
-        #region Get Functions
+        #region Functions
+       
+        [HttpPost]
+        public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
+        {
+            try
+            {
+                string Id = _empOpt.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
 
         [HttpGet]
         public IHttpActionResult GetPeriod()
@@ -57,7 +73,26 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
-      
+
+        [HttpGet]
+        public IHttpActionResult GetEmp(string AddedBy, string WkId, string OPId)
+        {
+            try
+            {
+                var result = _empOpt.GetEmp(AddedBy, WkId, OPId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
         #endregion
+
     }
 }

@@ -1056,6 +1056,23 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetEmp(string AddedBy, string WkId, string OPId)
+        {
+            try
+            {
+                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text 
+                from dbo.OperationWiseEmployees ope 
+                    left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
+                    where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetPeriod()
         {
             try
@@ -1069,7 +1086,68 @@ namespace Library.OrderManagement.Production
             {
                 throw ex;
             }
-        }    
+        }
+
+        public string Create(IEnumerable<DailyProduction> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.OperationWiseEmployees";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<DailyProduction> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (DailyProduction item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == null)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = _Id;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["Date"] = item.Date;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["Qty"] = item.Qty;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["OperationVariationId"] = item.OperationVariationId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
     }
 
 }
