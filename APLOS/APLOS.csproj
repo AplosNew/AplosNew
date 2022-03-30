@@ -1127,6 +1127,7 @@
     <Compile Include="Controllers\AttendanceController.cs" />
     <Compile Include="Controllers\AplosConnectivityController.cs" />
     <Compile Include="Controllers\BookingSaudaController.cs" />
+    <Compile Include="Controllers\EmpWiseProductionsController.cs" />
     <Compile Include="Controllers\DailyProductionsController.cs" />
     <Compile Include="Controllers\EmployeeDataController.cs" />
     <Compile Include="Controllers\AttdnRawDataAPIController.cs" />
