@@ -2656,7 +2656,7 @@ namespace Aplos.Areas.Products.Controllers
 					var CompanyGroupId = identity.CompanyGroupId;
 					var CompanyId = identity.CompanyId;
 					var PlantId = identity.PlantId;
-					string _sql = "Update TRN.GatePassMaster set CheckedByStatus='" + Status + "',ApprovedBy='" + ApprovedById + "',CheckedHoldRejectReason='" + RejectReason + "' where id='" + Id + "'";
+					string _sql = "Update TRN.GatePassMaster set CheckedByStatus='" + Status + "',ApprovedBy='" + ApprovedById + "',ApprovedByStatus='For Approval',CheckedHoldRejectReason='" + RejectReason + "' where id='" + Id + "'";
 					_sqlRepository.ExecuteSqlCommand(_sql);
 					string _sql1 = "Insert into TRN.GatePassSystemApprovalLog(" +
 					"CompanyGroupId,CompanyId,PlantId,ApprovedBy,Date,ReqValue,Status,AddedBy,AddedDate,AddedFromIp,UpdatedBy,UpdatedDate,UpdatedFromIp,GatePassId) " +
@@ -2747,7 +2747,7 @@ namespace Aplos.Areas.Products.Controllers
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				var sql = @"select E.SystemId As Value, E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GatePassCheckedBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='GatePassCheckedBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 			}
 			catch (Exception ex)
@@ -2766,7 +2766,7 @@ namespace Aplos.Areas.Products.Controllers
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 				var sql = @"select E.SystemId As Value, E.SystemId+'-'+E.EmployeeName As Text from dbo.AuthorizationConfig A 
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
-                          where  A.ActionStatus='GatePassApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
+                          where  A.ActionStatus='GatePassApproveBy' AND E.EmployeeStatus='Active'";//A.PlantId='" + identity.PlantId + "' AND
 				return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
 			}

@@ -196,7 +196,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public JsonResult CreateIssue(string issueId, string voucherTypeId, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<InventoryMaterialViewModel> invIssueDetailList, IEnumerable<InventoryMaterialViewModel> invIssueDetailGLList)
         {

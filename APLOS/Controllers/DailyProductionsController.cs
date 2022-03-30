@@ -23,25 +23,7 @@ namespace Aplos.Controllers
         }
 
 
-        #endregion Constructor
-
-        [HttpGet]
-        public IHttpActionResult GetOperation(string ProdOrderId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetOperation(ProdOrderId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
+        #endregion Constructor       
 
         [HttpPost]
         public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
@@ -196,7 +178,6 @@ namespace Aplos.Controllers
             }
         }
 
-
         [HttpGet]
         public IHttpActionResult GetOPSkill(string Operation)
         {
@@ -217,27 +198,6 @@ namespace Aplos.Controllers
 
 
         }
-
-        /// New API's as Per Changed Logic 
-
-        [HttpGet]
-        public IHttpActionResult GetPeriod()
-        {
-            try
-            {
-                var result = _DailyProduction.GetPeriod();
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-
+              
     }
 }
