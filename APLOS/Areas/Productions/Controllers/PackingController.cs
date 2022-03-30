@@ -383,7 +383,7 @@ namespace Aplos.Areas.Productions.Controllers
                                 from dbo.ItemScanChild isc 
 								left join trn.POLotReference pol on pol.Id = isc.PackingId
 							    left join trn.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '210110'
+                                where isc.NetWeight=sc.NetWeight and isc.GWeight=sc.GWeight and pli.PackingId = '"+ PackingId + @"'
                                 for xml path('')
                                 ),1,1,''))
 
