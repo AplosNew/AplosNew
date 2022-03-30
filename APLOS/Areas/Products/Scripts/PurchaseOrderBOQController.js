@@ -324,9 +324,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         , IsTradingPO: false
     };
     $scope.productNew = Object.assign({}, $scope.product);
+
     $scope.Clear = function () {
         $scope.product = {};
-        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId };
+        $scope.productNew = { ToCurrencyRate: 1, BaseCurrencyId: $scope.baseCurrencyId, OrderSpecific: 'Yes', PartyType: $scope.partyType, FixedAssetOrInventory: 'Inventory', PlantId: $window.plantId, IsTradingPO: false };
         $scope.poBoqItemListNew = [];
         $scope.tempList = [];
         $scope.taxCategoryList = [];
@@ -587,6 +588,14 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             if (getRow.length == 0) {
                                 poboqlist[i].TrnAmount = Math.round((poboqlist[i].TransactionQty * poboqlist[i].TransactionRate) * 100 + Number.EPSILON) / 100
                                 poboqlist[i].TransactionQty = Math.round((poboqlist[i].TransactionQty) * 100 + Number.EPSILON) / 100
+
+                                if (baseService.isUndefinedOrNull(poboqlist[i].BaseTaxAmount)) {
+                                    poboqlist[i].BaseAmount = poboqlist[i].TrnAmount + 0;
+                                }
+                                else {
+                                    poboqlist[i].BaseAmount = poboqlist[i].TrnAmount + poboqlist[i].BaseTaxAmount;
+                                }
+
                                 $scope.poBoqItemListNew.push(poboqlist[i]);
                             }
                             else {
@@ -1356,7 +1365,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                         var Done = 0;
                         var getRow3 = $filter("filter")($scope.updatePOBOQListS, { "BOQDetailId": $scope.UpdatepoBoqItemList[i].BOQId });
                         if (getRow3.length > 0) {
-                            throw "Already selected";
+                            throw "Already taken";
                         }
                         else {
                             $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
