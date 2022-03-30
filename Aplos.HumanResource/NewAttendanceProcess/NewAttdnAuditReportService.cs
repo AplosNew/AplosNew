@@ -10317,7 +10317,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         LEFT JOIN ORG.Section AS Se ON Se.Id = PR.SectionID
                         LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = PR.SubSectionID
                         LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId
-                        WHERE (ap.ManualOutTime is not null and ap.IsManualOutTime=1) and 
+                        WHERE (ap.OriginalManualOutTime is not null and ap.IsManualOutTime=1) and 
                               AP.WorkDate between '" + FromDate + @"' and  '" + ToDate + @"'   
                            and ei.PlantId='" + plantId + @"' and ei.CompanyId='" + companyId + @"'	
                        ORDER BY 

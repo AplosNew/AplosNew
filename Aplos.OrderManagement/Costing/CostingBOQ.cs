@@ -344,7 +344,7 @@ namespace Library.OrderManagement.Costing
                 if (ItemData == null || ItemData.Count == 0)
                     throw new Exception("Please select at least one item");
 
-                if (MasterData["UserName"]==null)
+                if (MasterData["UserName"] == null)
                     throw new Exception("User name is required.");
                 //if (string.IsNullOrEmpty(MasterData["UserName"].ToString()))
                 //    throw new Exception("Please add user name.");
@@ -782,12 +782,12 @@ namespace Library.OrderManagement.Costing
         }
         public void BOQ(string CostingBOQMasterId, string SalesOrderIds, string CostingItemIds, string CostingTemplateId, out DataSet dsExistingBOQ, out DataSet CompactBOQData)
         {
-            DataSet dsMISO ;
+            DataSet dsMISO;
             BOQQuery(CostingBOQMasterId, SalesOrderIds, CostingItemIds, CostingTemplateId, out DataTable dtNewBOQ, out Dictionary<string, DataRow> dicNewData);
 
             ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
             ConManager.getDataSet("select * from CostingBOQ where SalesOrderId IN (" + SalesOrderIds + ") AND CostingItemId IN (" + CostingItemIds + ")", out dsExistingBOQ);
-            ConManager.getDataSet(@"select distinct MasterOrderItemId,Id from TRN.SalesOrder where Id IN (" + SalesOrderIds + ")", out  dsMISO);
+            ConManager.getDataSet(@"select distinct MasterOrderItemId,Id from TRN.SalesOrder where Id IN (" + SalesOrderIds + ")", out dsMISO);
 
 
             dsExistingBOQ.Tables[0].Columns.Add("MasterOrderItemId");
@@ -795,7 +795,7 @@ namespace Library.OrderManagement.Costing
             Dictionary<string, DataRow> dicExistingData = new Dictionary<string, DataRow>();
             for (int i = 0; i < dsExistingBOQ.Tables[0].Rows.Count; i++)
             {
-               
+
 
                 KEY = BOMComparingString(dsExistingBOQ.Tables[0].Rows[i]);
                 dicExistingData.Add(KEY, dsExistingBOQ.Tables[0].Rows[i]);
@@ -1743,7 +1743,7 @@ namespace Library.OrderManagement.Costing
                 {
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "Id='" + item["Id"] + "'";
-                    
+
                     if (dv.Count > 0)
                     {
                         DataRow drmo = dv[0].Row;

@@ -217,5 +217,27 @@ namespace Aplos.Controllers
 
 
         }
+
+        /// New API's as Per Changed Logic 
+
+        [HttpGet]
+        public IHttpActionResult GetPeriod()
+        {
+            try
+            {
+                var result = _DailyProduction.GetPeriod();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+
     }
 }
