@@ -671,7 +671,8 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             }
             if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
                 for (var i = 0; i < $scope.selectedMasterOrderItemList.length; i++) {
-                    if ($scope.selectedMasterOrderItemList[i].TransactionQty.toFixed(2) < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
+                    //if (parseFloat($scope.selectedMasterOrderItemList[i].TransactionQty).toFixed(2) < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
+                    if ($scope.selectedMasterOrderItemList[i].TransactionQty < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
                         throw "Sales Qty can not be greater than Base Qty.";
                     }
                 }
