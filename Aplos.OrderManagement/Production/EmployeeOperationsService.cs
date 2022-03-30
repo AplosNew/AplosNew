@@ -902,7 +902,23 @@ namespace Library.OrderManagement.Production
         #endregion getProcessDownload
 
         #region Mobile App Api's
-
+        
+        public IEnumerable<object> GetOperation(string ProdOrderId)
+        {
+            try
+            {
+                var Sql = @"select OP.ID as Value,OP.UserName as Text,op.Code,bt.Sequence from mst.OperationVariation OP
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId + "'";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetPeriod()
         {
             try
