@@ -11,11 +11,11 @@ namespace Aplos.Controllers
     public class EmpWiseProductionsController : ApiController
     {
         #region Constructor
-        EmployeeOperationsService _empOpt = new EmployeeOperationsService();
+        EmployeeOperationsAPIService _empOpt = new EmployeeOperationsAPIService();
 
         public EmpWiseProductionsController()
         {
-            _empOpt = new EmployeeOperationsService();
+            _empOpt = new EmployeeOperationsAPIService();
         }
 
         #endregion Constructor

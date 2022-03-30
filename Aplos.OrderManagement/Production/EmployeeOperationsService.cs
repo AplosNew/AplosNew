@@ -1025,7 +1025,51 @@ namespace Library.OrderManagement.Production
 
         }
         #endregion getEmployeeWorkDurationReport
-
-
+       
     }
+
+    public class EmployeeOperationsAPIService
+    {
+        private readonly SqlRepository _sqlRepository;
+
+        #region Constructor
+        public EmployeeOperationsAPIService()
+        {
+            _sqlRepository = new SqlRepository();
+
+        }
+        #endregion Constructor
+
+        public IEnumerable<object> GetOperation(string ProdOrderId)
+        {
+            try
+            {
+                var Sql = @"select OP.ID as Value,OP.UserName as Text,op.Code,bt.Sequence from mst.OperationVariation OP
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId + "'";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        public IEnumerable<object> GetPeriod()
+        {
+            try
+            {
+                var Sql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }    
+    }
+
 }
