@@ -227,7 +227,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
-    $scope.getProcessDownload = function () {
+    /*$scope.getProcessDownload = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getProcessDownload",
@@ -266,6 +266,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             ShowResult(response.data.Message, 'failure');
         });
     }
+    */
 
     //Processing Button
     $scope.processAll = function () {
