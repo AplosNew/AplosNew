@@ -60,7 +60,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             method: 'GET',
             url: $scope.path + 'GetPeriod',
         }).then(function succ(resp) {
-            $scope.PeriodList = resp.data;
+            $scope.PeriodList = resp.data.Data;
+            $scope.periodId = resp.data.Current;
         });
 
         $http({
@@ -114,7 +115,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'GetOperationsData',
-            data: { 'PId': $scope.POId, 'Period' : $scope.periodId},
+            data: { 'PId': $scope.POId, 'Period': $scope.periodId, 'ProcessId': $scope.ProcessId},
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
@@ -225,6 +226,47 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             ShowResult(response.data.Message, 'failure');
         });
     }
+
+    $scope.getProcessDownload = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getProcessDownload",
+            data: {
+                'Date': $scope.Date
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+
+   $scope.getEmployeeWorkDurationReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeWorkDurationReport",
+            data: {
+                'Date': $scope.Date
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
+    
 
     //Processing Button
     $scope.processAll = function () {

@@ -874,7 +874,7 @@ namespace Library.Service.SalesManagements
 
         public void Delete(string id)
         {
-            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL;
+            string strSQL, strPSQL, strBSQL, strOSQL, strSSQL, strASQL, strPSSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
@@ -886,6 +886,7 @@ namespace Library.Service.SalesManagements
                 strSSQL = "DELETE FROM TRN.SalesService WHERE SalesId='" + id + "'";
                 strPSQL = "DELETE FROM TRN.SalesOrderItem WHERE SalesId='" + id + "'";
                 strBSQL = "DELETE FROM TRN.SalesMaterial WHERE SalesId='" + id + "'";
+                strPSSQL = "DELETE FROM dbo.PostSalesInvoice WHERE SalesId='" + id + "'";
                 strSQL = "DELETE FROM TRN.Sales WHERE Id = '" + id + "'";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -896,6 +897,7 @@ namespace Library.Service.SalesManagements
                 objCon.ExecuteNonQueryWrapper(strSSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strPSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strPSSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
             }
@@ -951,7 +953,8 @@ namespace Library.Service.SalesManagements
                 objCon.BeginTransaction();
                 objCon.ExecuteNonQueryWrapper(strOSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strBSQL, true, "1");
-                objCon.ExecuteNonQueryWrapper(updatasc, true, "1");
+                if (secondCharacteristicsData != 0)
+                    objCon.ExecuteNonQueryWrapper(updatasc, true, "1");
                 objCon.CommitTransaction();
             }
             catch (Exception ex)

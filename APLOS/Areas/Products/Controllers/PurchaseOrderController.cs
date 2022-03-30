@@ -758,6 +758,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseOrderService.GetListForHold11(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetListForHold11BOQ(string ApproveRejectHold,string poType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetListForHold11BOQ(identity.PlantId, ApproveRejectHold, poType), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
         [Authorize, HttpGet]
@@ -4499,6 +4505,12 @@ left outer join TermsAndConditionsPOChild TC on TC.Id=TCD.TermsAndConditionsPOCh
         {
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
             return Json(bOQQueryService.GetPOBOQMapListForUpdate(poId, poDatailId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetPOBOQMapListForUpdateS(string poId)
+        {
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.GetPOBOQMapListForUpdateS(poId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]

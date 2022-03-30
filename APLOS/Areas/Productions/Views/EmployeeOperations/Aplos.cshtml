@@ -119,6 +119,7 @@
                         <div e-columns>
                             <div e-column e-field="OperationCode" e-headertext="Operation Code" e-width="50" e-isprimarykey="true"></div>
                             <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
+                            <div e-column e-field="WIP" e-headertext="WIP" e-width="80"></div>
                             <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
 
                             <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
@@ -189,13 +190,25 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
 
             <div class="row">
-                <div class="common-btn">
+                <div class="common-btn" style="margin-bottom:10px">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="processAll();" class="btn" tabindex="9"><i class="glyphicon glyphicon-repeat"></i> Process </button></li>
+                      
                     </ul>
                 </div>
             </div>
 
+            <div class="row">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                       
+                        <li><button ng-click="getProcessDownload();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Apply Efficiency Report </button></li>
+                        <li><button ng-click="getEmployeeWorkDurationReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Employee Work Duration Report </button></li>
+                    </ul>
+                </div>
+            </div>
+                   
+                
         </div>
     </div>
 </div>
