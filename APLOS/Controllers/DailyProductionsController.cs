@@ -22,11 +22,8 @@ namespace Aplos.Controllers
 
         }
 
-        #endregion Constructor       
-
-    
-       
-
+        #endregion Constructor   
+                 
         [HttpGet]
         public IHttpActionResult GetOP(string AddedBy, string WkId)
         {
@@ -62,40 +59,6 @@ namespace Aplos.Controllers
             }
         }
 
-        [HttpGet]
-        public IHttpActionResult GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetDetailProductionList(ProdnDate, EntityId, ProcessId, ShiftId, WkId, PoId, OPId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpPost]
-        public string Delete([FromBody] IEnumerable<DailyProduction> DataToDelete)
-        {
-            try
-            {
-                _DailyProduction.Delete(DataToDelete);
-            }
-            catch (Exception ex)
-            {
-
-                return ex.ToString();
-
-            }
-            return "";
-
-        }
-              
+      
     }
 }

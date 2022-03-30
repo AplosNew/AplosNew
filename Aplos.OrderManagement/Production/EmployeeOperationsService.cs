@@ -1178,6 +1178,41 @@ namespace Library.OrderManagement.Production
 
         }
 
+        public IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
+        {
+            try
+            {
+                var sqlx = @"select dp.Id, CAST(dp.AddedDate as time) Time,Buyer =STUFF((select distinct ','+XB.UserName from
+                                    trn.SalesOrder XSO                                        
+                                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                                        LEFT JOIN TRN.ProductionOrder po on po.Id=Xpod.ProductionOrderId
+                                        left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                                        left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                                        left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
+                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+@"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,                   
+                                    dp.Qty,(emp.EmployeeName) Employee,dp.EmployeeId as EmpId, opv.id as OperationId,
+                                    opv.UserName as Operation,dp.AddedBy,dp.ProductionOrderId as POId,Pr.UserName as Process,
+                                    Wc.UserName as WorkCenter,sh.UserName as Shift from 
+									dbo.OperationWiseEmployees dp
+                                    left join HKP.Process pr on dp.ProcessId=pr.Id
+                                    left join SCS.WorkCenterMaster wc on dp.WorkCenterId=wc.Id
+                                    left join mst.OperationVariation opv on dp.OperationVariationId=opv.Id
+                                    left join dbo.ShiftDefination sh on dp.ShiftId=sh.SystemID
+                                    left join dbo.EmployeeInformation emp on dp.EmployeeId=emp.SystemId                      
+                                    where isnull(dp.Date, '') = '"+ProdnDate+@"'
+                                    and isnull(dp.ProcessId,'')= '"+ProcessId+"' and isnull(dp.ShiftId,'')= '"+ShiftId+@"' and 
+                                    isnull(dp.WorkCenterId,'')='"+WkId+"' and isnull(dp.ProductionOrderId,'')='"+PoId+@"' 
+                                    and isnull(dp.OperationVariationId,'')='"+OPId+"'";
+                
+                return _sqlRepository.GetDataCollection(sqlx, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
     }
 
 }

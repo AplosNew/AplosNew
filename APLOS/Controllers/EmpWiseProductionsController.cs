@@ -110,6 +110,25 @@ namespace Aplos.Controllers
             }
         }
 
+        [HttpGet]
+        public IHttpActionResult GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
+        {
+            try
+            {
+                var result = _empOpt.GetDetailProductionList(ProdnDate, EntityId, ProcessId, ShiftId, WkId, PoId, OPId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+
         #endregion
 
     }
