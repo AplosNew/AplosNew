@@ -43,7 +43,12 @@ namespace Library.OrderManagement.Production
             try
             {
                 // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = "Select Id as Value , UserName as Text from hkp.process order by UserName asc";
+                var str = @"
+                            Select distinct p.Id as Value , p.UserName as Text
+                            from TRN.ProductionBulletinTemplateMaster ptm
+                            left
+                            join hkp.process p on p.ID = ptm.ProcessId
+                            order by UserName asc";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -247,7 +252,6 @@ namespace Library.OrderManagement.Production
                     data[i]["Id"] = _Id;
                     dr["Id"] = _Id;
                     dr["ProcessId"] = ProcessId;
-                    dr["Sequence"] = data[i]["Sequence"];
                     dr["ShiftId"] = ShiftId;
                     dr["WorkCenterId"] = WorkCenter;
                     dr["ProductionOrderId"] = POId;
@@ -258,10 +262,10 @@ namespace Library.OrderManagement.Production
                     dr["PeriodId"] = currPeriod;                   
                     dr["Remarks"] = data[i]["Remarks"];
                     dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
@@ -270,7 +274,7 @@ namespace Library.OrderManagement.Production
                 #region Summary
                 DataSet dsSum;
                 ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
-                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' ", out dsSum, false, "1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' and ProcessId ='"+ProcessId+ "' order by Cast(Sequence AS int) asc", out dsSum, false, "1");
                 string _SId = "";
 
                 DataTable dtSum = dsSum.Tables[0];
@@ -293,6 +297,7 @@ namespace Library.OrderManagement.Production
                         dd["ProductionOrderId"] = POId;
                         dd["OperationVariationId"] = data[i]["OperationId"].ToString();
                         dd["OperationSequence"] = data[i]["Sequence"].ToString();
+                        dd["ProcessId"] = ProcessId;
                         dd["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
                         dd["AddedBy"] = identity.Name;
                         dd["AddedDate"] = System.DateTime.Now.ToString();
@@ -310,6 +315,21 @@ namespace Library.OrderManagement.Production
                     //{
                     //}
 
+                }
+
+                //For WIP
+                for (int i = 0; i < dsSum.Tables[0].Rows.Count; i++)
+                {
+                    if (int.Parse(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) == 1)
+                    {
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        dsSum.Tables[0].Rows[i]["WIP"] = 0;
+                        dsSum.Tables[0].Rows[i].EndEdit();
+                    }
+                    else
+                    {
+
+                    }
                 }
 
                 #endregion Summary
@@ -901,5 +921,25 @@ namespace Library.OrderManagement.Production
 
         }
         #endregion getProcessDownload
+
+        #region Mobile App Api's
+
+        public IEnumerable<object> GetPeriod()
+        {
+            try
+            {
+                var Sql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
     }
 }
