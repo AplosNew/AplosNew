@@ -34,6 +34,21 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> GetPeriod()
+        {
+            try
+            {
+                var Sql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public string Create(IEnumerable<DailyProduction> DataToSave)
         {
 
