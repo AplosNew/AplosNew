@@ -252,7 +252,6 @@ namespace Library.OrderManagement.Production
                     data[i]["Id"] = _Id;
                     dr["Id"] = _Id;
                     dr["ProcessId"] = ProcessId;
-                    dr["Sequence"] = data[i]["Sequence"];
                     dr["ShiftId"] = ShiftId;
                     dr["WorkCenterId"] = WorkCenter;
                     dr["ProductionOrderId"] = POId;
@@ -263,10 +262,10 @@ namespace Library.OrderManagement.Production
                     dr["PeriodId"] = currPeriod;                   
                     dr["Remarks"] = data[i]["Remarks"];
                     dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedDate"] = DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
                     dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
                     dsMaster.Tables[0].Rows.Add(dr);
                 }
@@ -922,5 +921,25 @@ namespace Library.OrderManagement.Production
 
         }
         #endregion getProcessDownload
+
+        #region Mobile App Api's
+
+        public IEnumerable<object> GetPeriod()
+        {
+            try
+            {
+                var Sql = @"Select id as Value , UserName as Text , StartTime , EndTime from hkp.ProductionBookingPeriod where CONVERT(VARCHAR(8), StartTime, 108) <= Convert(varchar(8), GETDATE(), 108)
+                                        and CONVERT(VARCHAR(8), EndTime, 108) >= Convert(varchar(8), GETDATE(), 108)
+                                        order by EndTime desc";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
     }
 }
