@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using Library.OrderManagement.Production;
 using APLOS;
+using System.Collections.Generic;
 
 namespace Aplos.Controllers
 {
@@ -11,14 +12,31 @@ namespace Aplos.Controllers
     public class EmpWiseProductionsController : ApiController
     {
         #region Constructor
-        EmployeeOperationsService _empOpt = new EmployeeOperationsService();
+        EmployeeOperationsAPIService _empOpt = new EmployeeOperationsAPIService();
 
         public EmpWiseProductionsController()
         {
-            _empOpt = new EmployeeOperationsService();
+            _empOpt = new EmployeeOperationsAPIService();
         }
 
         #endregion Constructor
+
+        #region Functions
+       
+        [HttpPost]
+        public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
+        {
+            try
+            {
+                string Id = _empOpt.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+
+            }
+        }
 
         [HttpGet]
         public IHttpActionResult GetPeriod()
@@ -37,6 +55,44 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
+
+        [HttpGet]
+        public IHttpActionResult GetOperation(string ProdOrderId)
+        {
+            try
+            {
+                var result = _empOpt.GetOperation(ProdOrderId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpGet]
+        public IHttpActionResult GetEmp(string AddedBy, string WkId, string OPId)
+        {
+            try
+            {
+                var result = _empOpt.GetEmp(AddedBy, WkId, OPId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        #endregion
 
     }
 }

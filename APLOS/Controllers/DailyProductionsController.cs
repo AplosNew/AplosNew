@@ -22,42 +22,9 @@ namespace Aplos.Controllers
 
         }
 
+        #endregion Constructor       
 
-        #endregion Constructor
-
-        [HttpGet]
-        public IHttpActionResult GetOperation(string ProdOrderId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetOperation(ProdOrderId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpPost]
-        public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
-        {
-            try
-            {
-                string Id = _DailyProduction.Create(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
+    
         [HttpGet]
         public IHttpActionResult GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
         {
@@ -112,24 +79,6 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetEmp(string AddedBy, string WkId, string OPId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetEmp(AddedBy, WkId, OPId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpGet]
         public IHttpActionResult GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
         {
             try
@@ -161,60 +110,6 @@ namespace Aplos.Controllers
 
             }
             return "";
-
-        }
-
-        [HttpPost]
-        public string DeleteOp([FromBody] IEnumerable<operationwise> DataToDelete)
-        {
-            try
-            {
-                _DailyProduction.DeleteOp(DataToDelete);
-            }
-            catch (Exception ex)
-            {
-
-                return ex.ToString();
-
-            }
-            return "";
-
-        }
-
-        [HttpPost]
-        public string CreateOp([FromBody] IEnumerable<operationwise> DataToSavex)
-        {
-            try
-            {
-                string Id = _DailyProduction.CreateOp(DataToSavex);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
-
-        [HttpGet]
-        public IHttpActionResult GetOPSkill(string Operation)
-        {
-            try
-            {
-                var result = _DailyProduction.GetOPSkill(Operation);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-
-
 
         }
               
