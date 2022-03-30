@@ -3120,7 +3120,7 @@ namespace Library.MaterialManagement.Inventory
 							double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.BaseUOMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));
 							itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
 							itemDetail.BaseUoMFactor = Convert.ToDecimal(baseUoMFactorList.FirstOrDefault(t => t.BaseUOMId == itemDetail.BaseUOMId && t.AlternativeUOMId == itemDetail.TransactionUoMId).BaseUOMFactor);
-							itemDetail.BaseAmount = itemDetail.BaseQty*itemDetail.TransactionRate;
+							itemDetail.BaseAmount = (itemDetail.BaseQty*itemDetail.TransactionRate)/ itemDetail.BaseUoMFactor;
 
 
 						}
@@ -3183,7 +3183,7 @@ namespace Library.MaterialManagement.Inventory
 								ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
 								AcceptanceRcvQty = 0,
 								AcceptanceRcvStatusQty = false,
-								RefferenceNo = refferenceNo,//itemDetail.RefferenceNo
+								RefferenceNo =itemDetail.RefferenceNo,
 								Tolerance = itemDetail.Tolerance
 
 
@@ -3449,7 +3449,7 @@ namespace Library.MaterialManagement.Inventory
 								ThirdCharacteristicsValueId = itemDetail.ThirdCharacteristicsValueId,
 								AcceptanceRcvQty = 0,
 								AcceptanceRcvStatusQty = false,
-								RefferenceNo = refferenceNo,//itemDetail.RefferenceNo
+								RefferenceNo = itemDetail.RefferenceNo,
 								Tolerance = itemDetail.Tolerance
 
 
