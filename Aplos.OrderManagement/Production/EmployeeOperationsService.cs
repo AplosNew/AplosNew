@@ -132,7 +132,7 @@ namespace Library.OrderManagement.Production
                 currPeriod = Period;
             }
 
-            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
+            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , o.WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
                         ei.EmployeeCode
@@ -145,9 +145,10 @@ namespace Library.OrderManagement.Production
 						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
 						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
-						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+@"'
+                        left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
+						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+ @"'
 						
-						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId
+						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP
                         order by Sequence";
 
       //      var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
@@ -274,7 +275,7 @@ namespace Library.OrderManagement.Production
                 #region Summary
                 DataSet dsSum;
                 ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
-                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' and ProcessId ='"+ProcessId+ "' order by Cast(Sequence AS int) asc", out dsSum, false, "1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' and ProcessId ='"+ProcessId+ "' order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
                 string _SId = "";
 
                 DataTable dtSum = dsSum.Tables[0];
@@ -310,17 +311,13 @@ namespace Library.OrderManagement.Production
 
                     }
 
-                    //dsSum.Tables[0].DefaultView.RowFilter = @"OpVariationId='" + data[i]["OperationId"].ToString() + "' and OperationSequence ='" + (int.Parse(data[i]["Sequence"].ToString()) + 1).ToString() + "'";
-                    //if (dsSum.Tables[0].DefaultView.Count > 0)
-                    //{
-                    //}
 
                 }
 
                 //For WIP
                 for (int i = 0; i < dsSum.Tables[0].Rows.Count; i++)
                 {
-                    if (int.Parse(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) == 1)
+                    if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) == 1)
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
                         dsSum.Tables[0].Rows[i]["WIP"] = 0;
@@ -328,7 +325,9 @@ namespace Library.OrderManagement.Production
                     }
                     else
                     {
-
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
 

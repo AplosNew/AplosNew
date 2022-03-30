@@ -141,7 +141,7 @@ namespace Library.MaterialManagement.Inventory
                             ,IRD.Description
                             ,IRD.RefferenceNo
                             ,Replace(CONVERT(VARCHAR(11), IRD.DeliveryDate, 106), ' ', '-') DeliveryDate
-                            ,C.UserName CountryName,C.Id CountryId,IRD.RefferenceNo,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,HN.Code HSNCode,IRD.Tolerance
+                            ,C.UserName CountryName,C.Id CountryId,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,HN.Code HSNCode,IRD.Tolerance
                             ,ISNULL(RD.GRNTotalAmount,0) GRNAmount,ISNULL(ACPT.ACPTTotalAmount,0) ACPTAmount
                         FROM [TRN].[PurchaseOrderDetail] AS IRD
                         left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
