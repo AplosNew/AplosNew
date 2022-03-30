@@ -19,35 +19,7 @@ namespace Library.OrderManagement.Production
         }     
 
        
-        public IEnumerable<object> GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
-        {
-            try
-            {
-                var Sql = @"select SUM(ps.Quantity)Quantity,ps.OperationVariationId,ps.ProductionOrderId, p.UserName as Plant,ps.PlantId,ps.ProcessId,Pr.UserName as Process ,ent.UserName as Entity,ent.Id as EntId,opv.UserName as Operation
-                                                            from TRN.DailyProduction ps
-                                                            left join ORG.Plant p on ps.PlantId = p.Id
-                                                            left join HKP.Process pr on ps.ProcessId = pr.Id
-                                                            left join org.Entity ent on ps.EntityId= ent.Id
-                                                            left join mst.CompliedShiftGrouping sh on ps.ShiftId=sh.Id
-                                                            left join mst.OperationVariation opv on opv.Id=ps.OperationVariationId
-                                                            left join dbo.EmployeeInformation emp
-                                                            on ps.EmployeeInformationSystemID = emp.SystemId
-                                                            where isnull(ps.ProductionDate, '') = '" + ProdnDate + "'" +
-                                                           "and isnull(ps.ProcessId,'')= '" + ProcessId + "' and isnull(ps.EntityId,'')= '" + EntityId + "'and isnull(ps.ShiftId,'')= '" + ShiftId + "'" +
-                                                          " and isnull(ps.WorkCenterMasterID,'')= '" + WkId + "' GROUP BY ps.OperationVariationId," +
-                                                          "p.UserName,ps.PlantId,ps.ProcessId,Pr.UserName,ent.UserName,ent.Id,opv.UserName,ps.ProductionOrderId";
-
-                return _sqlRepository.GetDataCollection(Sql, null);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-
-
-        }
-
+      
         public IEnumerable<object> GetWk(string AddedBy)
         {
             try

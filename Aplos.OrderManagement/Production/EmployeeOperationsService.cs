@@ -1115,7 +1115,7 @@ namespace Library.OrderManagement.Production
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
 
-                        dr["Id"] = _Id;
+                        dr["Id"] ="OP"+ _Id;
                         dr["ProcessId"] = item.ProcessId;
                         dr["WorkCenterId"] = item.WorkCenterId;
                         dr["Date"] = item.Date;
@@ -1146,6 +1146,36 @@ namespace Library.OrderManagement.Production
             {
                 throw (ex);
             }
+        }
+
+        public IEnumerable<object> GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
+        {
+            try
+            {
+                var Sql = @"select SUM(ps.Qty)Quantity,ps.OperationVariationId,ps.ProductionOrderId, ps.ProcessId,Pr.UserName as Process ,
+                opv.UserName as Operation,sh.UserName as ProductionShift
+                                                            from OperationWiseEmployees ps
+															left join trn.ProductionOrder po on po.Id=ps.ProductionOrderId
+                                                            left join HKP.Process pr on ps.ProcessId = pr.Id
+                                                            left join dbo.ShiftDefination sh on ps.ShiftId=sh.SystemID
+                                                            left join mst.OperationVariation opv on opv.Id=ps.OperationVariationId
+                                                            left join dbo.EmployeeInformation emp
+                                                            on ps.EmployeeId = emp.SystemId
+                                                            where isnull(ps.Date, '') = '" + ProdnDate+@"'
+                                                            and isnull(ps.ProcessId,'')= '"+ProcessId+@"' and 
+															isnull(ps.ShiftId,'')= '"+ShiftId+@"'
+                                                            and isnull(ps.WorkCenterId,'')= '"+WkId+"' and ISNULL(po.EntityId,'')='"+EntityId+ @"'
+															GROUP BY ps.OperationVariationId,
+                                                            ps.ProcessId,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+
+
         }
 
     }

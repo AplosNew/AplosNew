@@ -22,7 +22,25 @@ namespace Aplos.Controllers
         #endregion Constructor
 
         #region Functions
-       
+
+        [HttpGet]
+        public IHttpActionResult GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
+        {
+            try
+            {
+                var result = _empOpt.GetListAPIforProduction(ProdnDate, ProcessId, EntityId, ShiftId, WkId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
         [HttpPost]
         public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
         {

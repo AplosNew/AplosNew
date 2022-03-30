@@ -25,23 +25,7 @@ namespace Aplos.Controllers
         #endregion Constructor       
 
     
-        [HttpGet]
-        public IHttpActionResult GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetListAPIforProduction(ProdnDate, ProcessId, EntityId, ShiftId, WkId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
+       
 
         [HttpGet]
         public IHttpActionResult GetOP(string AddedBy, string WkId)
