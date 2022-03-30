@@ -146,7 +146,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'saveData',
             data: {
                 'data': $scope.NewList, 'WorkCenter': $scope.workCenterId,
-                'ProcessId': $scope.processId,
+                'ProcessId': $scope.ProcessId,
                 'ShiftId': $scope.shiftId,
                 'POId': $scope.POId ,
                 'Date': $scope.Date, 'PeriodId': $scope.periodId,
