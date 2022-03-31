@@ -1107,7 +1107,7 @@ namespace Library.OrderManagement.Production
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
 
                 string _Id = "";
-                string OpSeq = "";
+                string OpSeq = "",OpMasterId="";
 
                 foreach (DailyProduction item in DataToSave)
                 {
@@ -1119,6 +1119,7 @@ namespace Library.OrderManagement.Production
                         genid.GenID(TableName, out _Id);
 
                         OpSeq = item.OperationSeq;
+                        OpMasterId = item.OperationMasterId;
                         dr["Id"] ="OP"+ _Id;
                         dr["ProcessId"] = item.ProcessId;
                         dr["WorkCenterId"] = item.WorkCenterId;
@@ -1220,7 +1221,7 @@ namespace Library.OrderManagement.Production
                         dr["Id"] = (int.Parse(dsMaster.Tables[0].Rows[i]["Id"].ToString()) + i).ToString();
                         dr["Date"] = Convert.ToDateTime(dsMaster.Tables[0].Rows[i]["Date"].ToString());
                         dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
-                        dr["MasterOperationId"] = dsMaster.Tables[0].Rows[i]["OperationMasterId"].ToString(); 
+                        dr["MasterOperationId"] = OpMasterId.ToString(); 
                         dr["OperationVariationId"] = dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString();
                         dr["ProductionOrderId"] = dsMaster.Tables[0].Rows[i]["ProductionOrderId"].ToString();
                         dr["Qty"] = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
