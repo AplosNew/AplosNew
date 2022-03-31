@@ -102,7 +102,7 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.getJournalVoucherDetailList = function (id) {
         $http({
             method: "get",
-            url: "accounts/VoucherGlUpdate/GetJournalVoucherDetailList?voucherId=" + id
+            url: "accounts/VoucherGlUpdate/Data?voucherId=" + id
         }).then(function successCallback(response) {
             $scope.voucherDetailList = response.data;
         });
