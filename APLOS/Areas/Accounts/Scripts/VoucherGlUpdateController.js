@@ -28,7 +28,10 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         DocRefNo: null,
         Amount: 0,
         Narration: null,
-        CompanyCurrencyRate: 1
+        CompanyCurrencyRate: 1,
+        Entity: null,
+        CurrencyCode: null,
+        VoucherType: null
     };
 
 
@@ -84,12 +87,16 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.voucher.Narration = data.Narration;
         $scope.voucher.CurrencyId = data.CurrencyId;
         $scope.voucher.EntityId = data.EntityId;
+        $scope.voucher.Entity = data.Entity;
+        $scope.voucher.CurrencyCode = data.CurrencyCode;
+        $scope.voucher.VoucherType = data.VoucherType;
         $scope.GetCurrencyExchangeRateList();
         $scope.currencyDisable = true;
         $scope.Action = "Update";
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+
         $scope.getJournalVoucherDetailList($scope.voucher.Id);
     };
     $scope.getJournalVoucherDetailList = function (id) {
