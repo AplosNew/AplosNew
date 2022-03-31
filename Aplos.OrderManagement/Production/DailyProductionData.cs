@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
 using Library.Data.Sql;
-using OTSBD;
 
 namespace Library.OrderManagement.Production
 {
@@ -16,10 +13,10 @@ namespace Library.OrderManagement.Production
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-        }     
+        }
 
-       
-      
+
+
         public IEnumerable<object> GetWk(string AddedBy)
         {
             try
@@ -49,84 +46,9 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
-              
-        public string Delete(IEnumerable<DailyProduction> DataToDelete)
-        {
-            ConnectionManager.DAL.ConManager objCon = null;
-            try
-            {
-                DataSet dsMaster;
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenConnection("1");
-                objCon.BeginTransaction();
 
-                foreach (var item in DataToDelete)
-                {
-                    if (!string.IsNullOrEmpty(item.Id))
-                    {
-                        objCon.OpenDataSetThroughAdapter("select * from TRN.DailyProduction where Id= '" + item.Id + "' ", out dsMaster, false, "1");
-                        if (dsMaster.Tables[0].Rows.Count > 0)
-                        {
-                            objCon.ExecuteNonQueryWrapper("Delete FROM TRN.DailyProduction where Id='" + item.Id + "'", true, "1");
-                        }
-                    }
-
-                }
-
-                objCon.CommitTransaction();
-            }
-            catch (Exception ex)
-            {
-                objCon.RollBack();
-                return ex.ToString();
-
-            }
-            finally
-            {
-                objCon.CloseConnection();
-                objCon = null;
-            }
-            return "";
-        }
-
-        public IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
-        {
-            try
-            {
-
-                var sql = @"select dp.Id, CAST(dp.AddedDate as time) Time,Buyer =STUFF((select distinct ','+XB.UserName from
-                                    trn.SalesOrder XSO                                        
-                                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
-                                        LEFT JOIN TRN.ProductionOrder po on po.Id=Xpod.ProductionOrderId
-                                        left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
-                                        left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
-                                        left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId
-                                                                        
-                                            where po.Id=" + PoId + @" for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,                   
-  dp.Quantity,(emp.EmployeeName) Employee,dp.EmployeeInformationSystemID as EmpId, opv.UserName as Operation,dp.AddedBy,dp.SalesOrderMasterID as SOId,dp.ProductionOrderId as POId,E.UserName as Entity,
-                                    Pr.UserName as Process,
-                                    Wc.UserName as WorkCenter,
-                                    csg.Description as Shift from TRN.DailyProduction dp
-                                                                    left join ORG.Entity E on dp.EntityId=E.Id
-                                                                    left join HKP.Process pr on dp.ProcessId=pr.Id
-                                                                    left join SCS.WorkCenterMaster wc on dp.WorkCenterMasterId=wc.Id
-																	left join mst.OperationVariation opv on dp.OperationVariationId=opv.Id
-                                                                    left join MST.CompliedShiftGrouping csg on dp.ShiftId=csg.Id
-                                                                    left join dbo.EmployeeInformation emp on dp.EmployeeInformationSystemID=emp.SystemId                      
-                            where isnull(dp.ProductionDate, '') = '" + ProdnDate + "'and isnull(dp.EntityId,'') = '" + EntityId + "'and isnull(dp.ProcessId,'')= '" + ProcessId + "' and isnull(dp.ShiftId,'')= '" + ShiftId + "'and isnull(dp.WorkCenterMasterId,'')='" + WkId + "'and isnull(dp.ProductionOrderId,'')='" + PoId + "' and isnull(dp.OperationVariationId,'')='" + OPId + "' ";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-        }    
 
     }
-
-}
-
 
     public class DailyProduction
     {
@@ -134,6 +56,8 @@ namespace Library.OrderManagement.Production
         #region Scalar Properties
 
         public string Id { get; set; }
+        public string OperationSeq { get; set; }
+        public string OperationMasterId { get; set; }
         public DateTime? Date { get; set; }
         public decimal Qty { get; set; }
         public string ShiftId { get; set; }
@@ -149,30 +73,6 @@ namespace Library.OrderManagement.Production
 
         #region Audit Properties
 
-    public string AddedBy { get; set; }
-    public DateTime AddedDate { get; set; }
-    public string UpdatedBy { get; set; }
-    public DateTime? UpdatedDate { get; set; }
-    public string AddedFromIP { get; set; }
-    public string UpdatedFromIP { get; set; }
-
-    #endregion Audit Properties
-
-    }
-
-    public class operationwise
-    {
-        #region Scalar Properties
-        public string Id { get; set; }
-        public DateTime? EntryDate { get; set; }
-        public string WorkCenterId { get; set; }
-        public string OperationVariationId { get; set; }
-        public string EmployeeId { get; set; }
-
-        #endregion Scalar Properties 
-
-        #region Audit Properties
-
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string UpdatedBy { get; set; }
@@ -184,6 +84,7 @@ namespace Library.OrderManagement.Production
 
     }
 
+}
 
 
 
