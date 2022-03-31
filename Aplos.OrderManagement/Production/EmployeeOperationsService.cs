@@ -1056,6 +1056,23 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetEmp(string AddedBy, string WkId, string OPId)
+        {
+            try
+            {
+                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text 
+                from dbo.OperationWiseEmployees ope 
+                    left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
+                    where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetPeriod()
         {
             try
@@ -1069,7 +1086,133 @@ namespace Library.OrderManagement.Production
             {
                 throw ex;
             }
-        }    
+        }
+
+        public string Create(IEnumerable<DailyProduction> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.OperationWiseEmployees";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<DailyProduction> items = DataToSave.ToList();
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (DailyProduction item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0 && items[0].Id == null)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] ="OP"+ _Id;
+                        dr["ProcessId"] = item.ProcessId;
+                        dr["WorkCenterId"] = item.WorkCenterId;
+                        dr["Date"] = item.Date;
+                        dr["ShiftId"] = item.ShiftId;
+                        dr["Qty"] = item.Qty;
+                        dr["PeriodId"] = item.PeriodId;
+                        dr["ProductionOrderId"] = item.ProductionOrderId;
+                        dr["OperationVariationId"] = item.OperationVariationId;
+                        dr["Remarks"] = item.Remarks;
+                        dr["EmployeeId"] = item.EmployeeId;
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                return MasterId;
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public IEnumerable<object> GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
+        {
+            try
+            {
+                var Sql = @"select SUM(ps.Qty)Qty,FORMAT(ps.Date,'dd-MMM-yyyy')Date,ps.OperationVariationId,ps.ProductionOrderId, ps.ProcessId,Pr.UserName as Process ,
+                opv.UserName as Operation,sh.UserName as ProductionShift,ps.WorkCenterId
+                                                            from OperationWiseEmployees ps
+															left join trn.ProductionOrder po on po.Id=ps.ProductionOrderId
+                                                            left join HKP.Process pr on ps.ProcessId = pr.Id
+                                                            left join dbo.ShiftDefination sh on ps.ShiftId=sh.SystemID
+                                                            left join mst.OperationVariation opv on opv.Id=ps.OperationVariationId
+                                                            left join dbo.EmployeeInformation emp
+                                                            on ps.EmployeeId = emp.SystemId
+                                                            where isnull(ps.Date, '') = '" + ProdnDate+@"'
+                                                            and isnull(ps.ProcessId,'')= '"+ProcessId+@"' and 
+															isnull(ps.ShiftId,'')= '"+ShiftId+@"'
+                                                            and isnull(ps.WorkCenterId,'')= '"+WkId+"' and ISNULL(po.EntityId,'')='"+EntityId+ @"'
+															GROUP BY ps.OperationVariationId,
+                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName,ps.WorkCenterId";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+
+
+        }
+
+        public IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
+        {
+            try
+            {
+                var sqlx = @"select dp.Id, CAST(dp.AddedDate as time) Time,Buyer =STUFF((select distinct ','+XB.UserName from
+                                    trn.SalesOrder XSO                                        
+                                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                                        LEFT JOIN TRN.ProductionOrder po on po.Id=Xpod.ProductionOrderId
+                                        left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                                        left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                                        left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
+                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+@"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,                   
+                                    dp.Qty,(emp.EmployeeName) Employee,dp.EmployeeId as EmpId, opv.id as OperationId,
+                                    opv.UserName as Operation,dp.AddedBy,dp.ProductionOrderId as POId,Pr.UserName as Process,
+                                    Wc.UserName as WorkCenter,sh.UserName as Shift from 
+									dbo.OperationWiseEmployees dp
+                                    left join HKP.Process pr on dp.ProcessId=pr.Id
+                                    left join SCS.WorkCenterMaster wc on dp.WorkCenterId=wc.Id
+                                    left join mst.OperationVariation opv on dp.OperationVariationId=opv.Id
+                                    left join dbo.ShiftDefination sh on dp.ShiftId=sh.SystemID
+                                    left join dbo.EmployeeInformation emp on dp.EmployeeId=emp.SystemId                      
+                                    where isnull(dp.Date, '') = '"+ProdnDate+@"'
+                                    and isnull(dp.ProcessId,'')= '"+ProcessId+"' and isnull(dp.ShiftId,'')= '"+ShiftId+@"' and 
+                                    isnull(dp.WorkCenterId,'')='"+WkId+"' and isnull(dp.ProductionOrderId,'')='"+PoId+@"' 
+                                    and isnull(dp.OperationVariationId,'')='"+OPId+"'";
+                
+                return _sqlRepository.GetDataCollection(sqlx, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
     }
 
 }

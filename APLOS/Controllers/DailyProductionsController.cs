@@ -22,42 +22,8 @@ namespace Aplos.Controllers
 
         }
 
-
-        #endregion Constructor       
-
-        [HttpPost]
-        public string Create([FromBody] IEnumerable<DailyProduction> DataToSave)
-        {
-            try
-            {
-                string Id = _DailyProduction.Create(DataToSave);
-                return Id;
-            }
-            catch (Exception ex)
-            {
-                return ex.ToString();
-
-            }
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetListAPIforProduction(string ProdnDate, string ProcessId, string EntityId, string ShiftId, string WkId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetListAPIforProduction(ProdnDate, ProcessId, EntityId, ShiftId, WkId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
+        #endregion Constructor   
+                 
         [HttpGet]
         public IHttpActionResult GetOP(string AddedBy, string WkId)
         {
@@ -93,58 +59,6 @@ namespace Aplos.Controllers
             }
         }
 
-        [HttpGet]
-        public IHttpActionResult GetEmp(string AddedBy, string WkId, string OPId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetEmp(AddedBy, WkId, OPId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpGet]
-        public IHttpActionResult GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
-        {
-            try
-            {
-                var result = _DailyProduction.GetDetailProductionList(ProdnDate, EntityId, ProcessId, ShiftId, WkId, PoId, OPId);
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    ReasonPhrase = ex.Message
-                };
-                throw new HttpResponseException(resp);
-            }
-        }
-
-        [HttpPost]
-        public string Delete([FromBody] IEnumerable<DailyProduction> DataToDelete)
-        {
-            try
-            {
-                _DailyProduction.Delete(DataToDelete);
-            }
-            catch (Exception ex)
-            {
-
-                return ex.ToString();
-
-            }
-            return "";
-
-        }
-              
+      
     }
 }
