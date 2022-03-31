@@ -1238,7 +1238,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         var data = gridObj.getSelectedRecords()[0];
-        location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id;
+        location.href = "Products/PurchaseOrder/GePurchaseOrderBOQReport?purchaseOrderBOQId=" + data.Id;
     };
     $scope.POBOQReportXl = function (data) {
 
