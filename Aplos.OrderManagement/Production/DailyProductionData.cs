@@ -57,6 +57,7 @@ namespace Library.OrderManagement.Production
 
         public string Id { get; set; }
         public string OperationSeq { get; set; }
+        public string OperationMasterId { get; set; }
         public DateTime? Date { get; set; }
         public decimal Qty { get; set; }
         public string ShiftId { get; set; }
