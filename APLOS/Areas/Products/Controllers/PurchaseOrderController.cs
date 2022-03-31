@@ -758,6 +758,12 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_purchaseOrderService.GetListForHold11(identity.PlantId, ApproveRejectHold), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetListForHold11BOQ(string ApproveRejectHold,string poType)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_purchaseOrderService.GetListForHold11BOQ(identity.PlantId, ApproveRejectHold, poType), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion
         [Authorize, HttpGet]

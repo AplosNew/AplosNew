@@ -120,6 +120,20 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         return $scope.tab1 === tabNum;
     };
 
+    $scope.GriddataPoApp = [];
+    $scope.getalldataPoApp = function () {
+
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/PurchaseOrder/GetListForHold11BOQ?ApproveRejectHold=' + $scope.ApproveRejectHold + '&poType=' + 'POBOQ',
+        }).then(function successCallback(response) {
+            $scope.GriddataPoApp = response.data;
+            //entrydata = copy(searchdata);
+        });
+    };
+
     //#endregion
     //#endregion
 
@@ -331,6 +345,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.poBoqItemListNew = [];
         $scope.tempList = [];
         $scope.taxCategoryList = [];
+        $scope.ActionPOBOQ = 'Save';
     };
 
     $http({
@@ -781,6 +796,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             ShowResult(response.data.Message, 'success');
                             getInventoryMaterialList($scope.productNew.Id);
                             $scope.poBoqItemList = [];
+                            $scope.getalldata();
                         }
                     }), function errorCallBack(response) {
                         ShowResult(response.data.Message, 'failure');
