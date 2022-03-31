@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Data;
 using Library.Data.Sql;
-using OTSBD;
 
 namespace Library.OrderManagement.Production
 {
@@ -16,10 +13,10 @@ namespace Library.OrderManagement.Production
         {
             _sqlRepository = new SqlRepository();
             ConManager = new ConnectionManager.clsConnectionManager();
-        }     
+        }
 
-       
-      
+
+
         public IEnumerable<object> GetWk(string AddedBy)
         {
             try
@@ -49,12 +46,9 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
-              
-        
+
+
     }
-
-}
-
 
     public class DailyProduction
     {
@@ -62,6 +56,7 @@ namespace Library.OrderManagement.Production
         #region Scalar Properties
 
         public string Id { get; set; }
+        public string OperationSeq { get; set; }
         public DateTime? Date { get; set; }
         public decimal Qty { get; set; }
         public string ShiftId { get; set; }
@@ -77,30 +72,6 @@ namespace Library.OrderManagement.Production
 
         #region Audit Properties
 
-    public string AddedBy { get; set; }
-    public DateTime AddedDate { get; set; }
-    public string UpdatedBy { get; set; }
-    public DateTime? UpdatedDate { get; set; }
-    public string AddedFromIP { get; set; }
-    public string UpdatedFromIP { get; set; }
-
-    #endregion Audit Properties
-
-    }
-
-    public class operationwise
-    {
-        #region Scalar Properties
-        public string Id { get; set; }
-        public DateTime? EntryDate { get; set; }
-        public string WorkCenterId { get; set; }
-        public string OperationVariationId { get; set; }
-        public string EmployeeId { get; set; }
-
-        #endregion Scalar Properties 
-
-        #region Audit Properties
-
         public string AddedBy { get; set; }
         public DateTime AddedDate { get; set; }
         public string UpdatedBy { get; set; }
@@ -112,6 +83,7 @@ namespace Library.OrderManagement.Production
 
     }
 
+}
 
 
 
