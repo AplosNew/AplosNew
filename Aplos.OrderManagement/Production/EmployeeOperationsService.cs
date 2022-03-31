@@ -250,8 +250,8 @@ namespace Library.OrderManagement.Production
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data[i]["Id"] = _Id;
-                    dr["Id"] = _Id;
+                    data[i]["Id"] = "OP"+_Id;
+                    dr["Id"] = "OP"+_Id;
                     dr["ProcessId"] = ProcessId;
                     dr["ShiftId"] = ShiftId;
                     dr["WorkCenterId"] = WorkCenter;
@@ -293,7 +293,7 @@ namespace Library.OrderManagement.Production
                     {
                         DataRow dd = dsSum.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("dbo.OperationWiseEmployeesSummary", out _SId);
+                        genid.GenID("dbo.EmployeeOperationWip", out _SId);
                         dd["Id"] = _SId;
                         dd["ProductionOrderId"] = POId;
                         dd["OperationVariationId"] = data[i]["OperationId"].ToString();
