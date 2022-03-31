@@ -350,7 +350,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         DataRow dr = dsPlan.Tables[0].NewRow();
-                        dr["Id"] = (int.Parse(dsMaster.Tables[0].Rows[i]["Id"].ToString()) + i).ToString();
+                        dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
                         dr["Date"] = Convert.ToDateTime(Date);
                         dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
                         dr["MasterOperationId"] = data[i]["MasterOperationId"];
@@ -1040,7 +1040,7 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-        public IEnumerable<object> GetOperation(string ProdOrderId)
+        public IEnumerable<object> GetOperation(string ProdOrderId,string ProcessId)
         {
             try
             {
@@ -1048,7 +1048,7 @@ namespace Library.OrderManagement.Production
                             join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                             join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
                             join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-                            where pb.ProductionOrderId='" + ProdOrderId + "'";
+                            where pb.ProductionOrderId='"+ProdOrderId+@"' AND PT.ProcessId='"+ProcessId+"'ORDER BY BT.Sequence";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
@@ -1194,8 +1194,16 @@ namespace Library.OrderManagement.Production
                     }
                     else
                     {
+                        double prev= clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) - 1;
+                        double prevQty=0;
+                        DataSet QtyFinder;
+                        GetQty(dsSum.Tables[0].Rows[i]["ProcessId"].ToString(), dsSum.Tables[0].Rows[i]["ProductionOrderId"].ToString(), prev.ToString(), out QtyFinder);
+                        if(QtyFinder.Tables[0].Rows.Count>0)
+                        {
+                            prevQty = clsStaticInfo.dbl(QtyFinder.Tables[0].Rows[0]["Qty"].ToString());
+                        }
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - prevQty;
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
@@ -1276,6 +1284,23 @@ namespace Library.OrderManagement.Production
 
 
         }
+
+        public void GetQty(string ProcessId,string PO,string Seq, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sqlx = @"select *  from  dbo.EmployeeOperationWip where 
+                ProductionOrderId = '"+PO+"' and ProcessId ='"+ProcessId+"' and OperationSequence='"+Seq+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }      
 
         public IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
         {
