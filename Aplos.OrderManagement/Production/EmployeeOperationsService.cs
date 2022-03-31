@@ -1093,7 +1093,7 @@ namespace Library.OrderManagement.Production
 
             try
             {
-                DataSet dsMaster;
+                DataSet dsMaster, dsSum;
                 string TableName = "dbo.OperationWiseEmployees";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -1105,6 +1105,7 @@ namespace Library.OrderManagement.Production
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
 
                 string _Id = "";
+                string OpSeq = "";
 
                 foreach (DailyProduction item in DataToSave)
                 {
@@ -1115,6 +1116,7 @@ namespace Library.OrderManagement.Production
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
 
+                        OpSeq = item.OperationSeq;
                         dr["Id"] ="OP"+ _Id;
                         dr["ProcessId"] = item.ProcessId;
                         dr["WorkCenterId"] = item.WorkCenterId;
@@ -1134,12 +1136,48 @@ namespace Library.OrderManagement.Production
                     }
                 }
 
+                ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + items[0].ProductionOrderId + "' and ProcessId ='" + items[0].ProcessId + "' order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
+                string _SId = "";
+
+                DataTable dtSum = dsSum.Tables[0];
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" +dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString() + "' and OperationSequence ='" + OpSeq + "'";
+                    if (dsSum.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsSum.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dsSum.Tables[0].DefaultView[0]["UpdatedBy"]= dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dsSum.Tables[0].DefaultView[0]["UpdatedDate"] = DateTime.Now.ToString();
+                        dsSum.Tables[0].DefaultView[0]["UpdatedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString(); 
+                        dsSum.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dd = dsSum.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.EmployeeOperationWip", out _SId);
+                        dd["Id"] = _SId;
+                        dd["ProductionOrderId"] = dsMaster.Tables[0].Rows[i]["ProductionOrderId"].ToString();
+                        dd["OperationVariationId"] = dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString();
+                        dd["OperationSequence"] = OpSeq;
+                        dd["ProcessId"] = dsMaster.Tables[0].Rows[i]["ProcessId"].ToString();
+                        dd["Qty"] = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dd["AddedBy"] = dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dd["AddedDate"] = DateTime.Now.ToString();
+                        dd["AddedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString();
+                        dsSum.Tables[0].Rows.Add(dd);
+                    }
+
+                }
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster,dsSum);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 return MasterId;
-
 
             }
             catch (Exception ex)
