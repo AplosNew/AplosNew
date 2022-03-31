@@ -126,7 +126,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Service Payable
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult ServicePost(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
         , IEnumerable<VoucherDetailViewModel> serviceDetailGLList

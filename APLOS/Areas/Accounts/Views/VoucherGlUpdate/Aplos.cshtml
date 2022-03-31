@@ -1,79 +1,102 @@
-﻿@*<h3 class="site-heading">Voucher GL Update</h3>*@
-
-<togglable name="Voucher GL Update"></togglable>
+﻿<togglable name="Voucher GL Update"></togglable>
 <div class=" form-horizontal" ng-form="form0">
     <div class="form-elements">
         <div class="col-xs-12 col-sm-4 col-md-4">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Entry Date<sup>*</sup></label>
+            @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entry Date</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" datepicker class="form-control" disabled required>
+                    <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" class="form-control" disabled required>
+                </div>
+            </div>*@
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Entry Date</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text"name="Entry Date" ng-model="voucher.VoucherDate" class="form-control" disabled  capitalize autocomplete="off">
                 </div>
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <div class="select-style">
-                        <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.VoucherTypeId" tabindex="2" ng-change="changeVoucherType(voucher.VoucherTypeId);GetCurrencyExchangeRateList()" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="select-style">
+                    <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.VoucherTypeId" tabindex="2" ng-change="changeVoucherType(voucher.VoucherTypeId);GetCurrencyExchangeRateList()" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
                 </div>
             </div>
+        </div>*@
             <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-                <div class="col-sm-5 show-message" style="padding-right:0px;">
-                    <div class="select-style">
-                        <select id="currencyTransactionId" class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
+                <label class="col-sm-3 control-label">Voucher Type</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" ng-maxlength="100" name="Voucher Type" ng-model="voucher.VoucherType" class="form-control" capitalize autocomplete="off">
                 </div>
-                <div class="col-sm-3 show-message" style="padding-left:0px;">
-                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucher.CurrencyId">
+            </div>
+
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
+            <div class="col-sm-5 show-message" style="padding-right:0px;">
+                <div class="select-style">
+                    <select id="currencyTransactionId" class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3 show-message" style="padding-left:0px;">
+                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucher.CurrencyId">
+            </div>
+        </div>*@
+            <div class="form-group" show-errors>
+                <label class="col-sm-3 control-label">Currency</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" name="Currency" ng-model="voucher.CurrencyCode" class="form-control" disabled  capitalize autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div id="div_PostingDate" class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Posting Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Posting Date</label>
                 <div class="col-sm-8 show-message">
-                    <input required datepicker="checkPostingDate();checkDocDate();" id="postingDate" type="text" name="Posting Date" ng-model="voucher.PostingDate" class="form-control" tabindex="1">
+                    <input id="postingDate" type="text" name="Posting Date" disabled ng-model="voucher.PostingDate" class="form-control">
                 </div>
             </div>
             <div id="div_DocDate" class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Doc Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Doc Date</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Doc Date" ng-model="voucher.DocDate" datepicker="checkDocDate();" required class="form-control" tabindex="3">
+                    <input type="text" name="Doc Date" ng-model="voucher.DocDate"  class="form-control">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
             <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Doc Ref<sup>*</sup></label>
+                <label class="col-sm-3 control-label">Doc Ref</label>
                 <div class="col-sm-9 show-message">
-                    <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="4" required capitalize autocomplete="off">
+                    <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" capitalize autocomplete="off">
                 </div>
             </div>
+            @*<div class="form-group" show-errors>
+            <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+            <div class="col-sm-9 show-message">
+                <div class="select-style">
+                    <select ng-change="entityChange(voucher.EntityId)" id="entityId" class="form-control" name="Entity" ng-model="voucher.EntityId" tabindex="7" required>
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
             <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
+                <label class="col-sm-3 control-label">Entity</label>
                 <div class="col-sm-9 show-message">
-                    <div class="select-style">
-                        <select ng-change="entityChange(voucher.EntityId)" id="entityId" class="form-control" name="Entity" ng-model="voucher.EntityId" tabindex="7" required>
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                        </select>
-                    </div>
+                    <input type="text" name="Entity" ng-model="voucher.Entity" class="form-control"disabled capitalize autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-8 col-md-8">
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Narration<sup>*</sup></label>
+                <label class="col-sm-2 control-label">Narration</label>
                 <div class="col-sm-10 show-message">
-                    <textarea rows="1" type="text" maxlength="250" name="Narration" tabindex="8" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+                    <textarea rows="1" type="text" name="Narration" class="form-control" ng-model="voucher.Narration" disabled capitalize></textarea>
                 </div>
             </div>
         </div>
