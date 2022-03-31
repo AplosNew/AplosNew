@@ -157,12 +157,12 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
 
     $scope.Save = function () {
-        var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
-        $scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
-        if (sumOfmaterialStockList < $scope.selectedRowQty1) {
-            ShowResult("Please select specific GRN", 'failure');
-            return false;
-        }
+        //var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
+        //$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');
+        //if (sumOfmaterialStockList < $scope.selectedRowQty1) {
+        //    ShowResult("Please select specific GRN", 'failure');
+        //    return false;
+        //}
         if ($scope.detailList.length === 0) {
             ShowResult('Please select Atlest one material');
             return false;
@@ -1789,6 +1789,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         }
         return kk;
     };
+    $scope.detailList = [];
     $scope.addMaterialStockNew = function () {
         $scope.detailList = [];
         $scope.specificStockList = [];
@@ -1854,9 +1855,14 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                     }
                 }
             }
+
             for (var L = 0; L < BOqList.length; L++) {
+
                 if ($scope.detailList.length == 0) {
+                    if (BOqList[L].Flag == true) {
+
                     $scope.detailList.push(BOqList[L]);
+                    }
                 }
                 else {
                     for (var j = 0; j < $scope.detailList.length; j++) {
@@ -1865,14 +1871,14 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                             $scope.detailList[j].FirstCharacteristicsValueId === BOqList[L].FirstCharacteristicsValueId &&
                             $scope.detailList[j].SecondCharacteristicsValueId === BOqList[L].SecondCharacteristicsValueId &&
                             $scope.detailList[j].ThirdCharacteristicsValueId === BOqList[L].ThirdCharacteristicsValueId
+                            && $scope.detailList[j].Flag === BOqList[L].Flag
                         ) {
                             var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
                             $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));
                             trnqty = 0;
                         }
-                        else {
+                        else if (BOqList[L].Flag == true){
                             $scope.detailList.push(BOqList[L]);
-
                         }
                     }
                 }

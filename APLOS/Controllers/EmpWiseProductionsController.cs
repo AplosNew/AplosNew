@@ -75,11 +75,11 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
-        public IHttpActionResult GetOperation(string ProdOrderId)
+        public IHttpActionResult GetOperation(string ProdOrderId,string ProcessId)
         {
             try
             {
-                var result = _empOpt.GetOperation(ProdOrderId);
+                var result = _empOpt.GetOperation(ProdOrderId,ProcessId);
                 return Json(result);
             }
             catch (Exception ex)
