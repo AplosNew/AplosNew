@@ -4,40 +4,35 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using Aplos;
+
 using Aplos.Properties;
 using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
 using Library.Security.Core;
 
-
-namespace Aplos.Areas.QMS.Controllers
+namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class IssueController : Controller
+    public class PerformanceAttributeMasterController : Controller
     {
-        string TableName = "HKP.Issue";
-        IssueHKPService issueHKPService = new IssueHKPService();
+        string TableName = "dbo.PerformanceAttributeMaster";
+        PerformaceAttributeMasterService pa = new PerformaceAttributeMasterService();
         private readonly ISqlRepository _sqlRepository;
-        public IssueController(ISqlRepository R)
+        public PerformanceAttributeMasterController(ISqlRepository R)
         { _sqlRepository = R; }
-
-        // GET: Productions/Issue
+        // GET: HumanResource/PerformanceAttributeMaster
         public ActionResult Aplos()
         {
             return View();
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetCbo()
-        {
-            return Json(issueHKPService.GetCbo(), JsonRequestBehavior.AllowGet);
-        }
+       
 
         [Authorize, HttpPost]
         public ActionResult Get(string Id)
         {
             try
             {
-                var _master = issueHKPService.Get(Id);
+                var _master = pa.Get(Id);
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -50,27 +45,16 @@ namespace Aplos.Areas.QMS.Controllers
 
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
-        {
-            return Json(issueHKPService.GetList(column, value), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
-
+        
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
-                string ret = issueHKPService.Create(data);
+                string ret = pa.Create(data);
                 if (ret == "Success")
                 {
-                    return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                    return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
                 }
                 else
                 {
@@ -91,11 +75,11 @@ namespace Aplos.Areas.QMS.Controllers
             try
             {
 
-                string ret = issueHKPService.Delete(id);
+                string ret = pa.Delete(id);
 
                 if (ret == "Success")
                 {
-                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
@@ -111,15 +95,6 @@ namespace Aplos.Areas.QMS.Controllers
             }
 
 
-        }
-
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
         }
     }
 }
