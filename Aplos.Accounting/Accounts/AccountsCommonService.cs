@@ -777,11 +777,33 @@ namespace Library.Accounting.Accounts
         #region getVoucherGLDataList
         public List<Dictionary<string, object>> getVoucherGLDataList(string companyGroupId, string companyId, string plantId, string voucherNo)
         {
-            var sql = @"SELECTV.Id, V.VoucherDate, V.PostingDate, V.DocRefNo, V.VoucherTypeId, V.CurrencyId, V.DocDate, V.EntityId,C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration                                    FROM TRN.[Voucher] AS V                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId                                    ) AS VD ON VD.VoucherId=V.Id
-where VoucherNo='" + voucherNo + "' and CompanyGroupId='" + companyGroupId + "' and CompanyId='" + companyId + "' and PlantId='" + plantId + @"' AND SourceType IN ('VendorInvoice','VendorPayment') ";
+            var sql = @"SELECT
+V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-MMM-yyyy') PostingDate, V.DocRefNo
+, V.VoucherTypeId,vt.UserName VoucherType
+, V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
+C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity
+                                    FROM TRN.[Voucher] AS V
+                                    LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
+                                    LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
+                                    LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
+                                    LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
+                                    ) AS VD ON VD.VoucherId=V.Id
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','VendorPayment') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
+
+
+        public List<Dictionary<string, object>> getVoucherData(string voucherId)
+        {
+            var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
+                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.PartyId IS NOT NULL AND VD.VoucherId='" + voucherId + @"'";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
+
         #endregion getVoucherGLDataList
     }
 }

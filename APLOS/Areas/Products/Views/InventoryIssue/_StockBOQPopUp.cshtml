@@ -17,6 +17,10 @@
                                     <th>IsOpeningBalance</th>
                                     <th>Vendor</th>
                                     <th>Entry Date</th>
+                                    <th>Material</th>
+                                    <th>Article</th>
+                                    <th>SKU1</th>
+                                    <th>SKU2</th>
                                     <th>PO No</th>
                                     <th>BOQ No</th>
                                     <th>GRN Date</th>
@@ -45,7 +49,6 @@
                                     <th>Approved</th>
                                     <th>Posting</th>
                                     <th>IssueByUoM</th>
-                                    @*<th class="col-md-3">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>*@
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,6 +64,10 @@
                                     <td>{{x.IsOpeningBalance}}</td>
                                     <td>{{x.PartyCode}}-{{x.PartyName}}</td>
                                     <td>{{x.ReceiveDate}}</td>
+                                    <td>{{x.MaterialMasterName}}</td>
+                                    <td>{{x.ArticleName}}</td>
+                                    <td>{{x.FirstCharacteristicsValueId}}</td>
+                                    <td>{{x.SecondCharacteristicsValueId}}</td>
                                     <td>{{x.PONo}}</td>
                                     <td>{{x.BOQDetailId}}</td>
                                     <td>{{x.GRNDate}}</td>
@@ -93,15 +100,6 @@
                                     <td>{{x.IsApproved}}</td>
                                     <td>{{x.IsPosting}}</td>
                                     <td>{{x.IssueByUoM}}</td>
-
-
-                                    @*<td class="text-right" colspan="3">
-            <div class="input-group">
-                <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right"  ng-disabled="productNew.Id!=null" width="200" />
-                <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
-                <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
-            </div>
-        </td>*@
                                 </tr>
                                 <tr>
                                     <td colspan="8" class="text-right"><strong>Total : </strong></td>

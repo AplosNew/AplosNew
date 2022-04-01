@@ -529,7 +529,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult PostMasterOrderSales(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
             , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList)
         {

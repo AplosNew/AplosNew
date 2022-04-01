@@ -126,7 +126,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Service Payable
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult ServicePost(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
         , IEnumerable<VoucherDetailViewModel> serviceDetailGLList
@@ -245,7 +245,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateShortagePayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -277,7 +277,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateRejectPayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -306,7 +306,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Inventory Sales Posting
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult PostInventorySales(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
    , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
    , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, bool IsInventorySalesBook, OtherInvoice otherInvoiceVM)
@@ -325,7 +325,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult InventorySalesSingleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
          , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
          , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
@@ -362,7 +362,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(new { Message = AplosMessage.Insert });
         }
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult InventorySalesMultipleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM)
@@ -441,7 +441,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #endregion
         #region Inventory Sales Return
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult InventorySalesReturnMultipleJournalPosting(string receiveId, string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
         , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<VoucherDetailViewModel> inventoryJVList, OtherInvoice otherInvoiceVM)
@@ -499,7 +499,7 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion
         #region Inventory Transfer Posting
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult PostInventoryTransfer(string receiveId, VoucherViewModel voucherVM
        , IEnumerable<VoucherDetailViewModel> fromPlantInventoryTransferJVList
        , IEnumerable<VoucherDetailViewModel> toPlantInventoryTransferJVList
@@ -580,7 +580,7 @@ namespace Aplos.Areas.Accounts.Controllers
         #endregion
 
         #region Inventory OutSource Received
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult InventoryOutSourceReceivedPost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> inventoryJobWorkWIPList
         , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList
         , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
