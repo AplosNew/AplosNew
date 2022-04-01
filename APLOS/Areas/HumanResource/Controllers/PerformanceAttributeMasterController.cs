@@ -14,12 +14,18 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class PerformanceAttributeMasterController : Controller
     {
-        string TableName = "dbo.PerformanceAttributeMaster";
-        PerformaceAttributeMasterService pa = new PerformaceAttributeMasterService();
+        //string TableName = "dbo.PerformanceAttributeMaster";
+
+        PerformanceAttributeMasterService pa = new PerformanceAttributeMasterService();
+       
         private readonly ISqlRepository _sqlRepository;
         public PerformanceAttributeMasterController(ISqlRepository R)
-        { _sqlRepository = R; }
-        // GET: HumanResource/PerformanceAttributeMaster
+        {
+            _sqlRepository = R;
+            pa= new PerformanceAttributeMasterService();
+        
+        }
+      
         public ActionResult Aplos()
         {
             return View();
