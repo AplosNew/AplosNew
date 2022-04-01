@@ -603,10 +603,10 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
-    public class PerformaceAttributeMasterService
+    public class PerformanceAttributeMasterService
     {
         ISqlRepository _sqlRepository;
-        public PerformaceAttributeMasterService()
+        public PerformanceAttributeMasterService()
         { _sqlRepository = new SqlRepository(); }
 
         
