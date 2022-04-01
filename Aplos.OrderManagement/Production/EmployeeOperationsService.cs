@@ -193,8 +193,14 @@ namespace Library.OrderManagement.Production
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableName = "dbo.OperationWiseEmployees";
 
+                var yesterday = DateTime.Today.AddDays(-1);
+                if (Convert.ToDateTime(Date) < yesterday)
+                {
+                    throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                }
+
                 #region Detail
-                
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
 
