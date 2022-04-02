@@ -823,6 +823,21 @@ namespace Aplos.Areas.Products.Controllers
         }
         #endregion
 
+        #region PurchaseOrderBOQ Report 
+        [HttpGet, Authorize]
+        public ActionResult GePurchaseOrderBOQReport(string purchaseOrderBOQId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            Library.MaterialManagement.InventoryManagements.POBOQReportService Report = new Library.MaterialManagement.InventoryManagements.POBOQReportService();
+            Report.GePurchaseOrderBOQReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
+
+            return null;
+
+        }
+        #endregion
+
+
         #region PurchaseAcceptance Report 
         [HttpGet, Authorize]
         public ActionResult PurchaseAcceptanceReport(string PDACId)

@@ -39,11 +39,28 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = accountsCommonService.getVoucherGLDataList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, voucherNo), Error = false }, JsonRequestBehavior.AllowGet);
         }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetJournalVoucherDetailData(string voucherId)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsCommonService.getVoucherData(voucherId), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetJournalVoucherDetailList(string voucherId)
         {
             return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
         }
-    
+
+        [HttpGet, Authorize]
+        public JsonResult Data(string voucherId)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            return Json(accountsCommonService.getVoucherData(voucherId), JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

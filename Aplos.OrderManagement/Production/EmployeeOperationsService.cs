@@ -193,8 +193,14 @@ namespace Library.OrderManagement.Production
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableName = "dbo.OperationWiseEmployees";
 
+                var yesterday = DateTime.Today.AddDays(-1);
+                if (Convert.ToDateTime(Date) < yesterday)
+                {
+                    throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                }
+
                 #region Detail
-                
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
 
@@ -250,8 +256,8 @@ namespace Library.OrderManagement.Production
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data[i]["Id"] = _Id;
-                    dr["Id"] = _Id;
+                    data[i]["Id"] = "OP"+_Id;
+                    dr["Id"] = "OP"+_Id;
                     dr["ProcessId"] = ProcessId;
                     dr["ShiftId"] = ShiftId;
                     dr["WorkCenterId"] = WorkCenter;
@@ -293,8 +299,8 @@ namespace Library.OrderManagement.Production
                     {
                         DataRow dd = dsSum.Tables[0].NewRow();
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("dbo.OperationWiseEmployeesSummary", out _SId);
-                        dd["Id"] = _SId;
+                        genid.GenID("dbo.EmployeeOperationWip", out _SId);
+                        dd["Id"] = "OW"+ _SId;
                         dd["ProductionOrderId"] = POId;
                         dd["OperationVariationId"] = data[i]["OperationId"].ToString();
                         dd["OperationSequence"] = data[i]["Sequence"].ToString();
@@ -350,7 +356,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         DataRow dr = dsPlan.Tables[0].NewRow();
-                        dr["Id"] = (int.Parse(dsMaster.Tables[0].Rows[i]["Id"].ToString()) + i).ToString();
+                        dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
                         dr["Date"] = Convert.ToDateTime(Date);
                         dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
                         dr["MasterOperationId"] = data[i]["MasterOperationId"];
@@ -358,10 +364,10 @@ namespace Library.OrderManagement.Production
                         dr["ProductionOrderId"] = POId;
                         dr["Qty"] = clsStaticInfo.dbl(data[i]["Qty"].ToString());
                         dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
                         dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
                         dsPlan.Tables[0].Rows.Add(dr);
                     }
@@ -1040,15 +1046,15 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-        public IEnumerable<object> GetOperation(string ProdOrderId)
+        public IEnumerable<object> GetOperation(string ProdOrderId,string ProcessId)
         {
             try
             {
-                var Sql = @"select OP.ID as Value,OP.UserName as Text,op.Code,bt.Sequence from mst.OperationVariation OP
+                var Sql = @"select OP.ID as Value,OP.UserName as Text,op.Code,bt.Sequence,OP.OperationMasterId from mst.OperationVariation OP
                             join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                             join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
                             join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
-                            where pb.ProductionOrderId='" + ProdOrderId + "'";
+                            where pb.ProductionOrderId='"+ProdOrderId+@"' AND PT.ProcessId='"+ProcessId+"'ORDER BY BT.Sequence";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception ex)
@@ -1093,7 +1099,9 @@ namespace Library.OrderManagement.Production
 
             try
             {
-                DataSet dsMaster;
+                #region 1st Table Data Filling
+
+                DataSet dsMaster, dsSum, dsPlan;
                 string TableName = "dbo.OperationWiseEmployees";
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -1105,6 +1113,7 @@ namespace Library.OrderManagement.Production
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
 
                 string _Id = "";
+                string OpSeq = "",OpMasterId="";
 
                 foreach (DailyProduction item in DataToSave)
                 {
@@ -1115,6 +1124,8 @@ namespace Library.OrderManagement.Production
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
 
+                        OpSeq = item.OperationSeq;
+                        OpMasterId = item.OperationMasterId;
                         dr["Id"] ="OP"+ _Id;
                         dr["ProcessId"] = item.ProcessId;
                         dr["WorkCenterId"] = item.WorkCenterId;
@@ -1126,7 +1137,7 @@ namespace Library.OrderManagement.Production
                         dr["OperationVariationId"] = item.OperationVariationId;
                         dr["Remarks"] = item.Remarks;
                         dr["EmployeeId"] = item.EmployeeId;
-                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedBy"] = item.AddedBy; 
                         dr["AddedDate"] = DateTime.Now.ToString();
                         dr["AddedFromIP"] = item.AddedFromIP;
 
@@ -1134,12 +1145,107 @@ namespace Library.OrderManagement.Production
                     }
                 }
 
+                #endregion
+
+                #region 2nd Table Data Filling  
+
+                ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
+                c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + items[0].ProductionOrderId + "' and ProcessId ='" + items[0].ProcessId + "' order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
+                string _SId = "";
+
+                DataTable dtSum = dsSum.Tables[0];
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsSum.Tables[0].DefaultView.RowFilter = @"OperationVariationId='" +dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString() + "' and OperationSequence ='" + OpSeq + "'";
+                    if (dsSum.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsSum.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsSum.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsSum.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dsSum.Tables[0].DefaultView[0]["UpdatedBy"]= dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dsSum.Tables[0].DefaultView[0]["UpdatedDate"] = DateTime.Now.ToString();
+                        dsSum.Tables[0].DefaultView[0]["UpdatedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString(); 
+                        dsSum.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dd = dsSum.Tables[0].NewRow();
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("dbo.EmployeeOperationWip", out _SId);
+                        dd["Id"] ="OW"+ _SId;
+                        dd["ProductionOrderId"] = dsMaster.Tables[0].Rows[i]["ProductionOrderId"].ToString();
+                        dd["OperationVariationId"] = dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString();
+                        dd["OperationSequence"] = OpSeq;
+                        dd["ProcessId"] = dsMaster.Tables[0].Rows[i]["ProcessId"].ToString();
+                        dd["Qty"] = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dd["AddedBy"] = dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dd["AddedDate"] = DateTime.Now.ToString();
+                        dd["AddedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString();
+                        dsSum.Tables[0].Rows.Add(dd);
+                    }
+
+                }
+
+                #endregion
+
+                #region 3rd Table Data Filling 
+
+                for (int i = 0; i < dsSum.Tables[0].Rows.Count; i++)
+                {
+                    if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) == 1)
+                    {
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        dsSum.Tables[0].Rows[i]["WIP"] = 0;
+                        dsSum.Tables[0].Rows[i].EndEdit();
+                    }
+                    else
+                    {                      
+                        dsSum.Tables[0].Rows[i].BeginEdit();
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i].EndEdit();
+                    }
+                }
+
+                DateTime Datex = Convert.ToDateTime(items[0].Date);
+                ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
+                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Datex.ToString("dd-MMM-yyyy") + "' and ProductionOrderId='" + items[0].ProductionOrderId + "'", out dsPlan, false, "1");
+
+                for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
+                {
+                    dsPlan.Tables[0].DefaultView.RowFilter = @"EmployeeId = '" + dsMaster.Tables[0].Rows[i]["EmployeeId"] + "' and OperationVariationId='" + dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString() + "'";
+                    if (dsPlan.Tables[0].DefaultView.Count > 0)
+                    {
+                        dsPlan.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsPlan.Tables[0].DefaultView[0]["Qty"] = clsStaticInfo.dbl(dsPlan.Tables[0].DefaultView[0]["Qty"].ToString()) + clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dsPlan.Tables[0].DefaultView[0]["UpdatedBy"] = dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dsPlan.Tables[0].DefaultView[0]["UpdatedDate"] = DateTime.Now.ToString();
+                        dsPlan.Tables[0].DefaultView[0]["UpdatedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString();
+                        dsPlan.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else
+                    {
+                        DataRow dr = dsPlan.Tables[0].NewRow();
+                        dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
+                        dr["Date"] = Convert.ToDateTime(dsMaster.Tables[0].Rows[i]["Date"].ToString());
+                        dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
+                        dr["MasterOperationId"] = OpMasterId.ToString(); 
+                        dr["OperationVariationId"] = dsMaster.Tables[0].Rows[i]["OperationVariationId"].ToString();
+                        dr["ProductionOrderId"] = dsMaster.Tables[0].Rows[i]["ProductionOrderId"].ToString();
+                        dr["Qty"] = clsStaticInfo.dbl(dsMaster.Tables[0].Rows[i]["Qty"].ToString());
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedBy"] = dsMaster.Tables[0].Rows[i]["AddedBy"].ToString();
+                        dr["AddedFromIP"] = dsMaster.Tables[0].Rows[i]["AddedFromIP"].ToString();
+                        dsPlan.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                #endregion
+
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster,dsSum,dsPlan);
                 string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 return MasterId;
-
 
             }
             catch (Exception ex)
@@ -1177,6 +1283,23 @@ namespace Library.OrderManagement.Production
 
 
         }
+
+        public void GetQty(string ProcessId,string PO,string Seq, out DataSet ds)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sqlx = @"select *  from  dbo.EmployeeOperationWip where 
+                ProductionOrderId = '"+PO+"' and ProcessId ='"+ProcessId+"' and OperationSequence='"+Seq+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlx, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }      
 
         public IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkId, string PoId, string OPId)
         {
