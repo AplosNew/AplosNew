@@ -1811,6 +1811,18 @@ namespace Aplos.Areas.Accounts.Controllers
                                                 _drPC += _crPC * -1;
                                                 _crPC = 0.00;
                                             }
+                                            var _pDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["PDRcumulative"].ToString());
+                                            var _pCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["PCRcumulative"].ToString());
+                                            if (_pDrPC < 0)
+                                            {
+                                                _pCrPC += _pDrPC * -1;
+                                                _pDrPC = 0.00;
+                                            }
+                                            if (_pCrPC < 0)
+                                            {
+                                                _pCrPC += _pCrPC * -1;
+                                                _pCrPC = 0.00;
+                                            }
                                             var _cbDrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBDRcumulative"].ToString());
                                             var _cbCrPC = clsStaticInfo.dbl(dtActDrCr.Rows[0]["CBCRcumulative"].ToString());
                                             if (_cbDrPC < 0)
@@ -1825,8 +1837,10 @@ namespace Aplos.Areas.Accounts.Controllers
                                             }
                                             oRU.SetText(ref sheet, row, obDebit, _obDrPC);
                                             oRU.SetText(ref sheet, row, obCredit, _obCrPC);
-                                            oRU.SetText(ref sheet, row, Debit, _drPC);
-                                            oRU.SetText(ref sheet, row, Credit, _crPC);
+                                            //oRU.SetText(ref sheet, row, Debit, _drPC);
+                                            //oRU.SetText(ref sheet, row, Credit, _crPC);
+                                            oRU.SetText(ref sheet, row, Debit, _pDrPC);
+                                            oRU.SetText(ref sheet, row, Credit, _pCrPC);
                                             oRU.SetText(ref sheet, row, cbDebit, _cbDrPC);
                                             oRU.SetText(ref sheet, row, cbCredit, _cbCrPC);
                                         }
