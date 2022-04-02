@@ -496,6 +496,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('IssueController', IssueController)
     .controller('IssueMasterController', IssueMasterController)
     .controller('PerformanceAttributeMasterController', PerformanceAttributeMasterController)
+    .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
 
 
     .config(accountConfig)
