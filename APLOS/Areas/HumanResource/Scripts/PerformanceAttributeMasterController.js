@@ -4,8 +4,8 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
     $rootScope.title = 'Performance Attribute Master';
     $scope.Action = 'Save';
     $scope.path = 'HumanResource/PerformanceAttributeMaster/';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.saveUrl = $scope.path + 'Create';
+    $scope.deleteUrl = $scope.path + 'Delete/';
    
     $scope.ModelTemp = {
         Id: null,

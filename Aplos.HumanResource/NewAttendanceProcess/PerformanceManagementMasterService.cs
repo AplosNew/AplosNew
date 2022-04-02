@@ -607,7 +607,9 @@ namespace Library.HumanResource.NewAttendanceProcess
     {
         ISqlRepository _sqlRepository;
         public PerformanceAttributeMasterService()
-        { _sqlRepository = new SqlRepository(); }
+        { 
+            _sqlRepository = new SqlRepository(); 
+        }
 
         
         public IEnumerable<object> Get(string Id)
