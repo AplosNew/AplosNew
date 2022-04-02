@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Library.OrderManagement.Production
 {
-    class IssueMasterHKPService
+    public class IssueMasterHKPService
     {
         ISqlRepository _sqlRepository;
         public IssueMasterHKPService()

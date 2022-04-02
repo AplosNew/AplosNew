@@ -377,7 +377,7 @@ namespace Aplos.Areas.Productions.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "WasteReport";
+                workbook.Worksheets[0].Name = "Waste Report";
                 sheet = workbook.Worksheets[0];
 
                 DataTable data= WasteReportSQL(Id);
@@ -614,14 +614,14 @@ namespace Aplos.Areas.Productions.Controllers
                 }
                 //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
                 //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.WrapText = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Meeting Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Waste Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;

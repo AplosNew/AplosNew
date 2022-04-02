@@ -114,7 +114,9 @@
         .when('/issue-master', {
             templateUrl: 'QMS/IssueMaster/Aplos',
             controller: 'IssueMasterController'
-        })  
+        })
+
+        
 
 }
 qmsConfig.$inject = ['$routeProvider', '$locationProvider'];

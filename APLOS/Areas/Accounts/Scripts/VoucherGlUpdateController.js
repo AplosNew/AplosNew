@@ -7,13 +7,6 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
     $scope.saveUrl = $scope.path + 'create';
-    var dt = new Date();
-
-    //$scope.voucher = {
-    //    Id: null,
-    //    VoucherNo: null
-    //};
-
     $scope.voucher = {
         Id: null,
         PartyId: null,
@@ -102,7 +95,7 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.getJournalVoucherDetailList = function (id) {
         $http({
             method: "get",
-            url: "accounts/VoucherGlUpdate/GetJournalVoucherDetailList?voucherId=" + id
+            url: "accounts/VoucherGlUpdate/Data?voucherId=" + id
         }).then(function successCallback(response) {
             $scope.voucherDetailList = response.data;
         });
@@ -122,6 +115,40 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
             $scope.currencyExchangeRate = null;
         }
     };
+
+
+    $scope.glListParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "GLGeneralInfoName",
+        searchBy: "GLGeneralInfoName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.popUpGL = function () {
+        $scope.customerInvoiceGLList = [];
+        baseService.setCurrentPage("cOAICodeList");
+        $scope.GetCOAICodeListData = function (pageno) {
+            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+                .then(function (result) {
+                    $scope.cOAICodeList = result.Rows;
+                    $scope.glListParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector("#GLPopUp")).modal("show");
+        $scope.GetCOAICodeListData();
+    };
+
+    $scope.closeCOAICodeListPopUp = function () {
+        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+    };
+
 };
 
 

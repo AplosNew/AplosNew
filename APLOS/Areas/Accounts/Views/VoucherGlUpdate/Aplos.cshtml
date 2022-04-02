@@ -2,68 +2,42 @@
 <div class=" form-horizontal" ng-form="form0">
     <div class="form-elements">
         <div class="col-xs-12 col-sm-4 col-md-4">
-            @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Entry Date</label>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Voucher No.</label>
                 <div class="col-sm-8 show-message">
-                    <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" class="form-control" disabled required>
+                    <input type="text" ng-maxlength="100" name="Voucher Type" ng-model="voucher.Id" class="form-control" disabled capitalize autocomplete="off">
                 </div>
-            </div>*@
+            </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Entry Date</label>
-                <div class="col-sm-9 show-message">
-                    <input type="text"name="Entry Date" ng-model="voucher.VoucherDate" class="form-control" disabled  capitalize autocomplete="off">
+                <label class="col-sm-4 control-label">Voucher Type</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" ng-maxlength="100" name="Voucher Type" ng-model="voucher.VoucherType" class="form-control" disabled capitalize autocomplete="off">
                 </div>
             </div>
-            @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Voucher Type<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select ng-disabled="voucherTypeList.length==1" class="form-control" name="Voucher Type" ng-model="voucher.VoucherTypeId" tabindex="2" ng-change="changeVoucherType(voucher.VoucherTypeId);GetCurrencyExchangeRateList()" required>
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in voucherTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
             <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Voucher Type</label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" ng-maxlength="100" name="Voucher Type" ng-model="voucher.VoucherType" class="form-control" capitalize autocomplete="off">
-                </div>
-            </div>
-
-            @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Currency<sup>*</sup></label>
-            <div class="col-sm-5 show-message" style="padding-right:0px;">
-                <div class="select-style">
-                    <select id="currencyTransactionId" class="form-control" name="CurrencyTransaction" ng-model="voucher.CurrencyId" ng-change="GetCurrencyExchangeRateList();" required>
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-3 show-message" style="padding-left:0px;">
-                <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucher.CurrencyId">
-            </div>
-        </div>*@
-            <div class="form-group" show-errors>
-                <label class="col-sm-3 control-label">Currency</label>
-                <div class="col-sm-9 show-message">
-                    <input type="text" name="Currency" ng-model="voucher.CurrencyCode" class="form-control" disabled  capitalize autocomplete="off">
+                <label class="col-sm-4 control-label">Currency</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Currency" ng-model="voucher.CurrencyCode" class="form-control" disabled capitalize autocomplete="off">
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-4 col-md-4">
+            <div id="div_DocDate" class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Doc Date</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Doc Date" ng-model="voucher.DocDate" disabled class="form-control">
+                </div>
+            </div>
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Entry Date</label>
+                <div class="col-sm-8 show-message">
+                    <input type="text" name="Entry Date" ng-model="voucher.VoucherDate" class="form-control" disabled capitalize autocomplete="off">
+                </div>
+            </div>
             <div id="div_PostingDate" class="form-group" show-errors>
                 <label class="col-sm-4 control-label">Posting Date</label>
                 <div class="col-sm-8 show-message">
                     <input id="postingDate" type="text" name="Posting Date" disabled ng-model="voucher.PostingDate" class="form-control">
-                </div>
-            </div>
-            <div id="div_DocDate" class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Doc Date</label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Doc Date" ng-model="voucher.DocDate"  class="form-control">
                 </div>
             </div>
         </div>
@@ -71,39 +45,34 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-3 control-label">Doc Ref</label>
                 <div class="col-sm-9 show-message">
-                    <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" capitalize autocomplete="off">
+                    <input type="text" ng-maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" disabled class="form-control" capitalize autocomplete="off">
                 </div>
             </div>
-            @*<div class="form-group" show-errors>
-            <label class="col-sm-3 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <div class="select-style">
-                    <select ng-change="entityChange(voucher.EntityId)" id="entityId" class="form-control" name="Entity" ng-model="voucher.EntityId" tabindex="7" required>
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-3 control-label">Entity</label>
                 <div class="col-sm-9 show-message">
-                    <input type="text" name="Entity" ng-model="voucher.Entity" class="form-control"disabled capitalize autocomplete="off">
+                    <input type="text" name="Entity" ng-model="voucher.Entity" class="form-control" disabled capitalize autocomplete="off">
                 </div>
             </div>
-        </div>
-        <div class="col-xs-12 col-sm-8 col-md-8">
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Narration</label>
-                <div class="col-sm-10 show-message">
-                    <textarea rows="1" type="text" name="Narration" class="form-control" ng-model="voucher.Narration" disabled capitalize></textarea>
+                <label class="col-sm-3 control-label">Narration</label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" name="Narration" ng-model="voucher.Narration" class="form-control" disabled capitalize autocomplete="off">
                 </div>
             </div>
         </div>
+        @*<div class="col-xs-12 col-sm-8 col-md-8">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Narration</label>
+                    <div class="col-sm-10 show-message">
+                        <textarea rows="1" type="text" name="Narration" class="form-control" ng-model="voucher.Narration" disabled capitalize></textarea>
+                    </div>
+                </div>
+            </div>*@
         <div class="clearfix"></div>
         @*<ul class="list-inline">
-            <li><button class="btn single-btn" ng-disabled="glDisabled" ng-click="GetCOAICodeList()" tabindex=""><i class="glyphicon glyphicon-plus"></i> Select GL</button></li>
-        </ul>*@
+                <li><button class="btn single-btn" ng-disabled="glDisabled" ng-click="GetCOAICodeList()" tabindex=""><i class="glyphicon glyphicon-plus"></i> Select GL</button></li>
+            </ul>*@
         <div class="clearfix"></div>
         <div class="table-responsive modal-table ">
             <table class="table table-striped table-bordered">
@@ -115,7 +84,7 @@
                         <th>Entity</th>
                         <th class="text-center">Dr</th>
                         <th class="text-center">Cr</th>
-                        <th class="text-right">Action</th>
+                        <th class="text-right"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,20 +92,14 @@
                         <td>{{x.GLGeneralInfoCode}} - {{x.GLGeneralInfoName}}</td>
                         <td>{{x.BudgetName}}</td>
                         <td>{{x.ActivityName}}</td>
-                        <td>
-                            <div class="select-style">
-                                <select id="entityId" class="form-control" tabindex="21" name="entity" ng-model="x.EntityId">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </td>
-
-                        <td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
-                        <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>
+                        <td>{{x.Entity}}</td>
+                        <td>{{x.DrAmount}}</td>
+                        <td>{{x.CrAmount}}</td>
+                        @*<td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
+                            <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>*@
                         <td class="text-right">
-                            <button ng-click="removeRow($index)" data-toggle="modal" ng-disabled="currencyDisable" class="btn btn-action tooltip-here" data-placement="top" title="Remove">
-                                <i class="glyphicon glyphicon-remove"></i>
+                            <button ng-click="popUpGL()" data-toggle="modal" @*ng-disabled="currencyDisable"*@ class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                                <i class="glyphicon glyphicon-info-sign"></i>
                             </button>
                         </td>
                     </tr>
@@ -155,7 +118,7 @@
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li><button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>
+                @*<li ng-hide="voucher.Id==null"><button ng-click="confirmPost(voucher.Id);" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Post</button></li>*@
                 <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
             </ul>
         </div>
@@ -179,7 +142,7 @@
             <div class="col-md-12 col-sm-2 col-md-2">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li><button ng-click="getVoucherData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                        <li><button ng-click="getVoucherData();" ng-enter="getVoucherData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
                     </ul>
                 </div>
             </div>
@@ -213,6 +176,7 @@
         </div>
     </div>
 </div>
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 <confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="park(voucherId,sourceType)"></confirm-archive-generic>
 
 

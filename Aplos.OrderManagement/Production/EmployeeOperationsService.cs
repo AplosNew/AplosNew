@@ -193,8 +193,14 @@ namespace Library.OrderManagement.Production
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string TableName = "dbo.OperationWiseEmployees";
 
+                var yesterday = DateTime.Today.AddDays(-1);
+                if (Convert.ToDateTime(Date) < yesterday)
+                {
+                    throw new Exception("Please select Date properly! Today or Yesterday's data can be added/updated.");
+                }
+
                 #region Detail
-                
+
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select *  from dbo.OperationWiseEmployees where 1 = 2 ", out dsMaster, false, "1");
 
@@ -1193,23 +1199,16 @@ namespace Library.OrderManagement.Production
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                     else
-                    {
-                        double prev= clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["OperationSequence"].ToString()) - 1;
-                        double prevQty=0;
-                        DataSet QtyFinder;
-                        GetQty(dsSum.Tables[0].Rows[i]["ProcessId"].ToString(), dsSum.Tables[0].Rows[i]["ProductionOrderId"].ToString(), prev.ToString(), out QtyFinder);
-                        if(QtyFinder.Tables[0].Rows.Count>0)
-                        {
-                            prevQty = clsStaticInfo.dbl(QtyFinder.Tables[0].Rows[0]["Qty"].ToString());
-                        }
+                    {                      
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - prevQty;
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
 
+                DateTime Datex = Convert.ToDateTime(items[0].Date);
                 ConnectionManager.DAL.ConManager co = new ConnectionManager.DAL.ConManager("1");
-                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + items[0].Date + "' and ProductionOrderId='" + items[0].ProductionOrderId + "'", out dsPlan, false, "1");
+                co.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeWiseProductionProcessing where Date='" + Datex.ToString("dd-MMM-yyyy") + "' and ProductionOrderId='" + items[0].ProductionOrderId + "'", out dsPlan, false, "1");
 
                 for (int i = 0; i < dsMaster.Tables[0].Rows.Count; i++)
                 {
@@ -1226,7 +1225,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         DataRow dr = dsPlan.Tables[0].NewRow();
-                        dr["Id"] = (int.Parse(dsMaster.Tables[0].Rows[i]["Id"].ToString()) + i).ToString();
+                        dr["Id"] = dsMaster.Tables[0].Rows[i]["Id"].ToString() + i.ToString();
                         dr["Date"] = Convert.ToDateTime(dsMaster.Tables[0].Rows[i]["Date"].ToString());
                         dr["EmployeeId"] = dsMaster.Tables[0].Rows[i]["EmployeeId"];
                         dr["MasterOperationId"] = OpMasterId.ToString(); 
