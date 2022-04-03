@@ -27,7 +27,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct ope.WorkCenterId as Value,wk.UserName as Text from dbo.OperationWiseEmployee ope 
+                var Sql = @"select distinct ope.WorkCenterId as Value,wk.UserName as Text from dbo.OperationWiseEmployees ope 
                             left join scs.WorkCenterMaster wk on ope.WorkCenterId=wk.Id";
                 //where ope.AddedBy='" + AddedBy + "'
                 return _sqlRepository.GetDataCollection(Sql, null);
@@ -747,7 +747,7 @@ namespace Library.OrderManagement.Production
                 for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                 {
                     dtApd.DefaultView.RowFilter = @"EmpSystemId ='"+dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString()+"'";
-                    double Dur = 500.0;
+                    double Dur = 1.0;
                     if (dtApd.DefaultView.Count > 0)
                     {
                         Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
