@@ -116,7 +116,28 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         }
     };
 
-
+    $scope.searchglByList = [
+        {
+            "name": "GL Code",
+            "value": "GLGeneralInfoCode"
+        },
+        {
+            "name": "GL Name",
+            "value": "GLGeneralInfoName"
+        },
+        {
+            "name": "Budget",
+            "value": "BudgetName"
+        },
+        {
+            "name": "Activity",
+            "value": "ActivityName"
+        },
+        {
+            "name": "Ref No",
+            "value": "RefNo"
+        }
+    ];
     $scope.glListParameters = {
         limit: 10,
         offset: 0,
