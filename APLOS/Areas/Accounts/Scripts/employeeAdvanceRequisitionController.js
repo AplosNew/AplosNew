@@ -154,8 +154,12 @@ function employeeAdvanceRequisitionController(cboService, commonMessage, $scope,
         AdvanceType: "General"
     };
     $scope.model = Object.assign({}, $scope.modelMain);
-    cboService.getCompanyGroupCurrencyCbo(null, function (result) {
+
+ 
+
+    cboService.getCurrencyCboForPotal(null, function (result) {
         $scope.currencyList = result;
+
         $scope.model.CurrencyId = $scope.selectBaseCurrency();
     });
 

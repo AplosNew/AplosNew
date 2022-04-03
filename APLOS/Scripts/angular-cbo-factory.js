@@ -58,6 +58,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , getParallelCurrency: getParallelCurrency
         , getCboParallelCurrency: getCboParallelCurrency
         , getCompanyGroupCurrencyCbo: getCompanyGroupCurrencyCbo
+        , getCurrencyCboForPotal: getCurrencyCboForPotal
         , getCboUnit: getCboUnit
         , getCboUnitByCompanyGroup: getCboUnitByCompanyGroup
         , getCboUnitByCompany: getCboUnitByCompany
@@ -1287,6 +1288,16 @@ function cboService($http, $window, $rootScope, baseService) {
                 companyGroupId = null;
         }
         base('currencies/companygroupcurrency/getcbo?companyGroupId=' + companyGroupId, callback);
+    }
+
+    function getCurrencyCboForPotal(companyId, callback) {
+        if (baseService.isUndefinedOrNull(companyId)) {
+            if (!baseService.isUndefinedOrNull($window.companyId))
+                companyId = $window.companyId;
+            else
+                companyId = null;
+        }
+        base('currencies/TransactionCurrency/GetCboCurrencyTransactionForPotal?companyId=' + companyId, callback);
     }
 
     function getCboWorkCenterMaster(callback) {
