@@ -10,21 +10,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Aplos.Models
+namespace Library.OrderManagement.Production
 {
-    public class PerformanceGroupService
+   public class IssueHKPService
     {
         ISqlRepository _sqlRepository;
-        public PerformanceGroupService()
+        public IssueHKPService()
         {
             _sqlRepository = new SqlRepository();
         }
-
         public IEnumerable<object> GetCbo()
         {
             try
             {
-                string TableName = "HKP.PerformanceGroup";
+                string TableName = "HKP.Issue";
                 string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + "";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
@@ -38,7 +37,7 @@ namespace Aplos.Models
         {
             try
             {
-                var sql = "select * from HKP.PerformanceGroup where Id = '" + Id + "' ";
+                var sql = "select * from HKP.Issue where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -51,7 +50,7 @@ namespace Aplos.Models
         {
             try
             {
-                string TableName = "HKP.PerformanceGroup";
+                string TableName = "HKP.Issue";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -71,7 +70,7 @@ namespace Aplos.Models
         {
             try
             {
-                string TableName = "HKP.PerformanceGroup";
+                string TableName = "HKP.Issue";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -93,7 +92,7 @@ namespace Aplos.Models
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "Is" + _Id;
+                    data["Id"] = "MP" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -123,7 +122,7 @@ namespace Aplos.Models
             try
             {
 
-                string TableName = "HKP.PerformanceGroup";
+                string TableName = "HKP.Issue";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 

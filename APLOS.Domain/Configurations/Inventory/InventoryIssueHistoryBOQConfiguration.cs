@@ -13,6 +13,7 @@ namespace Library.Model.Configurations.Inventory
             Property(t => t.Rate).HasPrecision(18, 4);
             ToTable(nameof(InventoryIssueHistoryBOQ), DbSchema.Transaction);
             Ignore(r => r.ModelState);
+            Ignore(r => r.RequisitionQty);
         }
     }
 }
