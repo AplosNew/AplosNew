@@ -98,7 +98,7 @@
                         @*<td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
                             <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>*@
                         <td class="text-right">
-                            <button ng-click="popUpGL()" data-toggle="modal" @*ng-disabled="currencyDisable"*@ class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                            <button ng-click="popUpGL()" data-toggle="modal" ng-disabled="x.CrAmount>0" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
                                 <i class="glyphicon glyphicon-info-sign"></i>
                             </button>
                         </td>
