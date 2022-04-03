@@ -26,6 +26,8 @@
                                     <th>GRN Date</th>
                                     <th>GRN No</th>
                                     <th>SO No</th>
+                                    <th>Base Qty</th>
+                                    <th>Issue Qty</th>
                                     <th>Balance Qty</th>
                                     <th class="col-md-3" style="width:300px;">Requisition Qty&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
                                     <th></th>
@@ -33,8 +35,6 @@
 
                                     <th>TransferedFromGrnId</th>
                                     <th>Receive Qty</th>
-                                    @*<th>Base Qty</th>*@
-                                    <th>Issue Qty</th>
 
                                     <th>Purchase Return Qty</th>
                                     <th>Issue Return Qty</th>
@@ -73,19 +73,18 @@
                                     <td>{{x.GRNDate}}</td>
                                     <td>{{x.InventoryReceiveDetailId}}</td>
                                     <td>{{x.SalesOrderId}}</td>
-                                    <td>{{x.BalanceStock}} {{x.BUoM}}</td>
+                                    <td>{{x.BaseQty}} {{x.BUoM}}</td>
+                                    <td>{{x.BaseIssueQty}}</td>
+                                    <td>{{x.BalanceStock}}</td>
                                     <td class="text-right" colspan="3">
                                         <div class="input-group">
                                             <input type="text" n-decimals="20" ng-model="x.RequisitionQty" class="form-control text-right" ng-keyup="calculateBaseQty(x)" ng-disabled="productNew.Id!=null" width="200" />
                                             <span class="input-group-addon">{{x.TrasactopmUomQty}}</span>
-                                            <span class="input-group-addon">{{x.IssueTransactionUoM}}</span>
+                                            <span class="input-group-addon">{{x.BUoM}}</span>
                                         </div>
                                     </td>
                                     <td>{{x.TransferedFromGrnId}}</td>
                                     <td>{{x.TransactionQty}} {{x.TUoM}}</td>
-                                    @*<td>{{x.BaseQty}} {{x.BUoM}}</td>*@
-                                    <td>{{x.BaseIssueQty}} {{x.BUoM}}</td>
-
                                     <td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
                                     <td>{{x.IssueReturnQty}} {{x.BUoM}}</td>
                                     <td>{{x.ReductionByAdjustmentQty}} {{x.BUoM}}</td>

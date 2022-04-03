@@ -1614,9 +1614,9 @@ namespace Library.MaterialManagement.Inventory
 
                                     if (item.RequisitionQty > item.StockQty) throw new CustomException("Requisition qty can't greater stock qty.");
 
-                                    if (item.TransactionUoMId != item.BaseUOMId)
-                                        totalReqQty = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor), 4);
-                                    else
+                                    //if (item.TransactionUoMId != item.BaseUOMId)
+                                    //    totalReqQty = Math.Round(Convert.ToDecimal(item.RequisitionQty * item.BaseUoMFactor), 4);
+                                    //else
                                         totalReqQty = Math.Round(item.RequisitionQty, 4);
                                     historyId++;
                                     var SelectedGRN = GRNCalculateList.Where(r => r.InventoryReceiveDetailId == item.InventoryReceiveDetailId).FirstOrDefault();
@@ -1653,7 +1653,7 @@ namespace Library.MaterialManagement.Inventory
                                             Id = history.Id +"_"+ BOQcount,
                                             InventoryIssueHistoryId = history.Id,
                                             InventoryReceiveDetailId = boqItem.InventoryReceiveDetailId,
-                                            Qty = Math.Round(boqItem.Qty, 4),
+                                            Qty = Math.Round(boqItem.RequisitionQty, 4),
                                             Rate = Math.Round((boqItem.Rate), 4),
                                             BOQDetailId=boqItem.BOQDetailId
                                         };

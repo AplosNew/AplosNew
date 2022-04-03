@@ -1938,7 +1938,14 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             ShowResult(e, 'failure')
         }
     }
-
+    
+    $scope.GetgrnBOQPO = function (z) {
+        //debugger;
+        var x = "#" + z;
+        var gridObj = $(x).data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        location.href = " GoodsReceiveNote/GRNBOQPOReport?grnBOQPOId=" + data.Id;
+    };
     //#endregion
 
 }

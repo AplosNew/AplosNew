@@ -1865,21 +1865,26 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                     }
                 }
                 else {
-                    for (var j = 0; j < $scope.detailList.length; j++) {
-                        if ($scope.detailList[j].MaterialMasterId === BOqList[L].MaterialMasterId &&
-                            $scope.detailList[j].ArticleId === BOqList[L].ArticleId &&
-                            $scope.detailList[j].FirstCharacteristicsValueId === BOqList[L].FirstCharacteristicsValueId &&
-                            $scope.detailList[j].SecondCharacteristicsValueId === BOqList[L].SecondCharacteristicsValueId &&
-                            $scope.detailList[j].ThirdCharacteristicsValueId === BOqList[L].ThirdCharacteristicsValueId
-                            && $scope.detailList[j].Flag === BOqList[L].Flag
-                        ) {
-                            var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
-                            $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));
-                            trnqty = 0;
+                    var getRowDr = $filter("filter")($scope.detailList, {
+                        "MaterialMasterId": BOqList[L].MaterialMasterId, "ArticleId": BOqList[L].ArticleId, "FirstCharacteristicsValueId": BOqList[L].FirstCharacteristicsValueId
+                        , "SecondCharacteristicsValueId": BOqList[L].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": BOqList[L].ThirdCharacteristicsValueId });
+                    if (getRowDr.length == 1) {
+                        for (var j = 0; j < $scope.detailList.length; j++) {
+                            if ($scope.detailList[j].MaterialMasterId === getRowDr[0].MaterialMasterId &&
+                                $scope.detailList[j].ArticleId === getRowDr[0].ArticleId &&
+                                $scope.detailList[j].FirstCharacteristicsValueId === getRowDr[0].FirstCharacteristicsValueId &&
+                                    $scope.detailList[j].SecondCharacteristicsValueId === getRowDr[0].SecondCharacteristicsValueId &&
+                                $scope.detailList[j].ThirdCharacteristicsValueId === getRowDr[0].ThirdCharacteristicsValueId
+                                && $scope.detailList[j].Flag === getRowDr[0].Flag
+                            ) {
+                                var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
+                                $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));
+                                trnqty = 0;
+                            }
                         }
-                        else if (BOqList[L].Flag == true){
-                            $scope.detailList.push(BOqList[L]);
-                        }
+                    }
+                    else if (BOqList[L].Flag == true) {
+                        $scope.detailList.push(BOqList[L]);
                     }
                 }
             }
