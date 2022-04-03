@@ -3425,7 +3425,7 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
     $scope.PaymentModeList = [];
     $scope.PaymentModeByPaymentTerm = function () {
-
+         
         $http({
             method: 'GET',
             //url: 'Products/Requisition/GetAllReqdataDetails?ReqDetailId=' + $scope.filteredData
