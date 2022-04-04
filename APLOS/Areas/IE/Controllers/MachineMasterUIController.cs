@@ -17,6 +17,7 @@ using Library.Service.IE;
 using Library.Model.Inventory;
 using Library.Service.Systems;
 using Library.Service.Enums;
+using Library.Service.Securites;
 
 namespace Aplos.Areas.IE.Controllers
 {
@@ -25,7 +26,7 @@ namespace Aplos.Areas.IE.Controllers
         #region Constructor
 
 
-
+        private readonly IUserService _userService;
         private readonly IOperationMasterService _operationMasterService;
         private readonly IMachineMasterUIService _machineMasterUIService;
         private readonly IOperationService _operationService;
@@ -264,93 +265,12 @@ namespace Aplos.Areas.IE.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return _machineMasterUIService.GetAutoNumber(nameof(MachineMasterUI), PKGeneratorEnum.Yearly, null, DateTime.Now);
         }
-      
-        //[HttpPost]
-        //public JsonResult EditManpower(OperationPositionMPBudget model)
-        //{
-        //    try
-        //    {
-        //        _OperationPositionMPBudgetService.Check(model);
-        //    }
-        //    catch (CustomException)
-        //    {
-        //        throw;
-        //    }            
-        //   if (model.Active)
-        //    {
-        //        model.Active = true;
-        //    }
-        //    else if (!model.Active)
-        //    {
-        //        model.Active = false;
-        //    }
-        //    else if (model.PositionId == null)
-        //    {
-        //        throw new CustomException("Please select position");
-        //    }
-        //    else if (model.Caption == null)
-        //    {
-        //        throw new CustomException("Please input Caption");
-        //    }
-        //    else if (model.ManpowerBudget == '0')
-        //    {
-        //        throw new CustomException("Please input Manpower Budget");
-        //    }
-        //    _OperationPositionMPBudgetService.Update(model);
-        //    return Json(new { Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Updated });
-        //}
-      
-        //[HttpPost]
-        //public ActionResult DeleteManpower(string id)
-        //{
-        //    _OperationPositionMPBudgetService.Delete(id);
-        //    return Json(new { Sequence = _operationMasterService.GetAutoSequence(), Message = AplosMessage.Deleted });
-        //}
 
-
-        //[HttpPost]
-        //public JsonResult CreateManpower(OperationPositionMPBudget model)
-        //{
-        //    try
-        //    {
-        //        _OperationPositionMPBudgetService.Check(model);
-        //    }
-        //    catch (CustomException)
-        //    {
-        //        throw;
-        //    }
-
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    model.Id = "OPP" + GetPK();
-        //    model.CompanyGroupID = identity.CompanyGroupId;
-        //    if (model.Active)
-        //    {
-        //        model.Active = true;
-        //    }
-        //    else if (!model.Active)
-        //    {
-        //        model.Active = false;
-        //    }
-        //    else if (model.PositionId == null)
-        //    {
-        //        throw new CustomException("Please select position");
-        //    }
-
-        //    else if (model.PositionId == null)
-        //    {
-        //        throw new CustomException("Please select position");
-        //    }
-        //    else if (model.Caption == null)
-        //    {
-        //        throw new CustomException("Please input Caption");
-        //    }
-        //    else if (model.ManpowerBudget == '0')
-        //    {
-        //        throw new CustomException("Please input Manpower Budget");
-        //    }
-        //    _OperationPositionMPBudgetService.Insert(model);
-        //    return Json(new { MachineMasterUI = model, Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Insert });
-        //}
+        [HttpGet, Authorize]
+        public ActionResult GetUserProcessList(string userId)
+        {
+            return Json(_userService.GetUserProcessList(userId), JsonRequestBehavior.AllowGet);
+        }
     }
 
 }

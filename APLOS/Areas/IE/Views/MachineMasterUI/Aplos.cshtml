@@ -45,288 +45,414 @@
         </div>
     </fieldset>
 </div>
-<div class="form-horizontal form-elements" ng-form="modelNewForm">
-    <fieldset class="scheduler-border">
-        <legend class="scheduler-border"></legend>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Sequence" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Code" ng-model="modelNew.Code" class="form-control" required maxlength="15">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="15">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Standard Name" ng-model="modelNew.StandardName" class="form-control" required maxlength="100">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Description<sup></sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="text" name="Description" ng-model="modelNew.Description" class="form-control" maxlength="250">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Machine Category<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
-                                <option value="">---Please Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">MachineSub Category<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="MachineSubCategory" name="MachineSub Category" ng-model="modelNew.MachineSubCategoryId" ng-options="item.Value as item.Text for item in MachineSuvCategoryList" tabindex="3" required>
-                                <option value="">---Please Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Skill<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <div class="select-style">
-                            <select class="form-control" id="Skill" name="Skill" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
-                                    tabindex="6">
-                                <option value="">---Please Select---</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Production Machine Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Production Machine Qty" ng-model="modelNew.ProductionMachineQty" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Sample Machine Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Sample Machine Qty" ng-model="modelNew.SampleMachineQty" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Training Machine Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Training Machine Qty" ng-model="modelNew.TrainingMachineQty" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Rent Machine Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Rent Machine Qty" ng-model="modelNew.RentMachineQty" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="" show-errors>
-                    <label class="col-sm-4 control-label">Other Machine Qty<sup>*</sup></label>
-                    <div class="col-sm-8 show-message">
-                        <input type="number" name="Other Machine Qty" ng-model="modelNew.OtherMachineQty" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Remarks</label>
-                    <div class="col-sm-8 show-message ">
-                        <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-        <div class="clearfix"></div>
-        <div class="col-md-12">
-            <div class="col-md-4" show-errors>
-                <div class="form-group" id="">
-                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                    <div class="col-sm-8 show-message ">
-                        <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
 
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-    </fieldset>
-</div>
-<div class="form-horizontal form-elements" ng-form="modelNewForm1" ng-hide="true">
+<div class="form-elements">
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Manpower Budget</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
             </ul>
         </div>
-        <div class="tab-content" ng-hide="modelNew.OperationMasterIdID==null">
+        <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-                <fieldset class="scheduler-border">
-                    <legend class="scheduler-border"></legend>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="">
-                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Sequence" ng-model="modelNewM.Sequence" class="form-control" maxlength="10" required>
+
+                <div class="form-horizontal form-elements" ng-form="modelNewForm">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"></legend>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Sequence" ng-model="modelNew.Sequence" class="form-control" maxlength="10">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Entity<sup></sup></label>
-                                <div class="col-sm-8 show-message ">
-                                    <div class="select-style">
-                                        <select class="form-control" id="Entity" name="Entity" ng-model="modelNewM.EntityId" ng-options="item.Value as item.Text for item in EntityList" tabindex="9">
-                                            <option value="">---Please Select---</option>
-                                        </select>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Code<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Code" ng-model="modelNew.Code" class="form-control" required maxlength="15">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Short Name" ng-model="modelNew.ShortName" class="form-control" required maxlength="15">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Position<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <div class="input-group">
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Standard Name" ng-model="modelNew.StandardName" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="User Name" ng-model="modelNew.UserName" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Description<sup></sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Description" ng-model="modelNew.Description" class="form-control" maxlength="250">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Machine Category<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
                                         <div class="select-style">
-                                            <select style="width:455px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
+                                            <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
                                                 <option value="">---Please Select---</option>
                                             </select>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Caption<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Manpower Budget<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="number" name="Manpower Budget" ng-model="modelNewM.ManpowerBudget" class="form-control" maxlength="10">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="col-md-6">
-                            <div class="form-group" id="" show-errors>
-                                <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                                <div class="col-sm-8 show-message ">
-
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Machine Sub Category</span><sup>*</sup></label>
                                     <div class="col-sm-8 show-message ">
-                                        <input type="checkbox" name="Active" ng-model="modelNewM.Active" checked />
+                                        <div class="select-style">
+                                            <select class="form-control" id="MachineSubCategory" name="MachineSub Category" ng-model="modelNew.MachineSubCategoryId" ng-options="item.Value as item.Text for item in MachineSuvCategoryList" tabindex="3" required>
+                                                <option value="">---Please Select---</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Skill<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <div class="select-style">
+                                            <select class="form-control" id="Skill" name="Skill" ng-model="modelNew.SkillId" ng-options="item.Value as item.Text for item in SkillList"
+                                                    tabindex="6">
+                                                <option value="">---Please Select---</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    <div class="col-md-12 text-right" style="padding-top: 17px;">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveManpower();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
-                            <li> <button ng-click="valuePassInDelModal();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> {{Action2}}</button></li>
-                            <li> <button ng-click="Clear1();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                        </ul>
-                    </div>
-                </fieldset>
-            </div>
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                <div>
-                    <div class="content-container-fluid" style="color:black;">
-                        <div style="color:black;" id="Grid123" ej-grid e-datasource="GetOperationPositionMp"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-recorddoubleclick="recorddoubleclickMP" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
-                            <div e-columns>
-                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
-                                <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
-                                <div e-column e-field="Caption" e-headertext="Caption" e-width="50"></div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Production Machine Qty<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Production Machine Qty" ng-model="modelNew.ProductionMachineQty" class="form-control" required>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Sample Machine Qty</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Sample Machine Qty" ng-model="modelNew.SampleMachineQty" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Training Machine Qty</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Training Machine Qty" ng-model="modelNew.TrainingMachineQty" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Rent Machine Qty<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Rent Machine Qty" ng-model="modelNew.RentMachineQty" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Other Machine Qty<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Other Machine Qty" ng-model="modelNew.OtherMachineQty" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:11px">Connected Power(In KW)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Connected Power" ng-model="modelNew.ConnectedPower" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Running Load(In KW)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Running Load" ng-model="modelNew.RunningLoad" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Connected Steam(in KG/Hr)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="number" name="Connected Steam" ng-model="modelNew.ConnectedSteam" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:11px">Running Steam(in KG/Hr)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Connected Power" ng-model="modelNew.RunningSteam" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Connected Air(in CM/Hr)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Running Load" ng-model="modelNew.ConnectedAir" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Running Air (in CM/Hr)</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="number" name="Connected Steam" ng-model="modelNew.RunningAir" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Maintanence Schedule Applicable</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Connected Power" ng-model="modelNew.MaintanenceScheduleApplicable" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label">Remarks</label>
+                                    <div class="col-sm-8 show-message ">
+                                        <textarea class="form-control" rows="3" ng-model="modelNew.Remarks" maxlength="250" tabindex="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4" show-errors>
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="form-horizontal form-elements" ng-form="modelNewForm1" ng-hide="true">
+                    <div class="tab-design" id="tab_show">
+                        <div class="site-tab">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Manpower Budget</a></li>
+                            </ul>
+                        </div>
+                        <div class="tab-content" ng-hide="modelNew.OperationMasterIdID==null">
+                            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                                <fieldset class="scheduler-border">
+                                    <legend class="scheduler-border"></legend>
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="">
+                                                <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="Sequence" ng-model="modelNewM.Sequence" class="form-control" maxlength="10" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="" show-errors>
+                                                <label class="col-sm-4 control-label">Entity<sup></sup></label>
+                                                <div class="col-sm-8 show-message ">
+                                                    <div class="select-style">
+                                                        <select class="form-control" id="Entity" name="Entity" ng-model="modelNewM.EntityId" ng-options="item.Value as item.Text for item in EntityList" tabindex="9">
+                                                            <option value="">---Please Select---</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="" show-errors>
+                                                <label class="col-sm-4 control-label">Position<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <div class="input-group">
+                                                        <div class="select-style">
+                                                            <select style="width:455px;" class="form-control searchableDDL" id="Position" name="Position" ng-model="modelNewM.PositionId" ng-options="item.Value as item.Text for item in PositionList" tabindex="9">
+                                                                <option value="">---Please Select---</option>
+                                                            </select>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="" show-errors>
+                                                <label class="col-sm-4 control-label">Caption<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="text" name="Caption" ng-model="modelNewM.Caption" class="form-control" maxlength="100">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="" show-errors>
+                                                <label class="col-sm-4 control-label">Manpower Budget<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message">
+                                                    <input type="number" name="Manpower Budget" ng-model="modelNewM.ManpowerBudget" class="form-control" maxlength="10">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="form-group" id="" show-errors>
+                                                <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                                                <div class="col-sm-8 show-message ">
+
+                                                    <div class="col-sm-8 show-message ">
+                                                        <input type="checkbox" name="Active" ng-model="modelNewM.Active" checked />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="col-md-12 text-right" style="padding-top: 17px;">
+                                        <ul class="list-inline text-right">
+                                            <li> <button ng-click="SaveManpower();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action1}}</button></li>
+                                            <li> <button ng-click="valuePassInDelModal();" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> {{Action2}}</button></li>
+                                            <li> <button ng-click="Clear1();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                        </ul>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <fieldset class="scheduler-border">
+                                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+                                <div>
+                                    <div class="content-container-fluid" style="color:black;">
+                                        <div style="color:black;" id="Grid123" ej-grid e-datasource="GetOperationPositionMp"
+                                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                             e-recorddoubleclick="recorddoubleclickMP" e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                                            <div e-columns>
+                                                <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
+                                                <div e-column e-field="Position" e-headertext="Position" e-width="80"></div>
+                                                <div e-column e-field="Caption" e-headertext="Caption" e-width="50"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
-            </fieldset>
+
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+                <!--<div class="table-responsive modal-table">-->
+                <!--<div class="row">-->
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="processPopUpDataList();" ng-disabled="userNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table" ng-show="userProcessList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Process</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in userProcessList" ng-class="{selected : x.Id==null}">
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.ProcessName}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @*</div>
+                        </div>*@
+                </div>
+            </div>
         </div>
+
     </div>
 </div>
+@Html.Partial("~/Areas/Processes/Views/Shared/_SelectMultipleProcessPopUp.cshtml")
 <div class="clearfix"></div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>
