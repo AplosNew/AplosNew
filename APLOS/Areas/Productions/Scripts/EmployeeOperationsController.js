@@ -18,8 +18,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.change = null;
     $scope.ReportId = null;
     $scope.selEo = null;
+    $scope.EntityId = null;
 
     //Arrays
+    $scope.EntityList = [];
     $scope.workCenterList = [];
     $scope.ProcessList = [];
     $scope.ShiftList = [];
@@ -27,6 +29,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.PeriodList = [];
     $scope.ModelList = [];
 
+    let wipNos = {};
 
     // The Tab Switching Code
 
@@ -42,12 +45,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     //Get Operations
     $scope.getStartUp = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetWorkCenter',
-        }).then(function succ(resp) {
-            $scope.workCenterList = resp.data;
-        });
 
         $http({
             method: 'GET',
@@ -71,11 +68,27 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.ShiftList = resp.data;
         });
 
-       
-        
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEntity',
+        }).then(function succ(resp) {
+            $scope.EntityList = resp.data;
+        });
+
     }
 
     $scope.getStartUp();
+
+    //Getting the WorkCenters
+    $scope.getWkC = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetWorkCenter',
+            data: { 'EId': $scope.EntityId }
+        }).then(function succ(resp) {
+            $scope.workCenterList = resp.data;
+        });
+    }
 
     // Getting the POs
     $scope.getPo = function () {
@@ -88,6 +101,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+ 
 
     // Add Tiles
     $scope.AddTile = function (e) {
@@ -121,19 +135,44 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             for (var i = 0; i < $scope.ModelList.length; i++) {
                 Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 , 'Remarks':null });
                 //$scope.refreshPage();
+                if ($scope.ModelList[i].Sequence in wipNos) {
+                    continue;
+                }
+                else {
+                    wipNos[$scope.ModelList[i].Sequence] = 0;
+                }
             }
         });
     }
+
 
    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
     }
 
+    //Check WIP
+    $scope.checkWIP = function () {
+        for (var i = 0; i < $scope.ModelList.length; i++) {
+            wipNos[$scope.ModelList[i].Sequence] += $scope.ModelList[i].Qty;
+            let ind = Object.keys(wipNos)
+            let index = ind.indexOf($scope.ModelList[i].Sequence.toString());
+            let prevVal = Object.values(wipNos)[index - 1];
+            if ($scope.ModelList[i].Sequence != 0 && wipNos[$scope.ModelList[i].Sequence] > (prevVal + $scope.ModelList[i].WIP)) {
+                wipNos[$scope.ModelList[i].Sequence] -= $scope.ModelList[i].Qty;
+                ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
+            }
+        }
+       
+    }
+
+
     //Saving of the Data
     $scope.saveData = function () {
 
         $scope.NewList = [];
+
+        $scope.checkWIP();
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].isChanged == true || $scope.ModelList[i].Qty > 0) {
