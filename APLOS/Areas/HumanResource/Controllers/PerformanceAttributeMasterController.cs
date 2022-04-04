@@ -51,7 +51,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        
+        [HttpPost, Authorize]
+        public ActionResult GetList(string column, string value)
+        {
+            return Json(pa.GetList(column, value), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {

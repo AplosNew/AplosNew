@@ -614,7 +614,7 @@ namespace Aplos.Areas.Productions.Controllers
                 }
                 //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
                 //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.WrapText = false;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();

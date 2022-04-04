@@ -580,6 +580,7 @@
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceAttributeMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\PerformanceGradeMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceGroupController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceManagementMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformancePeriodController.cs" />
@@ -1946,6 +1947,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceManagementMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformancePeriodController.js" />
@@ -4065,6 +4067,7 @@
     <Content Include="Areas\Costings\Views\OrderCosting\ProcurementCostingView.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceAttributeMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

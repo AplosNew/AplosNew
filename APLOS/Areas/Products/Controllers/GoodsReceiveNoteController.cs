@@ -1343,6 +1343,21 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion
 
+        #region GRN BOQ PO  Report  
+
+        [Authorize, HttpGet]
+        public ActionResult GRNBOQPOReport(string grnBOQPOId)
+
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _inventoryReveiveService.GrnBOQPORep(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnBOQPOId);
+
+            return null;
+        }
+
+        #endregion
+
         #region FG INVENTORY Register  Report  
 
         [Authorize, HttpGet]

@@ -9,6 +9,7 @@ namespace Library.Model.Inventory
 
         public string Id { get; set; }
         public decimal Qty { get; set; }
+        public decimal RequisitionQty { get; set; }
         public decimal Rate { get; set; }
 
         #endregion Scalar Properties
