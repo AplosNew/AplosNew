@@ -365,8 +365,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 obj.TransactionQty = $scope.selectedMasterOrderItemTempList[i].Balance + $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
 
                 obj.Balance = $scope.selectedMasterOrderItemTempList[i].Balance;
-
-                obj.NetAmount = $scope.selectedMasterOrderItemTempList[i].NetAmount;
+                              
                 obj.TaxAmount = $scope.selectedMasterOrderItemTempList[i].TaxAmount;
 
                 obj.ServiceCharge = $scope.selectedMasterOrderItemTempList[i].ServiceCharge;
