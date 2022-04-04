@@ -44,6 +44,13 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         TrainingMachineQty: null,
         RentMachineQty: null,
         OtherMachineQty: null,
+        ConnectedPower: null,
+        RunningLoad: null,
+        ConnectedSteam: null,
+        RunningSteam: null,
+        ConnectedAir: null,
+        RunningAir: null,
+        MaintanenceScheduleApplicable: null,
         Active: true
     };
     $scope.modelNew = Object.assign({}, $scope.model);
@@ -539,4 +546,111 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'failure');
         }
     };
+
+    // #region Process
+
+    $scope.userProcessList = [];
+
+    $scope.processPopUpDataList = function () {
+        $scope.processDataList = [];
+        $scope.processSearchList = [];
+        $rootScope.tempList = [];
+        CloseShowResult();
+        CloseModalShowResult();
+        $scope.processPopUpParameters = {
+            limit: 10
+            , offset: 0
+            , order: 'asc'
+            , sort: 'UserName'
+            , searchBy: "UserName"
+            , pageSize: 10
+            , total_count: 0
+            , search: null
+            , serverPagination: true
+        };
+        $scope.processUrl = 'Processes/Process/GetList?processId=[]';
+        baseService.setCurrentPage('processDataList');
+        $scope.getProcessDataList = function (pageno) {
+            baseService.paginationBase($scope.processUrl, pageno, $scope.processPopUpParameters)
+                .then(function (result) {
+                    $scope.processDataList = result.Rows;
+                    $scope.processPopUpParameters.total_count = result.Total;
+
+                    if (baseService.arrayLength($scope.userProcessList) > 0) {
+                        for (var i = 0; i < $scope.userProcessList.length; i++) {
+                            for (var j = 0; j < $scope.processDataList.length; j++) {
+                                if ($scope.userProcessList[i].ProcessId === $scope.processDataList[j].Id) {
+                                    $scope.processDataList[j].Flag = true;
+
+                                }
+                            }
+                        }
+                    }
+
+                    if (baseService.arrayLength($scope.processSearchList) === 0)
+                        baseService.getDDLSearchColumn(result.Rows, $scope.processSearchList);
+                    angular.element(document.querySelector('#processPopUp')).modal('show');
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'processPopUp');
+                }).finally(function () {
+                });
+        };
+        $scope.getProcessDataList();
+    };
+
+    $scope.addProcess = function () {
+        if (baseService.arrayLength($scope.processDataList) > 0) {
+            angular.forEach($scope.processDataList, function (a) {
+                if (checkProcessExist($scope.userProcessList, a.Id) === false) {
+                    if (a.Flag) {
+                        $scope.userProcessList.push({
+                            Id: null
+                            , ProcessId: a.Id
+                            , UserId: $scope.userNew.Id
+                            , Code: a.Code
+                            , Sequence: a.Sequence
+                            , ShortName: a.ShortName
+                            , StandardName: a.StandardName
+                            , ProcessName: a.UserName
+                        });
+                    }
+                }
+
+            });
+        }
+        //else
+        //    $scope.userProcessList = [];
+        //angular.forEach($scope.userProcessList, function (a) {
+        //    if (!baseService.valueCheckInList($scope.processDataList, 'Id', a.ProcessId))
+        //        $scope.userProcessList.splice(a, 1);
+        //});
+        $scope.closeProcessPopUp();
+    };
+
+    function checkProcessExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ProcessId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.closeProcessPopUp = function () {
+        $scope.processUpUrl = null;
+        $scope.processDataList = [];
+        $scope.processSearchList = [];
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
+
+    function getUserProcessList() {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterUI/getUserProcessList?userid=' + $scope.userNew.Id
+        }).then(function successCallback(response) {
+            $scope.userProcessList = response.data;
+        });
+    }
+
+    // #endregion Process
 }

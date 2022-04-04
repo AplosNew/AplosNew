@@ -36,7 +36,6 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Pages
 
-        [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -62,7 +61,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult Create(List<Dictionary<string, object>> data)
         {
             try
