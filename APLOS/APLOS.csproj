@@ -2477,6 +2477,8 @@
     <Content Include="Areas\QMS\Scripts\GradeMasterController.js" />
     <Content Include="Areas\QMS\Scripts\InquiryTypeController.js" />
     <Content Include="Areas\QMS\Scripts\InspectionTypeController.js" />
+    <Content Include="Areas\QMS\Scripts\IssueController.js" />
+    <Content Include="Areas\QMS\Scripts\IssueMasterController.js" />
     <Content Include="Areas\QMS\Scripts\ProcessParameterController.js" />
     <Content Include="Areas\QMS\Scripts\InspectionMasterController.js" />
     <Content Include="Areas\QMS\Scripts\EmployeeInfoController.js" />
