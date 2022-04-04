@@ -23,9 +23,10 @@
                                     <th>SKU2</th>
                                     <th>PO No</th>
                                     <th>BOQ No</th>
+                                    <th>SO No</th>
                                     <th>GRN Date</th>
                                     <th>GRN No</th>
-                                    <th>SO No</th>
+                                    <th>GRN Qty</th>
                                     <th>Base Qty</th>
                                     <th>Issue Qty</th>
                                     <th>Balance Qty</th>
@@ -34,7 +35,7 @@
                                     <th></th>
 
                                     <th>TransferedFromGrnId</th>
-                                    <th>Receive Qty</th>
+                                   
 
                                     <th>Purchase Return Qty</th>
                                     <th>Issue Return Qty</th>
@@ -70,9 +71,10 @@
                                     <td>{{x.SecondCharacteristicsValueId}}</td>
                                     <td>{{x.PONo}}</td>
                                     <td>{{x.BOQDetailId}}</td>
+                                    <td>{{x.SalesOrderId}}</td>
                                     <td>{{x.GRNDate}}</td>
                                     <td>{{x.InventoryReceiveDetailId}}</td>
-                                    <td>{{x.SalesOrderId}}</td>
+                                    <td>{{x.TransactionQty}} {{x.TUoM}}</td>
                                     <td>{{x.BaseQty}} {{x.BUoM}}</td>
                                     <td>{{x.BaseIssueQty}}</td>
                                     <td>{{x.BalanceStock}}</td>
@@ -84,7 +86,7 @@
                                         </div>
                                     </td>
                                     <td>{{x.TransferedFromGrnId}}</td>
-                                    <td>{{x.TransactionQty}} {{x.TUoM}}</td>
+
                                     <td>{{x.PurchaseReturnQty}} {{x.BUoM}}</td>
                                     <td>{{x.IssueReturnQty}} {{x.BUoM}}</td>
                                     <td>{{x.ReductionByAdjustmentQty}} {{x.BUoM}}</td>

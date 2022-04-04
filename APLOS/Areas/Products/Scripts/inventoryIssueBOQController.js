@@ -636,9 +636,9 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     // #region Specific Stock
 
     $scope.calculateBaseQty = function (data) {
-        var BaseIssueQtynew = parseFloat(data.BaseUoMFactor * data.RequisitionQty).toFixed(4);
-        if (BaseIssueQtynew > data.BalanceStock) {
-            ShowResult('Issue Qty can not grater than Balance Qty', 'failure', 'stockPopUp');
+        //var BaseIssueQtynew = parseFloat(data.BaseUoMFactor * data.RequisitionQty).toFixed(4);
+        if (data.RequisitionQty > data.BalanceStock) {
+            ShowResult('Issue Qty can not grater than Balance Qty', 'failure', 'stockboqPopUp');
             data.RequisitionQty = 0;
             data.Flag = 0;
             return false;

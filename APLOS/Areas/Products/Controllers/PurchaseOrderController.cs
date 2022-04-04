@@ -833,7 +833,6 @@ namespace Aplos.Areas.Products.Controllers
             Report.GePurchaseOrderBOQReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderBOQId);
 
             return null;
-
         }
         #endregion
 

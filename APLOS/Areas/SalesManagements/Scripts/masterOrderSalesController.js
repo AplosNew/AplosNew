@@ -358,15 +358,14 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 obj.TempSalesQty = $scope.selectedMasterOrderItemTempList[i].TempSalesQty;
 
                 obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty - obj.SalesQty;
-                if (obj.ExistSalesQty<0) {
+                if (obj.ExistSalesQty < 0) {
                     obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
                 }
                 ///obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
                 obj.TransactionQty = $scope.selectedMasterOrderItemTempList[i].Balance + $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
 
                 obj.Balance = $scope.selectedMasterOrderItemTempList[i].Balance;
-
-                obj.NetAmount = $scope.selectedMasterOrderItemTempList[i].NetAmount;
+                              
                 obj.TaxAmount = $scope.selectedMasterOrderItemTempList[i].TaxAmount;
 
                 obj.ServiceCharge = $scope.selectedMasterOrderItemTempList[i].ServiceCharge;

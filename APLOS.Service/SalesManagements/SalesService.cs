@@ -1907,15 +1907,18 @@ namespace Library.Service.SalesManagements
                 var currentSalesTaxId = 0;
                 if (salesMaterialVMList != null)
                 {
+                    var historyId = _salesMaterialRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM TRN.SalesMaterial WHERE SalesId='{sales.Id}'").First();
                     foreach (var salesMaterialVM in salesMaterialVMList)
                     {
                         currentSalesMaterialId++;
-
+                        
+                     
                         if (string.IsNullOrEmpty(salesMaterialVM.Id))
                         {
+                            historyId++;
                             var salesMaterial = new SalesMaterial
                             {
-                                Id = _pkGeneratorService.MakePK(sales.Id, currentSalesMaterialId, 2),
+                                Id = _pkGeneratorService.MakePK(sales.Id, historyId, 2),
                                 SalesId = sales.Id,
                                 SalesOrderId = salesMaterialVM.SalesOrderId,
                                 MaterialMasterId = salesMaterialVM.MaterialMasterId,

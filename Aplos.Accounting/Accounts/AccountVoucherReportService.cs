@@ -5892,7 +5892,7 @@ namespace Library.Accounting.Accounts
 
             worksheet.Name = "Day Books";
             //var header = GetDailyTransactionHeader(companyGroupId, companyId, plantId, toDate);
-            reportFileName = "Day Books" + toDate.ToString("dd-MMM-yyyy");
+            reportFileName = "Day Books " + toDate.ToString("dd-MMM-yyyy");
 
 
             //if (dtDayBookData.Rows.Count == 0)
