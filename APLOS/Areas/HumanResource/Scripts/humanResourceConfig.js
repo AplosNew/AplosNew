@@ -715,5 +715,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/PerformanceAttributeMaster/Aplos',
             controller: 'PerformanceAttributeMasterController'
         })
+        .when('/performance-grade-master', {
+            templateUrl: 'humanResource/PerformanceGradeMaster/Aplos',
+            controller: 'PerformanceGradeMasterController'
+        })
         ;
 }

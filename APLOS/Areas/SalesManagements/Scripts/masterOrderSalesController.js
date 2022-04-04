@@ -358,7 +358,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
                 obj.TempSalesQty = $scope.selectedMasterOrderItemTempList[i].TempSalesQty;
 
                 obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty - obj.SalesQty;
-                if (obj.ExistSalesQty<0) {
+                if (obj.ExistSalesQty < 0) {
                     obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
                 }
                 ///obj.ExistSalesQty = $scope.selectedMasterOrderItemTempList[i].ExistSalesQty;
@@ -669,14 +669,14 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
             }
-            if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
-                for (var i = 0; i < $scope.selectedMasterOrderItemList.length; i++) {
-                    //if (parseFloat($scope.selectedMasterOrderItemList[i].TransactionQty).toFixed(2) < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
-                    if ($scope.selectedMasterOrderItemList[i].TransactionQty < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
-                        throw "Sales Qty can not be greater than Base Qty.";
-                    }
-                }
-            }
+            //if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
+            //    for (var i = 0; i < $scope.selectedMasterOrderItemList.length; i++) {
+            //        //if (parseFloat($scope.selectedMasterOrderItemList[i].TransactionQty).toFixed(2) < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
+            //        if ($scope.selectedMasterOrderItemList[i].TransactionQty < ($scope.selectedMasterOrderItemList[i].SalesQty + $scope.selectedMasterOrderItemList[i].ExistSalesQty + $scope.selectedMasterOrderItemList[i].Balance)) {
+            //            throw "Sales Qty can not be greater than Base Qty.";
+            //        }
+            //    }
+            //}
 
             if (baseService.arrayLength($scope.selectedMasterOrderItemList) > 0) {
                 for (var j = 0; j < $scope.selectedMasterOrderItemList.length; j++) {

@@ -161,6 +161,6 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetJWCheckedByAndApprovedBY(string CheckedBy, string ApprovedBy);
 
         void FGInventoryReceive(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnId);
-
+        void GrnBOQPORep(string CompanyId, string CompanyGroupID, string plantId, string UserId, string grnBOQPOId);
     }
 }

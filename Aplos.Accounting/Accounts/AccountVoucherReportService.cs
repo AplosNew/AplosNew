@@ -344,6 +344,8 @@ namespace Library.Accounting.Accounts
                         ,NoteForAccounts= case when isnull(ir.NoteForAccounts,null) is not null then isnull(ir.NoteForAccounts,null) when isnull(ii.Remarks,null) is not null then isnull(ii.Remarks,null) else null end
                         ,ei.EmployeeName
                         ,ACT.Id AS [Type],C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4, CCE.UserName CostCenterName
+						,Replace(CONVERT(VARCHAR(11), GLTD.ReconcileDate , 106), ' ', '-') ReconcileDate
+						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -380,6 +382,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN HKP.COALevel2 C2 ON C2.Id=GLGI.COALevel2Id
                         LEFT JOIN HKP.COALevel3 C3 ON C3.Id=GLGI.COALevel3Id
                         LEFT JOIN HKP.COALevel4 C4 ON C4.Id=GLGI.COALevel4Id
+						LEFT JOIN TRN.GLTransactionDetail GLTD ON GLTD.VoucherDetailId=VD.Id AND VD.BankMasterId=GLTD.BankMasterId
                         WHERE V.IsPark=0 and V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId ='" + companyId + "' AND V.PlantId='" + plantId + "' " + wcEmpStatus + @" ";
             return _sqlRepository.GetDataTable(cmdText);
 
@@ -5889,7 +5892,7 @@ namespace Library.Accounting.Accounts
 
             worksheet.Name = "Day Books";
             //var header = GetDailyTransactionHeader(companyGroupId, companyId, plantId, toDate);
-            reportFileName = "Day Books" + toDate.ToString("dd-MMM-yyyy");
+            reportFileName = "Day Books " + toDate.ToString("dd-MMM-yyyy");
 
 
             //if (dtDayBookData.Rows.Count == 0)
@@ -6116,7 +6119,18 @@ namespace Library.Accounting.Accounts
             int colLevel4 = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Reconcile";
+            int colReconcile = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Reconcile Date";
+            int colReconcileDate = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6171,6 +6185,9 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colLevel3].Text = dtDayBookData.Rows[i]["Level3"].ToString();
                 worksheet[ROW, colLevel4].Text = dtDayBookData.Rows[i]["Level4"].ToString();
                 worksheet[ROW, colNarration].Text = dtDayBookData.Rows[i]["Narration"].ToString();
+
+                worksheet[ROW, colReconcileDate].Text = dtDayBookData.Rows[i]["ReconcileDate"].ToString();
+                worksheet[ROW, colReconcile].Text = dtDayBookData.Rows[i]["Reconcile"].ToString();
 
                 //if (checkbox == true)
                 //{

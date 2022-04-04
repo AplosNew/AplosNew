@@ -540,7 +540,7 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
             //if ($scope.bnkReconList[i].ReconciledValue === 0)
             //    $scope.bnkReconList[i].After = "";
             //else
-            $scope.bnkReconList[i].After = Math.round(parseFloat($scope.bnkReconList[i].Before) - parseFloat($scope.bnkReconList[i].ReconciledValue) * 10000 + Number.EPSILON) / 10000;
+            $scope.bnkReconList[i].After = Math.round((parseFloat($scope.bnkReconList[i].Before) - parseFloat($scope.bnkReconList[i].ReconciledValue)) * 10000 + Number.EPSILON) / 10000;
             $scope.bnkReconList[$scope.bnkReconList.length - 1].After = afterAmountCalculate($scope.bnkReconList);
             $scope[variable] = $scope.bnkReconList[i].ReconciledValue;
         } catch (e) {

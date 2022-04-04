@@ -1,10 +1,10 @@
 ﻿'use strict';
-PerformanceAttributeMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function PerformanceAttributeMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+PerformanceGradeMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function PerformanceGradeMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Performance Attribute Master';
     $scope.Action = 'Save';
-$scope.ModelList = [];
-    $scope.path = 'HumanResource/PerformanceAttributeMaster/';
+    $scope.ModelList = [];
+    $scope.path = 'HumanResource/PerformanceGradeMaster/';
     $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'Delete/';
 
@@ -30,7 +30,7 @@ $scope.ModelList = [];
         Remarks: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    
+
     //-------------------------------   SAVE
 
     $scope.Get = function (args) {
@@ -40,7 +40,7 @@ $scope.ModelList = [];
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
-        
+
     };
 
     $scope.Save = function () {
@@ -58,7 +58,7 @@ $scope.ModelList = [];
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
                 }
             }), function errorCallBack(response) {
@@ -81,9 +81,9 @@ $scope.ModelList = [];
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
-                    
+
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -91,12 +91,10 @@ $scope.ModelList = [];
             });
         }
     };
-
     $scope.Clear = function () {
         ClearFields();
         return true;
     };
-    
     function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = {
@@ -105,11 +103,11 @@ $scope.ModelList = [];
             Attribute: null,
             Defination: null,
             Remarks: null,
-        
-       
-       };
+
+
+        };
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp)
 
     }
-   
+
 }
