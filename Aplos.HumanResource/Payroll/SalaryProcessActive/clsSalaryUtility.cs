@@ -96,15 +96,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             out string sFormulaValue, bool bEarning, List<SPvalueHeadWise> dtValue, List<SPSalaryHead> dicSlrHd)
         {
             DataSet dsLocal = null;
-            //DataView dvLocal = null;
-            //DataView dvSlrHd = null;
             string strTemp = "";
 
             try
             {
-                //dtValue
-                //List<SPvalueHeadWise> list = new List<SPvalueHeadWise>();
-                //list= dtValue.ToList<SPvalueHeadWise>();
 
                 dsLocal = new DataSet();
 
@@ -142,11 +137,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                     }
                     else
                     {
-                        //dvLocal = new DataView();
-                        //dvLocal.Table = dtValue;
-
+                       
                         var dtv = dtValue.FindAll(x => x.SalaryHeadID == strTemp.Trim() && x.EmpSystemID == sEmpSystemID);
-                        // dvLocal.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "' AND EmpSystemID = '" + sEmpSystemID + "'";
                         if (dtv.Count() > 0)
                         {
                             if (bEarning == false)
@@ -187,17 +179,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             if (dicsh.Count() > 0)
                             {
                                 strTemp = "0.00";
-                            }
-                            // var dvSPChd_dic = dicProcChild.FindAll(x => x.EmpInfoSystemID == dicLocal_Sub[i].EmpInfoSystemID && x.SalaryHeadID == dicLocal_Sub[i].SalaryHeadID && x.SlrProcMstSystemID == para.lblSalaryProcSystemId.Trim());
-
-                            //dicsal
-                            //dvSlrHd = new DataView();
-                            //dvSlrHd.Table = dtSlrHd;
-                            //dvSlrHd.RowFilter = "SalaryHeadID = '" + strTemp.Trim() + "'";
-                            //if (dvSlrHd.Count == 1)
-                            //{
-                            //    strTemp = "0.00";
-                            //}
+                            }                            
                         }
                     }
 

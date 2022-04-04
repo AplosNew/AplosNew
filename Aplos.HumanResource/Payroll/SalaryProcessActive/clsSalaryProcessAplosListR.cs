@@ -1486,8 +1486,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             int _child_salaryhead_seed = 0;
                                             for (int i = 0; i < dicLocal_Sub.Count; i++)
                                             {
-
-
                                                 if (dicLocal_Sub[i].HeadCategory != "Total Earning" && dicLocal_Sub[i].HeadCategory != "Total Deduction")
                                                 {
                                                     _child_salaryhead_seed++;
