@@ -66,7 +66,6 @@ namespace Aplos.Areas.Productions.Controllers
         {
             try
             {
-                
                 SaveData(data);
 
                 return Json(new { Message = AplosMessage.Insert });
