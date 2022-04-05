@@ -4126,6 +4126,7 @@
     <Content Include="Areas\Products\Views\POParameterChange\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\_SalesOrderItemPopUp.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
