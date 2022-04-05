@@ -455,7 +455,7 @@
                 <div class="form-group" id="div_docDate">
                     <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
                     <div class="col-sm-9 show-message pdl3">
-                        <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();getToCurrencyRate();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
+                        <input type="text" name="Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.DocDate" datepicker="modelValidation('div_docDate', 'productNew', 'DocDate');changePaymentTerm();" end-date="currentDate" id="cutOffDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="3">
                     </div>
                 </div>
             </div>
@@ -474,7 +474,7 @@
                 <div class="form-group" id="div_PODate">
                     <label class="col-sm-3 control-label pdl3 pdr3" style="padding-left: 0px;">Date<sup>*</sup></label>
                     <div class="col-sm-9 show-message pdl3">
-                        <input type="text" name="PO Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
+                        <input type="text" name="PO Date" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.PODate" datepicker="modelValidation('div_PODate', 'productNew', 'PODate');getToCurrencyRate();" end-date="currentDate" class="form-control" placeholder="dd-Mmm-yyyy" tabindex="6">
                     </div>
                 </div>
             </div>
