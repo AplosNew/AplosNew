@@ -551,6 +551,59 @@ namespace Library.Accounting.Accounts
         }
         #endregion
 
+        #region VoucherGLUpdate
+        public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            try
+            {
+                //var fiscalYearClose = new FiscalYearClose
+                //{
+
+                //    CompanyGroupId = fiscalYearCloseVM.CompanyGroupId,
+                //    CompanyId = fiscalYearCloseVM.CompanyId,
+                //    PlantId = fiscalYearCloseVM.PlantId,
+                //    FiscalYearId = fiscalYearCloseVM.FiscalYearId
+
+                //};
+                //InsertFiscalYearCloseData(fiscalYearClose, out DataSet _fiscalYearCloseData);
+
+                //clsStaticInfo objApp = new clsStaticInfo();
+                //objApp.SaveDataSets(_fiscalYearCloseData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        #endregion
+
+        //public FiscalYearClose InsertFiscalYearCloseData(FiscalYearClose fiscalYearClose, out DataSet dsData)
+        //{
+        //    AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
+
+
+        //    if (!string.IsNullOrEmpty(fiscalYearClose.FiscalYearId))
+        //    {
+        //        DataTable Qry = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where FiscalYearId='" + fiscalYearClose.FiscalYearId + "' AND CompanyId='" + fiscalYearClose.CompanyId + "' AND PlantId='" + fiscalYearClose.PlantId + "' AND Id<>''");
+        //        if (Qry.Rows.Count > 0)
+        //            throw new Exception("Data already exists!!!");
+
+        //    }
+        //    fiscalYearClose.Id = _accountsCommonService.GetAutoNumber(nameof(FiscalYearClose), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+        //    if (string.IsNullOrEmpty(fiscalYearClose.AddedBy))
+        //        AuditService.AddedLog(fiscalYearClose);
+
+        //    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+        //    con.getDataSet("Select * from [SCS].[FiscalYearClose] where 1=2", out dsData);
+
+        //    AddNewRow<FiscalYearClose>(dsData.Tables[0], fiscalYearClose);
+
+        //    return fiscalYearClose;
+        //}
+
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)
 
         {
