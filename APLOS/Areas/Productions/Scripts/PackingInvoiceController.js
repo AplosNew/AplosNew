@@ -1,5 +1,5 @@
 ﻿'use strict';
-PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService','bankService'];
+PackingInvoiceController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', 'accountService', 'bankService'];
 function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, accountService, bankService) {
     $rootScope.title = 'Packing Invoice';
     $scope.path = 'Productions/PackingInvoice/';
@@ -168,7 +168,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos;
         });
     }
-    
+
     $scope.selectedPackingList = [];
     function MakeData() {
         try {
@@ -201,7 +201,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
                                 $scope.selectedPackingList.push(ob);
                                 $scope.getPartyPlant();
-                                
+
                             }
                         }
                         else {
@@ -249,20 +249,119 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             $scope.salesOrderList = response.data;
             for (var i = 0; i < $scope.salesOrderList.length; i++) {
                 getTaxCategoryList($scope.salesOrderList[i].HSNCodeId, $scope.salesOrderList[i].SONo, $scope.salesOrderList[i].TransactionAmount);
-               
+
             }
         });
     }
 
+    $scope.salesOrderNewList = [];
+    $scope.GetPackingSODatum = function () {
+        $http({
+            method: 'GET',
+            url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
+        }).then(function (response) {
+            $scope.salesOrderNewList = response.data;
+            console.log($scope.salesOrderNewList);
+
+            angular.element(document.querySelector('#salesOrderItemPopUp')).modal('show');
+        });
+    }
+
+    $scope.ApplyOrderItemPopUp = function () {
+        MakeItemData();
+        angular.element(document.querySelector('#salesOrderItemPopUp')).modal('hide');
+    }
+
+    function MakeItemData() {
+
+        for (var i = 0; i < $scope.salesOrderNewList.length; i++) {
+
+            if (checkItemExist($scope.salesOrderList, $scope.salesOrderNewList[i].SONo, $scope.salesOrderNewList[i].MaterialMasterId, $scope.salesOrderNewList[i].ArticleId, $scope.salesOrderNewList[i].FirstCharacteristicsValueId, $scope.salesOrderNewList[i].SecondCharacteristicsValueId) === false) {
+
+                if ($scope.salesOrderNewList[i].Active == true) {
+                    var ob = {};
+                    ob.MasterOrderId= $scope.salesOrderNewList[i].MasterOrderId;
+                    ob.MasterOrderItemId = $scope.salesOrderNewList[i].MasterOrderItemId;
+                    ob.MaterialMasterArticleName = $scope.salesOrderNewList[i].MaterialMasterArticleName;
+                    ob.MaterialMasterName = $scope.salesOrderNewList[i].MaterialMasterName;
+                    ob.MaterialMasterId = $scope.salesOrderNewList[i].MaterialMasterId;
+                    ob.ArticleId = $scope.salesOrderNewList[i].ArticleId;
+                    ob.SONo = $scope.salesOrderNewList[i].SONo;
+                    ob.SalesOrderId = $scope.salesOrderNewList[i].SalesOrderId;
+                    ob.PONumber = $scope.salesOrderNewList[i].PONumber;
+                    ob.DeliveryDate = $scope.salesOrderNewList[i].DeliveryDate;
+                    ob.DestinationName = $scope.salesOrderNewList[i].DestinationName;
+                    ob.GoodsDescription = $scope.salesOrderNewList[i].GoodsDescription;
+                    ob.SKU1 = $scope.salesOrderNewList[i].SKU1;
+                    ob.SKU2 = $scope.salesOrderNewList[i].SKU2;
+                    ob.Rate = $scope.salesOrderNewList[i].Rate;
+                    ob.TransactionQty = $scope.salesOrderNewList[i].TransactionQty;
+                    ob.TransactionAmount = $scope.salesOrderNewList[i].TransactionAmount;
+                    ob.TaxAmount = $scope.salesOrderNewList[i].TaxAmount;
+                    ob.BaseUOMId = $scope.salesOrderNewList[i].BaseUOMId;
+                    ob.BaseQty = $scope.salesOrderNewList[i].BaseQty;
+                    ob.BaseRate = $scope.salesOrderNewList[i].BaseRate;
+                    ob.CommitmentDate = $scope.salesOrderNewList[i].CommitmentDate;
+                    ob.CustomerPOId = $scope.salesOrderNewList[i].CustomerPOId;
+                    ob.DestinationId = $scope.salesOrderNewList[i].DestinationId;
+                    ob.Discount = $scope.salesOrderNewList[i].Discount;
+                    ob.FirstCharacteristicsId = $scope.salesOrderNewList[i].FirstCharacteristicsId;
+                    ob.FirstCharacteristicsValueId = $scope.salesOrderNewList[i].FirstCharacteristicsValueId;
+                    ob.HSNCodeId = $scope.salesOrderNewList[i].HSNCodeId;
+                    ob.InvoicingPartyPlantId = $scope.salesOrderNewList[i].InvoicingPartyPlantId;
+                    ob.IsFirstEntry = $scope.salesOrderNewList[i].IsFirstEntry;
+                    ob.LSD = $scope.salesOrderNewList[i].LSD;
+                    ob.MainRawMaterialInhouseDate = $scope.salesOrderNewList[i].MainRawMaterialInhouseDate;
+                    ob.OrderCategoryId = $scope.salesOrderNewList[i].OrderCategoryId;
+                    ob.OrderStatusId = $scope.salesOrderNewList[i].OrderStatusId;
+                    ob.OtherRawMaterialInhouseDate = $scope.salesOrderNewList[i].OtherRawMaterialInhouseDate;
+                    ob.PODate = $scope.salesOrderNewList[i].PODate;
+                    ob.PlanQty = $scope.salesOrderNewList[i].PlanQty;
+                    ob.ProductName = $scope.salesOrderNewList[i].ProductName;
+                    ob.Qty = $scope.salesOrderNewList[i].Qty;
+                    ob.ResponsiblePersonId = $scope.salesOrderNewList[i].ResponsiblePersonId;
+                    ob.ResponsiblePersonName = $scope.salesOrderNewList[i].ResponsiblePersonName;
+                    ob.SKUQty = $scope.salesOrderNewList[i].SKUQty;
+                    ob.SalesQty = $scope.salesOrderNewList[i].SalesQty;
+                    ob.SecondCharacteristicsId = $scope.salesOrderNewList[i].SecondCharacteristicsId;
+                    ob.SecondCharacteristicsValueId = $scope.salesOrderNewList[i].SecondCharacteristicsValueId;
+                    ob.ShipmentModeId = $scope.salesOrderNewList[i].ShipmentModeId;
+                    ob.TransactionAmount = $scope.salesOrderNewList[i].TransactionAmount;
+                    ob.TransactionQty = $scope.salesOrderNewList[i].TransactionQty;
+                    ob.TransactionRate = $scope.salesOrderNewList[i].TransactionRate;
+                    ob.UpCharge = $scope.salesOrderNewList[i].UpCharge;
+
+                    $scope.salesOrderList.push(ob);
+                    ob = {};
+                    getTaxCategoryList($scope.salesOrderNewList[i].HSNCodeId, $scope.salesOrderNewList[i].SONo, $scope.salesOrderNewList[i].TransactionAmount);
+                }
+            }
+        }
+    }
+
+    function checkItemExist(list, SONo, materialMasterId, articleId, FirstCharacteristicsValueId, SecondCharacteristicsValueId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].SalesOrderId === SONo && list[i].MaterialMasterId === materialMasterId && list[i].ArticleId === articleId && list[i].FirstCharacteristicsValueId === FirstCharacteristicsValueId && list[i].SecondCharacteristicsValueId === SecondCharacteristicsValueId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.closeMasterOrderItemPopUp = function () {
+        angular.element(document.querySelector('#salesOrderItemPopUp')).modal('hide');
+    }
+
+
     $scope.CalculateTransactionAmount = function (data) {
-       
+
         data.TaxAmount = 0;
         if (!baseService.isUndefinedOrNull(data.Id)) {
-            
+
             data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
         } else {
-            
-            data.TransactionAmount = parseFloat(data.Rate * data.Qty).toFixed(2);
+
+            data.TransactionAmount = parseFloat(data.Rate * data.TransactionQty).toFixed(2);
         }
 
         if (baseService.arrayLength(data.TaxList) > 0) {
@@ -1112,6 +1211,16 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: "Productions/PackingInvoice/GetSalesPackingData?salesId=" + salesId
         }).then(function (response) {
             $scope.selectedPackingList = response.data;
+
+            if ($scope.selectedPackingList.length > 0) {
+                var uniquePackingId = removeDuplicates($scope.selectedPackingList, 'PackingId');
+                var wcPackingId = "";
+                if (uniquePackingId.length > 0) {
+                    wcPackingId = "IN(";
+                    wcPackingId += Array.prototype.map.call(uniquePackingId, function (item) { return "'" + item.PackingId + "'"; }).join(",") + ")";
+                }
+                $scope.sqlInStatement = wcPackingId;
+            }
         });
     }
 
@@ -1138,7 +1247,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             if ($scope.salesVM.IsPark == 0) {
                 throw "Posted data cann't save or update.";
             }
-            
+
 
             $scope.$broadcast("show-errors-check-validity");
             if ($scope.form0.$valid) {
@@ -1658,7 +1767,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.getShipmode();
 
-  
+
 
     $scope.dischargePortList = [];
     $scope.GetPortOfDischargeByDstination = function () {
@@ -2033,7 +2142,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         gridObj.refreshContent();
 
     };
-   
+
     function MakeAdditionalInfoData() {
 
         for (var i = 0; i < $scope.searchdata.length; i++) {
@@ -2052,7 +2161,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
                     $scope.SalesAdditionalInfoList.push(ob);
                 }
-                
+
             }
         }
 
