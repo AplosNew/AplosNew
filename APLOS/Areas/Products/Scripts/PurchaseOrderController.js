@@ -1244,11 +1244,11 @@ function PurchaseOrderController(accountService, addressService, $window, cboSer
     };
     $scope.getToCurrencyRate = function () {
 
-        if (baseService.isUndefinedOrNull($scope.productNew.DocDate)) {
+        if (baseService.isUndefinedOrNull($scope.productNew.PODate)) {
             $scope.productNew.ToCurrencyRate = 1;
             return;
         }
-        $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.DocDate))
+        $http.get($scope.path + 'GetToCurrencyRate?currencyId=' + $scope.productNew.CurrencyId + '&baseCurrencyId=' + $scope.productNew.BaseCurrencyId + '&docDate=' + $filter('dateFiltering')($scope.productNew.PODate))
             .then(function (response) {
                 if (parseFloat(response.data) === 0)
                     $scope.productNew.ToCurrencyRate = 1;
