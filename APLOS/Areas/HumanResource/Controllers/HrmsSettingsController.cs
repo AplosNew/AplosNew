@@ -1045,9 +1045,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
                                 LEFT JOIN HKP.DesignationGroup DeG ON DeG.Id=DM.DesignationGroupId
                                 LEFT JOIN [ORG].[Section] ON Section.Id = PR.SectionId  
-                                LEFT JOIN (SELECT EmpSystemID,FromDate,ToDate,BabyNo  FROM LeaveTransaction WHERE LTSystemID=(SELECT id FROM LeaveType WHERE LeaveType='Maternity' ) AND FromDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"') lv ON lv.EmpSystemID=EI.SystemId     
+                                LEFT JOIN (SELECT EmpSystemID,FromDate,ToDate,BabyNo  FROM LeaveTransaction WHERE LTSystemID=(SELECT id FROM LeaveType WHERE LeaveType='Maternity' ) AND DATEADD(DAY,-1,FromDate)  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"') lv ON lv.EmpSystemID=EI.SystemId     
 								WHERE  EI.PlantId='" + identity.PlantId + @"'
-                                AND EI.SystemId  IN (SELECT EmpSystemID FROM LeaveTransaction WHERE LTSystemID=(SELECT id FROM LeaveType WHERE LeaveType='Maternity' ) AND FromDate  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"')
+                                AND EI.SystemId  IN (SELECT EmpSystemID FROM LeaveTransaction WHERE LTSystemID=(SELECT id FROM LeaveType WHERE LeaveType='Maternity' ) AND DATEADD(DAY,-1,FromDate)  BETWEEN '" + FromDate + @"' AND '" + ToDate + @"')
                                 ORDER BY CONVERT(DATE,lv.FromDate) ";
 
             var data = _sqlRepository.GetDataCollection(sql);
