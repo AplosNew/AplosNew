@@ -178,7 +178,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/DebitNoteSetOff.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetDebitNoteSetOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -269,7 +269,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/CreditNoteSetOff.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCreditNoteSetOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
