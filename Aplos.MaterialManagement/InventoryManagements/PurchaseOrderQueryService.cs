@@ -134,6 +134,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						where MOI.ContractId='" + ContractId + @"'
 						)
 						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
+                        AND b.MaterialMasterId<>'' AND b.ArticleId<>''
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
             var Data = _sqlRepository.GetDataCollection(sql);
             StringCollection strCol = new StringCollection();

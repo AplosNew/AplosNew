@@ -593,7 +593,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetRegisterService.GetIssueAssetAUCList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
+        [HttpGet, Authorize, Authorize]
         public ActionResult GetIssueInventoryAUCList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
