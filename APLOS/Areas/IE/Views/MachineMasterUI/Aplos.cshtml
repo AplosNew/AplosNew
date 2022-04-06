@@ -208,7 +208,7 @@
                         </div>
 
                         <div class="col-md-12">
-                            
+
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label"><span style="font-size:12px">Running Load(In KW)</span><sup>*</sup></label>
@@ -251,14 +251,14 @@
                                     </div>
                                 </div>
                             </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label"><span style="font-size:10px">Maintanence Schedule Applicable</span><sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="number" name="Connected Power" ng-model="modelNew.MaintanenceScheduleApplicable" class="form-control" required>
-                                        </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Maintanence Schedule Applicable</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Connected Power" ng-model="modelNew.MaintanenceScheduleApplicable" class="form-control" required>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <div class="col-md-4">
@@ -407,52 +407,52 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                
+
                 <!--<div class="table-responsive modal-table">-->
-                        <!--<div class="row">-->
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="processPopUpDataList();" ng-disabled="userNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12">
-                                <div class="table-responsive modal-table" ng-show="userProcessList.length>0">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Code</th>
-                                                <th>Short Name</th>
-                                                <th>Process</th>
-                                                <th>Remove</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr ng-repeat="x in userProcessList" ng-class="{selected : x.Id==null}">
-                                                <td>{{x.Code}}</td>
-                                                <td>{{x.ShortName}}</td>
-                                                <td>{{x.ProcessName}}</td>
-                                                <td class="text-right table-td">
-                                                    <ul class="list-inline action-list">
-                                                        <li>
-                                                            <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                                        </li>
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @*</div>
+                <!--<div class="row">-->
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="processPopUpDataList();" ng-disabled="userNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="table-responsive modal-table" ng-show="userProcessList.length>0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Short Name</th>
+                                    <th>Process</th>
+                                    <th>Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in userProcessList" ng-class="{selected : x.Id==null}">
+                                    <td>{{x.Code}}</td>
+                                    <td>{{x.ShortName}}</td>
+                                    <td>{{x.ProcessName}}</td>
+                                    <td class="text-right table-td">
+                                        <ul class="list-inline action-list">
+                                            <li>
+                                                <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    @*</div>
                         </div>*@
                 </div>
             </div>
         </div>
-        
+
     </div>
 </div>
-
+@Html.Partial("~/Areas/Processes/Views/Shared/_SelectMultipleProcessPopUp.cshtml")
 <div class="clearfix"></div>
 <confirm-modal></confirm-modal>
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteManpower();"></confirm-archive-generic>

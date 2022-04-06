@@ -248,6 +248,11 @@ function OrderManagementConfig($routeProvider, $locationProvider)
             templateUrl: 'OrderManagements/DispatchMaster/Aplos',
             controller: 'DispatchMasterController'
         })
+        .when('/costing-so', {
+            templateUrl: 'OrderManagements/CostingSOTemplate/Aplos',
+            controller: 'CostingSOTemplateController'
+        })
+
 
         ;
 }

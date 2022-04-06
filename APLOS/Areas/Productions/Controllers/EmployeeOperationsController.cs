@@ -44,16 +44,22 @@ namespace Aplos.Areas.Productions.Controllers
             return View();
         }
       
-        [HttpGet , Authorize]
-        public ActionResult GetWorkCenter()
+        [HttpPost, Authorize]
+        public ActionResult GetEntity()
         {
-            return Json(eo.GetWorkCenter(), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetEntity() , JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetProcess()
+        [HttpPost , Authorize]
+        public ActionResult GetWorkCenter(string PId)
         {
-            return Json(eo.GetProcess(), JsonRequestBehavior.AllowGet);
+            return Json(eo.GetWorkCenter(PId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetProcess(string EId)
+        {
+            return Json(eo.GetProcess(EId), JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet, Authorize]

@@ -195,6 +195,12 @@
                         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                             <div ng-form="tabForm1">
                                 <div class="clearfix"></div>
+                                <ul class="common-btn list-inline text-left" ng-show="salesVM.Id!==null">
+                                    <li>
+                                        <button ng-click="GetPackingSODatum();" ng-disabled="salesVM.PartyId==null || salesVM.RowState==='Posted'" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Sales Order</button>
+                                    </li>
+
+                                </ul>
                                 <div class="table-responsive modal-table" ng-show="salesOrderList.length>0">
                                     <table class="table table-striped">
                                         <thead>
@@ -236,7 +242,6 @@
                                                 <td>{{x.SKU2}}</td>
                                                 <td class="text-right">{{x.Rate}}</td>
                                                 <td class="text-right">{{x.TransactionQty | number:2}}</td>
-                                                @*<td class="text-right">{{x.Balance | number:2}}</td>*@
                                                 <td class="text-right">{{x.TransactionAmount | number:2}}</td>
                                                 <td class="text-right">{{x.TaxAmount | number:2}}</td>
                                                 <td class="text-right">{{x.ServiceCharge | number:2}}</td>
@@ -1532,5 +1537,5 @@
         </div>
     </div>
 </ej-dialog>
-
+@Html.Partial("~/Areas/SalesManagements/Views/_SalesOrderItemPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_detailconfirmation}} data-ng-click-right-button="DeleteAddInfo();"></confirm-archive-generic>

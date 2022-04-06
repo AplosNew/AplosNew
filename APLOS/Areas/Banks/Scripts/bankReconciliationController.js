@@ -248,25 +248,33 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
             throw "After reconciled total amount must be equal closing balance......!";
     }
 
-    $scope.validDateRange = function (data, list, index) {
+    $scope.validDateRange = function (event,data, list, index) {
         try {
             if (new Date($scope.bankReconciliationNew.FromDate) > new Date(data.EncashmentDate) ||
                 new Date($scope.bankReconciliationNew.ToDate) < new Date(data.EncashmentDate)) {
                 for (var i = 0; i < $scope[list].length; i++) {
                     if ($scope[list][i].VoucherDetailId === data.VoucherDetailId) {
-                        $scope[list][i].EncashmentDate = null;
+                        //$scope[list][i].EncashmentDate = null;
+                        //event.currentTarget.checked = false;
+                        $scope[list][i].Flag = false;
+                        data.Flag = false;
                     }
                 }
                 //$scope[list][index].EncashmentDate = null;
+                //return true;
                 throw "Encashment date is out of date range..............!";
             }
             if (new Date(data.PostingDate) > new Date(data.EncashmentDate)) {
                 for (var i = 0; i < $scope[list].length; i++) {
                     if ($scope[list][i].VoucherDetailId === data.VoucherDetailId) {
-                        $scope[list][i].EncashmentDate = null;
+                        //$scope[list][i].EncashmentDate = null;
+                        //event.currentTarget.checked = false;
+                        $scope[list][i].Flag = false;
+                        data.Flag = false;
                     }
                 }
                 //$scope[list][index].EncashmentDate = null;
+                //return true;
                 throw "Encashment date can not be less then posting date [" + data.PostingDate + "]";
             }
         } catch (e) {

@@ -6,7 +6,7 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.path = 'Accounts/VoucherGlUpdate/';
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'UpdateVoucherGl';
     $scope.voucher = {
         Id: null,
         PartyId: null,
@@ -61,16 +61,10 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.Clear = function () {
-        $scope.Action = "Save";
-        $scope.voucher.Active = true;
-        $scope.voucher.Amount = 0;
-        $scope.voucher.DocRefNo = null;
-        $scope.voucher.Narration = null;
+        $scope.Action = "Update";
+        $scope.voucher = {};
         $scope.voucher.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
-        $scope.getCboVoucherTypeJournalVoucherList();
-        $scope.currencyDisable = false;
-        //$scope.currencyExchangeRate = [];
-        //$scope.voucherDetailList = [];
+        $scope.voucherDetailList = [];
     };
     $scope.Get = function (data) {
         $scope.voucher.Id = data.Id;
@@ -149,11 +143,12 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         search: null,
         serverPagination: true
     };
-    $scope.popUpGL = function () {
-        $scope.customerInvoiceGLList = [];
+    $scope.indexGL = "";
+    $scope.popUpGL = function (index) {
+        $scope.indexGL = index;
         baseService.setCurrentPage("cOAICodeList");
         $scope.GetCOAICodeListData = function (pageno) {
-            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+            baseService.paginationBase("Accounts/GLItem/GetExpenseGLBudgetActivity", pageno, $scope.glListParameters)
                 .then(function (result) {
                     $scope.cOAICodeList = result.Rows;
                     $scope.glListParameters.total_count = result.Total;
@@ -169,6 +164,46 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
     $scope.closeCOAICodeListPopUp = function () {
         angular.element(document.querySelector("#GLPopUp")).modal("hide");
     };
+    $scope.setSelected = function (data, index) {
+        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
+        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
+        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
+        $scope.voucherDetailList[$scope.indexGL].BudgetMasterId = data.BudgetMasterId;
+        $scope.voucherDetailList[$scope.indexGL].BudgetName = data.BudgetName;
+        $scope.voucherDetailList[$scope.indexGL].ActivityId = data.ActivityId;
+        $scope.voucherDetailList[$scope.indexGL].ActivityName = data.ActivityName;
+        $scope.closeCOAICodeListPopUp();
+    };
+    $scope.Save = function () {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    voucherDetailVMList: $scope.voucherDetailList
+                },
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Clear();
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+      
+
+    };
+
+    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType) {
+        if (SourceType == 'VendorInvoice') {
+            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+        }
+        else
+            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+
+    }
 
 };
 
