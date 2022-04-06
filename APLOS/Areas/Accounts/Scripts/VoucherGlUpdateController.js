@@ -148,7 +148,7 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.indexGL = index;
         baseService.setCurrentPage("cOAICodeList");
         $scope.GetCOAICodeListData = function (pageno) {
-            baseService.paginationBase("Accounts/GLItem/GetAllGLBudgetActivityPostingAutomaticOnly", pageno, $scope.glListParameters)
+            baseService.paginationBase("Accounts/GLItem/GetExpenseGLBudgetActivity", pageno, $scope.glListParameters)
                 .then(function (result) {
                     $scope.cOAICodeList = result.Rows;
                     $scope.glListParameters.total_count = result.Total;
@@ -195,6 +195,15 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
       
 
     };
+
+    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType) {
+        if (SourceType == 'VendorInvoice') {
+            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+        }
+        else
+            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+
+    }
 
 };
 
