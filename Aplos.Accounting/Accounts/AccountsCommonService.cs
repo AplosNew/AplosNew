@@ -556,6 +556,31 @@ namespace Library.Accounting.Accounts
         {
             try
             {
+                //foreach (var voucherDetailVM in voucherDetailVMList)
+                //{
+
+                //    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
+                //    {
+                //        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                //            throw new CustomException("Without GL can not update Voucher GL!");
+                        
+                //        var voucherDr = new VoucherDetail
+                //        {
+                //            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                //            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                //            ActivityId = voucherDetailVM.ActivityId,
+                //            DrAmount = voucherDetailVM.Amount,
+                //            DocRefNo = voucherVM.DocRefNo,
+                //            Narration = voucherDetailVM.Narration,
+                //        };
+                //        currentVoucherDetaiRecord++;
+                //        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+
+                        
+
+                //    }
+                //}
+
                 //var fiscalYearClose = new FiscalYearClose
                 //{
 
