@@ -63,92 +63,47 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> RackData, List<Dictionary<string, object>> BinData)
+        public JsonResult Create(Dictionary<string, object> DetentionData)
         {
             try
             {
 
                 ConnectionManager.DAL.ConManager conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from dbo.Rack where Id<>'" + RackData["Id"] + "' AND Code='"+ RackData["Code"] + "'", out DataSet dsRackValidation, false, "1");
+                conRack.OpenDataSetThroughAdapter("select * from DetentionMaster where Id<>'" + DetentionData["Id"] + "'", out DataSet dsDetentionMasterValidation, false, "1");
 
-                if (dsRackValidation.Tables[0].Rows.Count>0)
-                {
-                    throw new Exception("Code Already Exist.");
-                }
+                //if (dsDetentionMaster.Tables[0].Rows.Count>0)
+                //{
+                //    throw new Exception("Code Already Exist.");
+                //}
                 
-                DataSet dsRack;
+                DataSet dsDetentionMaster;
 
                  conRack = new ConnectionManager.DAL.ConManager("1");
-                conRack.OpenDataSetThroughAdapter("select * from dbo.Rack where Id='" + RackData["Id"] + "'", out dsRack, false, "1");
-
-                if (RackData["StorageLocationId"] == null)
-                {
-                    throw new Exception("Please Select Storage Location");
-                }
-
+                conRack.OpenDataSetThroughAdapter("select * from DetentionMaster where Id='" + DetentionData["Id"] + "'", out dsDetentionMaster, false, "1");
                 string _Id = "";
 
                 #region data update
-                if (dsRack.Tables[0].Rows.Count == 0)
+                if (dsDetentionMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("dbo.Rack", out _Id);
-                    _Id = "R" + _Id;
-                    RackData["Id"] = _Id;
-                    AddNewRow(dsRack.Tables[0], RackData);
+                    genid.GenID("DetentionMaster", out _Id);
+                    _Id = "DM" + _Id;
+                    DetentionData["Id"] = _Id;
+                    AddNewRow(dsDetentionMaster.Tables[0], DetentionData);
                 }
                 else
                 {
-                    _Id = RackData["Id"].ToString();
-                    EditRow(dsRack.Tables[0].Rows[0], RackData);
+                    _Id = DetentionData["Id"].ToString();
+                    EditRow(dsDetentionMaster.Tables[0].Rows[0], DetentionData);
                 }
                 #endregion data update
 
 
-                DataSet dsBin;
-
-                ConnectionManager.DAL.ConManager conBin = new ConnectionManager.DAL.ConManager("1");
-                conBin.OpenDataSetThroughAdapter("select * from dbo.Bin where RackId='" + _Id + "'", out dsBin, false, "1");
-
-                string binId = "";
-                for (int i = 0; i < BinData.Count; i++)
-                {
-                    dsBin.Tables[0].DefaultView.RowFilter = "Id='" + BinData[i]["Id"] + @"'";
-                    if (dsBin.Tables[0].DefaultView.Count > 0)
-                    {
-                        //edit
-                        DataRow dr = dsBin.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["UserName"] = BinData[i]["UserName"];                      
-                        dr.EndEdit();
-                    }
-                    else
-                    {
-                        //addnew
-                        if (binId == "")
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenID("dbo.Bin", out binId);
-                        }
-                        DataRow dr = dsBin.Tables[0].NewRow();
-
-                        dr["Id"] = "B-" + binId + "-" + (i + 1);
-                        dr["RackId"] = _Id;
-                        dr["Code"] = BinData[i]["Code"];
-                        dr["Row"] = BinData[i]["Row"];
-                        dr["Column"] = BinData[i]["Column"];
-                        dr["UserName"] = BinData[i]["UserName"];
-
-                        dsBin.Tables[0].Rows.Add(dr);
-
-                    }
-                }
-
-
+              
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsRack, dsBin);
+                _info.SaveDataSets(dsDetentionMaster);
 
-                return Json(new { Error = false, Data = RackData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = DetentionData, Sequence = GetSequence(), Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -207,17 +162,10 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [Authorize, HttpGet]
-        public ActionResult LoadRackList()
+        public ActionResult LoadDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select r.*,s.UserName StorageLocation ,b.TotalBin
-from Rack r 
-left outer join 
-(
-select COUNT(Id) TotalBin,RackId from Bin 
-group by RackId
-)b on b.RackId=r.Id
-left outer join hkp.MaterialStorage s on s.Id=r.StorageLocationId";
+            string sql = @"SELECT * FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

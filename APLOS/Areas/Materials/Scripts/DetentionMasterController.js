@@ -1,11 +1,11 @@
 ﻿'use strict';
 DetentionMasterController.$inject = ["cboService","commonMessage", "$scope", "$rootScope", "baseService", "$routeParams", "$location", "$http", "$filter"];
 function DetentionMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "Rack";
+    $rootScope.title = "DetentionMaster";
     $scope.Action = 'Save';
     $scope.RackList = [];
     $scope.index = -1;
-    $scope.path = 'Materials/Rack/';
+    $scope.path = 'Materials/DetentionMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getUrl = $scope.path + 'get';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -14,99 +14,54 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
 
-    $scope.rack = {
+    $scope.detention = {
         Id: null
-        , StorageLocationId: null
-        , Sequence: 0.0
-        , Code: null
-        , ShortName: null
-        , StandardName: null
-        , UserName: null
-        , Description: null
-        , Remarks: null
-        , PlantId: null
-        , Storage: null
-        , Rows: 1
-        , Columns: 1
-        , Active: true
+        , DetentionCategory: null
+        , DetentionSubCategory: null
+        , DetentionStandaredName: null
+        , DetentionUserName: null
+        , DetentionType: null
+        , DetentionCriticality: null
+        , ResponsiblePersion: null
+        , DetentionTarget: null
+        , DetentionPlan: null
+        , IsAvoidable: true
     };
-    $scope.rackNew = Object.assign({}, $scope.rack);
+    $scope.detentionNew = Object.assign({}, $scope.detention);
 
     $scope.Remove = function (index) {
         var removed = $scope.DataList.splice(index, 1);
         $scope.Detail = removed;
         //$scope.Detail.pop();
     }
-    $scope.bin = {
-        Id: null,
-        RackId: null,
-        Code: null,
-        Row: 0,
-        Column: 0,
-        UserName: null
-    }
-    $scope.binList = [];
 
-    $scope.GenerateBIN = function () {
-        $scope.binList = [];
-        if ($scope.rackNew.Rows <= 0 || $scope.rackNew.Columns <= 0 || baseService.isUndefinedOrNull($scope.rackNew.Rows) || baseService.isUndefinedOrNull($scope.rackNew.Columns)) {
-
-            ShowResult('Rows and Columns should greater than 0.','failure')
-        }
-
-        for (var ROW = 1; ROW <= $scope.rackNew.Rows; ROW++) {
-            
-            for (var COL = 1; COL <= $scope.rackNew.Columns; COL++) {
-                var tempItem = Object.assign({}, $scope.bin);
-                tempItem.Code = "R" + ROW + "C" + COL;
-                tempItem.UserName = tempItem.Code;
-                tempItem.Row = ROW;
-                tempItem.Column = COL;
-
-                $scope.binList.push(tempItem);
-            }
-        }
-    }
-
-    $scope.RackList = [];
-
-    $scope.LoadRackList = function () {
+    $scope.DetentionList = [];
+    $scope.LoadDetentionList = function () {
         $http({
 
             method: 'Get',
-            url: 'Materials/Rack/LoadRackList'
+            url: 'Materials/DetentionMaster/LoadDetentionList'
         }).then(function successCallback(response) {
-            $scope.RackList = response.data;
+            $scope.DetentionList = response.data;
         }
         )
     }
-    $scope.LoadRackList();
-
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.rack.Sequence = data;
-            $scope.rackNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
-    $scope.StorageList = [];
-    $scope.storage = function () {
-        $http.get($scope.getStorage)
-            .then(function (response) {
-                $scope.StorageList = response.data;
-            });
-
-    }
-    $scope.storage();
+    $scope.LoadDetentionList();
+    //$scope.GetSequence = function () {
+    //    cboService.getSequence($scope.getSeqUrl, function (data) {
+    //        $scope.Detention.Sequence = data;
+    //        $scope.DetentionNew.Sequence = data;
+    //    });
+    //};
+    //$scope.GetSequence();
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.rackNewForm.$valid) {
+        if ($scope.DetentionMasterForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'RackData': $scope.rackNew, 'BinData': $scope.binList },
+                data: { 'DetentionData': $scope.detentionNew},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -115,8 +70,9 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                 else {
                     ShowResult(response.data.Message, 'success');
                     /*ClearFields(response.data.Sequence);*/
-                    $scope.LoadRackList();
-                    $scope.GetDetails({ data: { Id: response.data.Data.Id } });
+                    $scope.LoadDetentionList();
+                    DetentionClearFields();
+                   /* $scope.GetDetails({ data: { Id: response.data.Data.Id } });*/
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -124,27 +80,27 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }    
     };
 
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.rackNew.Id)) {
-            $http({
-                method: 'POST'
-                , url: $scope.path + 'Delete?Id=' + $scope.rackNew.Id
-                , dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');                   
-                    ClearFields(response.data.Sequence);
-                    $scope.LoadRackList();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
+    //$scope.Delete = function () {
+    //    if (!baseService.isUndefinedOrNull($scope.rackNew.Id)) {
+    //        $http({
+    //            method: 'POST'
+    //            , url: $scope.path + 'Delete?Id=' + $scope.rackNew.Id
+    //            , dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'success');                   
+    //                ClearFields(response.data.Sequence);
+    //                $scope.LoadRackList();
+    //            }
+    //            function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        });
+    //    }
+    //};
 
     $scope.GetDetails = function (args) {
         $http({
@@ -159,20 +115,23 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             }
         }
         )
-
     }
 
-
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
         return true;
     };
 
-    function ClearFields(seq) {
+//    function ClearFields(seq) {
+//        $scope.Action = "Save";
+//        $scope.detentionNew = Object.assign({}, $scope.detention);
+///*        $scope.rackNew.Sequence= seq;*/
+//        $scope.binList =[];
+
+//    }
+
+    function DetentionClearFields() {
         $scope.Action = "Save";
-        $scope.rackNew = Object.assign({}, $scope.rack);
-        $scope.rackNew.Sequence= seq;
-        $scope.binList =[];
+        $scope.detentionNew = Object.assign({}, $scope.detention);
 
     }
 }
