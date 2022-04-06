@@ -623,7 +623,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.InvoiceToAcceptance), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult InsertInvoiceToAcceptancePost(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
            , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList)
         {
