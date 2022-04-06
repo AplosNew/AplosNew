@@ -556,44 +556,65 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                //foreach (var voucherDetailVM in voucherDetailVMList)
-                //{
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _VoucherGLUpdateLogData = null;
+                DataSet _drvDetailData = null;
+                var OldGLGeneralInfoId = "";
+                var OldBudgetMasterId = "";
+                var OldActivityId = "";
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
 
-                //    if (voucherDetailVM.TrnType == "Dr" && voucherDetailVM.Amount > 0)
-                //    {
-                //        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
-                //            throw new CustomException("Without GL can not update Voucher GL!");
-                        
-                //        var voucherDr = new VoucherDetail
-                //        {
-                //            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
-                //            BudgetMasterId = voucherDetailVM.BudgetMasterId,
-                //            ActivityId = voucherDetailVM.ActivityId,
-                //            DrAmount = voucherDetailVM.Amount,
-                //            DocRefNo = voucherVM.DocRefNo,
-                //            Narration = voucherDetailVM.Narration,
-                //        };
-                //        currentVoucherDetaiRecord++;
-                //        _accountsCommonService.InsertVoucherDetail(voucher, voucherDr, currentVoucherDetaiRecord, ref _drvDetailData);
+                    if ( voucherDetailVM.DrAmount > 0)
+                    {
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not update Voucher GL!");
 
+                        con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[VoucherDetail] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailData, false, "1");
                         
 
-                //    }
-                //}
+                        if (_drvDetailData.Tables[0].Rows.Count > 0)
+                        {
+                            for (int j = 0; j < _drvDetailData.Tables[0].Rows.Count; j++)
+                            {
+                                if (_drvDetailData.Tables[0].DefaultView.Count > 0)
+                                {
+                                     OldGLGeneralInfoId = _drvDetailData.Tables[0].DefaultView[0].Row["GLGeneralInfoId"].ToString();
+                                     OldBudgetMasterId = _drvDetailData.Tables[0].DefaultView[0].Row["BudgetMasterId"].ToString();
+                                     OldActivityId = _drvDetailData.Tables[0].DefaultView[0].Row["ActivityId"].ToString();
+                                    //edit
+                                    DataRow dr = _drvDetailData.Tables[0].DefaultView[0].Row;
+                                    
+                                        dr.BeginEdit();
+                                        dr["GLGeneralInfoId"] = voucherDetailVM.GLGeneralInfoId;
+                                        dr["BudgetMasterId"] = voucherDetailVM.BudgetMasterId;
+                                        dr["ActivityId"] = voucherDetailVM.ActivityId;
+                                        dr.EndEdit();
+                                    
+                                }
+                            }
+                        }
 
-                //var fiscalYearClose = new FiscalYearClose
-                //{
+                        var voucherGLUpdateLog = new VoucherGLUpdateLog
+                        {
+                            VoucherId= voucherDetailVM.VoucherId,
+                            VoucherDetailId = voucherDetailVM.Id,
+                            OldGLGeneralInfoId = OldGLGeneralInfoId,
+                            OldBudgetMasterId = OldBudgetMasterId,
+                            OldActivityId = OldActivityId,
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
 
-                //    CompanyGroupId = fiscalYearCloseVM.CompanyGroupId,
-                //    CompanyId = fiscalYearCloseVM.CompanyId,
-                //    PlantId = fiscalYearCloseVM.PlantId,
-                //    FiscalYearId = fiscalYearCloseVM.FiscalYearId
+                        };
 
-                //};
-                //InsertFiscalYearCloseData(fiscalYearClose, out DataSet _fiscalYearCloseData);
+                        InsertVoucherGLUpdateLogData(voucherGLUpdateLog, ref _VoucherGLUpdateLogData);
 
-                //clsStaticInfo objApp = new clsStaticInfo();
-                //objApp.SaveDataSets(_fiscalYearCloseData);
+                    }
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_VoucherGLUpdateLogData, _drvDetailData);
             }
             catch (Exception ex)
             {
@@ -602,32 +623,21 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public VoucherGLUpdateLog InsertVoucherGLUpdateLogData(VoucherGLUpdateLog voucherGLUpdateLog, ref DataSet dsData)
+        {
+            voucherGLUpdateLog.Id = GetAutoNumber(nameof(VoucherGLUpdateLog), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(voucherGLUpdateLog.AddedBy))
+                AuditService.AddedLog(voucherGLUpdateLog);
+
+            ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+            con.getDataSet("Select * from [TRN].[VoucherGLUpdateLog] where 1=2", out dsData);
+
+            AddNewRow<VoucherGLUpdateLog>(dsData.Tables[0], voucherGLUpdateLog);
+
+            return voucherGLUpdateLog;
+        }
         #endregion
-
-        //public FiscalYearClose InsertFiscalYearCloseData(FiscalYearClose fiscalYearClose, out DataSet dsData)
-        //{
-        //    AccountsCommonService _accountsCommonService = new AccountsCommonService(_sqlRepository);
-
-
-        //    if (!string.IsNullOrEmpty(fiscalYearClose.FiscalYearId))
-        //    {
-        //        DataTable Qry = _sqlRepository.GetDataTable("select * from [SCS].[FiscalYearClose] where FiscalYearId='" + fiscalYearClose.FiscalYearId + "' AND CompanyId='" + fiscalYearClose.CompanyId + "' AND PlantId='" + fiscalYearClose.PlantId + "' AND Id<>''");
-        //        if (Qry.Rows.Count > 0)
-        //            throw new Exception("Data already exists!!!");
-
-        //    }
-        //    fiscalYearClose.Id = _accountsCommonService.GetAutoNumber(nameof(FiscalYearClose), PKGeneratorEnum.Yearly, null, DateTime.Now);
-
-        //    if (string.IsNullOrEmpty(fiscalYearClose.AddedBy))
-        //        AuditService.AddedLog(fiscalYearClose);
-
-        //    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-        //    con.getDataSet("Select * from [SCS].[FiscalYearClose] where 1=2", out dsData);
-
-        //    AddNewRow<FiscalYearClose>(dsData.Tables[0], fiscalYearClose);
-
-        //    return fiscalYearClose;
-        //}
 
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)
 
@@ -859,14 +869,14 @@ namespace Library.Accounting.Accounts
 V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-MMM-yyyy') PostingDate, V.DocRefNo
 , V.VoucherTypeId,vt.UserName VoucherType
 , V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
-C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity
+C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
                                     FROM TRN.[Voucher] AS V
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','VendorPayment') ";
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -875,7 +885,7 @@ where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId +
         public List<Dictionary<string, object>> getVoucherData(string voucherId)
         {
             var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
-                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
                                 LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.VoucherId='" + voucherId + @"'";
             return _sqlRepository.GetDataCollection(sql);
 

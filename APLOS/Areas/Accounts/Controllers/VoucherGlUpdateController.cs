@@ -43,20 +43,6 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        //[HttpPost, Authorize]
-        //public ActionResult GetJournalVoucherDetailData(string voucherId)
-        //{
-        //    AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    return Json(new { DATA = accountsCommonService.getVoucherData(voucherId), Error = false }, JsonRequestBehavior.AllowGet);
-        //}
-
-        //[HttpGet, Authorize]
-        //public JsonResult GetJournalVoucherDetailList(string voucherId)
-        //{
-        //    return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
-        //}
-
         [HttpGet, Authorize]
         public JsonResult Data(string voucherId)
         {
