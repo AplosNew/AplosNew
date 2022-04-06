@@ -704,6 +704,7 @@
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
+    <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
@@ -2048,6 +2049,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
+    <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingReportsController.js" />
@@ -4073,6 +4075,7 @@
     <Content Include="Areas\HumanResource\Views\PerformanceAttributeMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
