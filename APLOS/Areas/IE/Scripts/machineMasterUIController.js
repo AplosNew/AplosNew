@@ -407,16 +407,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         });
     };
 
-    //$scope.removeRow = function () {
-    //    for (var t = 0; t < baseService.arrayLength($rootScope.tempList); t++) {
-    //        if ($rootScope.tempList[t][$scope.tempId] === $scope[$scope.listName][$scope.popUpIndex][$scope.listId])
-    //            $rootScope.tempList.splice(t, 1);
-    //    }
-    //    $scope[$scope.listName].splice($scope.popUpIndex, 1);
-    //    $scope.popUpIndex = -1;
-    //    angular.element(document.querySelector('#confirmRemovePopUp')).modal('hide');
-    //};
-
+    
     $scope.Delete = function () {
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
