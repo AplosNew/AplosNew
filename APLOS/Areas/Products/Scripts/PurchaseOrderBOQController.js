@@ -1384,8 +1384,20 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                             throw "Already taken";
                         }
                         else {
+                            $scope.UpdatepoBoqItemList[i].Id = null;
                             $scope.poBoqItemListNew.push($scope.UpdatepoBoqItemList[i]);
                             Done = 1;
+                                var getRow = $filter("filter")($scope.tempList, {
+                                    "MaterialMasterId": $scope.UpdatepoBoqItemList[i].MaterialMasterId, "ArticleId": $scope.UpdatepoBoqItemList[i].ArticleId
+                                    , "FirstCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].FirstCharacteristicsValueId
+                                    , "SecondCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].SecondCharacteristicsValueId
+                                    , "ThitrdCharacteristicsValueId": $scope.UpdatepoBoqItemList[i].ThitrdCharacteristicsValueId
+                                    , "GroupId": $scope.UpdatepoBoqItemList[i].GroupId
+                                });
+                                if (getRow.length == 0) {
+                                    $scope.tempList.push($scope.UpdatepoBoqItemList[i]);
+                                }
+                            
                         }
                         if (Done == 1) {
                             angular.element(document.querySelector('#AddMaterialPopUp')).modal('hide');
