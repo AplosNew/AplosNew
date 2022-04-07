@@ -892,7 +892,7 @@ namespace Library.Service.EmployeeServices
             try
             {
                 var sql = @"select EmpSystemId,YearNo,MonthNo,IsLocked,SalaryStructureId from dbo.SalaryLock k 
-                where k.empsystemId='"+EmpId+"' and k.MonthNo='"+Month+"' and YearNo='"+Year+"'";
+                where k.empsystemId='"+EmpId+ "'and IsLocked=1 and k.MonthNo='" + Month+"' and YearNo='"+Year+"'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
