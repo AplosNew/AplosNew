@@ -293,7 +293,7 @@
                         </div>
                     </fieldset>
                 </div>
-                <div class="form-horizontal form-elements" ng-form="modelNewForm1" ng-hide="true">
+                @*<div class="form-horizontal form-elements" ng-form="modelNewForm1" ng-hide="true">
                     <div class="tab-design" id="tab_show">
                         <div class="site-tab">
                             <ul class="nav nav-tabs" role="tablist">
@@ -403,7 +403,7 @@
                             </fieldset>
                         </div>
                     </div>
-                </div>
+                </div>*@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
@@ -426,7 +426,6 @@
                                         <th>Code</th>
                                         <th>Short Name</th>
                                         <th>Standard Name</th>
-                                        <th>User Name</th>
                                         <th>Process</th>
                                         <th>Remove</th>
                                     </tr>
@@ -437,12 +436,11 @@
                                         <td>{{x.Code}}</td>
                                         <td>{{x.ShortName}}</td>
                                         <td>{{x.StandardName}}</td>
-                                        <td>{{x.UserName}}</td>
-                                        <td>{{x.ProcessName}}</td>
+                                        <td>{{x.Process}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
-                                                    <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                    <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', x.Id, 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                                 </li>
                                             </ul>
                                         </td>

@@ -24,7 +24,6 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'Create';
     $scope.updateUrl = $scope.path + 'Edit'; 
     $scope.deleteUrl = $scope.path + 'Delete/';
-    $scope.ProcessdeleteUrl = $scope.path + 'ProcessDelete/';
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
@@ -360,26 +359,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.closeProcessPopUp();
     };
 
-    $scope.ProcessDelete = function () {
-            $http({
-                method: 'POST',
-                url: $scope.ProcessdeleteUrl + $scope.OMId,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    //$scope.getData();
-                    $scope.userProcessList = resp.data;
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-    };
-
+   
 
     $scope.userProcessList = [];
     $scope.getMachineMasterProcess = function () {
@@ -407,16 +387,27 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'Error');
         }
     };
+
     $scope.removeRow = function () {
-        for (var t = 0; t < baseService.arrayLength($rootScope.tempList); t++) {
-            if ($rootScope.tempList[t][$scope.tempId] === $scope[$scope.listName][$scope.popUpIndex][$scope.listId])
-                $rootScope.tempList.splice(t, 1);
-        }
-        $scope[$scope.listName].splice($scope.popUpIndex, 1);
-        $scope.popUpIndex = -1;
-        angular.element(document.querySelector('#confirmRemovePopUp')).modal('hide');
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterUI/ProcessDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getMachineMasterProcess();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
 
+    
     $scope.Delete = function () {
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {

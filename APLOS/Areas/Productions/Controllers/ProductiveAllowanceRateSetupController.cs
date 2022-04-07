@@ -15,12 +15,15 @@ using Library.Service.Helpers;
 using System.IO;
 using System.Data;
 using Library.Data;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Aplos.Areas.Productions.Controllers
 {
     public class ProductiveAllowanceRateSetupController : BaseController
     {
         ProductiveAllowanceRateSetupService pa = new ProductiveAllowanceRateSetupService();
+        EmployeeOperationBudget eob = new EmployeeOperationBudget();
         public ProductiveAllowanceRateSetupController()
         { }
 
@@ -141,8 +144,104 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
 
         #region BUDGET APPLICABLE
+
+        [HttpGet, Authorize]
+        public ActionResult GetSampleReport(string plantId, string name, ReportFormat reportFormat)
+        {
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
+            var reportFileName = "RosterBudgetUpload-" + name + "-" + date;
+            var workbook = GetRosterBudgetWorkSheet(plantId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
+
+        private IWorkbook GetRosterBudgetWorkSheet(string plantId)
+        {
+
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var sheet = workbook.Worksheets[0];
+
+            DataTable data = eob.getEmployeeOperationBudgetFile(plantId);
+
+            sheet.Name = "RosterBudgetUpload";
+
+
+
+            int ROW = 1;
+            int endCol = 1;
+            int COL = 1;
+
+            #region Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "RosterId", 12, ExcelHAlign.HAlignLeft);
+            int ColRosterId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "BudgetId", 8, ExcelHAlign.HAlignLeft);
+            int ColBudgetId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "BudgetCode", 8, ExcelHAlign.HAlignLeft);
+            int ColBudgetCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 8, ExcelHAlign.HAlignLeft);
+            int ColPlant = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 8, ExcelHAlign.HAlignLeft);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Position", 8, ExcelHAlign.HAlignLeft);
+            int ColPosition = COL;
+            COL++;
+            endCol = COL;
+            #endregion Headers
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColRosterId].Text = data.Rows[i]["RosterId"].ToString();
+                sheet[ROW, ColBudgetId].Text = data.Rows[i]["BudgetId"].ToString();
+                sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
+                sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColPosition].Text = data.Rows[i]["Position"].ToString();
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+            }
+            endRow = ROW - 1;
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
         [HttpPost, Authorize]
-       /* public ActionResult ImportData(string plantId)
+        public ActionResult ImportData(string plantId)
         {
             string path;
 
@@ -162,36 +261,31 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message });
             }
-        }*/
-        /*
-        public List<> ReadData(string path, string plantId)
+        }
+        
+        public List<eobud> ReadData(string path, string plantId)
         {
 
             DataSet dsExcel = null;
             try
             {
-                List<> data = new List<>();
-                List<> ret = new List<>();
+                List<eobud> data = new List<eobud>();
+                List<eobud> ret = new List<eobud>();
                 ReadFile(path, out dsExcel);
 
-                data = dsExcel.Tables[0].ToList<rosbud>();
-                List<string> RostersList = rs.getRostersList(plantId);
+                data = dsExcel.Tables[0].ToList<eobud>();
+               
 
                 if (data.Count > 0)
                 {
                     for (int i = 0; i < data.Count; i++)
                     {
-                        if (data[i].RosterId != null)
+                        if (data[i].BudgetId != null)
                         {
-                            if (RostersList.Contains(data[i].RosterId))
-                            {
+                           
                                 ret.Add(data[i]);
-                            }
-                            else
-                            {
-                                throw new Exception("The Roster in Budget Id - " + data[i].BudgetCode + " is either not present or doesn't belong to this plant!!");
-                            }
-
+                           
+                           
                         }
                     }
                 }
@@ -203,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
                 throw ex;
             }
         }
-        */
+        
         public void ReadFile(string path, out DataSet dsExcel)
         {
             FileInfo docFile;
@@ -272,6 +366,16 @@ namespace Aplos.Areas.Productions.Controllers
             {
                 throw ex;
             }
+        }
+
+
+
+        public class eobud
+        {
+            public string BudgetId { get; set; }
+           
+            public string BudgetCode { get; set; }
+
         }
         #endregion BUDGET APPLICABLE
 
