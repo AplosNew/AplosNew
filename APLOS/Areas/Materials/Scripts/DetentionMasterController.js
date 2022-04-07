@@ -3,8 +3,8 @@ DetentionMasterController.$inject = ["cboService","commonMessage", "$scope", "$r
 function DetentionMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = "DetentionMaster";
     $scope.Action = 'Save';
-    $scope.RackList = [];
-    $scope.index = -1;
+    
+   
     $scope.path = 'Materials/DetentionMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getUrl = $scope.path + 'get';
