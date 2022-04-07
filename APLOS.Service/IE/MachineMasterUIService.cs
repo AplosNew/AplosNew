@@ -306,7 +306,7 @@ namespace Library.Service.IE
         {
             try
             {
-                var sql = @"SELECT MM.Id                                  ,CG.StandardName As CompanyGroup                                  ,MM.Sequence                                  ,MM.Code                                  ,MM.ShortName	                              ,MM.StandardName                                  ,MM.UserName	                              ,MC.UserName AS MachineCategory	                              ,MSC.UserName AS MachineSubCategory	                              ,SK.UserName AS Skill                                  ,MM.Description                                  ,MM.Remarks                                  ,MM.ProductionMachineQty                                  ,MM.SampleMachineQty                                  ,MM.TrainingMachineQty                                  ,MM.RentMachineQty                                  ,MM.OtherMachineQty                                  ,MM.Active                                   FROM MST.MachineMaster As MM                             LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID                             LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId                             LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId";
+                var sql = @"SELECT MM.Id                                  ,CG.StandardName As CompanyGroup                                  ,MM.Sequence                                  ,MM.Code                                  ,MM.ShortName	                              ,MM.StandardName                                  ,MM.UserName	                              ,MC.UserName AS MachineCategory	                              ,MSC.UserName AS MachineSubCategory	                              ,SK.UserName AS Skill                                  ,MM.Description                                  ,MM.Remarks                                  ,MM.ProductionMachineQty                                  ,MM.SampleMachineQty                                  ,MM.TrainingMachineQty                                  ,MM.RentMachineQty                                  ,MM.OtherMachineQty								  ,MM.ConnectedPower								  ,MM.RunningLoad								  ,MM.ConnectedSteam								  ,MM.RunningSteam								  ,MM.ConnectedAir								  ,MM.RunningAir								  ,MM.MaintanenceScheduleApplicable                                  ,MM.Active                                   FROM MST.MachineMaster As MM                             LEFT JOIN ORG.CompanyGroup AS CG on CG.ID=MM.CompanyGroupID                             LEFT JOIN  HKP.MachineCategory AS MC on MC.Id=MM.MachineCategoryId                             LEFT JOIN HKP. MachineSubCategory AS MSC  on MSC.ID=MM.MachineSubCategoryID                             LEFT JOIN HKP.Skill AS SK ON SK.ID=MM.SkillId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -340,14 +340,21 @@ namespace Library.Service.IE
                           ,TrainingMachineQty
                           ,RentMachineQty
                           ,OtherMachineQty
-		                  ,Remarks,
-		                   Active,
-		                   AddedBy,
-		                   AddedDate,
-		                   AddedFromIP,
-		                   UpdatedBy,
-		                   UpdatedDate,
-		                   UpdatedFromIP from [MST].[MachineMaster] where Id='" + id + "'";
+		                  ,Remarks
+                          ,ConnectedPower
+                          ,RunningLoad
+                          ,ConnectedSteam
+                          ,RunningSteam
+                          ,ConnectedAir
+                          ,RunningAir
+                          ,MaintanenceScheduleApplicable
+		                  ,Active
+		                  ,AddedBy
+		                  ,AddedDate
+		                  ,AddedFromIP
+		                  ,UpdatedBy
+		                  ,UpdatedDate
+		                  ,UpdatedFromIP from [MST].[MachineMaster] where Id='" + id + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
