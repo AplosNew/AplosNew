@@ -99,15 +99,23 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     //        });
     //    }
     //};
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+        $scope.getalldata1();
 
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
     $scope.GetDetails = function (args) {
         $http({
 
             method: 'Get',
-            url: 'Materials/Rack/LoadEditData?RackID=' + args.data.Id
+            url: 'Materials/DetentionMaster/LoadEditData?DetentionID=' + args.data.Id
         }).then(function successCallback(response) {
-            $scope.rackNew = response.data.rack[0];
-            $scope.binList = response.data.bin;
+            $scope.detentionNew = response.data.detention[0];
+           
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -116,9 +124,13 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.Clear = function () {
-        return true;
+        DetentionClearFields();
     };
+    function DetentionClearFields() {
+        $scope.Action = "Save";
+        $scope.detentionNew = Object.assign({}, $scope.detention);
 
+    }
 //    function ClearFields(seq) {
 //        $scope.Action = "Save";
 //        $scope.detentionNew = Object.assign({}, $scope.detention);
@@ -127,9 +139,5 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
 //    }
 
-    function DetentionClearFields() {
-        $scope.Action = "Save";
-        $scope.detentionNew = Object.assign({}, $scope.detention);
 
-    }
 }
