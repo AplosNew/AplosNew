@@ -18,6 +18,9 @@ using Library.Model.Inventory;
 using Library.Service.Systems;
 using Library.Service.Enums;
 using Library.Service.Securites;
+using System.Data;
+using Library.Security.Core;
+using Library.Data.Sql;
 
 namespace Aplos.Areas.IE.Controllers
 {
@@ -27,6 +30,7 @@ namespace Aplos.Areas.IE.Controllers
 
 
         private readonly IUserService _userService;
+        private readonly ISqlRepository _sqlRepository;
         private readonly IOperationMasterService _operationMasterService;
         private readonly IMachineMasterUIService _machineMasterUIService;
         private readonly IOperationService _operationService;
@@ -46,6 +50,7 @@ namespace Aplos.Areas.IE.Controllers
             , IOperationService operationService
             , IOperationVariationService operationStepService
             , IOperationPositionMPBudgetService OperationPositionMPBudgetService
+            , ISqlRepository sqlRepository
 
             )
         {
@@ -56,6 +61,7 @@ namespace Aplos.Areas.IE.Controllers
             _ioperationtimecaptureservice = operationTimeCaptureService;
             _operationMasterService = operationMasterService;
             _OperationPositionMPBudgetService = OperationPositionMPBudgetService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -175,16 +181,7 @@ namespace Aplos.Areas.IE.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 model.Id = "MM" + GetPK();
                 model.CompanyGroupId = identity.CompanyGroupId;
-                //if(model.Type=="ACTIVITY")
-                //{
-                //    model.MachineMasterId = null;
-                //    model.Skillid = model.Skillid;
-                //}
-                //else if (model.Type == "OPERATION")
-                //{
-                //    model.MachineMasterId = model.MachineMasterId;
-                //    model.Skillid = null;
-                //}
+                
                 if (model.Active)
                 {
                     model.Active = true;
@@ -202,6 +199,128 @@ namespace Aplos.Areas.IE.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost]
+        public JsonResult CreateProcess(List<Dictionary<string, object>> data,string machineMasterId)
+        {
+            try
+            {
+                SaveData(data, machineMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        private void SaveData(List<Dictionary<string, object>> data,string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM MachineMasterProcess WHERE MachineMasterId ='"+ machineMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string MachineMasterProcessId = "";
+
+                
+                foreach (var item in data)
+                {
+                   
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MachineMasterProcess", out MachineMasterProcessId);                      
+
+                        item["Id"] = "M-" + MachineMasterProcessId + "-" + (1);
+                        item["MachineMasterId"] = machineMasterId;
+                        item["ProcessId"] = item["ProcessId"];
+                        
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+                    
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getProcess(string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
+			                            from MachineMasterProcess MMP
+			                            left join HKP.Process P on P.Id=MMP.ProcessId
+										where MMP.MachineMasterId='" + machineMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost]
         public JsonResult Edit(MachineMasterUI model)
@@ -266,11 +385,11 @@ namespace Aplos.Areas.IE.Controllers
             return _machineMasterUIService.GetAutoNumber(nameof(MachineMasterUI), PKGeneratorEnum.Yearly, null, DateTime.Now);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetUserProcessList(string userId)
-        {
-            return Json(_userService.GetUserProcessList(userId), JsonRequestBehavior.AllowGet);
-        }
+        //[HttpGet, Authorize]
+        //public ActionResult GetUserProcessList()
+        //{
+        //    return Json(_userService.GetUserProcessList(), JsonRequestBehavior.AllowGet);
+        //}
     }
 
 }
