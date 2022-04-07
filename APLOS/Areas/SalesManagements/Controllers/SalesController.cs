@@ -219,7 +219,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult SalesInvoicePost(VoucherViewModel sales,IEnumerable<VoucherDetailViewModel> salesJVDetail
             , IEnumerable<SalesMaterialViewModel> salesDetailList, IEnumerable<SalesServiceViewModel> salesServiceDetailList)
         {
@@ -689,7 +689,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
         //    return Json(_accountsSalesService.GetMasterOrderSalesPostedList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
         //}
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult PostSalesPacking(VoucherViewModel sales, IEnumerable<SalesMaterialViewModel> salesDetailVMList
             , IEnumerable<SalesMaterialViewModel> salesMaterialDetailGLList, IEnumerable<SalesServiceViewModel> salesServiceDetailGLList
             , SalesPacking packing, IEnumerable<SalesMaterialViewModel> PackingDetailVMList,string packingVoucherTypeId)

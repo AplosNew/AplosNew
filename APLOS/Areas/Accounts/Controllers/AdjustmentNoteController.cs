@@ -172,13 +172,12 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Debit Note SetOff
 
-       
         public ActionResult DebitNoteSetOff()
         {
             return View("~/Areas/Accounts/Views/DebitNoteSetOff.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetDebitNoteSetOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -263,20 +262,20 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Credit Note SetOff
 
-
+       
         public ActionResult CreditNoteSetOff()
         {
             return View("~/Areas/Accounts/Views/CreditNoteSetOff.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCreditNoteSetOffList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_invoiceWriteOffService.GetNoteSetOff(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.CreditNoteSetOff), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCreditNoteAvailableList(GridParameter parameters, string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

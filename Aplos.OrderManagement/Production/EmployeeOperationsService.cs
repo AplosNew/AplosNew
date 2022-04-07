@@ -22,13 +22,13 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
-
-        public IEnumerable<object> GetWorkCenter()
+        public IEnumerable<object> GetEntity()
         {
             try
             {
-                var Sql = @"select distinct ope.WorkCenterId as Value,wk.UserName as Text from dbo.OperationWiseEmployees ope 
-                            left join scs.WorkCenterMaster wk on ope.WorkCenterId=wk.Id";
+                var Sql = @"Select distinct e.Id as Value , e.UserName as Text from trn.ProductionOrder po
+                            left join org.Entity e on e.Id = po.EntityId
+                            left join hkp.EntityProcessTag ett on ett.EntityId = e.Id";
                 //where ope.AddedBy='" + AddedBy + "'
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -38,17 +38,36 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetProcess()
+        public IEnumerable<object> GetWorkCenter(string PId)
+        {
+            try
+            {
+                var Sql = @"select distinct Id as Value , UserName as Text from scs.WorkCenterMaster where ProcessId = '"+PId+"'";
+                //where ope.AddedBy='" + AddedBy + "'
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetProcess(string EId)
         {
             try
             {
                 // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"
-                            Select distinct p.Id as Value , p.UserName as Text
-                            from TRN.ProductionBulletinTemplateMaster ptm
-                            left
-                            join hkp.process p on p.ID = ptm.ProcessId
-                            order by UserName asc";
+                //var str = @"
+                //            Select distinct p.Id as Value , p.UserName as Text
+                //            from TRN.ProductionBulletinTemplateMaster ptm
+                //            left
+                //            join hkp.process p on p.ID = ptm.ProcessId
+                //            order by UserName asc";
+                var str = @"Select distinct p.Id as Value , p.UserName as Text
+                            from hkp.Process p
+                                left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id
+                                left join org.Entity e on e.Id = ept.EntityId
+                                where e.Id = '"+EId+@"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -97,11 +116,13 @@ namespace Library.OrderManagement.Production
         {
             try
             {
+                var dd = @"Select Id from hkp.ProductionStatus where UserName like 'Run%'";
+                DataTable dtId = _sqlRepository.GetDataTable(dd);
                 var str = @"Select distinct po.Id
                             from Scs.WorkCenterMaster wc
                             left join org.Entity e on e.ID = wc.EntityId
                             left join trn.ProductionOrder po on po.EntityId = e.Id
-                            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '20191'";
+                            where wc.Id = '" + wk + @"' and po.ProductionStatusId = '"+dtId.Rows[0]["Id"].ToString()+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -132,7 +153,7 @@ namespace Library.OrderManagement.Production
                 currPeriod = Period;
             }
 
-            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , o.WIP,
+            var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
                         ei.EmployeeCode
@@ -143,7 +164,7 @@ namespace Library.OrderManagement.Production
                         left join ( Select owe.ProductionOrderId , owe.OperationVariationId , owe.EmployeeId, owe.Date , isnull(owep.Qty,0) as Qty 
 						from dbo.OperationWiseEmployees owe 
 						left join dbo.OperationWiseEmployees owep on owep.Id = owe.Id and owep.PeriodId   ='" + currPeriod + @"'
-						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date =   Convert(date, DateAdd(DAY, -1, GetDate())) 
+						) as owe on owe.OperationVariationId = OP.Id and owe.ProductionOrderId = pb.ProductionOrderId and owe.Date >   Convert(date, DateAdd(DAY, -2, GetDate())) 
                         left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
 						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+ @"'

@@ -228,7 +228,7 @@ namespace Library.Accounting.Accounts
                                              ,VD.DocRefNo, VD.PartyType, VD.Narration
 	                                         ,GLT.CrAmount AS Amount --[Add : BanK other Credit]
 	                                         ,'' AS CheckNo
-	                                         ,'' EncashmentDate
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS EncashmentDate
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id
@@ -268,7 +268,7 @@ namespace Library.Accounting.Accounts
                                              ,VD.DocRefNo, VD.PartyType, VD.Narration
 	                                         ,GLT.DrAmount AS Amount --[Add : BanK other Credit]
 	                                         ,'' AS CheckNo
-	                                         ,'' EncashmentDate 
+	                                         ,REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') AS EncashmentDate 
                                        FROM TRN.VoucherDetail AS VD
                                        INNER JOIN TRN.Voucher AS V ON VD.VoucherId=V.Id
                                        INNER JOIN TRN.GLTransactionDetail AS GLT ON GLT.VoucherDetailId=VD.Id

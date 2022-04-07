@@ -41,7 +41,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 		#region -- Pages
 
-		[HttpGet, Authorize]
+		[HttpGet]
 		public ActionResult InvoiceToAcceptancePost()
 		{
 			return View("~/Areas/Commercial/Views/InvoiceTaggedWithLC/InvoiceToAcceptancePost.cshtml");
