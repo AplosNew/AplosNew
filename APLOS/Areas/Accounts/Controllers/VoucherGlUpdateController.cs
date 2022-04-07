@@ -7,6 +7,8 @@ using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
 using Library.Service.Vouchers;
+using Library.ViewModel.Vouchers;
+using System.Collections.Generic;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -41,25 +43,19 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
 
-        [HttpPost, Authorize]
-        public ActionResult GetJournalVoucherDetailData(string voucherId)
-        {
-            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsCommonService.getVoucherData(voucherId), Error = false }, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public JsonResult GetJournalVoucherDetailList(string voucherId)
-        {
-            return Json(_voucharService.GetJournalVoucherDetailList(voucherId), JsonRequestBehavior.AllowGet);
-        }
-
         [HttpGet, Authorize]
         public JsonResult Data(string voucherId)
         {
             AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
             return Json(accountsCommonService.getVoucherData(voucherId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public JsonResult UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.UpdateVoucherGl(voucherDetailVMList);
+
+            return Json(new { Message = AplosMessage.Updated });
         }
 
     }

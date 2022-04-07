@@ -551,6 +551,93 @@ namespace Library.Accounting.Accounts
         }
         #endregion
 
+        #region VoucherGLUpdate
+        public void UpdateVoucherGl(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _VoucherGLUpdateLogData = null;
+                DataSet _drvDetailData = null;
+                DataSet _drvDetailDataset = null;
+                var OldGLGeneralInfoId = "";
+                var OldBudgetMasterId = "";
+                var OldActivityId = "";
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[VoucherDetail] WHERE VoucherId='" + voucherDetailVMList.FirstOrDefault().VoucherId + "' and DrAmount > 0", out _drvDetailDataset, false, "1");
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+
+                    if ( voucherDetailVM.DrAmount > 0)
+                    {
+                        if (string.IsNullOrEmpty(voucherDetailVM.GLGeneralInfoId))
+                            throw new CustomException("Without GL can not update Voucher GL!");
+
+                        con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[VoucherDetail] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailData, false, "1");
+                        OldGLGeneralInfoId = _drvDetailData.Tables[0].DefaultView[0].Row["GLGeneralInfoId"].ToString();
+                        OldBudgetMasterId = _drvDetailData.Tables[0].DefaultView[0].Row["BudgetMasterId"].ToString();
+                        OldActivityId = _drvDetailData.Tables[0].DefaultView[0].Row["ActivityId"].ToString();
+
+                        DataView dv = new DataView(_drvDetailDataset.Tables[0]);
+                        dv.RowFilter = "Id='" + voucherDetailVM.Id + "'";
+                        if (dv.Count > 0)
+                        {
+                            DataRow dr = dv[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["GLGeneralInfoId"] = voucherDetailVM.GLGeneralInfoId;
+                            dr["BudgetMasterId"] = voucherDetailVM.BudgetMasterId;
+                            dr["ActivityId"] = voucherDetailVM.ActivityId;
+
+                            dr.EndEdit();
+
+                        }
+                       
+                        var voucherGLUpdateLog = new VoucherGLUpdateLog
+                        {
+                            VoucherId= voucherDetailVM.VoucherId,
+                            VoucherDetailId = voucherDetailVM.Id,
+                            OldGLGeneralInfoId = OldGLGeneralInfoId,
+                            OldBudgetMasterId = OldBudgetMasterId,
+                            OldActivityId = OldActivityId,
+                            GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId,
+                            BudgetMasterId = voucherDetailVM.BudgetMasterId,
+                            ActivityId = voucherDetailVM.ActivityId,
+
+                        };
+
+                        InsertVoucherGLUpdateLogData(voucherGLUpdateLog, ref _VoucherGLUpdateLogData);
+                       
+                    }
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_VoucherGLUpdateLogData, _drvDetailDataset);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InsertVoucherGLUpdateLogData(VoucherGLUpdateLog voucherGLUpdateLog, ref DataSet dsData)
+        {
+            voucherGLUpdateLog.Id = GetAutoNumber(nameof(VoucherGLUpdateLog), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(voucherGLUpdateLog.AddedBy))
+                AuditService.AddedLog(voucherGLUpdateLog);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[VoucherGLUpdateLog] where 1=2", out dsData);
+            }
+            AddNewRow<VoucherGLUpdateLog>(dsData.Tables[0], voucherGLUpdateLog);
+
+        }
+       
+        #endregion
+
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)
 
         {
@@ -781,14 +868,14 @@ namespace Library.Accounting.Accounts
 V.Id,FORMAT (V.VoucherDate,'dd-MMM-yyyy') VoucherDate,FORMAT (V.PostingDate,'dd-MMM-yyyy') PostingDate, V.DocRefNo
 , V.VoucherTypeId,vt.UserName VoucherType
 , V.CurrencyId,FORMAT (V.DocDate,'dd-MMM-yyyy') DocDate, V.EntityId,
-C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity
+C.Code AS CurrencyCode, VD.DrAmount, V.VoucherNo, V.IsPark, V.Narration,e.UserName Entity,V.SourceType
                                     FROM TRN.[Voucher] AS V
                                     LEFT JOIN SCS.Currency AS C ON C.Id = V.CurrencyId
                                     LEFT JOIN SCS.VoucherType AS vt ON vt.Id=v.VoucherTypeId
                                     LEFT JOIN ORG.Entity AS e ON e.Id=v.EntityId
                                     LEFT JOIN (SELECT SUM(VD.DrAmount) AS DrAmount, VD.VoucherId FROM [TRN].[VoucherDetail] AS VD WHERE VD.DrAmount <> 0 GROUP BY VD.VoucherId
                                     ) AS VD ON VD.VoucherId=V.Id
-where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','VendorPayment') ";
+where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId + "' and V.CompanyId='" + companyId + "' and V.PlantId='" + plantId + @"' AND V.SourceType IN ('VendorInvoice','EmployeePayable') ";
             return _sqlRepository.GetDataCollection(sql);
 
         }
@@ -797,8 +884,8 @@ where V.VoucherNo='" + voucherNo + "' and V.CompanyGroupId='" + companyGroupId +
         public List<Dictionary<string, object>> getVoucherData(string voucherId)
         {
             var sql = @"SELECT VD.Id, DrAmount, CrAmount, CrAmount AS Amount, VD.GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName                                , VD.BudgetMasterId, B.UserName AS BudgetName, VD.ActivityId, A.UserName AS ActivityName, P.Code AS PartyCode
-                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
-                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.VoucherId='" + voucherId + @"'";
+                                , P.UserName AS PartyName, VD.PartyType,E.UserName Entity,VD.VoucherId                                FROM [TRN].[VoucherDetail] AS VD                                LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId                                LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId                                LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId                                LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId                                LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                                LEFT JOIN ORG.Entity AS e ON e.Id=VD.EntityId								WHERE VD.VoucherId='" + voucherId + @"' ORDER BY DrAmount DESC";
             return _sqlRepository.GetDataCollection(sql);
 
         }

@@ -586,14 +586,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return View("~/Areas/FixedAssets/Views/IssueAUCCapitalize.cshtml");
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetIssueAUCList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_fixedAssetRegisterService.GetIssueAssetAUCList(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetIssueInventoryAUCList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -602,7 +602,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return jsondata;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetPostedAUCList()
         {
             FixedAssetQueryService _fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
@@ -619,7 +619,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return Json(_fixedAssetRegisterService.GetGRNCapitalizeFixedAssetGL(identity.CompanyId, issueId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetIssueFixedAssetCapitalizeJournalData(GridParameter gridParameter)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

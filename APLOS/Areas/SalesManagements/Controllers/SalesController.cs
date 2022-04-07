@@ -219,7 +219,7 @@ namespace Aplos.Areas.SalesManagements.Controllers
             return Json(new { Message = AplosMessage.Deleted });
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult SalesInvoicePost(VoucherViewModel sales,IEnumerable<VoucherDetailViewModel> salesJVDetail
             , IEnumerable<SalesMaterialViewModel> salesDetailList, IEnumerable<SalesServiceViewModel> salesServiceDetailList)
         {

@@ -620,5 +620,216 @@ namespace Library.OrderManagement.Production
 
     }
 
+    // BUDGET APPLICABLE SERVICE
+
+    public class EmployeeOperationBudget
+    {
+
+        ISqlRepository _sqlRepository;
+        public EmployeeOperationBudget()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPlants(string cmp)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getCompany()
+        {
+            try
+            {
+
+                var str = @"Select Username as Text , Id as Value from ORG.Company ";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+      
+
+        // The Section for Saving And Updating of Data
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = addedname;
+            dr["AddedDate"] = addeddate;
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+       
+ 
+        //The Apis for the 3rd Page
+
+        public IEnumerable<object> getCurrentList(string plantId)
+        {
+            try
+            {
+                var str = @"Select ROW_NUMBER() Over(Order by BudgetId) as Rows,eob.* from dbo.EmployeeOperationBudget eob
+                           
+                            where plantId = '" + plantId + "'";
+                return (_sqlRepository.GetDataCollection(str));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+
+        public void SaveFileList(List<Dictionary<string, object>> data, string plantId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string addedname = identity.Name;
+                string addeddate = System.DateTime.Now.ToString();
+                string TableName = "dbo.EmployeeOperationBudget";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
+
+                string _Id = "";
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    int indexa = 0;
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        Dictionary<string, object> jj = data[i];
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        indexa++;
+                        jj["Id"] = _Id;
+
+                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate);
+                    }
+
+
+                }
+
+                var sqls = @"Delete rb from dbo.EmployeeOperationBudget eob
+                                
+                                where plantId = '" + plantId + @"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                objCone.CommitTransaction();
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public DataTable getEmployeeOperationBudgetFile(string plantId)
+        {
+            try
+            {
+                var str = @"Select mb.Id as BudgetId , mb.Code as BudgetCode , pl.UserName as Plant
+                            from mst.ManPowerBudget mb                   
+                            left join org.Plant pl on pl.Id = e.PlantId                          
+                            left join dbo.EmployeeOperationBudget eob on eob.BudgetId = mb.Id
+                            where pl.Id = '" + plantId + @"'
+                            ";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public List<string> getEmployeeOperationList(string plantId)
+        {
+            try
+            {
+                var str1 = @"--Select Id from  where PlantId = '" + plantId + "'";
+                DataTable dt = _sqlRepository.GetDataTable(str1);
+
+                List<string> roster = new List<string>();
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        roster.Add(dt.Rows[i]["Id"].ToString());
+                    }
+                }
+
+                return roster;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void Add(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["DateAdded"] = System.DateTime.Now.ToString(); ;
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["DateUpdated"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+
+        
+
+    }
+
 
 }

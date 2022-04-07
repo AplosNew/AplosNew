@@ -1,7 +1,7 @@
 ﻿'use strict';
 PerformanceGradeMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function PerformanceGradeMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Performance Attribute Master';
+    $rootScope.title = 'Performance Grade Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceGradeMaster/';
@@ -24,8 +24,8 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
 
     $scope.ModelTemp = {
         Id: null,
-        AttributeCategory: null,
-        Attribute: null,
+        GradeCategory: null,
+        Grade: null,
         Defination: null,
         Remarks: null,
     };
@@ -99,8 +99,8 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
         $scope.Action = 'Save';
         $scope.ModelNew = {
             Id: null,
-            AttributeCategory: null,
-            Attribute: null,
+            GradeCategory: null,
+            Grade: null,
             Defination: null,
             Remarks: null,
 

@@ -47,10 +47,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.getStartUp = function () {
 
         $http({
-            method: 'GET',
-            url: $scope.path + 'GetProcess',
+            method: 'POST',
+            url: $scope.path + 'GetEntity'
         }).then(function succ(resp) {
-            $scope.ProcessList = resp.data;
+            $scope.EntityList = resp.data;
         });
 
         $http({
@@ -68,23 +68,28 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             $scope.ShiftList = resp.data;
         });
 
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetEntity',
-        }).then(function succ(resp) {
-            $scope.EntityList = resp.data;
-        });
-
     }
 
     $scope.getStartUp();
+    //Getting the Process
+    $scope.getProcess = function () {
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetProcess',
+            data: {'EId':$scope.EntityId}
+        }).then(function succ(resp) {
+            $scope.ProcessList = resp.data;
+        });
+    }
+
 
     //Getting the WorkCenters
     $scope.getWkC = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'GetWorkCenter',
-            data: { 'EId': $scope.EntityId }
+            data: { 'PId': $scope.ProcessId }
         }).then(function succ(resp) {
             $scope.workCenterList = resp.data;
         });
@@ -149,22 +154,44 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
+        if (col === 'qty' && e.Sequence != 1) {
+            let prevQty = 0;
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if ($scope.ModelList[i].Sequence == e.Sequence - 1) {
+                    prevQty = prevQty + parseFloat($scope.ModelList[i].Qty);
+                }
+            }
+            let currQty = 0;
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if ($scope.ModelList[i].Sequence == e.Sequence) {
+                    currQty = currQty + parseFloat($scope.ModelList[i].Qty);
+                }
+            }
+
+            if (currQty > prevQty) {
+                e.Qty = 0;
+                ShowResult('Value Exceeds than WIP in ' + e.OperationCode + '!!', 'failure');
+            }
+            
+        }
+       
+
     }
 
     //Check WIP
-    $scope.checkWIP = function () {
-        for (var i = 0; i < $scope.ModelList.length; i++) {
-            wipNos[$scope.ModelList[i].Sequence] += $scope.ModelList[i].Qty;
-            let ind = Object.keys(wipNos)
-            let index = ind.indexOf($scope.ModelList[i].Sequence.toString());
-            let prevVal = Object.values(wipNos)[index - 1];
-            if ($scope.ModelList[i].Sequence != 0 && wipNos[$scope.ModelList[i].Sequence] > (prevVal + $scope.ModelList[i].WIP)) {
-                wipNos[$scope.ModelList[i].Sequence] -= $scope.ModelList[i].Qty;
-                ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
-            }
-        }
+    //$scope.checkWIP = function () {
+    //    for (var i = 0; i < $scope.ModelList.length; i++) {
+    //        wipNos[$scope.ModelList[i].Sequence] += $scope.ModelList[i].Qty;
+    //        let ind = Object.keys(wipNos)
+    //        let index = ind.indexOf($scope.ModelList[i].Sequence.toString());
+    //        let prevVal = Object.values(wipNos)[index - 1];
+    //        if ($scope.ModelList[i].Sequence != 0 && wipNos[$scope.ModelList[i].Sequence] > (prevVal + $scope.ModelList[i].WIP)) {
+    //            wipNos[$scope.ModelList[i].Sequence] -= $scope.ModelList[i].Qty;
+    //            ShowResult('Value Exceeds than WIP in ' + $scope.ModelList[i].OperationCode+ '!!', 'failure');
+    //        }
+    //    }
        
-    }
+    //}
 
 
     //Saving of the Data
@@ -172,7 +199,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
         $scope.NewList = [];
 
-        $scope.checkWIP();
+       /* $scope.checkWIP();*/
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
             if ($scope.ModelList[i].isChanged == true || $scope.ModelList[i].Qty > 0) {

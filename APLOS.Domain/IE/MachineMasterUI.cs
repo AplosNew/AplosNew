@@ -46,7 +46,14 @@ namespace Library.Model.IE
 
         public decimal OtherMachineQty { get; set; }
 
-       
+        public string ConnectedPower { get; set; }
+        public string RunningLoad { get; set; }
+        public string ConnectedSteam { get; set; }
+        public string RunningSteam { get; set; }
+        public string ConnectedAir { get; set; }
+        public string RunningAir { get; set; }
+        public bool MaintanenceScheduleApplicable { get; set; }
+
         public bool Active { get; set; }
 
         #endregion Scalar Properties
