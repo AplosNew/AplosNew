@@ -145,14 +145,36 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region BUDGET APPLICABLE
 
+        #region GetOperations
+        [HttpGet, Authorize]
+        public ActionResult getPlants(string cmp)
+        {
+            return Json(eob.getPlants(cmp), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getCompany()
+        {
+            return Json(eob.getCompany(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getCurrentList(string plantId)
+        {
+            return Json(eob.getCurrentList(plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
+        #region SampleDownload
         [HttpGet, Authorize]
         public ActionResult GetSampleReport(string plantId, string name, ReportFormat reportFormat)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string date = DateTime.Now.Date.ToString("dd-MMM");//.Substring(0, DateTime.Now.Date.ToString().Length - 12);
-            var reportFileName = "RosterBudgetUpload-" + name + "-" + date;
-            var workbook = GetRosterBudgetWorkSheet(plantId);
+            var reportFileName = "BudgetUpload-" + name + "-" + date;
+            var workbook = GetBudgetWorkSheet(plantId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -166,7 +188,7 @@ namespace Aplos.Areas.Productions.Controllers
             }
         }
 
-        private IWorkbook GetRosterBudgetWorkSheet(string plantId)
+        private IWorkbook GetBudgetWorkSheet(string plantId)
         {
 
             var excelEngine = new ExcelEngine();
@@ -176,9 +198,9 @@ namespace Aplos.Areas.Productions.Controllers
 
             var sheet = workbook.Worksheets[0];
 
-            DataTable data = eob.getEmployeeOperationBudgetFile(plantId);
+            //DataTable data = eob.getEmployeeOperationBudgetFile(plantId);
 
-            sheet.Name = "RosterBudgetUpload";
+            sheet.Name = "BudgetUpload";
 
 
 
@@ -187,29 +209,12 @@ namespace Aplos.Areas.Productions.Controllers
             int COL = 1;
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "RosterId", 12, ExcelHAlign.HAlignLeft);
-            int ColRosterId = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "BudgetId", 8, ExcelHAlign.HAlignLeft);
-            int ColBudgetId = COL;
-            COL++;
+            
 
             report.SetHeaderText(ref sheet, ROW, COL, "BudgetCode", 8, ExcelHAlign.HAlignLeft);
             int ColBudgetCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 8, ExcelHAlign.HAlignLeft);
-            int ColPlant = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 8, ExcelHAlign.HAlignLeft);
-            int ColEntity = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Position", 8, ExcelHAlign.HAlignLeft);
-            int ColPosition = COL;
-            COL++;
             endCol = COL;
             #endregion Headers
             ROW++;
@@ -217,21 +222,15 @@ namespace Aplos.Areas.Productions.Controllers
             var endRow = 0;
             int RowIndex = ROW;
             startRow = ROW;
-            for (int i = 0; i < data.Rows.Count; i++)
-            {
-                sheet[ROW, ColRosterId].Text = data.Rows[i]["RosterId"].ToString();
-                sheet[ROW, ColBudgetId].Text = data.Rows[i]["BudgetId"].ToString();
-                sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
-                sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
-                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-                sheet[ROW, ColPosition].Text = data.Rows[i]["Position"].ToString();
+            //for (int i = 0; i < data.Rows.Count; i++)
+            //{
+            //    sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
+            //    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            //    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+            //    ROW++;
 
-                ROW++;
-
-            }
+            //}
             endRow = ROW - 1;
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -239,6 +238,23 @@ namespace Aplos.Areas.Productions.Controllers
             report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
             return workbook;
         }
+        #endregion
+
+        [HttpPost]
+        public ActionResult SaveFileList(List<Dictionary<string, string>> data, string plantId)
+        {
+            try
+            {
+                eob.SaveFileList(data, plantId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult ImportData(string plantId)
@@ -262,17 +278,17 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
-        
-        public List<eobud> ReadData(string path, string plantId)
+
+        public List<Dictionary<string, string>> ReadData(string path, string plantId)
         {
 
             DataSet dsExcel = null;
             try
             {
                 List<eobud> data = new List<eobud>();
-                List<eobud> ret = new List<eobud>();
+                List<Dictionary<string,string>> ret = new List<Dictionary<string, string>>();
                 ReadFile(path, out dsExcel);
-
+                DataTable dtId =  eob.getEmployeeOperationBudgetFile(plantId);
                 data = dsExcel.Tables[0].ToList<eobud>();
                
 
@@ -280,13 +296,19 @@ namespace Aplos.Areas.Productions.Controllers
                 {
                     for (int i = 0; i < data.Count; i++)
                     {
-                        if (data[i].BudgetId != null)
+                        dtId.DefaultView.RowFilter = @"BudgetCode='" + data[i].BudgetCode + "'";
+                        if (dtId.DefaultView.Count > 0)
                         {
-                           
-                                ret.Add(data[i]);
-                           
-                           
+                            Dictionary<string, string> jj = new Dictionary<string, string>();
+                            jj.Add("BudgetId" , dtId.DefaultView[0]["BudgetId"].ToString());
+                            jj.Add("BudgetCode" ,  dtId.DefaultView[0]["BudgetCode"].ToString());
+                            ret.Add(jj);
                         }
+                        else
+                        {
+                            throw new Exception("The BudgetCode at Line no - " + i + 1 + " doesn't exist!!");
+                        }
+                        
                     }
                 }
 
@@ -372,8 +394,6 @@ namespace Aplos.Areas.Productions.Controllers
 
         public class eobud
         {
-            public string BudgetId { get; set; }
-           
             public string BudgetCode { get; set; }
 
         }
