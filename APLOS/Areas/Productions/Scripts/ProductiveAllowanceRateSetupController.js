@@ -386,30 +386,36 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
     //  Budget Applicable
 
+    //Get Plants List and Company List
+
+    $scope.PlantList = [];
+    $scope.getPlants = function () {
+        $http({
+            method: 'GET',
+            url: url + 'getPlants',
+            params: { 'cmp': $scope.Company }
+        }).then(function success(response) {
+            $scope.PlantList = response.data;
+        })
+    }
+
+
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: url + 'getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
+
+    $scope.getCompany();
+
     $scope.BudgetPlantId = null;
     $scope.fileData = [];
-    $scope.GetSample = function () {
-        var reportFormat = "Excel";
-
-        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
-            ShowResult("Please First Select a Plant!!", 'failure');
-            throw ("Invalid!!");
-        }
-
-        var plantName = "";
-        for (var i = 0; i < $scope.PlantList.length; i++) {
-            if ($scope.PlantList[i].Value == $scope.BudgetPlantId) {
-                plantName = $scope.PlantList[i].Text;
-            }
-        }
-
-        try {
-            window.open('humanresource/RosterPattern/GetSampleReport?plantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&reportFormat=' + reportFormat, '_blank');
-
-        } catch (e) {
-
-        }
-    }
+    
 
     $scope.currentList = [];
     $scope.getCurrentFileList = function () {
