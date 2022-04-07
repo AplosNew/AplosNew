@@ -27,7 +27,8 @@ namespace Library.OrderManagement.Production
             try
             {
                 var Sql = @"Select distinct e.Id as Value , e.UserName as Text from trn.ProductionOrder po
-                            left join org.Entity e on e.Id = po.EntityId";
+                            left join org.Entity e on e.Id = po.EntityId
+                            left join hkp.EntityProcessTag ett on ett.EntityId = e.Id";
                 //where ope.AddedBy='" + AddedBy + "'
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -37,11 +38,11 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetWorkCenter(string EId)
+        public IEnumerable<object> GetWorkCenter(string PId)
         {
             try
             {
-                var Sql = @"select distinct Id as Value , UserName as Text from scs.WorkCenterMaster where EntityId = '"+EId+"'";
+                var Sql = @"select distinct Id as Value , UserName as Text from scs.WorkCenterMaster where ProcessId = '"+PId+"'";
                 //where ope.AddedBy='" + AddedBy + "'
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
@@ -51,17 +52,22 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetProcess()
+        public IEnumerable<object> GetProcess(string EId)
         {
             try
             {
                 // var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"
-                            Select distinct p.Id as Value , p.UserName as Text
-                            from TRN.ProductionBulletinTemplateMaster ptm
-                            left
-                            join hkp.process p on p.ID = ptm.ProcessId
-                            order by UserName asc";
+                //var str = @"
+                //            Select distinct p.Id as Value , p.UserName as Text
+                //            from TRN.ProductionBulletinTemplateMaster ptm
+                //            left
+                //            join hkp.process p on p.ID = ptm.ProcessId
+                //            order by UserName asc";
+                var str = @"Select distinct p.Id as Value , p.UserName as Text
+                            from hkp.Process p
+                                left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id
+                                left join org.Entity e on e.Id = ept.EntityId
+                                where e.Id = '"+EId+@"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

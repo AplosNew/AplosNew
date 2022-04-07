@@ -98,7 +98,7 @@
                         @*<td><input type="text" class="form-control text-right" id="vdDrAmount" ng-model="x.DrAmount " n-decimals="2" tabindex="11" ng-change="checkDrAmount($index)" autocomplete="off"></td>
                             <td><input type="text" class="form-control text-right" id="vdCrAmount" ng-model="x.CrAmount " n-decimals="2" tabindex="12" ng-change="checkCrAmount($index)" autocomplete="off"></td>*@
                         <td class="text-right">
-                            <button ng-click="popUpGL()" data-toggle="modal" ng-disabled="x.CrAmount>0" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                            <button ng-click="popUpGL($index)" data-toggle="modal" ng-disabled="x.CrAmount>0" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
                                 <i class="glyphicon glyphicon-info-sign"></i>
                             </button>
                         </td>
@@ -159,6 +159,7 @@
                         <th>Currency</th>
                         <th>Amount</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -170,6 +171,12 @@
                         <td>{{x.CurrencyCode}}</td>
                         <td class="text-right">{{x.DrAmount | number:2}}</td>
                         <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                        <td class="text-right">
+                            <ul class="list-inline action-list">
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.Id,x.SourceType)"><i class="fa fa-file-pdf-o"></i></a></li>
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.Id,x.SourceType)"><i class="fa fa-file-excel-o"></i></a></li>
+                            </ul>
+                        </td>
                     </tr>
                 </tbody>
             </table>

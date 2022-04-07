@@ -567,6 +567,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                 throw ex;
             }
         }
+
         public IEnumerable<object> GetPOBOQMapListForUpdate(string POId,string poDetailId)
         {
             try
@@ -665,12 +666,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
                             LEFT JOIN (
                             	SELECT BOQDetailId,SUM(TransactionQty) TransactionQty,SUM(BaseQty) BaseQty
                             	FROM trn.POBOQMAP 
-                            	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='"+poDetailId+@"') AND PODetailId NOT IN ('22203-2')
+                            	WHERE  BOQDetailId IN ( SELECT BOQDetailId FROM TRN.POBOQMAP WHERE PODetailId='"+poDetailId+ @"') AND PODetailId NOT IN ('" + poDetailId + @"')
                             	GROUP BY BOQDetailId
                             	) aa ON aa.BOQDetailId = poboq.BOQDetailId
                             WHERE IRD.QtyStatus = 0
                             	AND IRD.InventoryMaterialId IS NOT NULL
-                            	AND isnull(IRD.InventoryReceiveId,'null') IN ('"+POId+ @"')  AND ISNULL(poboq.PODetailId,'null') IN ('" + poDetailId + @"')";
+                            	AND isnull(IRD.InventoryReceiveId,'null') IN ('" + POId+ @"')  AND ISNULL(poboq.PODetailId,'null') IN ('" + poDetailId + @"')";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

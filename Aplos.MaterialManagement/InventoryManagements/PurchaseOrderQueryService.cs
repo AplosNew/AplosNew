@@ -74,6 +74,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.RequiredQtyPO 
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
+                        ,TransactionUoM=CASE WHEN b.POUoMId IS NULL THEN uom.UserName ELSE Tuom.UserName END 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
 						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
@@ -103,6 +104,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT OUTER JOIN MST.MaterialGroupMaster AS MGA ON MGA.Id=mm.MaterialGroupMasterId
 						LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=b.ArticleId
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
+                        LEFT OUTER JOIN scs.UnitOfMeasurement AS Tuom ON Tuom.Id=b.POUoMId
 						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
 						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
 						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
@@ -134,6 +136,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						where MOI.ContractId='" + ContractId + @"'
 						)
 						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
+                        AND b.MaterialMasterId<>'' AND b.ArticleId<>''
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
             var Data = _sqlRepository.GetDataCollection(sql);
             StringCollection strCol = new StringCollection();

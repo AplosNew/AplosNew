@@ -252,5 +252,10 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/MaterialLedger/ServicePORegister',
             controller: 'ServicePORegisterController'
         })
+        .when('/detention-master', {
+            templateUrl: 'materials/DetentionMaster/Aplos',
+            controller: 'DetentionMasterController'
+        })
+    
        
 };
