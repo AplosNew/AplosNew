@@ -741,4 +741,3 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     // #endregion Process
-}
