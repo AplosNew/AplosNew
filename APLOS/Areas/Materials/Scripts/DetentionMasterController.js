@@ -104,10 +104,10 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         $http({
 
             method: 'Get',
-            url: 'Materials/Rack/LoadEditData?RackID=' + args.data.Id
+            url: 'Materials/DetentionMaster/LoadEditData?DetentionID=' + args.data.Id
         }).then(function successCallback(response) {
-            $scope.rackNew = response.data.rack[0];
-            $scope.binList = response.data.bin;
+            $scope.detentionNew = response.data.detention[0];
+           
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }

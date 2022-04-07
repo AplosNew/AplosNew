@@ -62,7 +62,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> DetentionData)
         {
             try
@@ -171,12 +171,12 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         [Authorize, HttpGet]
-        public ActionResult LoadEditData(string RackID)
+        public ActionResult LoadEditData(string DetentionID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select  * from Bin where RackId='" + RackID +@"'";
-            string sql1 = @"select  * from Rack where Id='" + RackID +@"'";
-            return Json(new { rack=_sqlRepository.GetDataCollection(sql1, null),bin= _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
+          
+            string sql = @"select * from DetentionMaster where Id='" + DetentionID + @"'";
+            return Json(new { detention=_sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
         }
 
 
