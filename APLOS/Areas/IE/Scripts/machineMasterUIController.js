@@ -361,7 +361,6 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     };
 
     $scope.ProcessDelete = function () {
-        
             $http({
                 method: 'POST',
                 url: $scope.ProcessdeleteUrl + $scope.OMId,
@@ -379,7 +378,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
                     ShowResult(response.data.Message, 'failure');
                 }
             });
-        }    };
+    };
 
 
     $scope.userProcessList = [];
@@ -741,3 +740,4 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     // #endregion Process
+}
