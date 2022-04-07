@@ -4,7 +4,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $rootScope.title = 'Machine Master';
     $scope.Action = 'Save';
     $scope.Action1 = 'Save';
-    //$scope.OperationActivityList = [];
+    //$scope.OperationActivityList = []; 
     $scope.MachineCategoryList = [];
     $scope.MachineSuvCategoryList = [];
     $scope.OperationTypeList = [];
