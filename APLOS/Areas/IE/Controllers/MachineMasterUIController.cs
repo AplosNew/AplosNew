@@ -309,6 +309,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
+
         [Authorize, HttpPost]
         public ActionResult getProcess(string machineMasterId)
         {
@@ -321,6 +322,24 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult ProcessDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from MachineMasterProcess where MachineMasterId ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
 
         [HttpPost]
         public JsonResult Edit(MachineMasterUI model)

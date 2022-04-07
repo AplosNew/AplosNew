@@ -22,8 +22,9 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.path = 'IE/MachineMasterUI/';//ControlerName
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
     $scope.saveUrl = $scope.path + 'Create';
-    $scope.updateUrl = $scope.path + 'Edit';
+    $scope.updateUrl = $scope.path + 'Edit'; 
     $scope.deleteUrl = $scope.path + 'Delete/';
+    $scope.ProcessdeleteUrl = $scope.path + 'ProcessDelete/';
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
@@ -358,6 +359,28 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         }
         $scope.closeProcessPopUp();
     };
+
+    $scope.ProcessDelete = function () {
+        
+            $http({
+                method: 'POST',
+                url: $scope.ProcessdeleteUrl + $scope.OMId,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.getData();
+                    $scope.userProcessList = resp.data;
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }    };
+
 
     $scope.userProcessList = [];
     $scope.getMachineMasterProcess = function () {
