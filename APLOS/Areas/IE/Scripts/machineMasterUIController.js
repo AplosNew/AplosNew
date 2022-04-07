@@ -55,6 +55,22 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         Active: true
     };
     $scope.modelNew = Object.assign({}, $scope.model);
+    $scope.model = {
+        Id: null,
+        AssetName: null,
+        Entity: null,
+        AssetDetail: null,
+        AssetCode: null,
+        AssetReference: null,
+        OldCodeIfAny: null,
+        TargetUtilization: null,
+        PlanUtilization: null,
+        AssetCategory: null,
+        RepairMaintanencebudget: null,
+        ConsumableBudget: null,
+        Remarks: null
+    }
+    $scope.modelNewA = Object.assign({}, $scope.model);
 
     $scope.modelM = {
         Id: null,
@@ -432,30 +448,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         else
             ShowResult('First delete all line item.', 'failure');
     };
-    $scope.DeleteManpower = function () {
-
-        if (!baseService.isUndefinedOrNull($scope.modelNewM.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl1 + $scope.modelNewM.Id,
-                dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getaldataOperationMaster();
-                    ClearFieldss();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-
-        else
-            ShowResult('First delete all line item.', 'failure');
-    };
+   
     $scope.Clear = function () {
         ClearFields($scope.GeneratSequenceNo());
         return true;
@@ -471,13 +464,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.modelNew.Active = true;
         $scope.modelNew.Sequence = seq;
     }
-    function ClearFieldss(seq) {
-        $scope.Action1 = 'Save';
-        $scope.OperationMaster = {};
-        $scope.modelNewM = { Active: true };
-        //$scope.modelNew.Active = true;
-        $scope.modelNewM.Sequence = seq;
-    }
+   
 
     //#endregion 
 
@@ -537,85 +524,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-    $scope.SaveManpower = function () {
-        debugger;
-        angular.copy($scope.modelNewM, $scope.modelM);
-        $scope.modelM.OperationMasterId = $scope.modelNew.OperationMasterIdID;
-
-        $scope.$broadcast('show-errors-check-validity');
-        try {
-            if ($scope.modelNewForm1.$valid) {
-                if ($scope.Action1 === 'Save') {
-                    if ($scope.modelM.PositionId === null) {
-                        ShowResult('Please select Position');
-                    }
-                    else if ($scope.modelM.Caption === null) {
-                        ShowResult('Please input Caption');
-                    }
-                    else if ($scope.modelM.ManpowerBudget === null) {
-                        ShowResult('Please input Manpower Budget');
-                    }
-                    $http({
-                        method: 'POST',
-                        url: $scope.saveUrl1,
-                        data: $scope.modelM,
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            //$scope.getData();
-                            ShowResult(response.data.Message, 'failure');
-                            throw response.data.Message;
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Action1 = 'Update';
-                            $scope.GetOperationPositionMPBudget();
-                            $scope.Clear();
-
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
-
-                    };
-                }
-                else if ($scope.Action1 === 'Update') {
-                    $scope.modelM.OperationMasterId = $scope.OperationMasterId;
-                    if ($scope.modelM.PositionId === null) {
-                        ShowResult('Please select Position');
-                    }
-                    else if ($scope.modelM.Caption === null) {
-                        ShowResult('Please input Caption');
-                    }
-                    else if ($scope.modelM.ManpowerBudget === null) {
-                        ShowResult('Please input Manpower Budget');
-                    }
-                    $http({
-                        method: 'POST',
-                        url: $scope.updateUrl1,
-                        data: $scope.modelM,
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                            //$scope.getData();
-                            throw response.data.Message;
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.GetOperationPositionMPBudget();
-                        }
-                    }, function errorCallBack(response) {
-                        //$scope.getData();
-                        //ShowResult(response.data.Message, 'failure');
-                        throw response.data.Message;
-                    });
-                }
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
-
+    
     // #region Process
 
     $scope.userProcessList = [];
@@ -728,7 +637,22 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
-
     // #endregion Process
+
+    $scope.selectEntity = function () {
+        $scope.getsE();
+        angular.element(document.querySelector('#EntityPop')).modal('show');
+    }
+    $scope.EntityList = [];
+
+    $scope.getsE = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEntity',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EntityList = resp.data;
+        });
+    }
+
 }
