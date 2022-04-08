@@ -9,8 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
-using System.Web.Http;
+
 
 namespace Aplos.Controllers
 {
@@ -18,7 +17,6 @@ namespace Aplos.Controllers
     {
         private readonly ISqlRepository _sqlRepository;
 
-        [BasicAuthenticationAttribute]
         public QueryController(ISqlRepository sqlRepository)
         {
             _sqlRepository = sqlRepository;
