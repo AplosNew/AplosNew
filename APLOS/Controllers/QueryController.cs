@@ -20,7 +20,7 @@ namespace Aplos.Controllers
             {
                 ContentEncoding = Encoding.UTF8,
                 ContentType = "application/json;",
-                Data = null //_sqlRepository.GetDataCollection(sql),
+                Data = null, //_sqlRepository.GetDataCollection(sql),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
                 MaxJsonLength = int.MaxValue
             };
