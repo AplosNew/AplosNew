@@ -8,6 +8,7 @@ namespace Aplos.Controllers
     {
         private readonly ISqlRepository _sqlRepository;
 
+        [BasicAuthenticationAttribute]
         public QueryController(ISqlRepository sqlRepository)
         {
             _sqlRepository = sqlRepository;
