@@ -8,8 +8,7 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
 
     $scope.selectedValues = {
         FromDate: null,
-        ToDate: null,
-        AttndType:null,
+        ToDate: null       
     };
 
  
@@ -102,16 +101,14 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
        
     }
 
- 
-
     function applyFilters(parameters) {
 
         $http({
             method: 'POST',
-            url: $scope.path + 'GetPrintReport',
+            url: $scope.path + 'LockFunction',
             data: {
                 From: $scope.selectedValues.FromDate, To: $scope.selectedValues.ToDate,
-                EmpCode: parameters[0].Value,
+                EmpId: parameters[0].Value,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -119,16 +116,10 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                ShowResult(response.data.Message, 'success');
             }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
         });
-        
     }
-
-
-    $scope.downloadgriddataUrl = 'GridReports/Download';
    
     var getString = function (data, column) {
         var kk = "";
@@ -148,6 +139,4 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
         }
         return kk;
     } 
-
-
 }

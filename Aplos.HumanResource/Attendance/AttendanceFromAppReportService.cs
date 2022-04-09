@@ -366,7 +366,10 @@ namespace Library.HumanResource.Attendances {
             }
         }
 
-      
+        public void LockFunction(string From, string To,string EmpId)
+        {
+
+        }
 
     }
 

@@ -47,7 +47,24 @@ namespace Aplos.Areas.Attendances.Controllers
                 return Json(new { Error =true,Message= ex.Message },JsonRequestBehavior.AllowGet);
                
             }
-        }     
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult LockFunction(string From, string To,string EmpId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                rep.LockFunction(From,To,EmpId);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Successfully Locked ..." }, JsonRequestBehavior.AllowGet);
+        }
     }
 }
  
