@@ -389,6 +389,7 @@
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MultipleEmployeeIndividualLockController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewProcessAttendanceReProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTFinalInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataDeleteNewController.cs" />
@@ -1710,6 +1711,7 @@
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
+    <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
@@ -4076,6 +4078,7 @@
     <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
