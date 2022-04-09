@@ -50,6 +50,7 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         #region Operation
+
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
@@ -58,9 +59,10 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
-
-
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName CustomerName, ei.EmployeeName ResponsiblePersonName
+                        FROM [dbo].[UtilityMaster] UM
+                        LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -127,6 +129,51 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult CreateChild(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
         public ActionResult Delete(string id)
         {
             try
@@ -148,7 +195,6 @@ namespace Aplos.Areas.Materials.Controllers
 
 
         }
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -175,6 +221,7 @@ namespace Aplos.Areas.Materials.Controllers
 
             dt.Rows.Add(dr);
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -198,6 +245,7 @@ namespace Aplos.Areas.Materials.Controllers
 
             dr.EndEdit();
         }
+
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
