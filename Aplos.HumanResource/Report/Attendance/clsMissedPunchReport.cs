@@ -584,18 +584,6 @@ namespace Library.HumanResource.Report.Attendance
                 obs = new clsStaticInfo();
                 strSql = @" select e.SystemId
                                             from EmployeeInformation e
-                                            left join mst.ManpowerBudget mp on mp.id=e.BudgetCode
-											left join org.Entity en on en.id=mp.EntityId    
-											left join ORG.Position p on p.Id = mp.PositionId
-											left join org.Department dep on dep.Id = p.DepartmentId
-											left join org.Section s on s.Id = p.SectionId
-											left join org.SubSection ss on ss.Id = p.SubSectionId                                       
-                                            LEFT JOIN org.Line L ON L.Id = mp.LineId
-                                            LEFT JOIN hkp.LegalDesignation LG ON e.LegalDesignationId = LG.Id 
-											left join MST.DesignationMasterLegalDesignation dml on dml.LegalDesignationId = LG.Id
-											left join mst.DesignationMaster dm on dm.Id = dml.DesignationMasterId
-											left join HKP.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
-                                            
 											where   e.PlantId='" + sPlantID + @"' and e.DOJ <= ( '" + WDate + @"') and (e.DOS is null or e.DOS >= '" + WDate + @"')  ";
 
                 if (sDepID != "ALL")
@@ -643,19 +631,19 @@ namespace Library.HumanResource.Report.Attendance
 	                            , ap.DayStatus
                                     
                                     
-                        , LG.UserName Designation,CONVERT(VARCHAR(15),CAST(LIT.ptime AS TIME),100)  +' ('+ ARD.PType+')' LeastPunchTime
+                        , LG.UserName Designation,CONVERT(VARCHAR(15),CAST(LIT.ptime AS TIME),100)  +' ('+ LIT.PType+')' LeastPunchTime
 						,CONVERT(varchar(15),CAST(AP.InTime AS TIME),100) InTimeShow,CONVERT(varchar(15),CAST(AP.OutTime AS TIME),100) OutTimeShow
 
                         from EmployeeInformation e
  
                         left join AttdnProcessData ap on ap.EmpSystemID = e.SystemId
                             LEFT JOIN(SELECT LogDownLoadNum
-												,MIN(ptime) ptime
+												,MIN(ptime) ptime,PType
 												FROM AttdnRawData
 												WHERE pdate='" + WDate + @"' AND PType='IN'--and LogDownLoadNum='1800004'
-												GROUP BY LogDownLoadNum
+												GROUP BY LogDownLoadNum,PType
 												) LIT ON LIT.LogDownLoadNum=E.SystemId
-                        LEFT JOIN AttdnRawData ARD ON ARD.LogDownLoadNum=LIT.LogDownLoadNum  AND ARD.PTime=LIT.ptime
+                        --LEFT JOIN AttdnRawData ARD ON ARD.LogDownLoadNum=LIT.LogDownLoadNum  AND ARD.PTime=LIT.ptime
 
                         left join DayType dt on dt.DayType = ap.DayStatus                        
                         LEFT JOIN dbo.ShiftDefination SD ON ap.ShiftSystemID = SD.SystemID

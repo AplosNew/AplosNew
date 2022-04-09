@@ -1,102 +1,247 @@
 ﻿<togglable name="Detention Master"></togglable>
-<div class="form-elements form-horizontal" ng-form="DetentionMasterForm">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Category<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Short Name" ng-model="detentionNew.DetentionCategory " class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Sub Category<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Detention Sub Category " ng-model="detentionNew.DetentionSubCategory" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Standared Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Short Name" ng-model="detentionNew.DetentionStandaredName" class="form-control" maxlength="100" required autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention User Name<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="detentionNew.DetentionUserName" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="User Name" ng-model="detentionNew.DetentionType" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
+
+<div class="form-elements">
+    <div class="tab-design" id="tab_show">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Detention</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Department</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
+            </ul>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Criticality<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" ng-model="detentionNew.DetentionCriticality" class="form-control" required maxlength="100" autocomplete="off">
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+
+                <div class="form-elements form-horizontal" ng-form="DetentionMasterForm">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Category" ng-model="detentionNew.DetentionCategory " class="form-control" maxlength="100" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Sub Category<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Sub Category" ng-model="detentionNew.DetentionSubCategory" class="form-control" maxlength="100" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Standared Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Standared Name" ng-model="detentionNew.DetentionStandaredName" class="form-control" maxlength="100" required autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention User Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention User Name" ng-model="detentionNew.DetentionUserName" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Type" ng-model="detentionNew.DetentionType" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Criticality<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Criticality" ng-model="detentionNew.DetentionCriticality" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Responsible Persion (Employee)<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Responsible Persion" ng-model="detentionNew.ResponsiblePersion" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Target(%)<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Target" ng-model="detentionNew.DetentionTarget" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Detention Plan(%)<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="Detention Plan" ng-model="detentionNew.DetentionPlan" class="form-control" required maxlength="100" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Is Avoidable</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" class="css-checkbox" ng-model="detentionNew.IsAvoidable">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            </ul>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
+
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Responsible Persion (Employee)<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" ng-model="detentionNew.ResponsiblePersion" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+
+
             </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Target(%)<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" ng-model="detentionNew.DetentionTarget" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Detention Plan(%)<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" name="Standard Name" ng-model="detentionNew.DetentionPlan" class="form-control" required maxlength="100" autocomplete="off">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Is Avoidable</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site">
-                        <label>
-                            <input type="checkbox" class="css-checkbox" ng-model="detentionNew.IsAvoidable">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="processPopUpDataList();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="userProcessList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sequence</th>
+                                        <th>Code</th>
+                                        <th>Short Name</th>
+                                        <th>Standard Name</th>
+                                        <th>User Name</th>
+                                        <th>Process</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in userProcessList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.Sequence}}</td>
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.ShortName}}</td>
+                                        <td>{{x.StandardName}}</td>
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.ProcessName}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        @*</div>
+                            </div>*@
                     </div>
                 </div>
             </div>
         </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-            </ul>
-        </div>
-        <div class="clearfix"></div>
+
     </div>
 </div>
-    <div class="table-responsive aplos-grid-toggle">
-        <div id="GridRackList" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Detention Id" e-width="3"></div>
-                <div e-column e-field="DetentionCategory" e-headertext="Detention Category " e-width="3"></div>             
-                <div e-column e-field="DetentionSubCategory" e-headertext="Detention Sub Category " e-width="3"></div>
-                <div e-column e-field="DetentionStandaredName" e-headertext="Detention Standared Name" e-width="3"></div>
-                <div e-column e-field="DetentionUserName" e-headertext="Detention User Name" e-width="3"></div>
-                <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="3"></div>
-                <div e-column e-field="DetentionCriticality" e-headertext="Detention Criticality" e-width="3"></div>
-                <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>             
-                <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>             
-                <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>             
-                <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>             
+
+
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridRackList" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Detention Id" e-width="3"></div>
+            <div e-column e-field="DetentionCategory" e-headertext="Detention Category " e-width="3"></div>
+            <div e-column e-field="DetentionSubCategory" e-headertext="Detention Sub Category " e-width="3"></div>
+            <div e-column e-field="DetentionStandaredName" e-headertext="Detention Standared Name" e-width="3"></div>
+            <div e-column e-field="DetentionUserName" e-headertext="Detention User Name" e-width="3"></div>
+            <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="3"></div>
+            <div e-column e-field="DetentionCriticality" e-headertext="Detention Criticality" e-width="3"></div>
+            <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>
+            <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>
+            <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>
+            <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>
+<div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="processPopUpParameters.searchBy">
+                                            <option ng-repeat="option in processSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="processPopUpParameters.search" ng-enter="getProcessDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getProcessDataList();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>Process Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in processDataList|itemsPerPage:processPopUpParameters.pageSize" pagination-id="metaData.name + 'processDataList'" total-items="processPopUpParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="genericPushInTempList(x, $event, userProcessList, 'Id', 'ProcessId' );">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'processDataList'"
+                                             max-size="10" direction-links="true" boundary-links="true"
+                                             on-page-change="getProcessDataList(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="SaveProcess();">Add</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeProcessPopUp();">Cancel</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-<confirm-modal></confirm-modal>
+</div>
+<confirm-archive-generic modalid="confirmRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>

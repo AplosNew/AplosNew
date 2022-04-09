@@ -577,6 +577,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
@@ -1946,6 +1947,7 @@
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
@@ -4065,8 +4067,8 @@
     <Content Include="Areas\Productions\Views\WasteIssue\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\inventoryIssueBOQ.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\Aplos.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout1.cshtml" />
-    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_Layout2.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_ProductivityAllowance.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_RateSetup.cshtml" />
     <Content Include="Areas\Products\Views\InventoryIssue\_StockBOQPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGroup\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\WasteLocation\Aplos.cshtml" />
@@ -4077,9 +4079,11 @@
     <Content Include="Areas\HumanResource\Views\PerformanceAttributeMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
-    <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
-    <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" /> <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
+	<Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
+
+	  <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
     <Content Include="Areas\QMS\Views\EmployeeInfo\Aplos.cshtml" />
