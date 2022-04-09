@@ -389,6 +389,7 @@
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\MultipleEmployeeIndividualLockController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewProcessAttendanceReProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTFinalInformationNewController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AttendanceRawDataDeleteNewController.cs" />
@@ -576,6 +577,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
@@ -1710,6 +1712,7 @@
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
+    <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
     <Content Include="Areas\Attendances\Scripts\NewProcessAttendanceReProcessController.js" />
@@ -1944,6 +1947,7 @@
     <Content Include="Areas\FixedAssets\Scripts\SubAssetTypeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\expensesCapitalizedController.js" />
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
@@ -2191,7 +2195,6 @@
     <Content Include="Areas\Payrolls\Scripts\DailyAllowanceSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusController.js" />
     <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceUnLockController.js" />
-    <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceLockController - Copy.js" />
     <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceLockController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeePromotionAndIncrementController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceGroupSummaryController.js" />
@@ -3328,7 +3331,6 @@
     <Content Include="Areas\Products\Views\ServiceRequisitionCheckApproved\ServiceReqApprove.cshtml" />
     <Content Include="Areas\Products\Views\ServiceRequisitionCheckApproved\ServiceReqCheck.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_LoanTakenOBPopUp.cshtml" />
-    <Content Include="Areas\HumanResource\Views\HrmsSettings\IndividualAttendanceLock - Copy.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_LoanGivenOBPopUp.cshtml" />
     <Content Include="Areas\Attendances\Views\EmployeeWiseFixedOTSetting\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_MaterialMasterOBPopUp.cshtml" />
@@ -4077,6 +4079,8 @@
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

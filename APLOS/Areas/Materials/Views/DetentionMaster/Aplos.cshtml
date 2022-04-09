@@ -97,7 +97,7 @@
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
-          
+
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
 
@@ -143,7 +143,7 @@
                             </table>
                         </div>
                         @*</div>
-                    </div>*@
+                            </div>*@
                     </div>
                 </div>
             </div>
@@ -153,25 +153,25 @@
 </div>
 
 
-    <div class="table-responsive aplos-grid-toggle">
-        <div id="GridRackList" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
-                <div e-column e-field="Id" e-headertext="Detention Id" e-width="3"></div>
-                <div e-column e-field="DetentionCategory" e-headertext="Detention Category " e-width="3"></div>             
-                <div e-column e-field="DetentionSubCategory" e-headertext="Detention Sub Category " e-width="3"></div>
-                <div e-column e-field="DetentionStandaredName" e-headertext="Detention Standared Name" e-width="3"></div>
-                <div e-column e-field="DetentionUserName" e-headertext="Detention User Name" e-width="3"></div>
-                <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="3"></div>
-                <div e-column e-field="DetentionCriticality" e-headertext="Detention Criticality" e-width="3"></div>
-                <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>             
-                <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>             
-                <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>             
-                <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>             
-            </div>
+<div class="table-responsive aplos-grid-toggle">
+    <div id="GridRackList" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Detention Id" e-width="3"></div>
+            <div e-column e-field="DetentionCategory" e-headertext="Detention Category " e-width="3"></div>
+            <div e-column e-field="DetentionSubCategory" e-headertext="Detention Sub Category " e-width="3"></div>
+            <div e-column e-field="DetentionStandaredName" e-headertext="Detention Standared Name" e-width="3"></div>
+            <div e-column e-field="DetentionUserName" e-headertext="Detention User Name" e-width="3"></div>
+            <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="3"></div>
+            <div e-column e-field="DetentionCriticality" e-headertext="Detention Criticality" e-width="3"></div>
+            <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>
+            <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>
+            <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>
+            <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>
         </div>
     </div>
+</div>
 <confirm-modal></confirm-modal>
 <div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -244,3 +244,4 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="confirmRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
