@@ -1,13 +1,11 @@
 ﻿using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.Service.Extension;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Library.HumanResource.Attendances { 
     public class AttendanceFromAppReportService
@@ -366,11 +364,86 @@ namespace Library.HumanResource.Attendances {
             }
         }
 
-        public void LockFunction(string From, string To,string EmpId)
+        void ExecuteQuery(string From, string To, string EmpId)
         {
+            var sql = @"delete from IndividualEmployeeAttendancelock 
+            where WorkDate between '" + From + "' and '" + To + @"' AND LockType='SEPARATED' AND
+            EmpSystemId in(" + EmpId + ")";
 
+            ConnectionManager.DAL.ConManager objCone = null;
+            objCone = new ConnectionManager.DAL.ConManager("1");
+            objCone.OpenConnection("1");
+            objCone.BeginTransaction();
+
+            objCone.ExecuteNonQueryWrapper(sql, true, "1");
+            objCone.CommitTransaction();
         }
 
-    }
+        public void LockFunction(string From, string To,string EmpId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            var sql = @"select * from IndividualEmployeeAttendancelock 
+            where WorkDate between '" + From + "' and '" + To + @"' AND LockType='SEPARATED' AND
+            EmpSystemId in("+EmpId+")";
+            DataTable LockTable = _sqlRepository.GetDataTable(sql);
+
+            var sqlx = @"select * from EmployeeInformation where SystemId in(" + EmpId + ")";
+            DataTable EmpData = _sqlRepository.GetDataTable(sqlx);
+
+            if(LockTable.Rows.Count>0)
+            {
+                ExecuteQuery(From, To, EmpId);
+            }
+
+            var sqly = @"select * from IndividualEmployeeAttendancelock where 1=2";
+            ConnectionManager.DAL.ConManager conx = new ConnectionManager.DAL.ConManager("1");
+            conx.OpenDataSetThroughAdapter(sqly, out DataSet dsMaster, false, false, "", "1");
+
+            var sqlz = @"DECLARE @dt1 Datetime='"+From+@"'
+            DECLARE @dt2 Datetime='"+To+@"'
+            ;WITH ctedaterange 
+                 AS (SELECT [DateRange]=@dt1 
+                 UNION ALL
+                 SELECT [DateRange] + 1 
+                 FROM   ctedaterange 
+                 WHERE  [DateRange] + 1<= @dt2) 
+                SELECT format([DateRange],'yyyy-MM-dd')as DateRange 
+                FROM   ctedaterange
+                OPTION (maxrecursion 0)";
+
+            DataTable DateRangeDt = _sqlRepository.GetDataTable(sqlz);
+
+            if (DateRangeDt.Rows.Count > 0)
+            {
+                for (int i = 0; i < DateRangeDt.Rows.Count; i++)
+                {
+                    string WorkDate = DateRangeDt.Rows[i]["DateRange"].ToString();
+                    for (int j = 0; j < EmpData.Rows.Count; j++)
+                    {
+                        string EmpxId = EmpData.Rows[j]["SystemId"].ToString();
+
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "IndividualEmployeeAttendancelock", out string sID);
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+                        dr["Id"] = "IAL" + sID;
+                        dr["EmpSystemId"] = EmpxId;
+                        dr["PlantId"] = identity.PlantId;
+                        dr["IsActive"] = true;
+                        dr["WorkDate"] = WorkDate;
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr["LockType"] = "SEPARATED";
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+        }
+    }
 }
