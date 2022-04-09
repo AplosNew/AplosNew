@@ -170,6 +170,56 @@ namespace Aplos.Areas.Materials.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpPost]
+        public ActionResult getDepartment(string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select dmd.Id,d.Sequence,d.Code,d.ShortName,d.StandardName,d.Id DepartmentId,d.UserName Department
+			                            from DetentionMasterDepartment AS dmd
+			                            left join org.Department AS d ON d.Id=dmd.DepartmentId
+										where dmd.DetentionMasterId='" + DetentionMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult ProcessDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from DetentionMasterProcess where Id ='" + id +@"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult DepartmentDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from DetentionMasterDepartment where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
 
 
         [Authorize, HttpGet]
@@ -180,7 +230,13 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-
+        [Authorize, HttpGet]
+        public ActionResult LoadDepartmentList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @" SELECT *,CAST(0 AS bit) Flag FROM [ORG].[Department]";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public ActionResult LoadEditData(string DetentionID)
         {
@@ -190,7 +246,12 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(new { detention=_sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
         }
 
-
+        //[HttpGet, Authorize]
+        //public JsonResult GetList(GridParameter parameters, string processId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    return Json(_processService.Query(parameters, identity.CompanyGroupId, new JavaScriptSerializer().Deserialize<string[]>(processId)), JsonRequestBehavior.AllowGet);
+        //}
         //public ActionResult Delete(string RackID)
         //{
         //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -270,7 +331,7 @@ namespace Aplos.Areas.Materials.Controllers
                 objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
 
                 string cId = string.Empty;
-                string MachineMasterProcessId = "";
+                string DetentionMasterProcessId = "";
 
 
                 foreach (var item in data)
@@ -282,9 +343,9 @@ namespace Aplos.Areas.Materials.Controllers
                     if (dv.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("MachineMasterProcess", out MachineMasterProcessId);
+                        genid.GenID("DetentionMasterProcess", out DetentionMasterProcessId);
 
-                        item["Id"] = "M-" + MachineMasterProcessId + "-" + (1);
+                        item["Id"] = "DMP-" + DetentionMasterProcessId + "-" + (1);
                         item["DetentionMasterId"] = DetentionMasterId;
                         item["ProcessId"] = item["ProcessId"];
 
@@ -301,5 +362,63 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         #endregion -- Operations
+        [HttpPost]
+        public JsonResult CreateDepartment(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            try
+            {
+                SaveDepartmentData(data, DetentionMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        private void SaveDepartmentData(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM DetentionMasterDepartment WHERE DetentionMasterId ='" + DetentionMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string DetentionMasterDepartmentId = "";
+
+
+                foreach (var item in data)
+                {
+
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
+
+                        item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
+                        item["DetentionMasterId"] = DetentionMasterId;
+                        item["DepartmentId"] = item["DepartmentId"];
+
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
     }
 }
