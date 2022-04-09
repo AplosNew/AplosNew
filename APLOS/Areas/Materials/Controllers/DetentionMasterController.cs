@@ -135,7 +135,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
             dr.BeginEdit();
             foreach (var item in sourceData.Keys)
             {
