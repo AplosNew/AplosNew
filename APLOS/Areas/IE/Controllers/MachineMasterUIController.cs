@@ -322,7 +322,7 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult ProcessDelete(string id)
         {
             try
@@ -405,11 +405,16 @@ namespace Aplos.Areas.IE.Controllers
             return _machineMasterUIService.GetAutoNumber(nameof(MachineMasterUI), PKGeneratorEnum.Yearly, null, DateTime.Now);
         }
 
-        //[HttpGet, Authorize]
-        //public ActionResult GetUserProcessList()
-        //{
-        //    return Json(_userService.GetUserProcessList(), JsonRequestBehavior.AllowGet);
-        //}
+        [Authorize, HttpPost]
+        public ActionResult getEntity()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
+                                left join org.Plant p on p.Id = e.PlantId
+                                left join org.Company c on c.Id = p.CompanyId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
     }
 
 }

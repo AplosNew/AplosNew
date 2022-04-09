@@ -159,6 +159,17 @@ namespace Aplos.Areas.Materials.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
             return 1;
         }
+        [Authorize, HttpPost]
+        public ActionResult getProcess(string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select DMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
+			                            from DetentionMasterProcess DMP
+			                            left join HKP.Process P on P.Id=DMP.ProcessId
+										where DMP.DetentionMasterId='" + DetentionMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
 
 
         [Authorize, HttpGet]
@@ -230,6 +241,65 @@ namespace Aplos.Areas.Materials.Controllers
                 objCon = null;
             }
         }//End of function
+
+        [HttpPost]
+        public JsonResult CreateProcess(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            try
+            {
+                SaveData(data, DetentionMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        private void SaveData(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM DetentionMasterProcess WHERE DetentionMasterId ='" + DetentionMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string MachineMasterProcessId = "";
+
+
+                foreach (var item in data)
+                {
+
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("MachineMasterProcess", out MachineMasterProcessId);
+
+                        item["Id"] = "M-" + MachineMasterProcessId + "-" + (1);
+                        item["DetentionMasterId"] = DetentionMasterId;
+                        item["ProcessId"] = item["ProcessId"];
+
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
         #endregion -- Operations
     }
 }

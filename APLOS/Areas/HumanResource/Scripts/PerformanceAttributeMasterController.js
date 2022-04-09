@@ -3,7 +3,7 @@ PerformanceAttributeMasterController.$inject = ['cboService', 'commonMessage', '
 function PerformanceAttributeMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Performance Attribute Master';
     $scope.Action = 'Save';
-$scope.ModelList = [];
+    $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceAttributeMaster/';
     $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'Delete/';
@@ -58,7 +58,7 @@ $scope.ModelList = [];
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
                 }
             }), function errorCallBack(response) {
