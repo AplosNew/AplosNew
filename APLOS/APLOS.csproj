@@ -2195,7 +2195,6 @@
     <Content Include="Areas\Payrolls\Scripts\DailyAllowanceSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\attendanceProcessDataManualStatusController.js" />
     <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceUnLockController.js" />
-    <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceLockController - Copy.js" />
     <Content Include="Areas\HumanResource\Scripts\IndividualAttendanceLockController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeePromotionAndIncrementController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceGroupSummaryController.js" />
@@ -3332,7 +3331,6 @@
     <Content Include="Areas\Products\Views\ServiceRequisitionCheckApproved\ServiceReqApprove.cshtml" />
     <Content Include="Areas\Products\Views\ServiceRequisitionCheckApproved\ServiceReqCheck.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_LoanTakenOBPopUp.cshtml" />
-    <Content Include="Areas\HumanResource\Views\HrmsSettings\IndividualAttendanceLock - Copy.cshtml" />
     <Content Include="Areas\Accounts\Views\OpeningBalance\_LoanGivenOBPopUp.cshtml" />
     <Content Include="Areas\Attendances\Views\EmployeeWiseFixedOTSetting\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\Shared\_MaterialMasterOBPopUp.cshtml" />
@@ -4079,11 +4077,11 @@
     <Content Include="Areas\HumanResource\Views\PerformanceAttributeMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
-    <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" /> <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
-	<Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
-
-	  <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
+    <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
     <Content Include="Areas\QMS\Views\EmployeeInfo\Aplos.cshtml" />

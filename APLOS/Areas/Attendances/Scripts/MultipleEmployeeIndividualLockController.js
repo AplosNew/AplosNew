@@ -16,7 +16,6 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
     $scope.clearFliters = function () {
         $scope.selectedValues.FromDate = null;
         $scope.selectedValues.ToDate = null;        
-        $scope.selectedValues.AttndType = null;
     }
 
  
@@ -30,23 +29,19 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
         if ($scope.General.$valid) {
 
             var ColumnList = [
-                { field: 'Plant', width: 150, headerText: "Plant", type: "string" },
-                { field: 'Unit', width: 150, headerText: "Unit", type: "string" },
                 { field: 'EmployeeCode', width: 150, headerText: "EmpCode", type: "string" },
                 { field: 'EmployeeName', width: 150, headerText: "Employee Name", type: "string" },
+                { field: 'DOJ', width: 150, headerText: "DOJ", type: "string" },
+                { field: 'DOS', width: 150, headerText: "DOS", type: "string" },
                 { field: 'Department', width: 150, headerText: "Department", type: "string" },
                 { field: 'Section', width: 150, headerText: "Section", type: "string" },
                 { field: 'SubSection', width: 150, headerText: "SubSection", type: "string" },
-                { field: 'Designation', width: 150, headerText: "Designation", type: "string" },
-                { field: 'Date', width: 150, headerText: "Date", type: "string", allowFiltering: false },
-                { field: 'InTime', width: 150, headerText: "InTime", type: "string", allowFiltering: false },             
-                { field: 'OutTime', width: 150, headerText: "OutTime", type: "string", allowFiltering: false },  
+
             ];
            
             $http({
                 method: 'GET',
-                url: $scope.path + 'GetAttndData?From=' + $scope.selectedValues.FromDate + '&To=' + $scope.selectedValues.ToDate + '&AttndType='
-                    + $scope.selectedValues.AttndType,
+                url: $scope.path + 'GetData?From=' + $scope.selectedValues.FromDate + '&To=' + $scope.selectedValues.ToDate,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == true) {
@@ -100,14 +95,7 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
         }
 
         var parameters = [];
-        parameters.push({ "Key": "EmpName", "Value": getString(filteredRecords, "EmployeeName") });
-        parameters.push({ "Key": "PlantId", "Value": getString(filteredRecords, "PlantId") });
-        parameters.push({ "Key": "SubId", "Value": getString(filteredRecords, "SubsectionId") });
-        parameters.push({ "Key": "SectionId", "Value": getString(filteredRecords, "SectionId") });
-        parameters.push({ "Key": "DesgId", "Value": getString(filteredRecords, "DesignationId") });
-        parameters.push({ "Key": "UnitId", "Value": getString(filteredRecords, "UnitId") });
-        parameters.push({ "Key": "DeptId", "Value": getString(filteredRecords, "DepartmentId") });
-        parameters.push({ "Key": "EmpCode", "Value": getString(filteredRecords, "EmployeeCode") });
+        parameters.push({ "Key": "EmpId", "Value": getString(filteredRecords, "SystemID") });
 
         applyFilters(parameters);
 
@@ -123,10 +111,7 @@ function MultipleEmployeeIndividualLockController($window, $timeout, cboService,
             url: $scope.path + 'GetPrintReport',
             data: {
                 From: $scope.selectedValues.FromDate, To: $scope.selectedValues.ToDate,
-                AttndType: $scope.selectedValues.AttndType, EmpName: parameters[0].Value,
-                PlantId: parameters[1].Value, SubId: parameters[2].Value,
-                SectionId: parameters[3].Value, DesgId: parameters[4].Value, UnitId: parameters[5].Value,
-                DeptId: parameters[6].Value, EmpCode: parameters[7].Value
+                EmpCode: parameters[0].Value,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

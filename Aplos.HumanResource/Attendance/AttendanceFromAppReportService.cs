@@ -299,4 +299,75 @@ namespace Library.HumanResource.Attendances {
         }
 
     }
+
+    public class MultipleEmployeeLockService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public MultipleEmployeeLockService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+
+        }
+
+
+        public IEnumerable<object> GetData(string From, string To)
+        {
+            try
+            {
+                TimeSpan ts = Convert.ToDateTime(To).Subtract(Convert.ToDateTime(From));
+                if (ts.Days >= 0)
+                {
+                    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                    string sql = @"Select 0 CheckBoxSelect, EI.SystemID,EI.EmployeeCode
+                                ,EI.EmployeeName,FORMAT(EI.DOJ,'dd-MMM-yyyy')   DOJ, FORMAT(EI.DOS,'dd-MMM-yyyy') DOS   
+                                ,DP.UserName Department
+                                ,PR.UserName PositionName
+                                ,ld.UserName Designation
+                                ,PR.DesignationId
+                                ,PG.StandardName PayRollGroupName
+                                ,PG.Id PayRollGroupId
+                                ,ld.UserName LegalDesignation,SE.UserName Section,SuS.UserName SubSection,1 IsSeparatedPart,0 MLVPart, EC.UserName EmpCategoryName  
+								FROM  EmployeeInformation EI 
+                                LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+                                LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
+                                LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+                                
+                                LEFT JOIN HKP.LegalDesignation ld on ld.Id=EI.LegalDesignationId
+                                LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
+                                LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId 
+                                LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                                LEFT JOIN [MST].[DesignationMasterLegalDesignation] dmld on dmld.LegalDesignationId=LGD.Id
+                                LEFT JOIN [MST].[DesignationMaster] dm on dm.Id=dmld.DesignationMasterId
+                                LEFT JOIN HKP.EmployeeCategory EC ON EC.ID=DM.EmployeeCategoryId
+                                LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
+                                LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
+                                LEFT JOIN ORG.Line AS L ON L.Id= PMB.LineId                                        
+								WHERE EI.EmployeeStatus='separated'   AND EI.DOS BETWEEN '" + From + @"' AND '" + To + @"'
+                                AND  EI.PlantId='" + identity.PlantId + @"'
+                                ORDER BY CONVERT(DATE,EI.DOS) ";
+
+                    return _sqlRepository.GetDataCollection(sql, null);
+                }
+                else
+                {
+                    throw new Exception("Please choose a valid Date !!");
+                }
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+      
+
+    }
+
 }
