@@ -16,8 +16,8 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
+            ClearFields();
+            
         });
     }
     $scope.getData();

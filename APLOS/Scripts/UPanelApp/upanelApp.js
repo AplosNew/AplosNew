@@ -858,6 +858,7 @@ upanelApp.controller('RequisitionRegisterController', RequisitionRegisterControl
 upanelApp.controller('monthlyAttendanceInformationDateRangeController', monthlyAttendanceInformationDateRangeController);
 upanelApp.controller('MonthlyAttendanceInformationDateRangeNewController', MonthlyAttendanceInformationDateRangeNewController);
 upanelApp.controller('AttendanceFromAppReportController', AttendanceFromAppReportController);
+upanelApp.controller('MultipleEmployeeIndividualLockController', MultipleEmployeeIndividualLockController);
 upanelApp.controller('NewProcessAttendanceReProcessController', NewProcessAttendanceReProcessController);
 upanelApp.controller('EmployeeLastPunchReportController', EmployeeLastPunchReportController);
 upanelApp.controller('EntireYearPresentDaysSummaryController', EntireYearPresentDaysSummaryController);
@@ -1024,6 +1025,7 @@ upanelApp.controller("BOQApprovalController", BOQApprovalController);
 upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("CostingSOTemplateController", CostingSOTemplateController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
+upanelApp.controller("UtilityMasterController", UtilityMasterController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

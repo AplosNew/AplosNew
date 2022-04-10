@@ -294,6 +294,7 @@ namespace Library.Service.Materials
                                     , F.CreditNoteGLId, F.CreditNoteBudgetMasterId, F.CreditNoteActivityId, F.CreditNoteGLInfo, F.CreditNoteBudgetName, F.CreditNoteActivityName
                                     , F.ShortageGLId, F.ShortageBudgetMasterId, F.ShortageActivityId, F.ShortageGLInfo, F.ShortageBudgetName, F.ShortageActivityName
                                     , F.RejectionGLId, F.RejectionBudgetMasterId, F.RejectionActivityId, F.RejectionGLInfo, F.RejectionBudgetName, F.RejectionActivityName
+                                    , F.InventoryInTransitGLId, F.InventoryInTransitBudgetMasterId, F.InventoryInTransitActivityId, F.InventoryInTransitGLInfo, F.InventoryInTransitBudgetName, F.InventoryInTransitActivityName
                                     FROM MST.MaterialGroupMaster As MGM
                                     LEFT  JOIN HKP.MaterialGroup1 As MG1 ON MG1.Id = MGM.MaterialGroup1Id
                                     LEFT  JOIN HKP.MaterialGroup2 As MG2 ON MG2.Id = MGM.MaterialGroup2Id
@@ -311,6 +312,7 @@ namespace Library.Service.Materials
 										,MAD.CreditNoteGLId, GLGICN.AccountCode + ' - ' + GLGICN.UserName AS CreditNoteGLInfo, MAD.CreditNoteBudgetMasterId,BCN.UserName AS CreditNoteBudgetName,MAD.CreditNoteActivityId, ACN.UserName AS CreditNoteActivityName
 										,MAD.ShortageGLId, GLGIST.AccountCode + ' - ' + GLGIST.UserName AS ShortageGLInfo, MAD.ShortageBudgetMasterId,BST.UserName AS ShortageBudgetName,MAD.ShortageActivityId, AST.UserName AS ShortageActivityName
 										,MAD.RejectionGLId, GLGIRJ.AccountCode + ' - ' + GLGIRJ.UserName AS RejectionGLInfo, MAD.RejectionBudgetMasterId,BRJ.UserName AS RejectionBudgetName,MAD.RejectionActivityId, ARJ.UserName AS RejectionActivityName
+                                        ,MAD.InventoryInTransitGLId, GLGIIT.AccountCode + ' - ' + GLGIIT.UserName AS InventoryInTransitGLInfo, MAD.InventoryInTransitBudgetMasterId,BIT.UserName AS InventoryInTransitBudgetName,MAD.InventoryInTransitActivityId, AIT.UserName AS InventoryInTransitActivityName
         			                    FROM HKP.COA AS C
         			                    LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGI1 ON GLGI1.Id=MAD.DownPaymentGLId
@@ -321,6 +323,7 @@ namespace Library.Service.Materials
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGICN ON GLGICN.Id=MAD.CreditNoteGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIST ON GLGIST.Id=MAD.ShortageGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIRJ ON GLGIRJ.Id=MAD.RejectionGLId
+                                        LEFT JOIN HKP.GLGeneralInfo AS GLGIIT ON GLGIIT.Id=MAD.InventoryInTransitGLId
 					                    LEFT JOIN MST.BudgetMaster AS DPBM ON MAD.DownPaymentBudgetMasterId = DPBM.Id
 					                    LEFT JOIN HKP.Budget AS DPB ON DPBM.BudgetId = DPB.Id
 					                    LEFT JOIN HKP.Activity AS DPA ON MAD.DownPaymentActivityId = DPA.Id
@@ -345,6 +348,9 @@ namespace Library.Service.Materials
 										LEFT  JOIN MST.BudgetMaster AS BMRJ ON MAD.RejectionBudgetMasterId = BMDN.Id
 					                    LEFT  JOIN HKP.Budget AS BRJ ON BMCN.BudgetId = BRJ.Id
 					                    LEFT  JOIN HKP.Activity AS ARJ ON MAD.RejectionActivityId = ARJ.Id
+                                        LEFT  JOIN MST.BudgetMaster AS BMIT ON MAD.InventoryInTransitBudgetMasterId = BMIT.Id
+					                    LEFT  JOIN HKP.Budget AS BIT ON BMIT.BudgetId = BIT.Id
+					                    LEFT  JOIN HKP.Activity AS AIT ON MAD.InventoryInTransitActivityId = AIT.Id
 										" + coaStr + @"
 									)AS F ON F.MaterialGroupMasterId = MGM.Id
                                     WHERE F.DownPaymentGLId <> '' AND F.ClearingAccountGLId <> '' AND F.InventoryGLId <> '' AND F.ExpenseGLId <>''";
@@ -378,6 +384,7 @@ namespace Library.Service.Materials
                                     , F.CreditNoteGLId, F.CreditNoteBudgetMasterId, F.CreditNoteActivityId, F.CreditNoteGLInfo, F.CreditNoteBudgetName, F.CreditNoteActivityName
                                     , F.ShortageGLId, F.ShortageBudgetMasterId, F.ShortageActivityId, F.ShortageGLInfo, F.ShortageBudgetName, F.ShortageActivityName
                                     , F.RejectionGLId, F.RejectionBudgetMasterId, F.RejectionActivityId, F.RejectionGLInfo, F.RejectionBudgetName, F.RejectionActivityName
+                                    , F.InventoryInTransitGLId, F.InventoryInTransitBudgetMasterId, F.InventoryInTransitActivityId, F.InventoryInTransitGLInfo, F.InventoryInTransitBudgetName, F.InventoryInTransitActivityName
                                     FROM MST.MaterialGroupMaster As MGM
                                     LEFT  JOIN HKP.MaterialGroup1 As MG1 ON MG1.Id = MGM.MaterialGroup1Id
                                     LEFT  JOIN HKP.MaterialGroup2 As MG2 ON MG2.Id = MGM.MaterialGroup2Id
@@ -395,6 +402,7 @@ namespace Library.Service.Materials
 										,MAD.CreditNoteGLId, GLGICN.AccountCode + ' - ' + GLGICN.UserName AS CreditNoteGLInfo, MAD.CreditNoteBudgetMasterId,BCN.UserName AS CreditNoteBudgetName,MAD.CreditNoteActivityId, ACN.UserName AS CreditNoteActivityName
 										,MAD.ShortageGLId, GLGIST.AccountCode + ' - ' + GLGIST.UserName AS ShortageGLInfo, MAD.ShortageBudgetMasterId,BST.UserName AS ShortageBudgetName,MAD.ShortageActivityId, AST.UserName AS ShortageActivityName
 										,MAD.RejectionGLId, GLGIRJ.AccountCode + ' - ' + GLGIRJ.UserName AS RejectionGLInfo, MAD.RejectionBudgetMasterId,BRJ.UserName AS RejectionBudgetName,MAD.RejectionActivityId, ARJ.UserName AS RejectionActivityName
+                                        ,MAD.InventoryInTransitGLId, GLGIIT.AccountCode + ' - ' + GLGIIT.UserName AS InventoryInTransitGLInfo, MAD.InventoryInTransitBudgetMasterId,BIT.UserName AS InventoryInTransitBudgetName,MAD.InventoryInTransitActivityId, AIT.UserName AS InventoryInTransitActivityName
         			                    FROM HKP.COA AS C
         			                    LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGI1 ON GLGI1.Id=MAD.DownPaymentGLId
@@ -405,6 +413,7 @@ namespace Library.Service.Materials
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGICN ON GLGICN.Id=MAD.CreditNoteGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIST ON GLGIST.Id=MAD.ShortageGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIRJ ON GLGIRJ.Id=MAD.RejectionGLId
+                                        LEFT JOIN HKP.GLGeneralInfo AS GLGIIT ON GLGIIT.Id=MAD.InventoryInTransitGLId
 					                    LEFT JOIN MST.BudgetMaster AS DPBM ON MAD.DownPaymentBudgetMasterId = DPBM.Id
 					                    LEFT JOIN HKP.Budget AS DPB ON DPBM.BudgetId = DPB.Id
 					                    LEFT JOIN HKP.Activity AS DPA ON MAD.DownPaymentActivityId = DPA.Id
@@ -429,6 +438,9 @@ namespace Library.Service.Materials
 										LEFT  JOIN MST.BudgetMaster AS BMRJ ON MAD.RejectionBudgetMasterId = BMDN.Id
 					                    LEFT  JOIN HKP.Budget AS BRJ ON BMCN.BudgetId = BRJ.Id
 					                    LEFT  JOIN HKP.Activity AS ARJ ON MAD.RejectionActivityId = ARJ.Id
+                                        LEFT  JOIN MST.BudgetMaster AS BMIT ON MAD.InventoryInTransitBudgetMasterId = BMIT.Id
+					                    LEFT  JOIN HKP.Budget AS BIT ON BMIT.BudgetId = BIT.Id
+					                    LEFT  JOIN HKP.Activity AS AIT ON MAD.InventoryInTransitActivityId = AIT.Id
 										" + coaStr + @"
 									)AS F ON F.MaterialGroupMasterId = MGM.Id
                                 WHERE (ISNULL(F.DownPaymentGLId, '') = '' OR ISNULL(F.ClearingAccountGLId, '') = ''  OR ISNULL(F.InventoryGLId , '') = ''  OR ISNULL(F.ExpenseGLId , '') = '') ";
@@ -458,6 +470,7 @@ namespace Library.Service.Materials
                                     , F.CreditNoteGLId, F.CreditNoteBudgetMasterId, F.CreditNoteActivityId, F.CreditNoteGLInfo, F.CreditNoteBudgetName, F.CreditNoteActivityName
                                     , F.ShortageGLId, F.ShortageBudgetMasterId, F.ShortageActivityId, F.ShortageGLInfo, F.ShortageBudgetName, F.ShortageActivityName
                                     , F.RejectionGLId, F.RejectionBudgetMasterId, F.RejectionActivityId, F.RejectionGLInfo, F.RejectionBudgetName, F.RejectionActivityName
+                                    , F.InventoryInTransitGLId, F.InventoryInTransitBudgetMasterId, F.InventoryInTransitActivityId, F.InventoryInTransitGLInfo, F.InventoryInTransitBudgetName, F.InventoryInTransitActivityName
                                     FROM MST.MaterialGroupMaster As MGM
                                     LEFT  JOIN HKP.MaterialGroup1 As MG1 ON MG1.Id = MGM.MaterialGroup1Id
                                     LEFT  JOIN HKP.MaterialGroup2 As MG2 ON MG2.Id = MGM.MaterialGroup2Id
@@ -475,6 +488,7 @@ namespace Library.Service.Materials
 										,MAD.CreditNoteGLId, GLGICN.AccountCode + ' - ' + GLGICN.UserName AS CreditNoteGLInfo, MAD.CreditNoteBudgetMasterId,BCN.UserName AS CreditNoteBudgetName,MAD.CreditNoteActivityId, ACN.UserName AS CreditNoteActivityName
 										,MAD.ShortageGLId, GLGIST.AccountCode + ' - ' + GLGIST.UserName AS ShortageGLInfo, MAD.ShortageBudgetMasterId,BST.UserName AS ShortageBudgetName,MAD.ShortageActivityId, AST.UserName AS ShortageActivityName
 										,MAD.RejectionGLId, GLGIRJ.AccountCode + ' - ' + GLGIRJ.UserName AS RejectionGLInfo, MAD.RejectionBudgetMasterId,BRJ.UserName AS RejectionBudgetName,MAD.RejectionActivityId, ARJ.UserName AS RejectionActivityName
+                                        ,MAD.InventoryInTransitGLId, GLGIIT.AccountCode + ' - ' + GLGIIT.UserName AS InventoryInTransitGLInfo, MAD.InventoryInTransitBudgetMasterId,BIT.UserName AS InventoryInTransitBudgetName,MAD.InventoryInTransitActivityId, AIT.UserName AS InventoryInTransitActivityName
         			                    FROM HKP.COA AS C
         			                    LEFT JOIN HKP.MaterialGroupGL AS MAD ON MAD.COAId=c.Id
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGI1 ON GLGI1.Id=MAD.DownPaymentGLId
@@ -485,6 +499,7 @@ namespace Library.Service.Materials
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGICN ON GLGICN.Id=MAD.CreditNoteGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIST ON GLGIST.Id=MAD.ShortageGLId
         			                    LEFT JOIN HKP.GLGeneralInfo AS GLGIRJ ON GLGIRJ.Id=MAD.RejectionGLId
+                                        LEFT JOIN HKP.GLGeneralInfo AS GLGIIT ON GLGIIT.Id=MAD.InventoryInTransitGLId
 					                    LEFT JOIN MST.BudgetMaster AS DPBM ON MAD.DownPaymentBudgetMasterId = DPBM.Id
 					                    LEFT JOIN HKP.Budget AS DPB ON DPBM.BudgetId = DPB.Id
 					                    LEFT JOIN HKP.Activity AS DPA ON MAD.DownPaymentActivityId = DPA.Id
@@ -509,6 +524,9 @@ namespace Library.Service.Materials
 										LEFT  JOIN MST.BudgetMaster AS BMRJ ON MAD.RejectionBudgetMasterId = BMDN.Id
 					                    LEFT  JOIN HKP.Budget AS BRJ ON BMCN.BudgetId = BRJ.Id
 					                    LEFT  JOIN HKP.Activity AS ARJ ON MAD.RejectionActivityId = ARJ.Id
+                                        LEFT  JOIN MST.BudgetMaster AS BMIT ON MAD.InventoryInTransitBudgetMasterId = BMIT.Id
+					                    LEFT  JOIN HKP.Budget AS BIT ON BMIT.BudgetId = BIT.Id
+					                    LEFT  JOIN HKP.Activity AS AIT ON MAD.InventoryInTransitActivityId = AIT.Id
         			                )AS F ON F.MaterialGroupMasterId=MGM.Id";
                 return _sqlRepository.GetGridData(parameters);
             }

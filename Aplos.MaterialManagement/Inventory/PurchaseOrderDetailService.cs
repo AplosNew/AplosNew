@@ -3393,7 +3393,7 @@ namespace Library.MaterialManagement.Inventory
                         else
                         {
 
-                            itemDetail.BaseUoMFactor = TransactionQtyGroupSum;
+                            itemDetail.BaseUoMFactor = 1;
                             double conversiongroupListData = conversion.Convert(itemDetail.MaterialMasterId, itemDetail.TransactionUoMId, itemDetail.TransactionUoMId.ToString(), Convert.ToDouble(TransactionQtyGroupSum));//TODO: Should Pass Base UOM
                             itemDetail.BaseQty = Convert.ToDecimal(conversiongroupListData);
                             itemDetail.BaseAmount = itemDetail.TransactionAmount;
