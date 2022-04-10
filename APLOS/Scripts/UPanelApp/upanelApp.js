@@ -1025,6 +1025,7 @@ upanelApp.controller("BOQApprovalController", BOQApprovalController);
 upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("CostingSOTemplateController", CostingSOTemplateController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
+upanelApp.controller("UtilityMasterController", UtilityMasterController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
