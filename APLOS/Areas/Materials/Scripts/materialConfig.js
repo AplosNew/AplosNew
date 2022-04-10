@@ -256,6 +256,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/DetentionMaster/Aplos',
             controller: 'DetentionMasterController'
         })
-    
+        .when('/utility-master', {
+            templateUrl: 'materials/UtilityMaster/Aplos',
+            controller: 'UtilityMasterController'
+        })
        
 };
