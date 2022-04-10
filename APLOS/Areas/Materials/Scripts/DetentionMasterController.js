@@ -267,6 +267,19 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
 
+    $scope.removeRowModal = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure want to permanent delete [" + name + "] ";
+            angular.element(document.querySelector('#confirmRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
 
 
 
