@@ -156,6 +156,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.Clear = function () {
         DetentionClearFields();
+        $scope.userDepartMentList = [];
+        $scope.userProcessList = [];
     };
     function DetentionClearFields() {
         $scope.Action = "Save";

@@ -86,7 +86,7 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUp" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
@@ -100,7 +100,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="DepartmentPopUpList();"ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Department</button></li>
+                                <li><button ng-click="DepartmentPopUpList();" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Department</button></li>
                             </ul>
                         </div>
                     </div>
@@ -208,7 +208,7 @@
             <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>
             <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>
             <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>
-            <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>
+            <div e-column e-field="Avoidable" e-headertext="Is Avoidable" e-width="3"></div>
         </div>
     </div>
 </div>

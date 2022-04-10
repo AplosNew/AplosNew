@@ -75,10 +75,10 @@ namespace Aplos.Areas.Materials.Controllers
                 //{
                 //    throw new Exception("Code Already Exist.");
                 //}
-                
+
                 DataSet dsDetentionMaster;
 
-                 conRack = new ConnectionManager.DAL.ConManager("1");
+                conRack = new ConnectionManager.DAL.ConManager("1");
                 conRack.OpenDataSetThroughAdapter("select * from DetentionMaster where Id='" + DetentionData["Id"] + "'", out dsDetentionMaster, false, "1");
                 string _Id = "";
 
@@ -99,7 +99,7 @@ namespace Aplos.Areas.Materials.Controllers
                 #endregion data update
 
 
-              
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsDetentionMaster);
 
@@ -135,7 +135,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity; 
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             dr.BeginEdit();
             foreach (var item in sourceData.Keys)
             {
@@ -188,7 +188,7 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
-                conC.executeQuery("delete from DetentionMasterProcess where Id ='" + id +@"'");
+                conC.executeQuery("delete from DetentionMasterProcess where Id ='" + id + @"'");
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
@@ -226,7 +226,8 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM DetentionMaster";
+            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable
+FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -241,9 +242,9 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadEditData(string DetentionID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-          
+
             string sql = @"select * from DetentionMaster where Id='" + DetentionID + @"'";
-            return Json(new { detention=_sqlRepository.GetDataCollection(sql, null)}, JsonRequestBehavior.AllowGet);
+            return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
         //[HttpGet, Authorize]
