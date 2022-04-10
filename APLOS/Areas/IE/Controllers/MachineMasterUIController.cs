@@ -242,29 +242,7 @@ namespace Aplos.Areas.IE.Controllers
 
             dt.Rows.Add(dr);
         }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dr.EndEdit();
-        }
+       
         private void SaveData(List<Dictionary<string, object>> data,string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -309,9 +287,154 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult CreateAsset(Dictionary<string, object> data, string machineMasterId)
+        {
+            try
+            {
+                SaveAssetData(data, machineMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void AddNewAssetRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditAssetRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        private void SaveAssetData(Dictionary<string, object> data, string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM MachineMasterAsset WHERE Id ='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string MachineMasterAssetId = "";
+
+
+               
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                if (dsMasterOrder.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterAsset", out MachineMasterAssetId);
+
+                    data["Id"] = MachineMasterAssetId;
+                    data["MachineMasterId"]= machineMasterId;
+                    AddNewAssetRow(dsMasterOrder.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = MachineMasterAssetId;
+                    data["MachineMasterId"] = machineMasterId;
+                    EditAssetRow(dsMasterOrder.Tables[0].Rows[0], data);
+                }
+               
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetAsset(string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+                                        ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
+										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
+                                        ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
+										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget
+                                        from MachineMasterAsset MMA
+                                        left join ORG.Entity E on E.Id=MMA.EntityId
+                                        left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+										where MMA.MachineMasterId='" + machineMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult AssetDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from MachineMasterAsset where Id ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
 
         [Authorize, HttpPost]
-        public ActionResult getProcess(string machineMasterId)
+        public ActionResult GetProcess(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select MMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
@@ -341,7 +464,7 @@ namespace Aplos.Areas.IE.Controllers
 
             }
         }
-
+        
         [HttpPost]
         public JsonResult Edit(MachineMasterUI model)
         {
@@ -366,6 +489,7 @@ namespace Aplos.Areas.IE.Controllers
             
         }
 
+       
         [HttpPost]
         public ActionResult Delete(string id)
         {
@@ -414,6 +538,153 @@ namespace Aplos.Areas.IE.Controllers
                                 left join org.Company c on c.Id = p.CompanyId";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public JsonResult CreateEntityCapacity(Dictionary<string, object> data, string machineMasterId)
+        {
+            try
+            {
+                SaveEntityCapacityData(data, machineMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void AddNewEntityCapacityRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditEntityCapacityRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        private void SaveEntityCapacityData(Dictionary<string, object> data, string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM EntityCapacity WHERE Id ='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string EntityCapacityId = "";
+
+
+
+                DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                if (dsMasterOrder.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EntityCapacity", out EntityCapacityId);
+
+                    data["Id"] = EntityCapacityId;
+                    data["MachineMasterId"] = machineMasterId;
+                    AddNewEntityCapacityRow(dsMasterOrder.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = EntityCapacityId;
+                    data["MachineMasterId"] = machineMasterId;
+                    EditEntityCapacityRow(dsMasterOrder.Tables[0].Rows[0], data);
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetEntityCapacity(string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select EC.Id,EC.MachineMasterId,E.Id EntityId,E.UserName Entity,convert(numeric(10,2),EC.NoofMachine) NoofMachine
+				                        ,CONVERT(numeric(10,2),EC.DailyHr) DailyHr,CONVERT(numeric(10,2),EC.WeelkyHr) WeelkyHr
+				                        ,CONVERT(numeric(10,2),EC.MonthlyHr) MonthlyHr,CONVERT(numeric(10,2),EC.TargetUtilization) TargetUtilization
+				                        ,CONVERT(numeric(10,2),EC.PlanUtilization) PlanUtilization
+				                        from EntityCapacity EC
+				                        left join ORG.Entity E on E.Id=EC.EntityId
+                                        left join MST.MachineMaster MM on MM.Id=EC.MachineMasterId
+										where EC.MachineMasterId='" + machineMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        
+        [Authorize, HttpPost]
+        public ActionResult EntityCapacityDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from EntityCapacity where Id ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
         }
     }
 
