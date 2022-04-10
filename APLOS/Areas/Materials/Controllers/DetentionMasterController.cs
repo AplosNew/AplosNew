@@ -182,6 +182,17 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
+        public ActionResult getMachine(string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select dmm.Id,mm.Sequence,mm.Code,mm.ShortName,mm.StandardName,mm.Id MachineMasterId,mm.UserName Machine
+			                            from DetentionMasterMachine AS dmm
+			                            left join mst.MachineMaster AS mm ON mm.Id=dmm.MachineMasterId
+										where dmm.DetentionMasterId='" + DetentionMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
         public ActionResult ProcessDelete(string id)
         {
             try
@@ -215,19 +226,34 @@ namespace Aplos.Areas.Materials.Controllers
             }
             catch (Exception ex)
             {
-
                 throw ex;
-
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult MachineDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from DetentionMasterMachine where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         [Authorize, HttpGet]
         public ActionResult LoadDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable
-FROM DetentionMaster";
+                            FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -238,6 +264,16 @@ FROM DetentionMaster";
             string sql = @" SELECT *,CAST(0 AS bit) Flag FROM [ORG].[Department]";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult LoadMachineList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM mst.MachineMaster";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
         [Authorize, HttpGet]
         public ActionResult LoadEditData(string DetentionID)
         {
@@ -408,6 +444,62 @@ FROM DetentionMaster";
                         item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
                         item["DetentionMasterId"] = DetentionMasterId;
                         item["DepartmentId"] = item["DepartmentId"];
+
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        [HttpPost]
+        public JsonResult CreateMachine(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            try
+            {
+                SaveMachineData(data, DetentionMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+        private void SaveMachineData(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM DetentionMasterMachine WHERE DetentionMasterId ='" + DetentionMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string DetentionMasterMachineId = "";
+
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("DetentionMasterMachine", out DetentionMasterMachineId);
+
+                        item["Id"] = "DMM-" + DetentionMasterMachineId + "-" + (1);
+                        item["DetentionMasterId"] = DetentionMasterId;
+                        item["MachineMasterId"] = item["MachineMasterId"];
 
                         AddNewRow(dsMasterOrder.Tables[0], item);
                     }

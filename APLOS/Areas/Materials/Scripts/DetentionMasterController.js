@@ -13,6 +13,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.deleteUrl = $scope.path + 'Delete';
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
     $scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
+    $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
     $scope.detention = {
         Id: null
         , DetentionCategory: null
@@ -113,7 +114,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
            
             $scope.getDetentionMasterProcess();
             $scope.getDetentionMasterDepartment();
-            
+            $scope.getDetentionMasterMachine();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -154,23 +155,28 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.userDepartMentList = resp.data;
         });
     }
+    $scope.getDetentionMasterMachine = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getMachine',
+            data: { 'DetentionMasterId': $scope.DetentionMasterId },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.userMachineList = [];
+            $scope.userMachineList = resp.data;
+        });
+    }
     $scope.Clear = function () {
         DetentionClearFields();
         $scope.userDepartMentList = [];
         $scope.userProcessList = [];
+        $scope.userMachineList = [];
     };
     function DetentionClearFields() {
         $scope.Action = "Save";
         $scope.detentionNew = Object.assign({}, $scope.detention);
 
     }
-//    function ClearFields(seq) {
-//        $scope.Action = "Save";
-//        $scope.detentionNew = Object.assign({}, $scope.detention);
-///*        $scope.rackNew.Sequence= seq;*/
-//        $scope.binList =[];
-
-//    }
 
     $scope.processPopUpDataList = function () {
         $scope.processDataList = [];
@@ -227,8 +233,18 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             angular.element(document.querySelector('#departmentPopUp')).modal('show');
         });
     };
-
     $scope.userDepartMentList = [];
+
+    $scope.MachinePopUpList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/DetentionMaster/LoadMachineList'
+        }).then(function successCallback(response) {
+            $scope.MachineDataList = response.data;
+            angular.element(document.querySelector('#MachinePopUp')).modal('show');
+        });
+    };
+    $scope.userMachineList = [];
 
     $scope.closeProcessPopUp = function () {
         $scope.processUpUrl = null;
@@ -336,7 +352,59 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }
         $scope.closeDeptPopUp();
     };
+    $scope.MachineDataList = [];
+    $scope.SaveMachine = function () {
 
+        try {
+
+            if (baseService.arrayLength($scope.MachineDataList) > 0) {
+                angular.forEach($scope.MachineDataList, function (a) {
+                    if (checkProcessExist($scope.userMachineList, a.Id) === false) {
+                        if (a.Flag) {
+                            var ob = {};
+                            ob.Id = null;
+                            ob.MachineMasterId = a.Id;
+                            ob.Code = a.Code;
+                            ob.Sequence = a.Sequence;
+                            ob.ShortName = a.ShortName;
+                            ob.StandardName = a.StandardName;
+                            ob.MachineName = a.UserName;
+                            $scope.userMachineList.push(ob);
+                            ob = {};
+                        }
+                    }
+
+                });
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.MachineSaveUrl,
+                data: { 'data': $scope.userMachineList, 'DetentionMasterId': $scope.detentionNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //$scope.processDataList();
+                    $scope.getDetentionMasterMachine();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        $scope.closeMachinePopUp();
+    };
+    $scope.closeMachinePopUp = function () {
+        angular.element(document.querySelector('#MachinePopUp')).modal('hide');
+    };
     function checkProcessExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].ProcessId === Id) {
@@ -383,6 +451,19 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'Error');
         }
     };
+    $scope.removeMachineRowModal = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to delete [" + name + "] permanently ?";
+            angular.element(document.querySelector('#confirmRemoveMachinePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
     $scope.removeRow = function () {
         $http({
             method: 'POST',
@@ -414,6 +495,25 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.getDetentionMasterDepartment();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.removeMachineRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionMaster/MachineDelete?id=' + $scope.tempDeptId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetentionMasterMachine();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
