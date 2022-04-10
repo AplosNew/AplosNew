@@ -662,7 +662,7 @@ namespace Library.OrderManagement.Production
       
 
         // The Section for Saving And Updating of Data
-        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate)
+        public void AddNewRow(DataTable dt, Dictionary<string, string> sourceData, string addedname, string addeddate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -707,7 +707,7 @@ namespace Library.OrderManagement.Production
         }
 
 
-        public void SaveFileList(List<Dictionary<string, object>> data, string plantId)
+        public void SaveFileList(List<Dictionary<string, string>> data, string plantId)
         {
             try
             {
@@ -725,20 +725,19 @@ namespace Library.OrderManagement.Production
                     int indexa = 0;
                     for (int i = 0; i < data.Count; i++)
                     {
-                        Dictionary<string, object> jj = data[i];
+                        Dictionary<string, string> jj = data[i];
                         bplib.clsGenID genid = new bplib.clsGenID();
                         genid.GenID(TableName, out _Id);
                         indexa++;
                         jj["Id"] = _Id;
-
+                        jj["PlantId"] = plantId;
                         AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate);
                     }
 
 
                 }
 
-                var sqls = @"Delete rb from dbo.EmployeeOperationBudget eob
-                                
+                var sqls = @"Delete from dbo.EmployeeOperationBudget 
                                 where plantId = '" + plantId + @"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -762,10 +761,10 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select mb.Id as BudgetId , mb.Code as BudgetCode , pl.UserName as Plant
-                            from mst.ManPowerBudget mb                   
-                            left join org.Plant pl on pl.Id = e.PlantId                          
-                            left join dbo.EmployeeOperationBudget eob on eob.BudgetId = mb.Id
+                var str = @"Select mb.Id as BudgetId, mb.Code as BudgetCode
+                            from mst.ManPowerBudget mb  
+                            left join Org.Entity e on e.Id = mb.EntityId
+                            left join org.Plant pl on pl.Id = e.PlantId
                             where pl.Id = '" + plantId + @"'
                             ";
 

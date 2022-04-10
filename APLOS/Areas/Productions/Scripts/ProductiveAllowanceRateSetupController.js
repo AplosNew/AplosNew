@@ -392,7 +392,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     $scope.getPlants = function () {
         $http({
             method: 'GET',
-            url: url + 'getPlants',
+            url: $scope.path + 'getPlants',
             params: { 'cmp': $scope.Company }
         }).then(function success(response) {
             $scope.PlantList = response.data;
@@ -405,7 +405,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     $scope.getCompany = function () {
         $http({
             method: 'GET',
-            url: url + 'getCompany'
+            url: $scope.path + 'getCompany'
         }).then(function success(response) {
             $scope.CompanyList = response.data;
         })
@@ -427,7 +427,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
         $http({
             method: 'GET',
-            url: url + 'getCurrentList',
+            url: $scope.path + 'getCurrentList',
             params: { 'plantId': $scope.BudgetPlantId }
         }).then(function success(response) {
             $scope.currentList = [];
@@ -440,6 +440,31 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         $scope.fileData = this.files[0];
     });
     $scope.ExcelUploadData = [];
+
+    //Getting The Sample
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select a Plant!!", 'failure');
+            throw ("Invalid!!");
+        }
+
+        var plantName = "";
+        for (var i = 0; i < $scope.PlantList.length; i++) {
+            if ($scope.PlantList[i].Value == $scope.BudgetPlantId) {
+                plantName = $scope.PlantList[i].Text;
+            }
+        }
+
+        try {
+            window.open('Productions/ProductiveAllowanceRateSetup/GetSampleReport?plantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&reportFormat=' + reportFormat, '_blank');
+
+        } catch (e) {
+
+        }
+    }
+
     //IMporting The Data From the Excel File
 
     $scope.ModelNew = {
@@ -468,7 +493,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
             $http({
                 method: 'POST',
-                url: url + 'ImportData',
+                url: $scope.path + 'ImportData',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     fileData.append("modelNew", angular.toJson(data.modelNew));
@@ -520,7 +545,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
         $http({
             method: 'POST',
-            url: url + 'SaveFileList',
+            url: $scope.path + 'SaveFileList',
             data: { 'data': $scope.ExcelUploadData, 'plantId': $scope.BudgetPlantId }
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

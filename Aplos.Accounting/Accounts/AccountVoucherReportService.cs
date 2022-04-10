@@ -346,6 +346,7 @@ namespace Library.Accounting.Accounts
                         ,ACT.Id AS [Type],C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4, CCE.UserName CostCenterName
 						,Replace(CONVERT(VARCHAR(11), GLTD.ReconcileDate , 106), ' ', '-') ReconcileDate
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
+                        ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -6131,6 +6132,12 @@ namespace Library.Accounting.Accounts
             int colReconcileDate = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "GL Update";
+            int colGLUpdate = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6188,6 +6195,7 @@ namespace Library.Accounting.Accounts
 
                 worksheet[ROW, colReconcileDate].Text = dtDayBookData.Rows[i]["ReconcileDate"].ToString();
                 worksheet[ROW, colReconcile].Text = dtDayBookData.Rows[i]["Reconcile"].ToString();
+                worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
 
                 //if (checkbox == true)
                 //{

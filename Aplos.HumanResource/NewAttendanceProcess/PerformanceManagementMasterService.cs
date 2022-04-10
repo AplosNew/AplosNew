@@ -54,7 +54,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,pg.Username 
                 from PMSChild pc
 			    left join hkp.PerformanceGroup pg on pg.Id=pc.PerformanceGroupId
-                where PMSMasterId= '" + Id + "' ";
+                where pg.PMSMasterId= '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
@@ -616,7 +616,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var sql = "select * from dbo.PerformanceGradeMaster where Id = '" + Id + "' ";
+                var sql = "select * from dbo.PerformanceAttributeMaster where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -629,7 +629,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string TableName = "dbo.PerformanceGradeMaster";
+                string TableName = "dbo.PerformanceAttributeMaster";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -648,7 +648,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string TableName = "dbo.PerformanceGradeMaster";
+                string TableName = "dbo.PerformanceAttributeMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 
@@ -692,7 +692,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
 
-                string TableName = "dbo.PerformanceGradeMaster";
+                string TableName = "dbo.PerformanceAttributeMaster";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
@@ -821,7 +821,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "PAM" + _Id;
+                    data["Id"] = "PGM" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
