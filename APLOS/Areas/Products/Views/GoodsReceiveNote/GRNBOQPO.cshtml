@@ -170,7 +170,7 @@
                             <label class="col-sm-6 control-label">Currency<sup>*</sup></label>
                             <div class="col-sm-6 show-message pdr3">
                                 <div class="select-style">
-                                    <select class="form-control" id="currency" ng-disabled="MasterList.length>0 || AcceptanceId !=null" ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
+                                    <select class="form-control" id="currency" ng-disabled="MasterList.length>0 " ng-model="productNew.CurrencyId" ng-options="item.Value as item.Text for item in currencyList"
                                             ng-change="changeCurrency();getToCurrencyRate();manualValidationAddRemove('div_currency', 'productNew', 'CurrencyId');" tabindex="8">
                                         <option value=""></option>
                                     </select>
@@ -786,8 +786,7 @@
                             </fieldset>
                         </div>
                         <ul class="common-btn list-inline text-right">
-                            @*<li> <button ng-click="GetShortageRejectionValue();" class="btn" ng-show="inventoryMaterialList.length>0"><i class="glyphicon glyphicon-floppy-disk"></i>Set Shortage/Rejection Value</button></li>*@
-                            <li> <button ng-click="Save();" class="btn" @*ng-show="MasterList.length>0"*@><i class="glyphicon glyphicon-floppy-disk"></i> {{productId.length>0?'Update':'Save'}}</button></li>
+                            <li> <button ng-click="Save();" class="btn" ><i class="glyphicon glyphicon-floppy-disk"></i> {{productId.length>0?'Update':'Save'}}</button></li>
                             <li> <button ng-click="Delete();" class="btn" ng-hide="SaveButtonDisable===true"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
@@ -2041,7 +2040,7 @@
            e-showoninit="false"
            e-target="#MainDivIds"
            e-close="onDialogClose"
-           e-width="1100"
+           e-width="1250"
            e-minheight="600"
            e-open="enableBtn">
 
