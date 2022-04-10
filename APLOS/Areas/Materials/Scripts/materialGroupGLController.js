@@ -1527,7 +1527,7 @@ function MaterialGroupGLController(cboService, commonMessage, $scope, $rootScope
         setReconGLForSave();
         if (baseService.isUndefinedOrNull($scope.DownPaymentGLId) && baseService.isUndefinedOrNull($scope.ClearingAccountGLId) && baseService.isUndefinedOrNull($scope.InventoryGLId)
             && baseService.isUndefinedOrNull($scope.ExpenseGLId) && baseService.isUndefinedOrNull($scope.DebitNoteGLId) && baseService.isUndefinedOrNull($scope.CreditNoteGLId)
-            && baseService.isUndefinedOrNull($scope.ShortageGLId) && baseService.isUndefinedOrNull($scope.RejectionGLId) && baseService.isUndefinedOrNull($scope.SalesGLId) && checkVendorReconGLIsAssinged($scope.accountGroupSaveList)) {
+            && baseService.isUndefinedOrNull($scope.ShortageGLId) && baseService.isUndefinedOrNull($scope.RejectionGLId) && baseService.isUndefinedOrNull($scope.SalesGLId) && baseService.isUndefinedOrNull($scope.InventoryInTransitGLId) && checkVendorReconGLIsAssinged($scope.accountGroupSaveList)) {
             return ShowResult("Please Select at least one GL!!", 'failure');
         }
         if ($scope.materialGroupGLListForSave.length < 1) {
