@@ -60,7 +60,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         angular.element(document.querySelector('#EntityPop')).modal('hide');
     }
 
-    scope.selectDepartment = function () {
+    $scope.selectDepartment = function () {
         $scope.getsD();
         angular.element(document.querySelector('#DepartmentPop')).modal('show');
     }
@@ -86,7 +86,61 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
     }
 
+
+    $scope.selectShift = function () {
+        $scope.getsS();
+        angular.element(document.querySelector('#ShiftPop')).modal('show');
+    }
+
+    $scope.ShiftList = [];
+    $scope.getsS = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getShift',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ShiftList = resp.data;
+        });
+    }
+
+    $scope.doubleShift = function (e) {
+        $scope.ModelNew.ShiftId = e.data.ShiftId;
+        $scope.ModelNew.Shift = e.data.ShiftDefination;
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+    $scope.closeShiftPopUp = function () {
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+
+    $scope.selectMachine = function () {
+        $scope.getsM();
+        angular.element(document.querySelector('#MachinePop')).modal('show');
+    }
+
+    $scope.MachineList = [];
+    $scope.getsM = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getMachine',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.MachineList = resp.data;
+        });
+    }
+
+    $scope.doubleMachine = function (e) {
+        $scope.ModelNew.MachineId = e.data.MachineId;
+        $scope.ModelNew.Machine = e.data.MachineMaster;
+        angular.element(document.querySelector('#MachinePop')).modal('hide');
+    }
+
+    $scope.closeMachinePopUp = function () {
+        angular.element(document.querySelector('#MachinePop')).modal('hide');
+    }
     //Omar End
+
     $scope.ModelMeetItem = {
         Id: null,
         MeetingAgendaId: null,

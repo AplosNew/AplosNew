@@ -34,12 +34,19 @@
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
             <div class="col-sm-6 show-message">
-                <input type="text" name="Entity" ng-model="ModelNew.Department" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
+                <input type="text" name="Entity" ng-model="ModelNew.Machine" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
             </div>
             <div class="col-sm-2">
-                <button ng-click="DepartmentPopUpList()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                <button ng-click="selectMachine()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
             </div>
         </div>
 
@@ -57,16 +64,31 @@
         </div>
 
 
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Date<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
-            </div>
-        </div>
+
 
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Department" ng-model="ModelNew.Department" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
+            </div>
+            <div class="col-sm-2">
+                <button ng-click="selectDepartment()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
+            </div>
+            <div class="col-sm-2">
+                <button ng-click="selectShift()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
+        </div>
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Chaired By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -281,7 +303,7 @@
                                 <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
                                 <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
                                 <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
+                                <div e-column e-field="DepartmentName" e-headertext="Department" e-width="120"></div>
                             </div>
 
                         </div>
@@ -306,5 +328,98 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade site-modal in" id="ShiftPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Shift List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Shift</p>
+                        <div style="color:black;" id="GridShift" ej-grid e-datasource="ShiftList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleShift">
+                            <div e-columns>
+                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
+                                <div e-column e-field="ShiftDefinationDescription" e-headertext="ShiftDefinationDescription" e-width="50"></div>
+                                <div e-column e-field="ShiftDefination" e-headertext="Shift Defination" e-width="120"></div>
+                                <div e-column e-field="InTime" e-headertext="In Time" e-width="120"></div>
+                                <div e-column e-field="OutTime" e-headertext="Out Time" e-width="120"></div>
+                            </div>
+
+                        </div>
+                        @*
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                            </script>*@
+
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeShiftPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade site-modal in" id="MachinePop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Machine List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Machine</p>
+                        <div style="color:black;" id="GridMachine" ej-grid e-datasource="MachineList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleMachine">
+                            <div e-columns>
+                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                <div e-column e-field="MachineMaster" e-headertext="Machine" e-width="120"></div>
+                            </div>
+
+                        </div>
+                        @*
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                            </script>*@
+
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <confirm-modal></confirm-modal>

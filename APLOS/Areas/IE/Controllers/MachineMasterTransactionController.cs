@@ -59,9 +59,34 @@ namespace Aplos.Areas.IE.Controllers
         public ActionResult getDepartment()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
-                                left join org.Plant p on p.Id = e.PlantId
-                                left join org.Company c on c.Id = p.CompanyId";
+            string str = @"select D.Id DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
+						                ,D.UserName DepartmentName,D.Description,D.Remarks 
+						                from ORG.Department D";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getShift()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
+						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
+						
+						from ShiftDefination SD
+						left join ORG.Plant P on P.Id=SD.PlantID";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpPost]
+        public ActionResult getMachine()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MM.Id MachineId,MM.Sequence,MM.Code,MM.ShortName 
+						                ,MM.StandardName,MM.UserName MachineMaster
+						                from mst.MachineMaster MM";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
