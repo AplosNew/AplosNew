@@ -14,6 +14,7 @@ namespace Library.Model.OrderManagements
         public decimal TotalQty { get; set; } = 0;
         public decimal? OrderWastagePercentage { get; set; } = 0;
         public decimal? ExtraOrderPercentage { get; set; } = 0;
+        public decimal? Rate { get; set; } = 0;
         public string Type { get; set; }
         public bool IsRepeat { get; set; }
         public bool Consignment { get; set; }
