@@ -241,6 +241,7 @@ upanelApp.controller("lsdController", LSDController);
 upanelApp.controller("machineAttributeController", machineAttributeController);
 upanelApp.controller("machineController", machineController);
 upanelApp.controller("machineMasterUIController", machineMasterUIController);
+upanelApp.controller("MachineMasterTransactionController", MachineMasterTransactionController);
 upanelApp.controller("mainProcessPlanningController", MainProcessPlanningController);
 upanelApp.controller("manpowerAttendanceGroupSummaryController", manpowerAttendanceGroupSummaryController);
 upanelApp.controller("manpowerBudgetDashboardController", manpowerBudgetDashboardController);
