@@ -9612,7 +9612,7 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
         [Authorize, HttpGet]
-        public JsonResult GETBoqFilter()
+        public JsonResult GETBoqFilter(string materialStorageId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -9639,6 +9639,7 @@ namespace Aplos.Areas.Products.Controllers
 								,IM.SecondCharacteristicsValueId,SC.Id FirstCharacteristicsId
                             	
                             FROM TRN.InventoryReceiveDetail IRD
+							JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 							JOIN TRN.InventoryMaterial IM ON IM.Id=IRD.InventoryMaterialId
 							JOIN TRN.GRNPORequisitionAllocation GRA ON GRA.InventoryReceiveDetailId=IRD.Id
 							JOIN BOQ boq ON boq.Id=GRA.BOQDetailId
@@ -9656,7 +9657,8 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=IM.SecondCharacteristicsValueId
 							LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 							LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
-";
+							WHERE IR.[Status]='Posting' AND IRD.MaterialStorageId='"+ materialStorageId + "' and IR.PlantId='"+ identity.PlantId + @"'
+                            ";
 
                 var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
