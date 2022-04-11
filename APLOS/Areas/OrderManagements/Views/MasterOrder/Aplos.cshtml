@@ -420,6 +420,7 @@
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
                                         <th>Product</th>
+                                        <th>Rate</th>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
                                         <th>Contract No</th>
@@ -538,6 +539,9 @@
                                             </div>
                                         </td>
                                         <td>{{x.ProductMaster}}</td>
+                                        <td>
+                                            <input type="text" n-decimals="4" ng-model=" x.Rate" class="form-control text-right">
+                                        </td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
