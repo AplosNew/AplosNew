@@ -1024,7 +1024,6 @@ upanelApp.controller("WasteMasterController", WasteMasterController);
 upanelApp.controller("WasteLocationController", WasteLocationController);
 upanelApp.controller("BOQApprovalController", BOQApprovalController);
 upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
-upanelApp.controller("CostingSOTemplateController", CostingSOTemplateController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
 
