@@ -471,6 +471,12 @@ namespace Library.Service.HumanResources
                 var colIDNO = 0;
                 var colNAME = 0;
                 var colDESIGNATION = 0;
+                var colEmpCategory = 0;
+                var colJobLocation = 0;
+                var colDepartment = 0;
+                var colSection = 0;
+                var colSubSection = 0;
+                var colBudgetedLine = 0;
                 var colGROSS = 0;
                 var colBASIC = 0;
                 var colJOINDATE = 0;
@@ -512,6 +518,25 @@ namespace Library.Service.HumanResources
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.IDNo.ToString(), "ID NO."), 15, 15); colIDNO = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Name.ToString(), "Name"), 43, 15); colNAME = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Designation.ToString(), "Designation"), 27, 15); colDESIGNATION = xlscol; xlscol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCategory.ToString(), "Employee Category"), 27, 15); colEmpCategory = xlscol; xlscol++;
+                sheet[row, xlscol].Text = "Job Location";
+                sheet[row, xlscol].ColumnWidth = 27;
+                sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[row, xlscol].CellStyle.Font.Bold = true;
+                sheet[row, xlscol].CellStyle.Font.Size = 15;
+                colJobLocation = xlscol;
+                xlscol++;
+
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Department.ToString(), "Department"), 27, 15); colDepartment = xlscol; xlscol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Section.ToString(), "Section"), 27, 15); colSection = xlscol; xlscol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.SubSection.ToString(), "Sub Section"), 27, 15); colSubSection = xlscol; xlscol++;
+                sheet[row, xlscol].Text = "Budgeted Line";
+                sheet[row, xlscol].ColumnWidth = 27;
+                sheet[row, xlscol].CellStyle.Font.Size = 15;
+                sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet[row, xlscol].CellStyle.Font.Bold = true;
+                colBudgetedLine = xlscol;
+                xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.TotalSalary.ToString(), "Total Salary"), 16, 15); colGROSS = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Basic.ToString(), "Basic"), 16, 15); colBASIC = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.DOJ.ToString(), "DOJ"), 31, 15); colJOINDATE = xlscol; xlscol++;
@@ -532,8 +557,8 @@ namespace Library.Service.HumanResources
                 //if (paymentMode == "Bank")
                 //{
                 string bankCash = LabelNameInLocalLanguage.Bank.ToString() + " / " + LabelNameInLocalLanguage.Cash.ToString();
-                    reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, bankCash, "Bank / Cash"), 34, 15); colBankName = xlscol; xlscol++;
-                    reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.BankAccountNo.ToString(), "Bank Acc. No"), 34, 15); colBankAccNo = xlscol; xlscol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, bankCash, "Bank / Cash"), 34, 15); colBankName = xlscol; xlscol++;
+                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.BankAccountNo.ToString(), "Bank Acc. No"), 34, 15); colBankAccNo = xlscol; xlscol++;
                 //}
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Signature.ToString(), "Signature"), 37, 15); colSIGNATURE = xlscol;
                 endXlsCol = colSIGNATURE;
@@ -595,6 +620,24 @@ namespace Library.Service.HumanResources
                     reportUtility.SetText(ref sheet, row, colIDNO, dtLocal.Rows[n]["EmployeeCode"].ToString(), 0, 0, 17);
                     reportUtility.SetText(ref sheet, row, colNAME, employeeName, 0, 0, 17);
                     reportUtility.SetText(ref sheet, row, colDESIGNATION, dtLocal.Rows[n]["Designation"].ToString(), 0, 0, 17);
+                    sheet[row, colEmpCategory].Text = dtLocal.Rows[n]["EmployeeCategory"].ToString();
+                    sheet[row, colEmpCategory].CellStyle.Font.Size = 17;
+                    sheet[row, colJobLocation].Text = dtLocal.Rows[n]["JobLocation"].ToString();
+                    sheet[row, colJobLocation].CellStyle.Font.Size = 17;
+
+                    sheet[row, colDepartment].Text = dtLocal.Rows[n]["Department"].ToString();
+                    sheet[row, colDepartment].CellStyle.Font.Size = 17;
+
+                    sheet[row, colSection].Text = dtLocal.Rows[n]["EmployeeSection"].ToString();
+                    sheet[row, colSection].CellStyle.Font.Size = 17;
+
+                    sheet[row, colSubSection].Text = dtLocal.Rows[n]["EmployeeSubSection"].ToString();
+                    sheet[row, colSubSection].CellStyle.Font.Size = 17;
+
+                    sheet[row, colBudgetedLine].Text = dtLocal.Rows[n]["BudgetedLine"].ToString();
+                    sheet[row, colBudgetedLine].CellStyle.Font.Size = 17;
+
+
                     sheet.Range[row, colGROSS].Number = Convert.ToDouble(dtLocal.Rows[n]["Gross"].ToString());
                     sheet.Range[row, colGROSS].NumberFormat = reportUtility.NumberFormatIntLocal(localLanguage); ;
                     sheet.Range[row, colGROSS].IgnoreErrorOptions = ExcelIgnoreError.NumberAsText;
@@ -673,13 +716,13 @@ namespace Library.Service.HumanResources
                     sheet.Range[row, colNETPAYABLE].IgnoreErrorOptions = ExcelIgnoreError.NumberAsText;
                     sheet.Range[row, colNETPAYABLE].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colNETPAYABLE].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                   // sheet.Range[row, colNETPAYABLE].RowHeight = 120;
+                    // sheet.Range[row, colNETPAYABLE].RowHeight = 120;
                     sheet.Range[row, colNETPAYABLE].CellStyle.Font.Size = 17;
                     sheet.Range[row, colNETPAYABLE].BorderAround(ExcelLineStyle.Hair);
                     //if (paymentMode == "Bank")
                     //{
-                        reportUtility.SetText(ref sheet, row, colBankName, dtLocal.Rows[n]["BankName"].ToString(), 34, 120, 17);
-                        reportUtility.SetText(ref sheet, row, colBankAccNo, dtLocal.Rows[n]["BankAccNo"].ToString(), 34, 120, 17);
+                    reportUtility.SetText(ref sheet, row, colBankName, dtLocal.Rows[n]["BankName"].ToString(), 34, 120, 17);
+                    reportUtility.SetText(ref sheet, row, colBankAccNo, dtLocal.Rows[n]["BankAccNo"].ToString(), 34, 120, 17);
                     //}
                     sheet.Range[row, colSIGNATURE].Text = "";
                     sheet.Range[row, colSIGNATURE].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1087,14 +1130,24 @@ namespace Library.Service.HumanResources
                ,ISNULL(PG.StandardName,'') PayRollGroupName,ISNULL(PG.Id,'') PayRollGroupId
                 ,min(ISNULL(b.BonusPercentageValue,0)) BonusPercentage
 				,ISNULL(Bank.UserName,e.PaymentMode) BankName
+,ec.UserName EmployeeCategory,jl.JobLocation,d2.UserName Department
+				,s.userName EmployeeSection,ss.UserName EmployeeSubSection,l.UserName BudgetedLine
                 FROM EmployeeInformation e
                 left join hkp.LegalDesignation d on e.LegalDesignationId=d.id
-                 LEFT JOIN hkp.LocalLanguage locald on locald.LegalDesignationId=d.id and LanguageId = '" + languageId + @"'
+                 LEFT JOIN hkp.LocalLanguage locald on locald.LegalDesignationId=d.id and LanguageId = ''
 				 LEFT JOIN EmployeeBankInfo ebi on ebi.EmpSystemID = e.SystemId
 				 LEFT JOIN HKP.Bank Bank on ebi.BankSystemID = Bank.Id
 
 
                 LEFT JOIN HKP.Designation DG on DG.Id=E.GivenDesignationId
+                LEFT JOIN MST.DesignationMaster AS dm ON dm.DesignationId=dg.Id
+                LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId
+                LEFT JOIN dbo.JobLocation AS jl ON jl.SystemID=e.JobLocationID
+                LEFT JOIN ORG.Department AS d2 ON d2.Id=e.DepartmentId
+                LEFT JOIN ORG.Section S ON S.Id=e.SectionId
+                LEFT JOIN ORG.SubSection SS ON SS.Id=e.SubSectionId
+                LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=e.BudgetCode
+                LEFT JOIN ORG.Line AS l ON l.Id=mb.LineId
 
                 LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=E.SystemId---
                 LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId----
@@ -1202,7 +1255,9 @@ namespace Library.Service.HumanResources
                     }
                 }
                 sqlText += @" GROUP BY e.SystemId,e.EmployeeCode,EmployeeName,EmployeeNameLocal,d.UserName,locald.Name,hg.EntryAmount ,hb.EntryAmount,doj,b.ServiceLenght
-                 ,e.PaymentMode,b.BonusAmount, PG.StandardName ,PG.Id,dg.UserName,b.Remarks,ebi.BankAccNo,DOS,Bank.UserName,EmployeeCodePreFix,EmployeeCodeNumeric,ServiceLengthType
+                 ,e.PaymentMode,b.BonusAmount, PG.StandardName ,PG.Id,dg.UserName,b.Remarks,ebi.BankAccNo,DOS,Bank.UserName,ec.UserName ,jl.JobLocation,d2.UserName 
+				,s.userName ,ss.UserName ,l.UserName 
+,EmployeeCodePreFix,EmployeeCodeNumeric,ServiceLengthType
                ORDER BY ISNULL(EmployeeCodePreFix,''),ISNULL(EmployeeCodeNumeric,0)";
 
                 return _sqlRepository.GetDataTable(sqlText);
