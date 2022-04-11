@@ -192,7 +192,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
-                    --AND IR.[Status]='Posting' AND IR.IsFOC=0
+                    AND IR.[Status]='Posting' AND IR.IsFOC=0
                     ----AND ISNULL(IM.ArticleId,'')='5777' AND ISNULL(IM.FirstCharacteristicsValueId,'')='423' AND  ISNULL(IM.SecondCharacteristicsValueId,'')=''
                     --AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
 					AND IRD.MaterialStorageId='7' 
