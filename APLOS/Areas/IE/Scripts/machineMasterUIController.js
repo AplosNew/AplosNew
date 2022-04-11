@@ -21,14 +21,17 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
     $scope.path = 'IE/MachineMasterUI/';//ControlerName
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
-    $scope.saveUrl = $scope.path + 'Create';
+    $scope.saveUrl = $scope.path + 'Create'; 
+    $scope.AssetSaveUrl = $scope.path + 'CreateAsset'; 
+    $scope.EntityCapacitySaveUrl = $scope.path + 'CreateEntityCapacity';
     $scope.updateUrl = $scope.path + 'Edit'; 
+    //$scope.updateAssetUrl = $scope.path + 'CreateAsset';
     $scope.deleteUrl = $scope.path + 'Delete/';
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
     $scope.model = {
-        Id: null,
+        Id: 0,
         CompanyGroupId: null,
         MachineCategoryId: null,
         MachineSubCategoryId: null,
@@ -55,25 +58,40 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         Active: true
     };
     $scope.modelNew = Object.assign({}, $scope.model);
-    $scope.model = {
-        Id: null,
-        AssetName: null,
+    $scope.modelA = {
+        Id: 0,
+        AssetName: null, 
+        EntityId: null,
         Entity: null,
         AssetDetail: null,
         AssetCode: null,
         AssetReference: null,
-        OldCodeIfAny: null,
+        IsOldCode: false,
+        OldCode: null,
         TargetUtilization: null,
         PlanUtilization: null,
         AssetCategory: null,
-        RepairMaintanencebudget: null,
+        RepairAndMaintanenceBudget: null,
         ConsumableBudget: null,
-        Remarks: null
+        Remark: null
     }
-    $scope.modelNewA = Object.assign({}, $scope.model);
+    $scope.modelNewA = Object.assign({}, $scope.modelA);
+
+    $scope.modelEntity = {
+        Id: 0,
+        EntityId: null,
+        Entity: null,
+        NoofMachine: null,
+        DailyHr: null,
+        WeelkyHr: null,
+        MonthlyHr: null,
+        TargetUtilization: null,
+        PlanUtilization: null
+    }
+    $scope.modelEntityCapacity = Object.assign({}, $scope.modelEntity);
 
     $scope.modelM = {
-        Id: null,
+        Id: 0,
         CompanyGroupId: null,
         Sequence: null,
         OperationMasterId: null,
@@ -381,7 +399,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.getMachineMasterProcess = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getProcess',
+            url: $scope.path + 'GetProcess',
             data: { 'machineMasterId': $scope.OMId },
             dataType: 'JSON'
         }).then(function succ(resp) {
@@ -396,7 +414,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
             $scope.listName = listName;
             $scope.tempId = tempId;
             $scope.listId = listId;
-            $scope.message_confirmation = "Are you sure want to permanent delete [" + name + "] ";
+            $scope.message_confirmation = "Are you sure want to permanent delete? ";
             angular.element(document.querySelector('#confirmRemovePopUp')).modal('show');
         }
         catch (e) {
@@ -479,6 +497,8 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         // $scope.GetDataByMasterOrderIdfnMP($scope.OMId);
         $scope.Action = 'Update';
         $scope.getMachineMasterProcess();
+        $scope.getAssetMaster();
+        $scope.getEntityCapacityMaster();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
     $scope.recorddoubleclickMP = function ($event) {
@@ -621,14 +641,6 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
 
-    //function getUserProcessList() {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterUI/getUserProcessList'
-    //    }).then(function successCallback(response) {
-    //        $scope.userProcessList = response.data;
-    //    });
-    //}
    
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -643,8 +655,8 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.getsE();
         angular.element(document.querySelector('#EntityPop')).modal('show');
     }
-    $scope.EntityList = [];
 
+    $scope.EntityList = [];
     $scope.getsE = function () {
         $http({
             method: 'POST',
@@ -655,4 +667,216 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         });
     }
 
+    $scope.doubleEntity = function (e) {
+
+        if ($scope.tab==3) {
+            $scope.modelNewA.EntityId = e.data.EntityId;
+            $scope.modelNewA.Entity = e.data.EntityName;
+            angular.element(document.querySelector('#EntityPop')).modal('hide');
+        }
+        if ($scope.tab == 4) {
+            $scope.modelEntityCapacity.EntityId = e.data.EntityId;
+            $scope.modelEntityCapacity.Entity = e.data.EntityName;
+            angular.element(document.querySelector('#EntityPop')).modal('hide');
+        }
+        
+    }
+
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#EntityPop')).modal('hide');
+    }
+
+    $scope.AssetSave = function () {
+        debugger;
+        angular.copy($scope.modelNewA, $scope.modelA);
+        $scope.$broadcast('show-errors-check-validity');
+        try {
+                    $http({
+                        method: 'POST',
+                        url: $scope.AssetSaveUrl,
+                        data: { 'data': $scope.modelNewA, 'machineMasterId': $scope.modelNew.Id },
+                        dataType: 'JSON'
+                    }).then(function successCallback(response) {
+                        if (response.data.Error === true) {
+                            ShowResult(response.data.Message, 'failure');
+                            throw response.data.Message;
+                        }
+                        else {
+                            ShowResult(response.data.Message, 'success');
+                            $scope.Action = 'Save';
+                            $scope.getAssetMaster();
+                            $scope.ClearAsset();
+                        }
+                    }), function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+
+                    };
+              
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.assetList = [];
+    $scope.getAssetMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetAsset',
+            data: { 'machineMasterId': $scope.OMId },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.assetList = [];
+            $scope.assetList = resp.data;
+        });
+    }
+
+    $scope.removeAssetRowModal = function (name,  tempId) {
+        try {
+            //$scope.popUpIndex = index;
+            //$scope.listName = listName;
+            $scope.tempId = tempId;
+            //$scope.listId = listId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmAssetRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeAssetRow = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterUI/AssetDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getAssetMaster();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ClearAsset = function () {
+        $scope.modelNewA = {
+            Id: null,
+            AssetName: null,
+            EntityId: null,
+            Entity: null,
+            AssetDetail: null,
+            AssetCode: null,
+            AssetReference: null,
+            IsOldCode: false,
+            OldCode: null,
+            TargetUtilization: null,
+            PlanUtilization: null,
+            AssetCategory: null,
+            RepairAndMaintanenceBudget: null,
+            ConsumableBudget: null,
+            Remark: null
+        };
+    };
+
+    
+    $scope.Assetdoubleclick = function (args) {
+        $scope.modelNewA = Object.assign({}, args);
+    };
+
+    $scope.EntityCapacitySave = function () {
+        debugger;
+        angular.copy($scope.modelEntityCapacity, $scope.modelEntity);
+        $scope.$broadcast('show-errors-check-validity');
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.EntityCapacitySaveUrl,
+                data: { 'data': $scope.modelEntityCapacity, 'machineMasterId': $scope.modelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                    throw response.data.Message;
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                    $scope.getEntityCapacityMaster();
+                    $scope.ClearEntityCapacity();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.entityCapacityList = [];
+    $scope.getEntityCapacityMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetEntityCapacity',
+            data: { 'machineMasterId': $scope.OMId },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.entityCapacityList = [];
+            $scope.entityCapacityList = resp.data;
+        });
+    }
+
+    $scope.removeEntityCapacityRowModal = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmEntityCapacityRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeEntityCapacityRow = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterUI/EntityCapacityDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getEntityCapacityMaster();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+    $scope.ClearEntityCapacity = function () {
+        $scope.modelEntityCapacity = {
+            Id: 0,
+            EntityId: null,
+            Entity: null,
+            NoofMachine: null,
+            DailyHr: null,
+            WeelkyHr: null,
+            MonthlyHr: null,
+            TargetUtilization: null,
+            PlanUtilization: null
+        };
+    };
+
+    $scope.EntityCapacitydoubleclick = function (args) {
+        $scope.modelEntityCapacity = Object.assign({}, args);
+    };
 }

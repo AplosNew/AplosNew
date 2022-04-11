@@ -7,6 +7,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Detention</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Department</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -86,7 +87,7 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i> Save </button></li>
-                                <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                                <li> <button data-toggle="modal" data-target="#confirmPopUp" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                                 <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
@@ -96,16 +97,56 @@
 
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-
-
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-
                 <div class="row">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="processPopUpDataList();" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                                <li><button ng-click="DepartmentPopUpList();" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Department</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="userDepartMentList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sequence</th>
+                                        <th>Code</th>
+                                        <th>Short Name</th>
+                                        <th>Standard Name</th>
+                                        <th>Department</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in userDepartMentList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.Sequence}}</td>
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.ShortName}}</td>
+                                        <td>{{x.StandardName}}</td>
+                                        <td>{{x.Department}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeDeptRowModal(x.Department, $index, 'userDepartMentList', x.Id, 'DepartmentId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        @*</div>
+                    </div>*@
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="processPopUpDataList();" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
                             </ul>
                         </div>
                     </div>
@@ -118,7 +159,7 @@
                                         <th>Code</th>
                                         <th>Short Name</th>
                                         <th>Standard Name</th>
-                                        <th>User Name</th>
+
                                         <th>Process</th>
                                         <th>Remove</th>
                                     </tr>
@@ -129,12 +170,12 @@
                                         <td>{{x.Code}}</td>
                                         <td>{{x.ShortName}}</td>
                                         <td>{{x.StandardName}}</td>
-                                        <td>{{x.UserName}}</td>
-                                        <td>{{x.ProcessName}}</td>
+
+                                        <td>{{x.Process}}</td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
-                                                    <button ng-click="removeRowModal(x.ProcessName, $index, 'userProcessList', 'Id', 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                    <button ng-click="removeRowModal(x.Process, $index, 'userProcessList', x.Id, 'ProcessId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
                                                 </li>
                                             </ul>
                                         </td>
@@ -143,7 +184,52 @@
                             </table>
                         </div>
                         @*</div>
-                            </div>*@
+                    </div>*@
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="MachinePopUpList();" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Machine</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="userMachineList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sequence</th>
+                                        <th>Code</th>
+                                        <th>Short Name</th>
+                                        <th>Standard Name</th>
+                                        <th>Machine</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in userMachineList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.Sequence}}</td>
+                                        <td>{{x.Code}}</td>
+                                        <td>{{x.ShortName}}</td>
+                                        <td>{{x.StandardName}}</td>
+                                        <td>{{x.Machine}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeMachineRowModal(x.Machine, $index, 'userMachineList', x.Id, 'MachineMasterId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        @*</div>
+                </div>*@
                     </div>
                 </div>
             </div>
@@ -154,7 +240,7 @@
 
 
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridRackList" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
+    <div id="GridDetentionMaster" ej-grid e-datasource="DetentionList" e-recorddoubleclick="GetDetails" e-load="loadRackList"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
@@ -168,7 +254,7 @@
             <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>
             <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>
             <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>
-            <div e-column e-field="IsAvoidable" e-headertext="Is Avoidable" e-width="3"></div>
+            <div e-column e-field="Avoidable" e-headertext="Is Avoidable" e-width="3"></div>
         </div>
     </div>
 </div>
@@ -244,4 +330,148 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="departmentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Department<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="DepartmentPopUpParameters.searchBy">
+                                            <option ng-repeat="option in DepartmentSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="DepartmentPopUpParameters.search" ng-enter="getDepartmentDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDepartmentDataList();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>Process Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in DepartmentDataList|itemsPerPage:processPopUpParameters.pageSize" pagination-id="metaData.name + 'DepartmentDataList'" total-items="DepartmentPopUpParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="genericPushInTempList(x, $event, userDepartMentList, 'Id', 'DepartmentId' );">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'DepartmentDataList'"
+                                             max-size="10" direction-links="true" boundary-links="true"
+                                             on-page-change="getDepartmentDataList(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="SaveDepartment();">Add</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeDeptPopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="MachinePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Machine<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="DepartmentPopUpParameters.searchBy">
+                                            <option ng-repeat="option in DepartmentSearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="DepartmentPopUpParameters.search" ng-enter="getDepartmentDataList();">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getDepartmentDataList();" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Select</th>
+                                <th>Code</th>
+                                <th>Short Name</th>
+                                <th>Standard Name</th>
+                                <th>Machine Name</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in MachineDataList|itemsPerPage:processPopUpParameters.pageSize" pagination-id="metaData.name + 'MachineDataList'" total-items="DepartmentPopUpParameters.total_count">
+                                <td>
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="genericPushInTempList(x, $event, userMachineList, 'Id', 'MachineMasterId' );">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{x.Code}}</td>
+                                <td>{{x.ShortName}}</td>
+                                <td>{{x.StandardName}}</td>
+                                <td>{{x.UserName}}</td>
+                                <td>{{x.Active?'Yes':'No'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls pagination-id="metaData.name + 'MachineDataList'"
+                                             max-size="10" direction-links="true" boundary-links="true"
+                                             on-page-change="getDepartmentDataList(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li><button type="button" class="btn btn-default" ng-click="SaveMachine();">Add</button></li>
+                        <li><button type="button" class="btn btn-default" ng-click="closeMachinePopUp();">Cancel</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <confirm-archive-generic modalid="confirmRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRemoveDeptPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDeptRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRemoveMachinePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMachineRow();"></confirm-archive-generic>
