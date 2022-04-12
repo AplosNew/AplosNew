@@ -629,8 +629,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                             $scope.product.POId = $scope.POId;
                             $scope.product.PurchaseDocumentAcceptanceId = $scope.AcceptanceId;
 
-                            $scope.productNew.ToCurrencyRate = 1;
-                            $scope.product.ToCurrencyRate = 1;
+                            //$scope.productNew.ToCurrencyRate = 1;
+                            //$scope.product.ToCurrencyRate = 1;
                             var CheckList = [];
                             for (var i = 0; i < $scope.MasterList.length; i++) {
                                 if ($scope.MasterList[i].check) {
