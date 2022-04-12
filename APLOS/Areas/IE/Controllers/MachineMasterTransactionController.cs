@@ -84,126 +84,157 @@ namespace Aplos.Areas.IE.Controllers
         public ActionResult getMachine()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MM.Id MachineId,MM.Sequence,MM.Code,MM.ShortName 
+            string str = @"select MM.Id MachineMasterId,MM.Sequence,MM.Code,MM.ShortName 
 						                ,MM.StandardName,MM.UserName MachineMaster
 						                from mst.MachineMaster MM";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-        //Omar End
-        [HttpGet]
-        public JsonResult GetCbo()
+        [Authorize, HttpPost]
+        public ActionResult getProcess(string machineMasterId)
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingAgenda"), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost]
-        public ActionResult GetList(string column, string value)
-        {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (select MA.* ,FORMAT(MA.Date,'dd-MMM-yyyy') TDate,EI.EmployeeName MeetingOrganizedBy,EI.EmployeeCode MeetingOrganizedByCode
-			                                   ,EID.EmployeeName ChairedBy,EID.EmployeeCode ChairedByCode
-                                                from MeetingAgenda MA
-                                                left join EmployeeInformation EI on EI.SystemId=MA.MeetingOrganizedById
-                                                left join EmployeeInformation EID on EID.SystemId=MA.ChairedById) AS TEMP WHERE " + strkey;
+            string str = @"select MMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
+			                            from MachineMasterProcess MMP
+			                            left join HKP.Process P on P.Id=MMP.ProcessId
+										where MMP.MachineMasterId='" + machineMasterId + @"'";
 
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select DetentionUserName As Text, Id As Value from DetentionMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionTypeList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> MeetingData)
+        public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
-                DataSet dsMeeting, dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from MeetingAgenda where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                string _Id = "";
-                string MasterId = string.Empty;
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MeetingAgenda", out _Id);
+                SaveMachineMasterTransactionData(data);
 
-                    data["Id"] = _Id;
-                    MasterId = data["Id"].ToString();
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    MasterId = _Id;
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                string id = "";
-                for (int i = 0; i < MeetingData.Count; i++)
-                {
-                    if (id == "")
-                    {
-                        id = "'" + MeetingData[i]["Id"] + "'";
-                    }
-                    else
-                    {
-                        id += ",'" + MeetingData[i]["Id"] + "'";
-                    }
-                }
-
-                con.OpenDataSetThroughAdapter("select * from MeetingAgendaItem where Id in (" + id + ")", out dsMeeting, false, "1");
-
-                string MeetingId = "";
-                for (int i = 0; i < MeetingData.Count; i++)
-                {
-
-                    dsMeeting.Tables[0].DefaultView.RowFilter = "Id='" + MeetingData[i]["Id"] + @"'";
-                    if (dsMeeting.Tables[0].DefaultView.Count > 0)
-                    {
-                        //edit
-                        DataRow dr = dsMeeting.Tables[0].DefaultView[0].Row;
-                        dr.BeginEdit();
-                        dr["MeetingAgendaId"] = MasterId;
-                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
-                        dr.EndEdit();
-                    }
-                    else
-                    {
-                        //addnew
-
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("MeetingAgendaItem", out MeetingId);
-
-                        DataRow dr = dsMeeting.Tables[0].NewRow();
-
-                        dr["Id"] = "M-" + MeetingId + "-" + (i + 1);
-                        dr["MeetingAgendaId"] = MasterId;
-                        dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
-
-                        dsMeeting.Tables[0].Rows.Add(dr);
-
-                    }
-                }
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsMeeting);
-                return Json(new { Error = false, Message = AplosMessage.Updated, Id = _Id });
-
+                return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
+                return Json(new { Error = true, ex.Message });
+            }
 
-                return Json(new { Error = true, Message = ex.Message });
+        }
 
+        private void AddNewMachineMasterTransactionRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditMachineMasterTransactionRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        private void SaveMachineMasterTransactionData(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM MachineMasterTransaction WHERE Id ='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string MachineMasterTransactionId = "";
+
+
+
+                DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                if (dsMasterOrder.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterTransaction", out MachineMasterTransactionId);
+
+                    data["Id"] = MachineMasterTransactionId;
+                    AddNewMachineMasterTransactionRow(dsMasterOrder.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = MachineMasterTransactionId;
+                    EditMachineMasterTransactionRow(dsMasterOrder.Tables[0].Rows[0], data);
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
             }
         }
+
+
+
+        //Omar End
+
+
 
         public ActionResult Delete(string id)
         {
@@ -335,66 +366,6 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult getFilters()
-        {
-            try
-            {
-                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically,D.Id DepartmentId,D.UserName Department,EI.SystemId AttendeeId,EI.EmployeeName Attendee
-			                                    
-                                                from MeetingItemHeader MIH
-                                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-												left join ORG.Department D on D.Id=MIH.DepartmentId
-                                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId) AS KK	";
-
-                //return _sqlRepository.GetDataCollection(sql);
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
-        [HttpPost, Authorize]
-        public ActionResult GetMeetingInformation(Dictionary<string, string> parameters, string toDate, string fromDate)
-        {
-            try
-            {
-                string sql = @"Select cast(0 as bit) Active,MIH.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName Attendee 
-                                from MeetingItemHeader MIH
-                                left join MeetingType MT on MT.Id=MIH.MeetingTypeId
-                                left join ORG.Department D on D.Id=MIH.DepartmentId
-                                left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-
-                                where MeetingTypeId in (" + parameters["MeetingTypeId"] + @") and IssueStatus in (" + parameters["IssueStatus"] + @") 
-                                and IssueCritically in (" + parameters["IssueCritically"] + @") and MIH.DepartmentId in (" + parameters["DepartmentId"] + @") 
-                                and ByWhomId in (" + parameters["AttendeeId"] + @") and MIH.AddedDate between '" + fromDate + "' and '" + toDate + "'";
-
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetDateInformation()
-        {
-            try
-            {
-                var sql = @"Select FORMAT(MIN(AddedDate),'dd-MMM-yyyy') FromDate,FORMAT(MAX(AddedDate),'dd-MMM-yyyy') ToDate
-                            from dbo.MeetingItemHeader";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
+       
     }
 }

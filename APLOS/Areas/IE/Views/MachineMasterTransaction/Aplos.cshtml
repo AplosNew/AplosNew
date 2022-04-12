@@ -25,13 +25,15 @@
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="text" name="Entity" ng-model="ModelNew.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Entity" ng-model="ModelNew.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="selectEntity()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
-            <div class="col-sm-2">
-                <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>
+         </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
@@ -42,79 +44,140 @@
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="text" name="Entity" ng-model="ModelNew.Machine" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
-            </div>
-            <div class="col-sm-2">
-                <button ng-click="selectMachine()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Organized By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.MeetingOrganizedByCode}}</span>
-                    <input type="text" name="Meeting Organized By" ng-model="ModelNew.MeetingOrganizedBy" class="form-control" required readonly>
+                    <input type="text" name="Entity" ng-model="ModelNew.MachineMaster" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
                     <span class="input-group-btn">
-                        <button name="submit" ng-click="showEmployeeListPopUp('Main')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="selectMachine()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
 
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <span class="input-group-btn">
+                    <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Detention<sup>*</sup></label>
+            <div class="col-sm-8 show-message ">
+                <div class="select-style">
+                    <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList"
+                            tabindex="6">
+                        <option value="">---Please Select---</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
 
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input id="timepicker1" e-value="ModelNew.FromTime" width="250" ej-timepicker name="From Time" tabindex="4" required />
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Minute<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Minute" ng-model="ModelNew.Minute" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+            </div>
+        </div>
     </div>
+    
 
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Department<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="text" name="Department" ng-model="ModelNew.Department" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
-            </div>
-            <div class="col-sm-2">
-                <button ng-click="selectDepartment()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Department" ng-model="ModelNew.Department" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="selectDepartment()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+                
             </div>
         </div>
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
-                <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
-            </div>
-            <div class="col-sm-2">
-                <button ng-click="selectShift()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Chaired By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.ChairedByCode}}</span>
-                    <input type="text" name="Chaired By" ng-model="ModelNew.ChairedBy" class="form-control" required readonly>
+                    <input type="text" name="Entity" ng-model="ModelNew.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
                     <span class="input-group-btn">
-                        <button name="submit" ng-click="showEmployeeListPopUp('Chaired')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Location" ng-model="ModelNew.Location" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+            <label class="col-sm-4 control-label">If Asset Applicable</label>
+            <div class="col-sm-2">
+                <div class="checkbox-site">
+                    <label>
+                        <input type="checkbox" ng-model="ModelNew.IfAssetApplicable" tabindex="10">
+                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                    </label>
+                </div>
+            </div>
+            <label class="col-sm-2 control-label"><span style="font-size:14px">Select asset</span></label>
+            <div class="col-sm-4 show-message">
+                <input type="text" name="Cost Estimation" ng-disabled="ModelNew.IfAssetApplicable == false" only-numbers ng-model="ModelNew.SelectAsset" class="form-control" autocomplete="off" tabindex="2" maxlength="10">
             </div>
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Meeting Name<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Meeting Name" ng-model="ModelNew.MeetingName" class="form-control" required autocomplete="off" tabindex="5" maxlength="50">
+                <div class="input-group">
+                    <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
+                    <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" required readonly>
+                    <span class="input-group-btn">
+                        <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
         </div>
+
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
+            <div class="col-sm-8 show-message ">
+                <div class="select-style">
+                    <select class="form-control" id="DetentionType" name="DetentionType" ng-model="ModelNew.DetentionTypeId" ng-options="item.Value as item.Text for item in DetentionTypeList"
+                            tabindex="6">
+                        <option value="">---Please Select---</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input id="timepicker2" e-value="ModelNew.ToTime" width="250" ej-timepicker name="To Time" tabindex="4" required />
+            </div>
+        </div>
+
+
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Remark</label>
+            <div class="col-sm-8 show-message">
+                <input type="text" name="Remark" ng-model="ModelNew.Remark" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+            </div>
+        </div>
+
+
     </div>
 
     <div class="common-btn">
@@ -126,27 +189,6 @@
     </div>
 </div>
 
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -412,6 +454,51 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="closeMachinePopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ProcessPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">Process List <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Double click to Select an Process</p>
+                        <div style="color:black;" id="GridProcess" ej-grid e-datasource="ProcessList"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-recorddoubleclick="doubleProcess">
+                            <div e-columns>
+                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
+
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50"></div>
+                                <div e-column e-field="Sequence" e-headertext="Sequence" e-width="50"></div>
+                                <div e-column e-field="ShortName" e-headertext="Short Name" e-width="120"></div>
+                                <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="120"></div>
+                                <div e-column e-field="Process" e-headertext="Process" e-width="120"></div>
+                            </div>
+
+                        </div>
+                        @*
+                            <script type="text/template" id="checkboxTemplate">
+                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
+                            </script>*@
+
+
+
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeProcessPopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
