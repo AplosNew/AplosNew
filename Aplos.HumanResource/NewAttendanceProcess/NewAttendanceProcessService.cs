@@ -898,16 +898,15 @@ namespace Library.HumanResource.NewAttendanceProcess {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
                                 dr.BeginEdit();
 
-                                if (LA == "")
+                                DateTime Now =Convert.ToDateTime(DateTime.Now.ToString("yyyyy-MMM-dd"));
+
+                                if (Now <=Convert.ToDateTime(Date))
                                 {
-                                   dr["IsLongAbsentism"] = IsLa;
-                                }
-                                if (TBS == "")
-                                {
+                                    dr["IsLongAbsentism"] = IsLa;
                                     dr["IsTBS"] = IsTBS;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
                                 }
-                                dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                                dr.EndEdit();
 
                             }
                         }
