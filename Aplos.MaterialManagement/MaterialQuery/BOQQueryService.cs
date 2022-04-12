@@ -192,7 +192,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									    ) II ON II.InventoryReceiveDetailId=IRD.Id and II.MaterialStorageId=IRD.MaterialStorageId 
                     left JOIN SCS.Country C On C.Id=IM.CountryId
                     WHERE  IM.CompanyId='" + companyId + "' AND IM.PlantId='"+plantId+@"'
-                    --AND IR.[Status]='Posting' AND IR.IsFOC=0
+                    AND IR.[Status]='Posting' AND IR.IsFOC=0
                     ----AND ISNULL(IM.ArticleId,'')='5777' AND ISNULL(IM.FirstCharacteristicsValueId,'')='423' AND  ISNULL(IM.SecondCharacteristicsValueId,'')=''
                     --AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
 					AND IRD.MaterialStorageId='7' 
@@ -216,7 +216,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
         {
             try
             {
-                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId
+                var sql = @" SELECT DISTINCT Convert(bit, 'False') IsActives,POD.InventoryReceiveId POId,P.UserName CustomerName,moi.ContractId,mo.Id MasterOrderId,boq.SalesOrderId,PO.CurrencyId,CU.Code CurrencyCode
 							FROM BOQ  boq 
 							LEFT JOIN MST.MaterialMaster mm on mm.Id=boq.MaterialMasterId
 							LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=boq.ArticleId
@@ -225,6 +225,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 							LEFT JOIN TRN.POBOQMAP pomap on pomap.BOQDetailId=boq.Id
 							LEFT JOIN HKP.Party P ON P.Id=mo.PartyId
 							LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.Id=pomap.PODetailId
+							LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=POD.InventoryReceiveId
+							LEFT JOIN SCS.Currency CU ON CU.Id=PO.CurrencyId
 							WHERE boq.MaterialMasterId IN (" + MaterialIds + ") AND boq.ArticleId IN (" + ArticleIds + @")
                             AND ISNULL(boq.OwnReferenceNo,'null') in (" + OwnReferenceNo + ") AND ISNULL(boq.RMCustomerSpec,'null') IN (" + CustomerRefNos + @")
 							AND ISNULL(boq.RMVendorSpec,'null') IN (" + VendorRefNos + @") AND boq.VendorId='" + PartyId + @"'";

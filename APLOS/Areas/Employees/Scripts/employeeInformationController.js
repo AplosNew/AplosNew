@@ -1395,7 +1395,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     };
 
     $scope.onParmDistrictChange = function (districtId) {
-        addressService.getCboCityByCountry(districtId, function (result) {
+        addressService.getCboCityByDistrict(districtId, function (result) {
             $scope.ParmCityList = result;
         });
     };

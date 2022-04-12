@@ -668,6 +668,7 @@
     <Compile Include="Areas\IE\Controllers\GaugeFolderController.cs" />
     <Compile Include="Areas\IE\Controllers\LineLayoutForProductionBulletinController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMapController.cs" />
+    <Compile Include="Areas\IE\Controllers\MachineMasterTransactionController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterUIController.cs" />
     <Compile Include="Areas\IE\Controllers\OperationConsumptionController.cs" />
     <Compile Include="Areas\IE\Controllers\BulletinTemplateController.cs" />
@@ -707,6 +708,7 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
@@ -2034,6 +2036,7 @@
     <Content Include="Areas\IE\Scripts\elementCodeController.js" />
     <Content Include="Areas\IE\Scripts\LineLayoutForProductionBulletinController.js" />
     <Content Include="Areas\IE\Scripts\MachineMapController.js" />
+    <Content Include="Areas\IE\Scripts\MachineMasterTransactionController.js" />
     <Content Include="Areas\IE\Scripts\productionSystemAllowanceController.js" />
     <Content Include="Areas\IE\Scripts\sewingCodeController.js" />
     <Content Include="Areas\IE\Scripts\SkillMapController.js" />
@@ -2054,6 +2057,7 @@
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingReportsController.js" />
@@ -4079,8 +4083,10 @@
     <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
+    <Content Include="Areas\Materials\Views\UtilityMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
+    <Content Include="Areas\IE\Views\MachineMasterTransaction\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
