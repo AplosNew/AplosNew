@@ -869,6 +869,53 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
+                    #region IsTbs & IsLA Localizing
+                    
+                    DataSet TBS_LA_Data;
+                    TBS_LA_Localizing(Date, out TBS_LA_Data, PlantValue);
+                   
+                    if (TBS_LA_Data.Tables[0].Rows.Count > 0)
+                    {
+                      
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
+                        {
+                            string EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
+                            string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
+                            string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
+
+                          
+                            dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            {
+                                string LA = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsLongAbsentism"]).ToString();
+                                string TBS = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsTBS"]).ToString();
+                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                dr.BeginEdit();
+
+                                DateTime Now =Convert.ToDateTime(DateTime.Now.ToString("yyyyy-MMM-dd"));
+
+                                if (Now <=Convert.ToDateTime(Date))
+                                {
+                                    dr["IsLongAbsentism"] = IsLa;
+                                    dr["IsTBS"] = IsTBS;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                    }
+
+
+                    #endregion
+
                     #region CreditLimit Monthly Opening Creation
                     //DataSet CreditLimitOpening;
                     //CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
@@ -1370,6 +1417,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				and dc.PlantId=ei.PlantId
 				left join DayStatusHeader dh on dh.Id=dc.headerId
      			where WorkDate='"+Date+"' and ei.PlantId='"+Plant+"'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TBS_LA_Localizing(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select SystemId,EmployeeCurrentStatus,
+                IsLA=case when EmployeeCurrentStatus='LONG ABSENTEEISM' then 1 else 0 end,
+                IsTBS=case when EmployeeCurrentStatus='TBS' then 1 else 0 end
+                from EmployeeInformation e where EmployeeCurrentStatus 
+                in('TBS','LONG ABSENTEEISM')
+                and e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
+                E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' 
+                OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
+                order by EmployeeCurrentStatus";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");

@@ -130,14 +130,14 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateChild(Dictionary<string, object> data)
+        public JsonResult CreateChild(Dictionary<string, object> data,string UtilityMasterId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from UtilityDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -146,9 +146,10 @@ namespace Aplos.Areas.Materials.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "UtilityDetail", out _Id);
 
                     data["Id"] = _Id;
+                    data["UtilityMasterId"] = UtilityMasterId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
