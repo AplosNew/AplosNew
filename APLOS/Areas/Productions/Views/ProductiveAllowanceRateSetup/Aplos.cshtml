@@ -16,7 +16,8 @@
         font-family: 'poppins', sans-serif;
         font-weight: 300;
         box-shadow: 0 0 2px rgba(0,0,0,.090);
-        margin-bottom: 10px
+        margin-bottom: 10px;
+        margin-left:10px
     }
 
         .b-nav-tab.active {
@@ -25,15 +26,21 @@
         }
 
     .d-grid {
-        display: grid;
+        /*display: grid;*/
         /*grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));*/
-        grid-template-columns: repeat(6, 1fr);
+        /*grid-template-columns: repeat(6, 1fr);
         grid-gap: 10px;
+        place-items:center;
+        place-content:center*/
+        display:flex;
+        justify-content:center;
+        justify-items:center;
+       
     }
 </style>
 <div class="d-grid">
-    <div></div>
-    <div></div>
+    @*<div></div>*@
+    @*<div></div>*@
     <button data-tab="_ProductivityAllowance" class="b-nav-tab active" style="border:none">
         Productivity Allowance
     </button>
@@ -46,8 +53,8 @@
     <button data-tab="_BudgetApplicable" class="b-nav-tab" style="border:none">
         Budget Applicable
     </button>
+    
     @*<div></div>*@
-    <div></div>
 </div>
 
 <div id="_ProductivityAllowance" class="b-tab active">

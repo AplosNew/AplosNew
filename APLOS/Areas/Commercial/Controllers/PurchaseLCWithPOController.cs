@@ -803,7 +803,7 @@ namespace Aplos.Areas.Commercial.Controllers
                 var sql = @"SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
                                     PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                                     InvPP.StandardName ,ISNULL(PO.OrderSpecific,'')OrderSpecifi,PO.ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                                    ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName
+                                    ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)) TransactionAmount,ISNULL(C.ContractNo,'')ContractNo,Flag='MaterialPO',CC.UserName CustomerName
                                     ,IsFirst=case when GRN.GRNId>0 then 1 else 0 end,PO.DocRefNo
                                     FROM TRN.PurchaseOrder PO
                                     INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId 
@@ -814,6 +814,7 @@ namespace Aplos.Areas.Commercial.Controllers
                                     LEFT JOIN [HKP].[Party] AS CC ON CC.Id=C.CustomerId
                                     LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
                                     LEFT JOIN (Select PoId,COUNT(GRNId) GRNId from TRN.POGGRNMap GROUP BY PoId) GRN ON GRN.PoId=PO.Id
+                                    LEFT JOIN (SELECT InventoryReceiveId,SUM(Amount) Amount FROM TRN.POService GROUP BY InventoryReceiveId) POC ON POC.InventoryReceiveId=PO.Id
                                     WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC' AND ISNULL(PO.PurchaseLCId,'')='' AND PO.IsClosed=0  AND AuthorizedByStatus='Approved' 
                             UNION 
                             SELECT [check]=CAST (CASE WHEN PO.PurchaseLCId IS NULL THEN 0 ELSE 1 END AS bit),
@@ -864,13 +865,14 @@ namespace Aplos.Areas.Commercial.Controllers
                 var sql = @"SELECT 
                             distinct PO.Id,REPLACE(CONVERT(CHAR(11), PO.PODate, 106),' ','-') AS PODate,PO.PartyId,
                             InvPP.StandardName ,ISNULL(PLC.OrderSpecific,PO.OrderSpecific) OrderSpecific,ISNULL(PLC.ContractId, PO.ContractId) ContractId,PO.PurchaseLCId, CN.Code Currency,PO.CurrencyId
-                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef,PO.DocRefNo
+                            ,CONVERT(NUMERIC(10,2),POD.TransactionAmount+ISNULL(POC.Amount,0)) TransactionAmount, 0 AS [check],Flag='MaterialPO',PLC.LCRef,PO.DocRefNo
                             FROM TRN.PurchaseOrder PO
                             INNER JOIN (SELECT SUM(TransactionAmount) TransactionAmount, InventoryReceiveId FROM [TRN].[PurchaseOrderDetail] GROUP BY InventoryReceiveId) POD ON POD.InventoryReceiveId=PO.Id
                             LEFT JOIN [HKP].[Party] AS InvPP ON PO.PartyId=InvPP.Id
                             LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 
                             LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id=PO.PurchaseLCId  
                             LEFT JOIN SCS.Currency CN ON CN.Id=PO.CurrencyId 
+                            LEFT JOIN (SELECT InventoryReceiveId,SUM(Amount) Amount FROM TRN.POService GROUP BY InventoryReceiveId) POC ON POC.InventoryReceiveId=PO.Id
                             WHERE PO.PlantId='" + identity.PlantId + @"' AND PT.PaymentMode = 'LC'  AND PO.PurchaseLCId='" + purchaseLCId + @"'
                     UNION
                     SELECT 

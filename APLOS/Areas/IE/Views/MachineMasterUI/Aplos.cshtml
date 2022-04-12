@@ -53,6 +53,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Asset</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity Capacity</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -339,158 +340,335 @@
                             </table>
                         </div>
                         @*</div>
-                    </div>*@
+                            </div>*@
                     </div>
                 </div>
             </div>
 
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
-                    <div class="form-horizontal form-elements" ng-form="modelNewForm">
-                        <fieldset class="scheduler-border">
-                            <legend class="scheduler-border"></legend>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Code" ng-model="modelNewA.AssetName" class="form-control" required maxlength="15">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" show-errors>
-                                        <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                                        <div class="col-sm-6 show-message">
-                                            <input type="text" name="Entity" ng-model="modelNewA.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
-                                        </div>
-                                        <div class="col-sm-2">
-                                            <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Asset Detail<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Short Name" ng-model="modelNewA.AssetDetail" class="form-control" required maxlength="15">
-                                        </div>
+                <div class="form-horizontal form-elements" ng-form="modelNewForm">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"></legend>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Asset Name" ng-model="modelNewA.AssetName" class="form-control" required maxlength="15">
                                     </div>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Asset Code<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Standard Name" ng-model="modelNewA.AssetCode" class="form-control" required maxlength="100">
-                                        </div>
+                            <div class="col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-6 show-message">
+                                        <input type="text" name="Entity" ng-model="modelNewA.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
                                     </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Asset Reference<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="User Name" ng-model="modelNewA.AssetReference" class="form-control" required maxlength="100">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">OldCode If Any<sup></sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="text" name="Description" ng-model="modelNewA.OldCodeIfAny" class="form-control" maxlength="250">
-                                        </div>
+                                    <div class="col-sm-2">
+                                        <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="clearfix"></div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Target Utilization(%)<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="number" name="Production Machine Qty" ng-model="modelNewA.TargetUtilization" class="form-control" required>
-                                        </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Asset Detail<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Asset Detail" ng-model="modelNewA.AssetDetail" class="form-control" required maxlength="15">
                                     </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Plan Utilization(%)<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="number" name="Production Machine Qty" ng-model="modelNewA.PlanUtilization" class="form-control" required>
-                                        </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Asset Code<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Asset Code" ng-model="modelNewA.AssetCode" class="form-control" required maxlength="100">
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Asset Reference<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Asset Reference" ng-model="modelNewA.AssetReference" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
 
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label">Asset Category<sup>*</sup></label>
-                                        <div class="col-sm-8 show-message ">
-                                            <div class="select-style">
-                                                <select class="form-control" id="Skill" name="Skill" ng-model="modelNewA.SkillId" ng-options="item.Value as item.Text for item in SkillList"
-                                                        tabindex="6">
-                                                    <option value="">---Please Select---</option>
-                                                </select>
-                                            </div>
-                                        </div>
+                            <div class="col-md-4">
+                                <label class="col-sm-4 control-label">Old Code If Any</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="modelNewA.IsOldCode" tabindex="10">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
                                     </div>
                                 </div>
+                                <label class="col-sm-2 control-label"><span style="font-size:14px">Old Code</span></label>
+                                <div class="col-sm-4 show-message">
+                                    <input type="text" name="Cost Estimation" ng-disabled="modelNewA.IsOldCode == false" only-numbers ng-model="modelNewA.OldCode" class="form-control" autocomplete="off" tabindex="2" maxlength="10">
+                                </div>
+                            </div>
 
-                            </div>
-                            <div class="clearfix"></div>
-                            <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label"><span style="font-size:12px">Repair&Maintanence budget</span><sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="number" name="Sample Machine Qty" ng-model="modelNewA.RepairMaintanencebudget" class="form-control" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="" show-errors>
-                                        <label class="col-sm-4 control-label"><span style="font-size:12px">Consumable Budget</span><sup>*</sup></label>
-                                        <div class="col-sm-8 show-message">
-                                            <input type="number" name="Training Machine Qty" ng-model="modelNewA.ConsumableBudget" class="form-control" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group" id="">
-                                        <label class="col-sm-4 control-label">Remarks</label>
-                                        <div class="col-sm-8 show-message ">
-                                            <textarea class="form-control" rows="3" ng-model="modelNewA.Remarks" maxlength="250" tabindex="6"></textarea>
-                                        </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Target Utilization(%)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Target Utilization" ng-model="modelNewA.TargetUtilization" class="form-control" required>
                                     </div>
                                 </div>
                             </div>
-                        
-                            <div class="clearfix"></div>
-                            <div class="clearfix"></div>
-                           
-                            <div class="common-btn">
-                                <ul class="list-inline text-right">
-                                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                    <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                </ul>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Plan Utilization(%)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Plan Utilization" ng-model="modelNewA.PlanUtilization" class="form-control" required>
+                                    </div>
+                                </div>
                             </div>
-                        </fieldset>
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Asset Category<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message ">
+                                        <div class="select-style">
+                                            <select class="form-control" id="AssetCategory" name="AssetCategory" ng-model="modelNewA.AssetCategory" tabindex="6" required>
+                                                <option value="">---Please Select---</option>
+                                                <option value="A">A</option>
+                                                <option value="B">B</option>
+                                                <option value="C">C</option>
+                                                <option value="D">D</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Repair&Maintanence budget</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Repair & Maintanence budget" ng-model="modelNewA.RepairAndMaintanenceBudget" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Consumable Budget</span><sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Consumable Budget" ng-model="modelNewA.ConsumableBudget" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-4 control-label">Remark</label>
+                                    <div class="col-sm-8 show-message ">
+                                        <textarea class="form-control" rows="3" ng-model="modelNewA.Remark" maxlength="250" tabindex="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="clearfix"></div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="AssetSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                <li> <button ng-click="ClearAsset();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Clear</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="assetList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Name</th>
+                                        <th>Entity</th>
+                                        <th>Asset Detail</th>
+                                        <th>Asset Code</th>
+                                        <th>Asset Reference</th>
+                                        <th>Old Code</th>
+                                        <th>Target Utilization</th>
+                                        <th>Plan Utilization</th>
+                                        <th>Asset Category</th>
+                                        <th>Repair & Maintanence budget</th>
+                                        <th>Consumable Budget</th>
+                                        <th>Remark</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in assetList" ng-dblclick="Assetdoubleclick(x);" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.AssetName}}</td>
+                                        <td>{{x.Entity}}</td>
+                                        <td>{{x.AssetDetail}}</td>
+                                        <td>{{x.AssetCode}}</td>
+                                        <td>{{x.AssetReference}}</td>
+                                        <td>{{x.OldCode}}</td>
+                                        <td>{{x.TargetUtilization}}</td>
+                                        <td>{{x.PlanUtilization}}</td>
+                                        <td>{{x.AssetCategory}}</td>
+                                        <td>{{x.RepairAndMaintanenceBudget}}</td>
+                                        <td>{{x.ConsumableBudget}}</td>
+                                        <td>{{x.Remark}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeAssetRowModal(x.AssetName, x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
                 </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="form-horizontal form-elements" ng-form="modelNewForm">
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"></legend>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
+                                    <div class="col-sm-6 show-message">
+                                        <input type="text" name="Entity" ng-model="modelEntityCapacity.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">No of Machine<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Asset Name" ng-model="modelEntityCapacity.NoofMachine" class="form-control" required maxlength="15">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Daily Hr<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Asset Detail" ng-model="modelEntityCapacity.DailyHr" class="form-control" required maxlength="15">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Weelky Hr<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Asset Code" ng-model="modelEntityCapacity.WeelkyHr" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Monthly Hr<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Asset Reference" ng-model="modelEntityCapacity.MonthlyHr" class="form-control" required maxlength="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Target Utilization(%)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Target Utilization" ng-model="modelEntityCapacity.TargetUtilization" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group" id="" show-errors>
+                                    <label class="col-sm-4 control-label">Plan Utilization(%)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="number" name="Target Utilization" ng-model="modelEntityCapacity.PlanUtilization" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clearfix"></div>
+
+                        <div class="common-btn">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="EntityCapacitySave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                <li> <button ng-click="ClearEntityCapacity();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Clear</button></li>
+                            </ul>
+                        </div>
+                    </fieldset>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="entityCapacityList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Entity</th>
+                                        <th>No of Machine</th>
+                                        <th>Daily Hr</th>
+                                        <th>Weelky Hr</th>
+                                        <th>Monthly Hr</th>
+                                        <th>Target Utilization</th>
+                                        <th>Plan Utilization</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in entityCapacityList" ng-dblclick="EntityCapacitydoubleclick(x);" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.Entity}}</td>
+                                        <td>{{x.NoofMachine}}</td>
+                                        <td>{{x.DailyHr}}</td>
+                                        <td>{{x.WeelkyHr}}</td>
+                                        <td>{{x.MonthlyHr}}</td>
+                                        <td>{{x.TargetUtilization}}</td>
+                                        <td>{{x.PlanUtilization}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeEntityCapacityRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
 </div>
 @*@Html.Partial("~/Areas/Processes/Views/Shared/_SelectMultipleProcessPopUp.cshtml")*@
+<confirm-archive-generic modalid="confirmEntityCapacityRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeEntityCapacityRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmAssetRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeAssetRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="processPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-header">Process<button type="button" class="close" data-dismiss="modal">&times;</button></div>
             <div class="modal-body">
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12 ">

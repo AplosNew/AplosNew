@@ -322,6 +322,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/AttendanceFromAppReport/Aplos',
             controller: 'AttendanceFromAppReportController'
         })
+        .when('/multiple-emp-attdn-lock', {
+            templateUrl: 'Attendances/MultipleEmployeeIndividualLock/Aplos',
+            controller: 'MultipleEmployeeIndividualLockController'
+        })
         .when('/year-present-days-summary', {
             templateUrl: 'Attendances/EntireYearPresentDaysSummary/Aplos',
             controller: 'EntireYearPresentDaysSummaryController'

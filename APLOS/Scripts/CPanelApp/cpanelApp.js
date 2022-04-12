@@ -1,5 +1,5 @@
 ﻿'use strict';
-angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.dirPagination', 'angucomplete-alt','ejangular'])
+angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.dirPagination', 'angucomplete-alt', 'ejangular'])
     .controller('accCutOffDateOpeningBalanceController', accCutOffDateOpeningBalanceController)
     .controller('hrCutOffDateOpeningBalanceController', hrCutOffDateOpeningBalanceController)
     .controller('smtpConfigurationController', smtpConfigurationController)
@@ -92,6 +92,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller('WeekDefinitionController', WeekDefinitionController)
     .controller('EmployeeCodeTypeController', EmployeeCodeTypeController)
     .controller('contractFundUtilizationController', contractFundUtilizationController)
+    .controller('CostingSOTemplateController', CostingSOTemplateController)
 
     .config(HumanResourceConfig)
     .config(accountConfig)
@@ -106,6 +107,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .config(LogsConfig)
     .config(employeeConfig)
     .config(CommercialConfig)
+    .config(OrderManagementConfig)
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function cpanelConfig($routeProvider, $locationProvider, $httpProvider) {
         $httpProvider.interceptors.push('errorInterceptor');
         $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -148,15 +150,13 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .run(['$rootScope', function ($rootScope) {
         $rootScope.title = 'cPanel';
         $rootScope.bootPoint = '#!/';
-        $rootScope.report = function (file_src)
-        {
+        $rootScope.report = function (file_src) {
             $("#iframe_div_for_report").empty();
             var frame = $('<iframe id="report">')
                 .attr('height', '0px')
                 .attr('visibility', 'hidden')
                 .attr('width', '0px');
-            frame.on('load', function ()
-            {
+            frame.on('load', function () {
 
                 try {
                     var text = angular.fromJson($('#report')[0].contentDocument.body.innerText);

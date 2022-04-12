@@ -1,0 +1,371 @@
+﻿#region Using
+
+using Aplos.Controllers;
+using Aplos.Properties;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Model.Setups;
+using Library.Service.Enums;
+using Library.Service.Helpers;
+using Library.Service.Logs;
+using Library.Service.Setups;
+using OTSBD;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Web;
+using System.Web.Mvc;
+
+#endregion Using
+
+namespace Aplos.Areas.IE.Controllers
+{
+    public class MachineMasterTransactionController : BaseController
+    {
+
+
+        #region Constructor
+        private readonly ISqlRepository _sqlRepository;
+        public MachineMasterTransactionController(ISqlRepository R)
+        {
+            _sqlRepository = R;
+        }
+
+        #endregion Constructor
+
+
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+        //Omar start
+        [Authorize, HttpPost]
+        public ActionResult getEntity()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
+                                left join org.Plant p on p.Id = e.PlantId
+                                left join org.Company c on c.Id = p.CompanyId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getDepartment()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select D.Id DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
+						                ,D.UserName DepartmentName,D.Description,D.Remarks 
+						                from ORG.Department D";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getShift()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
+						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
+						
+						from ShiftDefination SD
+						left join ORG.Plant P on P.Id=SD.PlantID";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [Authorize, HttpPost]
+        public ActionResult getMachine()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MM.Id MachineMasterId,MM.Sequence,MM.Code,MM.ShortName 
+						                ,MM.StandardName,MM.UserName MachineMaster
+						                from mst.MachineMaster MM";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getProcess(string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select MMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
+			                            from MachineMasterProcess MMP
+			                            left join HKP.Process P on P.Id=MMP.ProcessId
+										where MMP.MachineMasterId='" + machineMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select DetentionUserName As Text, Id As Value from DetentionMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionTypeList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                SaveMachineMasterTransactionData(data);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void AddNewMachineMasterTransactionRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditMachineMasterTransactionRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        private void SaveMachineMasterTransactionData(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM MachineMasterTransaction WHERE Id ='" + data["Id"] + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string MachineMasterTransactionId = "";
+
+
+
+                DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                dv.RowFilter = "Id='" + data["Id"] + "'";
+
+                if (dsMasterOrder.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterTransaction", out MachineMasterTransactionId);
+
+                    data["Id"] = MachineMasterTransactionId;
+                    AddNewMachineMasterTransactionRow(dsMasterOrder.Tables[0], data);
+                }
+                else
+                {
+                    data["Id"] = MachineMasterTransactionId;
+                    EditMachineMasterTransactionRow(dsMasterOrder.Tables[0].Rows[0], data);
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+
+        //Omar End
+
+
+
+        public ActionResult Delete(string id)
+        {
+            string strUSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                //talkingSQL = "delete from dbo.MeetingTalkingPoint Where MeetingItemHeaderId='" + id + "'";
+                //suggestionSQL = "delete from dbo.MeetingSuggestion Where MeetingItemHeaderId='" + id + "'";
+                //actionSQL = "delete from dbo.MeetingActionablePoints Where MeetingItemHeaderId='" + id + "'";
+                //meetingSQL = "delete from dbo.MeetingDecision Where MeetingItemHeaderId='" + id + "'";
+                strUSQL = "delete dbo.MeetingAgenda Where Id='" + id + "'";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                //objCon.ExecuteNonQueryWrapper(talkingSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(suggestionSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(actionSQL, true, "1");
+                //objCon.ExecuteNonQueryWrapper(meetingSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strUSQL, true, "1");
+                objCon.CommitTransaction();
+
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }
+
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            //dr["UpdatedBy"] = identity.Name;
+            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            //dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeListByWhom(GridParameter parameters, string plantId, string partyAccountGroupId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            return Json(GetEmployeeListByWhom(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
+        }
+
+        public GridModel GetEmployeeListByWhom(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [Designation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.Designation AS DEG ON DEG.Id=EI.DesignationSystemID
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            WHERE EI.CompanyId='" + companyId + "' AND EI.PlantId='" + plantId + "' AND EI.EmployeeStatus='Active'";
+
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+       
+    }
+}

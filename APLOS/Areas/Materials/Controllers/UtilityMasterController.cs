@@ -1,41 +1,44 @@
-﻿#region Using
+﻿#region using
 
 using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
-using Library.Data.Sql;
-using Library.Model.Setups;
+using Library.Model.Materials;
 using Library.Service.Enums;
-using Library.Service.Setups;
-using OTSBD;
-using System;
+using Library.Service.Materials;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Web.Mvc;
+using Library.Data.Sql;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using Library.ViewModel.Materials;
+using Syncfusion.DocIO.DLS;
+using Library.Security.Core;
+using System.Data;
+using System;
 
-#endregion Using
+#endregion using
 
-namespace Aplos.Areas.MeetingManagement.Controllers
+namespace Aplos.Areas.Materials.Controllers
 {
-    public class MeetingTypeController : BaseController
+    public class UtilityMasterController : BaseController
     {
-        string TableName = "dbo.MeetingType";
-        //authentication for
-        //GetList Create Delete
+        string TableName = "dbo.UtilityMaster";
 
+        #region -- Constructor
 
-        #region Constructor
-
-        private readonly ISqlRepository _sqlRepository;
-        public MeetingTypeController(ISqlRepository R)
+        private readonly IFabricRollMasterService _fabricRollMasterService;
+        private SqlRepository _sqlRepository = new SqlRepository();
+        public UtilityMasterController()
         {
-            _sqlRepository = R;
+            
         }
 
-        #endregion Constructor
+        #endregion -- Constructor
 
+        #region Pages
 
         [Authorize]
         public ActionResult Aplos()
@@ -43,6 +46,10 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return View();
         }
 
+        #endregion Pages
+
+
+        #region Operation
 
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
@@ -52,9 +59,10 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
-
-
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName CustomerName, ei.EmployeeName ResponsiblePersonName
+                        FROM [dbo].[UtilityMaster] UM
+                        LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
+                        LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -121,29 +129,73 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        public ActionResult Delete(string id)
+        [HttpPost, Authorize]
+        public JsonResult CreateChild(Dictionary<string, object> data,string UtilityMasterId)
         {
-            
-                try
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                
+                con.OpenDataSetThroughAdapter("select * from UtilityDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    if (string.IsNullOrEmpty(id))
-                        throw new Exception("Select entry first");
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "UtilityDetail", out _Id);
 
-                    ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                    con.BeginTransaction();
-                    con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                    con.CommitTransaction();
-
-                    return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                    data["Id"] = _Id;
+                    data["UtilityMasterId"] = UtilityMasterId;
+                    AddNewRow(dsMaster.Tables[0], data);
                 }
-                catch (Exception ex)
+                else
                 {
-                    return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
-            
+                #endregion data update
 
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
         }
 
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+
+        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -163,16 +215,14 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
 
-           
+
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            //dr["UpdatedBy"] = identity.Name;
-            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            //dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -189,13 +239,14 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 }
             }
 
-            
+
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
 
             dr.EndEdit();
         }
+
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
@@ -205,7 +256,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return 1;
         }
 
-       
+        #endregion
 
     }
 }
