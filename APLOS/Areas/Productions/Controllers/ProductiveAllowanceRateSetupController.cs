@@ -24,6 +24,7 @@ namespace Aplos.Areas.Productions.Controllers
     {
         ProductiveAllowanceRateSetupService pa = new ProductiveAllowanceRateSetupService();
         EmployeeOperationBudget eob = new EmployeeOperationBudget();
+        SpecialOperationService so = new SpecialOperationService();
         public ProductiveAllowanceRateSetupController()
         { }
 
@@ -209,7 +210,7 @@ namespace Aplos.Areas.Productions.Controllers
             int COL = 1;
 
             #region Headers
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "BudgetCode", 8, ExcelHAlign.HAlignLeft);
             int ColBudgetCode = COL;
@@ -286,11 +287,11 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 List<eobud> data = new List<eobud>();
-                List<Dictionary<string,string>> ret = new List<Dictionary<string, string>>();
+                List<Dictionary<string, string>> ret = new List<Dictionary<string, string>>();
                 ReadFile(path, out dsExcel);
-                DataTable dtId =  eob.getEmployeeOperationBudgetFile(plantId);
+                DataTable dtId = eob.getEmployeeOperationBudgetFile(plantId);
                 data = dsExcel.Tables[0].ToList<eobud>();
-               
+
 
                 if (data.Count > 0)
                 {
@@ -300,15 +301,15 @@ namespace Aplos.Areas.Productions.Controllers
                         if (dtId.DefaultView.Count > 0)
                         {
                             Dictionary<string, string> jj = new Dictionary<string, string>();
-                            jj.Add("BudgetId" , dtId.DefaultView[0]["BudgetId"].ToString());
-                            jj.Add("BudgetCode" ,  dtId.DefaultView[0]["BudgetCode"].ToString());
+                            jj.Add("BudgetId", dtId.DefaultView[0]["BudgetId"].ToString());
+                            jj.Add("BudgetCode", dtId.DefaultView[0]["BudgetCode"].ToString());
                             ret.Add(jj);
                         }
                         else
                         {
                             throw new Exception("The BudgetCode at Line no - " + i + 1 + " doesn't exist!!");
                         }
-                        
+
                     }
                 }
 
@@ -319,7 +320,7 @@ namespace Aplos.Areas.Productions.Controllers
                 throw ex;
             }
         }
-        
+
         public void ReadFile(string path, out DataSet dsExcel)
         {
             FileInfo docFile;
@@ -399,5 +400,49 @@ namespace Aplos.Areas.Productions.Controllers
         }
         #endregion BUDGET APPLICABLE
 
+        #region Special Operations
+
+        #region GetFilters
+
+        [HttpGet, Authorize]
+        public ActionResult getOperationCategory()
+        {
+            return Json(so.getOperationCategory() , JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost, Authorize]
+        public ActionResult getOperationMaster(string OpCat , string Machine)
+        {
+            return Json(so.getOperationMaster(OpCat, Machine), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getMachines(string OpM)
+        {
+            return Json(so.getMachines(OpM), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getOperations(string OMId, string OCId, string MId)
+        {
+            return Json(so.getOperations(OMId, OCId, MId), JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        #region Save Operation
+        [HttpPost]
+        public ActionResult saveOperations(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                return Json(new { Error = "No", Data = so.saveOperations(data), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
+
+        #endregion
     }
 }
