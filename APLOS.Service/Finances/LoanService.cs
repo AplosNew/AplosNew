@@ -1500,6 +1500,7 @@ namespace Library.Service.Finances
                         if (string.IsNullOrEmpty(voucherVM.OtherBankMasterId))
                             throw new CustomException("Other Bank Id not found!");
                         voucherDetailFrom.BankMasterId = voucherVM.OtherBankMasterId;
+                        voucherDetailTo.BankMasterId = voucherVM.OtherBankMasterId;
                         voucherDetailFrom.CrAmount = voucherVM.Amount;
                     }
 
