@@ -1067,6 +1067,40 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
+
+        public IEnumerable<object> BalanceChecker(string ProdOrderId, string ProcessId,string Curr,string Prev)
+        {
+            try
+            {
+                var Sql = @"select dd.*,(dd.Qty-dd.CurrentBooking) as Balance 
+                from (select OP.UserName as PrevOperation,bt.Sequence as PrevSeq,ope.Qty,
+                isnull((select isnull(ope.qty,'0') from 
+                OperationWiseEmployees ope 
+                left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId + @"' AND bt.Sequence='"+Curr+@"' and
+							PT.ProcessId='" + ProcessId + @"'
+                            ),'0')as CurrentBooking
+                            from 
+                            OperationWiseEmployees ope 
+                            left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId+@"' AND bt.Sequence='"+Prev+@"' and
+							PT.ProcessId='"+ProcessId+@"' 
+							) as dd
+							order by dd.PrevSeq";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetOperation(string ProdOrderId,string ProcessId)
         {
             try
@@ -1293,7 +1327,8 @@ namespace Library.OrderManagement.Production
 															isnull(ps.ShiftId,'')= '"+ShiftId+@"'
                                                             and isnull(ps.WorkCenterId,'')= '"+WkId+"' and ISNULL(po.EntityId,'')='"+EntityId+ @"'
 															GROUP BY ps.OperationVariationId,
-                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName,ps.WorkCenterId";
+                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName,ps.WorkCenterId,ps.AddedDate
+                                                            order by ps.AddedDate";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception)
