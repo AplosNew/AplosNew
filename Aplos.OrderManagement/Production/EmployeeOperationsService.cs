@@ -1073,8 +1073,8 @@ namespace Library.OrderManagement.Production
             try
             {
                 var Sql = @"select dd.*,(dd.Qty-dd.CurrentBooking) as Balance 
-                from (select OP.UserName as PrevOperation,bt.Sequence as PrevSeq,ope.Qty,
-                isnull((select isnull(ope.qty,'0') from 
+                from (select OP.UserName as PrevOperation,bt.Sequence as PrevSeq,SUM(ope.Qty)Qty,
+                isnull((select isnull(SUM(ope.qty),'0') from 
                 OperationWiseEmployees ope 
                 left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
                             join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
@@ -1091,6 +1091,7 @@ namespace Library.OrderManagement.Production
                             join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
                             where pb.ProductionOrderId='" + ProdOrderId+@"' AND bt.Sequence='"+Prev+@"' and
 							PT.ProcessId='"+ProcessId+@"' 
+							group by bt.Sequence,op.UserName
 							) as dd
 							order by dd.PrevSeq";
                 return _sqlRepository.GetDataCollection(Sql, null);
@@ -1327,8 +1328,7 @@ namespace Library.OrderManagement.Production
 															isnull(ps.ShiftId,'')= '"+ShiftId+@"'
                                                             and isnull(ps.WorkCenterId,'')= '"+WkId+"' and ISNULL(po.EntityId,'')='"+EntityId+ @"'
 															GROUP BY ps.OperationVariationId,
-                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName,ps.WorkCenterId,ps.AddedDate
-                                                            order by ps.AddedDate";
+                                                            ps.ProcessId,ps.Date,Pr.UserName,opv.UserName,ps.ProductionOrderId,sh.UserName,ps.WorkCenterId";
                 return _sqlRepository.GetDataCollection(Sql, null);
             }
             catch (Exception)
