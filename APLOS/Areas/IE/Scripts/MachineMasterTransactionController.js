@@ -1,38 +1,47 @@
 ﻿'use strict';
 MachineMasterTransactionController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function MachineMasterTransactionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Meeting Agenda';
+    $rootScope.title = 'Machine Master Transaction';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'IE/MachineMasterTransaction/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
     $scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom';
     $scope.year = new Date().getFullYear().toString();
 
-    $scope.ModelAgenda = {
-        Id: 0,
-        MeetingTypeId: null,
-        MeetingOrganizedById: null,
-        MeetingOrganizedByCode: null,
-        MeetingOrganizedBy: null,
-        ChairedById: null,
-        ChairedByCode: null,
-        ChairedBy: null,
-        Date: null,
-        Location: null,
-        MeetingTypeId: null,
-        MeetingName: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
-
     //Omar Start
+
+    $scope.ModelTransaction = {
+        Id: 0, 
+        EntityId: 0,
+        Entity: null,
+        DetentionId: null,
+        Detention: null, 
+        DetentionTypeId: null,
+        DetentionType: null,
+        Date: null,
+        MachineMaster: null,
+        MachineMasterId: null,
+        ProcessId: null,
+        Process: null,
+        FromTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+        ToTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+        Minute: null,
+        DepartmentId: null,
+        Department: null,
+        ShiftId: null,
+        Shift: null,
+        IfAssetApplicable: false,
+        SelectAsset: null,
+        ResponsiblePersonCode: null, 
+        ResponsiblePersonId: null,
+        ResponsiblePerson: null,
+        Remark: null,
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
+
 
     $scope.selectEntity = function () {
         $scope.getsE();
@@ -131,57 +140,69 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     }
 
     $scope.doubleMachine = function (e) {
-        $scope.ModelNew.MachineId = e.data.MachineId;
-        $scope.ModelNew.Machine = e.data.MachineMaster;
+        $scope.ModelNew.MachineMasterId = e.data.MachineMasterId;
+        $scope.ModelNew.MachineMaster = e.data.MachineMaster;
         angular.element(document.querySelector('#MachinePop')).modal('hide');
     }
 
     $scope.closeMachinePopUp = function () {
         angular.element(document.querySelector('#MachinePop')).modal('hide');
     }
-    //Omar End
 
-    $scope.ModelMeetItem = {
-        Id: null,
-        MeetingAgendaId: null,
-        MeetingItemHeaderId: null,
-    };
-    $scope.ModelMeetingItem = Object.assign({}, $scope.ModelMeetItem);
+    $scope.selectProcess = function () {
+        $scope.getsP();
+        angular.element(document.querySelector('#ProcessPop')).modal('show');
+    }
 
-
-    $scope.getData = function () {
+    $scope.ProcessList = [];
+    $scope.getsP = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            url: $scope.path + 'getProcess',
+            data: { 'machineMasterId': $scope.ModelNew.MachineMasterId },
             dataType: 'JSON'
-        }).then(function successCallback(response) {
-
-            $scope.ModelList = response.data;
+        }).then(function succ(resp) {
+            $scope.ProcessList = resp.data;
         });
     }
-    $scope.getData();
 
+    $scope.doubleProcess = function (e) {
+        $scope.ModelNew.ProcessId = e.data.Id;
+        $scope.ModelNew.Process = e.data.Process;
+        angular.element(document.querySelector('#ProcessPop')).modal('hide');
+    }
 
-    $scope.Get = function (args) {
+    $scope.closeProcessPopUp = function () {
+        angular.element(document.querySelector('#ProcessPop')).modal('hide');
+    }
 
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
+    $scope.DetentionList = [];
+    $scope.GetDetentionList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionList'
+        }).then(function successCallback(response) {
+            $scope.DetentionList = response.data;
+        });
+    }
+    $scope.GetDetentionList();
+
+    $scope.DetentionTypeList = [];
+    $scope.GetDetentionTypeList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
+        }).then(function successCallback(response) {
+            $scope.DetentionTypeList = response.data;
+        });
+    }
+    $scope.GetDetentionTypeList();
+
 
     $scope.Save = function () {
         try {
-            var tempItem = [];
 
-            for (var i = 0; i < $scope.MeetingList.length; i++) {
-                if ($scope.MeetingList[i].Active) {
-                    tempItem.push($scope.MeetingList[i]);
-                }
-            }
-            angular.copy($scope.ModelNew, $scope.ModelAgenda);
+            angular.copy($scope.ModelNew, $scope.ModelTransaction);
             $scope.$broadcast('show-errors-check-validity');
 
             if ($scope.ModelNewForm.$valid) {
@@ -189,7 +210,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'data': $scope.ModelNew, 'MeetingData': tempItem },
+                    data: { 'data': $scope.ModelNew },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -198,7 +219,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.ModelNew.Id = response.data.Id;
-                        $scope.getData();
                         $scope.Clear();
                     }
                 }), function errorCallBack(response) {
@@ -212,6 +232,57 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         }
 
     };
+
+    $scope.Clear = function () {
+        $scope.ModelNew = {
+            Id: 0,
+            EntityId: 0,
+            Entity: null,
+            DetentionId: null,
+            Detention: null,
+            DetentionTypeId: null,
+            DetentionType: null,
+            Date: null,
+            Machine: null,
+            MachineId: null,
+            ProcessId: null,
+            Process: null,
+            FromTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+            ToTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+            Minute: null,
+            DepartmentId: null,
+            Department: null,
+            ShiftId: null,
+            Shift: null,
+            IfAssetApplicable: false,
+            SelectAsset: null,
+            ResponsiblePersonId: null,
+            ResponsiblePerson: null,
+            Remark: null,
+        };
+        $scope.Action = 'Save';
+    };
+
+    //Omar End
+
+    $scope.ModelMeetItem = {
+        Id: null,
+        MeetingAgendaId: null,
+        MeetingItemHeaderId: null,
+    };
+    $scope.ModelMeetingItem = Object.assign({}, $scope.ModelMeetItem);
+
+
+    $scope.Get = function (args) {
+
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+   
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -235,28 +306,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         }
     };
 
-    $scope.Clear = function () {
-        $scope.ModelNew = {
-            Id: null,
-            MeetingOrganizedById: null,
-            MeetingOrganizedByCode: null,
-            MeetingOrganizedBy: null,
-            ChairedById: null,
-            ChairedByCode: null,
-            ChairedBy: null,
-            Date: null,
-            Location: null,
-            MeetingTypeId: null,
-            MeetingName: null
-        };
-        $scope.Action = 'Save';
-    };
-
-
-    //$scope.meetingTypeList = [];
-    //cboService.getCbomeetingType(function (result) {
-    //    $scope.meetingTypeList = result;
-    //});
+   
 
     $scope.employeeParameters = {
         limit: 10,
@@ -302,17 +352,10 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
     $scope.selectEmployeePopUp = function (index, data) {
         $scope.employeeIndex = index;
-
-        if ($scope.Name == 'Main') {
-            $scope.ModelNew.MeetingOrganizedById = data.SystemId;
-            $scope.ModelNew.MeetingOrganizedBy = data.EmployeeName;
-            $scope.ModelNew.MeetingOrganizedByCode = data.EmployeeCode;
-        }
-        else {
-            $scope.ModelNew.ChairedById = data.SystemId;
-            $scope.ModelNew.ChairedBy = data.EmployeeName;
-            $scope.ModelNew.ChairedByCode = data.EmployeeCode;
-        }
+        
+        $scope.ModelNew.ResponsiblePersonId = data.SystemId;
+        $scope.ModelNew.ResponsiblePerson = data.EmployeeName;
+        $scope.ModelNew.ResponsiblePersonCode = data.EmployeeCode;
 
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
         $scope.Name = null;
@@ -323,148 +366,10 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     };
 
 
-    //The Filters 
-    $scope.filters = [];
-    $scope.MeetingAgendaloadfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.filters = response.data;
-            var columnList = [
-                { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
-                { field: 'IssueStatus', width: 20, headerText: "Issue Status", type: "string" },
-                { field: 'IssueCritically', width: 20, headerText: "Criticality", type: "string" },
-                { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'Attendee', width: 20, headerText: "Attendee", type: "string" },
+    
 
-            ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
-            });
+   
 
-            var gridObj = $("#filters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
-        });
-    }
-    $scope.MeetingAgendaloadfilters();
-
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
-
-        var g = $("#filters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.filters;
-        }
-
-
-        var parameters = [];
-        parameters.push({ "Key": "MeetingTypeId", "Value": getString(fl, "MeetingTypeId") });
-        parameters.push({ "Key": "IssueStatus", "Value": getString(fl, "IssueStatus") });
-        parameters.push({ "Key": "IssueCritically", "Value": getString(fl, "IssueCritically") });
-        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "AttendeeId", "Value": getString(fl, "AttendeeId") });
-
-        $scope.parameters = parameters;
-
-    }
-
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
-            }
-        }
-        return string;
-    }
-
-    $scope.clearFilters = function () {
-
-        var gridObj = $("#filters").data("ejGrid");
-        gridObj.clearFiltering();
-    }
-
-
-    $scope.GetDateGenerate = function () {
-
-        try {
-
-            $http({
-                method: 'GET',
-                url: 'MeetingManagement/MeetingAgenda/GetDateInformation',
-            }).then(function successCallback(response) {
-                $scope.ToDate = response.data[0].ToDate;
-                $scope.FromDate = response.data[0].FromDate;
-            });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.GetDateGenerate();
-
-    $scope.MeetingList = [];
-    $scope.GetMeetingGenerate = function () {
-
-        try {
-            $scope.MeetingList = [];
-            $scope.filterComplete();
-
-
-            $http({
-                method: 'POST',
-                url: 'MeetingManagement/MeetingAgenda/GetMeetingInformation',
-                data: { 'parameters': $scope.parameters, 'toDate': $scope.ToDate, 'fromDate': $scope.FromDate },
-            }).then(function successCallback(response) {
-                $scope.MeetingList = response.data;
-            });
-
-
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.MeetingListNew = [];
-
-    //$scope.ok = function () {
-
-    //    try {
-    //        for (var i = 0; i < $scope.ModelList.length; i++) {
-    //            if ($scope.ModelList[i].Active == true) {
-    //                if (checkDoubleMeeting($scope.MeetingListNew, $scope.ModelList[i].SystemId) === false) {
-    //                    $scope.MeetingListNew.push($scope.ModelList[i]);
-    //                }
-    //            }
-    //        }
-    //        var eDialog = $("#MeetingInfoGrid").data("ejDialog");
-    //        eDialog.close();
-
-    //        //if ($rootScope.isCollapsed) {
-    //        //    $rootScope.toggle();
-    //        //}
-
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-
-    //};
 
     function checkDoubleMeeting(list, Id) {
         for (var i = 0; i < list.length; i++) {
@@ -574,22 +479,5 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
     };
 
-    //$scope.MeetingItem = function () {
-
-    //    var tempItem = [];
-    //    for (var i = 1; i <= $scope.MeetingList.length; i++) {
-    //        if ($scope.MeetingList[i].Active) {
-    //            tempItem.push($scope.MeetingList[i]);
-    //        }
-    //    }
-    //}
-
-    $scope.ClearItem = function () {
-        $scope.ModelNew = {
-            Id: null,
-            MeetingAgendaId: null,
-            MeetingItemHeaderId: null,
-        };
-        $scope.Action = 'Save';
-    };
+    
 }
