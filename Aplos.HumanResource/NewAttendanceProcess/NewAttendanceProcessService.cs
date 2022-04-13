@@ -1449,6 +1449,29 @@ namespace Library.HumanResource.NewAttendanceProcess {
                 throw (ex);
             }
         }
+        public void WorkDate_Wise_BudgetSaving(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"Select distinct format(apd.WorkDate ,'dd-MMM-yyyy')
+                as WorkDate ,
+                mb.Id as BudgetId ,isnull(Deployment,0) as Deployment ,
+                Total=isnull((Select top 1 TotalNumber from mst.ManpowerBudgetDetail
+                where ManpowerBudgetId = mb.Id
+                order by EffectiveDate desc),'0')
+                from dbo.AttdnProcessData apd
+                left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+                where PlantID='"+PlantId+@"'
+                and apd.WorkDate = '"+Date+"' and mb.Id is not null";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
 
         #endregion
 
