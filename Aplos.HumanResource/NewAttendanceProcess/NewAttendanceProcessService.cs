@@ -882,31 +882,75 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                         objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
 
+                        DateTime Now = Convert.ToDateTime(DateTime.Now.ToString("yyyyy-MMM-dd"));
 
-                        for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
+                        if (Now <= Convert.ToDateTime(Date))
                         {
-                            string EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
-                            string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
-                            string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
 
-                          
-                            dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
-                            if (dsRef.Tables[0].DefaultView.Count > 0)
+                            for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
                             {
-                                string LA = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsLongAbsentism"]).ToString();
-                                string TBS = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsTBS"]).ToString();
-                                DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                                dr.BeginEdit();
+                                string EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
+                                string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
+                                string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
 
-                                DateTime Now =Convert.ToDateTime(DateTime.Now.ToString("yyyyy-MMM-dd"));
-
-                                if (Now <=Convert.ToDateTime(Date))
+                                dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
                                 {
+                                    string LA = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsLongAbsentism"]).ToString();
+                                    string TBS = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsTBS"]).ToString();
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
                                     dr["IsLongAbsentism"] = IsLa;
                                     dr["IsTBS"] = IsTBS;
                                     dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
                                     dr.EndEdit();
                                 }
+                            }
+                            SaveDataSets(dsRef);
+                        }
+                    }
+
+                    #endregion
+
+                    #region WorkDate Wise Budget Summary
+
+                    DataSet BudgetSummary_Data;
+                    WorkDate_Wise_BudgetSaving(Date, out BudgetSummary_Data, PlantValue);
+
+                    if (BudgetSummary_Data.Tables[0].Rows.Count > 0)
+                    {
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnWorkdateWiseBudget where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < BudgetSummary_Data.Tables[0].Rows.Count; i++)
+                        {
+                            string BudgetId = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"BudgetId"]).ToString();
+                            string Total = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Total"]).ToString();
+                            string Deployment = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Deployment"]).ToString();
+
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"BudgetId='" + BudgetId + "' AND WorkDate =#" + Date + "#";
+                            if (dsRef.Tables[0].DefaultView.Count == 0)
+                            {
+                                // Row Creation in AttdnWorkdateWiseBudget
+                                DataRow dr = dsRef.Tables[0].NewRow();
+                                clsGenID genid = new clsGenID();
+                                genid.GenID("AttdnWorkdateWiseBudget", out string _Id);
+
+                                dr["Id"] = "AB" + _Id;
+                                dr["PlantId"] = PlantValue;
+                                dr["BudgetId"] = BudgetId;
+                                dr["WorkDate"] = Date;
+                                dr["TotalNumber"] = Total;
+                                dr["Deployment"] = Deployment;
+                                dr["AddedBy"] = "Schedule";
+                                dr["AddedDate"] = Convert.ToDateTime(DateTime.Now);
+                                dr["AddedFromIP"] = "1";
+                                dsRef.Tables[0].Rows.Add(dr);
 
                             }
                         }
