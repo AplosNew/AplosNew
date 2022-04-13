@@ -90,6 +90,8 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
     $scope.Get = function (obj) {
         $scope.PurchaseLCUsedInAcceptance = false;
         $scope.purchaseLC = obj.data;
+        $scope.purchaseLC.LCDate = $filter('dateFiltering')($scope.purchaseLC.LCDate, 'dd-M-yyyy');
+        $scope.purchaseLC.AmendmentDate = $filter('dateFiltering')($scope.purchaseLC.AmendmentDate, 'dd-M-yyyy');
         $scope.purchaseLCNew = Object.assign({}, $scope.purchaseLC);
         $scope.AmendmentDate = $scope.purchaseLCNew.AmendmentDate;
         if ($scope.purchaseLCNew.Version > 1) {

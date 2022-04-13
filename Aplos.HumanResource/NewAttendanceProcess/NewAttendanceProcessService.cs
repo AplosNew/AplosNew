@@ -869,6 +869,97 @@ namespace Library.HumanResource.NewAttendanceProcess {
                     }
                     #endregion
 
+                    #region IsTbs & IsLA Localizing
+                    
+                    DataSet TBS_LA_Data;
+                    TBS_LA_Localizing(Date, out TBS_LA_Data, PlantValue);
+                   
+                    if (TBS_LA_Data.Tables[0].Rows.Count > 0)
+                    {
+                      
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnProcessData where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                        DateTime Now = Convert.ToDateTime(DateTime.Now.ToString("yyyyy-MMM-dd"));
+
+                        if (Now <= Convert.ToDateTime(Date))
+                        {
+
+                            for (int i = 0; i < TBS_LA_Data.Tables[0].Rows.Count; i++)
+                            {
+                                string EmpId = clsWebLib.RetValidLen(TBS_LA_Data.Tables[0].Rows[i][@"SystemId"]).ToString();
+                                string IsLa = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsLA"]).ToString();
+                                string IsTBS = clsWebLib.GetBoolData(TBS_LA_Data.Tables[0].Rows[i][@"IsTBS"]).ToString();
+
+                                dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
+                                if (dsRef.Tables[0].DefaultView.Count > 0)
+                                {
+                                    string LA = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsLongAbsentism"]).ToString();
+                                    string TBS = clsWebLib.RetValidLen(dsRef.Tables[0].DefaultView[0][@"IsTBS"]).ToString();
+                                    DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
+                                    dr.BeginEdit();
+                                    dr["IsLongAbsentism"] = IsLa;
+                                    dr["IsTBS"] = IsTBS;
+                                    dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
+                                    dr.EndEdit();
+                                }
+                            }
+                            SaveDataSets(dsRef);
+                        }
+                    }
+
+                    #endregion
+
+                    #region WorkDate Wise Budget Summary
+
+                    DataSet BudgetSummary_Data;
+                    WorkDate_Wise_BudgetSaving(Date, out BudgetSummary_Data, PlantValue);
+
+                    if (BudgetSummary_Data.Tables[0].Rows.Count > 0)
+                    {
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnWorkdateWiseBudget where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < BudgetSummary_Data.Tables[0].Rows.Count; i++)
+                        {
+                            string BudgetId = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"BudgetId"]).ToString();
+                            string Total = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Total"]).ToString();
+                            string Deployment = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Deployment"]).ToString();
+
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"BudgetId='" + BudgetId + "' AND WorkDate =#" + Date + "#";
+                            if (dsRef.Tables[0].DefaultView.Count == 0)
+                            {
+                                // Row Creation in AttdnWorkdateWiseBudget
+                                DataRow dr = dsRef.Tables[0].NewRow();
+                                clsGenID genid = new clsGenID();
+                                genid.GenID("AttdnWorkdateWiseBudget", out string _Id);
+
+                                dr["Id"] = "AB" + _Id;
+                                dr["PlantId"] = PlantValue;
+                                dr["BudgetId"] = BudgetId;
+                                dr["WorkDate"] = Date;
+                                dr["TotalNumber"] = Total;
+                                dr["Deployment"] = Deployment;
+                                dr["AddedBy"] = "Schedule";
+                                dr["AddedDate"] = Convert.ToDateTime(DateTime.Now);
+                                dr["AddedFromIP"] = "1";
+                                dsRef.Tables[0].Rows.Add(dr);
+
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                    }
+
+
+                    #endregion
+
                     #region CreditLimit Monthly Opening Creation
                     //DataSet CreditLimitOpening;
                     //CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
@@ -1371,6 +1462,52 @@ namespace Library.HumanResource.NewAttendanceProcess {
 				left join DayStatusHeader dh on dh.Id=dc.headerId
      			where WorkDate='"+Date+"' and ei.PlantId='"+Plant+"'";
 
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void TBS_LA_Localizing(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select SystemId,EmployeeCurrentStatus,
+                IsLA=case when EmployeeCurrentStatus='LONG ABSENTEEISM' then 1 else 0 end,
+                IsTBS=case when EmployeeCurrentStatus='TBS' then 1 else 0 end
+                from EmployeeInformation e where EmployeeCurrentStatus 
+                in('TBS','LONG ABSENTEEISM')
+                and e.EmpType!='Guest' and e.PlantId='"+PlantId+@"' and
+                E.DOJ <= '"+Date+@"' AND (E.DOS >= '"+Date+@"' 
+                OR ISNULL(E.DOS,'') = '' OR E.DOS = '01/01/1901')
+                order by EmployeeCurrentStatus";
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        public void WorkDate_Wise_BudgetSaving(string Date, out DataSet ds, string PlantId)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"Select distinct format(apd.WorkDate ,'dd-MMM-yyyy')
+                as WorkDate ,
+                mb.Id as BudgetId ,isnull(Deployment,0) as Deployment ,
+                Total=isnull((Select top 1 TotalNumber from mst.ManpowerBudgetDetail
+                where ManpowerBudgetId = mb.Id
+                order by EffectiveDate desc),'0')
+                from dbo.AttdnProcessData apd
+                left join mst.ManpowerBudget mb on mb.Id = apd.BudgetId
+                where PlantID='"+PlantId+@"'
+                and apd.WorkDate = '"+Date+"' and mb.Id is not null";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
             }

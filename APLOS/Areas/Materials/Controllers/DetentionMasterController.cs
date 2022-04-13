@@ -261,7 +261,7 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadDepartmentList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT *,CAST(0 AS bit) Flag FROM [ORG].[Department]";
+            string sql = @"SELECT *,convert(bit,0) AS chk FROM [ORG].[Department]";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -269,7 +269,7 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadMachineList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM mst.MachineMaster";
+            string sql = @"SELECT *,convert(bit,0) AS chk FROM mst.MachineMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 

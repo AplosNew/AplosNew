@@ -47,6 +47,9 @@
     <button data-tab="_RateSetup" class="b-nav-tab" style="border:none">
         Rate Setup
     </button>
+    <button data-tab="_SpecialOperationRate" class="b-nav-tab" style="border:none">
+        Special Operation Rate
+    </button>
     <button data-tab="_BudgetApplicable" class="b-nav-tab" style="border:none">
         Budget Applicable
     </button>
@@ -64,11 +67,11 @@
         Html.RenderPartial("_RateSetup");
     }
 </div>
-@*<div id="_SpecialOperatorRate" class="b-tab">
+<div id="_SpecialOperationRate" class="b-tab">
         @{
-            Html.RenderPartial("_SpecialOperatorRate");
+            Html.RenderPartial("_SpecialOperationRate");
         }
-    </div>*@
+    </div>
 <div id="_BudgetApplicable" class="b-tab">
     @{
         Html.RenderPartial("_BudgetApplicable");

@@ -620,7 +620,200 @@ namespace Library.OrderManagement.Production
 
     }
 
-    // BUDGET APPLICABLE SERVICE
+    #region SpecialOperationService
+    // Special Operations Service\
+    public class SpecialOperationService
+    {
+
+        ISqlRepository _sqlRepository;
+        public SpecialOperationService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        #region GetFilters
+        public IEnumerable<object> getOperationCategory()
+        {
+            try
+            {
+                var str = @"Select Id as Value , UserName as Text from hkp.OperationCategory";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getOperationMaster(string OpCat, string MachineId)
+        {
+            try
+            {
+                string opCat = "1=1";
+                if (bplib.clsWebLib.RetValidLen(OpCat).ToString() != "")
+                {
+                    opCat = "om.OperationCategoryId = '" + OpCat + "'";
+                }
+
+                string machine = "1=1";
+                if (bplib.clsWebLib.RetValidLen(MachineId).ToString() != "")
+                {
+                    machine = "mm.ID = '"+MachineId+"'";
+                }
+
+                var str = @"Select om.Id as Value , om.UserName as Text 
+                            from mst.OperationMaster om
+                            left join mst.MachineMaster mm on mm.SkillId = om.SkillId
+                            where "+opCat+" and " +machine;
+                return _sqlRepository.GetDataCollection(str);
+
+            }
+            catch (Exception re)
+            {
+                throw re;
+            }
+        }
+
+        public IEnumerable<object> getMachines(string OpMasterId)
+        {
+            try
+            {
+                string opMaster = "1=1";
+                if (bplib.clsWebLib.RetValidLen(OpMasterId).ToString() != "")
+                {
+                    opMaster = " ov.OperationMasterId = '" + OpMasterId + "'";
+                }
+
+                var str = @"Select distinct mm.Id as Value , mm.UserName as Text
+                            from mst.OperationVariation ov 
+                            left join mst.MachineMaster mm on mm.SkillId = ov.SkillId
+                            where mm.Id is not null and  " + opMaster;
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getOperations(string OMId, string OCId, string MId)
+        {
+            try
+            {
+                string omId = "1=1";
+                if (bplib.clsWebLib.RetValidLen(OMId).ToString() != "")
+                {
+                    omId = "ov.OperationMasterId = '"+OMId+"' ";
+                }
+
+                string ocId = "1=1";
+                if (bplib.clsWebLib.RetValidLen(OCId).ToString() != "")
+                {
+                    ocId = "om.OperationCategoryId = '" + OCId + "' ";
+                }
+
+                string mId = "1=1";
+                if (bplib.clsWebLib.RetValidLen(MId).ToString() != "")
+                {
+                    mId = "mm.ID = '" + MId + "' ";
+                }
+
+                var str = @"Select 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
+                            from mst.OperationVariation ov
+                            left join mst.OperationMaster om on ov.OperationMasterId = om.Id
+                            left join mst.MachineMaster mm on mm.SkillId = om.SkillId
+                            left join dbo.SpecialOperationsRate spo on spo.OperationVariationId = ov.ID
+                            where "+omId+" and "+mId+" and " + ocId;
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region saveOperation
+        public List<Dictionary<string, object>> saveOperations(List<Dictionary<string, object>> data)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TableName = "dbo.SpecialOperationsRate";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName , out dsMaster, false, "1");
+
+                if (data == null)
+                {
+                    throw new Exception("Nothing Selected to Save!!");
+                }
+
+                string _Id = "";
+                #region data Upload
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var jj = data[i];
+
+                    dsMaster.Tables[0].DefaultView.RowFilter = @"OperationVariationId='"+jj["OperationVariationId"].ToString()+"'";
+
+                    if (dsMaster.Tables[0].DefaultView.Count > 0)
+                    {
+
+                        dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
+                        dsMaster.Tables[0].DefaultView[0]["Rate"] = clsStaticInfo.dbl(jj["Rate"].ToString());
+                        dsMaster.Tables[0].DefaultView[0]["Remarks"] = jj["Remarks"].ToString();
+                        dsMaster.Tables[0].DefaultView[0].Row.EndEdit();
+                    }
+                    else 
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID(TableName, out _Id);
+                        jj["Id"] = _Id;
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        dr["Id"] = _Id;
+                        dr["OperationVariationId"] = jj["OperationVariationId"].ToString();
+                        dr["Rate"] = clsStaticInfo.dbl(jj["Rate"].ToString());
+                        dr["Remarks"] = jj["Remarks"].ToString();
+
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+
+
+                #endregion data Upload
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+        #endregion
+    }
+
+    #endregion
+
+    #region EmployeeOperationBudget
 
     public class EmployeeOperationBudget
     {
@@ -830,5 +1023,5 @@ namespace Library.OrderManagement.Production
 
     }
 
-
+    #endregion
 }

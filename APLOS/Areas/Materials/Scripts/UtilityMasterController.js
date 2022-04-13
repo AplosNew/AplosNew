@@ -8,6 +8,8 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveChildUrl = $scope.path + 'CreateChild';
+    
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
@@ -237,13 +239,20 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             });
         }
     };
+    $scope.ModelChild = {
+        Id: null,
+        UtilityMasterId: null,
+        EffectiveDate: null,
+        Rate: 0,
+        Remark: null
+    };
+    $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
 
     $scope.SaveChild = function () {
-       
             $http({
                 method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                url: $scope.saveChildUrl,
+                data: { 'data': $scope.ModelChildNew, 'UtilityMasterId': $scope.ModelNew.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {

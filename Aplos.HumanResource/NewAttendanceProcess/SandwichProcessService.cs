@@ -169,19 +169,17 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 var sql = @"update AttdnProcessData set PresentValue=x.PresentValue,LateValue=x.LateValue,
                 AbsentValue=x.AbsentValue,
-                LvValue=x.LvValue,MLvValue=x.MlvValue,CompAssignLvValue=x.CompAssignLvValue,WeekOffValue=x.WeekOffValue,
+                LvValue=x.LvValue,CompAssignLvValue=x.CompAssignLvValue,WeekOffValue=x.WeekOffValue,
                 HoliDayValue=x.HoliDayValue,
-                WeekOffHoliDayValue=x.WeekOffHoliDayValue,LWPValue=x.TotalLWP,CasualLeaveValue=x.TotalCasualLeave,
-                PriviledgeLeaveValue=x.PriviledgeLeaveValue,MedicalLeaveValue=x.MedicalLeaveValue,
+                WeekOffHoliDayValue=x.WeekOffHoliDayValue,
                 WorkingDayValue=x.WorkingDay,
                 ActualWorkingDayValue=x.ActualWorkingDay,PayDayValue=x.TotalPayDay,NonPayDayValue=x.TotalNonPayDay
                 from 
                 (select distinct p.EmpSystemID,p.rowid as rowidx,Result=dt.DayType,format(p.WorkDate,'yyyy-MMM-dd')WorkDate,                 		
 				isnull(dt.PresentValuePD,'0')PresentValue,isnull(dt.LateValueLV,'0')LateValue,isnull(dt.AbsentValueAB,'0')AbsentValue,
-				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.MaternityLeaveValueMLV,'0')MlvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
+				isnull(dt.LeaveValueLP,'0')LvValue,isnull(dt.CompAssignLv,'0')CompAssignLvValue,
                 isnull(dt.WeeklyOffWO,'0')WeekOffValue,isnull(dt.HolidayH,'0')HoliDayValue,isnull(dt.WeekOffHoliDayWOH,'0')WeekOffHoliDayValue,
-				isnull(dt.LeaveValueLWP,'0')TotalLWP,isnull(dt.CasualLeaveValueCV,'0')TotalCasualLeave,
-				isnull(dt.PriviledgeLeavePL,'0')PriviledgeLeaveValue,isnull(dt.MedicalLeaveValueMV,'0')MedicalLeaveValue,isnull(dt.TotalWorkingDay,'0')WorkingDay,
+			    isnull(dt.TotalWorkingDay,'0')WorkingDay,
 				isnull(dt.ActualWorkingDay,'0')ActualWorkingDay,isnull(dt.PayDay,'0')TotalPayDay,isnull(dt.NonPayDay,'0')TotalNonPayDay                 
 				from AttdnProcessData p
                         join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID

@@ -879,4 +879,11 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.EntityCapacitydoubleclick = function (args) {
         $scope.modelEntityCapacity = Object.assign({}, args);
     };
+
+    $scope.changeAsset = function () {
+        if ($scope.modelNewA.IsOldCode == false) {
+            $scope.modelNewA.OldCode = null;
+        }
+
+    }
 }

@@ -498,6 +498,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('PerformanceAttributeMasterController', PerformanceAttributeMasterController)
     .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
     .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
+    .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
 
 
     .config(accountConfig)

@@ -317,6 +317,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderRs, response.data.Data);
+                $scope.getRsChildList($scope.HeaderRs.Id);
             }
             else {
                 ShowResult(response.data.Msg, 'failure');
@@ -568,5 +569,134 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
         });
     }
-    
+
+    ///// ******************************************** Special Operation Rate
+
+    //Variables
+    $scope.OperationMasterId = null;
+    $scope.OperationCatId = null;
+    $scope.MachineId = null;
+
+    $scope.operationCatList = [];
+    $scope.operationMasterList = [];
+    $scope.machineList = [];
+
+    $scope.OperationsList = [];
+    $scope.PrevData = [];
+
+
+    //Getting the Filters
+    $scope.getFilters = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getOperationCategory",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.operationCatList = response.data;
+        });
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "getOperationMaster",
+            data: { 'OpCat': $scope.OperationCatId, 'Machine':$scope.MachineId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.operationMasterList = response.data;
+        });
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "getMachines",
+            data: {'OpM':$scope.OperationMasterId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.machineList = response.data;
+        });
+
+    }
+
+    $scope.getFilters();
+
+    //Filling the Filters Again
+    $scope.fillOperationMaster = function () {
+        if (angular.isUndefinedOrNull($scope.OperationMasterId) == true) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "getOperationMaster",
+                data: { 'OpCat': $scope.OperationCatId, 'Machine': $scope.MachineId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.operationMasterList = response.data;
+            });
+        }
+    }
+
+    $scope.fillMachine = function () {
+        if (angular.isUndefinedOrNull($scope.MachineId) == true) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "getMachines",
+                data: { 'OpM': $scope.OperationMasterId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.machineList = response.data;
+            });
+        }
+    }
+
+
+    //Getting all the Operations
+    $scope.getOperations = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getOperations",
+            data: { 'OMId': $scope.OperationMasterId, 'OCId' : $scope.OperationCatId , 'MId':$scope.MachineId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.PrevData = response.data;
+            $scope.OperationsList = response.data;
+        });
+    }
+
+    //Clearing the Filters
+    $scope.clearFilters = function () {
+        $scope.OperationMasterId = null;
+        $scope.OperationCatId = null;
+        $scope.MachineId = null;
+    }
+
+    // Clearing the Grid
+    $scope.clearGrid = function () {
+        $scope.OperationsList = $scope.PrevData;
+    }
+
+    //Saving the Data
+    $scope.saveOperations = function () {
+        let savesList = [];
+        for (var i = 0; i < $scope.OperationsList.length; i++) {
+            if ($scope.OperationsList[i].Active == 1) {
+                savesList.push($scope.OperationsList[i]);
+            }
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "saveOperations",
+            data: {
+                'data': savesList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            if (response.data.Error == "No") {
+
+                ShowResult(response.data.Msg, 'success');
+                $scope.getOperations();
+            }
+            else {
+                ShowResult(response.data.Msg, 'failure');
+            }
+        });
+
+    }
 }
