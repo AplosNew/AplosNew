@@ -1088,7 +1088,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text 
+                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeCode,emp.EmployeeName as Text 
                 from dbo.OperationWiseEmployees ope 
                     left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
                     where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
@@ -1333,7 +1333,17 @@ namespace Library.OrderManagement.Production
                                         left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
                                         left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
                                         left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
-                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+@"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,                   
+                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+ @"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,   
+                                BuyerReferenceNo =STUFF((select distinct ','+XMO.BuyerReferenceNo from
+                                    trn.SalesOrder XSO                                        
+                                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                                        LEFT JOIN TRN.ProductionOrder po on po.Id=Xpod.ProductionOrderId
+                                        left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                                        left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                                        left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
+                                        where po.Id='"+PoId+@"' 
+										and po.EntityId='"+EntityId+@"' for 
+										xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,
                                     dp.Qty,(emp.EmployeeName) Employee,dp.EmployeeId as EmpId, opv.id as OperationId,
                                     opv.UserName as Operation,dp.AddedBy,dp.ProductionOrderId as POId,Pr.UserName as Process,
                                     Wc.UserName as WorkCenter,sh.UserName as Shift from 
@@ -1343,7 +1353,7 @@ namespace Library.OrderManagement.Production
                                     left join mst.OperationVariation opv on dp.OperationVariationId=opv.Id
                                     left join dbo.ShiftDefination sh on dp.ShiftId=sh.SystemID
                                     left join dbo.EmployeeInformation emp on dp.EmployeeId=emp.SystemId                      
-                                    where isnull(dp.Date, '') = '"+ProdnDate+@"'
+                                    where isnull(dp.Date, '') = '" + ProdnDate+@"'
                                     and isnull(dp.ProcessId,'')= '"+ProcessId+"' and isnull(dp.ShiftId,'')= '"+ShiftId+@"' and 
                                     isnull(dp.WorkCenterId,'')='"+WkId+"' and isnull(dp.ProductionOrderId,'')='"+PoId+@"' 
                                     and isnull(dp.OperationVariationId,'')='"+OPId+"'";

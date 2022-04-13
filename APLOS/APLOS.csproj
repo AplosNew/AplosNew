@@ -494,6 +494,7 @@
     <Compile Include="Areas\Commercial\Controllers\ProformaInvoiceController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQPurchaseOrderController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOQCostingApprovalSettingController.cs" />
     <Compile Include="Areas\Costings\Controllers\ItemConsumptionController.cs" />
     <Compile Include="Areas\Costings\Controllers\QuickBOQReportController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQGenerationController.cs" />
@@ -1846,6 +1847,7 @@
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
+    <Content Include="Areas\Costings\Scripts\BOQCostingApprovalSettingController.js" />
     <Content Include="Areas\Costings\Scripts\BOQApprovalController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
     <Content Include="Areas\Costings\Scripts\BOQController.js" />

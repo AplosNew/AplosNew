@@ -276,47 +276,41 @@ namespace Library.OrderManagement.Costing
                                      from CostingBOQItems XITM
                                      INNER JOIN OrderProcurementCostingDirectMaterial AS XD ON Xd.Id=Xitm.OrderProcurementCostingDirectMaterialId
                                      INNER JOIN hkp.CostingItem AS Xci ON Xci.Id=Xd.CostingItemId
-			                                                                                           where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-                                    ,SalesOrderId=STUFF((SELECT distinct ','+  so.Id
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
+			                         where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    
+                                    ,SalesOrderId=STUFF((SELECT distinct ','+  XITM.Id
+                                    from trn.SalesOrder AS XITM
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-                                    ,Description=STUFF((SELECT distinct ','+  so.Description
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
+                                    ,Description=STUFF((SELECT distinct ','+  XITM.Description
+                                    from trn.SalesOrder AS XITM
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,BuyerItemNo=STUFF((SELECT distinct ','+  moi.BuyerReferenceNo
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    from trn.SalesOrder AS XITM
+                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,OwnItemNo=STUFF((SELECT distinct ','+  moi.OwnReferenceNo
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    from trn.SalesOrder AS XITM
+                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 
                                     ,MasterOrderId=STUFF((SELECT distinct ','+  moi.MasterOrderId
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    from trn.SalesOrder AS XITM
+                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,OwnOrderNo=STUFF((SELECT distinct ','+  mo.OwnReferenceNo
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    from trn.SalesOrder AS XITM
+                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
                                     JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
                                     ,BuyerOrderNo=STUFF((SELECT distinct ','+  mo.BuyerReferenceNo
-                                    from CostingBOQSalesOrder XITM
-                                    JOIN trn.SalesOrder AS so ON so.Id=xitm.SalesOrderId
-                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=so.MasterOrderItemId
+                                    from trn.SalesOrder AS XITM
+                                    JOIN trn.MasterOrderItem AS moi ON moi.Id=XITM.MasterOrderItemId
                                     JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
@@ -388,45 +382,70 @@ namespace Library.OrderManagement.Costing
 
                 //#region SO
 
-                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("select * from CostingBOQSalesOrder where CostingBOQMasterId='" + MasterData["Id"].ToString() + "'", out DataSet dsSOItems, false, "1");
-                string _childId = "";
-                for (int i = 0; i < dsSOItems.Tables[0].Rows.Count; i++)
-                {
-                    var k = SalesOrderData.Where(w => w["SalesOrderId"].ToString() == dsSOItems.Tables[0].Rows[i]["SalesOrderId"].ToString()).ToList();
-                    if (k.Count == 0)
-                        dsSOItems.Tables[0].Rows[i].Delete();
-                }
+                ConManager.getDataSet(@"select * from TRN.SalesOrder where Id IN (" + SOIds + ")", out DataSet dsSOItems);
 
-                for (int i = 0; i < SalesOrderData.Count; i++)
+                for (int s = 0; s < dsSOItems.Tables[0].Rows.Count; s++)
                 {
-                    dsSOItems.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + SalesOrderData[i]["SalesOrderId"].ToString() + "'";
-                    if (dsSOItems.Tables[0].DefaultView.Count == 0)
+                    DataView dv = new DataView(dsSOItems.Tables[0]);
+                    dv.RowFilter = "Id='" + dsSOItems.Tables[0].Rows[s]["Id"] + "'";
+
+                    if (dv.Count > 0)
                     {
-                        if (_childId == "")
-                        {
-                            bplib.clsGenID genid = new bplib.clsGenID();
-                            genid.GenHRID(DateTime.Now.ToShortDateString(), "Costing BOQ Sales Order", out _childId);
-                            _childId = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + _childId;
-                        }
+                        DataRow drmo = dv[0].Row;
 
-                        DataRow dr = dsSOItems.Tables[0].NewRow();
+                        drmo.BeginEdit();
 
-                        dr["Id"] = _childId + "-" + (i + 1).ToString();
-                        dr["CostingBOQMasterId"] = _masterId;
-                        dr["SalesOrderId"] = SalesOrderData[i]["SalesOrderId"].ToString();
+                        drmo["CostingBOQMasterId"] = _masterId;
+                        drmo["UpdatedBy"] = identity.Name;
+                        drmo["UpdatedDate"] = DateTime.Now.ToString();
+                        drmo["UpdatedFromIP"] = identity.IPAddress;
 
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        drmo.EndEdit();
 
-
-                        dsSOItems.Tables[0].Rows.Add(dr);
                     }
                 }
+
+                // drop table CostingBOQSalesOrder
+
+                //ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter("select * from CostingBOQSalesOrder where CostingBOQMasterId='" + MasterData["Id"].ToString() + "'", out DataSet dsSOItems, false, "1");
+                string _childId = "";
+                //for (int i = 0; i < dsSOItems.Tables[0].Rows.Count; i++)
+                //{
+                //    var k = SalesOrderData.Where(w => w["SalesOrderId"].ToString() == dsSOItems.Tables[0].Rows[i]["SalesOrderId"].ToString()).ToList();
+                //    if (k.Count == 0)
+                //        dsSOItems.Tables[0].Rows[i].Delete();
+                //}
+
+                //for (int i = 0; i < SalesOrderData.Count; i++)
+                //{
+                //    dsSOItems.Tables[0].DefaultView.RowFilter = "SalesOrderId='" + SalesOrderData[i]["SalesOrderId"].ToString() + "'";
+                //    if (dsSOItems.Tables[0].DefaultView.Count == 0)
+                //    {
+                //        if (_childId == "")
+                //        {
+                //            bplib.clsGenID genid = new bplib.clsGenID();
+                //            genid.GenHRID(DateTime.Now.ToShortDateString(), "Costing BOQ Sales Order", out _childId);
+                //            _childId = System.DateTime.Now.ToString("yyyy").Substring(2, 2) + _childId;
+                //        }
+
+                //        DataRow dr = dsSOItems.Tables[0].NewRow();
+
+                //        dr["Id"] = _childId + "-" + (i + 1).ToString();
+                //        dr["CostingBOQMasterId"] = _masterId;
+                //        dr["SalesOrderId"] = SalesOrderData[i]["SalesOrderId"].ToString();
+
+                //        dr["AddedBy"] = identity.Name;
+                //        dr["AddedDate"] = System.DateTime.Now.ToString();
+                //        dr["AddedFromIP"] = identity.IPAddress;
+                //        dr["UpdatedBy"] = identity.Name;
+                //        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                //        dr["UpdatedFromIP"] = identity.IPAddress;
+
+
+                //        dsSOItems.Tables[0].Rows.Add(dr);
+                //    }
+                //}
                 //#endregion SO
 
                 #region BOQ Items
@@ -538,7 +557,7 @@ namespace Library.OrderManagement.Costing
                     dsBOQCompact.Tables[0].DefaultView[j]["ItemRefNo"] = _masterId + "/" + (j + 1).ToString();
                 }
                 OTSBD.clsStaticInfo _info = new OTSBD.clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsSOItems, dsItems, dsBOQ, dsBOQCompact);
+                _info.SaveDataSets(dsMaster, dsItems, dsBOQ, dsBOQCompact, dsSOItems);
 
             }
             catch (Exception ex)
@@ -552,6 +571,9 @@ namespace Library.OrderManagement.Costing
             }
             return MasterData;
         }
+
+       
+
         public void Delete(string Id)
         {
 
@@ -604,6 +626,7 @@ namespace Library.OrderManagement.Costing
 
             dt.Rows.Add(dr);
         }
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -686,6 +709,7 @@ namespace Library.OrderManagement.Costing
             }
 
         }
+
         private string BOMComparingString(DataRow dr)
         {
 
@@ -707,6 +731,7 @@ namespace Library.OrderManagement.Costing
 
             return key;
         }
+
         private string GetPK(string TableName)
         {
             string sID = string.Empty;
@@ -714,6 +739,7 @@ namespace Library.OrderManagement.Costing
             objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), TableName, out sID);
             return sID;
         }
+
         private void CopyRow(DataRow drSource, DataRow drDestination)
         {
 
@@ -743,6 +769,7 @@ namespace Library.OrderManagement.Costing
             }
 
         }
+
         private void EditRow(DataRow drSource, DataRow drDestination)
         {
 
@@ -780,6 +807,7 @@ namespace Library.OrderManagement.Costing
             }
 
         }
+
         public void BOQ(string CostingBOQMasterId, string SalesOrderIds, string CostingItemIds, string CostingTemplateId, out DataSet dsExistingBOQ, out DataSet CompactBOQData)
         {
             DataSet dsMISO;
@@ -866,7 +894,7 @@ namespace Library.OrderManagement.Costing
             //SKU1 SKU2    SKU3 OrderQty    BOMQty RequiredQty BOMAmount Sequence POCriteria   AddedBy AddedDate   AddedFromIP UpdatedBy   UpdatedDate UpdatedFromIP
 
             ConnectionManager.clsConnectionManager ConManager = new ConnectionManager.clsConnectionManager();
-            ConManager.getDataSet("select * from BOQ where CostingBOQMasterId='" + CostingBOQMasterId + "'", out DataSet dsExistingBOQ);
+            ConManager.getDataSet("select * from BOQ where CostingBOQMasterId='" + CostingBOQMasterId + "' AND Id NOT IN (SELECT BOQDetailId FROM TRN.POBOQMAP)", out DataSet dsExistingBOQ);
 
 
             ConManager = new ConnectionManager.clsConnectionManager();
@@ -1303,6 +1331,7 @@ namespace Library.OrderManagement.Costing
 
             return dsExistingBOQ;
         }
+
         public double GetCostingRate(DataSet dsRate, string CostingItemId)
         {
 
@@ -1312,6 +1341,7 @@ namespace Library.OrderManagement.Costing
 
             return 0;
         }
+
         private DataTable BOQReportQuery(string CostingBOQMasterId)
         {
 
@@ -1347,6 +1377,7 @@ namespace Library.OrderManagement.Costing
             return dtData;
 
         }
+
         public void ReportXls(string CostingBOQMasterId)
         {
             try
@@ -1617,6 +1648,7 @@ namespace Library.OrderManagement.Costing
             }
 
         }
+
         private string UpdateString(object FieldValue)
         {
             if (FieldValue == null)
@@ -1627,6 +1659,7 @@ namespace Library.OrderManagement.Costing
 
             return "'" + FieldValue + "'";
         }
+
         public void UpdateBOQGeneration(string Id, List<Dictionary<string, object>> MaterialAttachmentData, List<Dictionary<string, object>> QuantityData)
         {
             try
