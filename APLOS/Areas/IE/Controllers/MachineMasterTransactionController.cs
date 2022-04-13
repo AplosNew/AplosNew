@@ -95,7 +95,7 @@ namespace Aplos.Areas.IE.Controllers
         public ActionResult getProcess(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select MMP.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
+            string str = @"select P.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
 			                            from MachineMasterProcess MMP
 			                            left join HKP.Process P on P.Id=MMP.ProcessId
 										where MMP.MachineMasterId='" + machineMasterId + @"'";
@@ -121,6 +121,17 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public JsonResult GetAssetTypeList(string machineMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference,E.Id EntityId,E.UserName Entity
+			                            from MachineMasterAsset MMA
+			                            left join ORG.Entity E on E.Id=MMA.EntityId
+										where MMA.MachineMasterId='" + machineMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
@@ -231,7 +242,26 @@ namespace Aplos.Areas.IE.Controllers
         }
 
 
-
+        [Authorize, HttpGet]
+        public JsonResult GetMachineMasterTransaction()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+                var sql = @"select MMT.Id,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,MMT.Date,MM.UserName MachineMaster
+										,P.UserName Process,MMT.FromTime,MMT.ToTime,MMT.Minute,SD.UserName Shift
+										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,MMT.Remark
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join MST.MachineMaster MM on MM.Id=MMT.MachineMasterId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left join MachineMasterAsset MMA on MMA.Id=MMT.AssetId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId";
+          
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         //Omar End
 
 
