@@ -1088,7 +1088,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text 
+                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeCode,emp.EmployeeName as Text 
                 from dbo.OperationWiseEmployees ope 
                     left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
                     where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
