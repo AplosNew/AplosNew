@@ -88,10 +88,19 @@ namespace Aplos.Areas.Products.Controllers
                     dr["DeliveryPartyPlantId"] = data.DeliveryPartyPlantId;
                     dr["InvoicingPartyPlantId"] = data.InvoicingPartyPlantId;
                     dr["PaymentTermId"] = data.PaymentTermId;
-                    dr["BaseOnDueDate"] = data.BaseOnDueDate;
-                    dr["BaseNoOfDays"] = data.BaseNoOfDays;
-                    dr["MatureDate"] = data.MatureDate;
-
+                    if (!string.IsNullOrEmpty(data.BaseOnDueDate.ToString()))
+                    {
+                        dr["BaseOnDueDate"] = data.BaseOnDueDate; 
+                    }
+                    if (!string.IsNullOrEmpty(data.BaseNoOfDays.ToString()))
+                    {
+                        dr["BaseNoOfDays"] = data.BaseNoOfDays; 
+                    }
+                    if (!string.IsNullOrEmpty(data.MatureDate.ToString()))
+                    {
+                        dr["MatureDate"] = data.MatureDate; 
+                    }
+                    dr["DocRefNo"] = data.DocRefNo;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;

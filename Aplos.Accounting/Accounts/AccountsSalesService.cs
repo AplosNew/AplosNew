@@ -121,7 +121,7 @@ namespace Library.Accounting.Accounts
 									 , SM.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue                         
 									 , SM.TransactionUoMId, TUoM.UserName AS TransactionUoM
 									 ,C.Code CurrencyName,SM.TransactionQty,SM.TransactionRate,SM.TransactionAmount
-									 , ISNULL(SM.BaseAmount*S.ToCurrencyRate,0)+SM.TaxAmount + ISNULL(SS.Amount*S.ToCurrencyRate,0) AS BaseAmount
+									  , ISNULL(SM.BaseAmount*S.ToCurrencyRate,0)+ISNULL(SM.TaxAmount*S.ToCurrencyRate,0) + ISNULL(SS.Amount*S.ToCurrencyRate,0) AS BaseAmount
 									 , SM.TaxAmount,HSN.Code HSNCode
 							,MGGL.GLGeneralInfoId
 							,GL.AccountCode GLGeneralInfoCode

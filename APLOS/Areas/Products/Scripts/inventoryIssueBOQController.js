@@ -1707,7 +1707,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     $scope.getBoqFilter = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "GETBoqFilter",
+            url: $scope.path + "GETBoqFilter?materialStorageId=" + $scope.productNew.MaterialStorageId,
         }).then(function successCallback(response) {
             $scope.PopUpList = response.data;
         });
