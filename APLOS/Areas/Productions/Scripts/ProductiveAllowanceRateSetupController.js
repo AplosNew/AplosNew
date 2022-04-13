@@ -317,6 +317,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderRs, response.data.Data);
+                $scope.getRsChildList($scope.HeaderRs.Id);
             }
             else {
                 ShowResult(response.data.Msg, 'failure');
