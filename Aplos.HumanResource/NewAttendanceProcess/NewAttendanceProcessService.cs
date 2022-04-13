@@ -916,6 +916,54 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     #endregion
 
+                    #region WorkDate Wise Budget Summary
+
+                    DataSet BudgetSummary_Data;
+                    WorkDate_Wise_BudgetSaving(Date, out BudgetSummary_Data, PlantValue);
+
+                    if (BudgetSummary_Data.Tables[0].Rows.Count > 0)
+                    {
+
+                        ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                        var sqlx = @"select * from AttdnWorkdateWiseBudget where WorkDate='" + Date + "' and PlantID='" + PlantValue + "'";
+
+                        objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+
+                        for (int i = 0; i < BudgetSummary_Data.Tables[0].Rows.Count; i++)
+                        {
+                            string BudgetId = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"BudgetId"]).ToString();
+                            string Total = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Total"]).ToString();
+                            string Deployment = clsWebLib.RetValidLen(BudgetSummary_Data.Tables[0].Rows[i][@"Deployment"]).ToString();
+
+
+                            dsRef.Tables[0].DefaultView.RowFilter = @"BudgetId='" + BudgetId + "' AND WorkDate =#" + Date + "#";
+                            if (dsRef.Tables[0].DefaultView.Count == 0)
+                            {
+                                // Row Creation in AttdnWorkdateWiseBudget
+                                DataRow dr = dsRef.Tables[0].NewRow();
+                                clsGenID genid = new clsGenID();
+                                genid.GenID("AttdnWorkdateWiseBudget", out string _Id);
+
+                                dr["Id"] = "AB" + _Id;
+                                dr["BudgetId"] = BudgetId;
+                                dr["WorkDate"] = Date;
+                                dr["TotalNumber"] = Total;
+                                dr["Deployment"] = Deployment;
+                                dr["AddedBy"] = "Schedule";
+                                dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
+                                dr["AddedFromIP"] = "1";
+                                dsRef.Tables[0].Rows.Add(dr);
+
+                            }
+                        }
+                        SaveDataSets(dsRef);
+                    }
+
+
+                    #endregion
+
+
                     #region CreditLimit Monthly Opening Creation
                     //DataSet CreditLimitOpening;
                     //CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
