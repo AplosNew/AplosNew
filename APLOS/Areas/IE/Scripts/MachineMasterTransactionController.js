@@ -34,7 +34,8 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         ShiftId: null,
         Shift: null,
         IfAssetApplicable: false,
-        SelectAsset: null,
+        AssetId: null,
+        Asset: null,
         ResponsiblePersonCode: null, 
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
@@ -187,6 +188,35 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     }
     $scope.GetDetentionList();
 
+    $scope.selectAsset = function () {
+        $scope.GetAssetTypeList();
+        angular.element(document.querySelector('#AssetPop')).modal('show');
+    }
+
+    $scope.AssetTypeList = [];
+    $scope.GetAssetTypeList = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/GetAssetTypeList',
+            data: { 'machineMasterId': $scope.ModelNew.MachineMasterId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.AssetTypeList = response.data;
+        });
+    }
+    $scope.GetAssetTypeList();
+
+    $scope.doubleAsset = function (e) {
+        $scope.ModelNew.AssetId = e.data.Id;
+        $scope.ModelNew.Asset = e.data.AssetName;
+        angular.element(document.querySelector('#AssetPop')).modal('hide');
+    }
+
+    $scope.closeAssetPopUp = function () {
+        angular.element(document.querySelector('#AssetPop')).modal('hide');
+    }
+
+
     $scope.DetentionTypeList = [];
     $scope.GetDetentionTypeList = function () {
         $http({
@@ -198,6 +228,41 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     }
     $scope.GetDetentionTypeList();
 
+    $scope.changeAsset = function () {
+        if ($scope.ModelNew.IfAssetApplicable == false) {
+            $scope.ModelNew.AssetId = null;
+            $scope.ModelNew.Asset = null;
+        }
+        
+    }
+
+    $scope.getMinute = function () {
+        var ftimeString = $scope.ModelNew.FromTime;
+        var ttimeString = $scope.ModelNew.ToTime;
+        var datestringFromDP = new Date();
+
+        var fdateObj = new Date(datestringFromDP + ' ' + ftimeString);
+        var tdateObj = new Date(datestringFromDP + ' ' + ttimeString);
+        var timeStart = new Date($scope.ModelNew.FromTime).getTime();
+        var timeEnd = new Date($scope.ModelNew.ToTime).getTime();
+        var hourDiff = timeEnd - timeStart; //in ms
+        
+        var minDiff = hourDiff / 60 / 1000; //in minutes
+        var hDiff = hourDiff / 3600 / 1000; //in hours
+        var humanReadable = {};
+        humanReadable.hours = Math.floor(hDiff);
+        humanReadable.minutes = minDiff - 60 * humanReadable.hours;
+        $scope.ModelNew.Minute = humanReadable.minutes;
+        console.log(humanReadable); //{hours: 0, minutes: 30}
+
+
+        var startTime = new Date(fdateObj);
+        var endTime = new Date(datestringToDP);
+        var difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
+        var resultInMinutes = Math.round(difference / 60000);
+
+
+    }
 
     $scope.Save = function () {
         try {
@@ -255,7 +320,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
             ShiftId: null,
             Shift: null,
             IfAssetApplicable: false,
-            SelectAsset: null,
+            AssetId: null,
             ResponsiblePersonId: null,
             ResponsiblePerson: null,
             Remark: null,
@@ -365,119 +430,16 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         angular.element(document.querySelector('#employeePopUps')).modal('hide');
     };
 
-
-    
-
-   
-
-
-    function checkDoubleMeeting(list, Id) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].SystemId === Id) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    $scope.refreshTemplateemployee = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMeetingWise });
+    $scope.GriddataMachineMasterData = [];
+    $scope.GetMachineMasterData = function () {
+        debugger;
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'IE/MachineMasterTransaction/GetMachineMasterTransaction',
+        }).then(function successCallback(response) {
+            $scope.GriddataMachineMasterData = response.data;
+        });
     };
-
-    function CheckBoxSelectAllMeetingWise(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-        var filtered = $("#meetingInfoGrid").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.MeetingList.length; i++) {
-                $scope.MeetingList[i].Active = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Active = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#meetingInfoGrid").data("ejGrid");
-        gridObj.refreshContent();
-    };
-
-    function checkChangeMeeting(e) {
-
-        var val = e.model.value;
-        //item level check
-        var row = $filter('filter')($scope.EmployeeBySingleDateSelection, { 'Id': e.model.value });
-        if (!baseService.isUndefinedOrNull(row) && row.length > 0) {
-            if (e.model.checkState == "check")
-                row[0].Active = true;
-            else
-                row[0].Active = false;
-        }
-
-    }
-
-    function headCheckChangeMeeting(e) {
-        if (e.model.checkState == "check") {
-
-            var filtered = $("#Gridmeeting").data("ejGrid").getFilteredRecords();
-            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                for (var i = 0; i < $scope.MeetingList.length; i++) {
-
-                    $scope.MeetingList[i].Active = true;
-                }
-            }
-            else {
-                for (var i = 0; i < $scope.MeetingList.length; i++) {
-                    for (var j = 0; j < filtered.length; j++) {
-                        if ($scope.MeetingList[i].Id == filtered[j].Id)
-                            // $scope.ModelList[i].isSelect = true;
-                            $scope.MeetingList[i].isToBeSelect = true;
-                    }
-
-                }
-            }
-
-            var checkbox = $("#Gridmeeting .rowCheckbox").ejCheckBox();
-            for (var i = 0; i < checkbox.length; i++) {
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": null });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "checked": true });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeMeeting });
-            }
-        }
-        else {
-            var filtered = $("#Gridmeeting").data("ejGrid").getFilteredRecords();
-            if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-                for (var i = 0; i < $scope.MeetingList.length; i++) {
-                    $scope.MeetingList[i].isToBeSelect = false;
-                }
-            }
-            else {
-                for (var i = 0; i < $scope.MeetingList.length; i++) {
-                    for (var j = 0; j < filtered.length; j++) {
-                        if ($scope.MeetingList[i].Id == filtered[j].Id)
-                            $scope.MeetingList[i].isToBeSelect = false;
-                    }
-
-                }
-            }
-            var checkbox = $("#Gridmeeting.rowCheckbox").ejCheckBox();
-            for (var i = 0; i < checkbox.length; i++) {
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": null });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "checked": false });
-                $($("#Gridmeeting.rowCheckbox")[i]).ejCheckBox({ "change": checkChangeMeeting });
-            }
-        }
-        //header level check
-    }
-
-    $scope.dataBoundemployee = function (args) {
-        $("#Gridmeeting .rowCheckbox").ejCheckBox({ "change": checkChangeMeeting });
-        $("#headchk").ejCheckBox({ "change": headCheckChangeMeeting });
-
-    };
-
-    
+    $scope.GetMachineMasterData();
 }

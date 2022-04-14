@@ -75,6 +75,24 @@ namespace Aplos.Controllers
         }
 
         [HttpGet]
+        public IHttpActionResult CheckBalance(string ProdOrderId, string ProcessId,string Curr,string Prev)
+        {
+            try
+            {
+                var result = _empOpt.BalanceChecker(ProdOrderId,ProcessId,Curr,Prev);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpGet]
         public IHttpActionResult GetOperation(string ProdOrderId,string ProcessId)
         {
             try
