@@ -150,6 +150,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(_masterOrderService.GetEmployeeListResponsible(parameters, identity.CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetEmpListResponsible(GridParameter parameters, string CompanyId, string plantId, string partyAccountGroupId, string partyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            return Json(_masterOrderService.GetEmployeeListResponsible(parameters, CompanyId, plantId, partyAccountGroupId, partyId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetFirstSkuList(string salesOrderId)
         {
