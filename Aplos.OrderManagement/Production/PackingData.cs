@@ -846,7 +846,8 @@ order by  Assigned, ProductCode , PO
                             left join dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
                             left join dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             left join hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
-                            left join org.Entity en on en.Id = pk.EntityId";
+                            left join org.Entity en on en.Id = pk.EntityId
+                            order by pk.Date  desc";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
