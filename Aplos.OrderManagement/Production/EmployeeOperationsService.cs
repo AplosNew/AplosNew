@@ -353,7 +353,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
