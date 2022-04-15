@@ -20,6 +20,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.selEo = null;
     $scope.EntityId = null;
 
+    $scope.PODBuyerRef = null;
+    $scope.PODOwnRef = null;
+    $scope.PODArticle = null;
+
     //Arrays
     $scope.EntityList = [];
     $scope.workCenterList = [];
@@ -103,6 +107,19 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             data: { 'wk': $scope.workCenterId},
         }).then(function succ(resp) {
             $scope.POList = resp.data;
+        });
+    }
+
+    //Getting the PO Details
+    $scope.getPODetails = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPODetails',
+            data: { 'POId': $scope.POId },
+        }).then(function succ(resp) {
+            $scope.PODBuyerRef = resp.data[0].BuyerReferenceNo;
+            $scope.PODOwnRef = resp.data[0].OwnReferenceNo;
+            $scope.PODArticle = resp.data[0].Article;
         });
     }
 
