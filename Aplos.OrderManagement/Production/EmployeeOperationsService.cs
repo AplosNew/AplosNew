@@ -131,6 +131,26 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> getPODetails(string POId)
+        {
+            try
+            {
+                var str = @"Select mo.BuyerReferenceNo , mo.OwnReferenceNo , moi.ArticleId , mma.StandardName as Article
+                            from trn.ProductionOrder po
+                            left join trn.ProductionOrderDetail pod on pod.ProductionOrderId = po.Id
+                            left join trn.SalesOrder so on so.Id = pod.SalesOrderId
+                            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
+                            where po.id= '" + POId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
@@ -353,7 +373,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
@@ -1066,6 +1086,41 @@ namespace Library.OrderManagement.Production
 
         }
         #endregion Constructor
+
+
+        public IEnumerable<object> BalanceChecker(string ProdOrderId, string ProcessId,string Curr,string Prev)
+        {
+            try
+            {
+                var Sql = @"select dd.*,(dd.Qty-dd.CurrentBooking) as Balance 
+                from (select OP.UserName as PrevOperation,bt.Sequence as PrevSeq,SUM(ope.Qty)Qty,
+                isnull((select isnull(SUM(ope.qty),'0') from 
+                OperationWiseEmployees ope 
+                left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId + @"' AND bt.Sequence='"+Curr+@"' and
+							PT.ProcessId='" + ProcessId + @"'
+                            ),'0')as CurrentBooking
+                            from 
+                            OperationWiseEmployees ope 
+                            left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId+@"' AND bt.Sequence='"+Prev+@"' and
+							PT.ProcessId='"+ProcessId+@"' 
+							group by bt.Sequence,op.UserName
+							) as dd
+							order by dd.PrevSeq";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> GetOperation(string ProdOrderId,string ProcessId)
         {

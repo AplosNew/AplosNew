@@ -82,6 +82,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
+        public ActionResult getPODetails(string POId)
+        {
+            return Json(eo.getPODetails(POId) , JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
         public ActionResult GetOperationsData(string PId , string Period , string ProcessId)
         {
             return Json(eo.GetOperationsData(PId , Period , ProcessId) , JsonRequestBehavior.AllowGet);
