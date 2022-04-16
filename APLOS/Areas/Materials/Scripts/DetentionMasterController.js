@@ -222,6 +222,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         };
         $scope.getProcessDataList();
     };
+
     $scope.userProcessList = [];
 
     $scope.DepartmentPopUpList = function () {
@@ -229,7 +230,14 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             method: 'GET',
             url: 'Materials/DetentionMaster/LoadDepartmentList'
         }).then(function successCallback(response) {
-                $scope.DepartmentDataList = response.data;
+            $scope.DepartmentDataList = response.data;
+            for (var i = 0; i < $scope.userDepartMentList.length; i++) {
+                for (var j = 0; j < $scope.DepartmentDataList.length; j++) {
+                    if ($scope.userDepartMentList[i].DepartmentId === $scope.DepartmentDataList[j].Id) {
+                        $scope.DepartmentDataList[j].chk = true;
+                    }
+                }
+            }
             angular.element(document.querySelector('#departmentPopUp')).modal('show');
         });
     };
@@ -241,6 +249,13 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             url: 'Materials/DetentionMaster/LoadMachineList'
         }).then(function successCallback(response) {
             $scope.MachineDataList = response.data;
+            for (var i = 0; i < $scope.userMachineList.length; i++) {
+                for (var j = 0; j < $scope.MachineDataList.length; j++) {
+                    if ($scope.userMachineList[i].MachineMasterId === $scope.MachineDataList[j].Id) {
+                        $scope.MachineDataList[j].chk = true;
+                    }
+                }
+            }
             angular.element(document.querySelector('#MachinePopUp')).modal('show');
         });
     };
@@ -309,8 +324,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
             if (baseService.arrayLength($scope.DepartmentDataList) > 0) {
                 angular.forEach($scope.DepartmentDataList, function (a) {
-                    if (checkProcessExist($scope.userDepartMentList, a.Id) === false) {
-                        if (a.Flag) {
+                    if (checkDeptExist($scope.userDepartMentList, a.Id) === false) {
+                        if (a.chk) {
                             var ob = {};
                             ob.Id = null;
                             ob.DepartmentId = a.Id;
@@ -359,8 +374,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
             if (baseService.arrayLength($scope.MachineDataList) > 0) {
                 angular.forEach($scope.MachineDataList, function (a) {
-                    if (checkProcessExist($scope.userMachineList, a.Id) === false) {
-                        if (a.Flag) {
+                    if (checkMachineExist($scope.userMachineList, a.Id) === false) {
+                        if (a.chk) {
                             var ob = {};
                             ob.Id = null;
                             ob.MachineMasterId = a.Id;
@@ -413,7 +428,22 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }
         return false;
     }
-
+    function checkDeptExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].DepartmentId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function checkMachineExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MachineMasterId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
     $scope.closeDeptPopUp = function () {
         angular.element(document.querySelector('#departmentPopUp')).modal('hide');
     };
@@ -520,6 +550,45 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             }
         });
     };
+    $scope.DepartmentGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.DepartmentDataList.length; i++) {
+            $scope.DepartmentDataList[i].chk = ChkOrUnchk;
+        }
+
+        var gridObj = $("#GridDetentionMasterDepartment").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.MachineGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.MachineDataList.length; i++) {
+            $scope.MachineDataList[i].chk = ChkOrUnchk;
+        }
+
+        var gridObj = $("#GridDetentionMasterMachine").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
 
 
 }

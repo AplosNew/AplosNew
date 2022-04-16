@@ -213,8 +213,8 @@ from
 								,ItemList=STUFF((SELECT distinct ','+cix.UserName FROM CostingBOQ AS cbx
 													JOIN hkp.CostingItem AS cix ON cix.Id=cbx.CostingItemId
                                     where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM CostingBOQSalesOrder AS cbx
-                                    where cbx.SalesOrderId=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,BOMList=STUFF((SELECT distinct ','+cbx.CostingBOQMasterId FROM [TRN].[SalesOrder] AS cbx
+                                    where cbx.Id=so.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
                        FROM [TRN].[SalesOrder] AS SO 
                        JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId=MOI.Id
                        JOIN [TRN].[MasterOrder] AS MO ON MOI.MasterOrderId = MO.Id
@@ -226,8 +226,7 @@ from
                        LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
                        LEFT JOIN [HKP].[OrderStatus] AS OS ON SO.OrderStatusId = OS.Id
                        LEFT JOIN [HKP].[OrderCategory] AS OC ON SO.OrderCategoryId = OC.Id
-			  where SO.Id IN (SELECT SalesOrderId
-			  FROM CostingBOQSalesOrder WHERE CostingBOQMasterId='" + BOMMasterId + "')";
+			  where SO.CostingBOQMasterId IN ('" + BOMMasterId + "')";
 
         }
         public string GetExistingSalesOrderListForReport(string BOMMasterId)

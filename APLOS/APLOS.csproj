@@ -494,6 +494,7 @@
     <Compile Include="Areas\Commercial\Controllers\ProformaInvoiceController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQPurchaseOrderController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOQCostingApprovalSettingController.cs" />
     <Compile Include="Areas\Costings\Controllers\ItemConsumptionController.cs" />
     <Compile Include="Areas\Costings\Controllers\QuickBOQReportController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQGenerationController.cs" />
@@ -668,6 +669,7 @@
     <Compile Include="Areas\IE\Controllers\GaugeFolderController.cs" />
     <Compile Include="Areas\IE\Controllers\LineLayoutForProductionBulletinController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMapController.cs" />
+    <Compile Include="Areas\IE\Controllers\MachineMasterTransactionReportController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterTransactionController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterUIController.cs" />
     <Compile Include="Areas\IE\Controllers\OperationConsumptionController.cs" />
@@ -1845,6 +1847,7 @@
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
+    <Content Include="Areas\Costings\Scripts\BOQCostingApprovalSettingController.js" />
     <Content Include="Areas\Costings\Scripts\BOQApprovalController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
     <Content Include="Areas\Costings\Scripts\BOQController.js" />
@@ -2036,6 +2039,7 @@
     <Content Include="Areas\IE\Scripts\elementCodeController.js" />
     <Content Include="Areas\IE\Scripts\LineLayoutForProductionBulletinController.js" />
     <Content Include="Areas\IE\Scripts\MachineMapController.js" />
+    <Content Include="Areas\IE\Scripts\MachineMasterTransactionReportController.js" />
     <Content Include="Areas\IE\Scripts\MachineMasterTransactionController.js" />
     <Content Include="Areas\IE\Scripts\productionSystemAllowanceController.js" />
     <Content Include="Areas\IE\Scripts\sewingCodeController.js" />
@@ -4087,6 +4091,9 @@
     <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\MachineMasterTransaction\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_SpecialOperationRate.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQCostingApprovalSetting\Aplos.cshtml" />
+    <Content Include="Areas\IE\Views\MachineMasterTransactionReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

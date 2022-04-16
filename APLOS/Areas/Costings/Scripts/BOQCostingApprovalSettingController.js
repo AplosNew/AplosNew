@@ -1,34 +1,14 @@
 ﻿'use strict';
-UtilityMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'UtilityMaster';
-    $scope.Action = 'Save';
-    $scope.ModelList = [];
-    $scope.path = 'Materials/UtilityMaster/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.saveChildUrl = $scope.path + 'CreateChild';
-    
-    $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.Action = 'Save';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+BOQCostingApprovalSettingController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$controller', '$window'];
+function BOQCostingApprovalSettingController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $controller, $window) {
+    $rootScope.title = 'BOQ Approval Setting';
+    $scope.path = "Costings/BOQCostingApprovalSetting/";
+    $scope.saveUrl = $scope.path + '/Create';
+    $scope.saveUrl = $scope.path + '/Delete';
+    $scope.ModelBase = { Id: null, CustomerId: null, CustomerName: null, EmployeeSystemId: null, EmployeeName: null, Remarks: null, UserName: null };
+    $scope.Model = Object.assign({}, $scope.ModelBase);
 
-
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-
-            $scope.ModelList = response.data;
-        });
-    }
-    $scope.getData();
+    $scope.Action = "Save";
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -38,42 +18,38 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         return $scope.tab === tabNum;
     };
 
+    $scope.CostingStageList = [{ value: 'QuickCosting', name: 'Quick Costing' }, { value: 'PreCosting', name: 'Pre Costing' }, { value: 'ProcurementCosting', name: 'Procurement Costing' }]
 
-    $scope.ModelTemp = {
-        Id: null,
-        Sequence: 0,
-        Code: null,
-        ShortName: null,
-        StandardName: null,
-        UserName: null,
-        Description: null,
-        Remarks: null,
-        Active: true,
-        Type: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
-    $scope.uOMList = [];
-    cboService.getUoMCbo(function (response) {
-        $scope.uOMList = response;
+    $scope.companyList = [];
+    cboService.getCboCompanyByCompanyGroup(null, function (response) {
+        $scope.companyList = response;
     });
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
+    $scope.plantList = [];
+    $scope.getPlantCbo = function () {
+        cboService.getCboPlantByCompany($scope.Model.CompanyId, function (response) {
+            $scope.plantList = response;
         });
     };
-    $scope.GetSequence();
 
+    $scope.partyType = "Customer";
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.partyList = [];
     $scope.ShowCustomerPopUpNew = function () {
         $scope.partyType = "Customer";
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+        if (baseService.isUndefinedOrNull($scope.Model.CompanyId)) {
+            ShowResult('Select Company', 'failure');
+            return false;
+        }
+        if (baseService.isUndefinedOrNull($scope.Model.PlantId)) {
+            ShowResult('Select Plant', 'failure');
+            return false;
+        }
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + '' + '&PlantId=' + '';
+
+        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + $scope.Model.CompanyId + '&PlantId=' + $scope.Model.PlantId;
 
         $http({
             method: 'POST',
@@ -88,19 +64,12 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.SetCustomerData = function (obj) {
         var party = obj.data;
-        $scope.ModelNew.PartyCode = party.Code;
-        $scope.ModelNew.CustomerName = party.UserName;
-        $scope.ModelNew.PartyId = party.Id;
-
+        $scope.Model.PartyCode = party.Code;
+        $scope.Model.CustomerName = party.UserName;
+        $scope.Model.PartyId = party.Id;
+        
         $scope.hidePartyPopUp();
         angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.searchParty = '';
-    }
-
-    $scope.closeCustomerPopUpNew = function () {
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.hidePartyPopUp();
-        $scope.partyType = "Customer";
         $scope.searchParty = '';
     }
 
@@ -110,17 +79,13 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.partySelected = null;
     };
 
-    $scope.ChangeCustomer = function () {
-        if ($scope.ModelNew.IfPartyApplicable) {
-            $scope.ModelNew.CustomerName = null;
-            $scope.ModelNew.PartyId = null;
-        }
-        else {
-            $scope.ModelNew.CustomerName = party.UserName;
-            $scope.ModelNew.PartyId = party.Id;
-        }
 
-    };
+    $scope.closeCustomerPopUpNew = function () {
+        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
+        $scope.hidePartyPopUp();
+        $scope.partyType = "Customer";
+        $scope.searchParty = '';
+    }
 
     $scope.employeeParameters = {
         limit: 10,
@@ -134,15 +99,24 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         serverPagination: true
     };
 
-    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
-
+    $scope.employeeList = [];
+    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmpListResponsible';
     $scope.showEmployeeListPopUp = function (name) {
         try {
+            if (baseService.isUndefinedOrNull($scope.Model.CompanyId)) {
+                throw 'Select Company';
+            }
+            if (baseService.isUndefinedOrNull($scope.Model.PlantId)) {
+                throw 'Select Plant';
+            }
+
             $scope.Name = name;
             //$scope.employeeParameters.searchBy = 'EmployeeCode';
             baseService.setCurrentPage('employeeList');
             $scope.searchEmployeeByList = [];
             $scope.getEmployeeData = function (pageno) {
+                $scope.employeeParameters.CompanyId = $scope.Model.CompanyId;
+                $scope.employeeParameters.plantId = $scope.Model.PlantId;
                 baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
                     .then(function (result) {
                         $scope.employeeList = result.Rows;
@@ -171,9 +145,10 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.closeEmployeePopUp = function () {
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
-
-            $scope.ModelNew.ResponsiblePersonId = employee.SystemId;
-            $scope.ModelNew.ResponsiblePersonName = employee.EmployeeName;
+           
+            $scope.Model.ResponsiblePersonId = employee.SystemId;
+            $scope.Model.ResponsiblePersonName = employee.EmployeeName;
+            
         }
         $scope.hideEmployeePopUp();
     };
@@ -184,9 +159,23 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.selectedEmployee = null;
     };
 
-    $scope.Get = function (args) {
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            //for (var i = 0; i < response.data.length; i++) {
+            //    response.data[i].AddedDate = new Date(response.data[i].AddedDate);
+            //}
+            $scope.ModelList = response.data;
+        });
+    }
+    $scope.getData();
 
-        $scope.ModelNew = Object.assign({}, args.data);
+    $scope.Get = function (args) {
+        $scope.Model = Object.assign({}, args.data);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -195,11 +184,11 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
+        if ($scope.costingForm.$valid) {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: { 'data': $scope.Model },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -207,7 +196,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
 
                 }
@@ -219,10 +208,10 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.Model.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl + $scope.Model.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -239,45 +228,16 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             });
         }
     };
-    $scope.ModelChild = {
-        Id: null,
-        UtilityMasterId: null,
-        EffectiveDate: null,
-        Rate: 0,
-        Remark: null
-    };
-    $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
-
-    $scope.SaveChild = function () {
-            $http({
-                method: 'POST',
-                url: $scope.saveChildUrl,
-                data: { 'data': $scope.ModelChildNew, 'UtilityMasterId': $scope.ModelNew.Id },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-
-    };
 
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
         return true;
     };
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
+        $scope.Model = Object.assign({}, $scope.ModelBase);
     }
+
 }
+

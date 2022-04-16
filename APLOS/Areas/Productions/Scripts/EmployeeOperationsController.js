@@ -20,6 +20,10 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.selEo = null;
     $scope.EntityId = null;
 
+    $scope.PODBuyerRef = null;
+    $scope.PODOwnRef = null;
+    $scope.PODArticle = null;
+
     //Arrays
     $scope.EntityList = [];
     $scope.workCenterList = [];
@@ -106,6 +110,19 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    //Getting the PO Details
+    $scope.getPODetails = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPODetails',
+            data: { 'POId': $scope.POId },
+        }).then(function succ(resp) {
+            $scope.PODBuyerRef = resp.data[0].BuyerReferenceNo;
+            $scope.PODOwnRef = resp.data[0].OwnReferenceNo;
+            $scope.PODArticle = resp.data[0].Article;
+        });
+    }
+
  
 
     // Add Tiles
@@ -130,6 +147,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     }
     
     //Getting All the Data For the Saving
+    $scope.PrevAllList = [];
     $scope.getAllData = function () {
         $http({
             method: 'POST',
@@ -147,6 +165,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                     wipNos[$scope.ModelList[i].Sequence] = 0;
                 }
             }
+
+            $scope.PrevAllList = $scope.ModelList;
         });
     }
 
@@ -202,10 +222,12 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
        /* $scope.checkWIP();*/
 
         for (var i = 0; i < $scope.ModelList.length; i++) {
-            if ($scope.ModelList[i].isChanged == true || $scope.ModelList[i].Qty > 0) {
+            if ($scope.ModelList[i].isChanged == true && $scope.ModelList[i].Qty > 0) {
                 $scope.NewList.push($scope.ModelList[i]);
             }
         }
+
+        $scope.ModelList = $scope.PrevAllList;
 
         $http({
             method: 'POST',
