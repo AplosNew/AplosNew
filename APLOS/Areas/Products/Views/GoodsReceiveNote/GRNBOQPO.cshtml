@@ -426,52 +426,7 @@
                                         <th>QualityStatus</th>
                                         <th class="col-sm-1" colspan="2"></th>
                                     </tr>
-                                    <tr ng-show="inventoryMaterialList.length">
-                                        <th>
-                                            <div class="checkbox-site text-center">
-                                                <label>
-                                                    <input type="checkbox" ng-click="CheckAll1($event);">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </th>
-                                        <th>PO Id</th>
-                                        <th>RowId</th>
-                                        <th>Material Group</th>
-                                        <th>Material Master</th>
-                                        <th>Article</th>
-                                        <th>Sku1</th>
-                                        <th>Sku2</th>
-                                        <th>Sku3</th>
-                                        <th>Material Storage Name</th>
-                                        <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
-
-                                        <th colspan="2" ng-show="GriddataSelected.length>0">PO Qty</th>
-                                        <th colspan="2" ng-show="GriddataSelected.length===0">Acceptance Qty</th>
-                                        <th>OtherGRNReceived</th>
-                                        <th>CurrentReceived</th>
-                                        <th>Balance</th>
-                                        <th>ShortageQty</th>
-                                        <th>RejectionQty</th>
-                                        <th>ApprovedQty</th>
-                                        <th>NetQty</th>
-                                        <th>MaterialRate(TRN)</th>
-                                        <th>MaterialAmount(TRN)</th>
-                                        <th>Discount</th>
-                                        <th>MaterialTax</th>
-                                        <th>ServiceCharge</th>
-                                        <th>ServiceTax</th>
-                                        <th>TotalMaterialAmount(TRN)</th>
-                                        <th>TotalMaterialAmount(BC)</th>
-                                        <th>CountryName</th>
-                                        <th>RefferenceNo</th>
-                                        <th>MaterialDetail</th>
-                                        <th>MaterialLotNumber </th>
-                                        <th>MaterialDiameter</th>
-                                        <th>MaterialType</th>
-                                        <th>QualityStatus</th>
-                                        <th class="col-sm-1" colspan="2"></th>
-                                    </tr>
+                                  
 
                                 </thead>
                                 <tbody>
@@ -556,7 +511,7 @@
                                     </tr>
                                     <tr ng-show="MasterList.length">
                                         <td></td>
-                                        <td colspan="9" class="text-right"><strong>Total : </strong></td>
+                                        <td colspan="8" class="text-right"><strong>Total : </strong></td>
                                         <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{MasterList | sumByKey : 'OriginalPOQty' }}</strong></td>
                                         <td ng-show="GriddataSelected.length===0"></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'POQty' }}</strong></td>
@@ -574,117 +529,12 @@
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'Discount'| setDecimal:currencyPrecision| number }}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'ServiceTax'| number:2}}</strong></td>
+                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalMaterialTranAmount'| number:2}}</strong></td>
                                         <td class="text-right"><strong>{{MasterList | sumByKey : 'TotalMaterialBaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                         <td></td>
                                         <td class="text-right">
                                         </td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-
-                                    <tr ng-repeat="x in inventoryMaterialList" ng-show="inventoryMaterialList.length">
-                                        <td>
-                                            <div class="checkbox-site">
-                                                <label>
-                                                    <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check">
-                                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td>{{x.POId}}</td>
-                                        <td>{{x.InventoryReceiveDetailId}}</td>
-                                        <td>{{x.MaterialGroupMasterName}}</td>
-                                        <td>{{x.UserName}}</td>
-                                        <td>{{x.StandardName}}</td>
-                                        <td>{{x.FirstCharacteristicsValue}}</td>
-                                        <td>{{x.SecondCharacteristicsValue}}</td>
-                                        <td>{{x.ThirdCharacteristicsValue}}</td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select style="width:150px;" name="Storage Location" ng-model="x.MaterialStorageId" class="form-control" ng-options="item.Value as item.Text for item in storageList"></select>
-                                            </div>
-                                        </td>
-                                        <td ng-show="GriddataSelected.length===0">{{x.OriginalPOQty}}</td>
-                                        <td class="text-right" ng-show="GriddataSelected.length===0">{{x.TransactionUoM}}</td>
-
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.POQty" ng-disabled="true"></td>
-                                        <td class="text-right">{{x.TransactionUoM}}</td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.OtherReceived" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.TransactionQty" ng-disabled="GriddataSelected.length===0"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x);" width="20" ng-model="x.Balance" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ShortageQty" ng-disabled="false"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount1(x,$index);" width="500" ng-model="x.RejectionQty" ng-disabled=""></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.ApprovedQty" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.NetQty" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TransactionRate" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TrnAmount" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-keyup="calculateAmountAfterDiscountEdit(x)" ng-model="x.DiscountAmount" ng-disabled="false"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.BaseTaxAmount" ng-disabled="true"></td>
-                                        <td class="text-right">{{x.ServiceCharge| setDecimal:currencyPrecision| number}}</td>
-                                        <td class="text-right">{{x.ServiceTax| setDecimal:currencyPrecision| number}}</td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialTranAmount" ng-disabled="true"></td>
-                                        <td class="text-right"><input type="text" n-decimals="2" class="form-control text-right" width="20" ng-model="x.TotalMaterialBaseAmount" ng-disabled="true"></td>
-                                        <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageRate"></td>
-                                        <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.ShortageValue"></td>
-                                        <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionRate"></td>
-                                        <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionValue"></td>
-                                        <td class="text-right" ng-hide="true"><input type="text" n-decimals="2" class="form-control text-right" width="200" ng-model="x.RejectionClamRate"></td>
-                                        <td>{{x.CountryName}}</td>
-                                        <td>{{x.RefferenceNo}}</td>
-                                        <td>{{x.MaterialDetail}}</td>
-                                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
-                                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
-                                        <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                                        <td>
-                                            <div class="select-style">
-                                                <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="Approved">Approved</option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Reject">Reject</option>
-                                                </select>
-                                            </div>
-                                        </td>
-                                        <td class="text-right">
-                                            <ul class="list-inline action-list">
-                                                <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                                <li><button ng-click="GRNAllowcationForSO(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation For SO" ng-disabled="x.POQty===(x.TransactionQty+x.OtherReceived)">Allocation For SO</button></li>
-                                                <li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
-                                            </ul>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    <tr ng-show="inventoryMaterialList.length">
-                                        <td colspan="10" class="text-right"><strong>Total : </strong></td>
-
-                                        <td class="text-right" ng-show="GriddataSelected.length===0"><strong>{{inventoryMaterialList | sumByKey : 'OriginalPOQty' }}</strong></td>
-                                        <td ng-show="GriddataSelected.length===0"></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'POQty' }}</strong></td>
-                                        <td></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'OtherReceived' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TransactionQty' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'Balance' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ShortageQty' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'RejectionQty' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ApprovedQty' }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'NetQty' }}</strong></td>
-                                        <td></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TrnAmount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                        <td class="text-right"><strong>{{MasterList | sumByKey : 'Discount'| setDecimal:currencyPrecision| number }}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseTaxAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ServiceCharge'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialBaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                        <td class="text-right"></td>
-                                        <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
