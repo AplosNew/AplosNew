@@ -25,7 +25,7 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.MeetingManagement.Controllers
+namespace Aplos.Areas.IE.Controllers
 {
     public class MachineMasterTransactionReportController : BaseController
     {
@@ -58,27 +58,19 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT * FROM (select MT.Id MeetingTypeId,MIH.Id MeetingId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Criticality,D.Id DepartmentId,D.UserName Department
-							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,MIH.IssueCritically Critically,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
-			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.SystemId ByWhomId,EI.EmployeeName ByWhom
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetFromDate,format((MIH.AddedDate),'dd-MMM-yyyy') TargetToDate
-							,MA.MeetingName,format((MA.Date),'dd-MMM-yyyy') MeetingDate,EINFO.EmployeeName ChairedBy,EINF.EmployeeName OrganizedBy
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate,MTP.Id TalkingPointId,MTP.TalkingPoint,MS.Id SuggestionId,MS.Suggestion
-							,MAP.Id ActionToBeTakenId,MAP.ActionToBeTaken ActionalPoint,MD.Id DecisionId,MD.Decision,MIH.Remarks
-                            from MeetingItemHeader MIH
-                            left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
-							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
-							left join EmployeeInformation EINF on EINF.SystemId=MA.MeetingOrganizedById
-							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
-							left join ORG.Department D on D.Id=MIH.DepartmentId
-                            left join MeetingType MT on MT.Id=MIH.MeetingTypeId
-							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
-							left join MeetingSuggestion MS on MS.MeetingItemHeaderId=MIH.Id
-							left join MeetingActionablePoints MAP on MAP.MeetingItemHeaderId=MIH.Id
-							left join MeetingDecision MD on MD.MeetingItemHeaderId=MIH.Id) AS KK	";
+                var sql = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.Id ProcessId,P.UserName Process
+                                            ,E.Id EntityId,E.UserName Entity,D.Id DepartmentId,D.UserName Department,DM.Id DetentionId
+											,DM.DetentionType,SD.SystemID ShiftId,SD.UserName Shift,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
+											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
+											from MachineMasterTransaction MMT
+											left join ORG.Entity E on E.Id=MMT.EntityId
+											left join HKP.Process P on P.Id=MMT.ProcessId
+											left join ORG.Department D on D.Id=MMT.DepartmentId
+											left join DetentionMaster DM on DM.Id=MMT.DetentionId
+											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId";
 
-                //return _sqlRepository.GetDataCollection(sql);
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -89,12 +81,12 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult GetMeetingReport(Dictionary<string, string> parameters)
+        public ActionResult GetMachineMasterTransactionReport(Dictionary<string, string> parameters)
         {
             try
             {
                 string fileName = "";
-                fileName = MeetingReport(parameters, "MeetingReport");
+                fileName = MachineMasterTransactionReport(parameters, "MachineMasterTransactionReport");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -104,7 +96,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
         }
 
-        public string MeetingReport(Dictionary<string, string> parameters, string SheetName)
+        public string MachineMasterTransactionReport(Dictionary<string, string> parameters, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -118,94 +110,65 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "MeetingReports";
+                workbook.Worksheets[0].Name = "MachineMasterTransactionReports";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                MeetingReportSQL(parameters, out data);
+                MachineMasterTransactionReportSQL(parameters, out data);
 
                 int ROW = 6; int COL = 1;
 
                 #region columns
-                sheet[ROW, COL].Text = "Meeting Id";
+                sheet[ROW, COL].Text = "From";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColMeetingId = COL;
+                int ColFrom = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Meeting Date";
+                sheet[ROW, COL].Text = "To";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColMeetingDate = COL;
+                int ColTo = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Meeting Name";
+                sheet[ROW, COL].Text = "Entity";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColMeetingName = COL;
+                int ColEntity = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Process";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColProcess = COL;
+                COL++;
                 sheet[ROW, COL].Text = "Department";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColDepartment = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Created By";
+                sheet[ROW, COL].Text = "Detention Type";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColCreatedBy = COL;
+                int ColDetentionType = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Meeting Type";
+                sheet[ROW, COL].Text = "Shift";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColMeetingType = COL;
+                int ColShift = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Item Title";
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int ColResponsiblePerson = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Detention Category";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDetentionCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Detention Sub Category";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColDetentionSubCategory = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Avoidable";
                 sheet[ROW, COL].ColumnWidth = 16;
-                int ColItemTitle = COL;
+                int ColAvoidable = COL;
                 COL++;
+                
                 sheet[ROW, COL].Text = "Critically";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColCritically = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Action Applicable";
-                sheet[ROW, COL].ColumnWidth = 22;
-                int ColActionApplicable = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Decision Applicable";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColDecisionApplicable = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Status";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColStatus = COL;
-                COL++;
-                sheet[ROW, COL].Text = "By Whom";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColByWhom = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Target Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColTargetDate = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Chaired By";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColChairedBy = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Actional Point";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColActionalPoint = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Talking Point";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColTalkingPoint = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Suggestion";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColSuggestion = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Meeting Decision";
-                sheet[ROW, COL].ColumnWidth = 12;
-                int ColMeetingDecision = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 6;
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                int ColRemarks = COL;
 
 
                 #endregion columns
@@ -224,27 +187,20 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColMeetingId].Text = data.Rows[i]["MeetingId"].ToString();
-                    sheet[ROW, ColMeetingDate].Text = clsStaticInfo.GetDate(data.Rows[i]["MeetingDate"].ToString());
-                    sheet[ROW, ColMeetingName].Text = data.Rows[i]["MeetingName"].ToString();
-                    sheet[ROW, ColChairedBy].Text = data.Rows[i]["ChairedBy"].ToString();
+                    sheet[ROW, ColFrom].Text = clsStaticInfo.GetDate(data.Rows[i]["From"].ToString());
+                    sheet[ROW, ColTo].Text = clsStaticInfo.GetDate(data.Rows[i]["To"].ToString());
+                    sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                    sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
                     sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
-                    sheet[ROW, ColCreatedBy].Text = data.Rows[i]["CreatedBy"].ToString();
-                    sheet[ROW, ColMeetingType].Text = data.Rows[i]["MeetingType"].ToString();
-                    sheet[ROW, ColItemTitle].Text = data.Rows[i]["ItemTitle"].ToString();
-                    sheet[ROW, ColCritically].Text = data.Rows[i]["Critically"].ToString();
-                    sheet[ROW, ColActionApplicable].Text = data.Rows[i]["ActionApplicable"].ToString();
-                    sheet[ROW, ColDecisionApplicable].Text = data.Rows[i]["DecisionApplicable"].ToString();
-                    sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
-                    sheet[ROW, ColByWhom].Text = data.Rows[i]["ByWhom"].ToString();
+                    sheet[ROW, ColDetentionType].Text = data.Rows[i]["DetentionType"].ToString();
+                    sheet[ROW, ColShift].Text = data.Rows[i]["Shift"].ToString();
+                    sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                    sheet[ROW, ColDetentionCategory].Text = data.Rows[i]["DetentionCategory"].ToString();
+                    sheet[ROW, ColDetentionSubCategory].Text = data.Rows[i]["DetentionSubCategory"].ToString();
+                    sheet[ROW, ColAvoidable].Text = data.Rows[i]["Avoidable"].ToString();
+                    sheet[ROW, ColCritically].Text = data.Rows[i]["Criticality"].ToString();
 
-                    sheet[ROW, ColTargetDate].Text = clsStaticInfo.GetDate(data.Rows[i]["TargetDate"].ToString());
 
-                    sheet[ROW, ColTalkingPoint].Text = data.Rows[i]["TalkingPoint"].ToString();
-                    sheet[ROW, ColSuggestion].Text = data.Rows[i]["Suggestion"].ToString();
-                    sheet[ROW, ColActionalPoint].Text = data.Rows[i]["ActionToBeTaken"].ToString();
-                    sheet[ROW, ColMeetingDecision].Text = data.Rows[i]["Decision"].ToString();
-                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -261,7 +217,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Meeting Report", identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol, "Machine Master Transaction Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -302,36 +258,29 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             }
         }
 
-        public void MeetingReportSQL(Dictionary<string, string> parameters, out DataTable data)
+        public void MachineMasterTransactionReportSQL(Dictionary<string, string> parameters, out DataTable data)
         {
             try
             {
 
 
-                string strSQL = @"select MA.Id MeetingId,format((MA.Date),'dd-MMM-yyyy') MeetingDate,MA.MeetingName,EINFO.EmployeeName ChairedBy,MT.Id MeetingTypeId,MT.UserName MeetingType,MIH.IssueStatus,MIH.IssueCritically Critically
-							,D.Id DepartmentId,D.UserName Department
-							,EI.SystemId CreatedById,EI.EmployeeName CreatedBy,MIH.ItemTitle,ActionApplicable=case when MIH.ActionApplicable=1 then 'Yes' else 'No' End 
-			                ,DecisionApplicable=case when MIH.DecisionApplicable=1 then 'Yes' else 'No' End,MIH.IssueStatus [Status],EI.EmployeeName ByWhom
-							,format((MIH.AddedDate),'dd-MMM-yyyy') TargetDate
-							,MTP.TalkingPoint,MS.Suggestion,MAP.ActionToBeTaken,MD.Decision,MIH.Remarks
-
-                            from MeetingItemHeader MIH
-                            left join EmployeeInformation EI on EI.SystemId=MIH.ByWhomId
-							left join ORG.Department D on D.Id=MIH.DepartmentId
-                            left join MeetingType MT on MT.Id=MIH.MeetingTypeId
-							left join MeetingAgendaItem MAI on MAI.MeetingItemHeaderId=MIH.Id
-							left join MeetingAgenda MA on MA.Id=MAI. MeetingAgendaId
-							left join EmployeeInformation EINFO on EINFO.SystemId=MA.ChairedById
-							left join MeetingTalkingPoint MTP on MTP.MeetingItemHeaderId=MIH.Id
-							left join MeetingSuggestion MS on MS.MeetingItemHeaderId=MIH.Id
-							left join MeetingActionablePoints MAP on MAP.MeetingItemHeaderId=MIH.Id
-							left join MeetingDecision MD on MD.MeetingItemHeaderId=MIH.Id
+                string strSQL = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.UserName Process,E.UserName Entity
+											,D.UserName Department,DM.DetentionType,SD.UserName Shift,EI.EmployeeName ResponsiblePerson
+											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
+											from MachineMasterTransaction MMT
+											left join ORG.Entity E on E.Id=MMT.EntityId
+											left join HKP.Process P on P.Id=MMT.ProcessId
+											left join ORG.Department D on D.Id=MMT.DepartmentId
+											left join DetentionMaster DM on DM.Id=MMT.DetentionId
+											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId
 										
-                            where MIH.DepartmentId in(" + parameters["DepartmentId"] + @")
-                            AND MIH.ByWhomId in(" + parameters["ByWhomId"] + @")
-                            AND MIH.MeetingTypeId in(" + parameters["MeetingTypeId"] + @")
-                            AND MIH.IssueStatus in(" + parameters["Status"] + @")
-                            AND MIH.Id in(" + parameters["MeetingId"] + @")";
+                            where MMT.ProcessId in(" + parameters["ProcessId"] + @")
+                            AND MMT.DepartmentId in(" + parameters["DepartmentId"] + @")
+                            AND MMT.DetentionId in(" + parameters["DetentionId"] + @")
+                            AND MMT.ShiftId in(" + parameters["ShiftId"] + @")
+                            AND MMT.ResponsiblePersonId in(" + parameters["ResponsiblePersonId"] + @")";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

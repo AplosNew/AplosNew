@@ -9,7 +9,7 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
 
     //The Filters 
     $scope.filters = [];
-    $scope.MeetingAgendaloadfilters = function () {
+    $scope.MachineMasterTransactionloadfilters = function () {
         $http({
             method: 'GET',
             url: $scope.path + 'getFilters',
@@ -17,21 +17,18 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
+                { field: 'From', width: 20, headerText: "From", type: "string" },
+                { field: 'To', width: 20, headerText: "To", type: "string" },
+                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                { field: 'Process', width: 20, headerText: "Process", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'CreatedBy', width: 20, headerText: "Created By", type: "string" },
-                { field: 'MeetingType', width: 20, headerText: "Meeting Type", type: "string" },
-                { field: 'ItemTitle', width: 20, headerText: "Item Title", type: "string" },
+                { field: 'DetentionType', width: 20, headerText: "Detention Type", type: "string" },
+                { field: 'Shift', width: 20, headerText: "Shift", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "ResponsiblePerson", type: "string" },
+                { field: 'DetentionCategory', width: 20, headerText: "Detention Category", type: "string" },
+                { field: 'DetentionSubCategory', width: 20, headerText: "Detention Sub Category", type: "string" },
+                { field: 'Avoidable', width: 20, headerText: "Avoidable/Unavoidable", type: "string" },
                 { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
-                { field: 'ActionApplicable', width: 20, headerText: "Action Applicable", type: "string" },
-                { field: 'DecisionApplicable', width: 20, headerText: "Decision Applicable", type: "string" },
-                { field: 'Status', width: 20, headerText: "Status", type: "string" },
-                { field: 'ByWhom', width: 20, headerText: "By Whom", type: "string" },
-                { field: 'TargetFromDate', width: 20, headerText: "Target From Date", type: "string" },
-                { field: 'TargetToDate', width: 20, headerText: "Target To Date", type: "string" },
-                { field: 'MeetingName', width: 20, headerText: "Meeting Name", type: "string" },
-                { field: 'MeetingDate', width: 20, headerText: "Meeting Date", type: "string" },
-                { field: 'ChairedBy', width: 20, headerText: "Chaired By", type: "string" },
-                { field: 'OrganizedBy', width: 20, headerText: "Organized By", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -50,7 +47,7 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
             $("#filters").children('.e-gridcontent').hide();
         });
     }
-    $scope.MeetingAgendaloadfilters();
+    $scope.MachineMasterTransactionloadfilters();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
@@ -63,26 +60,14 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
 
 
         var parameters = [];
+        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "ProcessId", "Value": getString(fl, "ProcessId") });
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "ByWhomId", "Value": getString(fl, "ByWhomId") });
-        parameters.push({ "Key": "MeetingTypeId", "Value": getString(fl, "MeetingTypeId") });
-        parameters.push({ "Key": "Status", "Value": getString(fl, "Status") });
-        parameters.push({ "Key": "MeetingId", "Value": getString(fl, "MeetingId") });
-        //parameters.push({ "Key": "ItemType", "Value": getString(fl, "ItemType") });
-        //parameters.push({ "Key": "Importance", "Value": getString(fl, "Importance") });
-        //parameters.push({ "Key": "ActionApplicable", "Value": getString(fl, "ActionApplicable") });
-        //parameters.push({ "Key": "DecisionApplicable", "Value": getString(fl, "DecisionApplicable") });
-        //parameters.push({ "Key": "ResponsiblePerson", "Value": getString(fl, "ResponsiblePerson") });
-        //parameters.push({ "Key": "TargetDate", "Value": getString(fl, "TargetDate") });
-        //parameters.push({ "Key": "MeetingDate", "Value": getString(fl, "TargetDate") });
-        //parameters.push({ "Key": "ExpectedPersonId", "Value": getString(fl, "AttendeeId") });
-        //parameters.push({ "Key": "TalkingPointId", "Value": getString(fl, "TalkingPointId") });
-        //parameters.push({ "Key": "SuggestionId", "Value": getString(fl, "SuggestionId") });
-        //parameters.push({ "Key": "ActionToBeTakenId", "Value": getString(fl, "ActionToBeTakenId") });
-        //parameters.push({ "Key": "DecisionId", "Value": getString(fl, "DecisionId") });
-
+        parameters.push({ "Key": "DetentionId", "Value": getString(fl, "DetentionId") });
+        parameters.push({ "Key": "ShiftId", "Value": getString(fl, "ShiftId") });
+        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        
         $scope.parameters = parameters;
-
     }
 
     var getString = function (data, column) {
@@ -102,10 +87,10 @@ function MachineMasterTransactionReportController(cboService, commonMessage, $sc
         try {
 
             $scope.filterComplete();
-            $scope.fileName = "MeetingReport.xlsx";
+            $scope.fileName = "MachineMasterTransactionReport.xlsx";
             $http({
                 method: 'POST',
-                url: $scope.path + "GetMeetingReport",
+                url: $scope.path + "GetMachineMasterTransactionReport",
                 data: { 'parameters': $scope.parameters },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
