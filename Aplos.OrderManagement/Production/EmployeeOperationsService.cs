@@ -151,6 +151,18 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> GetEmps()
+        {
+            try
+            {
+                var str = @"Select EmployeeCode , EmployeeName from dbo.EmployeeInformation";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
