@@ -1,10 +1,10 @@
 ﻿'use strict';
-CostingSOTemplateController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function CostingSOTemplateController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = "CostingSO";
+OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = "OrderLineCostingItem";
     $scope.Action = 'Save';
     $scope.FormulaDetails = [];
-    $scope.path = 'OrderManagements/CostingSOTemplate/';
+    $scope.path = 'Costings/OrderLineCostingItem/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -46,12 +46,39 @@ function CostingSOTemplateController(cboService, commonMessage, $scope, $rootSco
         });
     };
 
+    $scope.CostingTypeList = [];
+    cboService.getCostingTypesCbo(function (response) {
+        $scope.CostingTypeList = response;
+    });
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelNew.Sequence = data;
         });
     };
     $scope.GetSequence();
+
+    $scope.CostingComponentList = [];
+    $scope.GetCostingTypeComponent = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Costings/costingTypeComponent/GetCostingComponent?costingType=' + $scope.ModelNew.CostingType,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.CostingComponentList = response.data;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
 
     $scope.NoticePeriodList = [];
