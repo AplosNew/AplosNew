@@ -131,6 +131,26 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> getPODetails(string POId)
+        {
+            try
+            {
+                var str = @"Select mo.BuyerReferenceNo , mo.OwnReferenceNo , moi.ArticleId , mma.StandardName as Article
+                            from trn.ProductionOrder po
+                            left join trn.ProductionOrderDetail pod on pod.ProductionOrderId = po.Id
+                            left join trn.SalesOrder so on so.Id = pod.SalesOrderId
+                            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
+                            where po.id= '" + POId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
@@ -353,7 +373,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
