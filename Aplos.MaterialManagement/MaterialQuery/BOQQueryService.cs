@@ -123,7 +123,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
             }
         }
 
-        public IEnumerable<object> GetSpecificMaterialStockBOQ(string companyId, string plantId,string POId, string ContractId, string masterOrderitemId, string salesOrderId, string issueDate)
+        public IEnumerable<object> GetSpecificMaterialStockBOQ(string companyId, string plantId,string POId, string ContractId, string masterOrderitemId, string salesOrderId, string issueDate, string materialStorageId)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                     AND IR.[Status]='Posting' AND IR.IsFOC=0
                     ----AND ISNULL(IM.ArticleId,'')='5777' AND ISNULL(IM.FirstCharacteristicsValueId,'')='423' AND  ISNULL(IM.SecondCharacteristicsValueId,'')=''
                     --AND ISNULL(IM.ThirdCharacteristicsValueId,'')='' AND ISNULL(IM.CountryId,'')='' 
-					AND IRD.MaterialStorageId='7' 
+					AND IRD.MaterialStorageId='"+ materialStorageId + @"' 
                     --AND ISNULL(IRD.IssueQty, 1)>0 
 					AND (IRD.POId IN ("+POId+ @") OR IRD.POId IN (''))
 					AND IRD.BaseQty !=ISNULL(II.IssueQty,0)
