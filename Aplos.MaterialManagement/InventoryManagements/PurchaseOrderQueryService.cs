@@ -132,7 +132,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						select B.ID from boq B
 						join trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
 						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-						where MOI.ContractId='" + ContractId + @"'
+						where (isnull(MOI.ContractId,'')='' OR isnull(MOI.ContractId,'')='" + ContractId + @"')
 						)
 						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
                         AND b.MaterialMasterId<>'' AND b.ArticleId<>''
