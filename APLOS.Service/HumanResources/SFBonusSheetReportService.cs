@@ -518,25 +518,25 @@ namespace Library.Service.HumanResources
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.IDNo.ToString(), "ID NO."), 15, 15); colIDNO = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Name.ToString(), "Name"), 43, 15); colNAME = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Designation.ToString(), "Designation"), 27, 15); colDESIGNATION = xlscol; xlscol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCategory.ToString(), "Employee Category"), 27, 15); colEmpCategory = xlscol; xlscol++;
-                sheet[row, xlscol].Text = "Job Location";
-                sheet[row, xlscol].ColumnWidth = 27;
-                sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet[row, xlscol].CellStyle.Font.Bold = true;
-                sheet[row, xlscol].CellStyle.Font.Size = 15;
-                colJobLocation = xlscol;
-                xlscol++;
+                //reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.EmployeeCategory.ToString(), "Employee Category"), 27, 15); colEmpCategory = xlscol; xlscol++;
+                //sheet[row, xlscol].Text = "Job Location";
+                //sheet[row, xlscol].ColumnWidth = 27;
+                //sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet[row, xlscol].CellStyle.Font.Bold = true;
+                //sheet[row, xlscol].CellStyle.Font.Size = 15;
+                //colJobLocation = xlscol;
+                //xlscol++;
 
-                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Department.ToString(), "Department"), 27, 15); colDepartment = xlscol; xlscol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Section.ToString(), "Section"), 27, 15); colSection = xlscol; xlscol++;
-                reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.SubSection.ToString(), "Sub Section"), 27, 15); colSubSection = xlscol; xlscol++;
-                sheet[row, xlscol].Text = "Budgeted Line";
-                sheet[row, xlscol].ColumnWidth = 27;
-                sheet[row, xlscol].CellStyle.Font.Size = 15;
-                sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet[row, xlscol].CellStyle.Font.Bold = true;
-                colBudgetedLine = xlscol;
-                xlscol++;
+                //reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Department.ToString(), "Department"), 27, 15); colDepartment = xlscol; xlscol++;
+                //reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Section.ToString(), "Section"), 27, 15); colSection = xlscol; xlscol++;
+                //reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.SubSection.ToString(), "Sub Section"), 27, 15); colSubSection = xlscol; xlscol++;
+                //sheet[row, xlscol].Text = "Budgeted Line";
+                //sheet[row, xlscol].ColumnWidth = 27;
+                //sheet[row, xlscol].CellStyle.Font.Size = 15;
+                //sheet[row, xlscol].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet[row, xlscol].CellStyle.Font.Bold = true;
+                //colBudgetedLine = xlscol;
+                //xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.TotalSalary.ToString(), "Total Salary"), 16, 15); colGROSS = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.Basic.ToString(), "Basic"), 16, 15); colBASIC = xlscol; xlscol++;
                 reportUtility.SetHeaderText(ref sheet, row, xlscol, reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.DOJ.ToString(), "DOJ"), 31, 15); colJOINDATE = xlscol; xlscol++;
@@ -595,6 +595,7 @@ namespace Library.Service.HumanResources
                 var Row_Total_end = 0;
                 Row_Total_Start = row;
                 string employeeName = "";
+                string LocalDesigName = "";
                 for (int n = 0; n < dtLocal.Rows.Count; n++)
                 {
                     xlscol = 1;
@@ -603,39 +604,34 @@ namespace Library.Service.HumanResources
                     if (string.IsNullOrEmpty(languageId))
                     {
                         employeeName = dtLocal.Rows[n]["EmployeeName"].ToString();
+                        LocalDesigName = dtLocal.Rows[n]["Designation"].ToString();
+                        
                     }
                     else
                     {
                         if (localLanguage.ToUpper() == "English".ToUpper())
                         {
                             employeeName = dtLocal.Rows[n]["EmployeeName"].ToString();
+                            LocalDesigName = dtLocal.Rows[n]["Designation"].ToString();
                         }
                         else
                         {
                             employeeName = dtLocal.Rows[n]["EmployeeNameLocal"].ToString();
+                            LocalDesigName = dtLocal.Rows[n]["Designation"].ToString();
                         }
                     }
 
                     reportUtility.SetText(ref sheet, row, colSL, sl.ToString(), 0, 0, 17);
                     reportUtility.SetText(ref sheet, row, colIDNO, dtLocal.Rows[n]["EmployeeCode"].ToString(), 0, 0, 17);
                     reportUtility.SetText(ref sheet, row, colNAME, employeeName, 0, 0, 17);
-                    reportUtility.SetText(ref sheet, row, colDESIGNATION, dtLocal.Rows[n]["Designation"].ToString(), 0, 0, 17);
-                    sheet[row, colEmpCategory].Text = dtLocal.Rows[n]["EmployeeCategory"].ToString();
-                    sheet[row, colEmpCategory].CellStyle.Font.Size = 17;
-                    sheet[row, colJobLocation].Text = dtLocal.Rows[n]["JobLocation"].ToString();
-                    sheet[row, colJobLocation].CellStyle.Font.Size = 17;
-
-                    sheet[row, colDepartment].Text = dtLocal.Rows[n]["Department"].ToString();
-                    sheet[row, colDepartment].CellStyle.Font.Size = 17;
-
-                    sheet[row, colSection].Text = dtLocal.Rows[n]["EmployeeSection"].ToString();
-                    sheet[row, colSection].CellStyle.Font.Size = 17;
-
-                    sheet[row, colSubSection].Text = dtLocal.Rows[n]["EmployeeSubSection"].ToString();
-                    sheet[row, colSubSection].CellStyle.Font.Size = 17;
-
-                    sheet[row, colBudgetedLine].Text = dtLocal.Rows[n]["BudgetedLine"].ToString();
-                    sheet[row, colBudgetedLine].CellStyle.Font.Size = 17;
+                    reportUtility.SetText(ref sheet, row, colDESIGNATION, LocalDesigName, 0, 0, 17);
+                    sheet.Range[row, colDESIGNATION].WrapText = true;
+                    //reportUtility.SetText(ref sheet, row, colEmpCategory, dtLocal.Rows[n]["EmployeeCategory"].ToString(), 0, 0, 17);
+                    //reportUtility.SetText(ref sheet, row, colJobLocation, dtLocal.Rows[n]["JobLocation"].ToString(), 0, 0, 17);
+                    //reportUtility.SetText(ref sheet, row, colDepartment, dtLocal.Rows[n]["Department"].ToString(), 0, 0, 17);
+                    //reportUtility.SetText(ref sheet, row, colSection, dtLocal.Rows[n]["EmployeeSection"].ToString(), 0, 0, 17);
+                    //reportUtility.SetText(ref sheet, row, colSubSection, dtLocal.Rows[n]["EmployeeSubSection"].ToString(), 0, 0, 17);
+                    //reportUtility.SetText(ref sheet, row, colBudgetedLine, dtLocal.Rows[n]["BudgetedLine"].ToString(), 0, 0, 17);
 
 
                     sheet.Range[row, colGROSS].Number = Convert.ToDouble(dtLocal.Rows[n]["Gross"].ToString());
@@ -777,41 +773,12 @@ namespace Library.Service.HumanResources
                 reportUtility.SetTextMiddle(ref sheet, row, colNETPAYABLE, "GM (AHRC)", true, 25, 15);
                 sheet[reportUtility.GetColumnNameForXls(colNETPAYABLE) + row + ":" + reportUtility.GetColumnNameForXls(colSIGNATURE) + row].Merge();
 
-                #region Report header
+                
+
+                #region ******************Report Header******************
                 objRpt.SelectedPlantWiseCompany(plantId, languageId, out dsCmp);
-                row = 1;
-                xlscol = 1;
-                string strPath = "";
-                Image companyLogo = null;
-                try
-                {
-                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), companyId + ".jpg");  // IDCardEng.xlsx
-                    companyLogo = Image.FromFile(strPath);
-                }
-                catch (Exception)
-                {
-                }
-
-                try
-                {
-
-                    if (companyLogo != null)
-                    {
-                        double totalWidth = sheet.GetColumnWidth(1) + sheet.GetColumnWidth(2);
-                        int totalWidthPixel = (int)(totalWidth * 7.5);
-                        int totalheight = (int)((sheet.GetRowHeight(1) + sheet.GetRowHeight(2) + sheet.GetRowHeight(3) + sheet.GetRowHeight(3)) * 2.0);
-
-                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                        IPictureShape pic = null;
-
-                        pic = sheet.Pictures.AddPicture(1, 1, companyLogo);
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                }
-
+               int xlsRow = 1;
+                int xlsCol = 1;
 
                 FactoryName = string.Empty;
 
@@ -819,9 +786,7 @@ namespace Library.Service.HumanResources
 
                 if (dsCmp.Tables[0].Rows.Count > 0)
                 {
-
                     CmpName = dsCmp.Tables[0].Rows[0]["CompanyNameLocal"].ToString();
-
                 }
                 else
                 {
@@ -848,52 +813,53 @@ namespace Library.Service.HumanResources
                 {
                     FactoryAddress = "";
                 }
-                sheet.Range[row, 3].Text = CmpName + " (" + FactoryName + ")";
-                sheet.Range[row, 3].CellStyle.Font.Size = 35;
-                sheet.Range[row, 3].CellStyle.Font.FontName = printFont;
-                sheet.Range[row, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[row, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[row, 3, row, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                //sheet.Range[row, 3, row, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
-                sheet.Range[row, 3, row, endXlsCol - 2].RowHeight = 46;
+                sheet.Range[xlsRow, 1].Text = CmpName + " ( " + FactoryName + " )";
+                sheet.Range[xlsRow, 1].CellStyle.Font.Size = 40;
+                sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
 
-                row++;
-                sheet.Range[row, 3].Text = FactoryAddress;
-                sheet.Range[row, 3].CellStyle.Font.Size = 25;
-                sheet.Range[row, 3].CellStyle.Font.FontName = printFont;
+                sheet.Range[xlsRow, 1].CellStyle.Font.FontName = printFont;
 
-                sheet.Range[row, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[row, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[row, 3, row, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                //sheet.Range[row, 3, row, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
-                sheet.Range[row, 3, row, endXlsCol - 2].RowHeight = 46;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].Merge();
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].RowHeight = 50;
 
-                sheet.Range[row, endXlsCol - 1].Text = "Print Date: " + DateTime.Now.ToString("dd-MMM-yyy");
-                sheet.Range[row, endXlsCol - 1].CellStyle.Font.Size = 17;
-                sheet.Range[row, endXlsCol - 1, row, endXlsCol].Merge();
-                sheet.Range[row, endXlsCol - 1, row, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                xlsRow++;
+                sheet.Range[xlsRow, 1].Text = FactoryAddress;
+                sheet.Range[xlsRow, 1].CellStyle.Font.Size = 35;
+                sheet.Range[xlsRow, 1].CellStyle.Font.FontName = printFont;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].Merge();
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].RowHeight = 38;
+                sheet.Range[xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-
-                sheet.Range[row, endXlsCol - 1].CellStyle.Font.FontName = "ArialNarrow";
-                sheet.Range[row, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet.Range[xlsRow - 1, endXlsCol].Text =  "Print Date: " + DateTime.Now.ToString("dd-MMM-yyy");
+                sheet.Range[xlsRow - 1, endXlsCol].CellStyle.Font.Size = 17;
+                sheet.Range[xlsRow - 1, endXlsCol].CellStyle.Font.FontName = "ArialNarrow";
+                sheet.Range[xlsRow - 1, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 string yearLocal = reportUtility.cnDgt(Convert.ToDateTime(cutoffdate).Year.ToString(), localLanguage);
 
-                row += 1;
-                sheet.Range[row, 3].Text = reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.BonusSheet.ToString(), "Bonus Sheet") + "::" + reportHeader + "::" + reportUtility.ChangeMonth(Convert.ToDateTime(cutoffdate).ToString("MMM"), localLanguage) + "-" + yearLocal; //_payRegisterLocal + "," + ru.ChangeMonth(Convert.ToDateTime(para.FromDate).ToString("MMM"), "Bengali") + "," + yearLocal;
-                sheet.Range[row, 3].CellStyle.Font.FontName = printFont;
+                xlsRow += 1;
+                
+                sheet.Range[xlsRow, xlsCol].Text = reportUtility.GetLabelname(labelList, LabelNameInLocalLanguage.BonusSheet.ToString(), "Bonus Sheet") + ":" + reportHeader + reportUtility.ChangeMonth(Convert.ToDateTime(cutoffdate).ToString("MMM"), localLanguage) + "-" + yearLocal; //_payRegisterLocal + "," + ru.ChangeMonth(Convert.ToDateTime(para.FromDate).ToString("MMM"), "Bengali") + "," + yearLocal;
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.FontName = printFont;
 
-                sheet.Range[row, 3].CellStyle.Font.Size = 35;
-                sheet.Range[row, 3].CellStyle.Font.Bold = true;
-                //sheet.Range[row, 1, row, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenterAcrossSelection;
-                sheet.Range[row, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[row, 3, row, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                sheet.Range[row, 3, row, endXlsCol - 2].RowHeight = 40;
-                //sheet.Range[row, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                row += 2;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].Merge();
+                sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 40;
+                sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol - 1].RowHeight = 50;
+                sheet.Range[xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
-                #endregion
 
+
+                #endregion ******************Report Header******************
 
                 #region Freeze Panes
                 sheet.UsedRange["A6"].FreezePanes();
@@ -908,17 +874,18 @@ namespace Library.Service.HumanResources
 
                 #region Page Setup
                 sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.7;
+                sheet.PageSetup.BottomMargin = 0.0;
 
                 sheet.PageSetup.PrintTitleRows = "$A$1:$IV$5";
                 sheet.PageSetup.RightFooter = "&\"Times New Roman\"&15" + "Page " + "&p" + " of " + "&N";
-                sheet.PageSetup.LeftMargin = 0.5;
+                sheet.PageSetup.LeftMargin = 0.3;
                 sheet.PageSetup.RightMargin = 0.2;
                 sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
                 sheet.PageSetup.FitToPagesTall = 0;
                 sheet.PageSetup.FitToPagesWide = 1;
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 #endregion
+
                 return workbook;
             }
             catch (Exception ex)
@@ -1117,7 +1084,7 @@ namespace Library.Service.HumanResources
                     "where  EffectiveDate='" + cutoffdate + "') ";
 
                 string sqlText = @"SELECT e.SystemId,e.EmployeeCode,ISNULL(E.EmployeeNameLocal,EmployeeName) EmployeeNameLocal,E.EmployeeName
-            ,ISNULL(ebi.BankAccNo,'') BankAccNo,ISNULL(locald.Name,d.UserName) Designation,ISNULL(hg.EntryAmount,0) Gross,ISNULL(hb.EntryAmount,0) [Basic]
+            ,ISNULL(ebi.BankAccNo,'') BankAccNo,ISNULL(locald.Name,d.UserName) Designation, locald.Name DesignationLocal,ISNULL(hg.EntryAmount,0) Gross,ISNULL(hb.EntryAmount,0) [Basic]
                 --,DOJ
                 ,Replace(CONVERT(VARCHAR(11), DOJ, 106), ' ', '-') DOJ
                 ,Replace(CONVERT(VARCHAR(11), DOS, 106), ' ', '-') DOS
@@ -1134,7 +1101,7 @@ namespace Library.Service.HumanResources
 				,s.userName EmployeeSection,ss.UserName EmployeeSubSection,l.UserName BudgetedLine
                 FROM EmployeeInformation e
                 left join hkp.LegalDesignation d on e.LegalDesignationId=d.id
-                 LEFT JOIN hkp.LocalLanguage locald on locald.LegalDesignationId=d.id and LanguageId = ''
+                 LEFT JOIN hkp.LocalLanguage locald on locald.LegalDesignationId=d.id and LanguageId = '"+ languageId + @"'
 				 LEFT JOIN EmployeeBankInfo ebi on ebi.EmpSystemID = e.SystemId
 				 LEFT JOIN HKP.Bank Bank on ebi.BankSystemID = Bank.Id
 

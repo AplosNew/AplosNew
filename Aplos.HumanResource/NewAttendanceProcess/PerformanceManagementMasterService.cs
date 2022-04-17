@@ -919,6 +919,118 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    public class EmployeeGoalSetting
+    {
+        SqlRepository _sqlRepository;
+        public EmployeeGoalSetting()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPerformancePeriod()
+        {
+            try
+            {
+                //string TableName = "dbo.PerformancePeriod pp";
+                string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp 
+                            left join dbo.EmployeeGoalSetting egs on egs.PerformanceYearId = pp.Id";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getEmployee()
+        {
+            try
+            {
+                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.PresentAddress1 ,ei.EmployeeCode, ei.DepartmentId, 
+                            ei.DesignationGroupId, ei.DesignationSystemID,  ei.PositionID, ei.EmployeeCurrentStatus,
+                            ei.EmpType, ei.EmploymentType, ei.JobLocationID 
+                            from dbo.EmployeeInformation ei
+                            left join dbo.EmployeeGoalSetting egs on egs.EmployeeId = ei.SystemId
+                            where ei.EmployeeStatus = 'Active'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> getPMSMaster()
+        {
+            var str = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
+                        pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
+                        left join PMSChild pc on pms.Id=pc.PMSMasterId
+                        left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
+                        left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
+                        left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
+                        left join EmployeeInformation e on e.BudgetCode=mp.Id";
+            return _sqlRepository.GetDataCollection(str);
+        }
+
+        public IEnumerable<object> getEGSList(string Id)
+        {
+            try
+            {
+                var str = @"select egc.ObjectiveName, egc.ObjectiveDetail, egc.CostSaving,
+                            egc.Value, egc.Attachment, egc.AssesmentDate, egc.ObjNameClosingDate,
+                            egc.MaxStoryPoints, egc.Remarks from dbo.EmployeeGoalSettingChild egc                            
+                             where egc.Id ='" + Id + "' ";
+
+                DataTable dtChild = _sqlRepository.GetDataTable(str);
+
+
+                if (dtChild.Rows.Count > 0)
+                {
+                    return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                }
+                else
+                {
+                    var sql = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
+                        pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
+                        left join PMSChild pc on pms.Id=pc.PMSMasterId
+                        left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
+                        left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
+                        left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
+                        left join EmployeeInformation e on e.BudgetCode=mp.Id
+                        where pms.Id ='" + Id + "' ";
+                    DataTable dtSkill = _sqlRepository.GetDataTable(sql);
+
+                    for (int i = 0; i < dtSkill.Rows.Count; i++)
+                    {
+                        for (int j = 1; j <= 6; j++)
+                        {
+                            DataRow dr = dtChild.NewRow();
+                            dr["ObjectiveName"] = null;                            
+                            dr["Value"] = 0;                           
+                            dr["ObjectiveDetail"] = null;
+                            dr["Attachment"] = null;
+                            dr["AssesmentDate"] = null;
+                            dr["ObjNameClosingDate"] = null;
+                            dr["MaxStoryPoints"] = 0.0;
+                            dr["Remarks"] = null;
+                            
+                            dtChild.Rows.Add(dr);
+                        }
+                    }
+                }
+
+                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
+
 }
 
 

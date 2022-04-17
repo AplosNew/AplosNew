@@ -130,8 +130,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
 						where b.Id in (
 						select B.ID from boq B
-						join CostingBOQSalesOrder BSO on b.CostingBOQMasterId=Bso.CostingBOQMasterId
-						join trn.SalesOrder SO ON SO.Id=bso.SalesOrderId
+						join trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
 						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
 						where MOI.ContractId='" + ContractId + @"'
 						)
