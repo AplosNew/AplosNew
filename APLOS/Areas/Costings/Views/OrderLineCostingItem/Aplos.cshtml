@@ -1,4 +1,4 @@
-﻿<togglable name="Costing SO Formula"></togglable>
+﻿<togglable name="Order Line Costing Item"></togglable>
 
 <div class="row">
     <div id="main" ng-form name="CostingSOFormulaForm">
@@ -82,9 +82,25 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Costing Segment<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Costing Segment" ng-model="ModelNew.CostingSegment" class="form-control" required tabindex="5" maxlength="50">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.CostingType"
+                                    ng-options="item.Value as item.Text for item in CostingTypeList" id="CostingType" ng-change="GetCostingTypeComponent();" name="Costing Type" tabindex="7" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Costing Component<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="Costing Component" id="Costing Component" ng-model="ModelNew.CostingComponentId" required tabindex="7">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in CostingComponentList" value="{{option.Id}}">{{option.UserName}}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -98,7 +114,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="col-sm-12">
                 <fieldset class="scheduler-border" style="width:1076px">

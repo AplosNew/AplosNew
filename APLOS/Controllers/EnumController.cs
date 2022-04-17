@@ -739,5 +739,10 @@ namespace Aplos.Controllers
         {
             return Json(new SelectList(EnumService.GetEnumCbo<POInvoiceCriticality>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetCostingSOEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<CostingSO>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
     }
 }

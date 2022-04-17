@@ -723,5 +723,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
             controller: 'EmployeeGoalSettingController'
         })
+        .when('/employee-understanding-head', {
+            templateUrl: 'humanResource/EmployeeUnderstandingHead/Aplos',
+            controller: 'EmployeeUnderstandingHeadController'
+        })
         ;
 }
