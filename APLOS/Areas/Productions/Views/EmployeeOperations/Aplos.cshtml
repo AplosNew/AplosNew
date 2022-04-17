@@ -154,7 +154,7 @@
                     </ul>
                 </div>
                 <div class="table-responsive ">
-                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
+                    <div id="EmpEditsGrid" ej-grid e-datasource="ModelList" e-queryCellInfo="PeriodValidation" e-actionComplete="refreshPage"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                         <div e-columns>
@@ -163,6 +163,7 @@
                             <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
                             <div e-column e-field="WIP" e-headertext="WIP" e-width="30"></div>
                             <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
+                            <div e-column e-field="EmpName" e-headertext="Employee Name"  e-textalign="center" e-width="80"></div>
 
                             <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 

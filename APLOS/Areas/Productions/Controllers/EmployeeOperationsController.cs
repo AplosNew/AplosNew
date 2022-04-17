@@ -70,6 +70,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetEmps()
+        {
+            return Json(eo.GetEmps(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetShift()
         {
             return Json(eo.GetShift(), JsonRequestBehavior.AllowGet);

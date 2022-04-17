@@ -32,6 +32,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.POList = [];
     $scope.PeriodList = [];
     $scope.ModelList = [];
+    $scope.EmployeeList = [];
 
     let wipNos = {};
 
@@ -70,6 +71,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'GetShift',
         }).then(function succ(resp) {
             $scope.ShiftList = resp.data;
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmps',
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
         });
 
     }
@@ -156,7 +164,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 , 'Remarks':null });
+                Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 , 'Remarks':null , 'EmpName':null});
                 //$scope.refreshPage();
                 if ($scope.ModelList[i].Sequence in wipNos) {
                     continue;
@@ -170,10 +178,26 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    function refresh() {
+        var gridObj = $("#EmpEditsGrid").data("ejGrid");
+        gridObj.dataSource($scope.ModelList);
+    }
 
    // While Changing the Places
     $scope.changeInData = function (e, col) {
         e.isChanged = 1;
+
+        if (col == 'emp') {
+            //const results = $scope.EmployeeList.filter(object => Object.values($scope.EmployeeList).some(i => i.includes(e.EmployeeCode)));
+            //console.log(results);
+
+            for (var i = 0; i < $scope.EmployeeList.length; i++) {
+                if ($scope.EmployeeList[i].EmployeeCode == e.EmployeeCode) {
+                    e.EmpName = $scope.EmployeeList[i].EmployeeName;
+                }
+            }
+        }
+
         if (col === 'qty' && e.Sequence != 1) {
             let prevQty = 0;
             for (var i = 0; i < $scope.ModelList.length; i++) {
@@ -194,7 +218,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             
         }
-       
+        refresh();
 
     }
 
