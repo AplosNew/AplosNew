@@ -664,6 +664,13 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.EmployeeAdvanceQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetEmployeeAvilabeAdvanceSalaryList(GridParameter parameters)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.EmployeeAdvanceSalaryQuery(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.EmployeeAdvance), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetEmployeeAvilabeTotalAdvanceList(GridParameter parameters)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
@@ -878,7 +885,15 @@ namespace Aplos.Areas.Accounts.Controllers
                     || voucherVM.PaymentSource == PaymentSource.Bank.ToString() && voucherVM.Amount == 0 || voucherVM.Amount.ToString() == null)
                     throw new CustomException("Please Input Amount.");
             }
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertEmployeeTotalAdvanceWriteOff(voucherVM, voucherDetailList)) });
+            if (voucherVM.EmployeeTransactionTypeId == "2")
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertEmployeeAdvanceWriteOff(voucherVM, voucherDetailList)) });
+            }
+            else
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _advanceWriteOffService.InsertEmployeeTotalAdvanceWriteOff(voucherVM, voucherDetailList)) });
+            }
+           
         }
 
         [HttpPost]

@@ -122,6 +122,15 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
+    $http({
+        method: 'GET',
+        url: 'currencies/CompanyParallelCurrency/CboParallelCurrency'
+    }).then(function successCallback(response) {
+        $scope.baseCurrencyId = response.data[0].Value;
+        $scope.productNew.BaseCurrencyId = response.data[0].Value;
+        factoryService.getCurrencyPrecision($scope.baseCurrencyId);
+    });
+
     $scope.showPartyPopUpNew = function () {
         if ($scope.partyType === 'Vendor') {
             $scope.partyUrl = 'Products/GoodsReceiveNote/GetGRNBOQPartyListNew?partyType=' + $scope.partyType;
@@ -1544,13 +1553,13 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         $scope.masterId5 = inveReveiveId;
         $http.get($scope.path + 'GetInventoryMaterialListBOQ?inveReveiveId=' + inveReveiveId + '&POID=' + $scope.POID + '&AcceptanceId=' + $scope.AcceptanceId)
             .then(function (response) {
-                $scope.inventoryMaterialList = [];
-                $scope.inventoryMaterialList = response.data.Rows;
-                $scope.POIDs = $scope.inventoryMaterialList.POId;
+                $scope.MasterList = [];
+                $scope.MasterList = response.data.Rows;
+                $scope.POIDs = $scope.MasterList.POId;
                 //$scope.productNew.CheckedBy = $scope.inventoryMaterialList[0].CheckedBy;
-                $scope.productNew.PODate = $scope.inventoryMaterialList[0].AddedDate;
-                checkSameValueInColumnListBOQ($scope.inventoryMaterialList, 'TransactionUoM');
-                getGrossAmountBOQ($scope.inventoryMaterialList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
+                $scope.productNew.PODate = $scope.MasterList[0].AddedDate;
+                checkSameValueInColumnListBOQ($scope.MasterList, 'TransactionUoM');
+                getGrossAmountBOQ($scope.MasterList, 'BaseAmount', 'BaseTaxAmount', 'ChargesAmount', 'grossTotal');
                 $scope.GetMaterialTaxDataBOQ();
             });
     }
@@ -1577,10 +1586,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }).then(function (response) {
             $scope.MaterialTaxList = response.data;
 
-            for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-                var linepk = $scope.inventoryMaterialList[i].InventoryReceiveDetailId;
+            for (var i = 0; i < $scope.MasterList.length; i++) {
+                var linepk = $scope.MasterList[i].InventoryReceiveDetailId;
                 var list = getMaterialtaxlistBOQ(linepk);
-                $scope.inventoryMaterialList[i].MaterialTaxList = list;
+                $scope.MasterList[i].MaterialTaxList = list;
             }
         });
     };

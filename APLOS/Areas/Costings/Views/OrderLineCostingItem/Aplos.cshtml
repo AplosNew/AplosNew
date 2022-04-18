@@ -1,4 +1,4 @@
-﻿<togglable name="Costing SO Formula"></togglable>
+﻿<togglable name="Order Line Costing Item"></togglable>
 
 <div class="row">
     <div id="main" ng-form name="CostingSOFormulaForm">
@@ -47,11 +47,16 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">SOItem Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="SOItem Name" ng-model="ModelNew.SOItemName" class="form-control" required tabindex="5" maxlength="50">
+                        <div class="select-style">
+                            <select class="form-control" name="SOItem Name" id="SOItemName" ng-model="ModelNew.SOItemName" required tabindex="7">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in CostingSOList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">IsFixedValue</label>
+                    <label class="col-sm-4 control-label">Is Fixed Value</label>
                     <div class="col-sm-2">
                         <div class="checkbox-site">
                             <label>
@@ -61,8 +66,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group" ng-hide="ModelNew.IsFixedValue==false">
-                    <label class="col-sm-4 control-label">ValueInPercentage<sup>*</sup></label>
+                <div class="form-group" ng-show="ModelNew.IsFixedValue==false">
+                    <label class="col-sm-4 control-label">Value In Percentage<sup>*</sup></label>
                     <div class="col-sm-8">
                         <input type="text" name="ValueInPercentage" n-decimals="2" ng-model="ModelNew.ValueInPercentage" class="form-control" tabindex="5">
                     </div>
@@ -82,9 +87,25 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Costing Segment<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="Costing Segment" ng-model="ModelNew.CostingSegment" class="form-control" required tabindex="5" maxlength="50">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.CostingType"
+                                    ng-options="item.Value as item.Text for item in CostingTypeList" id="CostingType" ng-change="GetCostingTypeComponent();" name="Costing Type" tabindex="7" required>
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Costing Component<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="Costing Component" id="Costing Component" ng-model="ModelNew.CostingComponentId" required tabindex="7">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in CostingComponentList" value="{{option.Id}}">{{option.UserName}}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -98,7 +119,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="col-sm-12">
                 <fieldset class="scheduler-border" style="width:1076px">
@@ -197,15 +218,16 @@
     </div>
 </div>
 <div class="aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
             <div e-column e-field="LineItemCostingSandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="CostingSegment" e-headertext="CostingSegment" e-width="5"></div>
+            <div e-column e-field="CostingType" e-headertext="Costing Type" e-width="5"></div>
+            <div e-column e-field="CostingComponent" e-headertext="Costing Component" e-width="5"></div>
             <div e-column e-field="SOItemName" e-headertext="SOItemName" e-width="5"></div>
             <div e-column e-field="Formula" e-headertext="Formula" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>

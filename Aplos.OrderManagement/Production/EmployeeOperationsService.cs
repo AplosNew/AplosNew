@@ -131,6 +131,38 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> getPODetails(string POId)
+        {
+            try
+            {
+                var str = @"Select mo.BuyerReferenceNo , mo.OwnReferenceNo , moi.ArticleId , mma.StandardName as Article
+                            from trn.ProductionOrder po
+                            left join trn.ProductionOrderDetail pod on pod.ProductionOrderId = po.Id
+                            left join trn.SalesOrder so on so.Id = pod.SalesOrderId
+                            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
+                            where po.id= '" + POId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> GetEmps()
+        {
+            try
+            {
+                var str = @"Select EmployeeCode , EmployeeName from dbo.EmployeeInformation";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
@@ -353,7 +385,7 @@ namespace Library.OrderManagement.Production
                     else
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
-                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i-1]["Qty"].ToString());
+                        dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
@@ -1067,6 +1099,41 @@ namespace Library.OrderManagement.Production
         }
         #endregion Constructor
 
+
+        public IEnumerable<object> BalanceChecker(string ProdOrderId, string ProcessId,string Curr,string Prev)
+        {
+            try
+            {
+                var Sql = @"select dd.*,(dd.Qty-dd.CurrentBooking) as Balance 
+                from (select OP.UserName as PrevOperation,bt.Sequence as PrevSeq,SUM(ope.Qty)Qty,
+                isnull((select isnull(SUM(ope.qty),'0') from 
+                OperationWiseEmployees ope 
+                left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId + @"' AND bt.Sequence='"+Curr+@"' and
+							PT.ProcessId='" + ProcessId + @"'
+                            ),'0')as CurrentBooking
+                            from 
+                            OperationWiseEmployees ope 
+                            left join mst.OperationVariation OP on op.Id=ope.OperationVariationId
+                            join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
+                            join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
+                            join trn.ProductionBulletinTemplate pb on pb.Id=pt.ProductionBulletinTemplateId
+                            where pb.ProductionOrderId='" + ProdOrderId+@"' AND bt.Sequence='"+Prev+@"' and
+							PT.ProcessId='"+ProcessId+@"' 
+							group by bt.Sequence,op.UserName
+							) as dd
+							order by dd.PrevSeq";
+                return _sqlRepository.GetDataCollection(Sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetOperation(string ProdOrderId,string ProcessId)
         {
             try
@@ -1088,7 +1155,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeName as Text 
+                var Sql = @"select distinct ope.EmployeeId as Value,emp.EmployeeCode,emp.EmployeeName as Text 
                 from dbo.OperationWiseEmployees ope 
                     left join dbo.EmployeeInformation emp on ope.EmployeeId=emp.SystemId
                     where ope.AddedBy='" + AddedBy + "' and ope.WorkCenterId='" + WkId + "' and ope.OperationVariationId='" + OPId + "'";
@@ -1333,7 +1400,17 @@ namespace Library.OrderManagement.Production
                                         left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
                                         left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
                                         left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
-                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+@"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,                   
+                                        where po.Id="+PoId+@" and po.EntityId='"+EntityId+ @"' for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,   
+                                BuyerReferenceNo =STUFF((select distinct ','+XMO.BuyerReferenceNo from
+                                    trn.SalesOrder XSO                                        
+                                        JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+                                        LEFT JOIN TRN.ProductionOrder po on po.Id=Xpod.ProductionOrderId
+                                        left outer join trn.MasterOrderItem XMOI on Xmoi.Id=Xso.MasterOrderItemId
+                                        left outer join trn.MasterOrder XMO on Xmo.Id=Xmoi.MasterOrderId
+                                        left outer join [HKP].Buyer XB on XB.Id=XMO.BuyerId                                                                     
+                                        where po.Id='"+PoId+@"' 
+										and po.EntityId='"+EntityId+@"' for 
+										xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')  ,
                                     dp.Qty,(emp.EmployeeName) Employee,dp.EmployeeId as EmpId, opv.id as OperationId,
                                     opv.UserName as Operation,dp.AddedBy,dp.ProductionOrderId as POId,Pr.UserName as Process,
                                     Wc.UserName as WorkCenter,sh.UserName as Shift from 
@@ -1343,7 +1420,7 @@ namespace Library.OrderManagement.Production
                                     left join mst.OperationVariation opv on dp.OperationVariationId=opv.Id
                                     left join dbo.ShiftDefination sh on dp.ShiftId=sh.SystemID
                                     left join dbo.EmployeeInformation emp on dp.EmployeeId=emp.SystemId                      
-                                    where isnull(dp.Date, '') = '"+ProdnDate+@"'
+                                    where isnull(dp.Date, '') = '" + ProdnDate+@"'
                                     and isnull(dp.ProcessId,'')= '"+ProcessId+"' and isnull(dp.ShiftId,'')= '"+ShiftId+@"' and 
                                     isnull(dp.WorkCenterId,'')='"+WkId+"' and isnull(dp.ProductionOrderId,'')='"+PoId+@"' 
                                     and isnull(dp.OperationVariationId,'')='"+OPId+"'";

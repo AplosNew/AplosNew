@@ -1759,7 +1759,8 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 'contractId': ContractId,
                 'masterOrderitemId': masterOrderitemId,
                 'salesOrderId': SalesOrderId,
-                'issueDate': $scope.productNew.IssueDate
+                'issueDate': $scope.productNew.IssueDate,
+                'materialStorageId': $scope.productNew.MaterialStorageId
             }
             , dataType: 'JSON'
         }).then(function (response) {

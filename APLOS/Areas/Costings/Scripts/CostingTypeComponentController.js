@@ -185,7 +185,6 @@ function CostingTypeComponentController(commonMessage, $scope, $rootScope, baseS
                 }
                 else {
                     $scope.SelectedCostingComponetList = response.data;
-                    console.log($scope.SelectedCostingComponetList);
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

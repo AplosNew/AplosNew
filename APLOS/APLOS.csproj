@@ -634,6 +634,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTConfirmationProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeUnderstandingHeadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekDefinitionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
@@ -669,6 +670,7 @@
     <Compile Include="Areas\IE\Controllers\GaugeFolderController.cs" />
     <Compile Include="Areas\IE\Controllers\LineLayoutForProductionBulletinController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMapController.cs" />
+    <Compile Include="Areas\IE\Controllers\MachineMasterTransactionReportController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterTransactionController.cs" />
     <Compile Include="Areas\IE\Controllers\MachineMasterUIController.cs" />
     <Compile Include="Areas\IE\Controllers\OperationConsumptionController.cs" />
@@ -715,7 +717,7 @@
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingTypeController.cs" />
     <Compile Include="Areas\MeetingManagement\MeetingManagementAreaRegistration.cs" />
-    <Compile Include="Areas\OrderManagements\Controllers\CostingSOTemplateController.cs" />
+    <Compile Include="Areas\Costings\Controllers\OrderLineCostingItemController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
@@ -2009,6 +2011,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekDefinitionController.js" />
@@ -2038,6 +2041,7 @@
     <Content Include="Areas\IE\Scripts\elementCodeController.js" />
     <Content Include="Areas\IE\Scripts\LineLayoutForProductionBulletinController.js" />
     <Content Include="Areas\IE\Scripts\MachineMapController.js" />
+    <Content Include="Areas\IE\Scripts\MachineMasterTransactionReportController.js" />
     <Content Include="Areas\IE\Scripts\MachineMasterTransactionController.js" />
     <Content Include="Areas\IE\Scripts\productionSystemAllowanceController.js" />
     <Content Include="Areas\IE\Scripts\sewingCodeController.js" />
@@ -2067,7 +2071,7 @@
     <Content Include="Areas\MeetingManagement\Scripts\MeetingPointsController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\MeetingTypeController.js" />
     <Content Include="Areas\MeetingManagement\Scripts\meetingManagementConfig.js" />
-    <Content Include="Areas\OrderManagements\Scripts\CostingSOTemplateControllerController.js" />
+    <Content Include="Areas\Costings\Scripts\OrderLineCostingItemController.js" />
     <Content Include="Areas\Payrolls\Scripts\finalSettlementNewController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
@@ -4082,7 +4086,7 @@
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceAttributeMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\PerformanceGradeMaster\Aplos.cshtml" />
-    <Content Include="Areas\OrderManagements\Views\CostingSOTemplate\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\OrderLineCostingItem\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
     <Content Include="Areas\Materials\Views\UtilityMaster\Aplos.cshtml" />
@@ -4090,6 +4094,9 @@
     <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\MachineMasterTransaction\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_SpecialOperationRate.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQCostingApprovalSetting\Aplos.cshtml" />
+    <Content Include="Areas\IE\Views\MachineMasterTransactionReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeUnderstandingHead\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

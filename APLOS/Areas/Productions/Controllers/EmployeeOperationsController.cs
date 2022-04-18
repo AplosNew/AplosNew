@@ -70,6 +70,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetEmps()
+        {
+            return Json(eo.GetEmps(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetShift()
         {
             return Json(eo.GetShift(), JsonRequestBehavior.AllowGet);
@@ -79,6 +85,12 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult GetPOs(string wk)
         {
             return Json(eo.GetPOs(wk), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult getPODetails(string POId)
+        {
+            return Json(eo.getPODetails(POId) , JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]

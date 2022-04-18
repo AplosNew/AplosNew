@@ -92,7 +92,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller('WeekDefinitionController', WeekDefinitionController)
     .controller('EmployeeCodeTypeController', EmployeeCodeTypeController)
     .controller('contractFundUtilizationController', contractFundUtilizationController)
-    .controller('CostingSOTemplateController', CostingSOTemplateController)
+    .controller('OrderLineCostingItemController', OrderLineCostingItemController)
 
     .config(HumanResourceConfig)
     .config(accountConfig)
@@ -107,6 +107,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .config(LogsConfig)
     .config(employeeConfig)
     .config(CommercialConfig)
+    .config(CostingsConfig)
     .config(OrderManagementConfig)
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function cpanelConfig($routeProvider, $locationProvider, $httpProvider) {
         $httpProvider.interceptors.push('errorInterceptor');
