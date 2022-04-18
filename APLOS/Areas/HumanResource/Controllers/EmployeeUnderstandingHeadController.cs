@@ -59,7 +59,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT * FROM EmpUnderstandingHead) AS TEMP WHERE " + strkey + "";
+            string sql = @"select top 100 * from (SELECT euh.*,ei.EmployeeCode ,ei.EmployeeName FROM EmpUnderstandingHead AS euh
+LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
+) AS TEMP WHERE " + strkey + "";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetActivityList(string EmpUnderstandingHeadId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM EmpUnderstandingActivity WHERE EmpUnderstandingHeadId='"+ EmpUnderstandingHeadId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -70,36 +81,23 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> data)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("UserName already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Code already exists!!!");
-
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from EmpUnderstandingHead where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-
-
-
-
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
-
+                   // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
+                    genid.GenID("EmpUnderstandingHead", out _Id);
+                    _Id = "EUH" + _Id;
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
@@ -115,7 +113,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -123,6 +121,44 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 return Json(new { Error = true, Message = ex.Message });
 
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult SaveActivity(Dictionary<string, object> data,string EmpUnderstandingHeadId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from EmpUnderstandingActivity where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
+                    genid.GenID("EmpUnderstandingHead", out _Id);
+                    _Id = "EUA" + _Id;
+                    data["Id"] = _Id;
+                    data["EmpUnderstandingHeadId"] = EmpUnderstandingHeadId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
             }
         }
 

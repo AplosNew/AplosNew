@@ -58,8 +58,16 @@ namespace Aplos.Areas.Costings.Controllers
         public ActionResult GetList()
         {
 
-            string sql = @"select N.* from [dbo].[OrderLineCostingItem] N";
+            string sql = @"SELECT N.*,CC.UserName CostingComponent from [dbo].[OrderLineCostingItem] N
+                            LEFT JOIN HKP.CostingComponent AS cc ON CC.Id=N.CostingComponentId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetCostingComponentByCostingType(string costingType)
+        {
+            string sql = @"SELECT * FROM  HKP.CostingComponent WHERE Id IN(SELECT CostingComponentId  FROM [dbo].[CostingTypeComponent] WHERE CostingType='"+ costingType + "') ORDER BY Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -108,7 +116,7 @@ namespace Aplos.Areas.Costings.Controllers
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(CostingSOTemplate), out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(OrderLineCostingItem), out _Id);
 
                         data["Id"] =  _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -233,7 +241,7 @@ namespace Aplos.Areas.Costings.Controllers
        
     }
 
-    public class CostingSOTemplate
+    public class OrderLineCostingItem
     {
         public string Id { get; set; }
         public string PlantId { get; set; }

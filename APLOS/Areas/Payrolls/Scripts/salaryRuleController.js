@@ -246,10 +246,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         }
     };
 
-
-
-
-
     $scope.MinimumWagesSalaryHeadModel = {
         CheckBoxSelect: false,
         SalaryHeadId: null,
@@ -278,9 +274,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
             throw e;
         }
     };
-
-
-
 
     $scope.SalaryRuleRetentionPmtSystemID = null;
 
@@ -561,7 +554,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
         }
 
     }
-
 
     $scope.SetAbsentFormula = function (formula) {
 
@@ -1017,9 +1009,7 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.SalaryRulePF = [];
     $scope.SalaryRuleAbsenteeism = [];
 
-
     $scope.salaryHeadSettingList = [];
-
 
     $scope.SalaryHeadSetting = function () {
 
@@ -1114,7 +1104,6 @@ function salaryRuleController(commonMessage, $scope, $rootScope, baseService, $r
     $scope.salaryRuleGeneral.FormulaDescription = null;
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
-
 
     $scope.checkFormula = function (List, lastvalue) {
         var available = false;
