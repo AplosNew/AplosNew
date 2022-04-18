@@ -391,6 +391,13 @@ namespace Aplos.Areas.Products.Controllers
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public JsonResult UpdateIssueMaster(InventoryIssue inventoryIssue)
+        {
+            _inventoryIssueService.UpdateIssueMaster(inventoryIssue);
+            return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public ActionResult IssueReport(string grnId)
         {
@@ -9593,6 +9600,15 @@ namespace Aplos.Areas.Products.Controllers
             return Json(new { inventoryIssue, Message = AplosMessage.Success + "Issue No=" + inventoryIssue.Id }, JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetInventoryIssueBOQ()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_inventoryIssueService.GetInventoryIssueBOQ(identity.PlantId), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+            //return Json(_inventoryIssueService.GetDataByInventoryIssue(identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpPost]
         public JsonResult ConverttedBOQUOMData(Dictionary<string, object> data)
@@ -9672,11 +9688,11 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult GetSpecificMaterialStockBOQ(string pOId, string contractId, string masterOrderitemId, string salesOrderId, string issueDate)
+        public JsonResult GetSpecificMaterialStockBOQ(string pOId, string contractId, string masterOrderitemId, string salesOrderId, string issueDate,string materialStorageId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
-            return Json(bOQQueryService.GetSpecificMaterialStockBOQ(identity.CompanyId, identity.PlantId, pOId, contractId, masterOrderitemId, salesOrderId, issueDate), JsonRequestBehavior.AllowGet);
+            return Json(bOQQueryService.GetSpecificMaterialStockBOQ(identity.CompanyId, identity.PlantId, pOId, contractId, masterOrderitemId, salesOrderId, issueDate, materialStorageId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

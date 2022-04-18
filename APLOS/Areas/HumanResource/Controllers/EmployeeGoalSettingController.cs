@@ -19,10 +19,28 @@ namespace Aplos.Areas.HumanResource.Controllers
             _sqlRepository = R;
         }
         #endregion Constructor
+
+        #region Page
         public ActionResult Aplos()
         {
             return View();
         }
+        #endregion Page
+
+        #region All get Operations
+        [HttpPost]
+        public ActionResult GetEGList()
+        {
+            try
+            {
+                return Json(egs.GetEGList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult getPerformancePeriod()
@@ -59,18 +77,40 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        #endregion All get Operations
 
-        [HttpPost, Authorize]
-        public ActionResult getEGSList(string Id)
+        #region Save Operations
+        [HttpPost]
+        public JsonResult CreateEGSParent(Dictionary<string, object> datas, string EmployeeId)
+        {
+           
+            try
+            {
+                return Json(new { Error = "No", Data = egs.CreateEGSParent(datas, EmployeeId), Msg = Properties.AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion Save Operations
+
+        public ActionResult Delete(string id)
         {
             try
             {
-                return Json(egs.getEGSList(Id), JsonRequestBehavior.AllowGet);
+                egs.Delete(id);
+
+                return Json(new { Error = false, Sequence = egs.GetSequence(), Message = Properties.AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
+
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
             }
+
         }
     }
 }

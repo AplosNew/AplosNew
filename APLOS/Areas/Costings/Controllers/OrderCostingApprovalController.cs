@@ -45,6 +45,32 @@ namespace Aplos.Areas.Costings.Controllers
 
         #endregion Constructor
 
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
+        {
+            try
+            {
+                var sql = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.Id ProcessId,P.UserName Process
+                                            ,E.Id EntityId,E.UserName Entity,D.Id DepartmentId,D.UserName Department,DM.Id DetentionId
+											,DM.DetentionType,SD.SystemID ShiftId,SD.UserName Shift,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
+											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
+											from MachineMasterTransaction MMT
+											left join ORG.Entity E on E.Id=MMT.EntityId
+											left join HKP.Process P on P.Id=MMT.ProcessId
+											left join ORG.Department D on D.Id=MMT.DepartmentId
+											left join DetentionMaster DM on DM.Id=MMT.DetentionId
+											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         [HttpPost]
         public ActionResult ApproveQuickCosting(string TemplateId)
         {

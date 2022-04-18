@@ -119,5 +119,7 @@ namespace Library.MaterialManagement.Inventory
 
         void SalesReturnInsert(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<SalesReturnTaxViewModel> salesReturnTaxList, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList);
         void SalesReturnUpdate(InventorySalesReturn inventoryIssue, IEnumerable<InventorySalesReturnDetailViewModel> entities, IEnumerable<SalesReturnTaxViewModel> salesReturnTaxList, IEnumerable<InventorySalesReturnServiceViewModel> salesServiceVMList);
+        IEnumerable<object> GetInventoryIssueBOQ(string plantId);
+        void UpdateIssueMaster(InventoryIssue inventoryIssue);
     }
 }

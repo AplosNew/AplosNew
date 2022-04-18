@@ -634,6 +634,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTConfirmationProcessController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TablesUploadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeaveWithWagesRegistersForm18Controller.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\EmployeeUnderstandingHeadController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeeklyOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekDefinitionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\WeekOffUpdatesController.cs" />
@@ -2011,6 +2012,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
+    <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekDefinitionController.js" />
@@ -4096,6 +4098,7 @@
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_SpecialOperationRate.cshtml" />
     <Content Include="Areas\Costings\Views\BOQCostingApprovalSetting\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\MachineMasterTransactionReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\EmployeeUnderstandingHead\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\EmployeeTimeOut\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
