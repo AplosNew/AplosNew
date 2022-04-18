@@ -12,6 +12,7 @@ using Library.Service.Helpers;
 using Library.Service.Setups;
 using Newtonsoft.Json;
 using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -266,7 +267,7 @@ namespace Aplos.Areas.Costings.Controllers
                         }
                         catch (Exception ex)
                         {
-                          throw ex;
+                            throw ex;
                         }
                     }
 
@@ -327,5 +328,299 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
         #endregion upload product picture
+
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetCostingBOQReport(string boqId)
+        {
+            try
+            {
+                string fileName = "";
+                fileName = CostingBOQReport(boqId, "CostingBOQReport");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+        public string CostingBOQReport(string boqId, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "CostingBOQReports";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                CostingBOQSQL(boqId, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "Sequence";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColSequence = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Item Ref No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColItemRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Consumption";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColConsumption = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BOM Qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBOMQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "BOQ UOM";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBOQUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "BOM Qty Base";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBOMQtyBase = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Required Qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRequiredQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PO BOQ Qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPOBOQQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PO UOM";
+                sheet[ROW, COL].ColumnWidth = 22;
+                int ColPOUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PO Trn BO QQty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPOTrnBOQQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "PO Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPOAmount = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Balance BOQ";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBalanceBOQ = COL;
+                COL++;
+                sheet[ROW, COL].Text = "GRN Base Qty";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColGRNBaseQty = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "GRN Amount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGRNAmount = COL;
+                COL++;
+                sheet[ROW, COL].Text = "GRN UOM";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColGRNUOM = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Balance PO Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColBalancePOQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Issue Base Qty";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColIssueBaseQty = COL;
+                COL++;
+                sheet[ROW, COL].Text = "IssueAmount";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColIssueAmount = COL;
+                COL++;
+                sheet[ROW, COL].Text = "BalanceGRNQty";
+                sheet[ROW, COL].ColumnWidth = 6;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int ColBalanceGRNQty = COL;
+
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
+                    sheet[ROW, ColItemRefNo].Text = clsStaticInfo.GetDate(data.Rows[i]["ItemRefNo"].ToString());
+                    sheet[ROW, ColConsumption].Text = data.Rows[i]["Consumption"].ToString();
+                    sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQty"].ToString());
+                    sheet[ROW, ColBOQUOM].Text = data.Rows[i]["BOQUOM"].ToString();
+                    sheet[ROW, ColBOMQtyBase].Text = data.Rows[i]["BOMQtyBase"].ToString();
+                    sheet[ROW, ColRequiredQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredQty"].ToString());
+                    sheet[ROW, ColPOBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POBOQQty"].ToString());
+                    sheet[ROW, ColPOUOM].Text = data.Rows[i]["POUOM"].ToString();
+                    sheet[ROW, ColPOTrnBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POTrnBOQQty"].ToString());
+                    sheet[ROW, ColPOAmount].Number = clsStaticInfo.dbl(data.Rows[i]["POAmount"].ToString());
+                    sheet[ROW, ColBalanceBOQ].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceBOQ"].ToString());
+                    sheet[ROW, ColGRNBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["GRNBaseQty"].ToString());
+                    sheet[ROW, ColGRNAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GRNAmount"].ToString());
+                    sheet[ROW, ColGRNUOM].Text = data.Rows[i]["GRNUOM"].ToString();
+                    sheet[ROW, ColBalancePOQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalancePOQty"].ToString());
+                    sheet[ROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueBaseQty"].ToString());
+                    sheet[ROW, ColIssueAmount].Number = clsStaticInfo.dbl(data.Rows[i]["IssueAmount"].ToString());
+                    sheet[ROW, ColBalanceGRNQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceGRNQty"].ToString());
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Costing BOQ Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public void CostingBOQSQL(string boqId, out DataTable data)
+        {
+            try
+            {
+
+
+                string strSQL = @"SELECT boq.[Sequence],boq.ItemRefNo,boq.Consumption,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
+										, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+										, grnboq.GRNBaseQty
+										, grnboq.GRNAmount
+										, grnboq.GRNUOM
+										, BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
+										, issueboq.IssueBaseQty
+										, issueboq.IssueAmount
+										, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
+										FROM BOQ  boq
+										LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
+										--left join dbo.CostingMasterTemplate cmt on cmt.Id=boq.CostingItemId
+										left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
+													FROM  trn.POBOQMAP pomap 
+													JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
+													LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=pod.TransactionUoMId
+													GROUP BY pomap.BOQDetailId,UOM.UserName
+													) poboq ON poboq.BOQDetailId=boq.Id
+
+										left join (SELECT gpa.BOQDetailId,sum(gpa.TransactionQty) GRNBaseQty,UOM.UserName GRNUOM,sum(IRD.TotalMaterialTranAmount ) GRNAmount
+														FROM trn.GRNPORequisitionAllocation gpa 
+														JOIN trn.InventoryReceiveDetail IRD ON gpa.InventoryReceiveDetailId=IRD.Id
+														LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=IRD.TransactionUoMId
+														GROUP BY gpa.BOQDetailId,UOM.UserName
+													) grnboq ON grnboq.BOQDetailId=poboq.BOQDetailId
+
+										left join (SELECT iihb.BOQDetailId,sum(iihb.Qty) IssueBaseQty ,sum(iihb.Qty*iih.Rate) IssueAmount
+													FROM trn.InventoryIssueHistoryBOQ iihb 
+													join TRN.InventoryIssueHistory iih on iihb.InventoryIssueHistoryId=iih.Id
+													GROUP BY iihb.BOQDetailId
+
+										) issueboq ON issueboq.BOQDetailId=poboq.BOQDetailId
+
+										WHERE boq.Id= '" + boqId + @"'";
+
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
     }
 }
