@@ -124,7 +124,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
             method: "GET",
             dataType: 'JSON',
             //url: $scope.getSearchListUrl,
-            url: 'Products/InventoryIssue/GetDataByInventoryIssue',
+            url: 'Products/InventoryIssue/GetInventoryIssueBOQ',
         }).then(function successCallback(response) {
             $scope.GridInventoryIssuedata = response.data;
             //entrydata = copy(searchdata);
@@ -232,6 +232,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         $scope.detailList = [];
         $scope.specificStockList = [];
         $scope.materialStockList = [];
+        $scope.selectedSearchDataList = [];
         $scope.IssueType = 'Revenue';
         $scope.productNew.OrderSpecific = 'No';
         $scope.ispostDisable = false;
