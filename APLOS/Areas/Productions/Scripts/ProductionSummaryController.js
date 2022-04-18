@@ -1102,8 +1102,10 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 }
             }
 
-            if (parseFloat($scope.RemainQty) < 0) {
-                throw "Order Quantity dosen't available.";
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.RemainQty) < 0) {
+                    throw "Order Quantity dosen't available.";
+                }
             }
 
             if ($scope.IsFirst == false) {
