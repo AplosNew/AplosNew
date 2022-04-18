@@ -120,7 +120,8 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         SettlementType: 'SetOff',
         PaymentSource: 'Bank',
         CashMasterId: null,
-        BankMasterId: null
+        BankMasterId: null,
+        JournalType: null
     };
 
     $scope.voucherDetail = {
@@ -663,6 +664,7 @@ function employeeTotalAdvanceWriteOffController(bankService, cboService, commonM
         $scope.advance.GLGeneralInfoId = data.GLGeneralInfoId;
         $scope.advance.BudgetMasterId = data.BudgetMasterId;
         $scope.advance.ActivityId = data.ActivityId;
+        $scope.advance.JournalType = data.JournalType;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         angular.element(document.querySelector("#employeeTotalAdvancePopUp")).modal("hide");
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
