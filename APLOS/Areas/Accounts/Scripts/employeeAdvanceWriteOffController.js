@@ -113,7 +113,8 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         SettlementType: 'SetOff',
         PaymentSource: 'Bank',
         CashMasterId: null,
-        BankMasterId: null
+        BankMasterId: null,
+        JournalType: null
     };
 
     $scope.voucherDetail = {
@@ -637,6 +638,7 @@ function employeeAdvanceWriteOffController(bankService, cboService, commonMessag
         $scope.advancePostingDate = data.PostingDate;
         $scope.advanceDocRefNo = data.DocRefNo;
         $scope.advance.CrAmount = null;
+        $scope.advance.JournalType = data.JournalType;
         $scope.GetEmployeeTransactionNo($scope.advance.EmployeeId);
         angular.element(document.querySelector("#employeeAdvancePopUp")).modal("hide");
     };

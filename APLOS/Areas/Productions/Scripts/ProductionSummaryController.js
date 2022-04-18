@@ -120,8 +120,14 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.IsSKU1 = false;
     $scope.IsSKU2 = false;
     $scope.IsSKU3 = false;
+    $scope.IsFirst = false;
     $scope.getProdLevel = function () {
         try {
+
+            $scope.IsFirst = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].IsFirst;
+
             $scope.productionSummaryNew.ProductionBookingLevel = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].ProductionBookingLevel;
@@ -176,8 +182,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.PQEnable = true;
                 $scope.disGo = false;
             }
-            
-            
+
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -454,7 +460,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             $scope.productionSummaryNew.ProductCode = soitem.ProductCode;
             $scope.productionSummaryNew.MasterOrderItemId = soitem.MasterOrderItemId;
             $scope.productionSummaryNew.SalesOrderId = soitem.SOId;
-          
+
 
             $scope.productionSummaryNew.MaterialMasterId = soitem.MaterialMasterId;
             $scope.productionSummaryNew.MaterialMaster = soitem.MaterialMaster;
@@ -485,12 +491,12 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.TotalProductionBookingQty = parseFloat(soitem.TotalProductionQty.toFixed(2));
             }
 
-          
+
             angular.element(document.querySelector('#SOItemPopup')).modal('hide');
             angular.element(document.querySelector('#ProductCodePopup')).modal('hide');
             angular.element(document.querySelector('#MasterOrderItemPopup')).modal('hide');
 
-           
+
             $scope.GetTotalProductionBookingQty();
             $scope.getLotNumberCbo();
         } catch (ex) {
@@ -905,7 +911,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         }
 
         $scope.GetTotalProductionBookingQty();
-        
+
         $scope.getLotNumberCbo();
     };
 
@@ -1100,8 +1106,10 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 throw "Order Quantity dosen't available.";
             }
 
-            if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-                throw "Produced Quantity should less than Order Quantity.";
+            if ($scope.IsFirst == false) {
+                if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
+                    throw "Produced Quantity should less than Order Quantity.";
+                }
             }
 
             $http({
