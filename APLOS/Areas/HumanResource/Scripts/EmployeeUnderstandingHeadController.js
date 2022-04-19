@@ -184,7 +184,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         FinancialImpact: null,
         Documents: false,
         Remarks: null,
-        KPI: false
+        KPI: false,
+        IsApplicableDocument: false,
+        IsApplicableKPI: false
     }
     $scope.activityNew = Object.assign({}, $scope.activity);
     $scope.documentActivity = {
@@ -300,7 +302,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     };
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
        /* $scope.GetActivity(args.data.Id);*/
         $scope.getActivityGridData($scope.ModelNew.Id);
@@ -465,18 +466,139 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         document.getElementById('uploadFile').value = "";
         $scope.UpdateDoc();
     };
-    function confirmPopUp(d, msg) {
-        var message = '';
-        if (d !== null || d !== undefined) {
-            if (d === 'd') {
-                if (!baseService.isUndefinedOrNull($scope.documentId))
-                    message = 'Document Created : [' + $scope.documentId + ']<br />';
-                $scope.message_confirmation = message + 'Does this activity have <b>' + msg + '</b> Document?';
+    $scope.ApplicableDocument = function (args) {
+        try {
+            angular.element(document.querySelector('#documentPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+
+    };
+    $scope.ApplicableKPI = function (args) {
+        try {
+            angular.element(document.querySelector('#kpiPopUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'info');
+        }
+
+    };
+    $scope.CloseDocumentPopUp = function () {
+            angular.element(document.querySelector('#documentPopUp')).modal('hide');        
+    };
+    $scope.CloseKPIPopUp = function () {
+        angular.element(document.querySelector('#kpiPopUp')).modal('hide');
+    };
+    $scope.UpdateDoc = function () {
+        try {
+            var preparedBy = angular.element("#PreparedBy :selected").text();
+            if (preparedBy === 'Other') {
+                if (baseService.isUndefinedOrNull($scope.documentActivityNew.PreparedByInCaseOfOther)) {
+                    throw "Prepared By InCaseOf Other is required."
+                }
             }
-            else
-                $scope.message_confirmation = 'Does this activity have <b>' + msg + '</b> KPI?';
-            angular.element(document.querySelector('#documentPopUp')).modal('hide');
-            angular.element(document.querySelector('#document')).modal('show');
+
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                throw $scope.filedata.name + ' File size must be below 2 mb';
+            var fileName = '';
+            if (!baseService.isUndefinedOrNull($scope.filedata)) {
+                fileName = $scope.filedata.name;
+                $scope.documentActivityNew.FileName = fileName;
+            }
+            $scope.documentActivityNew.EmployeeId = $scope.employee.Id;
+            var formData = new FormData();
+            $http({
+                method: "post",
+                url: 'employee/detachdocument',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
+                    if (baseService.isUndefinedOrNull($scope.filedata) == false) {
+                        formData.append('file', data.file);
+                    }
+                    return formData;
+                },
+                data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.activityData();
+                    $scope.documentData();
+                }
+            }, function errorCallback(response) {
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.UpdateDocument = function () {
+        try {
+            var preparedBy = angular.element("#PreparedBy :selected").text();
+            if (preparedBy === 'Other') {
+                if (baseService.isUndefinedOrNull($scope.documentActivityNew.PreparedByInCaseOfOther)) {
+                    throw "Prepared By InCaseOf Other is required."
+                }
+            }
+
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                throw $scope.filedata.name + ' File size must be below 2 mb';
+            var fileName = '';
+            if (!baseService.isUndefinedOrNull($scope.filedata)) {
+                fileName = $scope.filedata.name;
+                $scope.documentActivityNew.FileName = fileName;
+            }
+            ValidationUpdateDocument();
+            $scope.documentActivityNew.EmployeeId = $scope.employee.Id;
+            var formData = new FormData();
+            $scope.savebtndisable = true;
+
+            var strName = $scope.documentActivityNew.Name;
+            var strRemarks = $scope.documentActivityNew.Remarks;
+            var strApplicationName = $scope.documentActivityNew.ApplicationName;
+
+            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.Name))
+                $scope.documentActivityNew.Name = strName.replace(/\s+/g, ' ');
+
+            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.Remarks))
+                $scope.documentActivityNew.Remarks = strRemarks.replace(/\s+/g, ' ');
+
+            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.ApplicationName))
+                $scope.documentActivityNew.ApplicationName = strApplicationName.replace(/\s+/g, ' ');
+
+            $http({
+                method: "post",
+                url: 'employee/create',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
+                    if (baseService.isUndefinedOrNull($scope.filedata) == false) {
+                        formData.append('file', data.file);
+                    }
+                    return formData;
+                },
+                data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
+            }).then(function successCallback(response) {
+                if (response.data.Error == true) {
+                    ShowResult(response.data.Message, "failure");
+                    $scope.savebtndisable = false;
+                }
+                else {
+                    $scope.savebtndisable = false;
+                    ShowResult(response.data.Message, "success");
+                    $scope.cleardocumentActivitybody();
+                    $scope.activityData();
+                    $scope.documentData();
+                    $scope.DocumentAction = 'Save Document';
+                }
+            }, function errorCallback(response) {
+                $scope.savebtndisable = false;
+            });
+        } catch (e) {
+            ShowResult(e, "failure");
+            $scope.savebtndisable = false;
         }
     };
 }
