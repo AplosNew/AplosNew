@@ -1436,4 +1436,106 @@ namespace Library.OrderManagement.Production
 
     }
 
+
+    public class EmployeeTimeOutService {
+        private readonly SqlRepository _sqlRepository;
+
+        #region Constructor
+        public EmployeeTimeOutService()
+        {
+            _sqlRepository = new SqlRepository();
+
+        }
+        #endregion Constructor
+
+        #region GetOperations
+
+        public IEnumerable<object> getEmployees()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select SystemId , EmployeeCode , EmployeeName from dbo.EmployeeInformation where PlantId = '" + identity.PlantId + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getEmpTimeOut(string EmpId , string Date)
+        {
+            try
+            {
+                var str = @"Select * from dbo.EmployeesTimeOut where WorkDate = '"+Date+"' and EmployeeId ='"+EmpId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region Saving
+
+        public void Create(string EmployeeId, string Date, string FromTime, string ToTime)
+        {
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //var Quer = "select * from dbo.EmployeesTimeOut where WorkDate='" + Date + "' and EmployeeId='" + EmployeeId + "' and FromTime='" + Convert.ToDateTime(FromTime).ToString() + "' and ToTime='" + Convert.ToDateTime(ToTime).ToString() + "'";
+                //con.OpenDataSetThroughAdapter(Quer, out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Already an entry for the Time Slot is Present!!");
+                //}
+
+                con.OpenDataSetThroughAdapter("select * from dbo.EmployeesTimeOut where WorkDate='" + Date + "' and EmployeeId='" + EmployeeId + "' ", out dsMaster, false, "1");
+
+                DateTime FTime = Convert.ToDateTime(FromTime);
+                DateTime TTime = Convert.ToDateTime(ToTime);
+
+                double Dur = (TTime - FTime).TotalMinutes;
+
+                if (Dur < 0)
+                {
+                    throw new Exception("To Time Cannot be Less than From Time");
+                }
+                string _Id = "";
+                DataRow dr = dsMaster.Tables[0].NewRow();
+                bplib.clsGenID genid = new bplib.clsGenID();
+                genid.GenID("dbo.EmployeesTimeOut", out _Id);
+                dr["Id"] = _Id;
+                dr["EmployeeId"] = EmployeeId;
+                dr["WorkDate"] = Convert.ToDateTime(Date);
+                dr["FromTime"] = Convert.ToDateTime(FromTime);
+                dr["ToTime"] = Convert.ToDateTime(ToTime);
+                dr["Duration"] = Dur;
+                dr["AddedBy"] = identity.Name;
+                dr["AddedDate"] = System.DateTime.Now.ToString();
+                dr["AddedFromIP"] = identity.IPAddress;
+                dr["UpdatedBy"] = identity.Name;
+                dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                dr["UpdatedFromIP"] = identity.IPAddress;
+                dsMaster.Tables[0].Rows.Add(dr);
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+
+    }
 }

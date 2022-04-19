@@ -8,6 +8,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveActivityUrl = $scope.path + 'SaveActivity';
+    $scope.saveDocumentUrl = $scope.path + 'SaveDocument';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
     
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -41,7 +42,18 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.ActivityList = response.data;
         });
     }
+    $scope.DocumentList = [];
+    $scope.getDocumentGridData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDocumentList",
+            data: { 'EmpUbderstandingActivityId': $scope.activityNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
 
+            $scope.DocumentList = response.data;
+        });
+    }
 
     $scope.StatusList = [{ value: 'DefaltInProgress', name: 'Defalt In-Progress' },
         { value: 'Confirm', name: 'Confirm' },
@@ -82,7 +94,53 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.FinancialImpactList = [{ value: 'Yes', name: 'Yes' },
         { value: 'No', name: 'No' }]
 
-    
+    $scope.PreparedByList = [{ value: 'Self', name: 'Self' },
+        { value: 'OtherEmployee', name: 'Other Employee' },
+        { value: 'Custmor', name: 'Custmor' },
+        { value: 'Vendor', name: 'Vendor' },
+        { value: 'Other', name: 'Other' },
+        { value: 'Government', name: 'Government' }]
+
+
+    $scope.DocumentTypeList = [{ value: 'WithinDepartment', name: 'Within Department' },
+        { value: 'WithinEntity', name: 'Within Entity' },
+        { value: 'WithinCompany', name: 'Within Company' },
+        { value: 'WithinGroup', name: 'Within Group' },
+        { value: 'Customer', name: 'Customer' },
+        { value: 'Vendor', name: 'Vendor' },
+        { value: 'Other', name: 'Other' }]
+
+    $scope.DocumentGenerationList = [{ value: 'System', name: 'System' },
+        { value: 'Manual', name: 'Manual' },
+        { value: 'Other', name: 'Other' }]
+
+    $scope.DocumentPreprationFrequencyList = [{ value: 'OnLine', name: 'On Line' },
+        { value: 'Daily', name: 'Daily' },
+        { value: 'Weekly', name: 'Weekly' },
+        { value: 'Fortnight', name: 'Fortnight' },
+        { value: 'Monthly', name: 'Monthly' },
+        { value: 'Quarterly', name: 'Quarterly' },
+        { value: 'HalfYearly', name: 'Half Yearly' },
+        { value: 'Annually', name: 'Annually' },
+        { value: 'AsAndWhenRequired', name: 'As and When Required' }]
+
+    $scope.DocumentClassList = [{ value: 'Register', name: 'Register' },
+        { value: 'Document', name: 'Document' },
+        { value: 'Form', name: 'Form' },
+        { value: 'Report', name: 'Report' },
+        { value: 'Email', name: 'Email' }]
+
+    $scope.DocumentFormatList = [{ value: 'PDF', name: 'PDF' },
+        { value: 'JPEG', name: 'JPEG' },
+        { value: 'Excel', name: 'Excel' },
+        { value: 'Word', name: 'Word' },
+        { value: 'Register', name: 'Register' },
+        { value: 'Form', name: 'Form' },
+        { value: 'Email', name: 'Email' },
+        { value: 'PPT', name: 'PPT' },
+        { value: 'CrystalReport', name: 'Crystal Report' },
+        { value: 'Txt', name: 'Txt' },
+        { value: 'CSV', name: 'CSV' }]
     
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -129,7 +187,30 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         KPI: false
     }
     $scope.activityNew = Object.assign({}, $scope.activity);
+    $scope.documentActivity = {
+        Id: null,
+        EmpUbderstandingActivityId: null,
+        Name: null,
+        FileName: null,
+        DocumentType: null,
+        DataSourceCategoryId: null,
+        DocumentFormateId: null,
+        ApplicationName: null,
+        PreparedBy: null,
+        Remarks: null,
+        PreparedByInCaseOfOther: null,
+        PreparedByInCaseOfOtherName: null
+    }
+    $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
 
+    $scope.kpi = {
+        Id: null,
+        EmpUbderstandingActivityId: null,
+        Name: null,
+        Remarks: null,
+        KPIDetail: null
+    }
+    $scope.kpiNew = Object.assign({}, $scope.kpi);
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -140,59 +221,18 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
-    $scope.partyList = [];
-    $scope.ShowCustomerPopUpNew = function () {
-        $scope.partyType = "Customer";
-        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+    //$scope.getActivityList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'HumanResource/EmployeeUnderstandingHead/getactivitycbolist?employeeId=' + $scope.employee.Id
+    //    }).then(function (response) {
+    //        $scope.activitydocumentList = response.data;
+    //        $scope.documentActivityNew.ActivityId = $scope.activityId;
+    //    });
+    //};
 
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + '' + '&PlantId=' + '';
 
-        $http({
-            method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.partyList = response.data;
-        });
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
-    };
 
-    $scope.SetCustomerData = function (obj) {
-        var party = obj.data;
-        $scope.ModelNew.PartyCode = party.Code;
-        $scope.ModelNew.CustomerName = party.UserName;
-        $scope.ModelNew.PartyId = party.Id;
-
-        $scope.hidePartyPopUp();
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.searchParty = '';
-    }
-
-    $scope.closeCustomerPopUpNew = function () {
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.hidePartyPopUp();
-        $scope.partyType = "Customer";
-        $scope.searchParty = '';
-    }
-
-    $scope.hidePartyPopUp = function () {
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('hide');
-        $scope.partyIndex = -1;
-        $scope.partySelected = null;
-    };
-
-    $scope.ChangeCustomer = function () {
-        if ($scope.ModelNew.IfPartyApplicable) {
-            $scope.ModelNew.CustomerName = null;
-            $scope.ModelNew.PartyId = null;
-        }
-        else {
-            $scope.ModelNew.CustomerName = party.UserName;
-            $scope.ModelNew.PartyId = party.Id;
-        }
-
-    };
 
     $scope.employeeParameters = {
         limit: 10,
@@ -272,7 +312,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.GetActivity = function (args) {
         $scope.activityNew = Object.assign({}, args.data);
     };
-
+    $scope.GetDocument = function (args) {
+        $scope.documentActivityNew = Object.assign({}, args.data);
+    };
 
     $scope.Save = function () {
             $http({
@@ -288,7 +330,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
                     ShowResult(response.data.Message, 'success');
                    /* ClearFields(response.data.Sequence);*/
                     $scope.getData();
-                  
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -309,6 +350,27 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
                /* ClearFields(response.data.Sequence);*/
                 $scope.getData();
                 $scope.getActivityGridData($scope.ModelNew.Id);
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+    $scope.SaveDocument = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveDocumentUrl,
+            data: { 'data': $scope.documentActivityNew, 'EmpUbderstandingActivityId': $scope.activityNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /* ClearFields(response.data.Sequence);*/
+                $scope.getData();
+                $scope.getDocumentGridData();
 
             }
         }), function errorCallBack(response) {
@@ -348,4 +410,73 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    $scope.ClearActivity = function () {
+        $scope.activityNew = Object.assign({}, $scope.activity);
+    };
+
+    $scope.ClearDocument = function() {
+        $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
+    }
+
+    $scope.filedata = null;
+    $("#uploadBtn").change(function () {
+        $scope.filedata = this.files[0];
+    });
+
+    $("#uploadBtn2").change(function () {
+        $scope.filedata = this.files[0];
+    });
+    //document.getElementById("uploadBtn").onchange = function () {
+    //    var filename = document.getElementById("uploadFile").value = this.value;
+    //    var res = filename.replace(/C:\\fakepath\\/i, '');
+    //    document.getElementById("uploadFile").value = res;
+    //};
+    //document.getElementById("uploadBtn2").onchange = function () {
+    //    var filename = document.getElementById("uploadFile2").value = this.value;
+    //    var res = filename.replace(/C:\\fakepath\\/i, '');
+    //    document.getElementById("uploadFile2").value = res;
+    //};
+
+    $scope.documentRemove = function () {
+        $scope.message_confirmation = 'Are you sure to remove this file?';
+        angular.element(document.querySelector('#confirmdocDelete')).modal('show');
+    };
+    $scope.removeDocument = function () {
+        angular.element(document.querySelector('#confirmdocDelete')).modal('hide');
+        if (baseService.isUndefinedOrNull($scope.documentActivityNew.FileName)) {
+            document.getElementById('uploadBtn').value = '';
+            document.getElementById('uploadFile').value = "";
+            $scope.filedata = null;
+        }
+        else {
+            $scope.ClearDoc();
+        }
+    };
+    $scope.confirmClosedocDelete = function () {
+        angular.element(document.querySelector('#confirmdocDelete')).modal('hide');
+    };
+
+    $scope.ClearDoc = function () {
+        document.getElementById('uploadBtn').value = '';
+        $scope.filedata = '';
+        $scope.documentActivityNew.FileName = "";
+        $scope.filedata = {};
+        document.getElementById('uploadFile').value = "";
+        $scope.UpdateDoc();
+    };
+    function confirmPopUp(d, msg) {
+        var message = '';
+        if (d !== null || d !== undefined) {
+            if (d === 'd') {
+                if (!baseService.isUndefinedOrNull($scope.documentId))
+                    message = 'Document Created : [' + $scope.documentId + ']<br />';
+                $scope.message_confirmation = message + 'Does this activity have <b>' + msg + '</b> Document?';
+            }
+            else
+                $scope.message_confirmation = 'Does this activity have <b>' + msg + '</b> KPI?';
+            angular.element(document.querySelector('#documentPopUp')).modal('hide');
+            angular.element(document.querySelector('#document')).modal('show');
+        }
+    };
 }

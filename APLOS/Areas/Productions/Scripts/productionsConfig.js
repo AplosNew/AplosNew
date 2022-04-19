@@ -273,5 +273,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductiveAllowanceRateSetup/Aplos',
             controller: 'ProductiveAllowanceRateSetupController'
         })
+        .when('/employee-time-out', {
+            templateUrl: 'Productions/EmployeeTimeOut/Aplos',
+            controller: 'EmployeeTimeOutController'
+        })
         ;
 }

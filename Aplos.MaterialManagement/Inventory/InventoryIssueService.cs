@@ -960,6 +960,42 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public void UpdateIssueMaster(InventoryIssue inventoryIssue)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var builder = new System.Text.StringBuilder();
+                var sql = "";
+                sql = @"UPDATE  [TRN].[InventoryIssue] set IssueType='"+ inventoryIssue.IssueType + "' WHERE Id='" + inventoryIssue.Id + "'";
+                builder.Append(sql);
+                
+                _sqlRepository.ExecuteSqlCommand(builder.ToString());
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
+
         public void InsertGraphBOQ(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssue inventoryIssue, string IssueTypeStatus, IEnumerable<InventoryMaterialViewModel> entitiesAll, List<InventoryIssueHistoryBOQ> BoqAllocationListVM)
         {
             var flag = false;
@@ -1018,20 +1054,13 @@ namespace Library.MaterialManagement.Inventory
                             item.TotalQty = im.TotalQty;
                             item.AvgRate = im.AvgRate;
 
-
-
-
-
-
-
-
                         }
                     }// update view model (inventory material field)
                     inventoryIssue.CurrencyId = currencyId;
                     inventoryIssue.ProductionOrderId = inventoryIssue.ProductionOrderId;
                     inventoryIssue.ContractId = inventoryIssue.ContractId;
                     inventoryIssue.OrderRefNo = inventoryIssue.OrderRefNo;
-
+                    inventoryIssue.Types = "InventoryBOQIssue";
 
                     inventoryIssue.Id = _pk;
                     InsertGraph(inventoryIssue);
@@ -2034,6 +2063,7 @@ namespace Library.MaterialManagement.Inventory
 							,II.Remarks,II.Id AS IssueId
 							,II.OrderRefNo
 							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+                            ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when II.VoucherId<>'' then 0 else 1 end
 							FROM[TRN].[InventoryIssue] AS II
 							left join (
 									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
@@ -2047,6 +2077,7 @@ namespace Library.MaterialManagement.Inventory
 							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
 							left JOIN SCS.Country c ON C.Id=IR.CountryId
 							left join dbo.Contract Con On Con.Id=II.ContractId
+                            LEFT JOIN TRN.Voucher V ON V.Id=II.VoucherId
 						WHERE II.PlantId= '" + plantId + @"'
 						AND IIH.IsAsset= 0)X
 						Order BY 2 DESC";
@@ -2059,7 +2090,51 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> GetInventoryIssueBOQ(string plantId)
+        {
+            try
+            {
 
+                var sql = @"SELECT * FROM (
+                            SELECT II.Id,II.IssueDate IssueDate1,E.UserName AS Entity 
+							,isnull(II.IssueType,'') issuetype
+							,  II.CompanyGroupId
+							, II.CompanyId, II.PlantId
+							, II.EntityId, II.MaterialStorageId
+							,FORMAT(II.IssueDate, 'dd-MMM-yyyy') IssueDate
+							
+							, MS.UserName AS MaterialStorage 
+							,EI.EmployeeCode + ' - ' + EI.EmployeeName EmployeeName
+							,IIH.Qty
+							,IIh.TotalAmount Amount
+							,II.Remarks,II.Id AS IssueId
+							,II.OrderRefNo
+							,C.Id CountryId,c.UserName CountryName,II.ContractId,II.ProductionOrderId,Con.ContractNo
+							FROM[TRN].[InventoryIssue] AS II
+							left join (
+									SELECT IID.InventoryIssueId,IID.IsAsset,IIH.IssueRequestDetailId,SUM(IIH.Qty) Qty, SUM(IIH.TotalAmount) TotalAmount
+									FROM trn.InventoryIssueHistory IIH JOIN TRN.InventoryIssueDetail IID ON IID.Id=IIH.InventoryIssueDetailId
+									WHERE IID.IsAsset= 0
+									GROUP BY IID.InventoryIssueId,IIH.IssueRequestDetailId,IID.IsAsset
+									) IIH ON IIH.InventoryIssueId=II.Id
+							left JOIN[HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+							left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+							Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+							left join trn.IssueRequest IR On IR.Id=IIH.IssueRequestDetailId
+							left JOIN SCS.Country c ON C.Id=IR.CountryId
+							left join dbo.Contract Con On Con.Id=II.ContractId
+						WHERE II.PlantId= '" + plantId + @"' AND II.Types='InventoryBOQIssue'
+						AND IIH.IsAsset= 0)X
+						Order BY 2 DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public IEnumerable<object> GetDataByInventoryReturnIssue(string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -7663,6 +7738,7 @@ namespace Library.MaterialManagement.Inventory
 	                          ,TUoM.UserName AS UOM
                               ,IRD.Id InventoryReceiveDetailId
 							  ,IR.IssueType,E.UserName AS Entity,IR.Remarks,EI.EmployeeName,CC.UserName CostCenter,IRD.Comments
+                              ,IsNULL(V.VoucherNo,'') VoucherNo ,IsPark=case when IR.VoucherId<>'' then 0 else 1 end
                               FROM TRN.InventoryIssue IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
@@ -7685,6 +7761,7 @@ namespace Library.MaterialManagement.Inventory
 						 LEFT JOIN dbo.EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
                          JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.BaseUOMId = TUoM.Id
 						 LEFT JOIN [ORG].[CostCenter] AS CC On CC.Id=IRD.CostCenterId
+                         LEFT JOIN TRN.Voucher V ON V.Id=IR.VoucherId
 						--WHERE IR.Id IS NULL
                          ";
 
