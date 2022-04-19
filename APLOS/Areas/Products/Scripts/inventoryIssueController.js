@@ -8,7 +8,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.path = 'Products/InventoryIssue/';
 	$scope.getListUrl = $scope.path + 'GetDataByInventoryIssue';
 	$scope.saveUrl = $scope.path + 'create';
-	$scope.updateUrl = $scope.path + 'edit';
+	$scope.updateUrl = $scope.path + 'UpdateIssueMaster';
+	//$scope.updateUrl = $scope.path + 'edit';
 	$scope.deleteUrl = $scope.path + 'delete/';
 	$scope.currentDate = new Date(Date.now());
 	$scope.ispostDisable = false;
@@ -75,6 +76,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		, ContractNo: null
 		, ContractId: null
 		, ProcessName: null
+		, IsPark:true
 		
 	};
 	$scope.IssueType = 'Revenue';
@@ -105,6 +107,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		var id = a.data;
 		$scope.product = a.data;
 		$scope.productNew = Object.assign({}, $scope.product);
+		$scope.productNew.IssueType = a.data.issuetype;
 		$scope.materialStockList = [];
 		$scope.specificStockList = [];
 		$scope.ispostDisable = true;
@@ -225,6 +228,34 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		}
 		else ShowResult('Please issue material', 'failure');
 	};
+	$scope.Update = function () {
+			$http({
+				method: 'POST'
+				, url: $scope.updateUrl
+				, data: {
+					 inventoryIssue: $scope.productNew
+				}
+				, dataType: 'JSON'
+			}).then(function (response) {
+				if (response.data.Error === true) {
+					$scope.ispostDisable = false;
+					ShowResult(response.data.Message, 'failure');
+				}
+				else {
+					ShowResult(response.data.Message, 'success');
+					$scope.ispostDisable = true;
+					$scope.Clear();
+					$scope.getdataInventoryIssue();
+					$scope.productNew.Id = response.data.inventoryIssue.Id;
+					$scope.getData();
+					$scope.GetDataList();
+				}
+			}), function (response) {
+				ShowResult(response.data.Message, 'failure');
+			};
+    }
+	
+
 	$scope.SaveSlipIssue = function () {
 		var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.specificStockList), 'RequisitionQty');
 		$scope.selectedRowQty1 = $filter('sumByKey')($filter('filter')($scope.detailList), 'TransactionQty');

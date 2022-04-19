@@ -722,6 +722,7 @@
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeOperationsController.cs" />
+    <Compile Include="Areas\Productions\Controllers\EmployeeTimeOutController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinalPackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
@@ -2077,6 +2078,7 @@
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxProcessController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeOperationsController.js" />
+    <Content Include="Areas\Productions\Scripts\EmployeeTimeOutController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
     <Content Include="Areas\Productions\Scripts\FinalPackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralDataMasterController.js" />
@@ -4097,6 +4099,7 @@
     <Content Include="Areas\Costings\Views\BOQCostingApprovalSetting\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\MachineMasterTransactionReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeUnderstandingHead\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\EmployeeTimeOut\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
