@@ -969,7 +969,7 @@ namespace Library.MaterialManagement.Inventory
                 flag = true;
                 var builder = new System.Text.StringBuilder();
                 var sql = "";
-                sql = @"UPDATE  [TRN].[InventoryIssueDetail] set IssueType='"+ inventoryIssue.IssueType + "' WHERE Id='" + inventoryIssue.Id + "'";
+                sql = @"UPDATE  [TRN].[InventoryIssue] set IssueType='"+ inventoryIssue.IssueType + "' WHERE Id='" + inventoryIssue.Id + "'";
                 builder.Append(sql);
                 
                 _sqlRepository.ExecuteSqlCommand(builder.ToString());

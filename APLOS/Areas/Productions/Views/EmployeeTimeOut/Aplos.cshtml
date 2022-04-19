@@ -41,15 +41,15 @@
     </div>
     <div class="row">
         <div class="col-md-6">
-            <div id="getEmployees" ej-grid e-datasource="EmpGridList"
+            <div id="getEmployeesTime" ej-grid e-datasource="EmpGridList"
                  e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
                  e-allowtextwrap="true" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
                  e-maxWidth="200px;">
                 <div e-columns>
-                    <div e-column e-field="FromTime" e-headertext="From" e-width="80"></div>
-                    <div e-column e-field="ToTime" e-headertext="To" e-width="80"></div>
-                    <div e-column e-field="Duration" e-headertext="Duration" e-width="120"></div>
+                    <div e-column e-field="Frm" e-headertext="From" e-width="80" e-type="string"></div>
+                    <div e-column e-field="Trm" e-headertext="To" e-width="80" e-type="string"></div>
+                    <div e-column e-field="Duration" e-headertext="Duration" e-width="80"></div>
 
                 </div>
             </div>
