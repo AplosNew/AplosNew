@@ -32,7 +32,7 @@ function EmployeeTimeOutController($window, cboService, commonMessage, $scope, $
         $scope.EmpSystemId = e.data.SystemId;
         $scope.EmpGridList = [];
         angular.element(document.querySelector('#employeesModal')).modal('hide');
-
+        getTimeOuts();
        
 
     }
@@ -45,6 +45,8 @@ function EmployeeTimeOutController($window, cboService, commonMessage, $scope, $
         }).then(function succ(resp) {
             if (resp.data.length > 0) {
                 $scope.EmpGridList = resp.data;
+                var gridObj = $("#getEmployeesTime").data("ejGrid");
+                gridObj.dataSource($scope.EmpGridList);
             }
             
 
@@ -64,7 +66,7 @@ function EmployeeTimeOutController($window, cboService, commonMessage, $scope, $
             }
             else {
                 ShowResult(response.data.Message, 'success');
-
+                getTimeOuts();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
