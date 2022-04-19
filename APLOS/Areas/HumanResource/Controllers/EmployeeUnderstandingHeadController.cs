@@ -18,6 +18,13 @@ using Syncfusion.DocIO.DLS;
 using Library.Security.Core;
 using System.Data;
 using System;
+using System.Web;
+using Library.Model.External;
+using System.IO;
+using Library.Data;
+using System.Configuration;
+using Library.Service.Logs;
+using System.Reflection;
 
 #endregion using
 
@@ -31,6 +38,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         private readonly IFabricRollMasterService _fabricRollMasterService;
         private SqlRepository _sqlRepository = new SqlRepository();
+      //  private readonly IActivityService _activityService;
         public EmployeeUnderstandingHeadController()
         {
             
@@ -299,10 +307,6 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
                 {
                 }
             }
-
-
-
-
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -344,6 +348,100 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
         }
 
         #endregion
+        public Dictionary<string, object> GetDocFile(string id)
+        {
+            try
+            {
+                var sql = @"Select FileId, FileName From [dbo].[DocumentActivity]  Where Id='" + id + "'";
+                return _sqlRepository.GetData(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+        //public string GetPk(DocumentActivity entity)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(entity.Id))
+        //        {
+        //            return entity.ActivityId + "-" + _documentActivityService.GetAutoNumber(nameof(DocumentActivity), PKGeneratorEnum.Auto, null, DateTime.Now);
+        //        }
+        //        else
+        //        {
+        //            return entity.Id;
+        //        }
+        //    }
+        //    catch (CustomException)
+        //    {
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new CustomException(ex.Message, ex,
+        //           Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+        //           ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+        //    }
+        //}
 
+
+        [HttpPost, Authorize]
+        public JsonResult Create(FormCollection form, HttpPostedFileBase[] file)
+        {
+            DocumentActivity documentActivity = new JavaScriptSerializer().Deserialize<DocumentActivity>(form["documentActivityNew"]);
+            var folderName = "";
+
+         
+            var directory = new AppSettingsReader().GetValue("DOC", typeof(string)).ToString() + folderName + "/";
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            string path = System.IO.Path.Combine((Server.MapPath(directory)));
+
+            var fileId = "";
+            var fileName = "";
+            var filedata =GetDocFile(documentActivity.Id);
+            if (filedata.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(filedata["FileId"].ToString()) &&
+                    !string.IsNullOrEmpty(filedata["FileName"].ToString()))
+                    fileId = filedata["FileId"].ToString();
+                fileName = filedata["FileName"].ToString();
+
+                if (fileName != documentActivity.FileName)
+                    if (System.IO.File.Exists(path + fileId + System.IO.Path.GetExtension(fileName)))
+                        System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(fileName));
+            }
+            string _Id = "";
+            bplib.clsGenID genid = new bplib.clsGenID();
+            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
+            _Id = "AD" + _Id;
+            var docPk = _Id;
+
+            if (file.IsNotNull())
+            {
+                foreach (var item in file)
+                {
+                    if (item != null)
+                    {
+                        if (System.IO.File.Exists(path + item.FileName))
+                            System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(item.FileName));
+                        item.SaveAs(path + docPk + System.IO.Path.GetExtension(item.FileName));
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(documentActivity.FileName))
+            {
+                if (!System.IO.File.Exists(path + docPk + System.IO.Path.GetExtension(documentActivity.FileName)))
+                    throw new CustomException("File didn't saved.");
+            }
+
+          // activityService.InsertOrUpdateDocument(documentActivity, docPk);
+
+            return Json(new { DocumentActivity = documentActivity, Message = "Data Saved Successfully" });
+        }
     }
 }

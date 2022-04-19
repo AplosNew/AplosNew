@@ -17,7 +17,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
 
-    baseService.init("SalesManagements/Sales/GetMasterOrderSalesDataList", null, null, "DESC", "InvoiceDate", "InvoiceNo");
+    baseService.init("SalesManagements/Sales/GetMasterOrderSalesDataList", null, null, "DESC", "AddedDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {
