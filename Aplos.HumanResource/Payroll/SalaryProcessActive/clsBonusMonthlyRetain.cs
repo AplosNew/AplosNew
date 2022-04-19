@@ -1555,16 +1555,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             #endregion Variable Dataset
             #region Declare Variable
-
-            //string sBnsEligibleEmpID = "";
-            //string sBnsMntEmpCalID = "";
-            //string sBnsMntEmpCalStID = "";
+    
             string sBnsMstID = "";
             string sBnsDtlID = "";
             string sGroupID = para.GroupID;
             string sPlantID = para.PlantID;
-            //string sBnsElgGentID = "";
-            //string sBnsDedGentID = "";
             string sSalaryRuleMasterSystemID = "";
 
             string sEarningFormulaID = "";

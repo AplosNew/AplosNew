@@ -5,7 +5,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.path = "Costings/BOQ/";
     $scope.ModelBase = { Id: null, CustomerId: null, CustomerName: null, EmployeeSystemId: null, EmployeeName: null, Remarks: null, UserName: null };
     $scope.Model = Object.assign({}, $scope.ModelBase);
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -380,24 +380,31 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.closePartyPopUpNew = function () {
         angular.element(document.querySelector('#partyPopUp')).modal('hide');
     };
-    //$scope.getFileList = function () {
-    //    $http({
-    //        method: 'POST', url: $scope.path + 'GetFileInfo', dataType: 'JSON',
-    //        data: { Id: args.Model.Data}
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error == true) {
-    //            ShowResult('error', 'failure');
-    //        }
-    //        else {
-    //            var str = response.data[0].PicFileName;
-    //            var extention = str.substr(str.indexOf('.'));
-    //            $scope.PicFileName = virtualPath.ProductionBulletinImage + '/' + $scope.bulletinTemplateNew.Id + extention;
-    //        }
-    //    }, function errorCallback(response) {
-    //        ShowResult('Failed', 'failure');
-    //    });
-    //}
-    //#endregion Production Bulletin Picture upload
 
+    $scope.Report = function (obj) {
+        try {
+            //$scope.Id = obj.data.Id;
+            $scope.fileName = "CostingBOQReport.xls";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetCostingBOQReport",
+                data: { 'boqId': obj.data.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    // $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
 }
 
