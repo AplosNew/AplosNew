@@ -570,13 +570,11 @@ and (zz.EmpInfoSystemID is not null or zzz.EmpInfoSystemID is not null)
             {
                 string dtFD = Convert.ToDateTime(sFromDate).AddDays(-1).ToString("dd-MMM-yyyy");
                 string dtFDPrevM = Convert.ToDateTime(sFromDate).AddMonths(-1).ToString("dd-MMM-yyyy");
-                strSQL = @"SELECT --IsSelectSlrProc = Case WHEN S.SlrProcMstSystemID IS NULL THEN Convert(bit, 'False')  ELSE Convert(bit, 'True') END,
-                                 Convert(bit, 'False') IsSelectSlrProc,
+                strSQL = @"SELECT distinct Convert(bit, 'False') IsSelectSlrProc,
                                   S.SlrProcMstSystemID AS SystemID, ISNULL(S.IsApproved, 0) IsApproved, ISNULL(S.IsDisbursed, 0) IsDisbursed, E.SystemID AS EmpSystemID,
                                   E.EmployeeCode, E.EmployeeName, F.UserName PlantName, E.PlantID, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106),' ','-') DOJ,E.DOJ DOJs,
                                   REPLACE(CONVERT(VARCHAR(11), E.DOS, 106),' ','-') DOS,E.DOS DOSs, E.EmployeeStatus, E.EmployeeGroupSystemID UserGroupSystemID,
                                   E.DesignationGroupID, DG.UserName AS DesignationGroup, E.SalaryRuleMasterSystemID, SRM.SalaryRuleName ,dgs.UserName GivenDesignation,
-                                    --y.ToDate,
                                   REPLACE(CONVERT(VARCHAR(11), y.ToDate, 106),' ','-') ToDate,
                                   ProcessStatus = CASE WHEN Y.ToDate>'" + sFromDate + @"' THEN 'Overlap'
                                       WHEN Y.ToDate<'" + dtFD + @"' then 'Gap'
@@ -729,7 +727,7 @@ and isnull(locka.EmpSystemId,'')=''
                 
 
                 strSQL += @"
-                            ORDER BY E.EmployeeCode desc --F.UserName,dgs.UserName,";
+                            ORDER BY E.EmployeeCode desc";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");

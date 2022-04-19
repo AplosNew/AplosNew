@@ -454,8 +454,8 @@ namespace Aplos.Areas.Costings.Controllers
                 #endregion columns
 
                 int endCol = COL;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+                //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -530,7 +530,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xls");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -595,32 +595,6 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
 
-        [HttpGet, Authorize]
-        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
-        {
-            try
-            {
-                ExcelEngine excelEngine = new ExcelEngine();
-                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
-                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
-                try
-                {
-                    System.IO.File.Delete(FullPath);
-                }
-                catch (Exception)
-                {
-                }
-
-                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
-                return null;
-
-            }
-            catch (Exception ex)
-            {
-
-
-            }
-            return null;
-        }
+        
     }
 }
