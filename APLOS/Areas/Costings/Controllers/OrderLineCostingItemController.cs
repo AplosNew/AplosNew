@@ -15,14 +15,14 @@ using Library.Security.Core;
 
 #endregion
 
-namespace Aplos.Areas.OrderManagements.Controllers
+namespace Aplos.Areas.Costings.Controllers
 {
-    public class CostingSOTemplateController : BaseController
+    public class OrderLineCostingItemController : BaseController
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
 
-        public CostingSOTemplateController(ISqlRepository R)
+        public OrderLineCostingItemController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -47,7 +47,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
         private double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.CostingSOTemplate");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.OrderLineCostingItem");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -58,20 +58,16 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public ActionResult GetList()
         {
 
-            string sql = @"select N.* from [dbo].[CostingSOTemplate] N";
+            string sql = @"SELECT N.*,CC.UserName CostingComponent from [dbo].[OrderLineCostingItem] N
+                            LEFT JOIN HKP.CostingComponent AS cc ON CC.Id=N.CostingComponentId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetDetailList(string CostingSOTemplateId)
+        public ActionResult GetCostingComponentByCostingType(string costingType)
         {
-
-            string sql = @"SELECT D.Sequence,D.SalaryHeadID
-                        ,SalaryHead= CASE WHEN ISNULL(SD.SalaryHead,'')<>'' THEN SD.SalaryHead ELSE D.Component END,D.Component,D.CostingSOTemplateId
-                        FROM [dbo].[FormulaDetail] D
-                        LEFT JOIN dbo.SalaryHead SD ON SD.SalaryHeadID=D.SalaryHeadID
-                        WHERE CostingSOTemplateId='" + CostingSOTemplateId + @"' Order By D.Sequence";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            string sql = @"SELECT * FROM  HKP.CostingComponent WHERE Id IN(SELECT CostingComponentId  FROM [dbo].[CostingTypeComponent] WHERE CostingType='"+ costingType + "') ORDER BY Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -113,14 +109,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     DataSet dsMaster, dsDestination;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.CostingSOTemplate WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OrderLineCostingItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     // con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where CostingSOTemplateId='" + data.Id + "'", out dsDestination, false, "1");
 
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(CostingSOTemplate), out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(OrderLineCostingItem), out _Id);
 
                         data["Id"] =  _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -132,31 +128,6 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     }
 
                     string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-
-                    #region NoticePeriodFormulaDetail 
-                    //DataRow drF;
-                    //while (dsDestination.Tables[0].DefaultView.Count > 0)
-                    //    dsDestination.Tables[0].DefaultView[0].Delete();
-
-                    //int count = 0;
-                    //if (details != null)
-                    //{
-
-                    //    foreach (var item in details)
-                    //    {
-                    //        drF = dsDestination.Tables[0].NewRow();
-                    //        count++;
-                    //        string pk = _Id + "_" + count;
-                    //        drF["Id"] = pk;
-                    //        drF["CostingSOTemplateId"] = _Id;
-                    //        drF["Sequence"] = item.Sequence;
-                    //        drF["Component"] = item.Component;
-
-                    //        dsDestination.Tables[0].Rows.Add(drF);
-                    //    }
-
-                    //}
-                    #endregion NoticePeriodFormulaDetail 
 
                     clsStaticInfo obj = new clsStaticInfo();
                     obj.SaveDataSets(dsMaster/*, dsDestination*/);
@@ -235,12 +206,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = "DELETE FROM dbo.CostingSOTemplate WHERE Id = '" + SystemID + "'";
+                strSQL = "DELETE FROM dbo.OrderLineCostingItem WHERE Id = '" + SystemID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
-                objCon.ExecuteNonQueryWrapper("Delete [dbo].FormulaDetail where CostingSOTemplateId= '" + SystemID + "'", true, "1");
+               // objCon.ExecuteNonQueryWrapper("Delete [dbo].FormulaDetail where CostingSOTemplateId= '" + SystemID + "'", true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
             }
@@ -270,7 +241,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
        
     }
 
-    public class CostingSOTemplate
+    public class OrderLineCostingItem
     {
         public string Id { get; set; }
         public string PlantId { get; set; }

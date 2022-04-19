@@ -7652,6 +7652,7 @@ where h.HeadCategory='GROSS'
 
                         dvSummary.RowFilter = "EmpSystemID = '" + dtEmployees.Rows[i]["EmpSystemId"].ToString() + "'";
                         totalWeekOFFDays = dvSummary.ToTable().Compute(@"SUM(TotalWeekOff)", null);
+                       // totalWeekOFFDays = weekOffHoliday;
                         totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
                         totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
                         totalPresentDays = dvSummary.ToTable().Compute(@"Sum(TotalPresent)", null);

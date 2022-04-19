@@ -927,6 +927,34 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
+        public IEnumerable<object> GetEGList()
+        {
+            try
+            {
+                string sql = @"select * from dbo.EmployeeGoalSetting";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getMasterData()
+        {
+            try
+            {
+                var str = @"                            ";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getPerformancePeriod()
         {
             try
@@ -961,7 +989,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getPMSMaster()
+        #region
+      public IEnumerable<object> getPMSMaster()
         {
             var str = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
                         pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
@@ -972,56 +1001,132 @@ namespace Library.HumanResource.NewAttendanceProcess
                         left join EmployeeInformation e on e.BudgetCode=mp.Id";
             return _sqlRepository.GetDataCollection(str);
         }
+        #endregion
 
-        public IEnumerable<object> getEGSList(string Id)
+        #region
+        /* public IEnumerable<object> getEGSList(string Id)
+         {
+             try
+             {
+                 var str = @"select egc.ObjectiveName, egc.ObjectiveDetail, egc.CostSaving,
+                             egc.Value, egc.Attachment, egc.AssesmentDate, egc.ObjNameClosingDate,
+                             egc.MaxStoryPoints, egc.Remarks from dbo.EmployeeGoalSettingChild egc                            
+                              where egc.Id ='" + Id + "' ";
+
+                 DataTable dtChild = _sqlRepository.GetDataTable(str);
+
+
+                 if (dtChild.Rows.Count > 0)
+                 {
+                     return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                 }
+                 else
+                 {
+                     var sql = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
+                         pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
+                         left join PMSChild pc on pms.Id=pc.PMSMasterId
+                         left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
+                         left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
+                         left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
+                         left join EmployeeInformation e on e.BudgetCode=mp.Id
+                         where pms.Id ='" + Id + "' ";
+                     DataTable dtSkill = _sqlRepository.GetDataTable(sql);
+
+                     for (int i = 0; i < dtSkill.Rows.Count; i++)
+                     {
+                         for (int j = 1; j <= 6; j++)
+                         {
+                             DataRow dr = dtChild.NewRow();
+                             dr["ObjectiveName"] = null;                            
+                             dr["Value"] = 0;                           
+                             dr["ObjectiveDetail"] = null;
+                             dr["Attachment"] = null;
+                             dr["AssesmentDate"] = null;
+                             dr["ObjNameClosingDate"] = null;
+                             dr["MaxStoryPoints"] = 0.0;
+                             dr["Remarks"] = null;
+
+                             dtChild.Rows.Add(dr);
+                         }
+                     }
+                 }
+
+                 return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+
+             }
+             catch (Exception ex)
+             {
+                 throw ex;
+             }
+         }*/
+        #endregion
+        #region Save Process
+        public Dictionary<string, object> CreateEGSParent(Dictionary<string, object> datas, string EmployeeId)
         {
+
             try
             {
-                var str = @"select egc.ObjectiveName, egc.ObjectiveDetail, egc.CostSaving,
-                            egc.Value, egc.Attachment, egc.AssesmentDate, egc.ObjNameClosingDate,
-                            egc.MaxStoryPoints, egc.Remarks from dbo.EmployeeGoalSettingChild egc                            
-                             where egc.Id ='" + Id + "' ";
+                //Master Table - PMSMaster
+                string TableName = "dbo.EmployeeGoalSetting";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                DataTable dtChild = _sqlRepository.GetDataTable(str);
-
-
-                if (dtChild.Rows.Count > 0)
+                if (EmployeeId == null)
                 {
-                    return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                    throw new Exception("Please Select Employee !!");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId ='" + datas["SystemId"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    datas["SystemId"] = "EGS" + _Id;
+                    AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
-                    var sql = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
-                        pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
-                        left join PMSChild pc on pms.Id=pc.PMSMasterId
-                        left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
-                        left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
-                        left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
-                        left join EmployeeInformation e on e.BudgetCode=mp.Id
-                        where pms.Id ='" + Id + "' ";
-                    DataTable dtSkill = _sqlRepository.GetDataTable(sql);
-
-                    for (int i = 0; i < dtSkill.Rows.Count; i++)
-                    {
-                        for (int j = 1; j <= 6; j++)
-                        {
-                            DataRow dr = dtChild.NewRow();
-                            dr["ObjectiveName"] = null;                            
-                            dr["Value"] = 0;                           
-                            dr["ObjectiveDetail"] = null;
-                            dr["Attachment"] = null;
-                            dr["AssesmentDate"] = null;
-                            dr["ObjNameClosingDate"] = null;
-                            dr["MaxStoryPoints"] = 0.0;
-                            dr["Remarks"] = null;
-                            
-                            dtChild.Rows.Add(dr);
-                        }
-                    }
+                    _Id = datas["SystemId"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
+                #endregion data update
+                #region child
+                //DataSet dsChild;
+                //ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
+                //conC.OpenDataSetThroughAdapter("select * from dbo.EmployeeGoalSettingChild where EGSId = '" + datas["SystemId"].ToString() + "'", out dsChild, false, "1");
 
-                return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
+                //while (dsChild.Tables[0].DefaultView.Count > 0)
+                //{
+                //    dsChild.Tables[0].DefaultView[0].Delete();
+                //}
 
+                //string _IdC = "";
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //#region data update
+                //if (dsMaster.Tables[0].Rows.Count == 0)
+                //{
+                //    bplib.clsGenID genid = new bplib.clsGenID();
+                //    genid.GenID(TableName, out _Id);
+
+                //    datas["Id"] = "EGSC" + _Id;
+                //    AddNewRow(dsMaster.Tables[0], datas);
+                //}
+                //else
+                //{
+                //    _Id = datas["Id"].ToString();
+                //    EditRow(dsMaster.Tables[0].Rows[0], datas);
+                //}
+                #endregion child
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return datas;
             }
             catch (Exception ex)
             {
@@ -1029,6 +1134,86 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "dbo.EmployeeGoalSetting";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where SystemId='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+       
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion Save Process
+
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.EmployeeGoalSetting");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
     }
 
 }

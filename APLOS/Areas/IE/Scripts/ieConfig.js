@@ -59,6 +59,11 @@ function IEConfig($routeProvider, $locationProvider) {
             controller: 'MachineMasterTransactionController'
         })
 
+        .when('/machine-masterTransactionReport', {
+            templateUrl: 'IE/MachineMasterTransactionReport/Aplos',
+            controller: 'MachineMasterTransactionReportController'
+        })
+
         .when('/skill-grouping', {
             templateUrl: 'IE/SkillGrouping/aplos',
             controller: 'skillGroupingController'
