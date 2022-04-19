@@ -1,44 +1,55 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
 <div class="form-horizontal" ng-form="modelForm">
+
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
             <div class="form-group">
-                <label class="col-sm-4 control-label" style="margin-top:10px">Employee<sup>*</sup></label>
-                <div class="col-sm-8 show-message" style="margin-top:10px">
+                <label class="col-sm-2 control-label" style="margin-top:10px">Employee<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
                     <input type="text" name="Location" ng-model="employee" ng-click="selectEmployee()" class="form-control" maxlength="200" tabindex="5">
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label" style="margin-top:10px">From<sup>*</sup></label>
-                <div class="col-sm-8 show-message" style="margin-top:10px">
-                    <input class="form-control" type="text" ej-timepicker e-value="FromTime" e-change="dd" e-width="80%" />
+                <label class="col-sm-2 control-label" style="margin-top:10px">From<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
+                    <input class="form-control" type="text" ej-timepicker e-value="FromTime" e-change="dd" e-width="100%" />
                 </div>
             </div>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Date<sup>*</sup></label>
-                <div class="col-sm-8">
+                <label class="col-sm-2 control-label" style="margin-top:10px">Date<sup>*</sup></label>
+                <div class="col-sm-6" style="margin-top:10px">
                     <input type="text" name="Form Date" ng-model="EffectiveDate" datepicker class="form-control" disabled>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label" style="margin-top:10px">To<sup>*</sup></label>
-                <div class="col-sm-8 show-message" style="margin-top:10px">
-                    <input class="form-control" type="text" ej-timepicker e-value="ToTime" e-change="dd" e-width="80%" />
+                <label class="col-sm-2 control-label" style="margin-top:10px">To<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
+                    <input class="form-control" type="text" ej-timepicker e-value="ToTime" e-change="dd" e-width="100%" />
                 </div>
             </div>
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right" style="position:relative; right: 231px;">
+                    <li> <button ng-click="save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                    <li></li>
+                    <li></li>
+                    @*<li> <button ng-click="clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
+
+                </ul>
+            </div>
         </div>
+       
     </div>
-    <div class="row">
+    <!--<div class="row">
         <div class="common-btn" style="margin-top:10px;">
             <ul class="list-inline text-right">
-                <li> <button ng-click="save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                <li> <button ng-click="save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>-->
                 @*<li> <button ng-click="clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
 
-            </ul>
+            <!--</ul>
         </div>
-    </div>
+    </div>-->
     <div class="row">
         <div class="col-md-6">
             <div id="getEmployees" ej-grid e-datasource="EmpGridList"
