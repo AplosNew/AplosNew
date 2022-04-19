@@ -5,7 +5,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.path = "Costings/BOQ/";
     $scope.ModelBase = { Id: null, CustomerId: null, CustomerName: null, EmployeeSystemId: null, EmployeeName: null, Remarks: null, UserName: null };
     $scope.Model = Object.assign({}, $scope.ModelBase);
-
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -381,14 +381,14 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         angular.element(document.querySelector('#partyPopUp')).modal('hide');
     };
 
-    $scope.Report = function () {
+    $scope.Report = function (obj) {
         try {
-
-            $scope.fileName = "CostingBOQReport.xlsx";
+            //$scope.Id = obj.data.Id;
+            $scope.fileName = "CostingBOQReport.xls";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetCostingBOQReport",
-                data: {'boqId': $scope.Model.Id },
+                data: { 'boqId': obj.data.Id },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
