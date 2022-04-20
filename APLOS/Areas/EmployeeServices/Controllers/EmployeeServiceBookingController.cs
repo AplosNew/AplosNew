@@ -122,7 +122,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList(string column, string value , string FromDate , string ToDate)
         {
             string strkey = "1=1";
             if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
@@ -131,7 +131,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
 
-            string sql = @"select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
+
+            string sql = @"select distinct esd.*, FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
                                                                     ,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as ShiftName,esc.Category,est.Form,est.Service as ServiceName
                                                                     ,est.Id as EmployeeServicesId,uom.UserName as UOM,uom.Id as UOMId 
                                                                      from dbo.EmpServiceData esd
@@ -140,9 +141,12 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
 																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' order by Date desc ";
+																    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and Date between '"+FromDate+@"' and '"+ToDate+@"'
+                                                                    order by Date desc ";
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql, null));
+            jsondata.MaxJsonLength = int.MaxValue;
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            return Json(jsondata, JsonRequestBehavior.AllowGet);
         }
 
         private string GetPK()
