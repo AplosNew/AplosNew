@@ -187,10 +187,57 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.getUtilityGridData(args.data.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
+    };
+    $scope.utilityDetails = [];
+    $scope.getUtilityGridData = function (id) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetUtilityData",
+            data: { 'UtilityMasterId': id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.utilityDetails = response.data;
+            //$scope.ModelChildNew = Object.assign({}, response.data);
+        });
+    }
+
+    $scope.UtilityDetaildoubleclick = function (args) {
+        $scope.ModelChildNew = Object.assign({}, args);
+    };
+
+    $scope.removeUtilityDetailsRowModal = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmUtilityDetailsRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeUtilityDetailsRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/UtilityMaster/utilityDetailsDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getUtilityGridData();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
 
     $scope.Save = function () {
@@ -262,7 +309,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                     ShowResult(response.data.Message, 'success');
                     ClearFields(response.data.Sequence);
                     $scope.getData();
-
+                    $scope.getUtilityGridData();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -279,5 +326,6 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
     }
 }

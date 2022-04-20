@@ -174,10 +174,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.SystemId)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                url: $scope.deleteUrl + $scope.ModelNew.SystemId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
