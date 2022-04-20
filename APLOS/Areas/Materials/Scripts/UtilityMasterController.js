@@ -232,7 +232,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getUtilityGridData();
+                $scope.getUtilityGridData($scope.ModelNew.Id);
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -254,7 +254,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    //ClearFields(response.data.Sequence);
                     $scope.getData();
 
                 }
@@ -307,9 +307,9 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
                     $scope.getData();
-                    $scope.getUtilityGridData();
+                    $scope.getUtilityGridData($scope.ModelNew.Id);
+                    $scope.ClearUtilityDetail();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -326,6 +326,10 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
+        $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
+    }
+
+    $scope.ClearUtilityDetail = function () {
         $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
     }
 }
