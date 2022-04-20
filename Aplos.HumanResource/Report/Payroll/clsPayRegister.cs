@@ -7656,7 +7656,10 @@ where h.HeadCategory='GROSS'
                         totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
                         totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
                         totalPresentDays = dvSummary.ToTable().Compute(@"Sum(TotalPresent)", null);
-
+                        if (Convert.ToInt32(totalPresentDays) >26)
+                        {
+                            totalPresentDays = 26;
+                        }
                         string presentBangla = ru.cnDgt(Convert.ToString(totalPresentDays), localLanguage);
                         string weekOff = ru.cnDgt(totalWeekOFFDays.ToString(), localLanguage);
                         string holiDay = ru.cnDgt(Convert.ToDouble(totalHolidays).ToString(), localLanguage);
