@@ -65,14 +65,7 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
             'value': 'ToDate'
         }
     ];
-
-    //$scope.leaveTypelist = [];
-    //$scope.leavetypecbo = function () {
-    //    cboService.getEmpLeaveTypeCbo($scope.leaveApplicationNew.EmpSystemID, function (result) {
-    //        $scope.leaveTypelist = result;
-    //    });
-    //};
-
+       
     $scope.leaveTypelist = [];
     $scope.leavetypecbo = function () {
         $http.get($scope.path + 'GetLeaveTypeCbo?EmpsystemId=' + $scope.leaveApplicationNew.EmpSystemID)
@@ -333,11 +326,12 @@ function EmployeeLeaveApplicationNewController(commonMessage, $scope, $rootScope
                 if ($scope.leaveApplicationNew.LeaveDayType != 'FullDay') {
                     diffDays = 0.5;
                 }
-                //-----------------------------------validation---------------
-                // if
-                // ($scope.LeaveBalanceList[i].Balance < diffDays && $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {//99
-                //    throw 'Leave Duration is greater then balance.';
-                //}
+
+                if ($scope.LeaveBalanceList[i].Balance < diffDays &&
+                    $scope.LeaveBalanceList[i].IsExceptionAllowed == false) {
+                    throw 'Leave Duration is greater then balance.';
+                    ShowResult('Leave Duration is greater then balance.', 'failure');
+                }
             }
         }
 

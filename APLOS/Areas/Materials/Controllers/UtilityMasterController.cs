@@ -164,7 +164,7 @@ namespace Aplos.Areas.Materials.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -175,6 +175,32 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [HttpPost,Authorize]
+        public ActionResult GetUtilityData(string UtilityMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select *,FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDates from UtilityDetail where UtilityMasterId ='" + UtilityMasterId +@"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult utilityDetailsDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                connection.executeQuery("delete from UtilityDetail where Id='" + id + "'");
+                connection.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
         public ActionResult Delete(string id)
         {
             try

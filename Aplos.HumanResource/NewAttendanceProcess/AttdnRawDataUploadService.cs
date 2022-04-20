@@ -227,6 +227,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public string EmployeeId { get; set; }
         public string Date { get; set; }
         public string Time { get; set; }
+        public string PTime { get; set; }
         public string EmployeeServiceCategoryId { get; set; }
         public string Quantity { get; set; }
         public string Amount { get; set; }
@@ -325,7 +326,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             dr["Id"] = "ED" + _Idx;
                             dr["EmployeeId"] = item.EmployeeId;
                             dr["Date"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
-                            dr["Time"] = DateTime.Now.ToString();
+                            dr["Time"] = Convert.ToDateTime(item.PTime.ToString());
                             dr["ShiftId"] = ShiftId;
                             dr["EmployeeServiceCategoryId"] = CategoryId;
                             dr["Chargeable"] = 1;
