@@ -8937,11 +8937,19 @@ where h.HeadCategory='GROSS'
                                 , DayValue = ISNULL(TotalPresent, 0) + ISNULL(TotalLate, 0) + ISNULL(TotalLv, 0) + ISNULL(TotalMLv, 0) + ISNULL(TotalWeekOff, 0)
                                 + ISNULL(TotalCompAssignLv, 0) + ISNULL(TotalHoliDay, 0) + ISNULL(TotalWeekOffHoliDay, 0),Category,DayStatus
                                 FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,Category,DayStatus,
-                                TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
-                                WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
-                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                 --TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
+                                --WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                --WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                --WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
+                                --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
+                                --ELSE 0 END,
+    
+							TotalPresent = CASE WHEN DayStatus = 'P' and LTSystemID is null THEN 1
+							    WHEN DayStatus = 'PW' and LTSystemID is null THEN 1
+                                WHEN DayStatus = 'P' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN DayStatus = 'L' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN DayStatus = 'NW' and LTSystemID is not null THEN (1-LeaveDuration)
+                                WHEN DayStatus = 'NW' and LTSystemID is null THEN 0.5
                                 ELSE 0 END,
     
                                 TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
