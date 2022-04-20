@@ -1437,7 +1437,8 @@ namespace Library.OrderManagement.Production
     }
 
 
-    public class EmployeeTimeOutService {
+    public class EmployeeTimeOutService
+    {
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
@@ -1468,7 +1469,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select * from dbo.EmployeesTimeOut where WorkDate = '"+Date+"' and EmployeeId ='"+EmpId+"'";
+                var str = @"Select Convert(varchar(10),Cast(FromTime as Time),100) as Frm , Convert(varchar(10),Cast(ToTime as Time),100) as Trm , Duration from dbo.EmployeesTimeOut where WorkDate = '" + Date+"' and EmployeeId ='"+EmpId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1481,20 +1482,27 @@ namespace Library.OrderManagement.Production
 
         #region Saving
 
+        private string RemoveWhitespace(string str)
+        {
+            var jj = str.Split(default(char));
+            return string.Join("", str.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries));
+        }
+
         public void Create(string EmployeeId, string Date, string FromTime, string ToTime)
         {
             try
             {
-
+                string Frm = RemoveWhitespace(FromTime);
+                string Trm = RemoveWhitespace(ToTime);
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //var Quer = "select * from dbo.EmployeesTimeOut where WorkDate='" + Date + "' and EmployeeId='" + EmployeeId + "' and FromTime='" + Convert.ToDateTime(FromTime).ToString() + "' and ToTime='" + Convert.ToDateTime(ToTime).ToString() + "'";
-                //con.OpenDataSetThroughAdapter(Quer, out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //{
-                //    throw new Exception("Already an entry for the Time Slot is Present!!");
-                //}
+                var Quer = "select * from dbo.EmployeesTimeOut where WorkDate='" + Date + "' and EmployeeId='" + EmployeeId + "' and Convert(varchar(10),Cast(FromTime as Time),100)='" + Frm + "' and Convert(varchar(10),Cast(ToTime as Time),100)='" + Trm + "'";
+                con.OpenDataSetThroughAdapter(Quer, out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already an entry for the Time Slot is Present!!");
+                }
 
                 con.OpenDataSetThroughAdapter("select * from dbo.EmployeesTimeOut where WorkDate='" + Date + "' and EmployeeId='" + EmployeeId + "' ", out dsMaster, false, "1");
 

@@ -509,9 +509,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 											WHERE DC.PlantId='" + para.PlantID + @"') DM ON E.GivenDesignationId = DM.DesignationId
                                             INNER JOIN [MST].[ManpowerBudget] BC ON E.BudgetCode = BC.Id
 			                                LEFT JOIN [dbo].[SalaryInfoDefineMaster] SLR ON E.SystemId = SLR.EmpInfoSystemID
-			                               -- INNER JOIN (SELECT * FROM [dbo].[BonusPolicyMonthlyRetainEligibleEmployee] WHERE IsActive = 1) EEE ON E.SystemId = EEE.EmpSystemID
 			                                LEFT JOIN [dbo].[BonusPolicyMonthlyRetainMaster] BPMRMst ON DM.BnsPlcMthRetainID = BPMRMst.ID
-                                WHERE E.GroupID = '" + para.GroupID + @"' AND E.PlantId = '" + para.PlantID + @"' AND --E.EmployeeStatus = 'Active'
+                                WHERE E.GroupID = '" + para.GroupID + @"' AND E.PlantId = '" + para.PlantID + @"' AND
                                       E.DOJ <= '" + para.ToDate + @"' AND (E.DOS > '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL)
                                       AND DM.BnsPlcMthRetainID = '" + sBnsPlcMthRetainID + @"' AND E.SystemId IN (" + para.sEmpSystemID + @")";
 
@@ -1555,16 +1554,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             #endregion Variable Dataset
             #region Declare Variable
-
-            //string sBnsEligibleEmpID = "";
-            //string sBnsMntEmpCalID = "";
-            //string sBnsMntEmpCalStID = "";
+    
             string sBnsMstID = "";
             string sBnsDtlID = "";
             string sGroupID = para.GroupID;
             string sPlantID = para.PlantID;
-            //string sBnsElgGentID = "";
-            //string sBnsDedGentID = "";
             string sSalaryRuleMasterSystemID = "";
 
             string sEarningFormulaID = "";
@@ -1615,7 +1609,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //List<SPvalueHeadWise> dtValue = new List<SPvalueHeadWise>();
                 _List_BonusRetainHeadValue = new List<EmpSalaryHeadAmount>();
                 LoadCurrencyRule(para, out dsCurRl);
                 dtCurRl = dsCurRl.Tables[0];
@@ -1732,7 +1725,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         IsBonusRetainHolder = false;
                                         sEmpSysID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim();
                                         sEmpLocationID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EmployeeLocationId"].ToString().Trim();
-                                        // string _eDate = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EffectiveDate"].ToString().Trim();
                                         sEmpGivenDesignationId = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["LegalDesignationId"].ToString().Trim();
 
                                         #region Master Table Data Capture [Start Date]
@@ -1742,15 +1734,13 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         #endregion Master Table Data Capture 
 
                                         string sMatDt = "";
-                                        //string sCurrentMonthName = System.DateTime.Now.ToString("dd-MMM-yyyy");
                                         GetBoolEligibility_SP(ref bIsEligibleApp, dsBnsMonthNo, dtStartDate, para);
 
                                         string _sstructureid = string.Empty;
                                         var dicSalInfo_Sub = dicSalInfo.FindAll(x => x.EmpInfoSystemID == sEmpSysID);
                                         if (dicSalInfo_Sub.Count > 0)
                                         {
-                                            //for (int i = 0; i < dicSalInfo_Sub.Count; i++)
-                                            //{
+                                           
                                             sSalaryRuleMasterSystemID = dicSalInfo_Sub[0].SalaryRuleMasterSystemID;
                                             sCurrencyRuleSystemID = dicSalInfo_Sub[0].CurrencyRuleSystemID;
                                             _sstructureid = dicSalInfo_Sub[0].SalaryID;
@@ -1761,8 +1751,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             {
                                                 IsBonusRetainHolder = true;
                                             }
-                                            ///
-                                            //}
+                                           
                                         }
                                        
                                         if (bIsEligibleApp && IsBonusRetainHolder)
@@ -1799,7 +1788,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     decEarningValueRangeFrom = 0;
                                                     decEarningValueRangeTo = 0;
 
-                                                    dtEndDate = System.DateTime.Now;
+                                                    dtEndDate = DateTime.Now;
                                                     bMandatory = false;
                                                     bEarning = false;
                                                     bIsActive = true;
@@ -1814,9 +1803,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     sBonusPolicyDetailsID = dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["ID"].ToString().Trim();
                                                     sEarningFormulaID = dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["FormulaDesIDEarning"].ToString().Trim();
                                                     ReLoadFormulaWithValue(sEmpSysID, para, sEarningFormulaID, bEarning, ref dtValue, ref dtSalHd);
-
-                                                    //ReLoadFormulaWithValueNew(sEmpSysID, para, sEarningFormulaID, out sFormulaValue, bEarning, dtValue, dicSalaryHead);
-
+                                                                                                       
                                                     sEarningFormulaResult = Evaluate(sFormulaValue.Trim()).ToString();
                                                     decEarningValueRangeFrom = Convert.ToDecimal(dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["EarningValueRangeFrom"].ToString().Trim());
                                                     decEarningValueRangeTo = Convert.ToDecimal(dsBnsPolicyDtl.Tables[0].Rows[iBnsPlDtl]["EarningValueRangeTo"].ToString().Trim());
@@ -1860,35 +1847,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                             decEmpCtbtnAmount = Convert.ToDecimal(sEarningFormulaResult);
                                                         }
 
-                                                        #endregion Bonus Earning Amount
-
-                                                        #region Data Save IN Table [BonusPolicyMonthlyRetainEmpWiseCalculation]
-
-                                                        //dvBnsMntEmpWiseCal.Table = dtBnsMntEmpWiseCal;
-                                                        //dvBnsMntEmpWiseCal.RowFilter = "EmpSystemID = '" + sEmpSysID.Trim() + "' AND MonthNo = " + para.iMonth + " AND YearNo = " + para.iYear + "";
-                                                        //if (dvBnsMntEmpWiseCal.Count == 0)
-                                                        //{//Add new block
-                                                        //    sBnsMntEmpCalID = sBnsDedGentID.ToString() + "-" + (iUnTgEmCnt + 1).ToString();
-
-                                                        //    drBnsMntEmpWiseCal = dtBnsMntEmpWiseCal.NewRow();
-                                                        //    UpdateTheDataRowInTableBonusPolicyMonthlyRetainEmpWiseCalculation("ADDNEW", sEmpSysID, sBnsMntEmpCalID, sBnsMstID, decEmpCtbtnAmount, para, ref drBnsMntEmpWiseCal);
-                                                        //    dtBnsMntEmpWiseCal.Rows.Add(drBnsMntEmpWiseCal);
-                                                        //}
-                                                        //else
-                                                        //{//edit block
-                                                        //    sBnsMntEmpCalID = dvBnsMntEmpWiseCal[0]["ID"].ToString();
-
-                                                        //    drBnsMntEmpWiseCal = dvBnsMntEmpWiseCal[0].Row;
-                                                        //    drBnsMntEmpWiseCal.BeginEdit();
-                                                        //    UpdateTheDataRowInTableBonusPolicyMonthlyRetainEmpWiseCalculation("EDIT", sEmpSysID, sBnsMntEmpCalID, sBnsMstID, decEmpCtbtnAmount, para, ref drBnsMntEmpWiseCal);
-                                                        //    drBnsMntEmpWiseCal.EndEdit();
-                                                        //}
-
-
-
-                                                        #endregion Data Save IN Table [BonusPolicyMonthlyRetainEmpWiseCalculation]
-
-
+                                                        #endregion Bonus Earning Amount                                                                                                             
 
                                                         #region Data Save IN Table [BonusPolicyMonthlyRetainDistributionPmt]
 
@@ -1918,29 +1877,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                                     GetHeadWiseAmount(decBonusValue, sEmpSysID, dvBnsPolicyDist[idist].Row["FstSalaryHeadID"].ToString(), ref _List_BonusRetainHeadValue);
 
-                                                                    #region comm
-                                                                    //dvBnsMntDist.Table = dtBnsMntDist;
-                                                                    //dvBnsMntDist.RowFilter = "BnsPlyMntRetainID = '" + sBnsMntEmpCalID.Trim() + "' AND SalaryHeadID = '" + dvBnsPolicyDist[idist].Row["FstSalaryHeadID"].ToString() + "'";
-                                                                    //if (dvBnsMntDist.Count == 0)
-                                                                    //{
-                                                                    //    drBnsMntDist = dtBnsMntDist.NewRow();
-                                                                    //    drBnsMntDist["BnsPlyMntRetainID"] = sBnsMntEmpCalID;
-                                                                    //    drBnsMntDist["SalaryHeadID"] = dvBnsPolicyDist[idist].Row["FstSalaryHeadID"].ToString();
-                                                                    //    drBnsMntDist["Value"] = decBonusValue;
-                                                                    //    dtBnsMntDist.Rows.Add(drBnsMntDist);
-                                                                    //}
-                                                                    //else
-                                                                    //{
-                                                                    //    drBnsMntDist = dvBnsMntDist[0].Row;
-                                                                    //    drBnsMntDist.BeginEdit();
-                                                                    //    drBnsMntDist["BnsPlyMntRetainID"] = sBnsMntEmpCalID;
-                                                                    //    drBnsMntDist["SalaryHeadID"] = dvBnsPolicyDist[idist].Row["FstSalaryHeadID"].ToString();
-                                                                    //    drBnsMntDist["Value"] = decBonusValue;
-                                                                    //    drBnsMntDist.EndEdit();
-                                                                    //} 
-                                                                    #endregion
-
-
+                                                                  
                                                                 }
 
                                                                 decBonusValue = 0;
@@ -1962,27 +1899,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     decBonusValue = Convert.ToDecimal(sOutValue1);
 
                                                                     GetHeadWiseAmount(decBonusValue, sEmpSysID, dvBnsPolicyDist[idist].Row["SndSalaryHeadID"].ToString(), ref _List_BonusRetainHeadValue);
-                                                                    #region comm
-                                                                    //dvBnsMntDist.Table = dtBnsMntDist;
-                                                                    //dvBnsMntDist.RowFilter = "BnsPlyMntRetainID = '" + sBnsMntEmpCalID.Trim() + "' AND SalaryHeadID = '" + dvBnsPolicyDist[idist].Row["SndSalaryHeadID"].ToString() + "'";
-                                                                    //if (dvBnsMntDist.Count == 0)
-                                                                    //{
-                                                                    //    drBnsMntDist = dtBnsMntDist.NewRow();
-                                                                    //    drBnsMntDist["BnsPlyMntRetainID"] = sBnsMntEmpCalID;
-                                                                    //    drBnsMntDist["SalaryHeadID"] = dvBnsPolicyDist[idist].Row["SndSalaryHeadID"].ToString();
-                                                                    //    drBnsMntDist["Value"] = decBonusValue;
-                                                                    //    dtBnsMntDist.Rows.Add(drBnsMntDist);
-                                                                    //}
-                                                                    //else
-                                                                    //{
-                                                                    //    drBnsMntDist = dvBnsMntDist[0].Row;
-                                                                    //    drBnsMntDist.BeginEdit();
-                                                                    //    drBnsMntDist["BnsPlyMntRetainID"] = sBnsMntEmpCalID;
-                                                                    //    drBnsMntDist["SalaryHeadID"] = dvBnsPolicyDist[idist].Row["SndSalaryHeadID"].ToString();
-                                                                    //    drBnsMntDist["Value"] = decBonusValue;
-                                                                    //    drBnsMntDist.EndEdit();
-                                                                    //}
-                                                                    #endregion
+                                                                   
                                                                 }
                                                             }
                                                         }
@@ -1995,7 +1912,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         }//bIsEligibleApp
                                     }
 
-                                    //SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
                                 }
 
                                 TotProcComp += grdRowMaxCnt;
@@ -2012,13 +1928,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SelectedEmpCnt += 30;
                                 }
-                                //dsBnsEligibleEmp = null;
-                                // dsBnsMntEmpWiseCal = null;
                             }
-                            //if (bMaturity == true)
-                            //{
-                            //SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
-                            //}
+                           
                         }
 
                         #endregion Tag Employee List                        
@@ -2032,17 +1943,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             finally
             {
                 #region Clear DataSet 
-
-                //dsBnsEligibleEmp = null;
-                //dtBnsEligibleEmp = null;
-                //drBnsEligibleEmp = null;
-                //dvBnsEligibleEmp = null;
-
-                //dsBnsMntEmpWiseCal = null;
-                //dtBnsMntEmpWiseCal = null;
-                //drBnsMntEmpWiseCal = null;
-                //dvBnsMntEmpWiseCal = null;
-
+                           
                 dsSalInfo = null;
                 dsBnsPolicyMst = null;
                 dsBnsPolicyDtl = null;
@@ -3270,19 +3171,12 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             try
             {
                 string sMatDt = "";
-                //string sCurrentMonthName = System.DateTime.Now.ToString("dd-MMM-yyyy");
                 if (dsBnsMonthNo.Tables[0].Rows.Count > 0)
                 {
                     string _eDate = Convert.ToDateTime(para.FromDate).ToString("dd-MMM-yyyy");
-                    //if (para.bStructure)
-                    //{
                     for (int iMnt = 0; iMnt < dsBnsMonthNo.Tables[0].Rows.Count; iMnt++)
                     {
                         sMatDt = "01-" + dsBnsMonthNo.Tables[0].Rows[iMnt]["MonthName"].ToString().Substring(0, 3) + "-" + System.DateTime.Now.Year.ToString();
-                        //if (dtStartDate.Month == Convert.ToDateTime(sMatDt).Month && dtStartDate.Year == Convert.ToDateTime(sMatDt).Year)
-                        //{
-                        //    bIsEligibleApp = false;
-                        //}
                         if (dtStartDate.Month == Convert.ToDateTime(sMatDt).Month)
                         {
                             if (dtStartDate.Month == Convert.ToDateTime(_eDate).Year && dtStartDate.Month == Convert.ToDateTime(_eDate).Year)
@@ -3291,7 +3185,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                             }
                         }
                     }
-                    //}
+                    
                 }
                 else
                 {
@@ -4525,14 +4419,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                //strSQL = @"select * from (
-                //                        SELECT Id,SalaryHeadEnum,EmpSystemId EmpInfoSystemID,SalaryStructureId,IsEligible FROM EmployeeEligibleForSalaryHeadEnum
-                //                        ) x
-                //              where (" + EmpSystemId + ") ";
-                //strSQL = @"select * from (
-                //  SELECT Id,SalaryHeadEnum,EmpSystemId ,SalaryStructureId,IsEligible FROM EmployeeEligibleForSalaryHeadEnum
-                //    ) x
-                // where (" + EmpSystemId + ") ";
                 strSQL = @"select Id,SalaryHeadEnum,EmpSystemId ,SalaryStructureId,IsEligible from  EmployeeEligibleForSalaryHeadEnum
                               where (" + EmpSystemId + ") ";
 
