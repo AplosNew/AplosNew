@@ -164,7 +164,7 @@ namespace Aplos.Areas.Materials.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
