@@ -11,6 +11,7 @@ function EmployeeTimeOutController($window, cboService, commonMessage, $scope, $
     $scope.ToTime = null;
     $scope.FromTime = null;
 
+
     //Arrays
     $scope.EmpGridList = [];
     $scope.EmployeesList = [];

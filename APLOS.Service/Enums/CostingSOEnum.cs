@@ -2,20 +2,13 @@
 {
     public enum CostingSO
     {
-        CostingLineItem
-        , CostingItem
-        , Rate
+         Rate
         , SalesExpense
-        , MaterialCost
-        , DirectProcessCost
-        , OtherCharges
-        , Commission
-        , BusinessDevelopment
-        , Contribution
-        , UpCharge
         , Discount
-        , NetContribution
-        , NetSalesRealization
+        , UpCharge
+        , CM
+        , DirectCost
+        , Commission
 
     }
 

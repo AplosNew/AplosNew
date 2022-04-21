@@ -204,6 +204,7 @@ namespace Aplos
                   "~/Areas/Products/Scripts/InventoryCheckApprovedController.js",
                   "~/Areas/MeetingManagement/Scripts/MeetingPointsController.js",
                   "~/Areas/MeetingManagement/Scripts/MeetingReportsController.js",
+                  "~/Areas/HumanResource/Scripts/EmployeeUnderstandingHeadController.js",
 
                   "~/Scripts/MyApp/epanelApp.js"
                   ));

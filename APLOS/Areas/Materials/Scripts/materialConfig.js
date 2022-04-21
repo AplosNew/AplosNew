@@ -260,5 +260,12 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/UtilityMaster/Aplos',
             controller: 'UtilityMasterController'
         })
-       
+        .when('/utility-transaction', {
+            templateUrl: 'materials/UtilityTransaction/Aplos',
+            controller: 'UtilityTransactionController'
+        })
+        .when('/utility-transactionReport', {
+            templateUrl: 'materials/UtilityTransactionReport/Aplos',
+            controller: 'UtilityTransactionReportController'
+        })
 };
