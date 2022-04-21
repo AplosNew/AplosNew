@@ -931,7 +931,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select * from dbo.EmployeeGoalSetting";
+                string sql = @"select EmployeeId, PerformanceYearId, ConfirmationStatus from dbo.EmployeeGoalSetting";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -941,11 +941,15 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getMasterData()
+        public IEnumerable<object> getSelectedEmployee(string SelectedEmployeeId)
         {
             try
             {
-                var str = @"                            ";
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"select ei.EmployeeName from dbo.EmployeeInformation ei
+                            left join org.Department dep on dep.Id = ei.DepartmentId
+                            left join org.Section sec on sec.Id = ei.SectionId
+                            left join org.SubSection ss on ss.Id = ei.SubSectionId where SystemId =  '"+ SelectedEmployeeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -960,8 +964,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 //string TableName = "dbo.PerformancePeriod pp";
-                string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp 
-                            left join dbo.EmployeeGoalSetting egs on egs.PerformanceYearId = pp.Id";
+                string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -974,11 +977,10 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.PresentAddress1 ,ei.EmployeeCode, ei.DepartmentId, 
-                            ei.DesignationGroupId, ei.DesignationSystemID,  ei.PositionID, ei.EmployeeCurrentStatus,
+                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
                             ei.EmpType, ei.EmploymentType, ei.JobLocationID 
                             from dbo.EmployeeInformation ei
-                            left join dbo.EmployeeGoalSetting egs on egs.EmployeeId = ei.SystemId
+                           -- left join dbo.EmployeeGoalSetting egs on egs.EmployeeId = ei.SystemId
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -990,7 +992,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #region
-      public IEnumerable<object> getPMSMaster()
+      public IEnumerable<object> getPMSMaster(string SystemId)
         {
             var str = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
                         pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
@@ -998,7 +1000,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                         left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
                         left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
                         left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
-                        left join EmployeeInformation e on e.BudgetCode=mp.Id";
+                        left join EmployeeInformation e on e.BudgetCode=mp.Id
+                        where e.SystemId = '"+ SystemId + "' ";
             return _sqlRepository.GetDataCollection(str);
         }
         #endregion
@@ -1061,7 +1064,7 @@ namespace Library.HumanResource.NewAttendanceProcess
          }*/
         #endregion
         #region Save Process
-        public Dictionary<string, object> CreateEGSParent(Dictionary<string, object> datas, string EmployeeId)
+        public Dictionary<string, object> CreateEGSParent(Dictionary<string, object> datas, string SelectedEmployeeId)
         {
 
             try
@@ -1071,7 +1074,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                if (EmployeeId == null)
+                if (SelectedEmployeeId == null)
                 {
                     throw new Exception("Please Select Employee !!");
                 }
@@ -1087,11 +1090,14 @@ namespace Library.HumanResource.NewAttendanceProcess
                     genid.GenID(TableName, out _Id);
 
                     datas["SystemId"] = "EGS" + _Id;
+                    datas["EmployeeId"] = SelectedEmployeeId;
                     AddNewRow(dsMaster.Tables[0], datas);
+
                 }
                 else
                 {
                     _Id = datas["SystemId"].ToString();
+                    datas["EmployeeId"] = SelectedEmployeeId;
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
                 #endregion data update
@@ -1134,6 +1140,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        
+
         public string Delete(string id)
         {
             try
@@ -1158,6 +1166,56 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             }
         }
+
+        #region Save EG Child
+        public Dictionary<string, object> CreateEGChild(Dictionary<string, object> data)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "dbo.EmployeeGoalSettingChild";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+               
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "EGC" + _Id;
+                    
+                    AddNewRow(dsMaster.Tables[0], data);
+
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+              
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion save EG Child
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -1206,14 +1264,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Save Process
 
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.EmployeeGoalSetting");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
+       
     }
 
 }

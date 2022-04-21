@@ -1439,6 +1439,7 @@ namespace Library.OrderManagement.Production
 
     public class EmployeeTimeOutService
     {
+
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
