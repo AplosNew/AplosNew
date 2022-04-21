@@ -6550,7 +6550,7 @@ namespace Library.MaterialManagement.Inventory
                         if (im.IsNotNull())
                         {
                             //if (im.TotalQty < item.RequisitionQty) throw new CustomException(@"Stock is limited {" + item.RequisitionQty + "}");
-                            if (im.TotalQty < item.RequisitionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
+                            //if (im.TotalQty < item.RequisitionQty) throw new CustomException(@"Stock is limited for {" + item.MaterialMasterName + "} {" + item.ArticleName + "} {" + item.TransactionQty + "} . Available stock is {" + im.TotalQty + "}");
 
                             item.InventoryMaterialId = im.Id;
                             item.CompanyGroupId = im.CompanyGroupId;

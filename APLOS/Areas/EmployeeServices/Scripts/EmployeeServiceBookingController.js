@@ -149,19 +149,37 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
 
     // #end region
 
+    $scope.FromDate = null;
+    $scope.ToDate = null;
+
     $scope.getData = function () {
+
+        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
+            ShowResult("Selection of Date is Mandatory!!", 'failure');
+            throw ("Invalid Request!!");
+        }
+
+
+        const diffTime = Math.abs($scope.FromDate - $scope.ToDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 31) {
+            ShowResult('Maximum 31 Days can be selected!!', 'failure');
+            throw ("Invalid Request!!");
+        }
+
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            data: { column: $scope.searchBy, value: $scope.search , 'FromDate':$scope.FromDate , 'ToDate':$scope.ToDate},
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.EmployeeServiceBookingList = response.data;
+            $scope.EmployeeServiceBookingList = response.data.Data;
             ClearFields();
             ClearFieldsForms();
         });
     }
-    $scope.getData();
+   // $scope.getData();
 
     var d = new Date();
 
