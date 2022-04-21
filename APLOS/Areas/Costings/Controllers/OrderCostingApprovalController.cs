@@ -45,24 +45,21 @@ namespace Aplos.Areas.Costings.Controllers
 
         #endregion Constructor
 
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
         [HttpGet, Authorize]
         public ActionResult getFilters()
         {
             try
             {
-                var sql = @"select format(MMT.FromTime,'dd-MMM-yyyy') [From],format(MMT.ToTime,'dd-MMM-yyyy')[To],P.Id ProcessId,P.UserName Process
-                                            ,E.Id EntityId,E.UserName Entity,D.Id DepartmentId,D.UserName Department,DM.Id DetentionId
-											,DM.DetentionType,SD.SystemID ShiftId,SD.UserName Shift,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson
-											,DMM.DetentionCategory,DMM.DetentionSubCategory,0 as Avoidable,0 as Criticality
-											from MachineMasterTransaction MMT
-											left join ORG.Entity E on E.Id=MMT.EntityId
-											left join HKP.Process P on P.Id=MMT.ProcessId
-											left join ORG.Department D on D.Id=MMT.DepartmentId
-											left join DetentionMaster DM on DM.Id=MMT.DetentionId
-											left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
-											left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-											left join DetentionMaster DMM on DMM.Id=MMT.DetentionId";
-
+                var sql = @"SELECT MO.PartyId,P.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+  FROM TRN.MasterOrderItem AS moi 
+LEFT JOIN TRN.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+WHERE ISNULL(moi.OrderCostingMasterTemplateId,'')<>'' AND MO.OrderStatusId='Active'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
@@ -142,13 +139,10 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
      
-        public ActionResult Aplos()
-        {
-            return View();
-        }
+       
 
         [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
+        public ActionResult GetList(string column, string value, Dictionary<string, string> parameters)
 
         {
             string strkey = "1=1";
@@ -171,7 +165,7 @@ namespace Aplos.Areas.Costings.Controllers
 							left join [HKP].[ProductCategory] as pc on pc.Id = pm.ProductCategoryId
 							left join [HKP].[ProductSubCategory] as psc on psc.Id = pm.ProductSubCategoryId
 							LEFT OUTER JOIN CostingTypes AS ct ON ct.CostingType=pm.CostingType
-                          WHERE QCM.PlantId='" + identity.PlantId + @"' and (isnull(isPreCostingApproved,0)=0 OR isnull(isQuickCostingApproved,0)=0) ) AS TEMP WHERE 1=1 AND " + strkey;
+                          WHERE QCM.PlantId='" + identity.PlantId + @"' AND qcm.Id IN(SELECT OrderCostingMasterTemplateId FROM TRN.MasterOrderItem WHERE Id IN(" + parameters["LineItemId"] + @")) and (isnull(isPreCostingApproved,0)=0 OR isnull(isQuickCostingApproved,0)=0) ) AS TEMP WHERE 1=1 AND " + strkey;
 
 
             List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql, null);
