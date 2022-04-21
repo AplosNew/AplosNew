@@ -25,6 +25,7 @@ using Library.Data;
 using System.Configuration;
 using Library.Service.Logs;
 using System.Reflection;
+using Library.Service.Helpers;
 
 #endregion using
 
@@ -82,22 +83,19 @@ AS TEMP WHERE " + strkey + "";
             string sql = @"SELECT EUA.Id,eua.EmpUnderstandingHeadId, eua.ActivityName, eua.ActivityDetail,
        eua.PurposeOfTheActivity, eua.ActivityCategory, eua.OtherActivityCategory,
        eua.ActivityClass, eua.Priority, eua.Period, eua.Frequency, eua.AverageTime,
-       eua.ActivityImportance, eua.ActivityType, eua.FinancialImpact, eua.Remarks
-      
-,CASE eua.ApplicableDocument WHEN 1 THEN 'Yes' ELSE 'No' END ApplicableDocument
-       ,CASE eua.ApplicableKPI WHEN 1 THEN 'Yes' ELSE 'No' END ApplicableKPI
+       eua.ActivityImportance, eua.ActivityType, eua.FinancialImpact, eua.Remarks,eua.ApplicableDocument,eua.ApplicableKPI
+,CASE eua.ApplicableDocument WHEN 1 THEN 'Yes' ELSE 'No' END IsApplicableDocument
+       ,CASE eua.ApplicableKPI WHEN 1 THEN 'Yes' ELSE 'No' END IsApplicableKPI
   FROM EmpUnderstandingActivity EUA WHERE EmpUnderstandingHeadId='" + EmpUnderstandingHeadId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-
 
         [HttpPost, Authorize]
         public ActionResult GetDocumentList(string EmpUnderstandingActivityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * FROM ActivityDocuments WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -106,7 +104,6 @@ AS TEMP WHERE " + strkey + "";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT * FROM ActivityKPI WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
-
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
@@ -201,47 +198,6 @@ AS TEMP WHERE " + strkey + "";
             }
         }
 
-
-        [HttpPost, Authorize]
-        public JsonResult SaveDocument(Dictionary<string, object> data, string EmpUnderstandingActivityId)
-        {
-            try
-            {
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where DocumentName='" + data["DocumentName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Document already exists!!!");
-                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
-                    // genid.GenID("ActivityDocuments", out _Id);
-                    _Id = "EUD" + _Id;
-                    data["Id"] = _Id;
-                    data["EmpUnderstandingActivityId"] = EmpUnderstandingActivityId;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message });
-            }
-        }
 
         [HttpPost, Authorize]
         public JsonResult SaveKPI(Dictionary<string, object> data, string EmpUnderstandingActivityId)
@@ -408,12 +364,12 @@ AS TEMP WHERE " + strkey + "";
             return 1;
         }
 
-        #endregion
+     
         public Dictionary<string, object> GetDocFile(string id)
         {
             try
             {
-                var sql = @"Select FileId, FileName From [dbo].[DocumentActivity]  Where Id='" + id + "'";
+                var sql = @"Select Id,Attachment, FileName From [dbo].[ActivityDocuments]  Where Id='" + id + "'";
                 return _sqlRepository.GetData(sql, null);
             }
             catch (Exception ex)
@@ -423,64 +379,127 @@ AS TEMP WHERE " + strkey + "";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-        //public string GetPk(DocumentActivity entity)
-        //{
-        //    try
-        //    {
-        //        if (string.IsNullOrEmpty(entity.Id))
-        //        {
-        //            return entity.ActivityId + "-" + _documentActivityService.GetAutoNumber(nameof(DocumentActivity), PKGeneratorEnum.Auto, null, DateTime.Now);
-        //        }
-        //        else
-        //        {
-        //            return entity.Id;
-        //        }
-        //    }
-        //    catch (CustomException)
-        //    {
-        //        throw;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new CustomException(ex.Message, ex,
-        //           Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-        //           ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
-        //    }
-        //}
 
+        public void SaveDocuments(ActivityDocuments data, out string id)
+        {
+            id = "";
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+               
+
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where DocumentName='" + data.DocumentName + "'  AND  Id<>'" + data.Id + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Document already exists!!!");
+                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where Id='" + data.Id + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+               
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
+                    _Id = "AD" + _Id;
+                    data.Id = _Id;
+              
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    dr["Id"] = data.Id;
+                    
+                    dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
+                    dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
+                    dr["DocumentType"] = data.DocumentType;
+                    dr["DocumentFormat"] = data.DocumentFormat;
+                    dr["DocumentClass"] = data.DocumentClass;
+                    dr["DocumentCode"] = data.DocumentCode;
+                    dr["DocumentName"] = data.DocumentName;
+                    dr["Remarks"] = data.Remarks;
+                    dr["Attachment"] = data.FileName;
+                    dr["FileName"] = data.FileName;
+                   
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+
+                    dsMaster.Tables[0].Rows.Add(dr);
+
+                }
+                else
+                {
+                    //edit
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+
+                    dr.BeginEdit();
+
+                    dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
+                    dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
+                    dr["DocumentType"] = data.DocumentType;
+                    dr["DocumentFormat"] = data.DocumentFormat;
+                    dr["DocumentClass"] = data.DocumentClass;
+                    dr["DocumentCode"] = data.DocumentCode;
+                    dr["DocumentName"] = data.DocumentName;
+                    dr["Remarks"] = data.Remarks;
+                    dr["Attachment"] = data.FileName;
+                    dr["FileName"] = data.FileName;
+
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+
+                    dr.EndEdit();
+                }
+
+                id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+               
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
 
         [HttpPost, Authorize]
-        public JsonResult Create(FormCollection form, HttpPostedFileBase[] file)
+        public JsonResult SaveDocument(FormCollection form, HttpPostedFileBase[] file)
         {
-            DocumentActivity documentActivity = new JavaScriptSerializer().Deserialize<DocumentActivity>(form["documentActivityNew"]);
+            ActivityDocuments documentActivity = new JavaScriptSerializer().Deserialize<ActivityDocuments>(form["documentActivityNew"]);
             var folderName = "";
 
 
-            var directory = new AppSettingsReader().GetValue("DOC", typeof(string)).ToString() + folderName + "/";
+            var directory = ResourcesPathReader.GetActivityDocumentsPath();
+           
+
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
-            string path = System.IO.Path.Combine((Server.MapPath(directory)));
+            var path = Path.Combine(directory);
 
             var fileId = "";
             var fileName = "";
             var filedata = GetDocFile(documentActivity.Id);
             if (filedata.Count > 0)
             {
-                if (!string.IsNullOrEmpty(filedata["FileId"].ToString()) &&
+                if (!string.IsNullOrEmpty(filedata["Attachment"].ToString()) &&
                     !string.IsNullOrEmpty(filedata["FileName"].ToString()))
-                    fileId = filedata["FileId"].ToString();
+                    fileId = filedata["Attachment"].ToString();
                 fileName = filedata["FileName"].ToString();
 
                 if (fileName != documentActivity.FileName)
                     if (System.IO.File.Exists(path + fileId + System.IO.Path.GetExtension(fileName)))
                         System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(fileName));
             }
-            string _Id = "";
-            bplib.clsGenID genid = new bplib.clsGenID();
-            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
-            _Id = "AD" + _Id;
-            var docPk = _Id;
-
+            //string _Id = "";
+            //bplib.clsGenID genid = new bplib.clsGenID();
+            //genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
+            //_Id = "AD" + _Id;
+            //var docPk = _Id;
+            SaveDocuments(documentActivity, out string Id);
             if (file.IsNotNull())
             {
                 foreach (var item in file)
@@ -489,20 +508,75 @@ AS TEMP WHERE " + strkey + "";
                     {
                         if (System.IO.File.Exists(path + item.FileName))
                             System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(item.FileName));
-                        item.SaveAs(path + docPk + System.IO.Path.GetExtension(item.FileName));
+                        item.SaveAs(path + Id + System.IO.Path.GetExtension(item.FileName));
                     }
                 }
             }
 
             if (!string.IsNullOrEmpty(documentActivity.FileName))
             {
-                if (!System.IO.File.Exists(path + docPk + System.IO.Path.GetExtension(documentActivity.FileName)))
+                if (!System.IO.File.Exists(path + Id + System.IO.Path.GetExtension(documentActivity.FileName)))
                     throw new CustomException("File didn't saved.");
             }
-
+            
             // activityService.InsertOrUpdateDocument(documentActivity, docPk);
 
             return Json(new { DocumentActivity = documentActivity, Message = "Data Saved Successfully" });
         }
+
+
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteQualification(string id)
+        {
+            var directory = ResourcesPathReader.GetActivityDocumentsPath();
+            var path = Path.Combine(directory);
+            var fileId = "";
+            var fileName = "";
+            var data = GetDocFile(id);
+
+
+            if (data.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(data["Id"].ToString()) &&
+                !string.IsNullOrEmpty(data["FileName"].ToString()))
+                    fileId = data["Id"].ToString();
+                fileName = data["FileName"].ToString();
+                if (System.IO.File.Exists(path + fileId + Path.GetExtension(fileName)))
+                    System.IO.File.Delete(path + fileId + Path.GetExtension(fileName));
+            }
+
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+
+        #endregion
     }
+
+    public class ActivityDocuments : BaseModel
+    {
+        #region Scalar Properties
+
+        public string Id { get; set; }
+        public string EmpUnderstandingActivityId { get; set; }
+        public string DocumentPreprationFrequency { get; set; }
+        public string DocumentType { get; set; }
+        public string DocumentFormat { get; set; }
+        public string DocumentClass { get; set; }
+        public string DocumentCode { get; set; }
+        public string DocumentName { get; set; }
+        public string Remarks { get; set; }
+        public string Attachment { get; set; }
+        public string FileName { get; set; }
+        public string AddedBy { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public string AddedFromIP { get; set; }
+
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string UpdatedFromIP { get; set; }
+
+        #endregion Scalar Properties
+    }
+
 }
