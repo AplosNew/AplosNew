@@ -639,6 +639,18 @@ namespace Library.Service.Helpers
 			}
 		}
 
+		public static string GetActivityDocumentsPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/ActivityDocuments/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		public static string GetDocumentSourcePath()
 		{
 			try

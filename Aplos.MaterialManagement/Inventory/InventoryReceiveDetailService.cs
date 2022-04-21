@@ -725,7 +725,6 @@ namespace Library.MaterialManagement.Inventory
                     if (Convert.ToDecimal(itemDetail.POQty) > (Convert.ToDecimal(itemDetail.GRNRcvQty + itemDetail.TransactionQty)))
                     {
                         entity.msgForAllocationNeed = "You have to allocate GRN Qty manually for Sales Order ! Please go to edit mode for allocation";
-                        //throw new CustomException("You have to allocate GRN Qty manually for Sales Order !");
                     }
                     else
                     {

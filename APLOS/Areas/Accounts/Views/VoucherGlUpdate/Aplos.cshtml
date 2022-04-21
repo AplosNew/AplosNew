@@ -156,6 +156,8 @@
                         <th>Posting Date</th>
                         <th>Doc Ref No</th>
                         <th>Doc Date</th>
+                        <th>Source Type</th>
+                        <th>Capitalize</th>
                         <th>Currency</th>
                         <th>Amount</th>
                         <th>Status</th>
@@ -168,13 +170,15 @@
                         <td>{{x.PostingDate | dateFiltering}}</td>
                         <td>{{x.DocRefNo}}</td>
                         <td>{{x.DocDate | dateFiltering}}</td>
+                        <td>{{x.SourceType}}</td>
+                        <td>{{x.Capitalize}}</td>
                         <td>{{x.CurrencyCode}}</td>
                         <td class="text-right">{{x.DrAmount | number:2}}</td>
                         <td>{{x.IsPark?'Parked':'Posted'}}</td>
                         <td class="text-right">
                             <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.Id,x.SourceType)"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.Id,x.SourceType)"><i class="fa fa-file-excel-o"></i></a></li>
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Pdf',x.Id,x.SourceType,x.InventoryIssueId)"><i class="fa fa-file-pdf-o"></i></a></li>
+                                <li><a class="btn btn-action" ng-click="VendorInvoiceReport('Excel',x.Id,x.SourceType,x.InventoryIssueId)"><i class="fa fa-file-excel-o"></i></a></li>
                             </ul>
                         </td>
                     </tr>

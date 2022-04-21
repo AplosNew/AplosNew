@@ -1,0 +1,45 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+@*<togglable name="{{title}}"></togglable>*@
+
+<div class="form-elements form-horizontal">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>&nbsp;{{title}}</span></div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="filters">
+                </div>
+
+                <div class="col-md-1 text-right" style="margin-top:20px;">
+                    <button type="button" class="btn single-btn" ng-click="Report()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<confirm-modal></confirm-modal>
