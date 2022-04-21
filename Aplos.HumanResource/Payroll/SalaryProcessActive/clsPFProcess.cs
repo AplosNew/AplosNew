@@ -1686,28 +1686,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
         {
             #region Variable Dataset
 
-            //DataSet dsPFEligibleEmp = null;
-            //DataTable dtPFEligibleEmp = null;
-            //DataRow drPFEligibleEmp = null;
-            //DataView dvPFEligibleEmp = null;
-
-            //DataSet dsPFMntEmpWiseCal = null;
-            //DataTable dtPFMntEmpWiseCal = null;
-            //DataRow drPFMntEmpWiseCal = null;
-            //DataView dvPFMntEmpWiseCal = null;
-
-            //DataSet dsPFMntDisEmp = null;
-            //DataTable dtPFMntDisEmp = null;
-            //DataRow drPFMntDisEmp = null;
-            //DataView dvPFMntDisEmp = null;
-
-            //DataSet dsPFMntDisEmpr = null;
-            //DataTable dtPFMntDisEmpr = null;
-            //DataRow drPFMntDisEmpr = null;
-            //DataView dvPFMntDisEmpr = null;
-
             DataSet dsSalInfo = null;
-
             DataSet dsSalHd = null;
             DataTable dtSalHd = null;
             DataView dvSlrHd = null;
@@ -1719,7 +1698,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             DataSet dsCurRl = null;
             DataTable dtCurRl = null;
             DataView dvCurRl = null;
-            //clsSalaryStructureAplos obSS = new global::clsSalaryStructureAplos();
             clsSalaryUtility obSS = new clsSalaryUtility();
 
             #endregion Variable Dataset
@@ -1731,8 +1709,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             string sPFDtlID = "";
             string sGroupID = para.GroupID;
             string sPlantID = para.PlantID;
-            //string sPFElgGentID = "";
-            //string sPFDedGentID = "";
             string sFormulaID = "";
             string sFormulaResult = "";
             string sEmpInfoSysIDColl = "";

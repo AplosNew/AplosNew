@@ -1,0 +1,109 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
+<div class="form-horizontal" ng-form="modelForm">
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" style="margin-top:10px">Employee<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
+                    <input type="text" name="Location" ng-model="employee" ng-click="selectEmployee()" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" style="margin-top:10px">From<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
+                    <input class="form-control" type="text" ej-timepicker e-value="FromTime" e-change="dd" e-width="100%" />
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+            <div class="form-group">
+                <label class="col-sm-2 control-label" style="margin-top:10px">Date<sup>*</sup></label>
+                <div class="col-sm-6" style="margin-top:10px">
+                    <input type="text" name="Form Date" ng-model="EffectiveDate" datepicker class="form-control" disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label" style="margin-top:10px">To<sup>*</sup></label>
+                <div class="col-sm-6 show-message" style="margin-top:10px">
+                    <input class="form-control" type="text" ej-timepicker e-value="ToTime" e-change="dd" e-width="100%" />
+                </div>
+            </div>
+            <div class="common-btn" style="margin-top:10px;">
+                <ul class="list-inline text-right" style="position:relative; right: 231px;">
+                    <li> <button ng-click="save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                    <li></li>
+                    <li></li>
+                    @*<li> <button ng-click="clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
+
+                </ul>
+            </div>
+        </div>
+       
+    </div>
+    <!--<div class="row">
+        <div class="common-btn" style="margin-top:10px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="save();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>-->
+                @*<li> <button ng-click="clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>*@
+
+            <!--</ul>
+        </div>
+    </div>-->
+    <div class="row">
+        <div class="col-md-6">
+            <div id="getEmployeesTime" ej-grid e-datasource="EmpGridList"
+                 e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                 e-allowtextwrap="true" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                 e-maxWidth="200px;">
+                <div e-columns>
+                    <div e-column e-field="Frm" e-headertext="From" e-width="80" e-type="string"></div>
+                    <div e-column e-field="Trm" e-headertext="To" e-width="80" e-type="string"></div>
+                    <div e-column e-field="Duration" e-headertext="Duration" e-width="80"></div>
+
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+    
+</div>
+<confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="employeesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">Employees</h1>
+            </div>
+            <div class="modal-body" style="min-height:300px; min-width:100%;">
+                <div class="row" style="margin: 20px; font-style:italic"> </div>
+                <p style="margin:10px;">
+                    Select The Employee by Double Clicking the Choice.
+                <p>
+
+                    <div id="getEmployees" ej-grid e-datasource="EmployeesList"
+                         e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true"
+                         e-minWidth="450" e-minHeight="400" e-allowtextwrap="true" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtouch="true"
+                         e-recorddoubleclick="doubleEmployee">
+                        <div e-columns>
+                            <div e-column e-field="SystemId" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+
+                        </div>
+                    </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

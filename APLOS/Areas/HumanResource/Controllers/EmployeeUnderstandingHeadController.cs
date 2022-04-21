@@ -18,6 +18,13 @@ using Syncfusion.DocIO.DLS;
 using Library.Security.Core;
 using System.Data;
 using System;
+using System.Web;
+using Library.Model.External;
+using System.IO;
+using Library.Data;
+using System.Configuration;
+using Library.Service.Logs;
+using System.Reflection;
 
 #endregion using
 
@@ -31,9 +38,10 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         private readonly IFabricRollMasterService _fabricRollMasterService;
         private SqlRepository _sqlRepository = new SqlRepository();
+        //  private readonly IActivityService _activityService;
         public EmployeeUnderstandingHeadController()
         {
-            
+
         }
 
         #endregion -- Constructor
@@ -59,9 +67,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT euh.*,ei.EmployeeCode ,ei.EmployeeName FROM EmpUnderstandingHead AS euh
-LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
-) AS TEMP WHERE " + strkey + "";
+            string sql = @"select top 100 * from (SELECT euh.Id, euh.EmployeeId, euh.BudgetCode, euh.PositionCode,FORMAT(euh.[Date],'dd-MMM-yyyy') Date,
+       euh.[Status], euh.Remarks,ei.EmployeeCode ,ei.EmployeeName
+            FROM EmpUnderstandingHead AS euh LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId)
+AS TEMP WHERE " + strkey + "";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -70,7 +79,33 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
         public ActionResult GetActivityList(string EmpUnderstandingHeadId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT * FROM EmpUnderstandingActivity WHERE EmpUnderstandingHeadId='"+ EmpUnderstandingHeadId + @"'";
+            string sql = @"SELECT EUA.Id,eua.EmpUnderstandingHeadId, eua.ActivityName, eua.ActivityDetail,
+       eua.PurposeOfTheActivity, eua.ActivityCategory, eua.OtherActivityCategory,
+       eua.ActivityClass, eua.Priority, eua.Period, eua.Frequency, eua.AverageTime,
+       eua.ActivityImportance, eua.ActivityType, eua.FinancialImpact, eua.Remarks
+      
+,CASE eua.ApplicableDocument WHEN 1 THEN 'Yes' ELSE 'No' END ApplicableDocument
+       ,CASE eua.ApplicableKPI WHEN 1 THEN 'Yes' ELSE 'No' END ApplicableKPI
+  FROM EmpUnderstandingActivity EUA WHERE EmpUnderstandingHeadId='" + EmpUnderstandingHeadId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetDocumentList(string EmpUnderstandingActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM ActivityDocuments WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetKPIList(string EmpUnderstandingActivityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM ActivityKPI WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -95,7 +130,7 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                   // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
+                    // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
                     genid.GenID("EmpUnderstandingHead", out _Id);
                     _Id = "EUH" + _Id;
                     data["Id"] = _Id;
@@ -125,12 +160,17 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
         }
 
         [HttpPost, Authorize]
-        public JsonResult SaveActivity(Dictionary<string, object> data,string EmpUnderstandingHeadId)
+        public JsonResult SaveActivity(Dictionary<string, object> data, string EmpUnderstandingHeadId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from EmpUnderstandingActivity where ActivityName='" + data["ActivityName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Activity already exists!!!");
+
                 con.OpenDataSetThroughAdapter("select * from EmpUnderstandingActivity where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -138,11 +178,52 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
-                    genid.GenID("EmpUnderstandingHead", out _Id);
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingActivity", out _Id);
+                    // genid.GenID("EmpUnderstandingActivity", out _Id);
                     _Id = "EUA" + _Id;
                     data["Id"] = _Id;
                     data["EmpUnderstandingHeadId"] = EmpUnderstandingHeadId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        [HttpPost, Authorize]
+        public JsonResult SaveDocument(Dictionary<string, object> data, string EmpUnderstandingActivityId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where DocumentName='" + data["DocumentName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Document already exists!!!");
+                con.OpenDataSetThroughAdapter("select * from ActivityDocuments where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
+                    // genid.GenID("ActivityDocuments", out _Id);
+                    _Id = "EUD" + _Id;
+                    data["Id"] = _Id;
+                    data["EmpUnderstandingActivityId"] = EmpUnderstandingActivityId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -163,13 +244,55 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateChild(Dictionary<string, object> data,string UtilityMasterId)
+        public JsonResult SaveKPI(Dictionary<string, object> data, string EmpUnderstandingActivityId)
         {
             try
             {
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+                con.OpenDataSetThroughAdapter("select * from ActivityKPI where KPIName='" + data["KPIName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("KPI already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from ActivityKPI where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityKPI", out _Id);
+                    // genid.GenID("ActivityDocuments", out _Id);
+                    _Id = "EUK" + _Id;
+                    data["Id"] = _Id;
+                    data["EmpUnderstandingActivityId"] = EmpUnderstandingActivityId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateChild(Dictionary<string, object> data, string UtilityMasterId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
                 con.OpenDataSetThroughAdapter("select * from UtilityDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -245,10 +368,6 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
                 {
                 }
             }
-
-
-
-
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
@@ -290,6 +409,100 @@ LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
         }
 
         #endregion
+        public Dictionary<string, object> GetDocFile(string id)
+        {
+            try
+            {
+                var sql = @"Select FileId, FileName From [dbo].[DocumentActivity]  Where Id='" + id + "'";
+                return _sqlRepository.GetData(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+        //public string GetPk(DocumentActivity entity)
+        //{
+        //    try
+        //    {
+        //        if (string.IsNullOrEmpty(entity.Id))
+        //        {
+        //            return entity.ActivityId + "-" + _documentActivityService.GetAutoNumber(nameof(DocumentActivity), PKGeneratorEnum.Auto, null, DateTime.Now);
+        //        }
+        //        else
+        //        {
+        //            return entity.Id;
+        //        }
+        //    }
+        //    catch (CustomException)
+        //    {
+        //        throw;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new CustomException(ex.Message, ex,
+        //           Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+        //           ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+        //    }
+        //}
 
+
+        [HttpPost, Authorize]
+        public JsonResult Create(FormCollection form, HttpPostedFileBase[] file)
+        {
+            DocumentActivity documentActivity = new JavaScriptSerializer().Deserialize<DocumentActivity>(form["documentActivityNew"]);
+            var folderName = "";
+
+
+            var directory = new AppSettingsReader().GetValue("DOC", typeof(string)).ToString() + folderName + "/";
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+            string path = System.IO.Path.Combine((Server.MapPath(directory)));
+
+            var fileId = "";
+            var fileName = "";
+            var filedata = GetDocFile(documentActivity.Id);
+            if (filedata.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(filedata["FileId"].ToString()) &&
+                    !string.IsNullOrEmpty(filedata["FileName"].ToString()))
+                    fileId = filedata["FileId"].ToString();
+                fileName = filedata["FileName"].ToString();
+
+                if (fileName != documentActivity.FileName)
+                    if (System.IO.File.Exists(path + fileId + System.IO.Path.GetExtension(fileName)))
+                        System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(fileName));
+            }
+            string _Id = "";
+            bplib.clsGenID genid = new bplib.clsGenID();
+            genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
+            _Id = "AD" + _Id;
+            var docPk = _Id;
+
+            if (file.IsNotNull())
+            {
+                foreach (var item in file)
+                {
+                    if (item != null)
+                    {
+                        if (System.IO.File.Exists(path + item.FileName))
+                            System.IO.File.Delete(path + fileId + System.IO.Path.GetExtension(item.FileName));
+                        item.SaveAs(path + docPk + System.IO.Path.GetExtension(item.FileName));
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(documentActivity.FileName))
+            {
+                if (!System.IO.File.Exists(path + docPk + System.IO.Path.GetExtension(documentActivity.FileName)))
+                    throw new CustomException("File didn't saved.");
+            }
+
+            // activityService.InsertOrUpdateDocument(documentActivity, docPk);
+
+            return Json(new { DocumentActivity = documentActivity, Message = "Data Saved Successfully" });
+        }
     }
 }
