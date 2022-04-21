@@ -1875,10 +1875,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                 for (int iUnTgEmCnt = SelectedEmpCnt; iUnTgEmCnt < grdRowMaxCnt + SelectedEmpCnt; iUnTgEmCnt++)
                                 {
-                                    if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() == "1800164")
-                                    {
-
-                                    }
+                                    
                                     if (string.IsNullOrEmpty(sEmpInfoSysIDColl) == true)
                                     {
                                         sEmpInfoSysIDColl = "'" + dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim() + "'";
@@ -1939,128 +1936,25 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                     #endregion DataSet
 
-                                    //sPFElgGentID = "";
-                                    //sPFDedGentID = "";
-                                    //bplib.clsGenID objGenID = new bplib.clsGenID();
-                                    //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "PF_ELIGIBLE", out sPFElgGentID);
-                                    //sPFElgGentID = "PE" + sPFElgGentID;
-
-                                    //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "PF_CALCULATION", out sPFDedGentID);
-                                    //sPFDedGentID = "PC" + sPFDedGentID;
-
-                                    //for child  calc
-                                    //string pfCalChild = "";
-                                    //int pfCalChildCount = 0;
-                                    //objGenID.GenHRID(DateTime.Now.ToShortDateString().ToString(), "PF_CALCULATION_CHILD", out pfCalChild);
-
+                                    
                                     for (int iUnTgEmCnt = SelectedEmpCnt; iUnTgEmCnt < grdRowMaxCnt + SelectedEmpCnt; iUnTgEmCnt++)
                                     {
-                                        //pfCalChildCount++;
-                                        //sPFEligibleEmpID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["PFEligibleEmpID"].ToString().Trim();
-                                        //sPFMntEmpCalID = "P" + DateTime.Now.ToString("yy") + pfCalChild + "-" + pfCalChildCount;
-                                        sEmpSysID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim();
-
-                                        if (sEmpSysID == "1800423")
-                                        {
-
-                                        }
+                                         sEmpSysID = dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim();
 
                                         iAgeIntYears = Convert.ToInt32(bplib.clsWebLib.GetNumData(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["AgeIntYears"].ToString().Trim()));
                                         decPFVoluntaryPer = Convert.ToDecimal(bplib.clsWebLib.GetNumData(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["VoluntaryPFValue"].ToString()));
                                         bIsAgeLimitDistributionEmpr = true;
                                         bEmpNotEntGetEmplrAlwn = false;
-
-                                        #region comm
-                                        //bPFELIsActive = Convert.ToBoolean(bplib.clsWebLib.GetBoolData(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["IsActive"].ToString().Trim()));
-                                        //if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["Eligibility"].ToString().ToUpper().Trim() == "DOJ")
-                                        //{
-                                        //    dtEligibilityDate = Convert.ToDateTime(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["DOJ"].ToString().Trim());
-                                        //}
-                                        //else if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["Eligibility"].ToString().ToUpper().Trim() == "DOC")
-                                        //{
-                                        //    dtEligibilityDate = Convert.ToDateTime(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["DOC"].ToString().Trim());
-                                        //}
-                                        //else
-                                        //{
-                                        //    dtEligibilityDate = Convert.ToDateTime(dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["DOJ"].ToString().Trim());
-                                        //}
-
-                                        //if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EligibilityBaseOn"].ToString().ToUpper().Trim() == "DAY")
-                                        //{
-                                        //    dtStartDate = dtEligibilityDate.AddDays(decEligibilityTimeLenght);
-                                        //}
-                                        //else if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["EligibilityBaseOn"].ToString().ToUpper().Trim() == "MONTH")
-                                        //{
-                                        //    dtStartDate = dtEligibilityDate.AddYears(decEligibilityTimeLenght);
-                                        //}
-                                        //else
-                                        //{
-                                        //    dtStartDate = dtEligibilityDate;
-                                        //}
-
-                                        //if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["MaturityBaseOn"].ToString().ToUpper().Trim() == "MONTH")
-                                        //{
-                                        //    dtMaturityDate = dtStartDate.AddMonths(decMaturityTimeLenght);
-                                        //}
-                                        //else if (dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["MaturityBaseOn"].ToString().ToUpper().Trim() == "YEAR")
-                                        //{
-                                        //    dtMaturityDate = dtStartDate.AddYears(decMaturityTimeLenght);
-                                        //}
-                                        //else
-                                        //{
-                                        //    dtMaturityDate = dtStartDate;
-                                        //} 
-                                        #endregion
-
+                                                                               
                                         #region Salary Amount Insert Into Virtual Table
 
                                         dtValue = para.dtValue;
-                                        //DataTable dtValue = new DataTable();
-                                        //dtValue.TableName = "TempTable";
-                                        //dtValue.Columns.Add("EmpSystemID");
-                                        //dtValue.Columns.Add("SalaryHeadID");
-                                        //dtValue.Columns.Add("EntryCurrencyID");
-                                        //dtValue.Columns.Add("EntryAmount");
-                                        //dtValue.Columns.Add("EarningCurrencyID");
-                                        //dtValue.Columns.Add("EarningAmount");
-                                        //dtValue.Columns.Add("DecimalNo");
-                                        //dtValue.Columns.Add("IntegerInDisb");
-                                        //dtValue.Columns.Add("IsDecimalInDisb");
-                                        //dtValue.Columns.Add("RoundOption");
                                         bVoluntaryPF = false;
                                         IsPFHolder = false;
 
                                         List<dicSalInfo> dicSalInfo_Sub = null;
                                         GetSubList(dicSalInfo, dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim(), out dicSalInfo_Sub);
 
-                                        //var ssmainTable=   dicSalInfo.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //var ssbackTable=   dicSalInfoBack.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //   if (ssbackTable.Count > 0 && ssmainTable.Count>0)
-                                        //   {
-                                        //       var edb = ssbackTable[0].EffectiveDate;
-                                        //       var edm = ssmainTable[0].EffectiveDate;
-                                        //       if(Convert.ToDateTime(edb)>Convert.ToDateTime(edm))
-                                        //       {
-                                        //           dicSalInfo_Sub = dicSalInfoBack.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //       }
-                                        //       else
-                                        //       {
-                                        //           dicSalInfo_Sub = dicSalInfo.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //       }
-                                        //   }
-                                        //   else
-                                        //   {
-                                        //       if (ssbackTable.Count > 0 )
-                                        //       {
-                                        //           dicSalInfo_Sub = dicSalInfoBack.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //       }
-                                        //       else
-                                        //       {
-                                        //           dicSalInfo_Sub = dicSalInfo.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
-                                        //       }
-                                        //   }
-
-                                        //var dicSalInfo_Sub = dicSalInfo.FindAll(x => x.EmpInfoSystemID == dsUnTagEmp.Tables[0].Rows[iUnTgEmCnt]["SystemID"].ToString().Trim());
                                         if (dicSalInfo_Sub.Count > 0)
                                         {
                                             sCurrencyRuleSystemID = dicSalInfo_Sub[0].CurrencyRuleSystemID;
@@ -2078,9 +1972,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 bVoluntaryPF = true;
                                             }
 
-                                            //IsPFHolder=
-                                            //if (para.dsSalInfo == null)
-                                            // var c = para.dicProcChild.Count;
                                             if (para.dicProcChild.Count == 0)
                                             {
                                                 for (int i = 0; i < dicSalInfo_Sub.Count; i++)
@@ -2100,21 +1991,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         #region For SalaryHead Wise Amount In Virtual 2nd Table
 
                                                         dtValue = para.dtValue;
-                                                        //DataRow dtValueRow = dtValue.NewRow();
-
-                                                        //dtValueRow["EmpSystemID"] = dicSalInfo_Sub[i].EmpInfoSystemID;
-                                                        //dtValueRow["SalaryHeadID"] = sSlrHD;
-                                                        //dtValueRow["EntryCurrencyID"] = sEntCurID;
-                                                        //dtValueRow["EntryAmount"] = decEntCur;
-                                                        //dtValueRow["EarningCurrencyID"] = sEarnCurID;
-                                                        //dtValueRow["EarningAmount"] = decEarnCur;
-                                                        //dtValueRow["DecimalNo"] = iDecimalNo;
-                                                        //dtValueRow["IntegerInDisb"] = bIntegerInDisb;
-                                                        //dtValueRow["IsDecimalInDisb"] = bIsDecimalInDisb;
-                                                        //dtValueRow["RoundOption"] = sRoundOption;
-
-                                                        //dtValue.Rows.Add(dtValueRow);
-
+                                                       
                                                         #endregion For SalaryHead Wise Amount In Virtual 2nd Table
 
                                                         if (dicSalInfo_Sub[i].HeadCategory == "PF Employee Contribution")
@@ -2164,20 +2041,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         }
 
                                         #endregion Salary Amount Insert Into Virtual Table
-
-                                        ////if (bIndividualAlwn == true)
-                                        ////{
-                                        ////    dvPFEligibleEmp.Table = dtPFEligibleEmp;
-                                        ////    dvPFEligibleEmp.RowFilter = "ID = '" + sPFEligibleEmpID.Trim() + "'";
-                                        ////    if (dvPFEligibleEmp.Count > 0)
-                                        ////    {
-                                        ////        bEmpNotEntGetEmplrAlwn = Convert.ToBoolean(dvPFEligibleEmp[0].Row["IsNotEntGetEmplrAlwn"].ToString());
-                                        ////    }
-                                        ////}
-                                        ////else
-                                        ////{
-                                        ////    bEmpNotEntGetEmplrAlwn = true;
-                                        ////}
 
                                         for (int iPFDtl = 0; iPFDtl < dsPFPolicyDtl.Tables[0].Rows.Count; iPFDtl++)
                                         {
@@ -2261,19 +2124,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                             // bVoluntaryPF = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsVoluntaryPF"].ToString().Trim());
                                             bNotEntGetEmplrAlwn = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsNotEntGetEmplrAlwn"].ToString().Trim());
                                             bIndividualAlwn = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsIndividualAlwn"].ToString().Trim());
-
-                                            ////bIsAgeLimit = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsAgeLimit"].ToString().Trim());
-                                            ////if (dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["AgeLimit"].ToString().Trim() != "")
-                                            ////{ iAgeLimit = Convert.ToInt32(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["AgeLimit"].ToString().Trim()); }
-                                            ////else { iAgeLimit = 0; }
-
-                                            ////if (bIsAgeLimit == true)
-                                            ////{
-                                            ////    if (iAgeIntYears >= iAgeLimit)
-                                            ////    {
-                                            ////        bIsAgeLimitDistributionEmpr = false;
-                                            ////    }
-                                            ////}
+                                                                                  
 
                                             bIsAgeLimit = Convert.ToBoolean(dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["IsAgeLimit"].ToString().Trim());
                                             if (dsPFPolicyDtl.Tables[0].Rows[iPFDtl]["AgeLimit"].ToString().Trim() != "")
@@ -2314,21 +2165,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 }
 
                                                 GetHeadWiseAmount(decEmpCtbtnAmount, sEmpSysID, sPFContSalaryHeadIDEmp, ref _List_PFHeadValue);
-                                                //var _list_sub=    _List_PFHeadValue.FindAll(x => x.EmpSystemid == sEmpSysID && x.SalaryHeadId== sPFContSalaryHeadIDEmp);
-                                                //    if (_list_sub.Count > 0)
-                                                //    {
-                                                //        var ob = _list_sub[0];
-                                                //        ob.Amount = decEmpCtbtnAmount;
-                                                //    }
-                                                //    else
-                                                //    {
-                                                //        EmpSalaryHeadAmount oba = new EmpSalaryHeadAmount();
-                                                //        oba.EmpSystemid = sEmpSysID;
-                                                //        oba.SalaryHeadId = sPFContSalaryHeadIDEmp;
-                                                //        oba.Amount = decEmpCtbtnAmount;
-                                                //        _List_PFHeadValue.Add(oba);
-                                                //    }
-
+                                              
 
                                                 #endregion Employee Contribution Amount
 
@@ -2355,26 +2192,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 //_ERAmount = decEmprCtbtnAmount;
                                                 #endregion Employer Contribution Amount
 
-                                                #region Data Save IN Table [PFMonthlyEmpWiseCalculation]
-
-                                                //dvPFMntEmpWiseCal.Table = dtPFMntEmpWiseCal;
-                                                //dvPFMntEmpWiseCal.RowFilter = "PFEligibleEmpID = '" + sPFEligibleEmpID + "' AND MonthNo = '" + Convert.ToDateTime(para.ToDate).Month + "' AND YearNo = '" + Convert.ToDateTime(para.ToDate).Year + "'";
-                                                //if (dvPFMntEmpWiseCal.Count == 0)
-                                                //{//Add new block
-                                                //    drPFMntEmpWiseCal = dtPFMntEmpWiseCal.NewRow();
-                                                //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("ADDNEW", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                //    dtPFMntEmpWiseCal.Rows.Add(drPFMntEmpWiseCal);
-                                                //}
-                                                //else
-                                                //{//Edit block
-                                                //    sPFMntEmpCalID = dvPFMntEmpWiseCal[0].Row["ID"].ToString();
-                                                //    drPFMntEmpWiseCal = dvPFMntEmpWiseCal[0].Row;
-                                                //    drPFMntEmpWiseCal.BeginEdit();
-                                                //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("EDIT", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                //    drPFMntEmpWiseCal.EndEdit();
-                                                //}
-                                                #endregion Data Save IN Table [PFMonthlyEmpWiseCalculation]
-
+                                                
                                                 decEmpCtbtnAmountTemp = decEmpCtbtnAmount;
                                                 decEmprCtbtnAmountTemp = decEmprCtbtnAmount;
                                                 _employeer_amount = decEmprCtbtnAmount;
@@ -2383,17 +2201,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 decEmprCtbtnAmount = (decEmprCtbtnAmount * 100) / decEmployerCntValPer;
 
                                                 #region Select PFEmployeeDistribution ID if have multiple column
-
-                                                //dvPFMntDisEmp.Table = dtPFMntDisEmp;
-                                                //dvPFMntDisEmp.RowFilter = "PFMntEmpWiseCalID = '" + sPFMntEmpCalID.Trim() + "'";
-                                                //if (dvPFMntDisEmp.Count > 0)
-                                                //{
-                                                //    while (dvPFMntDisEmp.Count > 0)
-                                                //    {
-                                                //        drPFMntDisEmp = dvPFMntDisEmp[0].Row;
-                                                //        drPFMntDisEmp.Delete();
-                                                //    }
-                                                //}
+                                                                                              
 
                                                 if (bIsDistributionEmp == true)
                                                 {
@@ -2446,9 +2254,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                             obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, decUpperLimitEmp.ToString(), out sOutValue1);
                                                             decUpperLimitEmp = Convert.ToDecimal(sOutValue1);
 
-                                                            //drPFMntDisEmp = dtPFMntDisEmp.NewRow();
-                                                            //UpdateTheDataRowInTablePFMonthlyDistributionEmployeeAndEmployer(sPFMntEmpCalID, decValueEmp, sSalaryHeadIDEmp, decUpperLimitEmp, sResidualValueSlrHdIDEmp, para.sUser, ref drPFMntDisEmp);
-                                                            //dtPFMntDisEmp.Rows.Add(drPFMntDisEmp);
                                                         }
                                                     }
                                                 }
@@ -2478,26 +2283,14 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         decPFVoluntary = Convert.ToDecimal(sOutValue);
                                                         // _VPFAmount = decPFVoluntary;
                                                         GetHeadWiseAmount(decPFVoluntary, sEmpSysID, sPFVoluntarySalaryHeadID, ref _List_PFHeadValue);
-                                                        //drPFMntDisEmp = dtPFMntDisEmp.NewRow();
-                                                        //UpdateTheDataRowInTablePFMonthlyDistributionEmployeeAndEmployer(sPFMntEmpCalID, decPFVoluntary, sPFVoluntarySalaryHeadID, 0, "", para.sUser, ref drPFMntDisEmp);
-                                                        //dtPFMntDisEmp.Rows.Add(drPFMntDisEmp);
+                                                        
                                                     }
                                                 }
                                                 #endregion Voluntary PF Data Save IN Table [PFMonthlyEmpWiseCalculation]
 
                                                 #region Select PFEmployerDistribution ID if have multiple column
 
-                                                //dvPFMntDisEmpr.Table = dtPFMntDisEmpr;
-                                                //dvPFMntDisEmpr.RowFilter = "PFMntEmpWiseCalID = '" + sPFMntEmpCalID.Trim() + "'";
-                                                //if (dvPFMntDisEmpr.Count > 0)
-                                                //{
-                                                //    while (dvPFMntDisEmpr.Count > 0)
-                                                //    {
-                                                //        drPFMntDisEmpr = dvPFMntDisEmpr[0].Row;
-                                                //        drPFMntDisEmpr.Delete();
-                                                //    }
-                                                //}
-
+                                              
                                                 if (bIsDistributionEmpr == true)
                                                 {
                                                     if (bIsAgeLimitDistributionEmpr == true)
@@ -2562,14 +2355,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                                     _cumulative_Total_of_all_head_but_last += decValueEmpr;
 
                                                                     GetHeadWiseAmount(decValueEmpr, sEmpSysID, sSalaryHeadIDEmpr, ref _List_PFHeadValue);
-                                                                    //if (sPFContSalaryHeadIDEmpr== sSalaryHeadIDEmpr)
-                                                                    //{
-                                                                    //    _ERAmount = decValueEmpr;
-                                                                    //}
-                                                                    //else
-                                                                    //{
-                                                                    //    _PensionAmount = decValueEmpr;
-                                                                    //}
+                                                                   
 
                                                                     dvCurRl.Table = dtCurRl;
                                                                     dvCurRl.RowFilter = "SalaryHeadID = '" + sResidualValueSlrHdIDEmpr + "' AND CurrencyRuleSystemID = '" + sCurrencyRuleSystemID + "'";
@@ -2587,39 +2373,14 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                                     _cumulative_Total_of_all_head_but_last += decUpperLimitEmpr;
 
-                                                                    //drPFMntDisEmpr = dtPFMntDisEmpr.NewRow();
-                                                                    //UpdateTheDataRowInTablePFMonthlyDistributionEmployeeAndEmployer(sPFMntEmpCalID, decValueEmpr, sSalaryHeadIDEmpr, decUpperLimitEmpr, sResidualValueSlrHdIDEmpr, para.sUser, ref drPFMntDisEmpr);
-                                                                    //dtPFMntDisEmpr.Rows.Add(drPFMntDisEmpr);
                                                                 }//for
                                                             }//dicPFEmprDisb_Sub.Count
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        #region Data Save IN Table [PFMonthlyEmpWiseCalculation]
-
-                                                        //bIsDistributionEmpr = false;
-
-                                                        //decEmpCtbtnAmount = decEmpCtbtnAmountTemp;
-                                                        //decEmprCtbtnAmount = decEmprCtbtnAmountTemp;
-
-                                                        //dvPFMntEmpWiseCal.Table = dtPFMntEmpWiseCal;
-                                                        //dvPFMntEmpWiseCal.RowFilter = "PFEligibleEmpID = '" + sPFEligibleEmpID + "' AND MonthNo = '" + Convert.ToDateTime(para.ToDate).Month + "' AND YearNo = '" + Convert.ToDateTime(para.ToDate).Year + "'";
-                                                        //if (dvPFMntEmpWiseCal.Count == 0)
-                                                        //{//Add new block
-                                                        //    drPFMntEmpWiseCal = dtPFMntEmpWiseCal.NewRow();
-                                                        //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("ADDNEW", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                        //    dtPFMntEmpWiseCal.Rows.Add(drPFMntEmpWiseCal);
-                                                        //}
-                                                        //else
-                                                        //{//Edit block
-                                                        //    sPFMntEmpCalID = dvPFMntEmpWiseCal[0].Row["ID"].ToString();
-                                                        //    drPFMntEmpWiseCal = dvPFMntEmpWiseCal[0].Row;
-                                                        //    drPFMntEmpWiseCal.BeginEdit();
-                                                        //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("EDIT", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                        //    drPFMntEmpWiseCal.EndEdit();
-                                                        //}
-                                                        #endregion Data Save IN Table [PFMonthlyEmpWiseCalculation]
+                                                        
+                                                        
                                                     }
                                                 }
                                                 #endregion Select PFEmployerDistribution ID if have multiple column
@@ -2645,29 +2406,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 }
 
                                                 #endregion Employer Contribution Amount
-
-                                                //decEmpCtbtnAmount = decEmpCtbtnAmountTemp;
-                                                //decEmprCtbtnAmount = decEmprCtbtnAmountTemp;
-
-                                                #region Data Save IN Table [PFMonthlyEmpWiseCalculation]
-
-                                                //dvPFMntEmpWiseCal.Table = dtPFMntEmpWiseCal;
-                                                //dvPFMntEmpWiseCal.RowFilter = "PFEligibleEmpID = '" + sPFEligibleEmpID + "' AND MonthNo = '" + Convert.ToDateTime(para.ToDate).Month + "' AND YearNo = '" + Convert.ToDateTime(para.ToDate).Year + "'";
-                                                //if (dvPFMntEmpWiseCal.Count == 0)
-                                                //{//Add new block
-                                                //    drPFMntEmpWiseCal = dtPFMntEmpWiseCal.NewRow();
-                                                //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("ADDNEW", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                //    dtPFMntEmpWiseCal.Rows.Add(drPFMntEmpWiseCal);
-                                                //}
-                                                //else
-                                                //{//Edit block
-                                                //    sPFMntEmpCalID = dvPFMntEmpWiseCal[0].Row["ID"].ToString();
-                                                //    drPFMntEmpWiseCal = dvPFMntEmpWiseCal[0].Row;
-                                                //    drPFMntEmpWiseCal.BeginEdit();
-                                                //    UpdateTheDataRowInTablePFMonthlyEmpWiseCalculation("EDIT", sPFMntEmpCalID, sPFEligibleEmpID, para.ToDate, decEmpCtbtnAmount, bIsDistributionEmp, decEmprCtbtnAmount, bIsDistributionEmpr, para.sUser, ref drPFMntEmpWiseCal);
-                                                //    drPFMntEmpWiseCal.EndEdit();
-                                                //}
-                                                #endregion Data Save IN Table [PFMonthlyEmpWiseCalculation]
+                                                                                
 
                                                 #region If Not Entitle PF Get Allowance Save IN Table PFEmployerDistribution
 
@@ -2689,41 +2428,16 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 obSS.FractionCalculation(sRoundOption, bIntegerInDisb, bIsDecimalInDisb, iDecimalNo, decValueEmpr.ToString(), out sOutValue);
                                                 decValueEmpr = Convert.ToDecimal(sOutValue);
 
-                                                //dvPFMntDisEmpr.Table = dtPFMntDisEmpr;
-                                                //dvPFMntDisEmpr.RowFilter = "PFMntEmpWiseCalID = '" + sPFMntEmpCalID.Trim() + "' and SalaryHeadID = '" + sAlwnSlrHd.Trim() + "'";
-                                                //if (dvPFMntDisEmpr.Count == 0)
-                                                //{
-                                                //    drPFMntDisEmpr = dtPFMntDisEmpr.NewRow();
-                                                //    UpdateTheDataRowInTablePFMonthlyDistributionEmployeeAndEmployer(sPFMntEmpCalID, decValueEmpr, sSalaryHeadIDEmpr, decUpperLimitEmpr, sResidualValueSlrHdIDEmpr, para.sUser, ref drPFMntDisEmpr);
-                                                //    dtPFMntDisEmpr.Rows.Add(drPFMntDisEmpr);
-                                                //}
-                                                //else
-                                                //{
-                                                //    while (dvPFMntDisEmpr.Count > 0)
-                                                //    {
-                                                //        drPFMntDisEmpr = dvPFMntDisEmpr[0].Row;
-                                                //        drPFMntDisEmpr.Delete();
-                                                //    }
-                                                //    if (bEmpNotEntGetEmplrAlwn == true)
-                                                //    {
-                                                //        drPFMntDisEmpr = dtPFMntDisEmpr.NewRow();
-                                                //        UpdateTheDataRowInTablePFMonthlyDistributionEmployeeAndEmployer(sPFMntEmpCalID, decValueEmpr, sSalaryHeadIDEmpr, decUpperLimitEmpr, sResidualValueSlrHdIDEmpr, para.sUser, ref drPFMntDisEmpr);
-                                                //        dtPFMntDisEmpr.Rows.Add(drPFMntDisEmpr);
-                                                //    }
-                                                //}
-
+                                            
                                                 #endregion If Not Entitle PF Get Allowance Save IN Table PFEmployerDistribution
                                             }
                                         }
                                     }
-                                    //SaveDataSets(dsPFMntEmpWiseCal, dsPFMntDisEmp, dsPFMntDisEmpr);
                                 }
 
                                 TotProcComp += grdRowMaxCnt;
                                 TotSelectEmpForProc -= grdRowMaxCnt;
-                                //SaveDataSets(  dsPFMntDisEmpr);
-                                //SaveDataSets(dsPFEligibleEmp, dsPFMntEmpWiseCal, dsPFMntDisEmp, dsPFMntDisEmpr);
-                                //}
+                                
                                 if ((dsUnTagEmp.Tables[0].Rows.Count - TotProcComp) < 30)
                                 {
                                     SelectedEmpCnt += (dsUnTagEmp.Tables[0].Rows.Count - TotProcComp);
@@ -2735,9 +2449,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SelectedEmpCnt += 30;
                                 }
-                                //dsPFMntEmpWiseCal = null;
-                                //dsPFMntDisEmp = null;
-                                //dsPFMntDisEmpr = null; 
+                                
                                 #endregion
                             }//while
                         }//dsUnTagEmp.Tables[0].Rows.Count 
