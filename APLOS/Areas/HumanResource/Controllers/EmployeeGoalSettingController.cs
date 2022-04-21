@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Aplos.Properties;
+using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.NewAttendanceProcess;
+using Library.Service.Helpers;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -41,6 +45,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult getSelectedEmployee(string SelectedEmployeeId)
+        {
+            return Json(egs.getSelectedEmployee(SelectedEmployeeId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public ActionResult getPerformancePeriod()
@@ -64,11 +73,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getPMSMaster()
+        public ActionResult getPMSMaster(string SystemId)
         {
             try
             {
-                var jsondata = Json(egs.getPMSMaster(), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(egs.getPMSMaster(SystemId), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -81,12 +90,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult CreateEGSParent(Dictionary<string, object> datas, string EmployeeId)
+        public JsonResult CreateEGSParent(Dictionary<string, object> datas, string SelectedEmployeeId)
         {
            
             try
             {
-                return Json(new { Error = "No", Data = egs.CreateEGSParent(datas, EmployeeId), Msg = Properties.AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = egs.CreateEGSParent(datas, SelectedEmployeeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -101,7 +110,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 egs.Delete(id);
 
-                return Json(new { Error = false, Sequence = egs.GetSequence(), Message = Properties.AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = false,  Message = Properties.AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
 
             }
             catch (Exception ex)
@@ -112,5 +121,56 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
         }
+
+        #region EMPLOYEE GOAL SETTING CHILD
+       
+        public JsonResult CreateEGChild(Dictionary<string, object> data)
+        {
+
+            try
+            {
+                return Json(new { Error = "No", Data = egs.CreateEGChild(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public void SaveFile(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetOTManualFile(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion EMPLOYEE GOAL SETTING CHILD
     }
 }
