@@ -36,8 +36,6 @@ namespace Aplos.Areas.Costings.Controllers
         }
         #endregion
 
-
-
         #region -- Operations
 
         [HttpGet, Authorize]
@@ -45,6 +43,13 @@ namespace Aplos.Areas.Costings.Controllers
         {
             return Json(GetSequence(), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetOrderLineCostingItemCbo(string id)
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS VALUE, UserName AS Text FROM [dbo].[OrderLineCostingItem] WHERE Id<>'"+ id + "'"), JsonRequestBehavior.AllowGet);
+        }
+
         private double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.OrderLineCostingItem");

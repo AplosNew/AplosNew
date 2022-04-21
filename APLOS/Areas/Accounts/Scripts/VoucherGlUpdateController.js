@@ -24,7 +24,9 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         CompanyCurrencyRate: 1,
         Entity: null,
         CurrencyCode: null,
-        VoucherType: null
+        VoucherType: null,
+        SourceType: null,
+        Capitalize: null
     };
 
 
@@ -67,6 +69,10 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.voucherDetailList = [];
     };
     $scope.Get = function (data) {
+        if (data.Capitalize === "Yes") {
+            ShowResult(data.VoucherNo + " Voucher Already Capitalized, update not allowed!", "failure");
+            return;
+        }
         $scope.voucher.Id = data.Id;
         $scope.voucher.PostingDate = data.PostingDate;
         $scope.voucher.DocDate = data.DocDate;
@@ -77,9 +83,12 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
         $scope.voucher.Entity = data.Entity;
         $scope.voucher.CurrencyCode = data.CurrencyCode;
         $scope.voucher.VoucherType = data.VoucherType;
+        $scope.voucher.SourceType = data.SourceType;
+        $scope.voucher.Capitalize = data.Capitalize;
         $scope.GetCurrencyExchangeRateList();
         $scope.currencyDisable = true;
         $scope.Action = "Update";
+        
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -196,9 +205,12 @@ function VoucherGlUpdateController(cboService, commonMessage, $scope, $rootScope
 
     };
 
-    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType) {
+    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType, InventoryIssueId) {
         if (SourceType == 'VendorInvoice') {
             $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
+        }
+        else if (SourceType == 'IssueJournal') {
+            $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + InventoryIssueId, '_blank');
         }
         else
             $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');

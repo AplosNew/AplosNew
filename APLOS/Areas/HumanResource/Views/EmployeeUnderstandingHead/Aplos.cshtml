@@ -230,16 +230,16 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Applicable KPI</label>
-                            <div class="col-sm-8">
-                                <div class="checkbox-site">
-                                    <label>
-                                        <input type="checkbox" class="css-checkbox" ng-model="activityNew.IsApplicableKPI">
-                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                    </label>
+                                <label class="col-sm-4 control-label">Applicable KPI</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" class="css-checkbox" ng-model="activityNew.IsApplicableKPI">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                         @*<div class="form-group">
                                 <label class="col-sm-4 control-label">Has Financial Impact</label>
                                 <div class="col-sm-8">
@@ -268,14 +268,14 @@
                                 <div e-column e-field="ActivityDetail" e-headertext="Activity Detail" e-width="7"></div>
                                 <div e-column e-field="ActivityCategory" e-headertext="Activity Category" e-width="5"></div>
                                 <div e-column e-field="OtherActivityCategory" e-headertext="Other Activity Category" e-width="5"></div>
-                                <div e-column e-field="ApplicableDocument" e-headertext="Applicable Document" e-width="2" ></div>
-                                <div e-column e-field="ApplicableKPI" e-headertext="Applicable KPI" e-width="2"></div>
+                                <div e-column e-field="IsApplicableDocument" e-headertext="Applicable Document" e-width="2"></div>
+                                <div e-column e-field="IsApplicableKPI" e-headertext="Applicable KPI" e-width="2"></div>
                                 <div e-column e-headertext="" e-template="#Allocation" e-width="2"></div>
                             </div>
                         </div>
                         <script type="text/template" id="Allocation">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Applicable Document" ng-disabled="data.ApplicableDocument==='No'" class="btn"><i class="glyphicon glyphicon-open-file" ng-click="$parent.GetApplicableDocument(this);" style="margin: -6px;"></i></button>
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Applicable KPI" ng-disabled="data.ApplicableKPI==='No'" class="btn"><i class="glyphicon glyphicon-open-file" ng-click="$parent.GetApplicableKPI(this);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Applicable Document" ng-disabled="data.IsApplicableDocument==='No'" class="btn"><i class="glyphicon glyphicon-open-file" ng-click="$parent.GetApplicableDocument(this);" style="margin: -6px;"></i></button>
+                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Applicable KPI" ng-disabled="data.IsApplicableKPI==='No'" class="btn"><i class="glyphicon glyphicon-open-file" ng-click="$parent.GetApplicableKPI(this);" style="margin: -6px;"></i></button>
                         </script>
                     </div>
                 </div>
@@ -398,7 +398,6 @@
         </div>
     </div>
 </div>
-<confirm-archive-generic modalid="confirmdocDelete" title="Confirmation" data-ng-click-left-button="confirmClosedocDelete()" message={{message_confirmation}} data-ng-click-right-button="removeDocument()"></confirm-archive-generic>
 <div class="modal fade site-modal in" id="documentPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
@@ -554,19 +553,19 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                            <div class="inputBtnSection common-btn">
-                                <label class="fileUpload col-sm-3 ">
-                                    <input id="uploadBtn" type="file" name="file[]" class="upload" />
-                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
-                                </label>
-                                <div class="col-sm-4" style="width: 255px;">
-                                    <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 239px;" />
+                                <div class="inputBtnSection common-btn">
+                                    <label class="fileUpload col-sm-3 ">
+                                        <input id="uploadBtn" type="file" name="file[]" class="upload" />
+                                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                    </label>
+                                    <div class="col-sm-4" style="width: 255px;">
+                                        <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 239px;" />
+                                    </div>
+                                    <div class="col-sm-2" style="padding-left:0px;">
+                                        <button ng-click="documentRemove();" class="btn" ng-disabled="disableBtn()" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                    </div>
                                 </div>
-                                <div class="col-sm-2" style="padding-left:0px;">
-                                    <button ng-click="documentRemove();" class="btn" ng-disabled="disableBtn()" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
-                                </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                     </div>
                     <div class="common-btn" style="padding-right:18px">
                         <ul class="list-inline text-right">
@@ -592,6 +591,8 @@
         </div>
     </div>
 </div>
+<confirm-archive-generic modalid="confirmdocDelete" title="Confirmation" data-ng-click-left-button="confirmClosedocDelete()"
+                         message={{message_confirmation}} data-ng-click-right-button="DeleteAttachment()"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="kpiPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
@@ -611,14 +612,6 @@
                                     <textarea class="form-control" rows="3" ng-model="kpiNew.KPIName" name="KPI Name" maxlength="200" tabindex="71"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Remarks</label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="kpiNew.Remarks" name="Remarks" maxlength="200" tabindex="73"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">KPI Review Period<sup>*</sup></label>
                                 <div class="col-sm-8">
@@ -628,13 +621,21 @@
                                     </div>
                                 </div>
                             </div>
+
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">KPI Detail<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <textarea class="form-control" rows="3" ng-model="kpiNew.KPIDetail" name="KPI Detail" maxlength="200" tabindex="72"></textarea>
                                 </div>
                             </div>
-
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Remarks</label>
+                                <div class="col-sm-8">
+                                    <textarea class="form-control" rows="3" ng-model="kpiNew.Remarks" name="Remarks" maxlength="200" tabindex="73"></textarea>
+                                </div>
+                            </div>
                         </div>
                         <div class="common-btn" style="padding-right:18px">
                             <ul class="list-inline text-right">
@@ -658,10 +659,10 @@
                     </div>
                 </div>
                 @*<div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="SaveKPI();confirmMoreKPI();" class="btn" ng-disabled="disableBtn();savebtndisable"> Done </button></li>
-                    </ul>
-                </div>*@
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveKPI();confirmMoreKPI();" class="btn" ng-disabled="disableBtn();savebtndisable"> Done </button></li>
+                        </ul>
+                    </div>*@
             </div>
         </div>
     </div>

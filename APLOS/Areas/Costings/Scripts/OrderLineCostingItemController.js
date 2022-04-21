@@ -63,6 +63,29 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     };
     $scope.GetSequence();
 
+    $scope.OrderLineCostingItemList = [];
+    $scope.GetOrderLineCostingItemCbo = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Costings/OrderLineCostingItem/GetOrderLineCostingItemCbo?Id=' + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.OrderLineCostingItemList = response.data;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+    $scope.GetOrderLineCostingItemCbo();
+
     $scope.CostingComponentList = [];
     $scope.GetCostingTypeComponent = function () {
         try {
@@ -248,7 +271,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.objectData = obj.data;
         $scope.ModelNew = Object.assign({}, $scope.objectData);
         $scope.ModelNew.FormulaDescription = $scope.ModelNew.Formula;
-
+        $scope.GetOrderLineCostingItemCbo();
         var value = null;
 
         $scope.ModelNew.CompanyId = $scope.CompanyId;
@@ -301,7 +324,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.Clear = function () {
         $scope.CompanyId = $scope.ModelNew.CompanyId;
         $scope.PlantId = $scope.ModelNew.PlantId;
-        $scope.ModelNew = {};
+        $scope.ModelNew = {Active:true};
         $scope.ModelNew.CompanyId = $scope.CompanyId;
         $scope.ModelNew.PlantId = $scope.PlantId;
         $scope.Action = 'Save';
@@ -309,6 +332,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.ModelNew.FormulaIDDescription = null;
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
+        $scope.GetSequence();
     }
 
     function CheckField(fieldValue, fieldName) {
@@ -343,6 +367,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                     ShowResult(response.data.Message, 'success');
                     $scope.GetData();
                     $scope.Clear();
+                    $scope.GetOrderLineCostingItemCbo();
                     $scope.FormulaDetails = [];
                 }
             }), function errorCallBack(response) {
@@ -367,6 +392,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetData();
+                    $scope.GetOrderLineCostingItemCbo();
                     $scope.Clear();
                 }
             }, function () {

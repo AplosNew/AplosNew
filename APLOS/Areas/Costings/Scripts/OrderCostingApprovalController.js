@@ -138,18 +138,7 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
         return $scope.tab === tabNum;
     };
 
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-
-            $scope.ModelList = response.data;
-        });
-    }
-    $scope.getData();
+   
 
     $scope.ModelNew = { CostingStage: null };
     $scope.Get = function (args) {
@@ -1085,18 +1074,11 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
-                { field: 'From', width: 20, headerText: "From", type: "string" },
-                { field: 'To', width: 20, headerText: "To", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'Process', width: 20, headerText: "Process", type: "string" },
-                { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'DetentionType', width: 20, headerText: "Detention Type", type: "string" },
-                { field: 'Shift', width: 20, headerText: "Shift", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "ResponsiblePerson", type: "string" },
-                { field: 'DetentionCategory', width: 20, headerText: "Detention Category", type: "string" },
-                { field: 'DetentionSubCategory', width: 20, headerText: "Detention Sub Category", type: "string" },
-                { field: 'Avoidable', width: 20, headerText: "Avoidable/Unavoidable", type: "string" },
-                { field: 'Criticality', width: 20, headerText: "Criticality", type: "string" },
+                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
+                { field: 'BuyerReferenceNo', width: 20, headerText: "BuyerReferenceNo", type: "string" },
+                { field: 'OwnReferenceNo', width: 20, headerText: "OwnReferenceNo", type: "string" },
+                { field: 'MasterOrderId', width: 20, headerText: "MasterOrderId", type: "string" },
+                { field: 'LineItemId', width: 20, headerText: "LineItemId", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -1128,12 +1110,8 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
 
 
         var parameters = [];
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "ProcessId", "Value": getString(fl, "ProcessId") });
-        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "DetentionId", "Value": getString(fl, "DetentionId") });
-        parameters.push({ "Key": "ShiftId", "Value": getString(fl, "ShiftId") });
-        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
+        parameters.push({ "Key": "PartyId", "Value": getString(fl, "PartyId") });
+        parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
 
         $scope.parameters = parameters;
     }
@@ -1150,6 +1128,21 @@ function OrderCostingApprovalController(cboService, commonMessage, $scope, $root
         }
         return string;
     }
+
+    $scope.getData = function () {
+        $scope.filterComplete();
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            data: { column: $scope.searchBy, value: $scope.search,  'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+
+            $scope.ModelList = response.data;
+        });
+    }
+   // $scope.getData();
+
     //#endregion
 
 }

@@ -35,7 +35,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("ServiceRequisitionCheckApprovedController", ServiceRequisitionCheckApprovedController)
     .controller("ServicePOByRequisitionController", ServicePOByRequisitionController)
     .controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
-    .controller("GatePassController", GatePassController) 
+    .controller("GatePassController", GatePassController)
     .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
     .controller("PendingGateoutListController", PendingGateoutListController)
     .controller("ServiceAckCheckedApprovedByController", ServiceAckCheckedApprovedByController)
@@ -47,6 +47,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("GatePassPotalController", GatePassPotalController)
     .controller("MeetingPointsController", MeetingPointsController)
     .controller("MeetingReportsController", MeetingReportsController)
+    .controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -78,7 +79,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             })
             .when("/employee-profile-view", {
                 templateUrl: "Employees/EmployeeInformation/ProfileView",
-                controller: "profileViewController"  
+                controller: "profileViewController"
             })
             .when("/employee-job-card", {
                 templateUrl: "Employees/EmployeeInformation/JobCard",
@@ -291,8 +292,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'MeetingManagement/MeetingReports/ReportView',
                 controller: 'MeetingReportsController'
             })
-
-           //#endregion
+            .when('/employee-understanding-head', {
+                templateUrl: 'humanResource/EmployeeUnderstandingHead/Aplos',
+                controller: 'EmployeeUnderstandingHeadController'
+            })
+            //#endregion
 
             .when('/logout', {
                 template: ' ',

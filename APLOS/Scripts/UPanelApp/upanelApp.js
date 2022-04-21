@@ -771,8 +771,10 @@ upanelApp.controller("inventoryTransferJournalController", inventoryTransferJour
 upanelApp.controller("checkVoidController", checkVoidController);
 upanelApp.controller("checkManagementReportController", checkManagementReportController);
 upanelApp.controller("wipReportController", wipReportController);
-upanelApp.controller("recipeOperationController", recipeOperationController);
+upanelApp.controller("recipeOperationController", recipeOperationController); 
 upanelApp.controller("utilityController", UtilityController);
+upanelApp.controller("UtilityTransactionController", UtilityTransactionController);
+upanelApp.controller("UtilityTransactionReportController", UtilityTransactionReportController);
 upanelApp.controller("DesignationBudgetController", DesignationBudgetController);
 upanelApp.controller("manpowerBudgetDesignationReportController", manpowerBudgetDesignationReportController);
 upanelApp.controller("cahourlyOTReportController", cahourlyOTReportController);
@@ -1027,7 +1029,7 @@ upanelApp.controller("BOQApprovalController", BOQApprovalController);
 upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
-upanelApp.controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController);
+
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 
 upanelApp.config(AccessControllerConfig);
