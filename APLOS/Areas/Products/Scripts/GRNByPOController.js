@@ -434,16 +434,12 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 return true;
             }
             if ($scope.inventoryMaterialListPO[i].check == true) {
-                if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].MaterialStorageId)) {
-                    ShowResult("Please select storage location in PORowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
-                    return true;
-                }
-                else if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
+                $scope.inventoryMaterialListPO[i].MaterialStorageId = $scope.productNew.MaterialStorageId;
+                 if (baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].QualityStatus)) {
                     ShowResult("Please select quality statusin PORowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                     return true;
                 }
                 $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
-
             }
         }
         if ($scope.chargesListPO.length > 0) {
