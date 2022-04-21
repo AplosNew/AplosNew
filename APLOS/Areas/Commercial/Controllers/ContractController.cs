@@ -1156,7 +1156,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strUSQL = "delete TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
+                strUSQL = "Update TRN.MasterOrderItem set ContractId=NULL Where ContractId='" + Id + "'";
                 strCFSQL = "delete from dbo.ContractFund Where ContractId='" + Id + "'";
                 strCNFSQL = "delete from dbo.ContractTermsAndConditions Where ContractId='" + Id + "'";
                 strSQL = "delete from dbo.Contract Where Id='" + Id + "'";

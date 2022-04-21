@@ -1029,7 +1029,7 @@ upanelApp.controller("BOQApprovalController", BOQApprovalController);
 upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
-upanelApp.controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController);
+
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 
 upanelApp.config(AccessControllerConfig);
