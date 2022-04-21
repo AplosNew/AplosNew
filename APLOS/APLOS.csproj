@@ -711,6 +711,8 @@
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
+    <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
@@ -2064,6 +2066,8 @@
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
+    <Content Include="Areas\Materials\Scripts\UtilityTransactionController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ServicePORegisterController.js" />
     <Content Include="Areas\Administration\Scripts\AdministrationConfig.js" />
@@ -4091,7 +4095,6 @@
     <Content Include="Areas\Costings\Views\OrderLineCostingItem\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionMaster\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_BudgetApplicable.cshtml" />
-    <Content Include="Areas\Materials\Views\UtilityMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeGoalSetting\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\MultipleEmployeeIndividualLock\Aplos.cshtml" />
     <Content Include="Areas\IE\Views\MachineMasterTransaction\Aplos.cshtml" />
@@ -4100,6 +4103,9 @@
     <Content Include="Areas\IE\Views\MachineMasterTransactionReport\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeUnderstandingHead\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\EmployeeTimeOut\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\UtilityMaster\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\UtilityTransaction\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\UtilityTransactionReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

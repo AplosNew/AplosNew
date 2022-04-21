@@ -200,7 +200,7 @@ namespace Aplos.Areas.IE.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult CreateProcess(List<Dictionary<string, object>> data,string machineMasterId)
         {
             try
