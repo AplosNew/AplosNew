@@ -331,7 +331,7 @@ namespace Library.OrderManagement.Production
                 }
                 #endregion Detail
 
-                #region Summary
+                #region WIP
                 DataSet dsSum;
                 ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
                 c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' and ProcessId ='"+ProcessId+ "' order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
@@ -386,6 +386,10 @@ namespace Library.OrderManagement.Production
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
                         dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
+                        if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString()) < 0)
+                        {
+                            throw new Exception("WIP is Exceeding in Operation Sequence - " + dsSum.Tables[0].Rows[i]["OperationSequence"].ToString());
+                        }
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
