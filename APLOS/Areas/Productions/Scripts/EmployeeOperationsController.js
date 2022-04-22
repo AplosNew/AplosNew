@@ -146,6 +146,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         Object.assign(ob, e);
         ob.Id = null;
         ob.EmployeeCode = null;
+        ob.EmpName = null;
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
         ob.Qty = 0;
@@ -153,7 +154,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         ob.Remarks = null;
         ob.isChanged = 0;
         ob.Serial = parseInt(e.Serial) + 1;
-        $scope.ModelList.splice(e.Serial, 0, ob);
+        $scope.ModelList.splice(e.Serial+1, 0, ob);
         refreshSerial();
     }
     
