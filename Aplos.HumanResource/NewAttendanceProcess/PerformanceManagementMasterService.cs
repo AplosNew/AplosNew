@@ -931,7 +931,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select EmployeeId, PerformanceYearId, ConfirmationStatus from dbo.EmployeeGoalSetting";
+                string sql = @"select eg.SystemId, eg.EmployeeId, eg.PerformanceYearId, eg.ConfirmationStatus from dbo.EmployeeGoalSetting eg";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -977,10 +977,10 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
+                var str = @"select ei.SystemId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
                             ei.EmpType, ei.EmploymentType, ei.JobLocationID 
                             from dbo.EmployeeInformation ei
-                           -- left join dbo.EmployeeGoalSetting egs on egs.EmployeeId = ei.SystemId
+                          -- left join dbo.EmployeGoalSeting egs on egs.EmployeeId = ei.EmployeeId
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1168,7 +1168,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #region Save EG Child
-        public Dictionary<string, object> CreateEGChild(Dictionary<string, object> data)
+        public Dictionary<string, object> CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
 
             try
@@ -1179,7 +1179,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
 
@@ -1190,16 +1190,20 @@ namespace Library.HumanResource.NewAttendanceProcess
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "EGC" + _Id;
-                    
-                    AddNewRow(dsMaster.Tables[0], data);
+                    datas["Id"] = "EGC" + _Id;
+                    datas["EGSettingId"] = EGSetting;
+                    datas["PMSMasterId"] = PMSId;
+
+
+                    AddNewRow(dsMaster.Tables[0], datas);
 
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
-                    
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                    _Id = datas["Id"].ToString();
+                    datas["EGSettingId"] = EGSetting;
+                    datas["PMSMasterId"] = PMSId;
+                    EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
                 #endregion data update
               
@@ -1207,7 +1211,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
-                return data;
+                return datas;
             }
             catch (Exception ex)
             {
@@ -1215,8 +1219,34 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public string DeleteChild(string id)
+        {
+            try
+            {
+
+                string TableName = "dbo.EmployeeGoalSettingChild";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
         #endregion save EG Child
 
+        #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1262,9 +1292,10 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+        #endregion Add & Edit Row
         #endregion Save Process
 
-       
+
     }
 
 }

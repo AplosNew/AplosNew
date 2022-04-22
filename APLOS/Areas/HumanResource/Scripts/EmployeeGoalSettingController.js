@@ -7,7 +7,9 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.path = 'HumanResource/EmployeeGoalSetting/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'CreateEGSParent';
+    $scope.saveChildUrl = $scope.path + 'CreateEGChild';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.deleteChildUrl = $scope.path + 'deleteChild/';
     baseService.init($scope.getListUrl);
 
     //Getting the MasterData
@@ -59,7 +61,9 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.getEmployee();
 
     $scope.PerformanceGroupList = [];
-    $scope.getPMSMaster = function () {
+    $scope.SelectPMSId = null;
+    $scope.getPMSMaster = function (e) {
+        
         $http({
             method: "POST",
             url: $scope.path + 'getPMSMaster',
@@ -67,7 +71,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON',
         }).then(function success(res) {
             $scope.PerformanceGroupList = res.data;
-            //$scope.SystemId = $scope.SelectedEmployeeId
+            $scope.SelectPMSId = $scope.PerformanceGroupList[0].PMSId
             
         })
     }
@@ -77,6 +81,8 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
+
+    
 
     $scope.SelectedEmployeeId = null;
     $scope.SelEmployeeInfoList = [];
@@ -110,6 +116,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
+   
 
     // POP CLOSED
     $scope.closeEmpPopUp = function () {
@@ -244,10 +251,29 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     //
     //---- EMPLOYEE GOAL SETTING CHILD
 
-    
+    // POP OPEN
+    $scope.selectEmployeeGoal = function () {
+
+        angular.element(document.querySelector('#EmployeeGoalPop')).modal('show');
+    }
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
+    }
+
+    $scope.SelectedEmpGoalId = null;
+    $scope.selEmpGoal = function (e) {
+        $scope.SelectedEmpGoalId = e.data.SystemId;
+        angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
+    }
+
+   
+
+   
 
     $scope.ModelTempChild = {
-        ID: null,
+        Id: null,
         ObjectiveName: null,
         objectiveDetail: null,
         CostSaving: null,
@@ -260,13 +286,24 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     };
     $scope.ModelNewChild = Object.assign({}, $scope.ModelTempChild);
 
+    $scope.GetChild = function (args) {
+
+        $scope.ModelNewChild = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+       
+    }
+    
     $scope.SaveEGChild = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "CreateEGChild",
+            url: $scope.saveChildUrl,
             data: {
-                'data': $scope.ModelNewChild,
-                
+                'datas': $scope.ModelNewChild,
+                'EGSetting': $scope.SelectedEmpGoalId,
+                'PMSId':$scope.SelectPMSId
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -284,5 +321,27 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         }
             
     }
+
+    $scope.DeleteChild = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNewChild.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteChildUrl + $scope.ModelNewChild.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
     
 }
