@@ -24,7 +24,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
     $scope.searchBy = "Service"; $scope.search = "";
 
 
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'EmployeeId', name: "Employee" }, { value: 'EmployeeServiceCategoryId', name: "Category" }, { value: 'UOMId', name: "UOM" }, { value: 'Service', name: "Service" }];
+    $scope.searchByList = [{ value: 'EmployeeServiceCategoryId', name: "Category" }, { value: 'UOMId', name: "UOM" }, { value: 'Service', name: "Service" }];
 
 
     // #region ddl
@@ -154,8 +154,15 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
 
     $scope.getData = function () {
 
-        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
-            ShowResult("Selection of Date is Mandatory!!", 'failure');
+        if ((angular.isUndefinedOrNull($scope.FromDate) && angular.isUndefinedOrNull($scope.ToDate)) ) {
+            
+        }
+        else if ( !(angular.isUndefinedOrNull($scope.FromDate)) && !(angular.isUndefinedOrNull($scope.ToDate)))
+        {
+
+        }
+        else {
+            ShowResult("Selection of both Dates are Mandatory!!", 'failure');
             throw ("Invalid Request!!");
         }
 
@@ -163,10 +170,10 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         const diffTime = Math.abs($scope.FromDate - $scope.ToDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-        if (diffDays > 31) {
-            ShowResult('Maximum 31 Days can be selected!!', 'failure');
-            throw ("Invalid Request!!");
-        }
+        //if (diffDays > 31) {
+        //    ShowResult('Maximum 31 Days can be selected!!', 'failure');
+        //    throw ("Invalid Request!!");
+        //}
 
         $http({
             method: 'POST',
@@ -223,7 +230,8 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.EmployeeServiceBooking = Object.assign({}, args.data);
         $scope.EmployeeServiceBooking.Date = $scope.EmployeeServiceBooking.EmpServiceDate;
         $scope.EmployeeServiceBooking.Time = $scope.EmployeeServiceBooking.GetTime;
-        $scope.GetSelectedShift();
+        $scope.EmployeeServiceBooking.ShiftId = $scope.EmployeeServiceBooking.ShiftId;
+       
 
         $scope.GetCategoryList();
  //       $scope.GetUOM();
@@ -244,19 +252,19 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
 
     // GET Shift
 
-    $scope.SelectedShiftList = [];
-    $scope.GetSelectedShift = function () {
-        $scope.SelectedShiftList = [];
-        $http({
-            method: 'GET',
-            url: 'EmployeeServices/EmployeeServiceBooking/GetSelectedShift?Id=' + $scope.EmployeeServiceBooking.Id
-        }).then(function successCallback(response) {
-            $scope.SelectedShiftList = response.data;
-            if ($scope.SelectedShiftList.length > 0) {
-                $scope.EmployeeServiceBooking.ShiftId = $scope.SelectedShiftList[0].Value;
-            }
-        });
-    }
+    //$scope.SelectedShiftList = [];
+    //$scope.GetSelectedShift = function () {
+    //    $scope.SelectedShiftList = [];
+    //    $http({
+    //        method: 'GET',
+    //        url: 'EmployeeServices/EmployeeServiceBooking/GetSelectedShift?Id=' + $scope.EmployeeServiceBooking.Id
+    //    }).then(function successCallback(response) {
+    //        $scope.SelectedShiftList = response.data;
+    //        if ($scope.SelectedShiftList.length > 0) {
+    //            $scope.EmployeeServiceBooking.ShiftId = $scope.SelectedShiftList[0].Value;
+    //        }
+    //    });
+    //}
 
     // To show data in grid
     $scope.Getgrid = function () {

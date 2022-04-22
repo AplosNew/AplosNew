@@ -130,19 +130,33 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            string ddDates = "1=1";
+            if (FromDate != "" && ToDate != "")
+            {
+                ddDates =" Date between '" + FromDate + @"' and '" + ToDate + @"'";
+            }
 
 
-            string sql = @"select distinct esd.*, FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
-                                                                    ,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as ShiftName,esc.Category,est.Form,est.Service as ServiceName
-                                                                    ,est.Id as EmployeeServicesId,uom.UserName as UOM,uom.Id as UOMId 
-                                                                     from dbo.EmpServiceData esd
-                                                                    left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
-																	left join dbo.ShiftDefination sd on sd.SystemID=esd.ShiftId
-																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
-																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
-																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and Date between '"+FromDate+@"' and '"+ToDate+@"'
-                                                                    order by Date desc ";
+            //string sql = @"select distinct esd.*, FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime],ei.SystemId,ei.EmployeeCode
+            //                                                        ,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as ShiftName,esc.Category,est.Form,est.Service as ServiceName
+            //                                                        ,est.Id as EmployeeServicesId,uom.UserName as UOM,uom.Id as UOMId 
+            //                                                         from dbo.EmpServiceData esd
+            //                                                        left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
+            //					left join dbo.ShiftDefination sd on sd.SystemID=esd.ShiftId
+            //					left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
+            //					left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
+            //					left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
+            //				    WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and Date between '"+FromDate+@"' and '"+ToDate+@"'
+            //                                                        order by Date desc ";
+
+            string sql = @"Select distinct  esd.Date,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetTime], ShiftId , EmployeeServiceCategoryId , es.Id as  EmployeeServicesId,
+                            es.Service as ServiceName, sd.UserName as ShiftName, ec.Category
+                            from dbo.EmpServiceData esd
+                            left join dbo.EmpServiceCategory  ec on ec.Id = esd.EmployeeServiceCategoryId
+                            left join dbo.EmpServiceType es on es.Id = ec.EmpServiceTypeId
+                            left join dbo.ShiftDefination sd on sd.SystemID = esd.ShiftId
+                            WHERE " + strkey + " and sd.GroupID='" + identity.CompanyGroupId + @"' and "+ddDates+@"
+                            order by Date desc ";
             var jsondata = Json(_sqlRepository.GetDataCollection(sql, null));
             jsondata.MaxJsonLength = int.MaxValue;
 

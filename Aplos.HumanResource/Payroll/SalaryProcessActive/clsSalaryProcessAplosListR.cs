@@ -460,8 +460,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                 bool IsFixedTaxInvestAll = false;
                 bool IsPercentageTaxInvestAll = false;
                 bool IsLimitInvestAll = false;
-                //bool IsHigherTaxInvestAll = false;
-                //bool IsLowerTaxInvestAll = false;
                 bool IsFixedTaxRebate = false;
                 bool IsPercentageTaxRebate = false;
                 bool IsTaxAsPerActual = false;
@@ -1224,9 +1222,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                         if (intMonthNo == Convert.ToInt32(Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim()).Month) & intYearNo == Convert.ToInt32(Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim()).Year))
                                         {
-                                            //firstDate = dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim();
-                                            //DisbursedBtnMonth = true;
-
+                                           
                                             firstDate = dsSelectedEmp.Tables[0].Rows[gd]["DOJ"].ToString().Trim();
                                             string _datef = Convert.ToDateTime(firstDate).ToString("dd");
                                             if (Convert.ToInt32(_datef) == 1)
@@ -1259,9 +1255,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                         if (para.IsMaternityReturn)
                                         {
-                                            //firstDate = dsSelectedEmp.Tables[0].Rows[gd]["ToDate"].ToString().Trim();
                                             firstDate = Convert.ToDateTime(dsSelectedEmp.Tables[0].Rows[gd]["ToDate"].ToString().Trim()).AddDays(1).ToString("dd-MMM-yyyy");
-                                            // DisbursedBtnMonth = true;
                                             _NewlyJoined_Dos = true;
                                         }
 
@@ -1362,11 +1356,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                 OTHDay = dicOTHour_Sub[0].NormalOTHr + dicOTHour_Sub[0].WeekOffOTHr + dicOTHour_Sub[0].HoliDayOTHr;
                                             }
 
-
-                                            //if (MLvDay > 0)
-                                            //{
-                                            //    LvDay = LvDay - MLvDay;
-                                            //}
 
                                             TotProcDay = dicMMDSSI_Sub.TotalWorkingDay;// PresDay + LateDay + AbsDay + LvDay + CALDay + WkOFDay + HDDay + WkOFHDDay;
                                             EmpWorkinDayInMonthlySlr = dicMMDSSI_Sub.TotalWorkingDay;// PresDay + LateDay + AbsDay + LvDay + CALDay;
@@ -1616,8 +1605,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                                     if (IsBaseOnNetPay == true)
                                                     {
-                                                        //bool _newlyJoined = false;
-                                                        //bool _onGross = false;
                                                         string _gross_headid = string.Empty;
 
                                                         if (string.IsNullOrEmpty(sFormulaDesID))
@@ -3578,8 +3565,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     DisbCur = 0;
                                                     sFormulaDesID = "";
                                                     sFormulaResult = "";
-                                                    //sDayType = "";
-                                                    //sDayTypeOperator = "";
                                                     decDayTypeOperatorValue = 0;
                                                     sLeaveTypeID = "";
                                                     sApprovalType = "";
@@ -3590,11 +3575,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     DisbCurID = dicPF_Sub[i].DisbusmentCurrencyID;
                                                     sPlantID = dicPF_Sub[i].PlantId;
                                                     sEmployeeSysID = dicPF_Sub[i].EmpSystemID;
-                                                    if (sEmployeeSysID == "1800423")
-                                                    {
-
-                                                    }
-
+                                                    
                                                     sSlrRulMstSysID = dicPF_Sub[i].SalaryRuleMasterSystemID;
                                                     sSlrHD = dicPF_Sub[i].SalaryHeadID;
                                                     sEntCurID = dicPF_Sub[i].EntryCurrencyID;
@@ -3614,14 +3595,11 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         DefCur = 0;
                                                     }
 
-                                                    //DefCur = dicPF_Sub[i].ContributionAmount;
                                                     DisbCur = DefCur;
                                                     sRoundOption = dicPF_Sub[i].RoundOption;
                                                     bIntegerInDisb = dicPF_Sub[i].IntegerInDisb;
                                                     bIsDecimalInDisb = dicPF_Sub[i].IsDecimalInDisb;
                                                     iDecimalNo = dicPF_Sub[i].DecimalNo;
-
-
 
                                                     if (sDefCurID == para.lblUseFrgCurID.Trim() & sDisbCurID == para.lblLocalCurrencyID.Trim())
                                                     {
@@ -3635,10 +3613,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         DisbCur = DisbCur / sFrgCurRate;
                                                         AcltExcDisbSlrHDAmt = tempDisbCur - DisbCur;
                                                     }
-
-                                                    //DataView dvESICFilx = new DataView();
-                                                    //dvESICFilx.Table = dsSPChd.Tables[0];
-                                                    //dvESICFilx.RowFilter = "EmpInfoSystemID = '" + sEmployeeSysID + "' AND SalaryHeadID = '" + sSlrHD + "'";
 
                                                     var dic_dvESICFilx = dicProcChild.FindAll(x => x.EmpInfoSystemID == sEmployeeSysID && x.SalaryHeadID == sSlrHD);
                                                     if (dic_dvESICFilx.Count == 0)
@@ -3722,8 +3696,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                     DisbCur = 0;
                                                     sFormulaDesID = "";
                                                     sFormulaResult = "";
-                                                    //sDayType = "";
-                                                    //sDayTypeOperator = "";
                                                     decDayTypeOperatorValue = 0;
                                                     sLeaveTypeID = "";
                                                     sApprovalType = "";
@@ -3754,7 +3726,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         DefCur = 0;
                                                     }
 
-                                                    //DefCur = dicPF_Sub[i].ContributionAmount;
                                                     DisbCur = DefCur;
                                                     sRoundOption = dicBonusRetain_Sub[i].RoundOption;
                                                     bIntegerInDisb = dicBonusRetain_Sub[i].IntegerInDisb;
@@ -3773,10 +3744,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         DisbCur = DisbCur / sFrgCurRate;
                                                         AcltExcDisbSlrHDAmt = tempDisbCur - DisbCur;
                                                     }
-
-                                                    //DataView dvESICFilx = new DataView();
-                                                    //dvESICFilx.Table = dsSPChd.Tables[0];
-                                                    //dvESICFilx.RowFilter = "EmpInfoSystemID = '" + sEmployeeSysID + "' AND SalaryHeadID = '" + sSlrHD + "'";
 
                                                     var dic_dvESICFilx = dicProcChild.FindAll(x => x.EmpInfoSystemID == sEmployeeSysID && x.SalaryHeadID == sSlrHD);
                                                     if (dic_dvESICFilx.Count == 0)
