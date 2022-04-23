@@ -89,10 +89,16 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <div class="select-style">
+                        @*<div class="select-style">
                             <select class="form-control" ng-model="ModelNew.CostingType"
                                     ng-options="item.Value as item.Text for item in CostingTypeList" id="CostingType" ng-change="GetCostingTypeComponent();" name="Costing Type" tabindex="7" required>
                                 <option value=""></option>
+                            </select>
+                        </div>*@
+                        <div class="select-style">
+                            <select class="form-control" name="CostingType" id="CostingType" ng-model="ModelNew.CostingType" ng-change="GetCostingTypeComponent();" required tabindex="7">
+                                <option value="">--Select --</option>
+                                <option ng-repeat="option in CostingTypeList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </div>
@@ -128,7 +134,7 @@
                         <label class="col-sm-4 control-label">Head</label>
                         <div class="col-sm-6">
                             <div class="select-style">
-                                <select ng-model="ModelNew.SalaryHeadIdFormula" id="SalaryHeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in OrderLineCostingItemList" tabindex="5">
+                                <select ng-model="ModelNew.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in OrderLineCostingItemList" tabindex="5">
                                     <option value=""></option>
                                 </select>
                             </div>

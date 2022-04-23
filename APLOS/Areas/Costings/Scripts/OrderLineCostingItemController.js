@@ -148,18 +148,23 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.FormulaDetails = [];
     $scope.SetFormula = function (formula) {
 
-        if (formula === 'Value') {
+        if (formula === 'SHead') {
             $scope.ModelNew.FormulaDescription = null;
             $scope.ModelNew.FormulaIDDescription = null;
 
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.Value)) {
-                $scope.ModelNew.FormulaDes = $scope.ModelNew.Value;
-                $scope.ModelNew.FormulaDesID = $scope.ModelNew.Value;
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.HeadIdFormula)) {
+                $scope.ModelNew.SalaryHeadFormula = $("#HeadFormula option:selected").text();
+
+                $scope.ModelNew.FormulaDes = $scope.ModelNew.SalaryHeadFormula;
+                $scope.ModelNew.FormulaDesID = $scope.ModelNew.HeadIdFormula;
             }
-            $scope.FormulaArray.push($scope.ModelNew.FormulaDes);
 
-            $scope.ModelNew.FormulaIDDescription = null;
+            $scope.FormulaArray.push($scope.ModelNew.FormulaDes);
+            $scope.FormulaIdArray.push($scope.ModelNew.FormulaDesID);
+
             $scope.ModelNew.FormulaDescription = null;
+            $scope.ModelNew.FormulaIDDescription = null;
+
             for (var i = 0; i < $scope.FormulaArray.length; i++) {
                 if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaDescription)) {
                     $scope.ModelNew.FormulaDescription = $scope.FormulaArray[i];
@@ -169,10 +174,16 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                 }
             }
 
-
+            for (var i = 0; i < $scope.FormulaIdArray.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaIDDescription)) {
+                    $scope.ModelNew.FormulaIDDescription = $scope.FormulaIdArray[i];
+                }
+                else {
+                    $scope.ModelNew.FormulaIDDescription += ' ' + $scope.FormulaIdArray[i];
+                }
+            }
 
         }
-
         else if (formula === 'Operator') {
             $scope.ModelNew.FormulaIDDescription = null;
             $scope.ModelNew.FormulaDescription = null;
@@ -182,6 +193,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                 $scope.ModelNew.FormulaDesID = $scope.ModelNew.Operator;
             }
             $scope.FormulaArray.push($scope.ModelNew.FormulaDes);
+            $scope.FormulaIdArray.push($scope.ModelNew.FormulaDesID);
 
             $scope.ModelNew.FormulaIDDescription = null;
             $scope.ModelNew.FormulaDescription = null;
@@ -194,7 +206,14 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                 }
             }
 
-
+            for (var i = 0; i < $scope.FormulaIdArray.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaIDDescription)) {
+                    $scope.ModelNew.FormulaIDDescription = $scope.FormulaIdArray[i];
+                }
+                else {
+                    $scope.ModelNew.FormulaIDDescription += ' ' + $scope.FormulaIdArray[i];
+                }
+            }
 
         }
         else if (formula === 'Precedence') {
@@ -203,8 +222,10 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
             if (!baseService.isUndefinedOrNull($scope.ModelNew.Precedence)) {
                 $scope.ModelNew.FormulaDes = $scope.ModelNew.Precedence;
+                $scope.ModelNew.FormulaDesID = $scope.ModelNew.Precedence;
             }
             $scope.FormulaArray.push($scope.ModelNew.FormulaDes);
+            $scope.FormulaIdArray.push($scope.ModelNew.FormulaDesID);
 
             $scope.ModelNew.FormulaIDDescription = null;
             $scope.ModelNew.FormulaDescription = null;
@@ -217,10 +238,48 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                 }
             }
 
-
+            for (var i = 0; i < $scope.FormulaIdArray.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaIDDescription)) {
+                    $scope.ModelNew.FormulaIDDescription = $scope.FormulaIdArray[i];
+                }
+                else {
+                    $scope.ModelNew.FormulaIDDescription += ' ' + $scope.FormulaIdArray[i];
+                }
+            }
 
         }
+        else if (formula === 'Value') {
+            $scope.ModelNew.FormulaDescription = null;
+            $scope.ModelNew.FormulaIDDescription = null;
 
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.Value)) {
+                $scope.ModelNew.FormulaDes = $scope.ModelNew.Value;
+                $scope.ModelNew.FormulaDesID = $scope.ModelNew.Value;
+            }
+            $scope.FormulaArray.push($scope.ModelNew.FormulaDes);
+            $scope.FormulaIdArray.push($scope.ModelNew.FormulaDesID);
+
+            $scope.ModelNew.FormulaIDDescription = null;
+            $scope.ModelNew.FormulaDescription = null;
+            for (var i = 0; i < $scope.FormulaArray.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaDescription)) {
+                    $scope.ModelNew.FormulaDescription = $scope.FormulaArray[i];
+                }
+                else {
+                    $scope.ModelNew.FormulaDescription += ' ' + $scope.FormulaArray[i];
+                }
+            }
+
+            for (var i = 0; i < $scope.FormulaIdArray.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaIDDescription)) {
+                    $scope.ModelNew.FormulaIDDescription = $scope.FormulaIdArray[i];
+                }
+                else {
+                    $scope.ModelNew.FormulaIDDescription += ' ' + $scope.FormulaIdArray[i];
+                }
+            }
+
+        }
     }
 
     $scope.RemoveFormula = function () {
@@ -263,7 +322,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.Get = function (obj) {
         $scope.FormulaDetails = [];
         $scope.CompanyId = $scope.ModelNew.CompanyId;
-        $scope.ModelNew.SalaryHeadIdFormula = null;
+        $scope.ModelNew.HeadIdFormula = null;
         $scope.ModelNew.Operator = null;
         $scope.ModelNew.Precedence = null;
         $scope.ModelNew.Value = null;
@@ -272,8 +331,8 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.ModelNew = Object.assign({}, $scope.objectData);
         $scope.ModelNew.FormulaDescription = $scope.ModelNew.Formula;
         $scope.GetOrderLineCostingItemCbo();
+        $scope.GetCostingTypeComponent();
         var value = null;
-
         $scope.ModelNew.CompanyId = $scope.CompanyId;
 
         $scope.Action = 'Update';
@@ -324,7 +383,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.Clear = function () {
         $scope.CompanyId = $scope.ModelNew.CompanyId;
         $scope.PlantId = $scope.ModelNew.PlantId;
-        $scope.ModelNew = {Active:true};
+        $scope.ModelNew = {Id:null,Active:true};
         $scope.ModelNew.CompanyId = $scope.CompanyId;
         $scope.ModelNew.PlantId = $scope.PlantId;
         $scope.Action = 'Save';
@@ -333,6 +392,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
+        $scope.GetOrderLineCostingItemCbo();
     }
 
     function CheckField(fieldValue, fieldName) {
@@ -347,13 +407,9 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.Save = function () {
         try {
-            //if (baseService.isUndefinedOrNull($scope.ModelNew.CompanyId)) {
-            //    throw "Company is required.";
-            //}
-            //if (baseService.isUndefinedOrNull($scope.ModelNew.PlantId)) {
-            //    throw "Plant is required.";
-            //}
+           
             $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
+            $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
