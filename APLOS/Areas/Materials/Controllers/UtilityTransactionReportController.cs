@@ -40,8 +40,6 @@ namespace Aplos.Areas.Materials.Controllers
 
         #endregion Constructor
 
-
-
         public ActionResult Aplos()
         {
             return View();

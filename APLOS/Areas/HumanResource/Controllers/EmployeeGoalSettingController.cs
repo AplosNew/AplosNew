@@ -123,18 +123,49 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #region EMPLOYEE GOAL SETTING CHILD
-       
-        public JsonResult CreateEGChild(Dictionary<string, object> data)
+        [HttpPost]
+        public ActionResult GetEGChild()
+        {
+            try
+            {
+                return Json(egs.GetEGChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        public JsonResult CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = egs.CreateEGChild(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = egs.CreateEGChild(datas, EGSetting, PMSId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
                 return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        public ActionResult DeleteChild(string id)
+        {
+            try
+            {
+                egs.DeleteChild(id);
+
+                return Json(new { Error = false, Message = Properties.AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
         }
 
         public void SaveFile(out string path)

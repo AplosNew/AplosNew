@@ -290,23 +290,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                //  if (para.sEmpSystemID == "")
-                //  {
-                //      strSQL = @"SELECT EEE.ID ESICEligibleEmpID, DM.ESICPolicyMasterID, E.* 
-                //                  FROM [dbo].[EmployeeInformation] E
-                //                     INNER JOIN (SELECT DC.LeavePolicyMasterId,DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
-                //                              LEFT JOIN SCS.DesignationMasterConfiguration DC ON DM.Id=DC.DesignationMasterId
-                //                              WHERE DC.PlantId='" + para.PlantID + @"' ) DM ON E.GivenDesignationId = DM.DesignationId
-                //INNER JOIN (SELECT * FROM [dbo].[ESICEligibleEmployee] WHERE IsActive = 1) EEE ON E.SystemId = EEE.EmpSystemID
-                //--LEFT JOIN [dbo].[SalaryInfoDefineMaster] SLR ON E.SystemId = SLR.EmpInfoSystemID
-                //                     LEFT JOIN [dbo].[ESICPolicyMaster] ESICPLMst ON DM.ESICPolicyMasterID = ESICPLMst.ID
-                //                  WHERE E.GroupID = '" + para.GroupID + @"' AND E.PlantId = '" + para.PlantID + @"' AND --E.EmployeeStatus = 'Active'
-                //                        E.DOJ <= '" + para.ToDate + @"' AND (E.DOS > '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
-                //                        OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
-                //                     AND DM.ESICPolicyMasterID = '" + sESICMstSystemID + @"'";
-                //  }
-                //  else
-                //  {
                 strSQL = @"SELECT       DM.ESICPolicyMasterID, E.* 
                                             FROM [dbo].[EmployeeInformation] E
 			                                INNER JOIN (SELECT DC.LeavePolicyMasterId,DC.ESICPolicyMasterID,DM.DesignationId FROM MST.DesignationMaster DM
@@ -317,7 +300,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                       E.DOJ <= '" + para.ToDate + @"' AND (E.DOS > '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL
                                       OR E.DOS = '' OR E.DOS = '01/01/1901' OR E.EmployeeStatus = 'Active')
 	                                  AND DM.ESICPolicyMasterID = '" + sESICMstSystemID + @"' AND E.SystemId IN (" + para.sEmpSystemID + @")";
-                //}
                 strSQL += @"
                               ORDER BY E.GivenDesignationId, E.SystemId";
 
@@ -975,99 +957,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
             try
             {
-                //      strSql = @"SELECT * FROM 
-                //                    (
-                //                           SELECT SD.SystemID AS SlrInfoDefSystemID, SEFD.PlantID, SEFD.EmpInfoSystemID, SEFD.EffectiveDate, SEFD.SalaryRuleMasterSystemID, 
-                //                                  SD.SalaryHeadID, SH.SalaryHead, SH.HeadType, SH.HeadCategory, SD.AmtDefinitionCurrencyID, SD.AmtDefinitionRate,	
-                //                                  SD.EntryCurrencyID, ECR.Name AS EntryCurrency, SD.EntryAmount, SD.DefineCurrencyID, SD.SalaryID,
-                //                                  DECR.Name AS DefinitionCurrency, SD.DefineAmount, ISNULL(CRC.AccumulateExchangeRate, 0) AccumulateExchangeRate, 
-                //                                  AcltExcDisbSlrHDID = CASE WHEN CRC.AccumulateExchangeRate = 1 THEN CRC.AccumulateExchangeSalaryHeadID
-                //                                          ELSE SD.SalaryHeadID END,
-                //                         CRC.AmtDisbusmentCurrency AS DisbusmentCurrencyID, DICR.Name AS DisbusmentCurrency, 
-                //                         SlrDis.RuleType, SlrDis.FixedMonthDayValue, ISNULL(SlrDis.IsMonthDay, 0) IsMonthDay, ISNULL(SlrDis.IsMonthWorkDay, 0) IsMonthWorkDay, SlrDis.IsBankPayment, SlrDis.IsCashPayment,
-                //                                  ISNULL(SlrDis.IsFixedDisbus, 0) IsFixedDisbus, SRDSM.SalaryRuleDayStatusSystemID, SRDSM.IsOverWrite, SRDSM.ShiftType, SRDSM.DayType, SRDSM.LeaveType,
-                //	IsNetPayEffect = CASE WHEN (SlrDis.IsNetPayEffect IS NULL) AND (SRDSM.IsDSPNetPayEffect IS NOT NULL) THEN SRDSM.IsDSPNetPayEffect 
-                //						  ELSE SlrDis.IsNetPayEffect END,
-                //	SlrProc.DisbusmentAmount EarningAmount, SlrProc.DisbusmentCurrencyID EarningCurrencyID, CRC.RoundOption, ISNULL(CRC.IntegerInDisb, 0) IntegerInDisb, 
-                //                        ISNULL(CRC.IsDecimalInDisb, 0) IsDecimalInDisb, ISNULL(CRC.DecimalNo, 0) DecimalNo, SRM.CurrencyRuleSystemID  
-                //                    FROM (
-                //                                SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
-                //                                    AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated
-                //                                FROM SalaryInfoDefine
-                //                                  UNION
-                //                                (
-                //                                 SELECT SystemID, SalaryID, SalaryHeadID, EntryCurrencyID, EntryAmount, DefineCurrencyID, DefineAmount, 
-                //                                  AmtDefinitionCurrencyID, AmtDefinitionRate, AddedBy, DateAdded, UpdatedBy, DateUpdated                   
-                //                                 FROM SalaryInfoBack
-                //                                )
-                //                               ) SD
-                //INNER JOIN 
-                //		(
-                //		 SELECT SLM.* FROM 
-                //                                                  (
-                //                                                   SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-                //                                                    IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-                //                                                   FROM SalaryInfoDefineMaster
-                //                                                   UNION 
-                //                                                  (
-                //                                                   SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-                //                                                    IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-                //                                                   FROM SalaryInfoBackMaster
-                //                                                  )
-                //                                                  ) SLM 
-                //                                                   INNER JOIN
-                //                                                     (
-                //                                                      SELECT EmpInfoSystemID, MAX(EffectiveDate) EffectiveDate 
-                //                                                      FROM 
-                //                                                       (
-                //                                                         SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-                //                                                          IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-                //                                                         FROM SalaryInfoDefineMaster
-                //                                                       UNION 
-                //                                                        (
-                //                                                       SELECT SystemID, EmpInfoSystemID, SalaryIncrementSystemID, SalaryRuleMasterSystemID, GroupID, PlantID, EffectiveDate, 
-                //                                                        IsApproved, ApprovedBy, DateApproved, AddedBy, DateAdded, UpdatedBy, DateUpdated 
-                //                                                       FROM SalaryInfoBackMaster
-                //                                                        )
-                //                                                       ) A
-                //                                                      WHERE IsApproved = 1 AND EffectiveDate <= '" + para.ToDate + @"'
-                //                                                      GROUP BY EmpInfoSystemID
-                //                                                     ) B ON SLM.EmpInfoSystemID = B.EmpInfoSystemID AND SLM.EffectiveDate = B.EffectiveDate
-                //		) SEFD ON SD.SalaryID = SEFD.SystemID
-                //                     INNER JOIN EmployeeInformation E ON SEFD.EmpInfoSystemID = E.SystemID
-                //                     INNER JOIN SalaryHead SH ON SD.SalaryHeadID = SH.SalaryHeadID AND ISNULL(SH.HeadCategory, '') != 'Tax'
-                //                     INNER JOIN SalaryRuleMaster SRM ON SEFD.SalaryRuleMasterSystemID = SRM.SystemID
-                //                     LEFT JOIN CurrencyRuleChild CRC ON SRM.CurrencyRuleSystemID = CRC.MstSystemID AND SD.SalaryHeadID = CRC.SalaryHeadID
-                //                     LEFT JOIN scs.Currency ECR ON CRC.AmtEntryCurrency = ECR.Id
-                //                     LEFT JOIN scs.Currency DECR ON CRC.AmtDefinitionCurrency = DECR.Id
-                //                     LEFT JOIN scs.Currency DICR ON CRC.AmtDisbusmentCurrency = DICR.Id
-                //                     LEFT JOIN 
-                //                       (
-                //                                       SELECT SalaryRuleMasterSystemID, SalaryHeadID, 'Gen' RuleType, IsGNRNetPayEffect IsNetPayEffect, FixedMonthDayValue, IsMonthDay, ISNULL(IsBankPayment, Convert(bit, 'True')) IsBankPayment, ISNULL(IsCashPayment, Convert(bit, 'True')) IsCashPayment,
-                //                            IsMonthWorkDay, IsFixedDisbus FROM SalaryRuleGeneral
-                //                        UNION
-                //                        (
-                //                                        SELECT SalaryRuleMasterSystemID, SalaryHeadID, 'Abs' RuleType, IsAbsNetPayEffect IsNetPayEffect, FixedMonthDayValue, IsMonthDay, Convert(bit, 'True') IsBankPayment, Convert(bit, 'True') IsCashPayment, 
-                //                             IsMonthWorkDay, IsFixedDisbus FROM SalaryRuleAbsenteeism
-                //                                       )
-                //                                      ) SlrDis ON SRM.SystemID = SlrDis.SalaryRuleMasterSystemID AND SD.SalaryHeadID = SlrDis.SalaryHeadID
-                //                     LEFT JOIN SalaryRuleDayStatusMaster SRDSM ON SRM.SystemID = SRDSM.SalaryRuleMasterSystemID
-                //	                            AND SD.SalaryHeadID = SRDSM.SalaryHeadID
-                //LEFT JOIN 
-                //       (
-                //		SELECT * FROM [dbo].[SalaryProcChild]
-                //			WHERE SlrProcMstSystemID IN (
-                //										 SELECT SystemID FROM [dbo].[SalaryProcMaster]
-                //										  WHERE MonthNo = MONTH('" + para.ToDate + @"') AND YearNo = YEAR('" + para.ToDate + @"')
-                //										)
-                //	   ) SlrProc ON E.SystemID = SlrProc.EmpInfoSystemID 
-                //	                            AND SD.SalaryHeadID = SlrProc.SalaryHeadID 
-                //                              WHERE E.DOJ <= '" + para.ToDate + @"' AND (E.DOS >= '" + para.FromDate + @"' OR E.DOS IS NULL OR E.DOS = NULL 
-                //                                                                     OR E.DOS = '' OR E.DOS = '01/01/1901')
-                //                                    AND SEFD.IsApproved = 1 AND SEFD.EffectiveDate <= '" + para.ToDate + @"'
-                //                          ) A 
-                //                        WHERE (" + sEmpInfo + @") ";
-
+                
 
                 strSql = @"SELECT * FROM 
 		                            (
@@ -1348,7 +1238,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                         #region Tag Employee List
 
                         GetESICActiveEmp(para, sESICMstID.Trim(), out dsUnTagEmp);
-                        //GetTagEmployeeListWithESICPolicyMaster(para, sESICMstID.Trim(), out dsUnTagEmp);
                         if (dsUnTagEmp.Tables[0].Rows.Count > 0)
                         {
                             sEmpInfoSysIDColl = "";
@@ -1397,8 +1286,6 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     //Get General Salary Amount Head Wise
                                     List<dicSalInfo> dicSalInfo = new List<dicSalInfo>();
-                                    //if (para.dsSalInfo == null)
-                                    //{
                                     LoadEmpSlrDefForSlrProcess(para, sEmpInfoSysIDColl, out dsSalInfo);
                                     if (dsSalInfo.Tables[0].Rows.Count > 0)
                                         dicSalInfo = dsSalInfo.Tables[0].ToList<dicSalInfo>();
@@ -1406,9 +1293,8 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
 
                                     DataSet dsEnumPF = null;
                                     bool IsESICHolder = false;
-                                    //string _ssid = string.Empty;
+                            
                                     List<EmployeeEligibleForSalaryHeadEnumSAL> dicEnum = new List<EmployeeEligibleForSalaryHeadEnumSAL>();
-                                    //GetEnumEligibility(sEmpInfoSysIDColl, out dsEnumPF);//and SalaryHeadEnum='PF' and IsEligible=1
                                     GetEnumEligibility(sEmpSystemID, out dsEnumPF);//and SalaryHeadEnum='PF' and IsEligible=1
                                     if (dsEnumPF.Tables[0].Rows.Count > 0)
                                         dicEnum = dsEnumPF.Tables[0].ToList<EmployeeEligibleForSalaryHeadEnumSAL>();
@@ -1684,10 +1570,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         }//holder
                                     }//dsUnTagEmp count
 
-                                    ////SaveDataSets(dsESICEligibleEmp, dsESICMntEmpWiseCal);
                                 }
-                                ////if (SelectedEmpCnt == grdRowMaxCnt)
-                                ////{
                                 TotProcComp += grdRowMaxCnt;
                                 TotSelectEmpForProc -= grdRowMaxCnt;
                                 
@@ -1702,8 +1585,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                 {
                                     SelectedEmpCnt += 30;
                                 }
-                                //dsESICEligibleEmp = null;
-                                //dsESICMntEmpWiseCal = null;
+                              
                             }
                         }
 

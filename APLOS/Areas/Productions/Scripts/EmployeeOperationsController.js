@@ -131,7 +131,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
- 
+    // Refreshing the serials
+    function refreshSerial() {
+        for (var j = 1; j <= $scope.ModelList.length ; j++)
+        {
+            $scope.ModelList[j].Serial = j;
+        }
+    }
 
     // Add Tiles
     $scope.AddTile = function (e) {
@@ -140,18 +146,16 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         Object.assign(ob, e);
         ob.Id = null;
         ob.EmployeeCode = null;
+        ob.EmpName = null;
         ob.EmployeeId = null;
         ob.PeriodId = e.PeriodId;
         ob.Qty = 0;
-        //ob.Period2 = null;
-        //ob.Period3 = null;
-        //ob.Period4 = null;
-        //ob.Period5 = null;
-        //ob.Period6 = null;
+       
         ob.Remarks = null;
         ob.isChanged = 0;
         ob.Serial = parseInt(e.Serial) + 1;
-        $scope.ModelList.splice(e.Serial, 0, ob);
+        $scope.ModelList.splice(e.Serial+1, 0, ob);
+        refreshSerial();
     }
     
     //Getting All the Data For the Saving
@@ -218,7 +222,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             }
             
         }
-        refresh();
+       // refresh();
 
     }
 
