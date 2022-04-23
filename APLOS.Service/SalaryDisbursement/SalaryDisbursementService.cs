@@ -1116,19 +1116,64 @@ namespace Library.Service.SalaryDisbursement
                 if (voucher.IsPark == false)
                     throw new CustomException("Delete is not allow after post ! ");
 
+                var direct = new System.Text.StringBuilder();
 
                 var voucherdetail = _voucherDetailRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 var voucherdetailcurrnecy = _voucherDetailCurrencyRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var emoloyeeSubsequentTransaction = _employeeSubsequentTransactionRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
+                var advancewriteOff = _advanceWriteOffRepository.Query(r => r.VoucherId == voucherId).Select().ToList();
                 foreach (var item in voucherdetailcurrnecy)
                 {
                     _voucherDetailCurrencyRepository.Delete(item.Id);
                 }
-
+                if (emoloyeeSubsequentTransaction.Count > 0)
+                {
+                    foreach (var est in emoloyeeSubsequentTransaction)
+                    {
+                        _employeeSubsequentTransactionRepository.Delete(est.Id);
+                    }
+                }
                 foreach (var item in voucherdetail)
                 {
                     _voucherDetailRepository.Delete(item.Id);
                 }
-                var direct = new System.Text.StringBuilder();
+
+                if (advancewriteOff.Count > 0)
+                {
+                    foreach (var awo in advancewriteOff)
+                    {
+                        var advancewriteOffdetail = _advanceWriteOffDetailRepository.Query(r => r.AdvanceWriteOffId == awo.Id).Select().ToList();
+                        if (advancewriteOffdetail.Count > 0)
+                        {
+                            foreach (var awd in advancewriteOffdetail)
+                            {
+                                var advanceDetail = _advanceService.FindAdvanceDetail(awd.AdvanceDetailId);
+                                if (null == advanceDetail)
+                                    throw new CustomException("Advance Detail Id not found!");
+                                advanceDetail.WrittenOffAmount -= awd.Amount;
+                                advanceDetail.IsWrittenOff = false; 
+                                advanceDetail.UpdatedBy = voucher.UpdatedBy;
+                                advanceDetail.UpdatedDate = voucher.UpdatedDate;
+                                advanceDetail.UpdatedFromIP = voucher.UpdatedFromIP;
+                                _advanceService.UpdateAdvanceDetail(advanceDetail);
+
+                                var advance = _advanceService.Find(awd.AdvanceId);
+                                advance.WrittenOffAmount -= awd.Amount;
+                                advance.IsWrittenOff = false;
+                                advance.UpdatedBy = voucher.AddedBy;
+                                advance.UpdatedDate = voucher.AddedDate;
+                                advance.UpdatedFromIP = voucher.AddedFromIP;
+                                _advanceService.Update(advance);
+
+                                _advanceWriteOffDetailRepository.Delete(awd.Id);
+                            }
+                            
+                        }
+                        _advanceWriteOffRepository.Delete(awo.Id);
+                    }
+                }
+                
+               
                 var directsql = "";
 
                 directsql = @"update [dbo].[SalaryLock] set PayableVoucherId=NULL where Id in (

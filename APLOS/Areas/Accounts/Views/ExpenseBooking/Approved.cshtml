@@ -96,6 +96,7 @@
                     <th>FA Item</th>
                     <th>Expense Date</th>
                     <th class="text-right">Amount</th>
+                    <th class="text-right"></th>
                 </tr>
             </thead>
             <tbody>
@@ -105,6 +106,11 @@
                     <td>{{x.FixedAsset}}</td>
                     <td>{{x.DocDate | dateFiltering}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
+                    <td class="text-right">
+                        <button ng-click="popUpGL($index)" data-toggle="modal" class="btn btn-action tooltip-here" data-placement="top" title="popUp">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
             <tfoot ng-show="expensesBookingDetailList.length">
@@ -124,6 +130,7 @@
         </ul>
     </div>
 </div>
+@Html.Partial("~/Areas/Accounts/Views/_GLBudgetActivityPopUp.cshtml")
 <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="Delete()"></confirm-archive-generic>
 
 <confirm-modal></confirm-modal>
