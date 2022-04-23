@@ -26,9 +26,9 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Confirmation Status</label>
                 <div class="col-sm-8">
-                    <div class="checkbox-site">
+                    <div class="checkbox-site" id="checkok">
                         <label>
-                            <input type="checkbox" ng-model="ModelNew.ConfirmationStatus" tabindex="8">
+                            <input type="checkbox" ng-model="ModelNew.ConfirmationStatus" tabindex="8" ng-click="checked(this)">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>
@@ -48,6 +48,17 @@
                     </div>
 
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Is Approved</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.isApproved" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="common-btn">
                     <ul class="list-inline text-right">
@@ -63,9 +74,10 @@
 
     <div class="clearfix"></div>
 
+    @*EMPLOYEE GOAL SETTING CHILD (PMS Info)*@
     <div class="row" id="PerformanceGroupList" style="display: none">
         <div class="col-lg-12 col-md-12 " style=" width:50% !important">
-            
+
             <div style="color:black;" id="GridEmployee" ej-grid e-datasource="PerformanceGroupList" e-recorddoubleclick="SaveEmployeeGoalSettingChild"
                  e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
@@ -73,7 +85,6 @@
                     <div e-column e-field="Category" e-headertext="Category " e-width="50"></div>
                     <div e-column e-field="SubCategory" e-headertext="Sub Category " e-width="50"></div>
                     <div e-column e-field="Username" e-headertext="User Name" e-width="50"></div>
-                    
 
                 </div>
 
@@ -81,15 +92,30 @@
             <div class="col-xs-12">
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        
+
                         <li> <button ng-click="" class="btn"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
+
+    @*EMPLOYEE MASTER SCREEN*@
+    <div class="table-responsive aplos-grid-toggle">
+        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
+                <div e-column e-field="Employee" e-headertext="Employee Id" e-width="50"></div>
+                <div e-column e-field="PerformanceYearId" e-headertext="Performance Year Id" e-width="120"></div>
+                <div e-column e-field="ConfirmationStatus" e-headertext="Confirmation Status" e-width="50"></div>
+
+            </div>
+        </div>
+    </div>
 </div>
-            @*MASTER ID*@
+                     @*MASTER SCREEN*@
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -108,7 +134,7 @@
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
 
-<!--   FOR EMPLOYEE DETAIL     -->
+        <!--POP UP SCREEN  FOR EMPLOYEE DETAIL     -->
 <div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify ">
         <div class="modal-content">
@@ -124,20 +150,15 @@
                                 <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
                                 <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="50"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
-                                <div e-column e-field="DOB" e-headertext="DOB" e-width="60"></div>
-
+                                <div e-column e-field="DOB" e-headertext="DOB" e-width="100"></div>
                             </div>
-
                         </div>
-
-
                     </div>
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-
-                            @*<button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>*@
+                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
