@@ -24,6 +24,9 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.PODOwnRef = null;
     $scope.PODArticle = null;
 
+    $scope.responsiblePerson = null;
+    $scope.responsiblePersonId = null;
+
     //Arrays
     $scope.EntityList = [];
     $scope.workCenterList = [];
@@ -107,6 +110,26 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    //Getting the Responsible Persons
+    $scope.getResponsiblePerson = function () {
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetResp',
+            params: {'WKId' : $scope.workCenterId},
+        }).then(function succ(resp) {
+            if (resp.data.length > 0) {
+                $scope.responsiblePerson = resp.data[0].EmployeeName;
+                $scope.responsiblePersonId = resp.data[0].ResponsiblePersonId;
+            }
+            else {
+                $scope.responsiblePerson =null;
+                $scope.responsiblePersonId =null;
+            }
+            console.log(resp.data);
+        });
+    }
+
     // Getting the POs
     $scope.getPo = function () {
         $http({
@@ -131,9 +154,20 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
 
+    //Getting the Responsible Person
+    $scope.selectResp = function () {
+        angular.element(document.querySelector('#employeesModal')).modal('show');
+    }
+
+    $scope.doubleResp = function (e) {
+        $scope.responsiblePerson = e.data.EmployeeName;
+        $scope.responsiblePersonId = e.data.SystemId;
+        angular.element(document.querySelector('#employeesModal')).modal('hide');
+    }
+
     // Refreshing the serials
     function refreshSerial() {
-        for (var j = 1; j <= $scope.ModelList.length ; j++)
+        for (var j = 0; j < $scope.ModelList.length ; j++)
         {
             $scope.ModelList[j].Serial = j;
         }
@@ -153,7 +187,6 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
        
         ob.Remarks = null;
         ob.isChanged = 0;
-        ob.Serial = parseInt(e.Serial) + 1;
         $scope.ModelList.splice(e.Serial+1, 0, ob);
         refreshSerial();
     }
@@ -168,7 +201,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i+1) ,'isChanged': 0 , 'Remarks':null , 'EmpName':null});
+                Object.assign($scope.ModelList[i], {'Serial': parseInt(i) ,'isChanged': 0 , 'Remarks':null , 'EmpName':null});
                 //$scope.refreshPage();
                 if ($scope.ModelList[i].Sequence in wipNos) {
                     continue;
@@ -266,6 +299,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
                 'ShiftId': $scope.shiftId,
                 'POId': $scope.POId ,
                 'Date': $scope.Date, 'PeriodId': $scope.periodId,
+                'ResponsiblePersonId': $scope.responsiblePersonId,
                   },
         }).then(function succ(resp) {
 

@@ -70,6 +70,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetResp(string WKId)
+        {
+            return Json(eo.GetResp(WKId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetEmps()
         {
             return Json(eo.GetEmps(), JsonRequestBehavior.AllowGet);
@@ -106,11 +112,11 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost]
-        public JsonResult saveData(List<Dictionary<string, object>> data , string WorkCenter , string ProcessId ,  string ShiftId , string POId , string Date , string PeriodId)
+        public JsonResult saveData(List<Dictionary<string, object>> data , string WorkCenter , string ProcessId ,  string ShiftId , string POId , string Date , string PeriodId , string ResponsiblePersonId)
         {
             try
             {
-                eo.saveData( data,  WorkCenter,  ProcessId,  ShiftId,  POId,  Date , PeriodId);
+                eo.saveData( data,  WorkCenter,  ProcessId,  ShiftId,  POId,  Date , PeriodId , ResponsiblePersonId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
 
             }
