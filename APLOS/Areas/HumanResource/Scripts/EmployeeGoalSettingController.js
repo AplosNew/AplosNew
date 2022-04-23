@@ -12,6 +12,13 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.deleteChildUrl = $scope.path + 'deleteChild/';
     baseService.init($scope.getListUrl);
 
+    $scope.checked = function (e) {
+        if (e.checked != true) {
+            document.querySelector('.glyphicon').classList.add('glyphicon-ok');
+        }
+
+    }
+
     //Getting the MasterData
     $scope.getData = function () {
         $http({
@@ -20,7 +27,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data);
+            //ClearFields(response.data);
             
         });
     }
@@ -28,12 +35,50 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
     // All Lists
     $scope.EGSChildList = [];
+    $scope.PerformanceYearList = [];
+    $scope.EmployeeList = [];
+    $scope.PerformanceGroupList = [];
+    $scope.SelEmployeeInfoList = [];
 
-    
+    // All declared variables with null
+    $scope.SelectPerformanceYearId = null;
+    $scope.SelectPMSId = null;
+    $scope.SelectedEmployeeId = null;
+    $scope.EmployeeId = null;
+    $scope.perfYear = null;
+    $scope.Employee = null;
+
+    // ALL POP UPs
+    // POP OPEN
+    $scope.selectEmployee = function () {
+
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+    }
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+    // Open Popup for Performance group
+    $scope.SaveEmployeeGoalSettingChild = function () {
+        angular.element(document.querySelector('#PerfGrPop')).modal('show');
+    }
+
+    // POP OPEN
+    $scope.selectEmployeeGoal = function () {
+
+        angular.element(document.querySelector('#EmployeeGoalPop')).modal('show');
+    }
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
+    }
+
+
     // ALL GET FUNCTIONS
     
-    $scope.PerformanceYearList = [];
-    $scope.SelectPerformanceYearId = null;
     $scope.getPerformancePeriod = function () {
         $http({
             method: 'POST',
@@ -43,11 +88,8 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             $scope.SelectPerformanceYearId = $scope.PerformanceYearList[0].Value;
         })
     }
-
     $scope.getPerformancePeriod();
 
-
-    $scope.EmployeeList = [];
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
@@ -57,12 +99,9 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             $scope.EmployeeList = resp.data;
         })
     }
-
     $scope.getEmployee();
-
-    $scope.PerformanceGroupList = [];
-    $scope.SelectPMSId = null;
-    $scope.getPMSMaster = function (e) {
+ 
+    $scope.getPMSMaster = function () {
         
         $http({
             method: "POST",
@@ -76,20 +115,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         })
     }
    
-
-    $scope.selectEmployee = function () {
-
-        angular.element(document.querySelector('#EmployeePop')).modal('show');
-    }
-
-    
-
-    $scope.SelectedEmployeeId = null;
-    $scope.SelEmployeeInfoList = [];
-    $scope.EmployeeId = null;
-    $scope.perfYear = null;
-    $scope.Employee = null;
-
+   
     $scope.selEmp = function (e) {
         $scope.SelectedEmployeeId = e.data.SystemId;
         $scope.EmployeeId = e.data.EmployeeId;
@@ -118,32 +144,13 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     }
    
 
-    // POP CLOSED
-    $scope.closeEmpPopUp = function () {
-        angular.element(document.querySelector('#EmployeePop')).modal('hide');
-    }
-
-   
-    /*
-    $scope.getEGSList = function (e) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getEGSList",
-            data: {'Id':e},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.EGSChildList = response.data;
-        });
-    }
-    */
-    
-    // ALL GET FUNCTIONS CLOSED
-
     // SAVE FUNCTIONS
+
     $scope.ModelTemp = {
         SystemId: null,       
-        PerformanceYearId : null,
-        ConfirmationStatus: true,
+        PerformanceYearId: null,
+        ConfirmationStatus: false,
+        isApproved: false,
         
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -153,11 +160,21 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
+       
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
-        //$scope.ChildMasterID = args.data.Id;
-        //$scope.GetChildList();
+        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
+            throw 'Employee is Required.';
+            ShowResult('Employee is Required.', 'failure');
+        }
+
+        else {
+
+            document.getElementById("PerformanceGroupList").style.cssText = "display:block";
+            $scope.getPMSMaster();
+        }
+        
     };
 
     $scope.SaveEGSParent = function () {
@@ -223,43 +240,55 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             PerformanceYearId: null,
             ConfirmationStatus: false,
         };
+        $scope.ModelTempChild = {
+            Id: null,
+            ObjectiveName: null,
+            objectiveDetail: null,
+            CostSaving: null,
+            Value: null,
+            Attachment: null,
+            AssesmentDate: null,
+            ObjNameClosingDate: null,
+            MaxStoryPoints: null,
+            Remarks: null,
+        };
+        
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNewChild = Object.assign({}, $scope.ModelTempChild);
        
-        $scope.SelectedEmployeeId.isselected = false;
+        //$scope.SelectedEmployeeId.isselected = false;
     }
 
     
-
-    // Open Popup for Performance group
-    $scope.SaveEmployeeGoalSettingChild = function () {
-        angular.element(document.querySelector('#PerfGrPop')).modal('show');
-    }
-    // SAVE FUNCTIONS CLOSED
-
     
+    //=================================================================================================================//
 
-    $scope.EnableDisable = function (e) {        
+                                        /*
+                                        ----EMPLOYEE GOAL SETTING CHILD-----
+                                        */
+    //Getting the MasterData
+    $scope.ModelListChild = null;
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEGChild",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelListChild = response.data;
+            //ClearFields(response.data);
+
+        });
+    }
+    $scope.getData();
+
+    $scope.EnableDisable = function (e) {
         $scope.result = $scope.ModelNew.CostSaving;
         if ($scope.result === "Yes") {
             document.getElementById("txtValue").disabled = false;
         } else {
             document.getElementById("txtValue").disabled = true;
         }
-        
-    }
-    
-    //
-    //---- EMPLOYEE GOAL SETTING CHILD
 
-    // POP OPEN
-    $scope.selectEmployeeGoal = function () {
-
-        angular.element(document.querySelector('#EmployeeGoalPop')).modal('show');
-    }
-
-    // POP CLOSED
-    $scope.closeEmpPopUp = function () {
-        angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
     }
 
     $scope.SelectedEmpGoalId = null;
@@ -268,9 +297,6 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
     }
 
-   
-
-   
 
     $scope.ModelTempChild = {
         Id: null,

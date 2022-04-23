@@ -945,7 +945,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 var str = @"select ei.EmployeeName from dbo.EmployeeInformation ei
                             left join org.Department dep on dep.Id = ei.DepartmentId
                             left join org.Section sec on sec.Id = ei.SectionId
@@ -962,8 +962,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public IEnumerable<object> getPerformancePeriod()
         {
             try
-            {
-                //string TableName = "dbo.PerformancePeriod pp";
+            {               
                 string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -977,17 +976,15 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
+                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
                             ei.EmpType, ei.EmploymentType, ei.JobLocationID 
-                            from dbo.EmployeeInformation ei
-                          -- left join dbo.EmployeGoalSeting egs on egs.EmployeeId = ei.EmployeeId
+                            from dbo.EmployeeInformation ei           
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
             {
                 throw ex;
-
             }
         }
 
@@ -1167,6 +1164,24 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        #region EMPLOYEE GOAL CHILD 
+
+        #region GET FUNCTION
+        public IEnumerable<object> GetEGChild()
+        {
+            try
+            {
+                string sql = @"select * from dbo.EmployeeGoalSettingChild";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion GET FUNCTION
+
         #region Save EG Child
         public Dictionary<string, object> CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
@@ -1245,6 +1260,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #endregion save EG Child
+
+        #endregion EMPLOYEE GOAL CHILD 
 
         #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)

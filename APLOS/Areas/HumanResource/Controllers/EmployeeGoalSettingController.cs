@@ -123,7 +123,20 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #region EMPLOYEE GOAL SETTING CHILD
-       
+        [HttpPost]
+        public ActionResult GetEGChild()
+        {
+            try
+            {
+                return Json(egs.GetEGChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         public JsonResult CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
 
