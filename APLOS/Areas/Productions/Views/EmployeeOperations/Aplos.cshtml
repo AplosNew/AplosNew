@@ -150,7 +150,7 @@
 
                         <li> <button ng-click="saveData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Save </button></li>
                         @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                     </ul>
                 </div>
                 <div class="table-responsive ">
@@ -163,7 +163,8 @@
                             <div e-column e-field="OperationName" e-headertext="Operation Name" e-width="80"></div>
                             <div e-column e-field="WIP" e-headertext="WIP" e-width="30"></div>
                             <div e-column e-headertext="Employee Code" e-template="#emp" e-textalign="center" e-width="80"></div>
-                            <div e-column e-field="EmpName" e-headertext="Employee Name"  e-textalign="center" e-width="80"></div>
+                            <div e-column e-headertext="Employee Name" e-template="#empName" e-textalign="center" e-width="80"></div>
+                            @*<div e-column e-field="EmpName" e-headertext="Employee Name" e-textalign="center" e-width="80"></div>*@
 
                             <div e-column e-headertext="Qty" e-template="#qty" e-textalign="center" e-width="80"></div>
 
@@ -177,6 +178,10 @@
 
                 <script type="text/template" id="emp">
                     <input type="text" ng-model="data.EmployeeCode" ng-keydown="$event.keyCode === 13 && $parent.changeInData(data,'emp')" style="color:black; text-align:center" />
+                </script>
+
+                <script type="text/template" id="empName">
+                    <input type="text" ng-model="data.EmpName" disabled style="color:black; text-align:center" />
                 </script>
 
                 <script type="text/template" id="qty">
