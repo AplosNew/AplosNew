@@ -333,7 +333,6 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.GetOrderLineCostingItemCbo();
         $scope.GetCostingTypeComponent();
         var value = null;
-
         $scope.ModelNew.CompanyId = $scope.CompanyId;
 
         $scope.Action = 'Update';
