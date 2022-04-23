@@ -6174,7 +6174,7 @@ LEFT JOIN [HKP].[HourlyLeaveReason]  hlr on hlr.Id=ho.HourlyLeaveReasonId
                 strSql = @"select  ei.EmployeeName ,ei.EmployeeCode, format(ard.PTime,'dd-MMM-yyyy hh:mm tt')PTime, ard.PType,acl.MachineID,acl.Remarks DeviceDescription
                             ,FORMAT(EI.DOJ, 'dd-MMM-yyyy') DOJ ,DSG.UserName Designation ,se.UserName Section,Sus.UserName SubSection,L.UserName Line,DP.UserName Department
                             ,p.UserName as Plant,format(ard.DateAdded,'dd-MMM-yyyy hh:mm tt')DateAdded,
-							E.UserName Entity,''Remarks ,SD.username ShiftName 
+							E.UserName Entity,''Remarks ,SD.username ShiftName,ec.UserName as EmployeeCategory 
                             from [dbo].[AttdnRawData] ard
                             left join [MST].[AccessControllerList] acl on acl.Id=ard.DevSystemID
                             inner join EmployeeInformation ei on ei.SystemId=ard.LogDownLoadNum
@@ -6189,6 +6189,12 @@ LEFT JOIN [HKP].[HourlyLeaveReason]  hlr on hlr.Id=ho.HourlyLeaveReasonId
                             LEFT JOIN HKP.Designation DeG ON DeG.Id = EI.GivenDesignationId
                             LEFT JOIN ORG.Department DP ON DP.Id = EI.DepartmentId
                             LEFT JOIN HKP.LegalDesignation LGD ON LGD.Id = EI.LegalDesignationId
+                            left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+							ei.LegalDesignationId
+							left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
+							left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+							and dxc.PlantId=ei.PlantId
+							left join hkp.EmployeeCategory ec on ec.Id=Dm.EmployeeCategoryId
                             LEFT JOIN ORG.Section AS Se ON Se.Id = EI.SectionID
                             LEFT JOIN ORG.SubSection AS SuS ON SuS.Id = EI.SubSectionID
                             LEFT JOIN ORG.Line AS L ON L.Id= EI.LineId

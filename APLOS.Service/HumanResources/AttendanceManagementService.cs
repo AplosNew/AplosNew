@@ -15066,6 +15066,8 @@ namespace Library.Service.HumanResources
                 var iMatchingId = 0;
                 var iMatchingDescription = 0;
                 var iPlant = 0;
+                var iLine = 0;
+                var iEmpCat = 0;
                 var iEntity = 0;
                 var iShift = 0;
                 var iRemarks = 0;
@@ -15104,6 +15106,16 @@ namespace Library.Service.HumanResources
                 iDepartment = xlsCol;
                 sheet1.Range[xlsRow, iDepartment].Text = "Department";
                 sheet1.Range[xlsRow, iDepartment].ColumnWidth = 25;
+
+                xlsCol += 1;
+                iLine = xlsCol;
+                sheet1.Range[xlsRow, iLine].Text = "Line";
+                sheet1.Range[xlsRow, iLine].ColumnWidth = 18;
+
+                xlsCol += 1;
+                iEmpCat = xlsCol;
+                sheet1.Range[xlsRow, iEmpCat].Text = "Employee Category";
+                sheet1.Range[xlsRow, iEmpCat].ColumnWidth = 25;
 
                 xlsCol += 1;
                 iSection = xlsCol;
@@ -15187,6 +15199,10 @@ namespace Library.Service.HumanResources
                         sheet1.Range[xlsRow, iSection].Text = dtAttendanceRawData.Rows[i]["Section"].ToString();
 
                         sheet1.Range[xlsRow, iSubSection].Text = dtAttendanceRawData.Rows[i]["SubSection"].ToString();
+
+                        sheet1.Range[xlsRow, iLine].Text = dtAttendanceRawData.Rows[i]["Line"].ToString();
+                        sheet1.Range[xlsRow, iEmpCat].Text = dtAttendanceRawData.Rows[i]["EmployeeCategory"].ToString();
+
 
                         sheet1.Range[xlsRow, iPunchTime].Text = dtAttendanceRawData.Rows[i]["PTime"].ToString();
                         sheet1.Range[xlsRow, iPlant].Text = dtAttendanceRawData.Rows[i]["Plant"].ToString();
