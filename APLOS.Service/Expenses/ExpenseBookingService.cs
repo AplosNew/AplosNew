@@ -1149,6 +1149,11 @@ namespace Library.Service.Expenses
                         expenseBookingDetailData.IsPosted = true;
                         if (voucherDetailVM.ActivityId!= expenseBookingDetailData.ActivityId)
                         {
+                            expenseBookingDetailData.OldGLGeneralInfoId = expenseBookingDetailData.GLGeneralInfoId;
+                            expenseBookingDetailData.OldBudgetMasterId = expenseBookingDetailData.BudgetMasterId;
+                            expenseBookingDetailData.OldActivityId = expenseBookingDetailData.ActivityId;
+                            expenseBookingDetailData.ChangedBy = voucher.AddedBy;
+
                             expenseBookingDetailData.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
                             expenseBookingDetailData.BudgetMasterId = voucherDetailVM.BudgetMasterId;
                             expenseBookingDetailData.ActivityId = voucherDetailVM.ActivityId;
