@@ -40,7 +40,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         #region Pages
 
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();

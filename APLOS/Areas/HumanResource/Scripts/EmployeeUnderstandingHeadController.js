@@ -12,6 +12,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.saveKPIUrl = $scope.path + 'SaveKPI';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
     
+    $scope.deleteAttachmentUrl = $scope.path + 'DeleteQualification/';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
@@ -389,109 +390,18 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             ShowResult(response.data.Message, 'failure');
         }
     };
-    $scope.SaveDocument = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveDocumentUrl,
-            data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getData();
-                $scope.getDocumentGridData();
-    
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-    $scope.SaveKPI = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveKPIUrl,
-            data: { 'data': $scope.kpiNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                /* ClearFields(response.data.Sequence);*/
-                $scope.getData();
-                $scope.getKPIGridData();
 
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-    };
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
-
-
-    $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
-        return true;
-    };
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-    }
-
-    $scope.ClearActivity = function () {
-        $scope.activityNew = Object.assign({}, $scope.activity);
-    };
-
-    $scope.ClearDocument = function() {
-        $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
-    }
-    $scope.ClearKPI = function () {
-        $scope.kpiNew = Object.assign({}, $scope.kpi);
-    }
     $scope.filedata = null;
     $("#uploadBtn").change(function () {
         $scope.filedata = this.files[0];
     });
 
-    $("#uploadBtn2").change(function () {
-        $scope.filedata = this.files[0];
-    });
-    //document.getElementById("uploadBtn").onchange = function () {
-    //    var filename = document.getElementById("uploadFile").value = this.value;
-    //    var res = filename.replace(/C:\\fakepath\\/i, '');
-    //    document.getElementById("uploadFile").value = res;
-    //};
-    //document.getElementById("uploadBtn2").onchange = function () {
-    //    var filename = document.getElementById("uploadFile2").value = this.value;
-    //    var res = filename.replace(/C:\\fakepath\\/i, '');
-    //    document.getElementById("uploadFile2").value = res;
-    //};
+    document.getElementById("uploadBtn").onchange = function () {
+        var filename = document.getElementById("uploadFile").value = this.value;
+        var res = filename.replace(/C:\\fakepath\\/i, '');
+        document.getElementById("uploadFile").value = res;
+    };
+
 
     $scope.documentRemove = function () {
         $scope.message_confirmation = 'Are you sure to remove this file?';
@@ -520,6 +430,137 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         document.getElementById('uploadFile').value = "";
         $scope.UpdateDoc();
     };
+
+    $scope.SaveDocument = function () {
+        if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+            throw $scope.filedata.name + ' File size must be below 2 mb';
+        var fileName = '';
+        if (!baseService.isUndefinedOrNull($scope.filedata))
+            fileName = $scope.filedata.name;
+        $scope.documentActivityNew.FileName = fileName;
+        //$scope.documentActivityNew.Attachment = $scope.fileId();
+        $scope.documentActivityNew.ActivityId = $scope.ActivityId;
+        var formData = new FormData();
+
+
+        $http({
+            method: 'POST',
+            url: $scope.saveDocumentUrl,
+            //data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
+            //dataType: 'JSON'
+
+             headers: { 'Content-Type': undefined },
+            transformRequest: function (data) {
+                formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
+                if (baseService.isUndefinedOrNull($scope.filedata) == false) {
+                    formData.append('file', data.file);
+                }
+                return formData;
+            },
+            data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
+
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDocumentGridData();
+    
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+    $scope.SaveKPI = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveKPIUrl,
+            data: { 'data': $scope.kpiNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /* ClearFields(response.data.Sequence);*/
+                $scope.getData();
+                $scope.getKPIGridData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+
+    $scope.Delete = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields(response.data.Sequence);
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+
+    $scope.DeleteAttachment = function () {
+            $http({
+                method: 'POST',
+                url: $scope.deleteAttachmentUrl + $scope.documentActivityNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        
+    };
+
+
+    $scope.Clear = function () {
+        ClearFields($scope.GetSequence());
+        return true;
+    };
+
+    function ClearFields(seq) {
+        $scope.Action = 'Save';
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.ModelNew.Sequence = seq;
+    }
+
+    $scope.ClearActivity = function () {
+        $scope.activityNew = Object.assign({}, $scope.activity);
+    };
+
+    $scope.ClearDocument = function() {
+        $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
+    }
+    $scope.ClearKPI = function () {
+        $scope.kpiNew = Object.assign({}, $scope.kpi);
+    }
+  
+
     $scope.GetApplicableDocument = function (args) {
         try {
             $scope.ActivityId = args.data.Id;
@@ -550,7 +591,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.ClearKPI();
         angular.element(document.querySelector('#kpiPopUp')).modal('hide');
     };
-
+    $scope.confirmClosedocDelete = function () {
+        angular.element(document.querySelector('#confirmdocDelete')).modal('hide');
+    };
     $scope.UpdateDoc = function () {
         try {
             var preparedBy = angular.element("#PreparedBy :selected").text();
@@ -663,5 +706,11 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             ShowResult(e, "failure");
             $scope.savebtndisable = false;
         }
+    };
+
+
+    $scope.documentRemove = function () {
+        $scope.message_confirmation = 'Are you sure to remove this file?';
+        angular.element(document.querySelector('#confirmdocDelete')).modal('show');
     };
 }

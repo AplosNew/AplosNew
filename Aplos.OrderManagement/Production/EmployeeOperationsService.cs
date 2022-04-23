@@ -188,7 +188,7 @@ namespace Library.OrderManagement.Production
             var str = @"select OP.ID as OperationId, OP.OperationMasterId as MasterOperationId  ,OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , isnull(o.WIP,0) as WIP,
                         isnull(Sum(owe.Qty),0) as Qty ,
                       
-                        ei.EmployeeCode
+                        ei.EmployeeCode , ei.EmployeeName as EmpName
                         from mst.OperationVariation OP
                         left join trn.ProductionBulletinTemplateDetail bt on bt.OperationVariationId=OP.Id
                         left join trn.ProductionBulletinTemplateMaster pt on pt.Id=bt.ProductionBulletinTemplateMasterId
@@ -201,7 +201,7 @@ namespace Library.OrderManagement.Production
                         left join dbo.EmployeeOperationWip o on o.OperationVariationId = op.Id and o.ProductionOrderId = pb.ProductionOrderId and o.ProcessId = pt.ProcessId
 						where pb.ProductionOrderId='" + PId + @"' and pt.ProcessId ='"+ProcessId+ @"'
 						
-						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP
+						group by OP.Id , op.Code , op.UserName , bt.Sequence , owe.EmployeeId , ei.EmployeeCode , op.OperationMasterId , o.WIP , ei.EmployeeName
                         order by Sequence";
 
       //      var str = @"select OP.ID as OperationId, OP.Code as OperationCode ,OP.UserName as OperationName, bt.Sequence , owe.EmployeeId , 
@@ -331,7 +331,7 @@ namespace Library.OrderManagement.Production
                 }
                 #endregion Detail
 
-                #region Summary
+                #region WIP
                 DataSet dsSum;
                 ConnectionManager.DAL.ConManager c = new ConnectionManager.DAL.ConManager("1");
                 c.OpenDataSetThroughAdapter("select *  from  dbo.EmployeeOperationWip where ProductionOrderId = '" + POId+ "' and ProcessId ='"+ProcessId+ "' order by Cast(OperationSequence AS int) asc", out dsSum, false, "1");
@@ -386,6 +386,10 @@ namespace Library.OrderManagement.Production
                     {
                         dsSum.Tables[0].Rows[i].BeginEdit();
                         dsSum.Tables[0].Rows[i]["WIP"] = clsStaticInfo.dbl(dsSum.Tables[0].Rows[i - 1]["Qty"].ToString()) - clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["Qty"].ToString()) ;
+                        if (clsStaticInfo.dbl(dsSum.Tables[0].Rows[i]["WIP"].ToString()) < 0)
+                        {
+                            throw new Exception("WIP is Exceeding in Operation Sequence - " + dsSum.Tables[0].Rows[i]["OperationSequence"].ToString());
+                        }
                         dsSum.Tables[0].Rows[i].EndEdit();
                     }
                 }
@@ -1439,6 +1443,7 @@ namespace Library.OrderManagement.Production
 
     public class EmployeeTimeOutService
     {
+
         private readonly SqlRepository _sqlRepository;
 
         #region Constructor
