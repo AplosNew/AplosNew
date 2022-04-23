@@ -47,7 +47,7 @@ namespace Aplos.Areas.Costings.Controllers
         [HttpGet, Authorize]
         public JsonResult GetOrderLineCostingItemCbo(string id)
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id AS VALUE, UserName AS Text FROM [dbo].[OrderLineCostingItem] WHERE Id<>'"+ id + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[OrderLineCostingItem] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
 
         private double GetSequence()
