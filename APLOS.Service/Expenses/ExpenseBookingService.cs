@@ -1147,6 +1147,12 @@ namespace Library.Service.Expenses
                         var expenseBookingDetailData = _expenseBookingDetailRepository.Find(voucherDetailVM.ExpenseBookingDetailId);
                         expenseBookingDetailData.Amount = voucherDetailVM.Amount;
                         expenseBookingDetailData.IsPosted = true;
+                        if (voucherDetailVM.ActivityId!= expenseBookingDetailData.ActivityId)
+                        {
+                            expenseBookingDetailData.GLGeneralInfoId = voucherDetailVM.GLGeneralInfoId;
+                            expenseBookingDetailData.BudgetMasterId = voucherDetailVM.BudgetMasterId;
+                            expenseBookingDetailData.ActivityId = voucherDetailVM.ActivityId;
+                        }
                         _expenseBookingDetailRepository.Update(expenseBookingDetailData);
 
                         // in liability side Cr.
