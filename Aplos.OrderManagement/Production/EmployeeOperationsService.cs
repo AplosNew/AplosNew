@@ -155,7 +155,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select EmployeeCode , EmployeeName from dbo.EmployeeInformation";
+                var str = @"Select SystemId ,EmployeeCode , EmployeeName from dbo.EmployeeInformation";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -163,6 +163,23 @@ namespace Library.OrderManagement.Production
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetResp(string WKId)
+        {
+            try
+            {
+                var str = @"Select top 1 owe.ResponsiblePersonId , ei.EmployeeName from dbo.OperationWiseEmployees owe
+                            left join dbo.EmployeeInformation ei on ei.SystemId = owe.ResponsiblePersonId
+                            where owe.WorkCenterId = '"+WKId+@"'
+                            order by owe.Date desc";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetOperationsData(string PId , string Period , string ProcessId)
         {
             //Filling the PeriodId
@@ -238,7 +255,7 @@ namespace Library.OrderManagement.Production
 
 
 
-        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date , string PeriodId)
+        public void saveData(List<Dictionary<string, object>> data, string WorkCenter, string ProcessId, string ShiftId, string POId, string Date , string PeriodId , string ResponsiblePersonId)
         {
             try
             {
@@ -317,6 +334,7 @@ namespace Library.OrderManagement.Production
                     dr["ProductionOrderId"] = POId;
                     dr["OperationVariationId"] = data[i]["OperationId"];
                     dr["EmployeeId"] = data[i]["EmployeeId"];
+                    dr["ResponsiblePersonId"] = ResponsiblePersonId;
                     dr["Date"] = Convert.ToDateTime(Date.ToString());
                     dr["Qty"] = data[i]["Qty"];
                     dr["PeriodId"] = currPeriod;                   

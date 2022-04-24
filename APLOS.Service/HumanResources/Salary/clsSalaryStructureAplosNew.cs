@@ -7919,26 +7919,6 @@ public class clsSalaryStructureAplosNew
             dtSalHd = dsSalHd.Tables[0];
 
             clsSalaryUtility obSSrecal = new global::clsSalaryUtility();
-            //DataTable dtValue = new DataTable();
-            //dtValue.TableName = "TempTable";
-            //dtValue.Columns.Add("SalaryHeadID");
-            //dtValue.Columns.Add("EntryCurrencyID");
-            //dtValue.Columns.Add("Amount");
-
-
-
-
-            //for (int i = 0; i < dt.Rows.Count; i++)
-            //{
-
-            //    DataRow dtValueRow = dtValue.NewRow();
-            //    dtValueRow["SalaryHeadID"] = dt.Rows[i]["SalaryHeadID"].ToString().Trim();
-            //    dtValueRow["EntryCurrencyID"] = dt.Rows[i]["EntryCurrencyID"].ToString().Trim();
-            //    dtValueRow["Amount"] = dt.Rows[i]["EntryAmount"].ToString().Trim();
-            //    dtValue.Rows.Add(dtValueRow);
-
-
-            //}
             DataTable dtValue = null;
             GetdtValue(dt, out dtValue);
 
@@ -7954,9 +7934,7 @@ public class clsSalaryStructureAplosNew
 
 
             dt.DefaultView.Sort = "SequenceNo ASC";
-            //DataView dv = dt2.DefaultView;
-            //dv.Sort = "Code ASC";
-
+           
             DataView dvM = new DataView();
             dvM.Table = dt;
 
@@ -7973,13 +7951,6 @@ public class clsSalaryStructureAplosNew
                     SalaryHeadID = "";
                     _formulaValue = null;
 
-
-
-
-                    //dt.Columns.Add("RoundOption");                                  //56
-                    //dt.Columns.Add("IntegerInDisb", typeof(bool));                  //57
-                    //dt.Columns.Add("IsDecimalInDisb", typeof(bool));                //58
-                    //dt.Columns.Add("DecimalNo");                                    //59
 
                     sRoundOption = dvM[i]["RoundOption"].ToString();
                     bIntegerInDisb = Convert.ToBoolean(dvM[i]["IntegerInDisb"]);
@@ -11650,12 +11621,6 @@ public class clsSalaryStructureAplosNew
             string strTempEntryAmt = "0.0";
             string strTempDefineAmt = "0.0";
 
-            //string strFormulaID = "";
-            //string strFormulaResult = "0.0";
-            //string strFormulaResultEnt = "";
-            //string strFormulaResultDef = "";
-
-
 
             string sFormulaID = "";
             string sFormulaResult = "0.0";
@@ -11664,14 +11629,12 @@ public class clsSalaryStructureAplosNew
             string sGNRBaseOthSlrHDFormula = "";
             string sBaseOthOperatorFor = "";
             string sGRNBaseOthVal = "";
-            //string sBaseOthSlrHDFormulaResult = "";
             string sRoundOption = "";
             bool bIntegerInDisb = false;
             bool bIsDecimalInDisb = false;
             bool bBaseOthShdID = false;
 
             int iDecimalNo = 0;
-            //lblSlrInfoDefSystemID.Text = "";
             string _formulaValue = string.Empty;
             string sOutEntryAmt = string.Empty;
             string sOutDefineAmt = string.Empty;
