@@ -55,32 +55,34 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.UtilityCategory Category,UMA.UtilitySubCategory SubCategory 
-							            ,UT.CategoryId,UT.SubCategoryId,UT.Quantity,UT.Remarks
+            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.UserName UserDefinedName,UT.Quantity
+							            ,UOM.UserName UoM,UT.Quantity,UT.Remarks
 							            from dbo.UtilityTransaction UT
-							            left join UtilityMaster UM on UM.Id=UT.CategoryId
-							            left join UtilityMaster UMA on UMA.Id=UT.SubCategoryId";
+										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
 
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetCategoryList()
+        public JsonResult GetUserDefinedNameList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select Id as [Value],UtilityCategory as Text from UtilityMaster";
+            var sql = @"select UM.Id as [Value],UM.UserName as Text,UOM.UserName UoM,UM.IsReadingApplicable 
+                                        from UtilityMaster UM
+                                        left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetSubCategoryList()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select Id as [Value],UtilitySubCategory as Text from UtilityMaster";
+        //[Authorize, HttpGet]
+        //public JsonResult GetSubCategoryList()
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    var sql = @"select Id as [Value],UtilitySubCategory as Text from UtilityMaster";
 
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        //}
 
 
         [HttpPost]

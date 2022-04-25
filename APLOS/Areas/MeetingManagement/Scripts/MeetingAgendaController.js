@@ -18,7 +18,6 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.ModelAgenda = {
         Id: 0,
-        MeetingTypeId: null,
         MeetingOrganizedById: null,
         MeetingOrganizedByCode: null,
         MeetingOrganizedBy: null,
@@ -27,7 +26,6 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
         ChairedBy: null,
         Date: null,
         Location: null,
-        MeetingTypeId: null,
         MeetingName: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelAgenda);
@@ -128,7 +126,7 @@ function MeetingAgendaController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.Clear = function () {
         $scope.ModelNew = {
-            Id: null,
+            Id: 0,
             MeetingOrganizedById: null,
             MeetingOrganizedByCode: null,
             MeetingOrganizedBy: null,
