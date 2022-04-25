@@ -56,7 +56,18 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(pa.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet, Authorize]
+        public JsonResult GetAutoSequence()
+        {
+            try
+            {
+                return Json(pa.GetSequence(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {

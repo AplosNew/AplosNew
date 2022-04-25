@@ -14,11 +14,11 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     //Omar Start
 
     $scope.ModelTransaction = {
-        Id: 0, 
+        Id: 0,
         EntityId: 0,
         Entity: null,
         DetentionId: null,
-        Detention: null, 
+        Detention: null,
         DetentionTypeId: null,
         DetentionType: null,
         Date: null,
@@ -26,44 +26,56 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         MachineMasterId: null,
         ProcessId: null,
         Process: null,
-        FromTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
-        ToTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+        FromTime: null,
+        ToTime: null,
         Minute: null,
         DepartmentId: null,
         Department: null,
         ShiftId: null,
         Shift: null,
-        IfAssetApplicable: false,
+        //IfAssetApplicable: false,
         AssetId: null,
         Asset: null,
-        ResponsiblePersonCode: null, 
+        ResponsiblePersonCode: null,
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         Remark: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
 
-
-    $scope.selectEntity = function () {
-        $scope.getsE();
-        angular.element(document.querySelector('#EntityPop')).modal('show');
-    }
-
     $scope.EntityList = [];
-    $scope.getsE = function () {
+    $scope.selectEntity = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getEntity',
+            //url: $scope.path + 'getEntity',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity",
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.EntityList = resp.data;
         });
+        angular.element(document.querySelector('#EntityPop')).modal('show');
+    }
+
+   
+
+    $scope.workcenterList = [];
+    $scope.GetworkcenterData = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetWCCbo?entityId=' + $scope.ModelNew.EntityId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.workcenterList = response.data;
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
     }
 
     $scope.doubleEntity = function (e) {
-            $scope.ModelNew.EntityId = e.data.EntityId;
-            $scope.ModelNew.Entity = e.data.EntityName;
-            angular.element(document.querySelector('#EntityPop')).modal('hide');
+        $scope.ModelNew.EntityId = e.data.Id;
+        $scope.ModelNew.Entity = e.data.UserName;
+        $scope.GetworkcenterData();
+        angular.element(document.querySelector('#EntityPop')).modal('hide');
     }
 
     $scope.closePopUp = function () {
@@ -233,40 +245,29 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
             $scope.ModelNew.AssetId = null;
             $scope.ModelNew.Asset = null;
         }
-        
+
     }
 
     $scope.getMinute = function () {
-        var ftimeString = $scope.ModelNew.FromTime;
-        var ttimeString = $scope.ModelNew.ToTime;
-        var datestringFromDP = new Date();
-
-        var fdateObj = new Date(datestringFromDP + ' ' + ftimeString);
-        var tdateObj = new Date(datestringFromDP + ' ' + ttimeString);
-        var timeStart = new Date($scope.ModelNew.FromTime).getTime();
-        var timeEnd = new Date($scope.ModelNew.ToTime).getTime();
-        var hourDiff = timeEnd - timeStart; //in ms
-        
-        var minDiff = hourDiff / 60 / 1000; //in minutes
-        var hDiff = hourDiff / 3600 / 1000; //in hours
-        var humanReadable = {};
-        humanReadable.hours = Math.floor(hDiff);
-        humanReadable.minutes = minDiff - 60 * humanReadable.hours;
-        $scope.ModelNew.Minute = humanReadable.minutes;
-        console.log(humanReadable); //{hours: 0, minutes: 30}
-
-
-        var startTime = new Date(fdateObj);
-        var endTime = new Date(datestringToDP);
-        var difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
-        var resultInMinutes = Math.round(difference / 60000);
-
-
+        try {
+            $scope.MinuteUrl = 'IE/MachineMasterTransaction/GetMinute/'
+            $http({
+                method: 'POST',
+                url: $scope.MinuteUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ModelNew.Minute = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.Save = function () {
         try {
-
             angular.copy($scope.ModelNew, $scope.ModelTransaction);
             $scope.$broadcast('show-errors-check-validity');
 
@@ -283,7 +284,8 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-                        $scope.ModelNew.Id = response.data.Id;
+                   
+                        $scope.getData();
                         $scope.Clear();
                     }
                 }), function errorCallBack(response) {
@@ -312,8 +314,8 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
             MachineId: null,
             ProcessId: null,
             Process: null,
-            FromTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
-            ToTime: new Date().toLocaleTimeString({}, { hour12: true, hour: 'numeric', minute: 'numeric' }),
+            FromTime:null,
+            ToTime: null,
             Minute: null,
             DepartmentId: null,
             Department: null,
@@ -339,15 +341,13 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
 
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetworkcenterData();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
-
-   
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
@@ -371,8 +371,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         }
     };
 
-   
-
     $scope.employeeParameters = {
         limit: 10,
         offset: 0,
@@ -384,7 +382,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         search: null,
         serverPagination: true
     };
-
 
     $scope.Name = null;
     $scope.showEmployeeListPopUp = function (name) {
@@ -417,7 +414,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
     $scope.selectEmployeePopUp = function (index, data) {
         $scope.employeeIndex = index;
-        
+
         $scope.ModelNew.ResponsiblePersonId = data.SystemId;
         $scope.ModelNew.ResponsiblePerson = data.EmployeeName;
         $scope.ModelNew.ResponsiblePersonCode = data.EmployeeCode;
@@ -431,8 +428,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     };
 
     $scope.GriddataMachineMasterData = [];
-    $scope.GetMachineMasterData = function () {
-        debugger;
+    $scope.getData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -441,5 +437,5 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
             $scope.GriddataMachineMasterData = response.data;
         });
     };
-    $scope.GetMachineMasterData();
+    $scope.getData();
 }
