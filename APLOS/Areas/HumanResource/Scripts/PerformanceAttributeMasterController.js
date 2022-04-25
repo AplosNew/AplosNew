@@ -5,6 +5,7 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceAttributeMaster/';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'Delete/';
 
@@ -12,7 +13,7 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
+            //data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -22,8 +23,17 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
     }
     $scope.getData();
 
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
     $scope.ModelTemp = {
         Id: null,
+        Sequence: 0,
         AttributeCategory: null,
         Attribute: null,
         Defination: null,
@@ -58,7 +68,7 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    ClearFields(response.data.Sequence);
                     $scope.getData();
                 }
             }), function errorCallBack(response) {
@@ -93,14 +103,15 @@ function PerformanceAttributeMasterController(cboService, commonMessage, $scope,
     };
 
     $scope.Clear = function () {
-        ClearFields();
+        ClearFields($scope.GetSequence());
         return true;
     };
     
-    function ClearFields() {
+    function ClearFields(seq) {
         $scope.Action = 'Save';
         $scope.ModelNew = {
             Id: null,
+            Sequence: 0,
             AttributeCategory: null,
             Attribute: null,
             Defination: null,

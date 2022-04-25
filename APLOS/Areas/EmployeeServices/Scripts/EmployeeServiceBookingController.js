@@ -387,7 +387,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedQuantityList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime },
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedQuantityList = response.data;
@@ -398,7 +398,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedAmountList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime},
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedAmountList = response.data;
@@ -409,7 +409,7 @@ function EmployeeServiceBookingController(cboService, commonMessage, $scope, $ro
         $scope.SelectedReadingList = [];
         $http({
             method: 'POST',
-            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date)},
+            data: { ServicesId: $scope.EmployeeServiceBooking.EmployeeServicesId, CategoryId: $scope.EmployeeServiceBooking.EmployeeServiceCategoryId, Date: $filter('dateFiltering')($scope.EmployeeServiceBooking.Date), Time: $scope.EmployeeServiceBooking.GetTime},
             url: 'EmployeeServices/EmployeeServiceBooking/getgriddatatoshow'
         }).then(function successCallback(response) {
             $scope.SelectedReadingList = response.data;

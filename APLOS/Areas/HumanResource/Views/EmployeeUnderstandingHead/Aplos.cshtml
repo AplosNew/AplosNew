@@ -29,14 +29,26 @@
                         </div>
                     </div>
                     <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelNew.Status" name="StatusList" ng-options="item.value as item.name for item in StatusList">
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    @*<div class="form-group">
                         <label class="col-sm-4 control-label">Status<sup>*</sup></label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                <select class="form-control" ng-model="ModelNew.Status" name="StatusList" ng-options="item.value as item.name for item in StatusList">
+                                <select id="StatusId" class="form-control" name="StatusList" ng-model="ModelNew.Status">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in StatusList" value="{{option.Value}}">{{option.Text}}</option>
                                 </select>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                         <div class="col-sm-8">

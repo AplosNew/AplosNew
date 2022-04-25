@@ -1462,6 +1462,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
+    $scope.SORatePopUp = function (x) {
+        try {
+            $scope.OrderCostingId = x.OrderCostingMasterTemplateId;
+            $scope.MOIId = x.Id;
+
+            //$scope.openPopup('CostingPopUp');
+            angular.element(document.querySelector('#CostingPopUp')).modal('show');
+        } catch (e) {
+        }
+    }
+
     $scope.OrderPreCosting = function () {
         try {
             $scope.PreCosting = 1;
@@ -3408,6 +3419,24 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#DescriptionPopup')).modal('show');
 
     }
+
+    $scope.costingSOFormulaList = [];
+    $scope.CloseSORatePopup = function () {
+        angular.element(document.querySelector('#SORatePopup')).modal('hide');
+
+    }
+    $scope.ProductLibraryList = [];
+    $scope.GetSORatePopup = function (index) {
+        $scope.itemIndex = index;
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData/'
+        }).then(function successCallback(response) {
+            $scope.costingSOFormulaList = response.data;
+            angular.element(document.querySelector('#SORatePopup')).modal('show');
+        });
+    };
+
 
     $scope.SaveItemDescription = function () {
         $scope.$broadcast('show-errors-check-validity');
