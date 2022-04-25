@@ -237,31 +237,21 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     }
 
     $scope.getMinute = function () {
-        var ftimeString = $scope.ModelNew.FromTime;
-        var ttimeString = $scope.ModelNew.ToTime;
-        var datestringFromDP = new Date();
-
-        var fdateObj = new Date(datestringFromDP + ' ' + ftimeString);
-        var tdateObj = new Date(datestringFromDP + ' ' + ttimeString);
-        var timeStart = new Date($scope.ModelNew.FromTime).getTime();
-        var timeEnd = new Date($scope.ModelNew.ToTime).getTime();
-        var hourDiff = timeEnd - timeStart; //in ms
-        
-        var minDiff = hourDiff / 60 / 1000; //in minutes
-        var hDiff = hourDiff / 3600 / 1000; //in hours
-        var humanReadable = {};
-        humanReadable.hours = Math.floor(hDiff);
-        humanReadable.minutes = minDiff - 60 * humanReadable.hours;
-        $scope.ModelNew.Minute = humanReadable.minutes;
-        console.log(humanReadable); //{hours: 0, minutes: 30}
-
-
-        var startTime = new Date(fdateObj);
-        var endTime = new Date(datestringToDP);
-        var difference = endTime.getTime() - startTime.getTime(); // This will give difference in milliseconds
-        var resultInMinutes = Math.round(difference / 60000);
-
-
+        try {
+            $scope.MinuteUrl ='IE/MachineMasterTransaction/GetMinute/'
+            $http({
+                method: 'POST',
+                url: $scope.MinuteUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ModelNew.Minute = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.Save = function () {
@@ -347,8 +337,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         }
     };
 
-   
-
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
@@ -371,8 +359,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         }
     };
 
-   
-
     $scope.employeeParameters = {
         limit: 10,
         offset: 0,
@@ -384,7 +370,6 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         search: null,
         serverPagination: true
     };
-
 
     $scope.Name = null;
     $scope.showEmployeeListPopUp = function (name) {
