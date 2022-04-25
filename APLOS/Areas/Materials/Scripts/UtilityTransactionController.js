@@ -6,7 +6,6 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelList = [];
     $scope.path = 'Materials/UtilityTransaction/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
     
@@ -19,11 +18,10 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelTemp = {
         Id: null,
         Date: null,
-        CategoryId: null,
-        Category: null,
-        SubCategoryId: null,
-        SubCategory: null,
+        UserDefinedNameId: null,
+        UserDefinedName: null,
         Quantity: null,
+        UoM: null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -50,28 +48,33 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab === tabNum;
     };
 
+    $scope.uOMList = [];
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
 
-    $scope.subCategoryList = [];
-    $scope.GetSubCategoryList = function () {
+   
+    //$scope.subCategoryList = [];
+    //$scope.GetSubCategoryList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'Materials/UtilityTransaction/GetSubCategoryList'
+    //    }).then(function successCallback(response) {
+    //        $scope.subCategoryList = response.data;
+    //    });
+    //}
+    //$scope.GetSubCategoryList();
+
+    $scope.userDefinedNameList = [];
+    $scope.GetUserDefinedNameList = function () {
         $http({
             method: 'GET',
-            url: 'Materials/UtilityTransaction/GetSubCategoryList'
+            url: 'Materials/UtilityTransaction/GetUserDefinedNameList'
         }).then(function successCallback(response) {
-            $scope.subCategoryList = response.data;
+            $scope.userDefinedNameList = response.data;
         });
     }
-    $scope.GetSubCategoryList();
-
-    $scope.categoryList = [];
-    $scope.GetCategoryList = function () {
-        $http({
-            method: 'GET',
-            url: 'Materials/UtilityTransaction/GetCategoryList'
-        }).then(function successCallback(response) {
-            $scope.categoryList = response.data;
-        });
-    }
-    $scope.GetCategoryList();
+    $scope.GetUserDefinedNameList();
 
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
@@ -197,48 +200,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
             });
         }
     };
-    //$scope.ModelChild = {
-    //    Id: null,
-    //    UtilityMasterId: null,
-    //    EffectiveDate: null,
-    //    Rate: 0,
-    //    Remark: null
-    //};
-    //$scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
-
-    //$scope.SaveChild = function () {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.saveChildUrl,
-    //            data: { 'data': $scope.ModelChildNew, 'UtilityMasterId': $scope.ModelNew.Id },
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                $scope.getData();
-    //                $scope.getUtilityGridData($scope.ModelNew.Id);
-    //                $scope.ClearUtilityDetail();
-    //            }
-    //        }), function errorCallBack(response) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-
-    //};
-
-    //$scope.Clear = function () {
-    //    ClearFields($scope.GetSequence());
-    //    return true;
-    //};
-
-    //function ClearFields(seq) {
-    //    $scope.Action = 'Save';
-    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //    $scope.ModelNew.Sequence = seq;
-    //    $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
-    //}
+    
 
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);

@@ -48,31 +48,50 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-4 control-label">If Party Applicable</label>
+                        <label class="col-sm-4 control-label">Is Party Applicable</label>
                         <div class="col-sm-2">
                             <div class="checkbox-site">
                                 <label>
-                                    <input type="checkbox" ng-model="ModelNew.IfPartyApplicable" ng-change="ChangeCustomer();" tabindex="10">
+                                    <input type="checkbox" ng-model="ModelNew.IsPartyApplicable" ng-change="ChangeCustomer();" tabindex="10">
                                     <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
                         </div>
-                        <label class="col-sm-2 control-label" ng-show="ModelNew.IfPartyApplicable==true">Customer<sup>*</sup></label>
-                        <div class="col-sm-4" ng-show="ModelNew.IfPartyApplicable==true">
+                        <label class="col-sm-2 control-label">Party<sup>*</sup></label>
+                        <div class="col-sm-4" @*ng-show="ModelNew.IfPartyApplicable==true"*@>
                             <div class="input-group">
-                                <input type="text" name="Customer" ng-model="ModelNew.CustomerName" class="form-control" readonly>
+                                <input type="text" name="Party" ng-model="ModelNew.PartyName" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="ShowCustomerPopUpNew();" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="ShowCustomerPopUpNew();" ng-disabled="ModelNew.IsPartyApplicable == false" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
                                 </span>
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Reading Applicable</label>
+                        <div class="col-sm-2">
+                            <div class="checkbox-site">
+                                <label>
+                                    <input type="checkbox" ng-model="ModelNew.IsReadingApplicable" @*ng-change="ChangeReading();"*@ tabindex="10">
+                                    <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Entry Leg Days</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" rows="3" ng-model="ModelNew.EntryLegDays" only-numbers tabindex="7" maxlength="250"></input>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
                             <textarea class="form-control" rows="3" ng-model="ModelNew.Description" tabindex="7" maxlength="250"></textarea>
                         </div>
                     </div>
+
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
                     <div class="form-group" show-errors>
@@ -132,6 +151,19 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Admin<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="Admin" ng-model="ModelNew.Admin" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="showEmployeeListPopUp('ad');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">

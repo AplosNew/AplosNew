@@ -38,7 +38,9 @@ function MeetingPointsController(cboService, commonMessage, $scope, $rootScope, 
     $scope.EmployeeListNew = [];
     $scope.ModelTemp = {
         Id: null,
+        DepartmentId: null,
         Department: null,
+        MeetingTypeId: null,
         MeetingType: null,
         ItemDetail: null,
         BackgroundIssueDetail: null,
