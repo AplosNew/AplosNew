@@ -65,7 +65,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetUserDefinedNameList()
+        public JsonResult GetUtilityMasterList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var sql = @"select UM.Id as [Value],UM.UserName as Text,UOM.UserName UoM,UM.IsReadingApplicable 

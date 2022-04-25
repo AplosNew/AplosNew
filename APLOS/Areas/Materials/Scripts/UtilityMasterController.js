@@ -350,7 +350,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
-        $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
+        $scope.utilityDetails = [];
     }
 
     $scope.ClearUtilityDetail = function () {

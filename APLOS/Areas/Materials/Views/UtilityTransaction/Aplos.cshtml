@@ -11,12 +11,12 @@
 
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">User Defined Name<sup>*</sup> </label>
+                    <label class="col-sm-4 control-label">Utility Master<sup>*</sup> </label>
                     <div class="col-sm-8">
                         <div class="select-style">
-                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UserDefinedNameId" name="Category" tabindex="1">
+                            <select id="CategoryId" class="form-control" ng-model="ModelNew.UtilityMasterId" name="Category" tabindex="1">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in userDefinedNameList" value="{{option.Value}}">{{option.Text}}</option>
+                                <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </div>
@@ -29,47 +29,23 @@
                     </div>
                 </div>
 
-
-                @*<div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Category<sup>*</sup> </label>
-                    <div class="col-sm-8">
-                        <div class="select-style">
-                            <select id="CategoryId" class="form-control" ng-model="ModelNew.CategoryId" name="Category" tabindex="1">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in categoryList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
                 <div class="form-group">
                         <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
                         <div class="col-sm-2 show-message">
-                            <input type="text" name="Quantity" ng-model="ModelNew.Quantity" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                            <input type="text" name="Quantity" ng-model="ModelNew.Quantity" class="form-control" only-numbers required autocomplete="off" tabindex="4" maxlength="50">
                         </div>
                     <label class="col-sm-2 control-label">UoM<sup>*</sup> </label>
                     <div class="col-sm-4">
                         <div class="select-style">
-                            <select id="UoMId" class="form-control" ng-disabled="ModelNew.Quantity == false" ng-model="ModelNew.UoMId" name="UoM" tabindex="1">
+                            <select id="UoMId" class="form-control" ng-change="GetUoMAndReadingApplicable()" ng-disabled="ModelNew.Quantity == false" ng-model="ModelNew.UoM" name="UoM" tabindex="1">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in uOMList" value="{{option.Value}}">{{option.Text}}</option>
+                                <option ng-repeat="option in utilityMasterList" value="{{option.Value}}">{{option.Text}}</option>
                             </select>
                         </div>
                     </div>
                 </div>
-
-                @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Sub Category<sup>*</sup> </label>
-            <div class="col-sm-8">
-                <div class="select-style">
-                    <select id="SubCategoryId" class="form-control" ng-model="ModelNew.SubCategoryId" name="Category" tabindex="1">
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in subCategoryList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
