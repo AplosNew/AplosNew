@@ -6,7 +6,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.ModelList = [];
     $scope.path = 'HumanResource/EmployeeGoalSetting/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'CreateEGSParent';
+    $scope.saveUrl = $scope.path + 'Create';
     $scope.saveChildUrl = $scope.path + 'CreateEGChild';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.deleteChildUrl = $scope.path + 'deleteChild/';
@@ -65,6 +65,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         angular.element(document.querySelector('#PerfGrPop')).modal('show');
     }
 
+    $scope.OpenPMSPopup = function () {
+        angular.element(document.querySelector('#PMSPop')).modal('show');
+    }
+
     // POP OPEN
     $scope.selectEmployeeGoal = function () {
 
@@ -86,6 +90,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         }).then(function success(response) {
             $scope.PerformanceYearList = response.data;
             $scope.SelectPerformanceYearId = $scope.PerformanceYearList[0].Value;
+            
         })
     }
     $scope.getPerformancePeriod();
@@ -111,10 +116,16 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         }).then(function success(res) {
             $scope.PerformanceGroupList = res.data;
             $scope.SelectPMSId = $scope.PerformanceGroupList[0].PMSId
+            //$scope.SelectPMS = $scope.PerformanceGroupList[1].Username
             
         })
     }
-   
+   //$scope.getPMSMaster();
+    $scope.SelectPMS = null;
+    $scope.selPMS = function (e) {
+        $scope.SelectPMS = e.data.Username;
+        angular.element(document.querySelector('#PMSPop')).modal('hide');
+    }
    
     $scope.selEmp = function (e) {
         $scope.SelectedEmployeeId = e.data.SystemId;
@@ -124,25 +135,31 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
         $scope.perfYear = document.getElementById("ddperfYear").value;
 
-        if (baseService.isUndefinedOrNull($scope.SelectPerformanceYearId)) {
-            throw 'Performance Year is Required.';
-            ShowResult('Performance Year is Required.', 'failure');
-        }
-        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-            throw 'Employee is Required.';
-            ShowResult('Employee is Required.', 'failure');
-        }
-
-        else {
-
-            document.getElementById("PerformanceGroupList").style.cssText = "display:block";
-            $scope.getPMSMaster();
-        } 
-        
+        $scope.getPMSMaster();
+        $scope.displayEGChild();
         
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
-   
+
+
+
+    $scope.displayEGChild = function () {
+      
+        if (baseService.isUndefinedOrNull($scope.SelectPerformanceYearId) && baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
+            throw 'Performance Year and Employee Id is Required.';
+            ShowResult('Performance Year and Employee Id is Required.', 'failure');
+        }
+        //if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
+        //    throw 'Employee is Required.';
+        //    ShowResult('Employee is Required.', 'failure');
+        //}
+
+        else {
+            document.getElementById("PerformanceGroupList").style.cssText = "display:block";
+            
+        }
+    }
+    //$scope.displayEGChild();
 
     // SAVE FUNCTIONS
 
@@ -177,7 +194,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         
     };
 
-    $scope.SaveEGSParent = function () {
+   
+
+
+    $scope.Save = function () {
 
         $scope.$broadcast('show-errors-check-validity');
        if ($scope.ModelNewForm.$valid) {
@@ -235,6 +255,8 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
     function ClearFields() {
         $scope.Action = 'CreateEGSParent';
+        $scope.SelectPMS = null;
+        $scope.Employee = null;
         $scope.ModelNew = {
             SystemId: null,
             PerformanceYearId: null,
@@ -267,7 +289,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
                                         ----EMPLOYEE GOAL SETTING CHILD-----
                                         */
     //Getting the MasterData
-    $scope.ModelListChild = null;
+    $scope.ModelListChild = [];
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -294,6 +316,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.SelectedEmpGoalId = null;
     $scope.selEmpGoal = function (e) {
         $scope.SelectedEmpGoalId = e.data.SystemId;
+       
         angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
     }
 
@@ -316,9 +339,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
         $scope.ModelNewChild = Object.assign({}, args.data);
         $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+        //$scope.selPMS.$scope.SelectPMS.selected;
+        
+        document.getElementById("PerformanceGroupList").style.cssText = "display:block";
+        
        
     }
     

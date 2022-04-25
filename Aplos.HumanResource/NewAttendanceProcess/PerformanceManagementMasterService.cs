@@ -759,6 +759,15 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
 
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceAttributeMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
     }
 
     public class PerformanceGradeMasterService
@@ -917,8 +926,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
 
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceGradeMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
     }
 
+    #region EmployeeGoalSetting
     public class EmployeeGoalSetting
     {
         SqlRepository _sqlRepository;
@@ -1061,7 +1080,7 @@ namespace Library.HumanResource.NewAttendanceProcess
          }*/
         #endregion
         #region Save Process
-        public Dictionary<string, object> CreateEGSParent(Dictionary<string, object> datas, string SelectedEmployeeId)
+        public Dictionary<string, object> Create(Dictionary<string, object> datas, string SelectedEmployeeId)
         {
 
             try
@@ -1314,7 +1333,73 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
     }
+    #endregion EmployeeGoalSetting
 
+    #region Goal Setting Approval
+    public class GoalSettingApprovalService
+    {
+        SqlRepository _sqlRepository;
+        public GoalSettingApprovalService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPerformancePeriod()
+        {
+            try
+            {
+                string sql = @"select pp.* from dbo.PerformancePeriod pp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMenPower()
+        {
+            try
+            {
+                string sql = @"select mp.* from MST.ManpowerBudget mp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetROPP(string ROBudget, string PPId)
+        {
+            try
+            {
+                string sql = @"select eg.EmployeeId,e.EmployeeName,s.UserName as Section,ss.UserName as SubSection,
+                                d.UserName as Department,u.UserName as Unit,p.PerformanceYearName,egc.*
+                                from employeegoalsetting eg 
+                                left join employeegoalsettingchild egc on eg.SystemId=egc.EGSettingId
+                                left join EmployeeInformation e on e.SystemId=eg.EmployeeId
+                                left join PMSMaster pms on pms.Id=egc.PMSMasterId
+                                left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
+                                left join PerformancePeriod p on p.Id=eg.PerformanceYearid
+                                left join org.Department d on d.Id=e.DepartmentId
+                                left join org.Unit u on u.Id=e.UnitId
+                                left join org.Section s on s.Id=e.SectionId
+                                left join org.SubSection ss on ss.Id=e.SubSectionId
+                                where mb.ROBudgetCode='"+ ROBudget + "' and p.Id='"+ PPId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+    }
+
+   
+
+    #endregion Goal Setting Approval
 }
 
 

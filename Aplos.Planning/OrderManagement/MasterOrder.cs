@@ -766,6 +766,20 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             }
         }
 
+        public IEnumerable<object> GetCostingSOFormulaData()
+        {
+            try
+            {
+                string sql = @"SELECT OL.Id,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponentId
+                              FROM OrderLineCostingItem AS OL
+                              LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetContractByMasterOrder(string masterId)
         {
             try
