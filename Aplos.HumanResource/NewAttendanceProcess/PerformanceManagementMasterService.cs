@@ -759,6 +759,15 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
 
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceAttributeMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
     }
 
     public class PerformanceGradeMasterService
@@ -917,8 +926,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
 
+        public double GetSequence()
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceGradeMaster");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
     }
 
+    #region EmployeeGoalSetting
     public class EmployeeGoalSetting
     {
         SqlRepository _sqlRepository;
@@ -945,7 +964,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                
                 var str = @"select ei.EmployeeName from dbo.EmployeeInformation ei
                             left join org.Department dep on dep.Id = ei.DepartmentId
                             left join org.Section sec on sec.Id = ei.SectionId
@@ -962,8 +981,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public IEnumerable<object> getPerformancePeriod()
         {
             try
-            {
-                //string TableName = "dbo.PerformancePeriod pp";
+            {               
                 string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -977,17 +995,15 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
+                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
                             ei.EmpType, ei.EmploymentType, ei.JobLocationID 
-                            from dbo.EmployeeInformation ei
-                          -- left join dbo.EmployeGoalSeting egs on egs.EmployeeId = ei.EmployeeId
+                            from dbo.EmployeeInformation ei           
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
             {
                 throw ex;
-
             }
         }
 
@@ -1064,7 +1080,7 @@ namespace Library.HumanResource.NewAttendanceProcess
          }*/
         #endregion
         #region Save Process
-        public Dictionary<string, object> CreateEGSParent(Dictionary<string, object> datas, string SelectedEmployeeId)
+        public Dictionary<string, object> Create(Dictionary<string, object> datas, string SelectedEmployeeId)
         {
 
             try
@@ -1167,6 +1183,24 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        #region EMPLOYEE GOAL CHILD 
+
+        #region GET FUNCTION
+        public IEnumerable<object> GetEGChild()
+        {
+            try
+            {
+                string sql = @"select * from dbo.EmployeeGoalSettingChild";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion GET FUNCTION
+
         #region Save EG Child
         public Dictionary<string, object> CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
@@ -1246,6 +1280,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         #endregion save EG Child
 
+        #endregion EMPLOYEE GOAL CHILD 
+
         #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -1297,7 +1333,73 @@ namespace Library.HumanResource.NewAttendanceProcess
 
 
     }
+    #endregion EmployeeGoalSetting
 
+    #region Goal Setting Approval
+    public class GoalSettingApprovalService
+    {
+        SqlRepository _sqlRepository;
+        public GoalSettingApprovalService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPerformancePeriod()
+        {
+            try
+            {
+                string sql = @"select pp.* from dbo.PerformancePeriod pp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMenPower()
+        {
+            try
+            {
+                string sql = @"select mp.* from MST.ManpowerBudget mp";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetROPP(string ROBudget, string PPId)
+        {
+            try
+            {
+                string sql = @"select eg.EmployeeId,e.EmployeeName,s.UserName as Section,ss.UserName as SubSection,
+                                d.UserName as Department,u.UserName as Unit,p.PerformanceYearName,egc.*
+                                from employeegoalsetting eg 
+                                left join employeegoalsettingchild egc on eg.SystemId=egc.EGSettingId
+                                left join EmployeeInformation e on e.SystemId=eg.EmployeeId
+                                left join PMSMaster pms on pms.Id=egc.PMSMasterId
+                                left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
+                                left join PerformancePeriod p on p.Id=eg.PerformanceYearid
+                                left join org.Department d on d.Id=e.DepartmentId
+                                left join org.Unit u on u.Id=e.UnitId
+                                left join org.Section s on s.Id=e.SectionId
+                                left join org.SubSection ss on ss.Id=e.SubSectionId
+                                where mb.ROBudgetCode='"+ ROBudget + "' and p.Id='"+ PPId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+    }
+
+   
+
+    #endregion Goal Setting Approval
 }
 
 

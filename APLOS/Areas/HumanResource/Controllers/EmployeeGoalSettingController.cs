@@ -90,12 +90,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult CreateEGSParent(Dictionary<string, object> datas, string SelectedEmployeeId)
+        public JsonResult Create(Dictionary<string, object> datas, string SelectedEmployeeId)
         {
            
             try
             {
-                return Json(new { Error = "No", Data = egs.CreateEGSParent(datas, SelectedEmployeeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = egs.Create(datas, SelectedEmployeeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -123,7 +123,20 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         #region EMPLOYEE GOAL SETTING CHILD
-       
+        [HttpPost]
+        public ActionResult GetEGChild()
+        {
+            try
+            {
+                return Json(egs.GetEGChild(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         public JsonResult CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
         {
 

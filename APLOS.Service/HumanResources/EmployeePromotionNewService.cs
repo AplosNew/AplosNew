@@ -1016,17 +1016,7 @@ namespace Library.Service.HumanResources
                 //CheckAll(true);
                 decimal decNetGross = 0;
                 decimal decNetCTC = 0;
-
-                //for (int i = 0; i < dg.Rows.Count; i++)
-                //{
-                //    if (dg.Rows[i]["HeadType"].ToString() == "Earning" && dg.Rows[i]["HeadType"].ToString() == "Earning")
-                //    {
-                //        //if (Convert.ToBoolean(bplib.clsWebLib.GetBoolData(dg.Rows[i]["IsGrossComponent"].ToString())) == true)
-                //        //{ decNetGross += Convert.ToDecimal(bplib.clsWebLib.GetNumData(dg.Rows[i]["EntryAmount"].ToString().Trim())); }
-                //        //if (Convert.ToBoolean(bplib.clsWebLib.GetBoolData(dg.Rows[i]["IsCTCComponent"].ToString())) == true)
-                //        //{ decNetCTC += Convert.ToDecimal(bplib.clsWebLib.GetNumData(dg.Rows[i]["EntryAmount"].ToString().Trim())); }
-                //    }
-                //}
+                               
                 NewGross = decNetGross.ToString("#,##0.00;(#,##0.00)");
                 NewCTC = decNetCTC.ToString("#,##0.00;(#,##0.00)");
 

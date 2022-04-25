@@ -3687,14 +3687,6 @@ FixedValue, SequenceNo,
 
             try
             {
-                //strSQL = @"SELECT *
-                //                FROM mst.manpowerbudgetallowance a
-                //                WHERE a.ManpowerBudgetId = '"+ ManpowerBudgetId + @"'
-                //                 AND a.EffectiveDate IN (
-                //                  SELECT MAX(EffectiveDate) EffectiveDate		
-                //                  FROM mst.manpowerbudgetallowance		
-                //                  WHERE ManpowerBudgetId = '" + ManpowerBudgetId + @"'
-                //                  )";
                 string ed = Convert.ToDateTime(EffectiveDate).ToString("dd-MMM-yyyy");
                 strSQL = @"SELECT top 1 *
                                 FROM mst.manpowerbudgetallowance a
@@ -3797,21 +3789,7 @@ FixedValue, SequenceNo,
             ConnectionManager.DAL.ConManager objCon;
 
             try
-            {
-                //strSQL = @"
-                //            SELECT *
-                //            FROM org.entityallowance a
-                //            WHERE a.DesignationGroupId = '" + DesignationGroupId + @"'
-                //             AND entityid = '" + entityid + @"'
-                //             AND CompanyGroupId = '" + CompanyGroupId + @"'
-                //             AND a.EffectiveDate IN (
-                //              SELECT MAX(EffectiveDate) EffectiveDate		
-                //              FROM org.entityallowance		
-                //              WHERE entityid = '" + entityid + @"'
-                //               AND CompanyGroupId = '" + CompanyGroupId + @"'
-                //               AND DesignationGroupId = '" + DesignationGroupId + @"'
-                //              )";
-
+            {               
                 strSQL = @" SELECT top 1*
                             FROM org.entityallowance a
                             WHERE a.DesignationGroupId = '" + DesignationGroupId + @"'

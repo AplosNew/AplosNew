@@ -280,7 +280,7 @@ namespace Aplos.Areas.EmployeeServices.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult getgriddatatoshow(string ServicesId, string CategoryId, string Date)
+        public JsonResult getgriddatatoshow(string ServicesId, string CategoryId, string Date , string Time)
         {
             string sql = @"select top 100 * from (select distinct esd.*,FORMAT(esd.Date,'dd-MMM-yyyy') as EmpServiceDate,CONVERT(varchar(5),esd.[Time],108)[GetGridTime],ei.SystemId,ei.EmployeeCode,ei.EmployeeName as EmpName,ei.EmployeeStatus,sd.UserName as Shift,esc.Category,est.Form,est.Service,est.Id as EmployeeServicesId,uom.UserName as Text,uom.Id as UOMId from dbo.EmpServiceData esd
                                                                     left join dbo.EmployeeInformation ei on ei.SystemId=esd.EmployeeId
@@ -288,7 +288,8 @@ namespace Aplos.Areas.EmployeeServices.Controllers
 																	left join dbo.EmpServiceCategory esc on esc.Id=esd.EmployeeServiceCategoryId
 																	left join dbo.EmpServiceType est on est.Id=esc.EmpServiceTypeId
 																	left join SCS.UnitOfMeasurement uom on uom.Id=est.UOMId
-																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='" + ServicesId + "') AS TEMP order by Time desc";
+																	where Date='" + Date + "' and EmployeeServiceCategoryId='" + CategoryId + "' and est.Id='" + ServicesId + "' and CONVERT(varchar(5),esd.[Time],108) = '"+Time+@"'
+                                                                    ) AS TEMP order by Time desc";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

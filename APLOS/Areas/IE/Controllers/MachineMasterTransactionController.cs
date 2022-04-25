@@ -45,7 +45,7 @@ namespace Aplos.Areas.IE.Controllers
         }
         //Omar start
         [Authorize, HttpPost]
-        public ActionResult getEntity()
+        public ActionResult GetEntity()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
@@ -56,7 +56,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getDepartment()
+        public ActionResult GetDepartment()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select D.Id DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
@@ -67,7 +67,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getShift()
+        public ActionResult GetShift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
@@ -81,7 +81,7 @@ namespace Aplos.Areas.IE.Controllers
 
 
         [Authorize, HttpPost]
-        public ActionResult getMachine()
+        public ActionResult GetMachine()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select MM.Id MachineMasterId,MM.Sequence,MM.Code,MM.ShortName 
@@ -92,7 +92,14 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getProcess(string machineMasterId)
+        public ActionResult GetMinute(MachineMasterTransaction data)
+        {
+            var ts = data.ToTime.Subtract(data.FromTime);
+            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetProcess(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select P.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
@@ -125,7 +132,7 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetAssetTypeList(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference,E.Id EntityId,E.UserName Entity
+            var sql = @"select MMA.Id,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference,E.Id EntityId,E.UserName Entity
 			                            from MachineMasterAsset MMA
 			                            left join ORG.Entity E on E.Id=MMA.EntityId
 										where MMA.MachineMasterId='" + machineMasterId + @"'";
@@ -247,9 +254,10 @@ namespace Aplos.Areas.IE.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
-                var sql = @"select MMT.Id,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,MMT.Date,MM.UserName MachineMaster
-										,P.UserName Process,MMT.FromTime,MMT.ToTime,MMT.Minute,SD.UserName Shift
-										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,MMT.Remark
+                var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],MM.UserName MachineMaster,P.UserName Process
+										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
+										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
 										left join ORG.Department D on D.Id=MMT.DepartmentId
@@ -263,7 +271,15 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         //Omar End
-
+        [HttpGet, Authorize]
+        public JsonResult GetWCCbo(string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            
+        }
 
 
         public ActionResult Delete(string id)
@@ -272,19 +288,10 @@ namespace Aplos.Areas.IE.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                //talkingSQL = "delete from dbo.MeetingTalkingPoint Where MeetingItemHeaderId='" + id + "'";
-                //suggestionSQL = "delete from dbo.MeetingSuggestion Where MeetingItemHeaderId='" + id + "'";
-                //actionSQL = "delete from dbo.MeetingActionablePoints Where MeetingItemHeaderId='" + id + "'";
-                //meetingSQL = "delete from dbo.MeetingDecision Where MeetingItemHeaderId='" + id + "'";
-                strUSQL = "delete dbo.MeetingAgenda Where Id='" + id + "'";
-
+                strUSQL = "delete dbo.MachineMasterTransaction Where Id='" + id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
-                //objCon.ExecuteNonQueryWrapper(talkingSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(suggestionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(actionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(meetingSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strUSQL, true, "1");
                 objCon.CommitTransaction();
 
@@ -397,5 +404,65 @@ namespace Aplos.Areas.IE.Controllers
         }
 
        
+       
+    }
+
+    public class MachineMasterTransaction
+    {
+        #region Scalar Properties
+
+        public string Id { get; set; }
+        public string EntityId { get; set; }
+        public string DetentionId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public string MachineMasterId { get; set; }
+        public string ProcessId { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime FromTime { get; set; }
+        public DateTime ToTime { get; set; }
+        public int Minute { get; set; }
+        public string ShiftId { get; set; }
+        public string AssetId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string Remarks { get; set; }
+
+        #endregion Scalar Properties
+
+        #region Audit Properties
+
+        /// <summary>
+        ///This is  AddedBy.Who add data keep track by AddedBy.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedBy { get; set; }
+
+        /// <summary>
+        ///This is  AddedDate.Added date keep track by AddedDate.
+        /// </summary>
+        [NeverUpdate]
+        public DateTime AddedDate { get; set; }
+
+        /// <summary>
+        /// Record insert by user from IP address.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedFromIP { get; set; }
+
+        /// <summary>
+        /// Record updated user name.
+        /// </summary>
+        public string UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Record updated by user date and time.
+        /// </summary>
+        public DateTime? UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Record updated by user IP address.
+        /// </summary>
+        public string UpdatedFromIP { get; set; }
+
+        #endregion Audit Properties
     }
 }
