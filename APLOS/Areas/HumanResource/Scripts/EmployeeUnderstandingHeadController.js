@@ -11,21 +11,21 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.saveDocumentUrl = $scope.path + 'SaveDocument';
     $scope.saveKPIUrl = $scope.path + 'SaveKPI';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
-    
+
     $scope.deleteAttachmentUrl = $scope.path + 'DeleteQualification/';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "EmployeeCode"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" },
-        { value: 'BudgetCode', name: "Budget Code" },
-        { value: 'PositionCode', name: "Position Code" },
-        { value: 'EmployeeName', name: "Employee Name" },
-        { value: 'EmployeeCode', name: "Employee Code" },
-        { value: 'Date', name: "Date" },
-        { value: 'Status', name: "Status" },
-        { value: 'Remarks', name: "Remarks" }
-];
+    { value: 'BudgetCode', name: "Budget Code" },
+    { value: 'PositionCode', name: "Position Code" },
+    { value: 'EmployeeName', name: "Employee Name" },
+    { value: 'EmployeeCode', name: "Employee Code" },
+    { value: 'Date', name: "Date" },
+    { value: 'Status', name: "Status" },
+    { value: 'Remarks', name: "Remarks" }
+    ];
 
 
     $scope.getData = function () {
@@ -45,7 +45,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $http({
             method: 'POST',
             url: $scope.path + "GetActivityList",
-            data: { 'EmpUnderstandingHeadId': $scope.ModelNew.Id  },
+            data: { 'EmpUnderstandingHeadId': $scope.ModelNew.Id },
             dataType: 'JSON'
         }).then(function successCallback(response) {
 
@@ -77,100 +77,100 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         });
     }
     $scope.StatusList = [{ value: 'DefaltInProgress', name: 'Defalt In-Progress' },
-        { value: 'Confirm', name: 'Confirm' },
-        { value: 'Approved', name: 'Approved' }]
+    { value: 'Confirm', name: 'Confirm' },
+    { value: 'Approved', name: 'Approved' }]
 
     $scope.ActivityClassList = [{ value: 'Prime', name: 'Prime' },
-        { value: 'Secondery', name: 'Secondery' },
-        { value: 'Other', name: 'Other' }]
+    { value: 'Secondery', name: 'Secondery' },
+    { value: 'Other', name: 'Other' }]
 
     $scope.ActivityCategoryList = [{ value: 'Planning', name: 'Planning' },
-        { value: 'FollowUp', name: 'Follow-Up' },
-        { value: 'Decision', name: 'Decision' },
-        { value: 'Execution', name: 'Execution' },
-        { value: 'Review', name: 'Review' },
-        { value: 'Other', name: 'Other (please Specify)' }     ]
+    { value: 'FollowUp', name: 'Follow-Up' },
+    { value: 'Decision', name: 'Decision' },
+    { value: 'Execution', name: 'Execution' },
+    { value: 'Review', name: 'Review' },
+    { value: 'Other', name: 'Other (please Specify)' }]
 
     $scope.PriorityList = [{ value: 'Top5', name: 'Top 5' },
-        { value: 'Top10', name: 'Top 10' },
-        { value: 'Other', name: 'Other' }]
+    { value: 'Top10', name: 'Top 10' },
+    { value: 'Other', name: 'Other' }]
 
     $scope.ActivityTypeList = [{ value: 'ValueAdded', name: 'Value Added' },
-        { value: 'NonValueAddedNecessary', name: 'Non-Value Added (Necessary)' },
-        { value: 'NonValueAddedUnnecessary', name: 'Non-Value Added (Unnecessary)' }]
+    { value: 'NonValueAddedNecessary', name: 'Non-Value Added (Necessary)' },
+    { value: 'NonValueAddedUnnecessary', name: 'Non-Value Added (Unnecessary)' }]
 
     $scope.ActivityImportanceList = [{ value: 'Normal', name: 'Normal' },
-        { value: 'High', name: 'High' },
-        { value: 'Medium', name: 'Medium' },
-        { value: 'Critical', name: 'Critical' }]
+    { value: 'High', name: 'High' },
+    { value: 'Medium', name: 'Medium' },
+    { value: 'Critical', name: 'Critical' }]
 
     $scope.PeriodList = [{ value: 'Daily', name: 'Daily' },
-        { value: 'Weekly', name: 'Weekly' },
-        { value: 'Fortnight', name: 'Fortnight' },
-        { value: 'Monthly', name: 'Monthly' },
-        { value: 'Quarterly', name: 'Quarterly' },
-        { value: 'HalfYearly', name: 'Half Yearly' },
-        { value: 'Annually', name: 'Annually' }]
+    { value: 'Weekly', name: 'Weekly' },
+    { value: 'Fortnight', name: 'Fortnight' },
+    { value: 'Monthly', name: 'Monthly' },
+    { value: 'Quarterly', name: 'Quarterly' },
+    { value: 'HalfYearly', name: 'Half Yearly' },
+    { value: 'Annually', name: 'Annually' }]
 
     $scope.FinancialImpactList = [{ value: 'Yes', name: 'Yes' },
-        { value: 'No', name: 'No' }]
+    { value: 'No', name: 'No' }]
 
     $scope.PreparedByList = [{ value: 'Self', name: 'Self' },
-        { value: 'OtherEmployee', name: 'Other Employee' },
-        { value: 'Custmor', name: 'Custmor' },
-        { value: 'Vendor', name: 'Vendor' },
-        { value: 'Other', name: 'Other' },
-        { value: 'Government', name: 'Government' }]
+    { value: 'OtherEmployee', name: 'Other Employee' },
+    { value: 'Custmor', name: 'Custmor' },
+    { value: 'Vendor', name: 'Vendor' },
+    { value: 'Other', name: 'Other' },
+    { value: 'Government', name: 'Government' }]
 
 
     $scope.DocumentTypeList = [{ value: 'WithinDepartment', name: 'Within Department' },
-        { value: 'WithinEntity', name: 'Within Entity' },
-        { value: 'WithinCompany', name: 'Within Company' },
-        { value: 'WithinGroup', name: 'Within Group' },
-        { value: 'Customer', name: 'Customer' },
-        { value: 'Vendor', name: 'Vendor' },
-        { value: 'Other', name: 'Other' }]
+    { value: 'WithinEntity', name: 'Within Entity' },
+    { value: 'WithinCompany', name: 'Within Company' },
+    { value: 'WithinGroup', name: 'Within Group' },
+    { value: 'Customer', name: 'Customer' },
+    { value: 'Vendor', name: 'Vendor' },
+    { value: 'Other', name: 'Other' }]
 
     $scope.DocumentGenerationList = [{ value: 'System', name: 'System' },
-        { value: 'Manual', name: 'Manual' },
-        { value: 'Other', name: 'Other' }]
+    { value: 'Manual', name: 'Manual' },
+    { value: 'Other', name: 'Other' }]
 
     $scope.DocumentPreprationFrequencyList = [{ value: 'OnLine', name: 'On Line' },
-        { value: 'Daily', name: 'Daily' },
-        { value: 'Weekly', name: 'Weekly' },
-        { value: 'Fortnight', name: 'Fortnight' },
-        { value: 'Monthly', name: 'Monthly' },
-        { value: 'Quarterly', name: 'Quarterly' },
-        { value: 'HalfYearly', name: 'Half Yearly' },
-        { value: 'Annually', name: 'Annually' },
-        { value: 'AsAndWhenRequired', name: 'As and When Required' }]
+    { value: 'Daily', name: 'Daily' },
+    { value: 'Weekly', name: 'Weekly' },
+    { value: 'Fortnight', name: 'Fortnight' },
+    { value: 'Monthly', name: 'Monthly' },
+    { value: 'Quarterly', name: 'Quarterly' },
+    { value: 'HalfYearly', name: 'Half Yearly' },
+    { value: 'Annually', name: 'Annually' },
+    { value: 'AsAndWhenRequired', name: 'As and When Required' }]
 
     $scope.DocumentClassList = [{ value: 'Register', name: 'Register' },
-        { value: 'Document', name: 'Document' },
-        { value: 'Form', name: 'Form' },
-        { value: 'Report', name: 'Report' },
-        { value: 'Email', name: 'Email' }]
+    { value: 'Document', name: 'Document' },
+    { value: 'Form', name: 'Form' },
+    { value: 'Report', name: 'Report' },
+    { value: 'Email', name: 'Email' }]
 
     $scope.DocumentFormatList = [{ value: 'PDF', name: 'PDF' },
-        { value: 'JPEG', name: 'JPEG' },
-        { value: 'Excel', name: 'Excel' },
-        { value: 'Word', name: 'Word' },
-        { value: 'Register', name: 'Register' },
-        { value: 'Form', name: 'Form' },
-        { value: 'Email', name: 'Email' },
-        { value: 'PPT', name: 'PPT' },
-        { value: 'CrystalReport', name: 'Crystal Report' },
-        { value: 'Txt', name: 'Txt' },
-        { value: 'CSV', name: 'CSV' }]
+    { value: 'JPEG', name: 'JPEG' },
+    { value: 'Excel', name: 'Excel' },
+    { value: 'Word', name: 'Word' },
+    { value: 'Register', name: 'Register' },
+    { value: 'Form', name: 'Form' },
+    { value: 'Email', name: 'Email' },
+    { value: 'PPT', name: 'PPT' },
+    { value: 'CrystalReport', name: 'Crystal Report' },
+    { value: 'Txt', name: 'Txt' },
+    { value: 'CSV', name: 'CSV' }]
 
     $scope.KPIReviewPeriodList = [{ value: 'Daily', name: 'Daily' },
-        { value: 'Weekly', name: 'Weekly' },
-        { value: 'Fortnight', name: 'Fortnight' },
-        { value: 'Monthly', name: 'Monthly' },
-        { value: 'Quarterly', name: 'Quarterly' },
-        { value: 'HalfYearly', name: 'Half Yearly' },
-        { value: 'Annually', name: 'Annually' }]
-    
+    { value: 'Weekly', name: 'Weekly' },
+    { value: 'Fortnight', name: 'Fortnight' },
+    { value: 'Monthly', name: 'Monthly' },
+    { value: 'Quarterly', name: 'Quarterly' },
+    { value: 'HalfYearly', name: 'Half Yearly' },
+    { value: 'Annually', name: 'Annually' }]
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -333,7 +333,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
-       /* $scope.GetActivity(args.data.Id);*/
+        /* $scope.GetActivity(args.data.Id);*/
         $scope.getActivityGridData($scope.ModelNew.Id);
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
@@ -351,23 +351,23 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     };
 
     $scope.Save = function () {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                   /* ClearFields(response.data.Sequence);*/
-                    $scope.getData();
-                }
-            }), function errorCallBack(response) {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: { 'data': $scope.ModelNew },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
+            else {
+                ShowResult(response.data.Message, 'success');
+                /* ClearFields(response.data.Sequence);*/
+                $scope.getData();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
     };
     $scope.SaveActivity = function () {
         $http({
@@ -381,7 +381,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-               /* ClearFields(response.data.Sequence);*/
+                /* ClearFields(response.data.Sequence);*/
                 $scope.getData();
                 $scope.getActivityGridData($scope.ModelNew.Id);
 
@@ -446,7 +446,10 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $http({
             method: 'POST',
             url: $scope.saveDocumentUrl,
-             headers: { 'Content-Type': undefined },
+            //data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
+            //dataType: 'JSON'
+
+            headers: { 'Content-Type': undefined },
             transformRequest: function (data) {
                 formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
                 if (baseService.isUndefinedOrNull($scope.filedata) == false) {
@@ -463,7 +466,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.getDocumentGridData();
-    
+
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -481,6 +484,8 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
+                /* ClearFields(response.data.Sequence);*/
+                $scope.getData();
                 $scope.getKPIGridData();
 
             }
@@ -514,22 +519,22 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
 
     $scope.DeleteAttachment = function () {
-            $http({
-                method: 'POST',
-                url: $scope.deleteAttachmentUrl + $scope.documentActivityNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        
+        $http({
+            method: 'POST',
+            url: $scope.deleteAttachmentUrl + $scope.documentActivityNew.Id,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+
     };
 
 
@@ -548,13 +553,13 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.activityNew = Object.assign({}, $scope.activity);
     };
 
-    $scope.ClearDocument = function() {
+    $scope.ClearDocument = function () {
         $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
     }
     $scope.ClearKPI = function () {
         $scope.kpiNew = Object.assign({}, $scope.kpi);
     }
-  
+
 
     $scope.GetApplicableDocument = function (args) {
         try {
@@ -579,7 +584,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.CloseDocumentPopUp = function () {
         $scope.ClearDocument();
-            angular.element(document.querySelector('#documentPopUp')).modal('hide');        
+        angular.element(document.querySelector('#documentPopUp')).modal('hide');
     };
 
     $scope.CloseKPIPopUp = function () {
