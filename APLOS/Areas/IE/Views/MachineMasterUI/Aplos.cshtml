@@ -50,15 +50,15 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="general" role="tab" data-toggle="tab">Machine Data</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Asset</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity Capacity</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Entity wise Machine Capacity</a></li>
             </ul>
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
-
                 <div class="form-horizontal form-elements" ng-form="modelNewForm">
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border"></legend>
@@ -119,7 +119,7 @@
                         <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label">Machine Category<sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">Category<sup>*</sup></label>
                                     <div class="col-sm-8 show-message ">
                                         <div class="select-style">
                                             <select class="form-control" id="MachineCategory" name="Machine Category" ng-model="modelNew.MachineCategoryId" ng-options="item.Value as item.Text for item in MachineCategoryList" tabindex="3" required>
@@ -131,7 +131,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Machine Sub Category</span><sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
                                     <div class="col-sm-8 show-message ">
                                         <div class="select-style">
                                             <select class="form-control" id="MachineSubCategory" name="MachineSub Category" ng-model="modelNew.MachineSubCategoryId" ng-options="item.Value as item.Text for item in MachineSuvCategoryList" tabindex="3" required>
@@ -167,7 +167,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Sample Machine Qty</span><sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">Sample Machine Qty<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="number" name="Sample Machine Qty" ng-model="modelNew.SampleMachineQty" class="form-control" required>
                                     </div>
@@ -175,14 +175,12 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Training Machine Qty</span><sup>*</sup></label>
+                                    <label class="col-sm-4 control-label">Training Machine Qty<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input type="number" name="Training Machine Qty" ng-model="modelNew.TrainingMachineQty" class="form-control" required>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
                                     <label class="col-sm-4 control-label">Rent Machine Qty<sup>*</sup></label>
@@ -190,6 +188,15 @@
                                         <input type="number" name="Rent Machine Qty" ng-model="modelNew.RentMachineQty" class="form-control" required>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="">
+                                    <label class="col-sm-8 control-label" title="Maintanence Schedule Applicable">Maintanence Schedule Applicable</label>
+                                    <div class="col-sm-4">
+                                        <input type="checkbox" name="Maintanence Schedule Applicable" ng-model="modelNew.MaintanenceScheduleApplicable">
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group" id="" show-errors>
@@ -200,69 +207,16 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:11px">Connected Power(In KW)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" name="Connected Power" ng-model="modelNew.ConnectedPower" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                <div class="col-md-4">
+                                    <div class="form-group" id="">
+                                        <label class="col-sm-4 control-label">Active<sup>*</sup></label>
+                                        <div class="col-sm-8">
+                                            <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
 
-                        <div class="col-md-12">
-
-                            <div class="col-md-4">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Running Load(In KW)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" name="Running Load" ng-model="modelNew.RunningLoad" class="form-control" required>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="form-group" id="">
-                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Connected Steam(in KG/Hr)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message ">
-                                        <input type="number" name="Connected Steam" ng-model="modelNew.ConnectedSteam" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:11px">Running Steam(in KG/Hr)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" name="Connected Power" ng-model="modelNew.RunningSteam" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="col-md-4">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:12px">Connected Air(in CM/Hr)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="number" name="Running Load" ng-model="modelNew.ConnectedAir" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group" id="">
-                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Running Air (in CM/Hr)</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message ">
-                                        <input type="number" name="Connected Steam" ng-model="modelNew.RunningAir" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group" id="" show-errors>
-                                    <label class="col-sm-4 control-label"><span style="font-size:10px">Maintanence Schedule Applicable</span><sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="checkbox" name="Connected Power" ng-model="modelNew.MaintanenceScheduleApplicable" class="form-control" required>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
                             <div class="col-md-4">
                                 <div class="form-group" id="">
                                     <label class="col-sm-4 control-label">Remarks</label>
@@ -271,21 +225,9 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="clearfix"></div>
-                        <div class="clearfix"></div>
-                        <div class="col-md-12">
-                            <div class="col-md-4" show-errors>
-                                <div class="form-group" id="">
-                                    <label class="col-sm-4 control-label">Active<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message ">
-                                        <input type="checkbox" name="Active" ng-model="modelNew.Active" checked="checked" />
-
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+                       
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -295,7 +237,56 @@
                         </div>
                     </fieldset>
                 </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="form-horizontal form-elements" ng-form="modelNew2Form">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Connected Power(In KW)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Connected Power" ng-model="modelNew.ConnectedPower" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Connected Steam(in KG/Hr)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Connected Steam" ng-model="modelNew.ConnectedSteam" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Connected Air(in CM/Hr)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Connected Air" ng-model="modelNew.ConnectedAir" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Running Load(In KW)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Running Load" ng-model="modelNew.RunningLoad" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Running Steam(In KG/Hr)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Running Steam(in KG/Hr)" ng-model="modelNew.RunningSteam" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" id="">
+                            <label class="col-sm-4 control-label">Running Air (in CM/Hr)</label>
+                            <div class="col-sm-8">
+                                <input type="number" name="Running Air (in CM/Hr)" ng-model="modelNew.RunningAir" class="form-control">
+                            </div>
+                        </div>
+                    </div>
 
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();"ng-disabled="modelNew.Id == null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    </ul>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
 
@@ -304,7 +295,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="processPopUpDataList();" ng-disabled="userNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
+                                <li><button ng-click="processPopUpDataList();" ng-disabled="modelNew.Id == null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Process</button></li>
                             </ul>
                         </div>
                     </div>
@@ -339,12 +330,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        @*</div>
-                            </div>*@
+                        
                     </div>
                 </div>
             </div>
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class="form-horizontal form-elements" ng-form="modelNewForm">
                     <fieldset class="scheduler-border">
@@ -359,13 +348,15 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group" show-errors>
+                                <div class="form-group">
                                     <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
-                                    <div class="col-sm-6 show-message">
-                                        <input type="text" name="Entity" ng-model="modelNewA.Entity" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <button ng-click="selectEntity()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" name="Entity" ng-model="modelNewA.Entity" class="form-control" readonly>
+                                            <span class="input-group-btn">
+                                                <button ng-click="selectEntity();" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -402,7 +393,7 @@
                                 <div class="col-sm-2">
                                     <div class="checkbox-site">
                                         <label>
-                                            <input type="checkbox" ng-model="modelNewA.IsOldCode" tabindex="10" ng-change="changeAsset();"">
+                                            <input type="checkbox" ng-model="modelNewA.IsOldCode" tabindex="10" ng-change="changeAsset();" ">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
                                     </div>
@@ -478,14 +469,10 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="clearfix"></div>
-                        <div class="clearfix"></div>
-
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="AssetSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                                <li> <button ng-click="ClearAsset();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Clear</button></li>
+                                <li> <button ng-click="AssetSave();" class="btn" ng-disabled="modelNew.Id == null" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                <li> <button ng-click="ClearAsset();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
                             </ul>
                         </div>
                     </fieldset>
@@ -537,7 +524,6 @@
                     </div>
                 </div>
             </div>
-
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class="form-horizontal form-elements" ng-form="modelNewForm">
                     <fieldset class="scheduler-border">
@@ -612,8 +598,8 @@
 
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="EntityCapacitySave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                                <li> <button ng-click="ClearEntityCapacity();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Clear</button></li>
+                                <li> <button ng-click="EntityCapacitySave();" ng-disabled="modelNew.Id == null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                                <li> <button ng-click="ClearEntityCapacity();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i>Clear</button></li>
                             </ul>
                         </div>
                     </fieldset>
@@ -655,9 +641,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
 </div>
 @*@Html.Partial("~/Areas/Processes/Views/Shared/_SelectMultipleProcessPopUp.cshtml")*@

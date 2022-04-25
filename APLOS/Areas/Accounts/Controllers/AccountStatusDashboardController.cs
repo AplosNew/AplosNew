@@ -115,13 +115,6 @@ namespace Aplos.Areas.Accounts.Controllers
                 string fileName = "";
                 fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-                
-                //IWorkbook workbook = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(excelEngine, NewTemp, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,   SheetName);
-                //// return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-                //string strFileName = "PayableAging.xlsx";
-                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                //workbook.Close();
             }
             catch (Exception ex)
             {
@@ -161,16 +154,6 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(accountsStatusDashboardService.GetPartyAgingDueVoucherPrintList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, partyId, setOffDetailAgingType), JsonRequestBehavior.AllowGet);
         }
-
-        //SetOff Detail donught get data 
-        //[HttpGet, Authorize]
-        //public ActionResult GetpartyPaymentSetOffDetailList(string invoiceId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository);
-
-        //    return Json(accountsStatusDashboardService.GetpartyPaymentSetOffDetailList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, invoiceId), JsonRequestBehavior.AllowGet);
-        //}
 
         [HttpPost, Authorize]
         public ActionResult GetpartyPaymentSetOffDetailList(string setOffPaymentDetailAgingType, string partyId)

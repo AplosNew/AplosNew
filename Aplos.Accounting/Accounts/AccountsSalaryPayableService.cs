@@ -562,7 +562,7 @@ namespace Library.Accounting.Accounts
 							
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
-                        and (ISNULL(sgl.DrInDirectActivityId,'NULL')<>'' OR ISNULL(sgl.DrInDirectActivityId,'')<>'')
+                        and ISNULL(sgl.DrInDirectActivityId,'')<>''
                         and ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence],SGL.DrInDirectGLId,SGL.DrInDirectBudgetMasterId,SGL.DrInDirectActivityId
 						,IGL.AccountCode,IGL.UserName ,IB.UserName ,IA.UserName
@@ -593,7 +593,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN HKP.Activity CIA ON CIA.Id=SGL.CrInDirectActivityId
                         where sl.MonthNo='" + monthNo + "' and sl.YearNo='" + yearNo + @"'  AND sl.PayableVoucherId IS NULL " + wcEmpStatus + @" AND SPL.PlantId='" + plantId + @"'--and sl.EmpSystemId='" + employeeId + @"' 
                         and ISNULL(sh.HeadCategory,'') not in ('CTC','Gross','Total Gross') and spc.DisbusmentAmount!=0 and PO.DirectManpowerCost=0 
-                        AND (ISNULL(sgl.CrInDirectActivityId,'NULL')<>'' OR ISNULL(sgl.CrInDirectActivityId,'')<>'' )
+                        AND ISNULL(sgl.CrInDirectActivityId,'')<>'' 
                         and ei.SystemId not in (select EmpSystemId from [dbo].[ExceptionEmployee])
                         group by sh.SalaryHead,sh.HeadCategory,sl.YearNo,sl.MonthNo,sh.HeadType,sh.[Sequence]
 						,SGL.CrInDirectGLId,SGL.CrInDirectBudgetMasterId,SGL.CrInDirectActivityId

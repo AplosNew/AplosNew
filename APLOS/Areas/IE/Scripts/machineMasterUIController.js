@@ -31,7 +31,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.updateUrl1 = $scope.path + 'EditManpower';
     $scope.deleteUrl1 = $scope.path + 'DeleteManpower/';
     $scope.model = {
-        Id: 0,
+        Id: null,
         CompanyGroupId: null,
         MachineCategoryId: null,
         MachineSubCategoryId: null,
@@ -59,7 +59,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.modelNew = Object.assign({}, $scope.model);
     $scope.modelA = {
-        Id: 0,
+        Id: null,
         AssetName: null, 
         EntityId: null,
         Entity: null,
@@ -78,7 +78,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.modelNewA = Object.assign({}, $scope.modelA);
 
     $scope.modelEntity = {
-        Id: 0,
+        Id: null,
         EntityId: null,
         Entity: null,
         NoofMachine: null,
@@ -91,7 +91,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.modelEntityCapacity = Object.assign({}, $scope.modelEntity);
 
     $scope.modelM = {
-        Id: 0,
+        Id: null,
         CompanyGroupId: null,
         Sequence: null,
         OperationMasterId: null,
@@ -481,6 +481,9 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.modelNew = { Active: true };
         $scope.modelNew.Active = true;
         $scope.modelNew.Sequence = seq;
+        $scope.userProcessList = [];
+        $scope.assetList = [];
+        $scope.entityCapacityList = [];
     }
    
 
