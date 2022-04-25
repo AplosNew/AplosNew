@@ -138,6 +138,11 @@ namespace Aplos.Areas.MeetingManagement.Controllers
                         dr["Id"] = "M-" + MeetingId + "-" + (i + 1);
                         dr["MeetingAgendaId"] = MasterId;
                         dr["MeetingItemHeaderId"] = MeetingData[i]["Id"];
+                        dr["MeetingTypeId"] = MeetingData[i]["MeetingTypeId"];
+                        dr["IssueStatus"] = MeetingData[i]["IssueStatus"];
+                        dr["IssueCritically"] = MeetingData[i]["IssueCritically"];
+                        dr["DepartmentId"] = MeetingData[i]["DepartmentId"];
+                        dr["AttendeeId"] = MeetingData[i]["AttendeeId"];
 
                         dsMeeting.Tables[0].Rows.Add(dr);
 
@@ -314,7 +319,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
         {
             try
             {
-                    string sql = @"Select cast(0 as bit) Active,MIH.*,D.UserName Department,MT.UserName MeetingType,EI.EmployeeName Attendee 
+                    string sql = @"Select cast(0 as bit) Active,MIH.*,D.UserName Department,MT.UserName MeetingType,EI.SystemId AttendeeId,EI.EmployeeName Attendee 
                                 from MeetingItemHeader MIH
                                 left join MeetingType MT on MT.Id=MIH.MeetingTypeId
                                 left join ORG.Department D on D.Id=MIH.DepartmentId
@@ -322,7 +327,7 @@ namespace Aplos.Areas.MeetingManagement.Controllers
 
                                 where MeetingTypeId in (" + parameters["MeetingTypeId"] + @") and IssueStatus in (" + parameters["IssueStatus"] + @") 
                                 and IssueCritically in (" + parameters["IssueCritically"] + @") and MIH.DepartmentId in (" + parameters["DepartmentId"] + @") 
-                                and ByWhomId in (" + parameters["AttendeeId"] + @") and MIH.AddedDate between '" + fromDate + "' and '" + toDate + "'";
+                                and ByWhomId in (" + parameters["AttendeeId"] + @") and Format(MIH.AddedDate,'dd-MMM-yyyy')  between '" + fromDate + "' and '" + toDate + "'";
 
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);

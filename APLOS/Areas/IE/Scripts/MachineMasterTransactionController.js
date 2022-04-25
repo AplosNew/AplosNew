@@ -14,8 +14,8 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     //Omar Start
 
     $scope.ModelTransaction = {
-        Id: 0,
-        EntityId: 0,
+        Id: null,
+        EntityId: null,
         Entity: null,
         DetentionId: null,
         Detention: null,
@@ -302,7 +302,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
 
     $scope.Clear = function () {
         $scope.ModelNew = {
-            Id: 0,
+            Id: null,
             EntityId: 0,
             Entity: null,
             DetentionId: null,

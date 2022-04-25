@@ -6796,7 +6796,7 @@ UNION ALL
 							group by x.VoucherNo,x.VoucherDate,x.PostingDate,x.DocRefNo,x.DocDate,x.PartyName
 							,x.TCSequence,x.PartyPlantName,x.GSTIN,x.SourceType
 							,x.TaxCategoryType,x.EntryDate,x.TaxCode,x.GRNNo --,x.TaxPercentage
-							--ORDER BY TaxPercentage,VoucherNo, DocDate ";
+							ORDER BY 1,2,4-- TaxPercentage,VoucherNo, DocDate ";
             return _sqlRepository.GetDataTable(strSql);
 
         }

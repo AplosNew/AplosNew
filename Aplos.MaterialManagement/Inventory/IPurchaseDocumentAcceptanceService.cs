@@ -67,6 +67,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetAcceptanceDetailForPost(string companyId, string plantId, string Id, string PoType);
         IEnumerable<object> GetAcceptanceServiceListForPost(string plantId, string Id);
         IEnumerable<object> GetGRNAcceptanceDetailForPost(string Id, string companyId, string plantId);
+        void DeletePurchaseDocAcceptancePost(string pdocAccpId, string voucherId);
         #endregion
     }
 }

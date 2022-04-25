@@ -15,6 +15,7 @@ using System.IO;
 using System.Reflection;
 using Library.Service.Currencies;
 using System.Threading;
+using System.Linq;
 
 namespace Library.Accounting.Accounts
 {
@@ -1142,20 +1143,28 @@ group by Id) O60 ON O60.Id=IV.Id
         }
 
         //Detail Or Aging Report
-        public IWorkbook GetPartyPaymentStatusAgingReport(ExcelEngine excelEngine, string MasterLCList, string CompanyGroupId, string CompanyId, string PlantId, string name) 
+        public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string CompanyGroupId, string CompanyId, string PlantId,  string SheetName) 
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
             try
             {
-
-                // ExcelEngine excelEngine = null;
-                IApplication application = null;
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
+                workbook = application.Workbooks.Create(1);
                 var reportUtility = new ReportUtility();
-                var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Worksheets[0].Name = "PayableAging";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+
+                // ExcelEngine excelEngine = null;
+                
                 workbook.Version = ExcelVersion.Excel2013;
                 var sheet1 = workbook.Worksheets[0];
 
@@ -1179,7 +1188,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                 DataTable dtRCMPayable = null;
                 string taxyearId = GetTaxYearId(CompanyId);
-                dtRCMPayable = GetVendorPayableAgingDetailData(CompanyGroupId, CompanyId, PlantId, MasterLCList, taxyearId);
+                dtRCMPayable = GetVendorPayableAgingDetailData(CompanyGroupId, CompanyId, PlantId, parameters, taxyearId);
                 if (dtRCMPayable.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -1597,7 +1606,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 sheet1.PageSetup.BottomMargin = 0.7;
                 sheet1.PageSetup.PrintTitleRows = "$1:$5";
                 sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
-                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + SheetName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
                 sheet1.PageSetup.LeftMargin = 0.5;
                 sheet1.PageSetup.RightMargin = 0.2;
                 sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
@@ -1608,8 +1617,11 @@ group by Id) O60 ON O60.Id=IV.Id
                 #endregion Page Setup
 
 
-                sheet1.Name = "Aging Report";
-                return workbook;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
             }
             catch (System.Exception ex)
             {
@@ -1647,8 +1659,20 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
-        private DataTable GetVendorPayableAgingDetailData(string CompanyGroupId, string CompanyId, string PlantId, string MasterLCList, string taxyearId) //string plantName, string fromDate, string toDate,
+        private DataTable GetVendorPayableAgingDetailData(string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters, string taxyearId) //string plantName, string fromDate, string toDate,
         {
+            string vendorIdLoop = "''";
+           
+
+            for (int i = parameters.Count - 1; i >= 0; i--)
+            {
+                var item = parameters.ElementAt(i);
+                var itemKey = item.Key;
+                var itemValue = item.Value;
+                vendorIdLoop += ",'" + itemValue + "'";
+
+            }
+
             string strSql = "";
             strSql = @"select x.* from (
 
@@ -1721,7 +1745,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' --AND IV.PlantId='20171'
-                                        and IV.PartyId in(" + MasterLCList + @")
+                                        and IV.PartyId in(" + vendorIdLoop + @")
 										--GROUP BY IV.PartyId, IV.PartyPlantId, PP.UserName,P.UserName
 
 								   UNION ALL
@@ -1792,7 +1816,7 @@ group by Id) O60 ON O60.Id=IV.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable','ServicePayable')
                                         AND IV.CompanyGroupId='" + CompanyGroupId + "' AND IV.CompanyId='" + CompanyId + @"' 
-										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + MasterLCList + @")
+										AND IR.PurchaseDocumentAcceptanceId IS NULL  and IV.PartyId in(" + vendorIdLoop + @")
 
 										) x
 										order by x.SortDocDate asc";
