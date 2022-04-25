@@ -103,24 +103,25 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         //PartyPaymentStatusAgingReport
-        [Authorize]
-        public ActionResult PartyPaymentStatusAgingReport(string MasterLCList)
+        [HttpPost, Authorize]
+        public ActionResult PartyPaymentStatusAgingReport(Dictionary<string, string> parameters)
         {
 
             try
             {
-                //if (string.IsNullOrEmpty(MasterLCList))
-                //throw new Exception("Please select at least one Invoice");
-
+               
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+                string fileName = "";
+                fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
-                ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(excelEngine, MasterLCList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
-                // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
-                string strFileName = "PayableAging.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
+                
+                //IWorkbook workbook = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(excelEngine, NewTemp, identity.CompanyGroupId, identity.CompanyId, identity.PlantId,   SheetName);
+                //// return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+                //string strFileName = "PayableAging.xlsx";
+                //workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+                //workbook.Close();
             }
             catch (Exception ex)
             {
@@ -129,13 +130,11 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
 
-            return null;
         }
+       
 
-        //Pia Chart and donught for aging 
-
-        //GetPartyPaymentStatusAgingList
-        [HttpPost, Authorize]
+    //GetPartyPaymentStatusAgingList
+    [HttpPost, Authorize]
         public ActionResult GetPartyPaymentStatusAgingList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

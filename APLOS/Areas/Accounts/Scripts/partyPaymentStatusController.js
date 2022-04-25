@@ -310,15 +310,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //}
 
 
+    
     $scope.InvoiceAgingReport = function () {
 
         try {
-            //if (angular.isUndefinedOrNull($scope.reportParameters.FromDate))
-            //    throw 'Please enter from date';
-
-            //if (angular.isUndefinedOrNull($scope.reportParameters.ToDate))
-            //    throw 'Please enter to date';
-
+           
             var NewMasterLCList = [];
             for (var i = 0; i < $scope.MasterLCList.length; i++) {
                 if ($scope.MasterLCList[i].isSelected == true) {
@@ -332,8 +328,26 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ShowResult('Please select at least one Party', 'failure');
             }
             else {
-                var file_src = $scope.path + "PartyPaymentStatusAgingReport?MasterLCList=" + NewMasterLCList;
-                $rootScope.report(file_src);
+                $scope.fileName = "PayableAging.xlsx";
+                $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "PartyPaymentStatusAgingReport",
+                    data: { 'parameters': NewMasterLCList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+
+                //var file_src = $scope.path + "PartyPaymentStatusAgingReport?MasterLCList=" + NewMasterLCList;
+                //$rootScope.report(file_src);
             }
 
 
