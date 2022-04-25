@@ -32,6 +32,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/VoucherGlUpdate/Aplos.cshtml");
         }
+        public ActionResult CustomerConfirmation()
+        {
+            return View("~/Areas/Accounts/Views/VoucherGlUpdate/CustomerConfirmation.cshtml");
+        }
 
 
         [HttpPost, Authorize]

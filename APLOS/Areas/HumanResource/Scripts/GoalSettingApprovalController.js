@@ -1,5 +1,5 @@
 ﻿'use strict';
-GoalSettingApproval.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+GoalSettingApprovalController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function GoalSettingApprovalController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Goal Setting Approval';
     $scope.Action = 'Save';

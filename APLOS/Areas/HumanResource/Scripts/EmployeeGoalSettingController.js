@@ -132,9 +132,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.EmployeeId = e.data.EmployeeId;
         $scope.SelEmployeeInfoList = e.data;
         $scope.Employee = e.data.EmployeeName;
-
         $scope.perfYear = document.getElementById("ddperfYear").value;
-
         $scope.getPMSMaster();
         $scope.displayEGChild();
         
@@ -156,9 +154,12 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
 
         else {
             document.getElementById("PerformanceGroupList").style.cssText = "display:block";
+            document.getElementById("EGSGrid").style.cssText = "display:block";
             
         }
     }
+
+    
     //$scope.displayEGChild();
 
     // SAVE FUNCTIONS
