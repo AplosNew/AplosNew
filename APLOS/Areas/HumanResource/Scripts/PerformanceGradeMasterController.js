@@ -5,6 +5,7 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/PerformanceGradeMaster/';
+    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'Create';
     $scope.deleteUrl = $scope.path + 'Delete/';
 
@@ -16,14 +17,23 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields();
+            ClearFields(response.data.Sequence);
             
         });
     }
     $scope.getData();
 
+    $scope.GetSequence = function () {
+        cboService.getSequence($scope.getSeqUrl, function (data) {
+            $scope.ModelTemp.Sequence = data;
+            $scope.ModelNew.Sequence = data;
+        });
+    };
+    $scope.GetSequence();
+
     $scope.ModelTemp = {
         Id: null,
+        Sequence: 0,
         GradeCategory: null,
         Grade: null,
         Defination: null,
@@ -58,7 +68,7 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    ClearFields(response.data.Sequence);
                     $scope.getData();
                 }
             }), function errorCallBack(response) {
@@ -81,7 +91,7 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields();
+                    ClearFields(response.data.Sequence);
                     $scope.getData();
 
                 }
@@ -92,13 +102,14 @@ function PerformanceGradeMasterController(cboService, commonMessage, $scope, $ro
         }
     };
     $scope.Clear = function () {
-        ClearFields();
+        ClearFields($scope.GetSequence());
         return true;
     };
-    function ClearFields() {
+    function ClearFields(seq) {
         $scope.Action = 'Save';
         $scope.ModelNew = {
             Id: null,
+            Sequence: 0,
             GradeCategory: null,
             Grade: null,
             Defination: null,

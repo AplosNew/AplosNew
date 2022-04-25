@@ -580,6 +580,7 @@
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\GoalSettingApprovalController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\LeavesChecklistReportNewController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FinalDeductionReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PerformanceAttributeMasterController.cs" />
@@ -1958,6 +1959,7 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
@@ -4106,6 +4108,7 @@
     <Content Include="Areas\Materials\Views\UtilityMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\UtilityTransaction\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\UtilityTransactionReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
