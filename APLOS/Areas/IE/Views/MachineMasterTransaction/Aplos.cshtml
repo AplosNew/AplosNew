@@ -17,7 +17,9 @@
     }
 </style>
 <togglable name="{{title}}"></togglable>
-
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
 
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
@@ -79,16 +81,23 @@
         </div>
 
 
-        <div class="form-group" show-errors>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input id="timepicker1" e-value="ModelNew.FromTime" width="250" ej-timepicker name="From Time" e-change="getMinute" tabindex="4" required />
+                </div>
+            </div>*@
+        <div class="form-group">
             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input id="timepicker1" e-value="ModelNew.FromTime" width="250" ej-timepicker name="From Time" e-change="getMinute" tabindex="4" required />
+            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                <input id="FromTime" type="text" class="form-control input-small" ng-model="ModelNew.FromTime" ng-change="getMinute();" style="margin-left:-10%; width:94%" tabindex="7">
+                <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Minute<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Minute" ng-model="ModelNew.Minute" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                <input type="text" name="Minute" ng-model="ModelNew.Minute" class="form-control" required disabled tabindex="4" maxlength="50">
             </div>
         </div>
     </div>
@@ -170,13 +179,19 @@
             </div>
         </div>
 
-        <div class="form-group" show-errors>
+        @*<div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input id="timepicker2" e-value="ModelNew.ToTime" width="250" e-change="getMinute" ej-timepicker name="To Time" tabindex="4" required />
+                </div>
+            </div>*@
+        <div class="form-group">
             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input id="timepicker2" e-value="ModelNew.ToTime" width="250" e-change="getMinute" ej-timepicker name="To Time" tabindex="4" required />
+            <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                <input id="ToTime" type="text" class="form-control input-small" ng-model="ModelNew.ToTime" ng-change="getMinute();" style="margin-left:-10%; width:94%" tabindex="7">
+                <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
-
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Remark</label>
@@ -547,7 +562,7 @@
                             </div>
 
                         </div>
-                       
+
                     </div>
                 </div>
                 <div class="common-btn">
@@ -565,3 +580,25 @@
 
 
 <confirm-modal></confirm-modal>
+<script type="text/javascript">
+    $('[id*=StartTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=StartTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+    $('[id*=EndTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=EndTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>

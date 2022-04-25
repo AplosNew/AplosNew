@@ -106,6 +106,12 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetCostingSOFormulaData()
+        {
+            return Json(MasterOrder.GetCostingSOFormulaData(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetContractByMasterOrder(string masterId)
         {
 

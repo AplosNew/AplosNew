@@ -45,7 +45,7 @@ namespace Aplos.Areas.IE.Controllers
         }
         //Omar start
         [Authorize, HttpPost]
-        public ActionResult getEntity()
+        public ActionResult GetEntity()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"Select e.Id as EntityId, e.UserName as EntityName , p.UserName as Plant, c.UserName as Company from org.Entity e
@@ -56,7 +56,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getDepartment()
+        public ActionResult GetDepartment()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select D.Id DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
@@ -67,7 +67,7 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getShift()
+        public ActionResult GetShift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
@@ -81,7 +81,7 @@ namespace Aplos.Areas.IE.Controllers
 
 
         [Authorize, HttpPost]
-        public ActionResult getMachine()
+        public ActionResult GetMachine()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select MM.Id MachineMasterId,MM.Sequence,MM.Code,MM.ShortName 
@@ -92,7 +92,14 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getProcess(string machineMasterId)
+        public ActionResult GetMinute(MachineMasterTransaction data)
+        {
+            var ts = data.ToTime.Subtract(data.FromTime);
+            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetProcess(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select P.Id,P.Sequence,P.Code,P.ShortName,P.StandardName,P.Id ProcessId,P.UserName Process
@@ -397,5 +404,65 @@ namespace Aplos.Areas.IE.Controllers
         }
 
        
+       
+    }
+
+    public class MachineMasterTransaction
+    {
+        #region Scalar Properties
+
+        public string Id { get; set; }
+        public string EntityId { get; set; }
+        public string DetentionId { get; set; }
+        public string DetentionTypeId { get; set; }
+        public string MachineMasterId { get; set; }
+        public string ProcessId { get; set; }
+        public DateTime Date { get; set; }
+        public DateTime FromTime { get; set; }
+        public DateTime ToTime { get; set; }
+        public int Minute { get; set; }
+        public string ShiftId { get; set; }
+        public string AssetId { get; set; }
+        public string ResponsiblePersonId { get; set; }
+        public string Remarks { get; set; }
+
+        #endregion Scalar Properties
+
+        #region Audit Properties
+
+        /// <summary>
+        ///This is  AddedBy.Who add data keep track by AddedBy.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedBy { get; set; }
+
+        /// <summary>
+        ///This is  AddedDate.Added date keep track by AddedDate.
+        /// </summary>
+        [NeverUpdate]
+        public DateTime AddedDate { get; set; }
+
+        /// <summary>
+        /// Record insert by user from IP address.
+        /// </summary>
+        [NeverUpdate]
+        public string AddedFromIP { get; set; }
+
+        /// <summary>
+        /// Record updated user name.
+        /// </summary>
+        public string UpdatedBy { get; set; }
+
+        /// <summary>
+        /// Record updated by user date and time.
+        /// </summary>
+        public DateTime? UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Record updated by user IP address.
+        /// </summary>
+        public string UpdatedFromIP { get; set; }
+
+        #endregion Audit Properties
     }
 }

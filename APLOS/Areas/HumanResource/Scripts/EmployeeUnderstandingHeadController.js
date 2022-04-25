@@ -446,9 +446,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $http({
             method: 'POST',
             url: $scope.saveDocumentUrl,
-            //data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
-            //dataType: 'JSON'
-
              headers: { 'Content-Type': undefined },
             transformRequest: function (data) {
                 formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
@@ -484,8 +481,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                /* ClearFields(response.data.Sequence);*/
-                $scope.getData();
                 $scope.getKPIGridData();
 
             }
