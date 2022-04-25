@@ -66,7 +66,7 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Create();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                         <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                     </ul>
                 </div>
@@ -194,7 +194,7 @@
     </div>
 
     @*EMPLOYEE GOAL SETTING CHILD GRID*@
-    <div class="table-responsive" style="margin-top:20px">
+    <div class="table-responsive" id="EGSGrid" style="margin-top:20px; display:none">
         <div id="GridEdit" ej-grid e-datasource="ModelListChild" e-recorddoubleclick="GetChild" e-load="loadGridEdit"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">

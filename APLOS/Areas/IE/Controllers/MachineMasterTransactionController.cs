@@ -132,7 +132,7 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetAssetTypeList(string machineMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference,E.Id EntityId,E.UserName Entity
+            var sql = @"select MMA.Id,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference,E.Id EntityId,E.UserName Entity
 			                            from MachineMasterAsset MMA
 			                            left join ORG.Entity E on E.Id=MMA.EntityId
 										where MMA.MachineMasterId='" + machineMasterId + @"'";
@@ -254,9 +254,10 @@ namespace Aplos.Areas.IE.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
            
-                var sql = @"select MMT.Id,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,MMT.Date,MM.UserName MachineMaster
-										,P.UserName Process,MMT.FromTime,MMT.ToTime,MMT.Minute,SD.UserName Shift
-										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,MMT.Remark
+                var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],MM.UserName MachineMaster,P.UserName Process
+										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
+										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
 										left join ORG.Department D on D.Id=MMT.DepartmentId
@@ -270,7 +271,15 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         //Omar End
-
+        [HttpGet, Authorize]
+        public JsonResult GetWCCbo(string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            
+        }
 
 
         public ActionResult Delete(string id)
@@ -279,19 +288,10 @@ namespace Aplos.Areas.IE.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                //talkingSQL = "delete from dbo.MeetingTalkingPoint Where MeetingItemHeaderId='" + id + "'";
-                //suggestionSQL = "delete from dbo.MeetingSuggestion Where MeetingItemHeaderId='" + id + "'";
-                //actionSQL = "delete from dbo.MeetingActionablePoints Where MeetingItemHeaderId='" + id + "'";
-                //meetingSQL = "delete from dbo.MeetingDecision Where MeetingItemHeaderId='" + id + "'";
-                strUSQL = "delete dbo.MeetingAgenda Where Id='" + id + "'";
-
+                strUSQL = "delete dbo.MachineMasterTransaction Where Id='" + id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
-                //objCon.ExecuteNonQueryWrapper(talkingSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(suggestionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(actionSQL, true, "1");
-                //objCon.ExecuteNonQueryWrapper(meetingSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strUSQL, true, "1");
                 objCon.CommitTransaction();
 

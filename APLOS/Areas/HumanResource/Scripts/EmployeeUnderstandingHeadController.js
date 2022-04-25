@@ -76,7 +76,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.KPIList = response.data;
         });
     }
-    $scope.StatusList = [{ value: 'DefaltInProgress', name: 'Defalt In-Progress' },
+    $scope.StatusList = [{ value: 'InProgress', name: 'In-Progress' },
     { value: 'Confirm', name: 'Confirm' },
     { value: 'Approved', name: 'Approved' }]
 

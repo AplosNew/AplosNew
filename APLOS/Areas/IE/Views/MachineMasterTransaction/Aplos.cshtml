@@ -16,7 +16,7 @@
         width: 50px;
     }
 </style>
-<togglable name="{{title}}"></togglable>
+<togglable name="{{FormTitle}}"></togglable>
 <link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
 <script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
 <script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
@@ -24,7 +24,6 @@
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -36,14 +35,12 @@
                 </div>
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.Date" datepicker class="form-control" required>
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Machine<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -55,38 +52,29 @@
                 </div>
             </div>
         </div>
-
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
-                    <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
+                    <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" required readonly>
                     <span class="input-group-btn">
-                        <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Detention<sup>*</sup></label>
             <div class="col-sm-8 show-message ">
                 <div class="select-style">
                     <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList"
                             tabindex="6">
-                        <option value="">---Please Select---</option>
+                        <option value="">---Select---</option>
                     </select>
                 </div>
             </div>
         </div>
-
-
-        @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input id="timepicker1" e-value="ModelNew.FromTime" width="250" ej-timepicker name="From Time" e-change="getMinute" tabindex="4" required />
-                </div>
-            </div>*@
         <div class="form-group">
             <label class="col-sm-4 control-label">From Time<sup>*</sup></label>
             <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
@@ -95,14 +83,24 @@
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
+            <div class="col-sm-8 show-message ">
+                <div class="select-style">
+                    <select class="form-control" id="WorkCenter" name="Work Center" ng-model="ModelNew.WorkCenterId" ng-options="item.Id as item.UserName for item in workcenterList"
+                            tabindex="6">
+                        <option value="">---Select---</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Minute<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <input type="text" name="Minute" ng-model="ModelNew.Minute" class="form-control" required disabled tabindex="4" maxlength="50">
             </div>
         </div>
     </div>
-
-
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Department<sup>*</sup></label>
@@ -116,7 +114,6 @@
 
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -128,7 +125,17 @@
                 </div>
             </div>
         </div>
-
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Process<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <div class="input-group">
+                    <input type="text" name="Process" ng-model="ModelNew.Process" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="selectProcess()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">If Asset Applicable</label>
             <div class="col-sm-2">
@@ -152,39 +159,18 @@
             </div>
 
         </div>
-
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <div class="input-group">
-                    <span class="input-group-addon">{{ModelNew.ResponsiblePersonCode}}</span>
-                    <input type="text" name="Responsible Person" ng-model="ModelNew.ResponsiblePerson" class="form-control" required readonly>
-                    <span class="input-group-btn">
-                        <button name="submit" ng-click="showEmployeeListPopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-
+        
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
             <div class="col-sm-8 show-message ">
                 <div class="select-style">
                     <select class="form-control" id="DetentionType" name="DetentionType" ng-model="ModelNew.DetentionTypeId" ng-options="item.Value as item.Text for item in DetentionTypeList"
                             tabindex="6">
-                        <option value="">---Please Select---</option>
+                        <option value="">---Select---</option>
                     </select>
                 </div>
             </div>
         </div>
-
-        @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input id="timepicker2" e-value="ModelNew.ToTime" width="250" e-change="getMinute" ej-timepicker name="To Time" tabindex="4" required />
-                </div>
-            </div>*@
         <div class="form-group">
             <label class="col-sm-4 control-label">To Time<sup>*</sup></label>
             <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
@@ -192,17 +178,13 @@
                 <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
-
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Remark</label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="Remark" ng-model="ModelNew.Remark" class="form-control" required autocomplete="off" tabindex="4" maxlength="50">
+                <textarea type="text" name="Remark" ng-model="ModelNew.Remark" row="2" class="form-control" required autocomplete="off" tabindex="4" maxlength="250"></textarea>
             </div>
         </div>
-
-
     </div>
-
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
@@ -326,22 +308,11 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
                              e-recorddoubleclick="doubleEntity">
                             <div e-columns>
-                                @*<div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="20"></div>*@
-
-                                <div e-column e-field="EntityName" e-headertext="EntityName" e-width="50"></div>
-                                <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
-                                <div e-column e-field="Company" e-headertext="Company" e-width="120"></div>
-
+                                <div e-column e-field="UserName" e-headertext="Entity Name" e-width="50"></div>
+                                <div e-column e-field="EntityType" e-headertext="Entity Type" e-width="50"></div>
                             </div>
 
                         </div>
-                        @*
-                            <script type="text/template" id="checkboxTemplate">
-                                <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" e-value="data.isSelected" />
-                            </script>*@
-
-
-
                     </div>
                 </div>
                 <div class="common-btn">
@@ -581,23 +552,23 @@
 
 <confirm-modal></confirm-modal>
 <script type="text/javascript">
-    $('[id*=StartTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+    $('[id*=FromTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
         var hours = e.time.hours, //Returns a string
             min = e.time.minutes
         //merdian = e.time.meridian;
 
         if (hours.length == 1) {
-            $('[id*=StartTime]').timepicker('setTime', '0' + hours + ':' + min);
+            $('[id*=FromTime]').timepicker('setTime', '0' + hours + ':' + min);
 
         }
     });
-    $('[id*=EndTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+    $('[id*=ToTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
         var hours = e.time.hours, //Returns a string
             min = e.time.minutes
         //merdian = e.time.meridian;
 
         if (hours.length == 1) {
-            $('[id*=EndTime]').timepicker('setTime', '0' + hours + ':' + min);
+            $('[id*=ToTime]').timepicker('setTime', '0' + hours + ':' + min);
 
         }
     });
