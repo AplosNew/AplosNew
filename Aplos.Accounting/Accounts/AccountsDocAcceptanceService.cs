@@ -104,7 +104,7 @@ namespace Library.Accounting.Accounts
 														dbo.PurchaseLC XVD Left join TRN.PurchasedocAcceptance AS XP ON XP.PurchaseLCId=XVD.Id
 														LEFT JOIN dbo.[Contract] XC ON XC.Id=XVD.ContractId
 													where	PDA.Id=XP.Id  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
-
+,V.IsPark
                             FROM TRN.PurchasedocAcceptance AS PDA
                             LEFT JOIN (SELECT PurchaseDocAcceptanceId
 										,SUM(TotalMaterialTranAmount) TotalMaterialTranAmount,SUM(ChargesTranAmount) ChargesTranAmount

@@ -201,7 +201,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         }).then(function succ(resp) {
             $scope.ModelList = resp.data;
             for (var i = 0; i < $scope.ModelList.length; i++) {
-                Object.assign($scope.ModelList[i], {'Serial': parseInt(i) ,'isChanged': 0 , 'Remarks':null , 'EmpName':null});
+                Object.assign($scope.ModelList[i], {'Serial': parseInt(i) ,'isChanged': 0 , 'Remarks':null });
                 //$scope.refreshPage();
                 if ($scope.ModelList[i].Sequence in wipNos) {
                     continue;

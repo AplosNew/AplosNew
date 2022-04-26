@@ -465,9 +465,9 @@ namespace Library.OrderManagement.Production
         {
             if (bplib.clsWebLib.RetValidLen(num).ToString() != "")
             {
-                if (clsStaticInfo.dbl(num) > 999)
+                if (clsStaticInfo.dbl(num) > 9999)
                 {
-                    throw new Exception("Period Value Greater than 999");
+                    throw new Exception("Period Value Greater than 9999");
                 }
                 else
                 {
@@ -730,7 +730,7 @@ namespace Library.OrderManagement.Production
 
                 #endregion
 
-                #region 4. Calculation and Filling of the MasterHalf DataTable
+                #region 4. Calculation and Filling of the MasterHalf DataTable TOTALSPT
 
                 Dictionary<string,string> dicSkillCat = new Dictionary<string, string>(); // List<Dictionary<string, string>>dicSkillCat = new List<Dictionary<string, string>>();
 
@@ -748,6 +748,14 @@ namespace Library.OrderManagement.Production
 
                 #region 5. Calculation of Allowances
 
+                var strDate = @"Select top 1 ph.Id , ph.EffectiveDate from dbo.ProducedMinAllowanceHeader ph where EffectiveDate <= '" + Date + @"' order by EffectiveDate desc";
+                DataTable dtDates = _sqlRepository.GetDataTable(strDate);
+
+                if (dtDates.Rows.Count <= 0)
+                {
+                    throw new Exception("Processing cannot be done for this date because Productive Allowance is missing!!");
+                }
+
                 var str2 = @"Select epp.Id, po.EntityId , owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
                             left join trn.ProductionOrder po on po.Id = epp.ProductionOrderId
                             left join ( Select distinct owe.Date , owe.EmployeeId , owe.OperationVariationId , owe.ProcessId from dbo.OperationWiseEmployees owe
@@ -760,9 +768,14 @@ namespace Library.OrderManagement.Production
                             from dbo.ProducedMinAllowanceHeader ph
                             left join dbo.ProducedMinAllowanceEntity pe on pe.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceProcess pp on pp.HeaderId = ph.Id
-                            left join dbo.ProducedMinAllowanceChild pc on pc.HeaderId = ph.Id";
+                            left join dbo.ProducedMinAllowanceChild pc on pc.HeaderId = ph.Id
+                            where ph.Id = '"+dtDates.Rows[0]["Id"].ToString()+"'";
 
                 DataTable dtAllowance = _sqlRepository.GetDataTable(str3);
+
+                //Special Allowance
+                var str4 = @"Select * from dbo.SpecialOperationsRate";
+                DataTable dtSpecialAllowance = _sqlRepository.GetDataTable(str4);
 
                 for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                 {
@@ -774,16 +787,35 @@ namespace Library.OrderManagement.Production
                     string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
                     string OpSeq = dsMasterHalf.Tables[0].Rows[i]["Sequence"].ToString();
 
+                    dtSpecialAllowance.DefaultView.RowFilter = @"OperationVariationId='"+dsMasterHalf.Tables[0].Rows[i]["OperationVariationId"]+"'";
+
+                    
+
                     dtAllowance.DefaultView.RowFilter = @"EntityId='" + EntityId+"' and ProcessId ='"+ProcessId+ @"' 
                                                         and SkillCategoryId='"+ SkillCatId+ "' and OperationSequence='"+OpSeq+"'";
                     dsMasterHalf.Tables[0].Rows[i].BeginEdit();
-                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString()) / 100;
-                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString()) / 100;
+                    //Special Operation Addition
+                    if (dtSpecialAllowance.DefaultView.Count > 0)
+                    {
+                        dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"] = clsStaticInfo.dbl(dtSpecialAllowance.DefaultView[0]["Rate"].ToString())/100;
+                    }
+                    else
+                    {
+                        dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"] = 0.0;
+                    }
 
+                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowanceRate"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString()) / 100;
+                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowanceRate"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString()) / 100;
+
+                    double spAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
                     double skAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
                     double addAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                    dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowance"] = spAll;
+                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"] = skAll;
+                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"] = addAll;
 
-                    dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"] = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString()) + skAll + addAll;
+
+                    dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"] = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString()) + skAll + addAll + spAll;
                     dsMasterHalf.Tables[0].Rows[i].EndEdit();
                 }
 
@@ -803,31 +835,59 @@ namespace Library.OrderManagement.Production
                 }
 
                 //DataTable dsRatesHealf.Tables[0] = dsRatesHealf.Tables[0];
+                var strInDate = @"Select top 1 Id , EffectiveDate from dbo.IncentiveRateSetupHeader where EffectiveDate <= '" + Date + "' order by EffectiveDate desc";
+                DataTable dtInDates = _sqlRepository.GetDataTable(strInDate);
 
-                var str4 = @"Select ih.Id , ih.EffectiveDate , ie.EntityId , ips.ProcessId , ics.Effeciency, ics.EffeciencyRate from dbo.IncentiveRateSetupHeader ih
+                if (dtInDates.Rows.Count <= 0)
+                {
+                    throw new Exception("Processing cannot be done for this date because Rate setup is missing!!");
+                }
+
+
+                var str5 = @"Select ih.Id , ih.EffectiveDate , ie.EntityId , ips.ProcessId , ics.Effeciency, ics.EffeciencyRate from dbo.IncentiveRateSetupHeader ih
                             left join dbo.IncentiveRateSetupEntity ie on ie.HeaderId = ih.Id
                             left join dbo.IncentiveRateSetupProcess ips on ips.HeaderId = ih.Id
-                            left join dbo.IncentiveRateSetupChild ics on ics.HeaderId = ih.Id";
+                            left join dbo.IncentiveRateSetupChild ics on ics.HeaderId = ih.Id
+                            where ih.Id = '"+dtInDates.Rows[0]["Id"].ToString()+"'";
 
-                DataTable dtRatesTable = _sqlRepository.GetDataTable(str4);
+                DataTable dtRatesTable = _sqlRepository.GetDataTable(str5);
 
 
-                var str5 = @"Select EmpSystemId , isnull(Duration,0) as Duration , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
-                DataTable dtApd = _sqlRepository.GetDataTable(str5);
+                var str6 = @"Select EmpSystemId , isnull(Duration,0) as Duration , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
+                DataTable dtApd = _sqlRepository.GetDataTable(str6);
 
                 #endregion
 
                 #region 7. Calculation Of the Duration And Efficiency
 
+                //Getting the Employee Time Out Durations
+                var strEmpTimeOut = @"Select EmployeeId , WorkDate , Sum(Duration) as Duration from dbo.EmployeesTimeOut where WorkDate = '" + Date + @"' group by EmployeeId , WorkDate";
+                DataTable dtEmpTimeOut = _sqlRepository.GetDataTable(strEmpTimeOut);
+
                 for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                 {
                     dtApd.DefaultView.RowFilter = @"EmpSystemId ='"+dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString()+"'";
+                    dtEmpTimeOut.DefaultView.RowFilter = @"EmployeeId='" + dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString() + "'";
+
+                    double TODur = 0.0;
+                    if (dtEmpTimeOut.DefaultView.Count > 0)
+                    {
+                        TODur = clsStaticInfo.dbl(dtEmpTimeOut.DefaultView[0]["Duration"].ToString());
+                    }
+
                     double Dur = 1.0;
+                    double Durs = 0.0;
+                    double NetDur = 1.0;
+                    double NetDurs = 0.0;
                     if (dtApd.DefaultView.Count > 0)
                     {
                         Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+                        Durs = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+                        NetDur = Durs - TODur;
+                        NetDurs = Durs - TODur;
                     }
-                    
+
+                  
 
                     dsRatesHealf.Tables[0].DefaultView.RowFilter = @"EmployeeId='"+ dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString() + "'";
                     if (dsRatesHealf.Tables[0].DefaultView.Count > 0)
@@ -835,9 +895,11 @@ namespace Library.OrderManagement.Production
                         dsRatesHealf.Tables[0].DefaultView[0].Row.BeginEdit();
                         dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) + clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
                         dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) + clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString());
-                        dsRatesHealf.Tables[0].DefaultView[0]["WorkDuration"] = Dur;
-                        dsRatesHealf.Tables[0].DefaultView[0]["NetEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) / Dur)*100;
-                        dsRatesHealf.Tables[0].DefaultView[0]["GrossEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) / Dur)*100;
+                        dsRatesHealf.Tables[0].DefaultView[0]["WorkDuration"] = Durs;
+                        dsRatesHealf.Tables[0].DefaultView[0]["EmployeesTimeOutDuration"] = TODur;
+                        dsRatesHealf.Tables[0].DefaultView[0]["NetDuration"] = Durs - TODur;
+                        dsRatesHealf.Tables[0].DefaultView[0]["NetEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) / NetDur) *100;
+                        dsRatesHealf.Tables[0].DefaultView[0]["GrossEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) / NetDur) *100;
                         dsRatesHealf.Tables[0].DefaultView[0].Row.EndEdit();
                     }
                     else
@@ -847,9 +909,11 @@ namespace Library.OrderManagement.Production
                         dr["EmployeeId"] = dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString();
                         dr["TotalSPT"] = clsStaticInfo.dbl( dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
                         dr["AllotedProducedMin"] = clsStaticInfo.dbl( dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString());
-                        dr["WorkDuration"] = Dur;
-                        dr["NetEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString())/Dur)*100;
-                        dr["GrossEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString())/Dur)*100;
+                        dr["WorkDuration"] = Durs;
+                        dr["EmployeesTimeOutDuration"] = TODur;
+                        dr["NetDuration"] = NetDurs;
+                        dr["NetEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString())/NetDur)*100;
+                        dr["GrossEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString())/ NetDur) *100;
                         dr["Date"] = Convert.ToDateTime(Date);
                         dr["Rate"] = 0;
                         dr["Amount"] = 0;

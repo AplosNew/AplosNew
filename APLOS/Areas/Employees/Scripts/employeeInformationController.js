@@ -9,6 +9,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $controller('employeeBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = "Vendor";
     $controller("partyBaseController", { $scope: $scope, $http: $http });
+    $scope.partyList = [];
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveNewUrl = $scope.path + 'CreateNew';
 
@@ -1113,7 +1114,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeInformation.MarriagedayCelebrationDate = $filter('dateFiltering')($scope.employeeInformation.MarriagedayCelebrationDate, 'dd-M-yyyy');
         $scope.employeeInformation.PaymentModeEffectiveDate = $filter('dateFiltering')($scope.employeeInformation.PaymentModeEffectiveDate, 'dd-M-yyyy');
         $scope.employeeInformation.EmpCodeType = $scope.employeeInformation.EmployeeCodeType;
-        if ($scope.employeeInformation.isLeaveOnDOC==false) {
+        if ($scope.employeeInformation.isLeaveOnDOC == false) {
             $scope.employeeInformation.isLeaveOnDOJ = true;
         } else {
             $scope.employeeInformation.isLeaveOnDOC = true;
@@ -3877,14 +3878,16 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            $scope.employeeNew.VendorId = party.Id;
-            $scope.employeeNew.PartyCode = party.Code;
-            $scope.employeeNew.PartyName = party.UserName;
-        }
-        $scope.hidePartyPopUp();
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        $scope.employeeNew.VendorId = party.Id;
+        $scope.employeeNew.PartyCode = party.Code;
+        $scope.employeeNew.PartyName = party.UserName;
+        $scope.employeeInformation.VendorId = party.Id;
+        $scope.employeeInformation.PartyCode = party.Code;
+        $scope.employeeInformation.PartyName = party.UserName;
+        
+        angular.element(document.querySelector('#VpartyPopUp')).modal('hide');
     };
 
     $scope.clearVendor = function () {
@@ -3896,41 +3899,31 @@ function employeeInformationController(addressService, fileReader, cboService, c
 
 
     $scope.showVendorPartyPopUp = function () {
-        baseService.setCurrentPage('partyList');
-        $scope.getPartyList = function (pageno) {
-            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList?partyType=' + $scope.partyType;
-            }
-            else if ($scope.partyType === 'Party') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
-            }
-            else if ($scope.partyType === 'Director') {
-                $scope.partyUrl = 'Parties/party/GetCompanyDirectorDataList';
-            }
-            else if ($scope.partyType === 'Other') {
-                $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
-            }
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
-        };
+        if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+        }
+        else if ($scope.partyType === 'Party') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Director') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        else if ($scope.partyType === 'Other') {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew';
+        }
+        $http({
+            method: 'POST',
+            url: $scope.partyUrl,
+            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.partyList = response.data;
+        });
         angular.element(document.querySelector('#VpartyPopUp')).modal('show');
-        $scope.getPartyList();
+        
     };
 
     $scope.hideVPartyPopUp = function () {
-        angular.element(document.querySelector('#VpartyPopUp')).modal('hide');
-        $scope.partyIndex = -1;
-        $scope.partySelected = null;
-    };
-    $scope.closeVPartyPopUp = function (index, id) {
-        $scope.partyIndex = index;
-        $scope.selectedParty = id;
         angular.element(document.querySelector('#VpartyPopUp')).modal('hide');
         $scope.partyIndex = -1;
         $scope.partySelected = null;

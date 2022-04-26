@@ -59,7 +59,7 @@ namespace Aplos.Areas.Materials.Controllers
                 strkey = column + " like '%" + value + "%'";
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT UM.*,P.UserName CustomerName, ei.EmployeeName ResponsiblePersonName
+            string sql = @"select top 100 * from (SELECT UM.*,P.UserName PartyName, ei.EmployeeName ResponsiblePersonName
                         FROM [dbo].[UtilityMaster] UM
                         LEFT JOIN HKP.Party AS p ON P.Id=UM.PartyId
                         LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=UM.ResponsiblePersonId) AS TEMP WHERE " + strkey + " order by sequence";

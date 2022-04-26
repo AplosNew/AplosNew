@@ -1432,7 +1432,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li><button ng-click="SaveAdditinalTaxInGRNList();" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
+                                <li><button ng-click="SaveAdditinalTaxInGRNList();" ng-disabled="productId==null" class="btn"><i class="glyphicon glyphicon-folder-close"></i>&nbsp;Save</button></li>
 
                             </ul>
                         </div>
@@ -1661,112 +1661,7 @@
 @*//Master Table Data*@
 
 <div class="aplos-grid-toggle">
-    @*<fieldset class="scheduler-border">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-            <div>
-
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GriddataMaster1" ej-grid e-datasource="GriddataMaster"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="true" e-recorddoubleclick="recorddoubleclickFromMasterGrid" e-filtersettings-filterType="excel" e-enabletouch="true">
-                        <div e-columns>
-
-
-                            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
-                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
-                            <div e-column e-field="Id" e-headertext="GRN No" e-width="80"></div>
-                            <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="80"></div>
-                            <div e-column e-field="POID" e-headertext="PONo" e-width="80"></div>
-                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
-                            <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
-                            <div e-column e-field="InvoiceDate" e-headertext="Invoice date" e-width="80"></div>
-                            <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80"></div>
-                            <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
-
-                            <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-        </fieldset>
-        <div class="row text-right" hidden="hidden">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="table-responsive modal-table" hidden="hidden">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-
-                        <th>Vendor</th>
-                        <th>Account Group</th>
-                        <th>GRN No</th>
-                        <th>GRN Date</th>
-                        <th>PO No</th>
-                        <th>Vendor DocNo</th>
-                        <th>Invoice No</th>
-                        <th>Invoice Date</th>
-                        <th>Qty</th>
-                        <th>Amount (TRN)</th>
-                        <th>Amount (BC)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in products |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'products'" ng-dblclick="Get($index,POID);">
-
-                        <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                        <td>{{x.PartyAccountGroupName}}</td>
-                        <td>{{x.Id}}</td>
-                        <td>{{x.GRNDate | dateFiltering}}</td>
-                        <td>{{x.POID}}</td>
-                        <td>{{x.DocRefNo}}</td>
-                        <td>{{x.InvoiceNo}}</td>
-                        <td>{{x.InvoiceDate}}</td>
-                        <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                        <td class="text-right">{{x.TransactionAmount|number:2}} {{x.CurrencyCode}}</td>
-                        <td class="text-right">{{x.BaseAmount|number:2}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-                            </ul>
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
-            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'products'" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-        </div>*@
-
-
-
-
+   
 
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
@@ -2423,7 +2318,7 @@
                 <fieldset class="scheduler-border">
                     @*<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>*@
                     <div>
-
+                        
 
                         <div class="content-container-fluid" style="color:black;overflow:scroll">
                             <div style="color:black;" id="GriddataMaster2" ej-grid e-datasource="GriddataMaster2"
@@ -2447,7 +2342,7 @@
                                     <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                    <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
                                     <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
@@ -2456,7 +2351,7 @@
                                     <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                     @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-                                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
+                    <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
                                     <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
                                     @*<div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>*@
                                     @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
@@ -2564,19 +2459,6 @@
                                         <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
                                     </ul>
                                 </td>
-                                @*<td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                                                Action
-                                                <span class="caret"></span>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank">View P&nbsp;d&nbsp;f</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank">View Excel</a></li>
-                                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Word');" href="" target="_blank">View Word&nbsp;</a></li>
-                                            </ul>
-                                        </div>
-                                    </td>*@
                             </tr>
                         </tbody>
                     </table>
@@ -2591,7 +2473,27 @@
                 <fieldset class="scheduler-border">
                     @*<legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>*@
                     <div>
-
+                        <div class="row text-right">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select ng-model="searchByPostedGRN">
+                                                    <option ng-repeat="option in searchByPostedGRNList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="searchGRN" ng-enter="GetSearchPostedGRNPOList();">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="GetSearchPostedGRNPOList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="content-container-fluid" style="color:black;overflow:scroll">
                             <div style="color:black;" id="GriddataPosted" ej-grid e-datasource="GriddataMaster2"
@@ -2615,7 +2517,7 @@
                                     <div e-column e-field="Shortageqty" e-headertext="Shortage Qty" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="RejectionQty" e-headertext="Rejection Qty" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="NetQty" e-headertext="Net Qty" textAlign='Right' e-width="150"></div>
-                                        <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
+                    <div e-column e-field="GRNQTY" e-headertext="GRN QTY" textAlign='Right' e-width="150"></div>*@
                                     <div e-column e-field="ShortageRatePercent" e-headertext="Shortage(Percentage)" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="ShortageValue" e-headertext="Shortage Value" textAlign='Right' e-width="150"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" textAlign='Right' e-width="150"></div>
@@ -2624,7 +2526,7 @@
                                     <div e-column e-field="RejectClamPercent" e-headertext="RejectionClam(Percentage)" textAlign='Right' e-width="150"></div>
                                     @*<div e-column e-field="PurchaseDocumentAcceptanceId" e-headertext="AcceptanceId" e-width="150"></div>*@
                                     @*<div e-column e-field="AcceptanceNo" e-headertext="Aceptance No" e-width="150"></div>
-                                        <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
+                    <div e-column e-field="AcceptanceDate" e-headertext="PDA Date" e-width="150"></div>*@
                                     <div e-column e-field="POId" e-headertext="PONo" e-width="150"></div>
                                     <div e-column e-field="PurchaseLCId" e-headertext="PurchaseLCId" e-width="150"></div>
                                     @*<div e-column e-field="LCANo" e-headertext="PurchaseLCNo" e-width="150"></div>*@
@@ -2664,6 +2566,7 @@
                                 </div>
                             </div>
                         </script>
+                        <i>**Showing top 100 Posted GRN order by GRN Date Desc</i>
                     </div>
                 </fieldset>
                 <div class="row text-right" hidden="hidden">
