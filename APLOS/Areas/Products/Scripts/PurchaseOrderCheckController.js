@@ -310,7 +310,7 @@ function PurchaseOrderCheckController(accountService, addressService, $window, c
 		var x = "#" + z;
 		var gridObj = $(x).data("ejGrid");
 		var data = gridObj.getSelectedRecords()[0];
-		location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + 'plantId' + data.PlantId;
+		location.href = "Products/PurchaseOrder/GePurchaseOrderReport?purchaseOrderId=" + data.Id + '&plantId=' + data.PlantId;
 		//location.href = "Products/PurchaseOrder/GePurchaseOrderReportByReq?purchaseOrderId=" + data.Id;
 
 	};
