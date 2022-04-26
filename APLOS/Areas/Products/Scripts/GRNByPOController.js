@@ -3158,7 +3158,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
     $scope.GriddataMaster2 = [];
     $scope.getalldataMaster2 = function () {
-
+        $scope.GriddataMaster2 = [];
         $http({
             method: "GET",
             dataType: 'JSON',
@@ -3167,6 +3167,24 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             $scope.GriddataMaster2 = response.data;
         });
     };
+
+
+    $scope.searchByPostedGRN = "Id"; $scope.searchGRN = "";
+    $scope.searchByPostedGRNList = [{ value: 'Id', name: "GRN No" }, { value: 'GRNDate', name: "GRN Date" }, { value: 'PartyName', name: "Vendor" }
+        , { value: 'GateEntryNo', name: "Gate EntryNo" }, { value: 'DocRefNo', name: "DocRef No" }
+        , { value: 'DocDate', name: "Doc Date" }];
+
+    $scope.GetSearchPostedGRNPOList = function () {
+        $http({
+            method: 'POST',
+            url: 'Products/GoodsReceiveNote/GetSearchPostedGRNPOList',
+            data: { column: $scope.searchByPostedGRN, value: $scope.searchGRN },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.GriddataMaster2 = response.data;
+        });
+    };
+
 
     $scope.GRN = "";
     $scope.tab = 1;
@@ -3221,17 +3239,17 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     };
 
 
+ 
+    $scope.isSetApprovedNP = function (tabNum) {
+        return $scope.tab === tabNum;
+        $scope.GRN = 5;
+    };
     $scope.setTabApprovedNP = function (newTab) {
         $scope.tab = newTab;
         $scope.GRNbyPOApprovedStatus = "Approved";
         $scope.getalldataMaster2();
 
     };
-    $scope.isSetApprovedNP = function (tabNum) {
-        return $scope.tab === tabNum;
-        $scope.GRN = 5;
-    };
-
     $scope.setTabPosted = function (newTab) {
         $scope.tab = newTab;
         $scope.GRNbyPOApprovedStatus = "Posted";

@@ -34,7 +34,23 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
-
+        [HttpGet]
+        public IHttpActionResult GetPlayStoreAppVersion()
+        {
+            try
+            {
+                var result = _task.GetPlayStoreAppVersion();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
         [HttpGet]
         public IHttpActionResult GetEmp(string EmpId)
         {

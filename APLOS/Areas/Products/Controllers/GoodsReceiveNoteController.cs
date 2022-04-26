@@ -953,6 +953,16 @@ namespace Aplos.Areas.Products.Controllers
             return jsondata;
         }
 
+        [HttpPost, Authorize]
+        public JsonResult GetSearchPostedGRNPOList(string column, string value)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(inventoryReceiveQueryService.GetSearchPostedGRNPOList(column, value, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
+
+
         [Authorize, HttpGet]
         public JsonResult GetListForGrnByPoReq(string GRNWithReqPOApprovedStatus)
         {

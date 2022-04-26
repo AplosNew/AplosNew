@@ -812,11 +812,14 @@ namespace Aplos.Areas.Products.Controllers
 
         #region PurchaseOrder Report 
         [HttpGet, Authorize]
-        public ActionResult GePurchaseOrderReport(string purchaseOrderId)
+        public ActionResult GePurchaseOrderReport(string purchaseOrderId, string plantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            _purchaseOrderService.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, purchaseOrderId);
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            _purchaseOrderService.GePurchaseOrderReport(identity.CompanyGroupId, identity.CompanyId, plantId, identity.UserId, purchaseOrderId);
 
             return null;
 

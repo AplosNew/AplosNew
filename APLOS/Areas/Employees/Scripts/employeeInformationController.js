@@ -3883,6 +3883,10 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.employeeNew.VendorId = party.Id;
         $scope.employeeNew.PartyCode = party.Code;
         $scope.employeeNew.PartyName = party.UserName;
+        $scope.employeeInformation.VendorId = party.Id;
+        $scope.employeeInformation.PartyCode = party.Code;
+        $scope.employeeInformation.PartyName = party.UserName;
+        
         angular.element(document.querySelector('#VpartyPopUp')).modal('hide');
     };
 
