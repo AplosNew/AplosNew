@@ -465,9 +465,9 @@ namespace Library.OrderManagement.Production
         {
             if (bplib.clsWebLib.RetValidLen(num).ToString() != "")
             {
-                if (clsStaticInfo.dbl(num) > 999)
+                if (clsStaticInfo.dbl(num) > 9999)
                 {
-                    throw new Exception("Period Value Greater than 999");
+                    throw new Exception("Period Value Greater than 9999");
                 }
                 else
                 {
