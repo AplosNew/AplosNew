@@ -98,6 +98,39 @@ AS TEMP WHERE " + strkey + "";
             string sql = @"SELECT * FROM ActivityDocuments WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetMasterData(string EmployeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT euh.Id, euh.[Date], euh.[Status], euh.Remarks,ei.SystemId, ei.EmployeeName,B.Code BudgetCode,P.Code PositionCode,P.UserName Position
+  FROM EmpUnderstandingHead AS euh
+LEFT OUTER  JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
+LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=euh.BudgetCode
+LEFT OUTER JOIN org.Position P ON P.Id=euh.PositionCode
+WHERE euh.EmployeeId='" + EmployeeId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetMasterDataFromEI(string EmployeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT ei.SystemId,ei.EmployeeCode, ei.EmployeeName,B.Code BudgetCode,P.Code PositionCode,P.UserName Position
+ FROM  EmployeeInformation AS ei 
+LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
+LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+WHERE ei.SystemId='" + EmployeeId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpPost, Authorize]
+        public ActionResult GetDocumentCategoryList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT * FROM HKP.DocumentCategory";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetKPIList(string EmpUnderstandingActivityId)
@@ -364,7 +397,7 @@ AS TEMP WHERE " + strkey + "";
             return 1;
         }
 
-     
+
         public Dictionary<string, object> GetDocFile(string id)
         {
             try
@@ -386,7 +419,7 @@ AS TEMP WHERE " + strkey + "";
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-               
+
 
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -396,7 +429,7 @@ AS TEMP WHERE " + strkey + "";
                 con.OpenDataSetThroughAdapter("select * from ActivityDocuments where Id='" + data.Id + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-               
+
                 #region data update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
@@ -404,11 +437,11 @@ AS TEMP WHERE " + strkey + "";
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ActivityDocuments", out _Id);
                     _Id = "AD" + _Id;
                     data.Id = _Id;
-              
+
                     DataRow dr = dsMaster.Tables[0].NewRow();
 
                     dr["Id"] = data.Id;
-                    
+
                     dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
                     dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
                     dr["DocumentType"] = data.DocumentType;
@@ -416,10 +449,11 @@ AS TEMP WHERE " + strkey + "";
                     dr["DocumentClass"] = data.DocumentClass;
                     dr["DocumentCode"] = data.DocumentCode;
                     dr["DocumentName"] = data.DocumentName;
+                    dr["DocumentCategoryId"] = data.DocumentCategoryId;
                     dr["Remarks"] = data.Remarks;
                     dr["Attachment"] = data.FileName;
                     dr["FileName"] = data.FileName;
-                   
+
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -458,11 +492,11 @@ AS TEMP WHERE " + strkey + "";
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-               
+
             }
             catch (Exception ex)
             {
-                
+
             }
         }
 
@@ -474,7 +508,7 @@ AS TEMP WHERE " + strkey + "";
 
 
             var directory = ResourcesPathReader.GetActivityDocumentsPath();
-           
+
 
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
@@ -518,7 +552,7 @@ AS TEMP WHERE " + strkey + "";
                 if (!System.IO.File.Exists(path + Id + System.IO.Path.GetExtension(documentActivity.FileName)))
                     throw new CustomException("File didn't saved.");
             }
-            
+
             // activityService.InsertOrUpdateDocument(documentActivity, docPk);
 
             return Json(new { DocumentActivity = documentActivity, Message = "Data Saved Successfully" });
@@ -566,6 +600,7 @@ AS TEMP WHERE " + strkey + "";
         public string DocumentCode { get; set; }
         public string DocumentName { get; set; }
         public string Remarks { get; set; }
+        public string DocumentCategoryId { get; set; }
         public string Attachment { get; set; }
         public string FileName { get; set; }
         public string AddedBy { get; set; }

@@ -1,4 +1,6 @@
-﻿<togglable name="{{title}}"></togglable>
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     @* ENTER ROBUDGET CODE & PERFORMANCE PERIOD*@
     <div class="row">
@@ -141,75 +143,45 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         @*<p style="margin-top:20px">Please Select Performance Period .</p>*@
-                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="PerformancePeriodList" e-recorddoubleclick="selPerformacePeriod"
-                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
-                            <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-                                <div class="row">
-
-                                    <input type="hidden" ng-model="ModelNew.SystemId">
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Performance Year</label>
-                                            <div class="col-sm-8 show-message">
-                                                <div class="select-style">
-                                                    <select class="form-control" id="ddperfYear" ng-model="ModelNew.PerformanceYearId" name="PerformanceYear"
-                                                            ng-options="item.Value as item.Text for item in PerformanceYearList" tabindex="2">
-                                                        <option value="">--Select--</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="col-sm-4 control-label">Confirmation Status</label>
-                                            <div class="col-sm-8">
-                                                <div class="checkbox-site" id="checkok">
-                                                    <label>
-                                                        <input type="checkbox" ng-model="ModelNew.ConfirmationStatus" tabindex="8" ng-click="checked(this)">
-                                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div class="col-xs-12 col-sm-6 col-md-6">
-                                        <div class="col-xs-12 col-sm-12 col-sm-12">
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label">Select Employee<sup>*</sup></label>
-
-                                                <div class="col-sm-6">
-
-                                                    <input type="text" name="" ng-model="Employee" ng-click="selectEmployee()" class="form-control" maxlength="200" tabindex="5">
-
-                                                </div>
-
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-4 control-label">Is Approved</label>
-                                                <div class="col-sm-8">
-                                                    <div class="checkbox-site">
-                                                        <label>
-                                                            <input type="checkbox" ng-model="ModelNew.isApproved" tabindex="8">
-                                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="common-btn">
-                                                <ul class="list-inline text-right">
-                                                    <li> <button ng-click="SaveEGSParent();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                                                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 ">
+                                <div id="ChildList" ej-grid e-datasource="EGList" e-templaterefresh="refreshTemplate"
+                                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:20px;">
+                                    <div e-columns>
+                                        
+                                        <div e-column e-headertext="Performance Year Id" e-template="#PerformanceYearId" e-type="string" e-width="50"></div>
+                                        <div e-column e-headertext="Employee Id" e-template="#EmployeeId" e-width="80"></div>
+                                        <div e-column e-headertext="Confirmation Status" e-template="#ConfirmationStatus" e-width="80"></div>
+                                        <div e-column e-headertext="Is Approved" e-template="#IsApproved" e-width="80"></div>
                                     </div>
                                 </div>
-                                </div>
+                                <script type="text/template" id="PerformanceYearId">
+                                    <input type="text" ng-model="data.PerformanceYearId" style="color:black; text-align:center" />
+                                </script>
+                                <script type="text/template" id="EmployeeId">
+                                    <input type="text" ng-model="data.EmployeeId" style="color:black; text-align:center" />
+                                </script>
+                                <script type="text/template" id="ConfirmationStatus">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="data.ConfirmationStatus" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </script>
+                                <script type="text/template" id="IsApproved">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="data.isApproved" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </script>                      
                             </div>
+
+
+                        </div>
                     </div>
                 </div>
                 <div class="common-btn">

@@ -23,6 +23,9 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         Quantity: null,
         UoMId: null,
         UoM: null,
+        LastDate: null,
+        LastTime: null,
+        LastReading: null,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -79,15 +82,40 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
     $scope.UoMName = null;
     $scope.IsReadingApp = false;
-
     $scope.GetUoMAndReadingApplicable = function () {
         for (var i = 0; i < $scope.utilityMasterList.length; i++) {
-            if ($scope.utilityMasterList[i].value == $scope.ModelNew.UtilityMasterId) {
+            if ($scope.utilityMasterList[i].Value == $scope.ModelNew.UtilityMasterId) {
                 $scope.UoMName = $scope.utilityMasterList[i].UoM;
                 $scope.IsReadingApp = $scope.utilityMasterList[i].IsReadingApplicable;
             }
         }
     }
+
+
+    $scope.readingList = [];
+    $scope.GetReadingList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/UtilityTransaction/GetReadingList'
+        }).then(function successCallback(response) {
+            $scope.readingList = response.data[0];
+        });
+    }
+    $scope.GetReadingList();
+
+    //$scope.LastReadDate = null;
+    //$scope.LastReadTime = null;
+    //$scope.LastRead = null;
+    //$scope.GetReading = function () {
+    //    for (var i = 0; i < $scope.readingList.length; i++) {
+    //        if ($scope.readingList[i].Value == $scope.ModelNew.UtilityMasterId) {
+    //            $scope.LastReadDate = $scope.readingList[i].LastReadingDate;
+    //            $scope.LastReadTime = $scope.readingList[i].LastReadingTime;
+    //            $scope.LastRead = $scope.readingList[i].LastReading;
+    //        }
+    //    }
+    //}
+
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
@@ -113,6 +141,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.GetUoMAndReadingApplicable();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -216,6 +245,11 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
 
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.UoMName = null;
+        $scope.LastReadDate = null;
+        $scope.LastReadTime = null;
+        $scope.LastRead = null;
+        $scope.IsReadingApp = false;
         $scope.Action = 'Save';
     }
 }
