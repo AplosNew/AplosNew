@@ -640,6 +640,18 @@ namespace Library.General.TaskScheduler
             }
         }
 
+        public IEnumerable<object> GetPlayStoreAppVersion()
+        {
+            try
+            {
+                var sql = @"select '1.8.5' as Version from org.CompanyGroup";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetTaskCat()
         {
             try
