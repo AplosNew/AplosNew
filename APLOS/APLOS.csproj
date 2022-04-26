@@ -516,6 +516,7 @@
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServicesRateController.cs" />
     <Compile Include="Areas\EmployeeServices\Controllers\EmployeeServiceTypeController.cs" />
     <Compile Include="Areas\EmployeeServices\EmployeeServicesAreaRegistration.cs" />
+    <Compile Include="Areas\Employees\Controllers\DocumentCategoryController.cs" />
     <Compile Include="Areas\Employees\Controllers\EmployeeCodeGenerationController.cs" />
     <Compile Include="Areas\Employees\Controllers\AccountsGroupController.cs" />
     <Compile Include="Areas\Employees\Controllers\AllowanceDailyController.cs" />
@@ -1879,6 +1880,7 @@
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesConfig.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServicesRateController.js" />
     <Content Include="Areas\EmployeeServices\Scripts\EmployeeServiceTypeController.js" />
+    <Content Include="Areas\Employees\Scripts\DocumentCategoryController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeGenerationController.js" />
     <Content Include="Areas\Employees\Scripts\AccountsGroupController.js" />
     <Content Include="Areas\Employees\Scripts\CompensatoryOffNewController.js" />
@@ -4111,6 +4113,7 @@
     <Content Include="Areas\Materials\Views\UtilityTransactionReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\CustomerConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

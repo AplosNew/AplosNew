@@ -136,22 +136,11 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">If Asset Applicable</label>
-            <div class="col-sm-2">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="ModelNew.IfAssetApplicable" tabindex="10" ng-change="changeAsset();">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </div>
-
-            <label class="col-sm-2 control-label"><span style="font-size:14px">Select asset</span></label>
-
-            <div class="col-sm-4 show-message">
+        <div class="form-group">
+            <label class="col-sm-4 control-label"><span style="font-size:14px">Select asset</span></label>
+            <div class="col-sm-8">
                 <div class="input-group">
-                    <input type="text" name="Asset" ng-model="ModelNew.Asset" class="form-control" maxlength="200" tabindex="5" required readonly>
+                    <input type="text" name="Asset" ng-model="ModelNew.Asset" class="form-control" maxlength="200" tabindex="5" readonly>
                     <span class="input-group-btn">
                         <button ng-click="selectAsset()" ng-disabled="ModelNew.IfAssetApplicable == false" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>

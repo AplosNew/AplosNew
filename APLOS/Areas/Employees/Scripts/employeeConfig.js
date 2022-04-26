@@ -511,5 +511,9 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/EmployeeCodeType/Aplos',
             controller: 'EmployeeCodeTypeController'
         })
+        .when('/document-category', {
+            templateUrl: 'Employees/DocumentCategory/Aplos',
+            controller: 'DocumentCategoryController'
+        })
         ;
 } 
