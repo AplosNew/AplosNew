@@ -67,5 +67,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        public ActionResult GetEmployeeGoalData()
+        {
+            try
+            {
+                return Json(gsa.GetEmployeeGoalData(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
