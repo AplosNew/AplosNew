@@ -125,7 +125,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         )
     }
     $scope.recorddoubleclick = function ($event) {
-        debugger;
+        
         var x = $event;
         $scope.DetentionMasterId = x.data.Id;
 
