@@ -2626,7 +2626,7 @@
                             <div class="col-sm-8 input-group" style="padding-left: 15px;padding-right: 14px;">
                                 <input type="text" ng-model="employeeNew.PartyName" class="form-control" readonly>
                                 <span class="input-group-btn">
-                                    <button ng-click="showPartyPopUp()" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="showVendorPartyPopUp()" tabindex="20" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                     <button ng-click="clearVendor()" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
                                 </span>
                             </div>
@@ -2880,6 +2880,7 @@
     </div>
 </div>
 
+
 <modal-table modalid="popUpId"
              data-title={{popUpTitle}}
              data-search-parameters="budgetpopUpParameters"
@@ -2958,81 +2959,58 @@
 </div>
 
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="DeleteOperation();"></confirm-archive-generic>
-@Html.Partial("~/Areas/Parties/Views/Party/_CustomerReconciliationGLPopUp.cshtml")
 <div class="modal fade site-modal in" id="VpartyPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" ng-form="partyForm">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">{{partyType}} List</h4>
-            </div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="partyParameters.searchBy">
-                                            <option value="PartyCode">{{partyType}} Code</option>
-                                            <option value="UserName">{{partyType}} Name</option>
-                                            <option ng-repeat="option in partySearchByList" value="{{option.value}}">{{option.name}}</option>
-                                        </select>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" ng-form="partyForm">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">{{partyType}} List</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-right">
+                        <div class="col-xs-12 col-sm-12 col-sm-12">
+                            <div class="search-form">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-3 col-md-3">
+                                        <div class="select-style">
+                                            <select ng-model="searchByParty">
+                                                <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="partyParameters.search" ng-enter="getPartyList()">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPartyList()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    <div class="col-xs-12 col-sm-7 col-md-7">
+                                        <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                                    </div>
+                                    <div class="col-xs-12 col-sm-2 col-md-2">
+                                        <button type="button" ng-click="showPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="closePartyPopUp"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                        <div e-columns>
+                            <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                            <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                            @*<div  e-column e-field="ReconciliationGLName" e-headertext="GL" e-width="60"></div>
+                <div e-column e-field="ReconciliationBudgetName" e-headertext="Budget" e-width="60"></div>
+                <div e-column e-field="ReconciliationActivityName" e-headertext="Activity" e-width="60"></div>*@
+                            <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                            <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                            <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{{partyType}}</th>
-                                <th>Account Group</th>
-                                <th ng-show="partyGLType!=null">GL</th>
-                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Budget</th>
-                                <th ng-show="partyGLType!=null && companyConfig.IsVoucherFromBudget">Activity</th>
-                                <th>Currency</th>
-                                <th>Country</th>
-                                <th>State</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in partyList |itemsPerPage:partyParameters.pageSize" pagination-id="metaData.name + 'partyList'" total-items="partyParameters.total_count"
-                                ng-click="selectPartyPopUpRow($index, x.Id);" ng-class="{selected : x.Id == partySelected}" ng-dblclick="closeVendorPartyPopUp()">
-                                <td>{{x.Code}} - {{x.UserName}}</td>
-                                <td>{{x.PartyAccountGroupName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation'">{{x.ReconciliationGLCode}} - {{x.ReconciliationGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Reconciliation' && companyConfig.IsVoucherFromBudget">{{x.ReconciliationActivityName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment'">{{x.DownPaymentGLCode}} - {{x.DownPaymentGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='DownPayment' && companyConfig.IsVoucherFromBudget">{{x.DownPaymentActivityName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense'">{{x.SuspenseGLCode}} - {{x.SuspenseGLName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseBudgetName}}</td>
-                                <td ng-show="partyGLType!=null && partyGLType=='Suspense' && companyConfig.IsVoucherFromBudget">{{x.SuspenseActivityName}}</td>
-                                <td>{{x.CurrencyCode? x.CurrencyCode : '-'}}</td>
-                                <td>{{x.CountryName}}</td>
-                                <td>{{x.StateCode}} - {{x.StateName}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls max-size="5" pagination-id="metaData.name + 'partyList'" direction-links="true" boundary-links="true" on-page-change="getPartyList(newPageNumber)"></dir-pagination-controls>
+                <div class="modal-footer common-btn">
+                    <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
                 </div>
-            </div>
-            <div class="modal-footer common-btn">
-                <button type="button" class="btn btn-default" ng-click="closeVPartyPopUp()">Select</button>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
             </div>
         </div>
     </div>
-</div>
 <div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -3064,6 +3042,8 @@
         </div>
     </div>
 </div>
+
+
 <div class="loader" data-loader>
     Please wait
     <div class="bounce1"></div>

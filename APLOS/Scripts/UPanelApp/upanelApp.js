@@ -1032,6 +1032,7 @@ upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
+upanelApp.controller("DocumentCategoryController", DocumentCategoryController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

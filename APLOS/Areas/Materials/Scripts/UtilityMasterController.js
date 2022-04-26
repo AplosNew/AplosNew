@@ -46,10 +46,26 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         ShortName: null,
         StandardName: null,
         UserName: null,
+        UtilityGroup: null,
+        UtilitySubGroup: null,
+        UtilityCategory: null,
+        UtilitySubGroup: null,
+        Item: null,
+        UoMId: null,
+        UoM: null,
+        IsPartyApplicable: false,
+        PartyId: null,
+        PartyCode: null,
+        PartyName: null,
+        IsReadingApplicable: false,
+        ResponsiblePersonId: null,
+        ResponsiblePersonName: null,
+        AdminId: null,
+        Admin: null,
         Description: null,
+        EntryLegDays: null,
         Remarks: null,
-        Active: true,
-        Type: null
+        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -89,7 +105,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.SetCustomerData = function (obj) {
         var party = obj.data;
         $scope.ModelNew.PartyCode = party.Code;
-        $scope.ModelNew.CustomerName = party.UserName;
+        $scope.ModelNew.PartyName = party.UserName;
         $scope.ModelNew.PartyId = party.Id;
 
         $scope.hidePartyPopUp();
@@ -112,15 +128,16 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.ChangeCustomer = function () {
         if ($scope.ModelNew.IfPartyApplicable) {
-            $scope.ModelNew.CustomerName = null;
+            $scope.ModelNew.PartyName = null;
             $scope.ModelNew.PartyId = null;
         }
         else {
-            $scope.ModelNew.CustomerName = party.UserName;
+            $scope.ModelNew.PartyName = party.UserName;
             $scope.ModelNew.PartyId = party.Id;
         }
 
     };
+
 
     $scope.employeeParameters = {
         limit: 10,
@@ -172,8 +189,15 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
 
-            $scope.ModelNew.ResponsiblePersonId = employee.SystemId;
-            $scope.ModelNew.ResponsiblePersonName = employee.EmployeeName;
+            if ($scope.Name == 'mo') {
+                $scope.ModelNew.ResponsiblePersonId = employee.SystemId;
+                $scope.ModelNew.ResponsiblePersonName = employee.EmployeeName;
+            }
+            else if ($scope.Name == 'ad') {
+                $scope.ModelNew.AdminId = employee.SystemId;
+                $scope.ModelNew.Admin = employee.EmployeeName;
+            }
+            
         }
         $scope.hideEmployeePopUp();
     };
@@ -326,7 +350,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
-        $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
+        $scope.utilityDetails = [];
     }
 
     $scope.ClearUtilityDetail = function () {

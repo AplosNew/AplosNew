@@ -43,6 +43,11 @@ namespace Aplos.Areas.MeetingManagement.Controllers
             return View();
         }
 
+        [HttpGet,AllowAnonymous]
+        public JsonResult GetCbo()
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingType"), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)

@@ -6,6 +6,7 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Data.UnitOfWorks;
 using Library.Model.Enums;
+using System.Data;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -61,6 +62,19 @@ namespace Aplos.Areas.Accounts.Controllers
                 }
                 if (sourceType == SourceType.VendorInvoice.ToString()|| sourceType == SourceType.InventoryPayable.ToString()||sourceType == SourceType.CustomerInvoice.ToString())
                 {
+                    if (sourceType == SourceType.InventoryPayable.ToString())
+                    {
+                        ConnectionManager.DAL.ConManager objCon;
+                        DataSet dsMaster = null;
+                        string sql = "SELECT * FROM TRN.InventoryIssueHistory WHERE InventoryReceiveDetailId in(SELECT Id FROM TRN.InventoryReceiveDetail WHERE InventoryReceiveId in(SELECT Id FROM TRN.InventoryReceive WHERE VoucherId='" + voucherId + "'))";
+                        objCon = new ConnectionManager.DAL.ConManager("1");
+                        objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                        if (dsMaster.Tables[0].Rows.Count>0)
+                        {
+                            throw new CustomException("Voucher Park Mode not allowed, GRN already issued !");
+                        }
+                    }
                     var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
                     var InvoiceSql = @"UPDATE [TRN].Invoice SET ISPark=1 WHERE VoucherId='" + voucherId + "'";
                     rdBuilder.Append(voucherSql);
@@ -218,6 +232,11 @@ namespace Aplos.Areas.Accounts.Controllers
                     rdBuilder.Append(invoiceWriteOffSql);
                     rdBuilder.Append(bankJournalSql);
                     rdBuilder.Append(subTrn);
+                }
+                if (sourceType == SourceType.PurchaseDocAcceptance.ToString())
+                {
+                    var voucherSql = @"UPDATE [TRN].Voucher SET ISPark=1 WHERE Id='" + voucherId + "'";
+                    rdBuilder.Append(voucherSql);   
                 }
 
                 _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
