@@ -1,6 +1,6 @@
 ﻿'use strict';
-EmployeeUnderstandingHeadController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+EmployeeUnderstandingHeadController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', '$window', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, $rootScope, $window, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'EmployeeUnderstandingHead';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -11,6 +11,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.saveDocumentUrl = $scope.path + 'SaveDocument';
     $scope.saveKPIUrl = $scope.path + 'SaveKPI';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
+    $scope.saveUrl = $scope.path + 'Create';
+    
+
 
     $scope.deleteAttachmentUrl = $scope.path + 'DeleteQualification/';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -26,7 +29,71 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     { value: 'Status', name: "Status" },
     { value: 'Remarks', name: "Remarks" }
     ];
+    $scope.ModelTemp = {
+        Id: null,
+        Date: null,
+        PositionCode: null,
+        BudgetCode: null,
+        EmployeeCode: null,
+        EmployeeName: $window.employeeName,
+        EmployeeId: $window.employeeId,
+        Remarks: null,
+        Status: 'InProgress'
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
+    $scope.activity = {
+        Id: null,
+        EmpUnderstandingHeadId: null,
+        EmployeeId: null,
+        Code: null,
+        ActivityName: null,
+        ActivityDetail: null,
+        PurposeOfTheActivity: null,
+        ActivityCategory: null,
+        OtherActivityCategory: null,
+        ActivityClass: null,
+        Priority: null,
+        ActivityType: null,
+        Period: null,
+        Frequency: 1,
+        AverageTime: null,
+        ActivityImportance: null,
+        ValueInActivity: null,
+        FinancialImpact: null,
+        Documents: false,
+        Remarks: null,
+        KPI: false,
+        ApplicableDocument: false,
+        ApplicableKPI: false
+    }
+    $scope.activityNew = Object.assign({}, $scope.activity);
+    $scope.documentActivity = {
+        Id: null,
+        EmpUnderstandingActivityId: null,
+        Name: null,
+        FileName: null,
+        DocumentType: null,
+        DataSourceCategoryId: null,
+        DocumentFormateId: null,
+        ApplicationName: null,
+        PreparedBy: null,
+        Remarks: null,
+        DocumentCategoryId: null,
+        PreparedByInCaseOfOther: null,
+        PreparedByInCaseOfOtherName: null
+    }
+    $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
+
+    $scope.kpi = {
+        Id: null,
+        EmpUnderstandingActivityId: null,
+        KPIName: null,
+        Remarks: null,
+        KPIDetail: null,
+        KPIReviewPeriod: null
+    }
+    $scope.kpiNew = Object.assign({}, $scope.kpi);
 
     $scope.getData = function () {
         $http({
@@ -52,6 +119,26 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.ActivityList = response.data;
         });
     }
+        $scope.getMasterInfo = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterData?EmployeeId=' + $scope.ModelNew.EmployeeId
+        }).then(function (response) {
+            $scope.ModelNew = Object.assign({}, response.data);
+            
+        });
+    };
+    $scope.getMasterInfo();
+
+    $scope.getMasterInfoEI = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterDataFromEI?EmployeeId=' + $scope.ModelNew.EmployeeId
+        }).then(function (response) {
+            $scope.ModelNew = Object.assign({}, response.data);
+        });
+    };
+
     $scope.DocumentList = [];
     $scope.getDocumentGridData = function () {
         $http({
@@ -76,6 +163,21 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.KPIList = response.data;
         });
     }
+
+    $scope.DocumentCategoryList = [];
+    $scope.getDocumentCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetDocumentCategoryList",
+            //data: { 'DocumentCategoryId': $scope.documentActivityNew.DocumentCategoryId},
+            //dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.DocumentCategoryList = response.data;
+        });
+    };
+
+
+
     $scope.StatusList = [{ value: 'InProgress', name: 'In-Progress' },
     { value: 'Confirm', name: 'Confirm' },
     { value: 'Approved', name: 'Approved' }]
@@ -180,69 +282,10 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     };
 
 
-    $scope.ModelTemp = {
-        Id: null,
-        Date: null,
-        PositionCode: null,
-        BudgetCode: null,
-        EmployeeCode: null,
-        EmployeeName: null,
-        EmployeeId: null,
-        Status: null
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.activity = {
-        Id: null,
-        EmpUnderstandingHeadId: null,
-        EmployeeId: null,
-        Code: null,
-        ActivityName: null,
-        ActivityDetail: null,
-        PurposeOfTheActivity: null,
-        ActivityCategory: null,
-        OtherActivityCategory: null,
-        ActivityClass: null,
-        Priority: null,
-        ActivityType: null,
-        Period: null,
-        Frequency: 1,
-        AverageTime: null,
-        ActivityImportance: null,
-        ValueInActivity: null,
-        FinancialImpact: null,
-        Documents: false,
-        Remarks: null,
-        KPI: false,
-        ApplicableDocument: false,
-        ApplicableKPI: false
-    }
-    $scope.activityNew = Object.assign({}, $scope.activity);
-    $scope.documentActivity = {
-        Id: null,
-        EmpUnderstandingActivityId: null,
-        Name: null,
-        FileName: null,
-        DocumentType: null,
-        DataSourceCategoryId: null,
-        DocumentFormateId: null,
-        ApplicationName: null,
-        PreparedBy: null,
-        Remarks: null,
-        PreparedByInCaseOfOther: null,
-        PreparedByInCaseOfOtherName: null
-    }
-    $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
 
-    $scope.kpi = {
-        Id: null,
-        EmpUnderstandingActivityId: null,
-        KPIName: null,
-        Remarks: null,
-        KPIDetail: null,
-        KPIReviewPeriod: null
-    }
-    $scope.kpiNew = Object.assign({}, $scope.kpi);
+
+
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -362,7 +405,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                /* ClearFields(response.data.Sequence);*/
+                $scope.ModelNew.Id = response.data.Id
                 $scope.getData();
             }
         }), function errorCallBack(response) {
@@ -439,7 +482,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             fileName = $scope.filedata.name;
         $scope.documentActivityNew.FileName = fileName;
         //$scope.documentActivityNew.Attachment = $scope.fileId();
-        $scope.documentActivityNew.ActivityId = $scope.ActivityId;
+        $scope.documentActivityNew.EmpUnderstandingActivityId = $scope.ActivityId;
         var formData = new FormData();
 
 
@@ -466,6 +509,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.getDocumentGridData();
+                $scope.ClearDocument();
 
             }
         }), function errorCallBack(response) {
@@ -487,7 +531,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
                 /* ClearFields(response.data.Sequence);*/
                 $scope.getData();
                 $scope.getKPIGridData();
-
+                $scope.ClearKPI();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -551,10 +595,16 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.ClearActivity = function () {
         $scope.activityNew = Object.assign({}, $scope.activity);
+        document.getElementById('uploadBtn').value = '';
+        $scope.filedata = '';
+        $scope.documentActivityNew.FileName = "";
+        $scope.filedata = {};
+        document.getElementById('uploadFile').value = "";
     };
 
     $scope.ClearDocument = function () {
         $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
+        $scope.ClearDoc();
     }
     $scope.ClearKPI = function () {
         $scope.kpiNew = Object.assign({}, $scope.kpi);
@@ -565,6 +615,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         try {
             $scope.ActivityId = args.data.Id;
             $scope.getDocumentGridData();
+            $scope.getDocumentCategory();
             angular.element(document.querySelector('#documentPopUp')).modal('show');
         } catch (e) {
             ShowResult(e, 'info');
