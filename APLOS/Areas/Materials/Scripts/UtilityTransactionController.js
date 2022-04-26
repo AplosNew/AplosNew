@@ -18,9 +18,10 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.ModelTemp = {
         Id: null,
         Date: null,
-        UserDefinedNameId: null,
-        UserDefinedName: null,
+        UtilityMasterId: null,
+        UtilityMaster: null,
         Quantity: null,
+        UoMId: null,
         UoM: null,
         Remarks: null
     };
@@ -65,17 +66,28 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     //}
     //$scope.GetSubCategoryList();
 
-    $scope.userDefinedNameList = [];
-    $scope.GetUserDefinedNameList = function () {
+    $scope.utilityMasterList = [];
+    $scope.GetUtilityMasterList = function () {
         $http({
             method: 'GET',
-            url: 'Materials/UtilityTransaction/GetUserDefinedNameList'
+            url: 'Materials/UtilityTransaction/GetUtilityMasterList'
         }).then(function successCallback(response) {
-            $scope.userDefinedNameList = response.data;
+            $scope.utilityMasterList = response.data;
         });
     }
-    $scope.GetUserDefinedNameList();
+    $scope.GetUtilityMasterList();
 
+    $scope.UoMName = null;
+    $scope.IsReadingApp = false;
+
+    $scope.GetUoMAndReadingApplicable = function () {
+        for (var i = 0; i < $scope.utilityMasterList.length; i++) {
+            if ($scope.utilityMasterList[i].value == $scope.ModelNew.UtilityMasterId) {
+                $scope.UoMName = $scope.utilityMasterList[i].UoM;
+                $scope.IsReadingApp = $scope.utilityMasterList[i].IsReadingApplicable;
+            }
+        }
+    }
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
