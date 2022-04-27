@@ -19,7 +19,7 @@
                 <label class="col-sm-4 control-label">Performance Year<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ddperfYear" ng-model="ModelNew.PerformanceYearId" required name="PerformanceYear"
+                        <select class="form-control" id="ddperfYear" ng-model="ModelNew.PerformanceYearId" ng-change="displayEGChild()" required name="PerformanceYear"
                                 ng-options="item.Value as item.Text for item in PerformanceYearList" tabindex="2">
                             <option value="">--Select--</option>
                         </select>
@@ -51,17 +51,7 @@
                         <button ng-click="selectEmployee()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label" style="margin-top:-5px !important">Is Approved</label>
-                    <div class="col-sm-8">
-                        <div class="checkbox-site">
-                            <label>
-                                <input type="checkbox" ng-model="ModelNew.isApproved" tabindex="8" >
-                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
+               
  
             </div>
 
@@ -105,7 +95,7 @@
                     <label class="col-sm-4 control-label">Cost Saving if any<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" id="ddCostSaving" ng-model="ModelNew.CostSaving" name="CostSaving" tabindex="2" ng-change="EnableDisable(this)">
+                            <select class="form-control" id="ddCostSaving" ng-model="ModelNew.CostSaving" name="CostSaving" tabindex="2" ng-change="EnableDisable()">
                                 <option value="">--Select--</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -117,7 +107,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Cost Saving Value<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="Value" id="txtValue" ng-model="ModelNew.Value" class="form-control" required maxlength="100" ng-disabled="false">
+                        <input type="number" name="Value" id="txtValue" ng-model="ModelNew.Value" class="form-control" required maxlength="100" ng-disabled="true">
                     </div>
                 </div>
 
@@ -168,7 +158,7 @@
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    <li> <button data-toggle="modal" ng-click="Delete()" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    @*<li> <button data-toggle="modal" ng-click="Delete()" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
 
@@ -222,7 +212,7 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
                             <div e-columns>
                                 <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
-                                <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="50"></div>
+                                @*<div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="50"></div>*@
                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
                                 <div e-column e-field="DOB" e-headertext="DOB" e-width="100"></div>
                             </div>
@@ -256,7 +246,7 @@
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
                             <div e-columns>
                                 <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
-                                <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="50"></div>
+                                @*<div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="50"></div>*@
                                 <div e-column e-field="PerformanceYearId" e-headertext="Performance Year Id" e-width="120"></div>
                                 <div e-column e-field="ConfirmationStatus" e-headertext="Confirmation Status" e-width="50"></div>
                             </div>

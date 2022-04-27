@@ -1199,12 +1199,13 @@ namespace Library.HumanResource.NewAttendanceProcess
         #region EMPLOYEE GOAL CHILD 
 
         #region GET FUNCTION
-        public IEnumerable<object> GetEGChild()
+        public IEnumerable<object> GetEGChild(string SelectedEmployeeId, string PerformanceYearId)
         {
             try
             {
                 string sql = @"select egc.* , eg.* from  EmployeeGoalSettingChild egc
-                               left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId";
+                               left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId
+                                where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
