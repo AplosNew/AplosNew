@@ -10,16 +10,16 @@
 </h3>
 
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
-
+    
     <div class="row">
-
+        
         <input type="hidden" ng-model="ModelNew.SystemId">
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Performance Year</label>
+                <label class="col-sm-4 control-label">Performance Year<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ddperfYear" ng-model="ModelNew.PerformanceYearId" name="PerformanceYear"
+                        <select class="form-control" id="ddperfYear" ng-model="ModelNew.PerformanceYearId" required name="PerformanceYear"
                                 ng-options="item.Value as item.Text for item in PerformanceYearList" tabindex="2">
                             <option value="">--Select--</option>
                         </select>
@@ -27,11 +27,11 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Confirmation Status</label>
+                <label class="col-sm-4 control-label" style="margin-top:-5px !important">Confirmation Status</label>
                 <div class="col-sm-8">
                     <div class="checkbox-site" id="checkok">
                         <label>
-                            <input type="checkbox" ng-model="ModelNew.ConfirmationStatus" tabindex="8" ng-click="checked(this)">
+                            <input type="checkbox" ng-model="ModelNew.ConfirmationStatus" tabindex="8" style="margin-top:10px !important">
                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                         </label>
                     </div>
@@ -52,24 +52,17 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Is Approved</label>
+                    <label class="col-sm-4 control-label" style="margin-top:-5px !important">Is Approved</label>
                     <div class="col-sm-8">
                         <div class="checkbox-site">
                             <label>
-                                <input type="checkbox" ng-model="ModelNew.isApproved" tabindex="8">
+                                <input type="checkbox" ng-model="ModelNew.isApproved" tabindex="8" >
                                 <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                             </label>
                         </div>
                     </div>
                 </div>
-
-                <div class="common-btn">
-                    <ul class="list-inline text-right">
-                        <li> <button ng-click="Create();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        @*<li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
-                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                    </ul>
-                </div>
+ 
             </div>
 
         </div>
@@ -78,33 +71,33 @@
     <div class="clearfix"></div>
 
     @*EMPLOYEE GOAL SETTING CHILD (PMS Info)*@
-    <div class="form-elements form-horizontal" ng-form name="ModelNewChildForm" style="margin-top:20px; display:none;" id="PerformanceGroupList">
+    <div class="form-elements form-horizontal" ng-form name="ModelNewForm" style="margin-top:20px; display:none;" id="PerformanceGroupList">
         <div class="row">
             <input type="hidden" ng-model="ModelNewChild.Id">
             <div class="col-xs-12 col-sm-6 col-md-6">
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Select Employee Goal<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Select Category<sup>*</sup></label>
                     <div class="col-sm-6" show-message>
-                        <input type="text" name="SelectedEmpGoalId" ng-model="SelectedEmpGoalId" ng-click="selectEmployeeGoal()" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
+                        <input type="text" name="SelectPerFormanceGroup" ng-model="SelectPerFormanceGroup" ng-click="selectEmployeeGoal()" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
 
                     </div>
                     <div class="col-sm-2">
-                        <button ng-click="selectEmployeeGoal()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="OpenPMSPopup()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Objective Name<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="ObjectiveName" ng-model="ModelNewChild.ObjectiveName" class="form-control" required maxlength="100">
+                        <input type="text" name="ObjectiveName" ng-model="ModelNew.ObjectiveName" class="form-control" required maxlength="100">
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Objective Detail<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" name="ObjectiveDetail" ng-model="ModelNewChild.ObjectiveDetail" class="form-control" required maxlength="100">
+                        <input type="text" name="ObjectiveDetail" ng-model="ModelNew.ObjectiveDetail" class="form-control" required maxlength="100">
                     </div>
                 </div>
 
@@ -112,7 +105,7 @@
                     <label class="col-sm-4 control-label">Cost Saving if any<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="select-style">
-                            <select class="form-control" id="ddCostSaving" ng-model="ModelNewChild.CostSaving" name="CostSaving" tabindex="2" ng-change="EnableDisable(this)">
+                            <select class="form-control" id="ddCostSaving" ng-model="ModelNew.CostSaving" name="CostSaving" tabindex="2" ng-change="EnableDisable(this)">
                                 <option value="">--Select--</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
@@ -122,36 +115,27 @@
                 </div>
 
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Value<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Cost Saving Value<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="Value" id="txtValue" ng-model="ModelNewChild.Value" class="form-control" required maxlength="100" ng-disabled="false">
+                        <input type="number" name="Value" id="txtValue" ng-model="ModelNew.Value" class="form-control" required maxlength="100" ng-disabled="false">
                     </div>
                 </div>
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Max. Story Points<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="number" name="MaxStoryPoints" ng-model="ModelNewChild.MaxStoryPoints" class="form-control" required maxlength="100">
+                        <input type="number" name="MaxStoryPoints" ng-model="ModelNew.MaxStoryPoints" class="form-control" required maxlength="100">
                     </div>
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Select PMS<sup>*</sup></label>
-                    <div class="col-sm-6" show-message>
-                        <input type="text" name="SelectedEmpGoalId" ng-model="SelectPMS" ng-click="selectEmployeeGoal()" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-
-                    </div>
-                    <div class="col-sm-2">
-                        <button ng-click="OpenPMSPopup()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </div>
-                </div>
+               
 
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <label class="fileUpload" style="padding: 0 0 0 0 ; margin-right:8px;">
-                            <input id="uploadFile" ng-file-select="onFileSelect($files)" ng-model="ModelNewChild.Attachment" class="form-control ng-isolate-scope" type="file" name="Attachment" accept=".xls,.xlsx" ng-model="ModelNew.Attachment">
+                            <input id="uploadFile" ng-file-select="onFileSelect($files)" ng-model="ModelNew.Attachment" class="form-control ng-isolate-scope" type="file" name="Attachment" accept=".xls,.xlsx" ng-model="ModelNew.Attachment">
                         </label>
                     </div>
                 </div>
@@ -159,7 +143,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Assesment Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="ModelNewChild.AssesmentDate" name="Issue Date" datepicker class="form-control" maxlength="50" tabindex="2" required>
+                        <input type="text" ng-model="ModelNew.AssesmentDate" name="Issue Date" datepicker class="form-control" maxlength="50" tabindex="2" required>
 
                     </div>
                 </div>
@@ -167,7 +151,7 @@
                 <div class="form-group" show-errors>
                     <label class="col-sm-4 control-label">Closing Date<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
-                        <input type="text" ng-model="ModelNewChild.ObjNameClosingDate" name="ClosingDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                        <input type="text" ng-model="ModelNew.ObjNameClosingDate" name="ClosingDate" datepicker class="form-control" maxlength="50" tabindex="3" required>
 
 
                     </div>
@@ -176,15 +160,15 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-8">
-                        <textarea class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" ng-model="ModelNewChild.Remarks" maxlength="50" tabindex="6"></textarea>
+                        <textarea class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" ng-model="ModelNew.Remarks" maxlength="50" tabindex="6"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SaveEGChild();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                    <li> <button data-toggle="modal" ng-click="DeleteChild()" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" ng-click="Delete()" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                     <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                 </ul>
 
@@ -195,12 +179,12 @@
 
     @*EMPLOYEE GOAL SETTING CHILD GRID*@
     <div class="table-responsive" id="EGSGrid" style="margin-top:20px; display:none">
-        <div id="GridEdit" ej-grid e-datasource="ModelListChild" e-recorddoubleclick="GetChild" e-load="loadGridEdit"
+        <div id="GridEdit" ej-grid e-datasource="ModelListChild" e-recorddoubleclick="Get" e-load="loadGridEdit"
              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
              e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
             <div e-columns>
-                <div e-column e-field="EGSettingId" e-headertext="EGS" e-width="30"></div>
-                <div e-column e-field="PMSMasterId" e-headertext="PMS" e-width="40"></div>
+
+
                 <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
                 <div e-column e-field="ObjectiveName" e-headertext="Objective Name" e-width="50"></div>
                 <div e-column e-field="ObjectiveDetail" e-headertext="Objective Detail" e-width="90"></div>
@@ -210,7 +194,9 @@
                 <div e-column e-field="AssesmentDate" e-headertext="Assesment Date" e-width="50"></div>
                 <div e-column e-field="ObjNameClosingDate" e-headertext="Obj Name Closing Date" e-width="50"></div>
                 <div e-column e-field="MaxStoryPoints" e-headertext="Max Story Points" e-width="50"></div>
-                <div e-column e-field="MaxStoryPoints" e-headertext="Ramrks" e-width="50"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
+                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
+                <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>
 
             </div>
         </div>
@@ -310,8 +296,8 @@
                                 <div e-column e-field="Category" e-headertext="Category" e-width="50"></div>
                                 <div e-column e-field="SubCategory" e-headertext="SubCategory" e-width="50"></div>
                                 <div e-column e-field="Username" e-headertext="User Name" e-width="120"></div>
-                                @*<div e-column e-field="PerformanceGroup" e-headertext="Performance Group" e-width="120"></div>*@
-                                
+                                <div e-column e-field="PerFormanceGroup" e-headertext="Performance Group" e-width="120"></div>
+
                             </div>
 
                         </div>

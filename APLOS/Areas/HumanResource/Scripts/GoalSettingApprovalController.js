@@ -79,6 +79,18 @@ function GoalSettingApprovalController(cboService, commonMessage, $scope, $rootS
         });
     }
 
+    $scope.EGList = [];
+    $scope.GetEmployeeGoalData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEmployeeGoalData",
+            dataType: 'JSON',
+        }).then(function successCallback(res) {
+            $scope.EGList = res.data;
+        });
+    }
+    $scope.GetEmployeeGoalData();
+
     // PERFORMANCE PERIOD POP OPEN
     $scope.OpenEG = function () {
 
