@@ -1341,12 +1341,15 @@ namespace Aplos.Areas.Products.Controllers
         #region INVENTORY RECEIPT  Report  
 
         [Authorize, HttpGet]
-        public ActionResult GRNReport(string grnId)
+        public ActionResult GRNReport(string grnId, string plantId)
 
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-            _inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, grnId);
+            if (string.IsNullOrEmpty(plantId))
+            {
+                plantId = identity.PlantId;
+            }
+            _inventoryReveiveService.InventoryReceive(identity.CompanyGroupId, identity.CompanyId, plantId, identity.UserId, grnId);
 
             return null;
         }
