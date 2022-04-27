@@ -12,28 +12,17 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.saveKPIUrl = $scope.path + 'SaveKPI';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
     $scope.saveUrl = $scope.path + 'Create';
-    
-
-
     $scope.deleteAttachmentUrl = $scope.path + 'DeleteQualification/';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "EmployeeCode"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" },
-    { value: 'BudgetCode', name: "Budget Code" },
-    { value: 'PositionCode', name: "Position Code" },
-    { value: 'EmployeeName', name: "Employee Name" },
-    { value: 'EmployeeCode', name: "Employee Code" },
-    { value: 'Date', name: "Date" },
-    { value: 'Status', name: "Status" },
-    { value: 'Remarks', name: "Remarks" }
-    ];
+
     $scope.ModelTemp = {
         Id: null,
         Date: null,
         PositionCode: null,
         BudgetCode: null,
+        PCode: null,
+        MBCode: null,
         EmployeeCode: null,
         EmployeeName: $window.employeeName,
         EmployeeId: $window.employeeId,
@@ -95,18 +84,33 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     }
     $scope.kpiNew = Object.assign({}, $scope.kpi);
 
+    $scope.getMasterInfoEI = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterDataFromEI?EmployeeId=' + $window.employeeId
+        }).then(function (response) {
+            $scope.ModelNew = Object.assign({}, response.data[0]);
+            $scope.ModelNew.Status = 'InProgress';
+        });
+    };
+
+
     $scope.getData = function () {
         $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-
-            $scope.ModelList = response.data;
+            method: 'GET',
+            url: 'HumanResource/EmployeeUnderstandingHead/GetList?employeeId=' + $window.employeeId
+        }).then(function (response) {
+            $scope.ModelNew = Object.assign({}, response.data[0]);
+            $scope.ModelNew.Date = $filter('dateFiltering')(new Date($scope.ModelNew.Date), 'dd-MM-yyyy');
+            if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
+                $scope.getMasterInfoEI();
+            } else {
+                $scope.getActivityGridData();
+            }
         });
     }
     $scope.getData();
+
     $scope.ActivityList = [];
     $scope.getActivityGridData = function () {
         $http({
@@ -119,25 +123,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.ActivityList = response.data;
         });
     }
-        $scope.getMasterInfo = function () {
-        $http({
-            method: 'GET',
-            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterData?EmployeeId=' + $scope.ModelNew.EmployeeId
-        }).then(function (response) {
-            $scope.ModelNew = Object.assign({}, response.data);
-            
-        });
-    };
-    $scope.getMasterInfo();
-
-    $scope.getMasterInfoEI = function () {
-        $http({
-            method: 'GET',
-            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterDataFromEI?EmployeeId=' + $scope.ModelNew.EmployeeId
-        }).then(function (response) {
-            $scope.ModelNew = Object.assign({}, response.data);
-        });
-    };
 
     $scope.DocumentList = [];
     $scope.getDocumentGridData = function () {
@@ -175,8 +160,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $scope.DocumentCategoryList = response.data;
         });
     };
-
-
 
     $scope.StatusList = [{ value: 'InProgress', name: 'In-Progress' },
     { value: 'Confirm', name: 'Confirm' },
@@ -223,7 +206,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     { value: 'Vendor', name: 'Vendor' },
     { value: 'Other', name: 'Other' },
     { value: 'Government', name: 'Government' }]
-
 
     $scope.DocumentTypeList = [{ value: 'WithinDepartment', name: 'Within Department' },
     { value: 'WithinEntity', name: 'Within Entity' },
@@ -281,33 +263,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         return $scope.tab === tabNum;
     };
 
-
-
-
-
-
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
-
-    //$scope.getActivityList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'HumanResource/EmployeeUnderstandingHead/getactivitycbolist?employeeId=' + $scope.employee.Id
-    //    }).then(function (response) {
-    //        $scope.activitydocumentList = response.data;
-    //        $scope.documentActivityNew.ActivityId = $scope.activityId;
-    //    });
-    //};
-
-
-
 
     $scope.employeeParameters = {
         limit: 10,
@@ -321,11 +277,17 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         serverPagination: true
     };
 
-    $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
+
 
     $scope.showEmployeeListPopUp = function (name) {
         try {
             $scope.Name = name;
+            if ($scope.Name=='mo') {
+                $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
+            } else {
+                $scope.employeeUrl = 'OrderManagements/masterorder/GetPreparedEmployeeList?employeeId='+ $window.employeeId
+            }
+
             $scope.employeeParameters.searchBy = 'EmployeeCode';
             baseService.setCurrentPage('employeeList');
             $scope.searchEmployeeByList = [];
@@ -359,11 +321,18 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
 
-            $scope.ModelNew.EmployeeCode = employee.EmployeeCode;
-            $scope.ModelNew.EmployeeId = employee.SystemId;
-            $scope.ModelNew.EmployeeName = employee.EmployeeName;
-            $scope.ModelNew.PositionCode = employee.PositionCode;
-            $scope.ModelNew.BudgetCode = employee.BudgetCode;
+            if ($scope.Name == 'mo') {
+                $scope.ModelNew.EmployeeCode = employee.EmployeeCode;
+                $scope.ModelNew.EmployeeId = employee.SystemId;
+                $scope.ModelNew.EmployeeName = employee.EmployeeName;
+                $scope.ModelNew.PositionCode = employee.PositionCode;
+                $scope.ModelNew.BudgetCode = employee.BudgetCode;
+                $scope.ModelNew.MBCode = employee.MBCode;
+                $scope.ModelNew.PCode = employee.PCode;
+            } else {
+                $scope.documentActivityNew.PreparedByInCaseOfOtherName = employee.EmployeeName;
+                $scope.documentActivityNew.EmployeeId = employee.SystemId;
+            }
         }
         $scope.hideEmployeePopUp();
     };
@@ -444,7 +413,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         var res = filename.replace(/C:\\fakepath\\/i, '');
         document.getElementById("uploadFile").value = res;
     };
-
 
     $scope.documentRemove = function () {
         $scope.message_confirmation = 'Are you sure to remove this file?';
@@ -645,123 +613,21 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.confirmClosedocDelete = function () {
         angular.element(document.querySelector('#confirmdocDelete')).modal('hide');
     };
-    $scope.UpdateDoc = function () {
-        try {
-            var preparedBy = angular.element("#PreparedBy :selected").text();
-            if (preparedBy === 'Other') {
-                if (baseService.isUndefinedOrNull($scope.documentActivityNew.PreparedByInCaseOfOther)) {
-                    throw "Prepared By InCaseOf Other is required."
-                }
-            }
-
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
-            var fileName = '';
-            if (!baseService.isUndefinedOrNull($scope.filedata)) {
-                fileName = $scope.filedata.name;
-                $scope.documentActivityNew.FileName = fileName;
-            }
-            $scope.documentActivityNew.EmployeeId = $scope.employee.Id;
-            var formData = new FormData();
-            $http({
-                method: "post",
-                url: 'employee/detachdocument',
-                headers: { 'Content-Type': undefined },
-                transformRequest: function (data) {
-                    formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
-                    if (baseService.isUndefinedOrNull($scope.filedata) == false) {
-                        formData.append('file', data.file);
-                    }
-                    return formData;
-                },
-                data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, "failure");
-                }
-                else {
-                    ShowResult(response.data.Message, "success");
-                    $scope.activityData();
-                    $scope.documentData();
-                }
-            }, function errorCallback(response) {
-            });
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-
-    $scope.UpdateDocument = function () {
-        try {
-            var preparedBy = angular.element("#PreparedBy :selected").text();
-            if (preparedBy === 'Other') {
-                if (baseService.isUndefinedOrNull($scope.documentActivityNew.PreparedByInCaseOfOther)) {
-                    throw "Prepared By InCaseOf Other is required."
-                }
-            }
-
-            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-                throw $scope.filedata.name + ' File size must be below 2 mb';
-            var fileName = '';
-            if (!baseService.isUndefinedOrNull($scope.filedata)) {
-                fileName = $scope.filedata.name;
-                $scope.documentActivityNew.FileName = fileName;
-            }
-            ValidationUpdateDocument();
-            $scope.documentActivityNew.EmployeeId = $scope.employee.Id;
-            var formData = new FormData();
-            $scope.savebtndisable = true;
-
-            var strName = $scope.documentActivityNew.Name;
-            var strRemarks = $scope.documentActivityNew.Remarks;
-            var strApplicationName = $scope.documentActivityNew.ApplicationName;
-
-            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.Name))
-                $scope.documentActivityNew.Name = strName.replace(/\s+/g, ' ');
-
-            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.Remarks))
-                $scope.documentActivityNew.Remarks = strRemarks.replace(/\s+/g, ' ');
-
-            if (!baseService.isUndefinedOrNull($scope.documentActivityNew.ApplicationName))
-                $scope.documentActivityNew.ApplicationName = strApplicationName.replace(/\s+/g, ' ');
-
-            $http({
-                method: "post",
-                url: 'employee/create',
-                headers: { 'Content-Type': undefined },
-                transformRequest: function (data) {
-                    formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
-                    if (baseService.isUndefinedOrNull($scope.filedata) == false) {
-                        formData.append('file', data.file);
-                    }
-                    return formData;
-                },
-                data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, "failure");
-                    $scope.savebtndisable = false;
-                }
-                else {
-                    $scope.savebtndisable = false;
-                    ShowResult(response.data.Message, "success");
-                    $scope.cleardocumentActivitybody();
-                    $scope.activityData();
-                    $scope.documentData();
-                    $scope.DocumentAction = 'Save Document';
-                }
-            }, function errorCallback(response) {
-                $scope.savebtndisable = false;
-            });
-        } catch (e) {
-            ShowResult(e, "failure");
-            $scope.savebtndisable = false;
-        }
-    };
-
 
     $scope.documentRemove = function () {
         $scope.message_confirmation = 'Are you sure to remove this file?';
         angular.element(document.querySelector('#confirmdocDelete')).modal('show');
     };
+
+    $scope.getPreparedByCode = function (ob) {
+        $scope.documentActivityNew.PreparedByInCaseOfOther = ob.Id;
+        $scope.documentActivityNew.PreparedByInCaseOfOtherName = ob.Name;
+        angular.element(document.querySelector('#Prepared')).modal('hide');
+    };
+
+    $scope.clearPreparedByCode = function () {
+        $scope.documentActivityNew.PreparedByInCaseOfOther = null;
+        $scope.documentActivityNew.PreparedByInCaseOfOtherName = null;
+    };
+
 }
