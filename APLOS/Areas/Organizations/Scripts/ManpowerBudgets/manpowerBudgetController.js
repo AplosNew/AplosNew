@@ -112,7 +112,9 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         AttendanceGroupId: null,
         ResponsiblePerson: null,
         Email: null,
-        AccountsGroupId: null
+        AccountsGroupId: null,
+        IsRosterApplicable: false,
+        IsScattedWeekOffApplicable:false
         //CostCenterId:null
     };
 
@@ -1026,6 +1028,8 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         $scope.jobDescriptionSelectedList = [];
         $scope.msg = null;
         $scope.tableShow = false;
+        IsRosterApplicable = false;
+        IsScattedWeekOffApplicable = false;
         $scope.clearPosition();
         $scope.clearEntity();
     }
