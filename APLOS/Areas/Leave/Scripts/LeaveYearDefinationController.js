@@ -52,6 +52,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
         ShortName: null,
         StandardName: null,
         RespersonId: null,
+        responsiblePerson: null,
         UserName: null,
         Remarks: null,
     };
@@ -125,7 +126,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.doubleResp = function (e) {
-        $scope.responsiblePerson = e.data.EmployeeName;
+        $scope.ModelNew.responsiblePerson = e.data.EmployeeName;
         $scope.ModelNew.RespersonId = e.data.SystemId;
         angular.element(document.querySelector('#employeesModal')).modal('hide');
     }
