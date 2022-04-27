@@ -199,13 +199,13 @@
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="manPowerbudgetmasterNew.ShiftDefinationId" ng-options="item.Value as item.Text for item in shiftList" name="Shift" tabindex="6" required></select>
+                                <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="manPowerbudgetmasterNew.ShiftDefinationId" ng-options="item.Value as item.Text for item in shiftList" name="Shift" tabindex="6" required></select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Employee Location</label>
                                 <div class="col-sm-8">
@@ -246,29 +246,49 @@
                                     <input type="text" name="Deployment" ng-model="manPowerbudgetmasterNew.Email" class="form-control" maxlength="50" tabindex="12">
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Accounts Group</label>
-                                <div class="col-sm-8">
+                                <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select name="AccountsGroup" ng-model="manPowerbudgetmasterNew.AccountsGroupId" class="col-sm-3 form-control"
+                                        <select name="AccountsGroup" ng-model="manPowerbudgetmasterNew.AccountsGroupId" class="col-sm-3 form-control" required title="Account Group use for Salary Payable GL Groupping"
                                                 ng-options="item.Value as item.Text for item in accountsGroupList">
                                             <option></option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-                            @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Cost Center</label>
-                                <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
-                                                ng-options="item.Value as item.Text for item in CostCenterList">
-                                            <option></option>
-                                        </select>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Roster Applicable</label>
+                                <div class="col-sm-3">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="manPowerbudgetmasterNew.IsRosterApplicable" tabindex="8">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>*@
-                            
+                                <label class="col-sm-3 control-label">Scatted week off Applicable</label>
+                                <div class="col-sm-2">
+                                    <div class="checkbox-site">
+                                        <label>
+                                            <input type="checkbox" ng-model="manPowerbudgetmasterNew.IsScattedWeekOffApplicable" tabindex="10">
+                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+            <label class="col-sm-4 control-label">Cost Center</label>
+            <div class="col-sm-8">
+                <div class="select-style">
+                    <select name="CostCenter" ng-model="manPowerbudgetmasterNew.CostCenterId" class="col-sm-3 form-control"
+                            ng-options="item.Value as item.Text for item in CostCenterList">
+                        <option></option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
+
 
                         </div>
                     </div>
