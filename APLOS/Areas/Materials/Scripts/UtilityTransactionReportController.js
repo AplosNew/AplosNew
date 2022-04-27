@@ -17,9 +17,12 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
-                { field: 'Date', width: 20, headerText: "Date", type: "string" },
-                { field: 'Quantity', width: 20, headerText: "Quantity", type: "string" },
-                { field: 'Remarks', width: 20, headerText: "Remarks", type: "string" },
+                { field: 'Group', width: 20, headerText: "Group", type: "string" },
+                { field: 'SubGroup', width: 20, headerText: "Sub Group", type: "string" },
+                { field: 'Category', width: 20, headerText: "Category", type: "string" },
+                { field: 'SubCategory', width: 20, headerText: "Sub Category", type: "string" },
+                { field: 'AddedDate', width: 20, headerText: "Added Date", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
             ];
             $("#filters").ejGrid({
                 dataSource: $scope.filters,
@@ -51,7 +54,14 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
 
         var parameters = [];
         parameters.push({ "Key": "Date", "Value": getString(fl, "Date") });
+        parameters.push({ "Key": "Time", "Value": getString(fl, "Time") });
+        parameters.push({ "Key": "Category", "Value": getString(fl, "Category") });
+        parameters.push({ "Key": "SubCategory", "Value": getString(fl, "SubCategory") });
+        parameters.push({ "Key": "Item", "Value": getString(fl, "Item") });
+        parameters.push({ "Key": "Group", "Value": getString(fl, "Group") });
+        parameters.push({ "Key": "SubGroup", "Value": getString(fl, "SubGroup") });
         parameters.push({ "Key": "Quantity", "Value": getString(fl, "Quantity") });
+        parameters.push({ "Key": "Reading", "Value": getString(fl, "Reading") });
         parameters.push({ "Key": "Remarks", "Value": getString(fl, "Remarks") });
 
         $scope.parameters = parameters;

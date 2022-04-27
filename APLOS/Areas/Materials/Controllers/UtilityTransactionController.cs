@@ -56,7 +56,7 @@ namespace Aplos.Areas.Materials.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
-							            ,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Remarks
+							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
@@ -83,13 +83,26 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetReadingList()
+        public JsonResult GetReadingList(string utilityMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select TOP(1) MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,Quantity LastReading
+            var sql = @"select TOP(1) MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,Quantity LastReading
                                     from UtilityTransaction 
-					                Where UtilityMasterId='2216'
-					                group by AddedDate,Quantity";
+					                Where UtilityMasterId='" + utilityMasterId + @"'
+                                    group by AddedDate,Quantity";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetEditReadingList(string utilityMasterId,string utilityTransactionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select FORMAT(AddedDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),AddedDate,108) LastReadingTime,Quantity LastReading
+                                    from UtilityTransaction
+					                Where UtilityMasterId='" + utilityMasterId + @"'
+                                    and Id in ( select top (1) Id from UtilityTransaction where Id<'" + utilityTransactionId + @"' order by Id desc)
+                                    group by AddedDate,Quantity";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
