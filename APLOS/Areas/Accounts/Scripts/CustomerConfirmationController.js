@@ -6,30 +6,8 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
     $scope.path = 'Accounts/VoucherGlUpdate/';
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
-    $scope.saveUrl = $scope.path + 'UpdateVoucherGl';
-    $scope.voucher = {
-        Id: null,
-        PartyId: null,
-        PartyName: null,
-        PartyType: null,
-        CurrencyId: null,
-        Type: null,
-        VoucherNo: null,
-        VoucherDate: $filter("dateFiltering")(Date.now()),
-        PostingDate: null,
-        DocDate: null,
-        DocRefNo: null,
-        Amount: 0,
-        Narration: null,
-        CompanyCurrencyRate: 1,
-        Entity: null,
-        CurrencyCode: null,
-        VoucherType: null,
-        SourceType: null,
-        Capitalize: null
-    };
-
-
+    $scope.saveUrl = $scope.path + 'UpdateInvoice';
+   
     $scope.VoucherDataList = [];
     $scope.getVoucherData = function () {
         try {
@@ -52,15 +30,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
 
         }
     }
-   // $scope.getVoucherData();
-
-    $scope.voucherId = null;
-    $scope.confirmPost = function (voucherId,sourceType) {
-        $scope.voucherId = voucherId;
-        $scope.sourceType = sourceType;
-        $scope.message_confirmation = "Are you sure to Park Mode?";
-        angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
-    };
+  
 
     $scope.Clear = function () {
         $scope.Action = "Update";
@@ -104,20 +74,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         });
     };
 
-    $scope.GetCurrencyExchangeRateList = function () {
-        if (!baseService.isUndefinedOrNull($scope.voucher.PostingDate) && !baseService.isUndefinedOrNull($scope.voucher.CurrencyId)) {
-            $http({
-                method: "GET",
-                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucher.PostingDate + "&currencyId=" + $scope.voucher.CurrencyId
-            }).then(function successCallback(response) {
-                $scope.currencyExchangeRate = response.data;
-                $scope.voucher.CompanyCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
-            });
-        }
-        else {
-            $scope.currencyExchangeRate = null;
-        }
-    };
+   
 
     $scope.searchglByList = [
         {
@@ -173,16 +130,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
     $scope.closeCOAICodeListPopUp = function () {
         angular.element(document.querySelector("#GLPopUp")).modal("hide");
     };
-    $scope.setSelected = function (data, index) {
-        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoId = data.GLGeneralInfoId;
-        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoCode = data.GLGeneralInfoCode;
-        $scope.voucherDetailList[$scope.indexGL].GLGeneralInfoName = data.GLGeneralInfoName;
-        $scope.voucherDetailList[$scope.indexGL].BudgetMasterId = data.BudgetMasterId;
-        $scope.voucherDetailList[$scope.indexGL].BudgetName = data.BudgetName;
-        $scope.voucherDetailList[$scope.indexGL].ActivityId = data.ActivityId;
-        $scope.voucherDetailList[$scope.indexGL].ActivityName = data.ActivityName;
-        $scope.closeCOAICodeListPopUp();
-    };
+   
     $scope.Save = function () {
             $http({
                 method: 'POST',
@@ -205,17 +153,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
 
     };
 
-    $scope.VendorInvoiceReport = function (reportFormat, Id, SourceType, InventoryIssueId) {
-        if (SourceType == 'VendorInvoice') {
-            $window.open('Accounts/Invoice/ReportVendorInvoice?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
-        }
-        else if (SourceType == 'IssueJournal') {
-            $window.open('Accounts/InventoryPayable/IssueJournalReport?reportFormat=' + reportFormat + '&inventoryIssueId=' + InventoryIssueId, '_blank');
-        }
-        else
-            $window.open('Employees/EmployeeReport/GetEmployeePayableExpenseReport?reportFormat=' + reportFormat + '&voucherId=' + Id, '_blank');
-
-    }
+    
 
 };
 

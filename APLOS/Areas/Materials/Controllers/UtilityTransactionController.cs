@@ -55,8 +55,8 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.UserName UserDefinedName,UT.Quantity
-							            ,UOM.UserName UoM,UT.Quantity,UT.Remarks
+            string sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.Id UtilityMasterId,UM.UserName UtilityMaster,UT.Quantity
+							            ,UT.Reading,UOM.Id UoMId,UOM.UserName UoM,UT.Quantity,UT.Remarks
 							            from dbo.UtilityTransaction UT
 										left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 										left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
@@ -68,22 +68,44 @@ namespace Aplos.Areas.Materials.Controllers
         public JsonResult GetUtilityMasterList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select UM.Id as [Value],UM.UserName as Text,UOM.UserName UoM,UM.IsReadingApplicable 
-                                        from UtilityMaster UM
-                                        left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId";
+            var sql = @"select UM.Id as [Value],UM.UserName as Text,UOM.UserName UoM,UM.IsReadingApplicable
+						            ,A.LastReadingDate
+						            ,B.LastReadingTime
+						            ,C.LastReading
+
+                                    from UtilityMaster UM
+                                    left join SCS.UnitOfMeasurement UOM on UOM.Id=UM.UoMId
+						            left join (Select MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) A on A.UtilityMasterId=UM.Id
+						            left join (Select MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,UtilityMasterId from UtilityTransaction group by AddedDate,UtilityMasterId) B on B.UtilityMasterId=UM.Id
+						            left join (Select TOP(1) Quantity as LastReading,UtilityMasterId from UtilityTransaction ORDER by AddedDate,UtilityMasterId DESC) C on C.UtilityMasterId=UM.Id";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        //[Authorize, HttpGet]
-        //public JsonResult GetSubCategoryList()
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    var sql = @"select Id as [Value],UtilitySubCategory as Text from UtilityMaster";
+        [Authorize, HttpGet]
+        public JsonResult GetReadingList(string utilityMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select TOP(1) MAX(FORMAT(AddedDate,'dd-MMM-yyyy'))LastReadingDate,MAX(CONVERT(varchar(5),AddedDate,108))LastReadingTime,Quantity LastReading
+                                    from UtilityTransaction 
+					                Where UtilityMasterId='" + utilityMasterId + @"'
+                                    group by AddedDate,Quantity";
 
-        //    return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-        //}
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
+        [Authorize, HttpGet]
+        public JsonResult GetEditReadingList(string utilityMasterId,string utilityTransactionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select FORMAT(AddedDate,'dd-MMM-yyyy')LastReadingDate,CONVERT(varchar(5),AddedDate,108) LastReadingTime,Quantity LastReading
+                                    from UtilityTransaction
+					                Where UtilityMasterId='" + utilityMasterId + @"'
+                                    and Id in ( select top (1) Id from UtilityTransaction where Id<'" + utilityTransactionId + @"' order by Id desc)
+                                    group by AddedDate,Quantity";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)

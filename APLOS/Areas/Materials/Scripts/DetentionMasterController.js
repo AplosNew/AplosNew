@@ -14,6 +14,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
     $scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
     $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
+
     $scope.detention = {
         Id: null
         , DetentionCategory: null
@@ -25,7 +26,9 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , ResponsiblePersion: null
         , DetentionTarget: null
         , DetentionPlan: null
-        , IsAvoidable: true
+        , IsAvoidable: false
+        , IsAssetApplicable: false
+        , IsWorkCenterApplicable: false
     };
     $scope.detentionNew = Object.assign({}, $scope.detention);
 
@@ -122,7 +125,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         )
     }
     $scope.recorddoubleclick = function ($event) {
-        debugger;
+        
         var x = $event;
         $scope.DetentionMasterId = x.data.Id;
 

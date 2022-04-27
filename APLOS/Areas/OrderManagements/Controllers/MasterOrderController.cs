@@ -157,6 +157,14 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetPreparedEmployeeList(GridParameter parameters, string employeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
+            return Json(_masterOrderService.GetPreparedEmployeeList(parameters, identity.PlantId, employeeId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetEmpListResponsible(GridParameter parameters, string CompanyId, string plantId, string partyAccountGroupId, string partyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

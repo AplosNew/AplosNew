@@ -90,12 +90,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas, string SelectedEmployeeId)
+        public JsonResult Create(Dictionary<string, object> datas, string SelectedEmployeeId, string EGSetting, string PMSId)
         {
            
             try
             {
-                return Json(new { Error = "No", Data = egs.Create(datas, SelectedEmployeeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = egs.Create(datas, SelectedEmployeeId, EGSetting, PMSId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -137,18 +137,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        public JsonResult CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
-        {
-
-            try
-            {
-                return Json(new { Error = "No", Data = egs.CreateEGChild(datas, EGSetting, PMSId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+       
 
         public ActionResult DeleteChild(string id)
         {

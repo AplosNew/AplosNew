@@ -1,4 +1,4 @@
-﻿<togglable name="Employee Understanding"></togglable>
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Employee Understanding</h3>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="tab-design" id="tab_show">
@@ -25,30 +25,19 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.BudgetCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
+                            <input type="text" name="Standard Name" ng-model="ModelNew.MBCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
                         </div>
                     </div>
                     <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Status<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="ModelNew.Status" name="StatusList" ng-options="item.value as item.name for item in StatusList">
-                                        
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    @*<div class="form-group">
                         <label class="col-sm-4 control-label">Status<sup>*</sup></label>
                         <div class="col-sm-8">
                             <div class="select-style">
-                                <select id="StatusId" class="form-control" name="StatusList" ng-model="ModelNew.Status">
-                                    <option value="">--Select--</option>
-                                    <option ng-repeat="option in StatusList" value="{{option.Value}}">{{option.Text}}</option>
+                                <select class="form-control" ng-model="ModelNew.Status" name="StatusList" ng-options="item.value as item.name for item in StatusList">
                                 </select>
                             </div>
                         </div>
-                    </div>*@
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Date<sup>*</sup></label>
                         <div class="col-sm-8">
@@ -66,7 +55,7 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="ModelNew.PositionCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
+                            <input type="text" name="Standard Name" ng-model="ModelNew.PCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
                         </div>
                     </div>
                     <div class="form-group">
@@ -266,7 +255,7 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id===null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id == null || ModelNew.Id == ''" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                             <li> <button ng-click="ClearActivity();" ng-disabled="disableBtn()" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
@@ -295,7 +284,7 @@
         </div>
     </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
+@*<div class="row text-right aplos-grid-toggle">
     <div class="col-xs-12 col-sm-12 col-sm-12">
         <div class="search-form">
             <div class="row">
@@ -331,8 +320,162 @@
             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
         </div>
     </div>
-</div>
+</div>*@
 <confirm-modal></confirm-modal>
+
+<div class="modal fade site-modal in" id="documentPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="CloseDocumentPopUp()"> &times;</button>
+                <h4 class="modal-title">Document</h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="documentForm">
+                    <input type="hidden" ng-model="documentActivityNew.Id" />
+                    <div class="col-md-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Name<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Document Name" ng-model="documentActivityNew.DocumentName" class="form-control" required autocomplete="off" tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Type<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentType" name="DocumentTypeList" ng-options="item.value as item.name for item in DocumentTypeList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Generation<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentGeneration" name="DocumentGenerationList" ng-options="item.value as item.name for item in DocumentGenerationList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Document Category<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" @*ng-disabled="documentActivityNew.length>0"*@ id="ddldocument" ng-model="documentActivityNew.DocumentCategoryId" name="Document" ng-options="item.Id as item.UserName for item in DocumentCategoryList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Remarks</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" rows="3" ng-model="documentActivityNew.Remarks" name="Remarks" placeholder="Remarks" maxlength="200" tabindex="47"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="inputBtnSection common-btn">
+                                <label class="fileUpload col-sm-3 ">
+                                    <input id="uploadBtn" type="file" name="file[]" class="upload" />
+                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
+                                </label>
+                                <div class="col-sm-4" style="width: 255px;">
+                                    <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 239px;" />
+                                </div>
+                                <div class="col-sm-2" style="padding-left:0px;">
+                                    <button ng-click="documentRemove();" class="btn" ng-disabled="disableBtn()" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-6 col-md-6">
+                       
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Format<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentFormat" name="DocumentFormatList" ng-options="item.value as item.name for item in DocumentFormatList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Code<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" name="Document Code" ng-model="documentActivityNew.DocumentCode" class="form-control" required autocomplete="off" tabindex="4">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Prepration Frequency<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentPreprationFrequency" name="DocumentPreprationFrequencyList" ng-options="item.value as item.name for item in DocumentPreprationFrequencyList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Document Class<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentClass" name="DocumentClassList" ng-options="item.value as item.name for item in DocumentClassList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="documentActivityNew.PreparedBy" name="PreparedByList" ng-options="item.value as item.name for item in PreparedByList">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="documentActivityNew.PreparedBy=='OtherEmployee'">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" title="Prepared by in Case of other"><span>Prepared by in case of</span><br /><span>other</span></label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="Employee Name" ng-model="documentActivityNew.PreparedByInCaseOfOtherName" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showEmployeeListPopUp('PreparedBy');" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-search"></i></button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="common-btn" style="padding-right:18px">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveDocument();" class="btn" @*ng-disabled="activityNew.Id===null"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="ClearDocument();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div id="GridDocumentEdit" ng-init="chkinit()" ej-grid e-datasource="DocumentList" e-recorddoubleclick="GetDocument" e-load="loadGridEdit"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+                                <div e-column e-field="DocumentName" e-headertext="Document Name" e-width="2"></div>
+                                <div e-column e-field="DocumentCode" e-headertext="Document Code" e-width="2"></div>
+                                <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="3"></div>
+                                <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -410,201 +553,8 @@
         </div>
     </div>
 </div>
-<div class="modal fade site-modal in" id="documentPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" ng-click="CloseDocumentPopUp()"> &times;</button>
-                <h4 class="modal-title">Document</h4>
-            </div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="row" ng-form name="documentForm">
-                    <input type="hidden" ng-model="documentActivityNew.Id" />
-                    <div class="col-md-6 col-sm-6 col-md-6">
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select id="ActivityId" class="form-control" name="Activity" ng-model="documentActivityNew.ActivityId" tabindex="41" ng-change="documentData()">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in ActivityList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>*@
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Document Name" ng-model="documentActivityNew.DocumentName" class="form-control" required autocomplete="off" tabindex="4">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Type<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentType" name="DocumentTypeList" ng-options="item.value as item.name for item in DocumentTypeList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Generation<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentGeneration" name="DocumentGenerationList" ng-options="item.value as item.name for item in DocumentGenerationList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Description<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="documentActivityNew.Name" name="Description" placeholder="Description" maxlength="200" tabindex="43"></textarea>
-                                </div>
-                            </div>*@
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Application Name</label>
-                                <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="documentActivityNew.ApplicationName" name="Name" placeholder="Application Name" maxlength="200" tabindex="45"></textarea>
-                                </div>
-                            </div>*@
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Remarks</label>
-                            <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="documentActivityNew.Remarks" name="Remarks" placeholder="Remarks" maxlength="200" tabindex="47"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="inputBtnSection common-btn">
-                                <label class="fileUpload col-sm-3 ">
-                                    <input id="uploadBtn" type="file" name="file[]" class="upload" />
-                                    <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
-                                </label>
-                                <div class="col-sm-4" style="width: 255px;">
-                                    <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 239px;" />
-                                </div>
-                                <div class="col-sm-2" style="padding-left:0px;">
-                                    <button ng-click="documentRemove();" class="btn" ng-disabled="disableBtn()" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 col-sm-6 col-md-6">
-                        @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Employee Id<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Employee Id" ng-model="ModelNew.EmployeeId" class="form-control" maxlength="15" autocomplete="off" required tabindex="3" readonly>
-                                </div>
-                            </div>*@
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Format<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentFormat" name="DocumentFormatList" ng-options="item.value as item.name for item in DocumentFormatList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Code<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Document Code" ng-model="documentActivityNew.DocumentCode" class="form-control" required autocomplete="off" tabindex="4">
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Prepration Frequency<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentPreprationFrequency" name="DocumentPreprationFrequencyList" ng-options="item.value as item.name for item in DocumentPreprationFrequencyList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Document Class<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentClass" name="DocumentClassList" ng-options="item.value as item.name for item in DocumentClassList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
-                                <div class="col-sm-8">
-                                    <div class="select-style">
-                                        <select id="PreparedById" name="Prepared By" ng-model="documentActivityNew.PreparedBy" ng-change="preparedbyOther()" class="form-control" tabindex="46">
-                                            <option value="">--Select--</option>
-                                            <option value="Self">Self</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>*@
 
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.PreparedBy" name="PreparedByList" ng-options="item.value as item.name for item in PreparedByList">
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="preparebyOther">
-                            <label class="col-sm-4 control-label" title="Prepared by in Case of other"><span>Prepared by in case of</span><br /><span>other</span></label>
-                            <div class="col-sm-2" style="padding-right:0px;">
-                                <input type="text" ng-model="documentActivityNew.PreparedByInCaseOfOther" placeholder="Id" class="form-control" tabindex="8" readonly>
-                            </div>
-                            <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Name" ng-model="documentActivityNew.PreparedByInCaseOfOtherName" placeholder="Prepared by In CaseOf Other" class="form-control" readonly>
-                            </div>
-                            <div class="col-sm-2" style="padding-left:0px;margin-left: 0px;">
-                                <button style="margin-left:0px;" ng-click="clearPreparedByCode();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-refresh"></i></button>
-                                <button style="margin-left:-3px;" ng-click="getPreparedData();" type="submit" class="btn single-small-btn pull-right"><i class="glyphicon glyphicon-search"></i></button>
-                            </div>
-                        </div>
-                        @*<div class="form-group">
-                                <div class="inputBtnSection common-btn">
-                                    <label class="fileUpload col-sm-3 ">
-                                        <input id="uploadBtn" type="file" name="file[]" class="upload" />
-                                        <span class="uploadBtn"><i class="fa fa-paperclip" aria-hidden="true"> Attach</i></span>
-                                    </label>
-                                    <div class="col-sm-4" style="width: 255px;">
-                                        <input type="text" id="uploadFile" name="uploadFile" class="disableInputField form-control" disabled="disabled" style="width: 239px;" />
-                                    </div>
-                                    <div class="col-sm-2" style="padding-left:0px;">
-                                        <button ng-click="documentRemove();" class="btn" ng-disabled="disableBtn()" style="height: 31px;width: 88px;padding-left: 8px;background: #242841;"><i class="fa fa-chain-broken" aria-hidden="true"></i> Detach</button>
-                                    </div>
-                                </div>
-                            </div>*@
-                    </div>
-                    <div class="common-btn" style="padding-right:18px">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveDocument();" class="btn" @*ng-disabled="activityNew.Id===null"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                            <li> <button ng-click="ClearDocument();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                        </ul>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div id="GridDocumentEdit" ng-init="chkinit()" ej-grid e-datasource="DocumentList" e-recorddoubleclick="GetDocument" e-load="loadGridEdit"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                            <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-                                <div e-column e-field="DocumentName" e-headertext="Document Name" e-width="2"></div>
-                                <div e-column e-field="DocumentCode" e-headertext="Document Code" e-width="2"></div>
-                                <div e-column e-field="DocumentType" e-headertext="Document Type" e-width="3"></div>
-                                <div e-column e-field="DocumentFormat" e-headertext="Document Format" e-width="5"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<confirm-archive-generic modalid="confirmdocDelete" title="Confirmation" data-ng-click-left-button="confirmClosedocDelete()"
-                         message={{message_confirmation}} data-ng-click-right-button="DeleteAttachment()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmdocDelete" title="Confirmation" data-ng-click-left-button="confirmClosedocDelete()" message={{message_confirmation}} data-ng-click-right-button="DeleteAttachment()"></confirm-archive-generic>
 
 <div class="modal fade site-modal in" id="kpiPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
