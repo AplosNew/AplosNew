@@ -462,7 +462,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("MovementItemsController", MovementItemsController)
     .controller("MovementMaterialMasterController", MovementMaterialMasterController)
     .controller("NoticePeriodSettingController", NoticePeriodSettingController)
-
+    .controller("LeaveYearDefinationController", LeaveYearDefinationController)
     .controller("TaxSavingGroupController", TaxSavingGroupController)
     .controller("TaxSavingItemController", TaxSavingItemController)
     .controller("TermsAndConditionsController", TermsAndConditionsController)
