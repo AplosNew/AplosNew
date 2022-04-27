@@ -11,8 +11,20 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+    $scope.searchByList = [{ value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }];
 
+
+    $scope.companyList = [];
+    cboService.getCompanyGroupCompanyCbo(null, function (result) {
+        $scope.companyList = result;
+    });
+
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        cboService.getCboPlantByCompany($scope.ModelNew.CompanyId, function (result) {
+            $scope.PlantList = result;
+        });
+    };
 
     $scope.getData = function () {
         $http({
@@ -30,15 +42,18 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
     $scope.ModelTemp = {
         Id: null,
+        CompanyId: null,
+        PlantId: null,
         Sequence: 0,
         Code: null,
+        FromDate: null,
+        ToDate: null,
+        ProcessingDate: null,
         ShortName: null,
         StandardName: null,
-        MaxLimit:0,
+        RespersonId: null,
         UserName: null,
-        Description: null,
         Remarks: null,
-        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -49,6 +64,19 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
         });
     };
     $scope.GetSequence();
+
+
+    $scope.getStartUp = function () {
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmps',
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+    $scope.getStartUp();
+
 
     $scope.Get = function (args) {
 
@@ -83,6 +111,18 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
         }
     };
+
+    //Getting the Responsible Person
+    $scope.selectResp = function () {
+        angular.element(document.querySelector('#employeesModal')).modal('show');
+    }
+
+    $scope.doubleResp = function (e) {
+        $scope.responsiblePerson = e.data.EmployeeName;
+        $scope.ModelNew.RespersonId = e.data.SystemId;
+        angular.element(document.querySelector('#employeesModal')).modal('hide');
+    }
+
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {

@@ -8,17 +8,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Web.Mvc;
-using Library.HumanResource.Payroll.Tax;
+using Library.Service.EmployeeServices;
 #endregion Using
 
 namespace Aplos.Areas.Leave.Controllers
 {
     public class LeaveYearDefinationController  : BaseController
     {
-        string TableName = "hkp.TaxSavingGroup";
-        
+        string TableName = "LeaveYearDefination";
+
         #region Constructor
-        TaxSavingGroupService tg = new TaxSavingGroupService();
+
+        LeaveYearDefinationService _leave = new LeaveYearDefinationService();
         private readonly ISqlRepository _sqlRepository;
 
         public LeaveYearDefinationController(ISqlRepository R)
@@ -27,8 +28,6 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         #endregion Constructor
-
-
      
         public ActionResult Aplos()
         {
@@ -38,7 +37,7 @@ namespace Aplos.Areas.Leave.Controllers
         [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
-            return Json(tg.GetCbo(), JsonRequestBehavior.AllowGet);
+            return Json(_leave.GetCbo(), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpPost]
@@ -46,9 +45,7 @@ namespace Aplos.Areas.Leave.Controllers
         {
             try
             {
-                var _master = tg.Get(Id);
-
-
+                var _master = _leave.Get(Id);
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -62,7 +59,7 @@ namespace Aplos.Areas.Leave.Controllers
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(tg.GetList(column, value), JsonRequestBehavior.AllowGet);
+            return Json(_leave.GetList(column, value), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -76,7 +73,7 @@ namespace Aplos.Areas.Leave.Controllers
         {
             try
             {
-                string ret = tg.Create(data);
+                string ret = _leave.Create(data);
                 if (ret == "Success")
                 {
                     return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
@@ -89,9 +86,20 @@ namespace Aplos.Areas.Leave.Controllers
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
+        [HttpGet, Authorize]
+        public ActionResult GetEmps()
+        {
+            try 
+            {                
+                return Json(_leave.GetEmps(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
             }
         }
 
@@ -99,8 +107,7 @@ namespace Aplos.Areas.Leave.Controllers
         {
             try
             {
-
-                string ret = tg.Delete(id);
+                string ret = _leave.Delete(id);
 
                 if (ret == "Success")
                 {
@@ -110,15 +117,11 @@ namespace Aplos.Areas.Leave.Controllers
                 {
                     return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
                 }
-
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
             }
-
 
         }
 
