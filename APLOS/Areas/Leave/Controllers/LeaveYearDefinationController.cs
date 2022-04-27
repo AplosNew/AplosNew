@@ -90,12 +90,15 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetEmps()
+        [HttpPost, Authorize]
+        public ActionResult GetEmps(string PlantId)
         {
             try 
-            {                
-                return Json(_leave.GetEmps(), JsonRequestBehavior.AllowGet);
+            {
+                var jsondata= Json(_leave.GetEmps(PlantId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
             }
             catch (Exception ex)
             {

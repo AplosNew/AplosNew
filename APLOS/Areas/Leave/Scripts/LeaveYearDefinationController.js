@@ -66,16 +66,23 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
     $scope.GetSequence();
 
 
+    $scope.EmployeeList = [];
     $scope.getStartUp = function () {
 
-        $http({
-            method: 'GET',
-            url: $scope.path + 'GetEmps',
-        }).then(function succ(resp) {
-            $scope.EmployeeList = resp.data;
-        });
+        if (baseService.isUndefinedOrNull($scope.ModelNew.PlantId)) {
+
+        }
+        else {
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'GetEmps?PlantId=' + $scope.ModelNew.PlantId,
+            }).then(function succ(resp) {
+                $scope.EmployeeList = resp.data;
+            });
+        }
     }
-    $scope.getStartUp();
+    
 
 
     $scope.Get = function (args) {

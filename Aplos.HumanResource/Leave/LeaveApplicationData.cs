@@ -1368,11 +1368,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> GetEmps()
+        public IEnumerable<object> GetEmps(string PlantId)
         {
             try
             {
-                var str = @"Select * from EmployeeInformation where EmployeeStatus='Active'";
+                var str = @"Select * from EmployeeInformation where
+                EmployeeStatus='Active' and PlantId='"+PlantId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

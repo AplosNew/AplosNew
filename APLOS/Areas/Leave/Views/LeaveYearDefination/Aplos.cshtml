@@ -57,7 +57,7 @@
             <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="PlantId" class="form-control" ng-model="ModelNew.PlantId" name="Plant" required>
+                    <select id="PlantId" class="form-control" ng-model="ModelNew.PlantId" ng-change="getStartUp();" name="Plant" required>
                         <option value="">--Select--</option>
                         <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -84,10 +84,7 @@
             <div class="col-sm-6 show-message">
                 <input type="text" name="RespPerson" ng-model="ModelNew.RespersonId" ng-click="selectResp()" class="form-control" maxlength="200" >
 
-            </div>
-            <div class="col-sm-1" style="margin-top:10px">
-                <button ng-click="selectResp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
+            </div>            
         </div>
 
 
