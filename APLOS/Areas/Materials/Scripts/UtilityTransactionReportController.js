@@ -17,9 +17,12 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
         }).then(function successCallback(response) {
             $scope.filters = response.data;
             var columnList = [
-                { field: 'Date', width: 20, headerText: "Date", type: "string" },
-                { field: 'Quantity', width: 20, headerText: "Quantity", type: "string" },
-                { field: 'Remarks', width: 20, headerText: "Remarks", type: "string" },
+                { field: 'Group', width: 20, headerText: "Group", type: "string" },
+                { field: 'SubGroup', width: 20, headerText: "Sub Group", type: "string" },
+                { field: 'Category', width: 20, headerText: "Category", type: "string" },
+                { field: 'SubCategory', width: 20, headerText: "Sub Category", type: "string" },
+                { field: 'AddedDate', width: 20, headerText: "Added Date", type: "string" },
+                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
             ];
             $("#filters").ejGrid({
                 dataSource: $scope.filters,
@@ -50,10 +53,8 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
 
 
         var parameters = [];
-        parameters.push({ "Key": "Date", "Value": getString(fl, "Date") });
-        parameters.push({ "Key": "Quantity", "Value": getString(fl, "Quantity") });
-        parameters.push({ "Key": "Remarks", "Value": getString(fl, "Remarks") });
-
+        parameters.push({ "Key": "Id", "Value": getString(fl, "Id") });
+        
         $scope.parameters = parameters;
     }
 

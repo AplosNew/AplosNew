@@ -59,6 +59,7 @@ function GoalSettingApprovalController(cboService, commonMessage, $scope, $rootS
     }
 
     // RO BUDGET POP OPEN
+    
     $scope.selectROBudget = function () {
 
         angular.element(document.querySelector('#ROBudgetPop')).modal('show');
@@ -77,7 +78,24 @@ function GoalSettingApprovalController(cboService, commonMessage, $scope, $rootS
             //ClearFields(response.data);
 
         });
+        $scope.GetEmployeeGoalData();
     }
+
+    $scope.EGList = [];
+    $scope.GetEmployeeGoalData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetEmployeeGoalData",
+            data: {
+                'PerformancePeriod': $scope.PerformancePeriod,
+                'Empid': $scope.ModelList.EmployeeId,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(res) {
+            $scope.EGList = res.data;
+        });
+    }
+    /*$scope.GetEmployeeGoalData();*/
 
     // PERFORMANCE PERIOD POP OPEN
     $scope.OpenEG = function () {
@@ -108,10 +126,8 @@ function GoalSettingApprovalController(cboService, commonMessage, $scope, $rootS
 
     function ClearFields() {
         $scope.Action = 'GetROPP';
-        $scope.ModelNew = {
-            ROBudgetCode: null,
-            PerformanceYear: null,
-        };
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+        $scope.RoBudgetCode = null
+        $scope.PerformancePeriod = null
+        
     }
 }

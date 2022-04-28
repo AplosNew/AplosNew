@@ -67,7 +67,7 @@ namespace Library.Service.OrderManagements
         IEnumerable<object> GetSalesOrderTaxCategoryList(string salesOrderId);
 
         GridModel GetEmployeeListResponsible(GridParameter parameters, string companyId, string plantId, string partyAccountGroupId, string partyId);
-
+        GridModel GetPreparedEmployeeList(GridParameter parameters, string plantId, string employeeId);
         void Update(MasterOrder entity, string masterId, IEnumerable<MasterOrderResPerson> personList, IEnumerable<MasterOrderItem> itemList);
 
         void InsertOrUpdateGraph(string masterItemId, IEnumerable<MasterOrderAttributeValue> attributeValueList);

@@ -7,25 +7,19 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.path = 'Materials/UtilityTransaction/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.saveChildUrl = $scope.path + 'CreateChild';
     
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Date', name: "Date" }, { value: 'Category', name: "Category" }, { value: 'SubCategory', name: "SubCategory" }, { value: 'Quantity', name: "Quantity" }, { value: 'Remarks', name: "Remarks" }];
 
     $scope.ModelTemp = {
         Id: null,
         Date: null,
         UtilityMasterId: null,
-        UtilityMaster: null,
-        Quantity: null,
+        Quantity: 0,
         UoMId: null,
         UoM: null,
-        LastDate: null,
-        LastTime: null,
-        LastReading: null,
+        Reading: 0,
         Remarks: null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -34,8 +28,6 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-            //data: { Id: $scope.ModelNew.Id },
-            //data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
 
@@ -52,23 +44,7 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         return $scope.tab === tabNum;
     };
 
-    $scope.uOMList = [];
-    cboService.getUoMCbo(function (response) {
-        $scope.uOMList = response;
-    });
-
    
-    //$scope.subCategoryList = [];
-    //$scope.GetSubCategoryList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'Materials/UtilityTransaction/GetSubCategoryList'
-    //    }).then(function successCallback(response) {
-    //        $scope.subCategoryList = response.data;
-    //    });
-    //}
-    //$scope.GetSubCategoryList();
-
     $scope.utilityMasterList = [];
     $scope.GetUtilityMasterList = function () {
         $http({
@@ -91,109 +67,38 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-
-    $scope.readingList = [];
-    $scope.GetReadingList = function () {
+    $scope.GetEditReadingList = function () {
         $http({
             method: 'GET',
-            url: 'Materials/UtilityTransaction/GetReadingList'
+            url: 'Materials/UtilityTransaction/GetEditReadingList?utilityMasterId=' + $scope.ModelNew.UtilityMasterId +'&utilityTransactionId='+ $scope.ModelNew.Id
         }).then(function successCallback(response) {
-            $scope.readingList = response.data[0];
+            $scope.LastReading = response.data[0].LastReading;
+            $scope.LastReadingDate = response.data[0].LastReadingDate;
+            $scope.LastReadingTime = response.data[0].LastReadingTime;
         });
     }
-    $scope.GetReadingList();
 
-    //$scope.LastReadDate = null;
-    //$scope.LastReadTime = null;
-    //$scope.LastRead = null;
-    //$scope.GetReading = function () {
-    //    for (var i = 0; i < $scope.readingList.length; i++) {
-    //        if ($scope.readingList[i].Value == $scope.ModelNew.UtilityMasterId) {
-    //            $scope.LastReadDate = $scope.readingList[i].LastReadingDate;
-    //            $scope.LastReadTime = $scope.readingList[i].LastReadingTime;
-    //            $scope.LastRead = $scope.readingList[i].LastReading;
-    //        }
-    //    }
-    //}
+  
+    $scope.LastReading = 0;
+    $scope.GetQuantity = function () {
+        if ($scope.LastReading >0) {
+            $scope.ModelNew.Quantity = $scope.LastReading - $scope.ModelNew.Reading;
+        }
+        else
+            $scope.ModelNew.Quantity = $scope.ModelNew.Reading;
+    }
 
-
-    $scope.searchByParty = "UserName"; $scope.searchParty = "";
-
-    $scope.partyList = [];
-    $scope.ShowCustomerPopUpNew = function () {
-        $scope.partyType = "Customer";
-        $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + '' + '&PlantId=' + '';
-
-        $http({
-            method: 'POST',
-            url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.partyList = response.data;
-        });
-        angular.element(document.querySelector('#CustomerPopUpNew')).modal('show');
-    };
-
-    
 
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetUoMAndReadingApplicable();
+        $scope.GetEditReadingList();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
     };
 
-    $scope.utilityDetails = [];
-    $scope.getUtilityGridData = function (id) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetUtilityData",
-            data: { 'UtilityMasterId': id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.utilityDetails = response.data;
-            //$scope.ModelChildNew = Object.assign({}, response.data);
-        });
-    }
-
-    $scope.UtilityDetaildoubleclick = function (args) {
-        $scope.ModelChildNew = Object.assign({}, args);
-    };
-
-    $scope.removeUtilityDetailsRowModal = function (tempId) {
-        try {
-            $scope.tempId = tempId;
-            $scope.message_confirmation = "Are you sure want to permanent delete ?";
-            angular.element(document.querySelector('#confirmUtilityDetailsRemovePopUp')).modal('show');
-        }
-        catch (e) {
-            ShowResult(e, 'Error');
-        }
-    };
-
-    $scope.removeUtilityDetailsRow = function () {
-        $http({
-            method: 'POST',
-            url: 'Materials/UtilityMaster/utilityDetailsDelete?id=' + $scope.tempId,
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getUtilityGridData($scope.ModelNew.Id);
-            }
-            function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        });
-    };
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -246,9 +151,9 @@ function UtilityTransactionController(cboService, commonMessage, $scope, $rootSc
     $scope.Clear = function () {
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.UoMName = null;
-        $scope.LastReadDate = null;
-        $scope.LastReadTime = null;
-        $scope.LastRead = null;
+        $scope.LastReadingDate = null;
+        $scope.LastReadingTime = null;
+        $scope.LastReading = 0;
         $scope.IsReadingApp = false;
         $scope.Action = 'Save';
     }

@@ -17,6 +17,8 @@ using Library.Service.Extension.HumanResource.Leave;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
 using Library.Service.Leave;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.Service.EmployeeServices
 {
@@ -1309,6 +1311,212 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         public string FirstApprovingStatus { get; set; }
 
         #endregion Navigation
+
+    }
+    
+    public class LeaveYearDefinationService
+    {
+        ISqlRepository _sqlRepository;
+        public LeaveYearDefinationService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> Get(string Id)
+        {
+            try
+            {
+                var sql = @"select ld.Id,ld.PlantID,c.Id as CompanyId,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate,
+                ld.ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName as responsiblePerson
+                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.Company c on c.Id=p.CompanyId
+                where ld.Id ='"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetCbo()
+        {
+            try
+            {
+                string TableName = "LeaveYearDefination";
+                string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + "";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }       
+
+        public IEnumerable<object> GetList(string column, string value)
+        {
+            try
+            {
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select top 100 * from (select ld.Id,ld.PlantID as PlantId,c.Id as CompanyId,ld.Sequence,
+                ld.Code,ld.ShortName,ld.StandardName,
+                ld.UserName,Format(ld.FromDate,'dd-MMM-yyyy')FromDate,Format(ld.ToDate,'dd-MMM-yyyy')ToDate,
+                Format(ld.ProcessingDate,'dd-MMM-yyyy')ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName 
+                as responsiblePerson
+                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.Company c on c.Id=p.CompanyId
+                ) AS TEMP WHERE " + strkey + " order by sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }       
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetEmps(string PlantId)
+        {
+            try
+            {
+                var str = @"Select * from EmployeeInformation where
+                EmployeeStatus='Active' and PlantId='"+PlantId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = "LeaveYearDefination";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Code already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same User Name already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId='" + data["PlantId"] + "' AND FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"]+"'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same From & To Date for Plant already exists!!!");
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "LY" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = "dbo.LeaveYearDefination";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+         
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
 
     }
 

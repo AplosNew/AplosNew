@@ -56,7 +56,14 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var sql = @"select Id,FORMAT(Date,'dd-MMM-yyyy') [Date],Quantity,Remarks from UtilityTransaction";
+                var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+							from UtilityTransaction UT
+							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
+							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -110,6 +117,11 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColDate = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Time";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColTime = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Category";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColCategory = COL;
@@ -120,10 +132,31 @@ namespace Aplos.Areas.Materials.Controllers
                 int ColSubCategory = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Item";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColItem = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Group";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColGroup = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SubGroup";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColSubGroup = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Quantity";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColQuantity = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Reading";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColReading = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 16;
                 int ColRemarks = COL;
@@ -144,10 +177,15 @@ namespace Aplos.Areas.Materials.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
-                    sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
+                    sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString(); 
+                    sheet[ROW, ColTime].Text = data.Rows[i]["Time"].ToString(); 
                     sheet[ROW, ColCategory].Text = data.Rows[i]["Category"].ToString();
                     sheet[ROW, ColSubCategory].Text = data.Rows[i]["SubCategory"].ToString();
+                    sheet[ROW, ColItem].Text = data.Rows[i]["Item"].ToString();
+                    sheet[ROW, ColGroup].Text = data.Rows[i]["Group"].ToString();
+                    sheet[ROW, ColSubGroup].Text = data.Rows[i]["SubGroup"].ToString();
                     sheet[ROW, ColQuantity].Text = data.Rows[i]["Quantity"].ToString();
+                    sheet[ROW, ColReading].Text = data.Rows[i]["Reading"].ToString();
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -212,15 +250,15 @@ namespace Aplos.Areas.Materials.Controllers
             {
 
 
-                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],UM.UtilityCategory Category,UMA.UtilitySubCategory SubCategory 
-							                ,UT.CategoryId,UT.SubCategoryId,UT.Quantity,UT.Remarks
+                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityCategory                                                Category,UM.UtilitySubCategory SubCategory 
+							                ,UM.Item,UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup
+											,UT.Quantity,UT.Reading,UT.Remarks
 							                from UtilityTransaction UT
-							                left join UtilityMaster UM on UM.Id=UT.CategoryId
-							                left join UtilityMaster UMA on UMA.Id=UT.SubCategoryId
-										
-                                            where UT.Date in(" + parameters["Date"] + @")
-                                            AND UT.Quantity in(" + parameters["Quantity"] + @")
-                                            AND UT.Remarks in(" + parameters["Remarks"] + @")";
+							                left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+                                            where UT.Id in (" + parameters["Id"] + @")
+                                           
+											group by UT.Id,UT.[Date],UT.AddedDate,UM.UtilityCategory,UM.UtilitySubCategory,UM.Item,UM.UtilityGroup,UM.UtilitySubGroup
+											,UT.Quantity,UT.Reading,UT.Remarks";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

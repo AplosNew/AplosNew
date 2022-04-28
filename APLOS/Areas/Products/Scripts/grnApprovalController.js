@@ -1125,7 +1125,7 @@ function grnApprovalController(accountService, addressService, $window, cboServi
 
     //#region GRN Check UI screen
 
-    $scope.AllTabPrint = function (z) {        var x = "#" + z;        var gridObj = $(x).data("ejGrid");        var data = gridObj.getSelectedRecords()[0];        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id;    };
+    $scope.AllTabPrint = function (z) {        var x = "#" + z;        var gridObj = $(x).data("ejGrid");        var data = gridObj.getSelectedRecords()[0];        location.href = "GoodsReceiveNote/GRNReport?grnId=" + data.Id + '&plantId=' + data.PlantId;    };
 
     $scope.GriddataGRNCk = [];
     $scope.getListForGRNUnchecked = function () {

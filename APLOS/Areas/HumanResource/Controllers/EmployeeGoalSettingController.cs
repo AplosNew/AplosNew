@@ -90,12 +90,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> datas, string SelectedEmployeeId)
+        public JsonResult Create(Dictionary<string, object> datas, string SelectedEmployeeId, string EGSetting, string PMSId)
         {
            
             try
             {
-                return Json(new { Error = "No", Data = egs.Create(datas, SelectedEmployeeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = egs.Create(datas, SelectedEmployeeId, EGSetting, PMSId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -124,11 +124,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region EMPLOYEE GOAL SETTING CHILD
         [HttpPost]
-        public ActionResult GetEGChild()
+        public ActionResult GetEGChild(string SelectedEmployeeId, string PerformanceYearId)
         {
             try
             {
-                return Json(egs.GetEGChild(), JsonRequestBehavior.AllowGet);
+                return Json(egs.GetEGChild(SelectedEmployeeId, PerformanceYearId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -137,18 +137,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        public JsonResult CreateEGChild(Dictionary<string, object> datas, string EGSetting, string PMSId)
-        {
-
-            try
-            {
-                return Json(new { Error = "No", Data = egs.CreateEGChild(datas, EGSetting, PMSId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+       
 
         public ActionResult DeleteChild(string id)
         {
@@ -168,34 +157,24 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         }
 
-        public void SaveFile(out string path)
+        public void SaveFile()
         {
-            path = "";
+           
             try
             {
-                var file = Request.Files["file"];
-                if (file != null)
+                string path = Server.MapPath("");
+                if (!Directory.Exists(path))
                 {
-                    var extension = Path.GetExtension(file.FileName);
-                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
-                    {
-                    }
-                    else
-                        throw new CustomException(Resources.ExcelUploadError);
+                    Directory.CreateDirectory(path);
                 }
-                if (file != null)
+
+                foreach (string key in Request.Files)
                 {
-                    path = Path.Combine(ResourcesPathReader.GetOTManualFile(), file.FileName);
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path);
-                        file.SaveAs(path);
-                    }
-                    else
-                    {
-                        file.SaveAs(path);
-                    }
+                    HttpPostedFileBase postedFile = Request.Files[key];
+                    postedFile.SaveAs(path + postedFile.FileName);
                 }
+
+                
             }
             catch (Exception ex)
             {

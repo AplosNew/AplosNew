@@ -27,7 +27,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            //ClearFields(response.data);
+            
             
         });
     }
@@ -89,7 +89,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             url: $scope.path + 'getPerformancePeriod',
         }).then(function success(response) {
             $scope.PerformanceYearList = response.data;
-            $scope.SelectPerformanceYearId = $scope.PerformanceYearList[0].Value;
+            
             
         })
     }
@@ -122,8 +122,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     }
    //$scope.getPMSMaster();
     $scope.SelectPMS = null;
+    $scope.SelectPerFormanceGroup = null;
     $scope.selPMS = function (e) {
         $scope.SelectPMS = e.data.Username;
+        $scope.SelectPerFormanceGroup = e.data.PerFormanceGroup;
         angular.element(document.querySelector('#PMSPop')).modal('hide');
     }
    
@@ -134,32 +136,31 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.Employee = e.data.EmployeeName;
         $scope.perfYear = document.getElementById("ddperfYear").value;
         $scope.getPMSMaster();
-        $scope.displayEGChild();
+       
         
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
+        $scope.displayEGChild();
     }
-
-
 
     $scope.displayEGChild = function () {
       
-        if (baseService.isUndefinedOrNull($scope.SelectPerformanceYearId) && baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-            throw 'Performance Year and Employee Id is Required.';
-            ShowResult('Performance Year and Employee Id is Required.', 'failure');
+        if (baseService.isUndefinedOrNull($scope.ModelNew.PerformanceYearId) ) {
+            ShowResult('Performance Year is Required.', 'failure');
+            throw 'Invalid Request';            
         }
-        //if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-        //    throw 'Employee is Required.';
-        //    ShowResult('Employee is Required.', 'failure');
-        //}
+        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
+            ShowResult('Employee is Required.', 'failure');
+            throw 'Invalid Request';
+        }
 
-        else {
+
             document.getElementById("PerformanceGroupList").style.cssText = "display:block";
-            document.getElementById("EGSGrid").style.cssText = "display:block";
+        document.getElementById("EGSGrid").style.cssText = "display:block";
+        $scope.getChildData();
             
-        }
+        
     }
-
-    
+   
     //$scope.displayEGChild();
 
     // SAVE FUNCTIONS
@@ -168,38 +169,39 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         SystemId: null,       
         PerformanceYearId: null,
         ConfirmationStatus: false,
-        isApproved: false,
-        
+        isApproved: 0,
+        // ------------------------------------
+        Id: null,
+        ObjectiveName: null,
+        objectiveDetail: null,
+        CostSaving: null,
+        Value: null,
+        Attachment: null,
+        AssesmentDate: null,
+        ObjNameClosingDate: null,
+        MaxStoryPoints: null,
+        Remarks: null,  
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     $scope.ChildMasterID = null;
     $scope.Get = function (args) {
-
         $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-       
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
+        $scope.Action = 'Update';       
         if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
             throw 'Employee is Required.';
             ShowResult('Employee is Required.', 'failure');
         }
-
         else {
-
             document.getElementById("PerformanceGroupList").style.cssText = "display:block";
             $scope.getPMSMaster();
-        }
-        
+           
+            
+        }        
     };
 
-   
-
-
+    $scope.SelectedEmpGoalId = null;
     $scope.Save = function () {
-
         $scope.$broadcast('show-errors-check-validity');
        if ($scope.ModelNewForm.$valid) {
            $http({
@@ -207,17 +209,23 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
                url: $scope.saveUrl,
                data: {
                    'datas': $scope.ModelNew,                   
-                   "SelectedEmployeeId": $scope.SelectedEmployeeId,
+                   'SelectedEmployeeId': $scope.SelectedEmployeeId,
+                   'EGSetting': $scope.SelectedEmpGoalId,
+                   'PMSId': $scope.SelectPMSId,
                 },
                 dataType: 'JSON',
-            }).then(function successCallback(response) {
+           }).then(function successCallback(response) {
+              
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ShowResult(response.data.Message, 'success');                   
+                    //Object.assign($scope.ModelNew, response.data.Data);
                     $scope.getData();
+                    $scope.getChildData();
+                    //$scope.ModelListChild($scope.ModelNew.SystemId);
+                    ClearFields();
 
                 }
             }), function errorCallBack(response) {
@@ -228,12 +236,13 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.SystemId)) {
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
                 method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.SystemId,
+                url: $scope.deleteUrl + $scope.ModelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
+                
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
                 }
@@ -254,16 +263,19 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         return true;
     };
 
+    
     function ClearFields() {
-        $scope.Action = 'CreateEGSParent';
-        $scope.SelectPMS = null;
+        $scope.Action = 'Create';
+        
         $scope.Employee = null;
-        $scope.ModelNew = {
+        $scope.SelectPerFormanceGroup = null;
+        $scope.SelectedEmpGoalId = null
+        $scope.ModelTemp = {
             SystemId: null,
             PerformanceYearId: null,
             ConfirmationStatus: false,
-        };
-        $scope.ModelTempChild = {
+            isApproved: false,
+            // ------------------------------------
             Id: null,
             ObjectiveName: null,
             objectiveDetail: null,
@@ -275,15 +287,10 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             MaxStoryPoints: null,
             Remarks: null,
         };
-        
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNewChild = Object.assign({}, $scope.ModelTempChild);
-       
-        //$scope.SelectedEmployeeId.isselected = false;
+     
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp); 
     }
 
-    
-    
     //=================================================================================================================//
 
                                         /*
@@ -291,88 +298,44 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
                                         */
     //Getting the MasterData
     $scope.ModelListChild = [];
-    $scope.getData = function () {
+
+    $scope.getChildData = function () {
+        $scope.getData();
         $http({
             method: 'POST',
             url: $scope.path + "GetEGChild",
+            data: {
+                'PerformanceYearId': $scope.ModelNew.PerformanceYearId,
+                'SelectedEmployeeId': $scope.SelectedEmployeeId,
+               
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelListChild = response.data;
-            //ClearFields(response.data);
-
+            
         });
     }
-    $scope.getData();
+    //$scope.getChildData();
 
-    $scope.EnableDisable = function (e) {
+    $scope.EnableDisable = function () {
         $scope.result = $scope.ModelNew.CostSaving;
-        if ($scope.result === "Yes") {
-            document.getElementById("txtValue").disabled = false;
+        if ($scope.result == "Yes") {
+            if (document.getElementById("txtValue").disabled == true) {
+                document.getElementById("txtValue").disabled = false;
+            }
+
         } else {
-            document.getElementById("txtValue").disabled = true;
+            if (document.getElementById("txtValue").disabled == false) {
+                document.getElementById("txtValue").disabled = true;
+            }
         }
 
-    }
-
-    $scope.SelectedEmpGoalId = null;
-    $scope.selEmpGoal = function (e) {
-        $scope.SelectedEmpGoalId = e.data.SystemId;
-       
-        angular.element(document.querySelector('#EmployeeGoalPop')).modal('hide');
-    }
-
-
-    $scope.ModelTempChild = {
-        Id: null,
-        ObjectiveName: null,
-        objectiveDetail: null,
-        CostSaving: null,
-        Value: null,
-        Attachment: null,
-        AssesmentDate: null,
-        ObjNameClosingDate: null,
-        MaxStoryPoints: null,
-        Remarks: null,
-    };
-    $scope.ModelNewChild = Object.assign({}, $scope.ModelTempChild);
-
-    $scope.GetChild = function (args) {
-
-        $scope.ModelNewChild = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        //$scope.selPMS.$scope.SelectPMS.selected;
-        
-        document.getElementById("PerformanceGroupList").style.cssText = "display:block";
-        
        
     }
-    
-    $scope.SaveEGChild = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveChildUrl,
-            data: {
-                'datas': $scope.ModelNewChild,
-                'EGSetting': $scope.SelectedEmpGoalId,
-                'PMSId':$scope.SelectPMSId
-            },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields(response.data.Sequence);
-                $scope.getData();
 
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        }
-            
-    }
+  
 
+   
     $scope.DeleteChild = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNewChild.Id)) {
             $http({
@@ -394,5 +357,26 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             });
         }
     };
-    
+
+    $scope.UploadFiles = function (files) {
+        $scope.SelectedFiles = files;
+        if ($scope.SelectedFiles && $scope.SelectedFiles.length) {
+            Upload.upload({
+                url: $scope.path +'/SaveFile/',
+                data: {
+                    files: $scope.SelectedFiles
+                }
+            }).then(function (response) {
+                $timeout(function () {
+                    $scope.Result = response.data;
+                });
+            }), function (response) {
+                if (response.status > 0) {
+                    var errorMsg = response.status + ': ' + response.data;
+                    alert(errorMsg);
+                }
+            }
+        }
+    };
+   
 }
