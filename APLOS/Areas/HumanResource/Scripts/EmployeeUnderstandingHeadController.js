@@ -24,8 +24,8 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         PCode: null,
         MBCode: null,
         EmployeeCode: null,
-        EmployeeName: $window.employeeName,
-        EmployeeId: $window.employeeId,
+        EmployeeName: null,
+        EmployeeId: null,
         Remarks: null,
         Status: 'InProgress'
     };
@@ -87,21 +87,22 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.getMasterInfoEI = function () {
         $http({
             method: 'GET',
-            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterDataFromEI?EmployeeId=' + $window.employeeId
+            url: 'HumanResource/EmployeeUnderstandingHead/GetMasterDataFromEI?EmployeeId=' + $scope.ModelNew.EmployeeId
         }).then(function (response) {
             $scope.ModelNew = Object.assign({}, response.data[0]);
             $scope.ModelNew.Status = 'InProgress';
         });
     };
 
-
     $scope.getData = function () {
         $http({
             method: 'GET',
-            url: 'HumanResource/EmployeeUnderstandingHead/GetList?employeeId=' + $window.employeeId
+            url: 'HumanResource/EmployeeUnderstandingHead/GetList?employeeId=' + $scope.ModelNew.EmployeeId
         }).then(function (response) {
-            $scope.ModelNew = Object.assign({}, response.data[0]);
-            $scope.ModelNew.Date = $filter('dateFiltering')(new Date($scope.ModelNew.Date), 'dd-MM-yyyy');
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.ModelNew = Object.assign({}, response.data[0]);
+                $scope.ModelNew.Date = $filter('dateFiltering')(new Date($scope.ModelNew.Date), 'dd-MM-yyyy');
+            }
             if (baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
                 $scope.getMasterInfoEI();
             } else {
@@ -277,15 +278,14 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         serverPagination: true
     };
 
-
-
     $scope.showEmployeeListPopUp = function (name) {
         try {
             $scope.Name = name;
-            if ($scope.Name=='mo') {
+            if ($scope.Name == 'mo') {
+                $scope.Clear();
                 $scope.employeeUrl = 'OrderManagements/masterorder/GetEmployeeListResponsible';
             } else {
-                $scope.employeeUrl = 'OrderManagements/masterorder/GetPreparedEmployeeList?employeeId='+ $window.employeeId
+                $scope.employeeUrl = 'OrderManagements/masterorder/GetPreparedEmployeeList?employeeId=' + $window.employeeId
             }
 
             $scope.employeeParameters.searchBy = 'EmployeeCode';
@@ -329,6 +329,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
                 $scope.ModelNew.BudgetCode = employee.BudgetCode;
                 $scope.ModelNew.MBCode = employee.MBCode;
                 $scope.ModelNew.PCode = employee.PCode;
+                $scope.getData();
             } else {
                 $scope.documentActivityNew.PreparedByInCaseOfOtherName = employee.EmployeeName;
                 $scope.documentActivityNew.EmployeeId = employee.SystemId;
@@ -375,7 +376,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             else {
                 ShowResult(response.data.Message, 'success');
                 $scope.ModelNew.Id = response.data.Id
-                $scope.getData();
+                //$scope.getData();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -506,7 +507,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         }
     };
 
-
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
             $http({
@@ -529,7 +529,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         }
     };
 
-
     $scope.DeleteAttachment = function () {
         $http({
             method: 'POST',
@@ -549,16 +548,14 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     };
 
-
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
         return true;
     };
 
-    function ClearFields(seq) {
+    function ClearFields() {
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
     }
 
     $scope.ClearActivity = function () {
