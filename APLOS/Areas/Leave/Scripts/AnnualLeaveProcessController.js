@@ -170,4 +170,32 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    //#region The Paging System
+
+    var x = document.getElementById("FDiv");
+    var y = document.getElementById("SDiv");
+    x.style.display = "block";
+    y.style.display = "none";
+
+    $scope.clickdde1 = function () {
+        if (x.style.display === "none") {
+            y.style.display = "none";
+            x.style.display = "block";
+
+        }
+    };
+
+    $scope.clickdde2 = function () {
+        if (y.style.display === "none") {
+
+            y.style.display = "block";
+            x.style.display = "none";
+
+        }
+    };
+
+    // #endregion
+
+
 }
