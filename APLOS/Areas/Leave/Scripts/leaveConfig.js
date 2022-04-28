@@ -1,6 +1,6 @@
 ﻿leaveConfig.$inject = ['$routeProvider'];
 function leaveConfig($routeProvider) {
-    $routeProvider     
+    $routeProvider
 
         .when('/leave-policy', {
             templateUrl: 'Leave/LeavePolicy/LeavePolicy',
@@ -100,7 +100,7 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/CAHourlyOTReport/Aplos',
             controller: "cahourlyOTReportController"
         })
-            .when('/leave-register-report', {
+        .when('/leave-register-report', {
             templateUrl: 'Leave/LeaveBalanceReport/Aplos',
             controller: "LeaveBalanceReportController"
         })
@@ -121,5 +121,8 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/LeaveYearDefination/Aplos',
             controller: "LeaveYearDefinationController"
         })
-        ;
+        .when('/annual-leave-process', {
+            templateUrl: 'Leave/AnnualLeaveProcess/Aplos',
+            controller: "AnnualLeaveProcessController"
+        });
 }
