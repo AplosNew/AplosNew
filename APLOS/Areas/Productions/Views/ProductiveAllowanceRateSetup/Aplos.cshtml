@@ -17,7 +17,7 @@
         font-weight: 300;
         box-shadow: 0 0 2px rgba(0,0,0,.090);
         margin-bottom: 10px;
-        margin-left:10px
+        margin-left: 10px
     }
 
         .b-nav-tab.active {
@@ -32,10 +32,9 @@
         grid-gap: 10px;
         place-items:center;
         place-content:center*/
-        display:flex;
-        justify-content:center;
-        justify-items:center;
-       
+        display: flex;
+        justify-content: center;
+        justify-items: center;
     }
 </style>
 <div class="d-grid">
@@ -53,7 +52,10 @@
     <button data-tab="_BudgetApplicable" class="b-nav-tab" style="border:none">
         Budget Applicable
     </button>
-    
+    <button data-tab="_EmployeeTimeOut" class="b-nav-tab" style="border:none">
+        Employee Time Out Applicable
+    </button>
+
     @*<div></div>*@
 </div>
 
@@ -68,13 +70,18 @@
     }
 </div>
 <div id="_SpecialOperationRate" class="b-tab">
-        @{
-            Html.RenderPartial("_SpecialOperationRate");
-        }
-    </div>
+    @{
+        Html.RenderPartial("_SpecialOperationRate");
+    }
+</div>
 <div id="_BudgetApplicable" class="b-tab">
     @{
         Html.RenderPartial("_BudgetApplicable");
+    }
+</div>
+<div id="_EmployeeTimeOut" class="b-tab">
+    @{
+        Html.RenderPartial("_EmployeeTimeOut");
     }
 </div>
 @*<script>

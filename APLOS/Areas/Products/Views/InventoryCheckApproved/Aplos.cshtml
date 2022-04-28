@@ -124,9 +124,7 @@
 			<script type="text/template" id="ToBeApprovedBy">
 				<div class="">
 					<div id="control">
-						@*<input ej-dropdownlist e-datasource="$parent.EmploymentTypeList" e-value="data.EmploymentType" e-fields-value="UserName" e-fields-text="UserName" e-width="100%" />*@
-						<input ej-dropdownlist e-datasource="$parent.checkedByList1" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
-						@*<input id="combo-default1" type="text" e-fields-text="Text" e-fields-value="Value" ej-combobox e-datasource="$parent.checkedByList1" e-value="data.AuthorizedBy" e-width="100%" />*@
+						<input ej-dropdownlist e-datasource="$parent.checkedByList" e-value="data.AuthorizedBy" e-fields-text="Text" e-fields-value="Value" e-width="100%" />
 					</div>
 				</div>
 			</script>
@@ -138,9 +136,7 @@
 				</div>
 			</script>
 			<script type="text/template" id="RejectCheckedReason1">
-				@*<div class="col-sm-10" style="width:250px;height:20px;padding-top:-15px; ">*@
 				<input type="text" maxlength="200" ng-model="data.CheckedRejectReason" style="color:black;" class="form-control" />
-				@*</div>*@
 			</script>
 
 			<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetReqHoldReject(3), active: isSetReqHoldReject(3) }">

@@ -53,17 +53,8 @@ function UtilityTransactionReportController(cboService, commonMessage, $scope, $
 
 
         var parameters = [];
-        parameters.push({ "Key": "Date", "Value": getString(fl, "Date") });
-        parameters.push({ "Key": "Time", "Value": getString(fl, "Time") });
-        parameters.push({ "Key": "Category", "Value": getString(fl, "Category") });
-        parameters.push({ "Key": "SubCategory", "Value": getString(fl, "SubCategory") });
-        parameters.push({ "Key": "Item", "Value": getString(fl, "Item") });
-        parameters.push({ "Key": "Group", "Value": getString(fl, "Group") });
-        parameters.push({ "Key": "SubGroup", "Value": getString(fl, "SubGroup") });
-        parameters.push({ "Key": "Quantity", "Value": getString(fl, "Quantity") });
-        parameters.push({ "Key": "Reading", "Value": getString(fl, "Reading") });
-        parameters.push({ "Key": "Remarks", "Value": getString(fl, "Remarks") });
-
+        parameters.push({ "Key": "Id", "Value": getString(fl, "Id") });
+        
         $scope.parameters = parameters;
     }
 

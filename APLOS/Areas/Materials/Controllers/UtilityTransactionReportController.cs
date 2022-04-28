@@ -56,13 +56,13 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-                var sql = @"select FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+                var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
 							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-							group by UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
 							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -255,17 +255,8 @@ namespace Aplos.Areas.Materials.Controllers
 											,UT.Quantity,UT.Reading,UT.Remarks
 							                from UtilityTransaction UT
 							                left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-											
-                                            where UT.[Date] in (" + parameters["Date"] + @")
-                                            AND UT.Quantity in (" + parameters["Quantity"] + @")
-                                            AND UM.UtilityCategory in (" + parameters["Category"] + @")
-                                            AND UM.UtilitySubCategory in (" + parameters["SubCategory"] + @")
-                                            AND UM.Item in (" + parameters["Item"] + @")
-                                            AND UM.UtilityGroup in (" + parameters["Group"] + @")
-                                            AND UM.UtilitySubGroup in (" + parameters["SubGroup"] + @")
-                                            AND UT.Reading in (" + parameters["Reading"] + @")
-                                            AND UT.Remarks in (" + parameters["Remarks"] + @")
-
+                                            where UT.Id in (" + parameters["Id"] + @")
+                                           
 											group by UT.Id,UT.[Date],UT.AddedDate,UM.UtilityCategory,UM.UtilitySubCategory,UM.Item,UM.UtilityGroup,UM.UtilitySubGroup
 											,UT.Quantity,UT.Reading,UT.Remarks";
 

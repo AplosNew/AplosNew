@@ -1326,7 +1326,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var sql = "select * from dbo.LeaveYearDefination where Id = '" + Id + "' ";
+                var sql = @"select ld.Id,ld.PlantID,c.Id as CompanyId,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate,
+                ld.ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName as responsiblePerson
+                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.Company c on c.Id=p.CompanyId
+                where ld.Id ='"+Id+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1353,15 +1358,22 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                string TableName = "LeaveYearDefination";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select top 100 * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
+                string sql = @"select top 100 * from (select ld.Id,ld.PlantID as PlantId,c.Id as CompanyId,ld.Sequence,
+                ld.Code,ld.ShortName,ld.StandardName,
+                ld.UserName,Format(ld.FromDate,'dd-MMM-yyyy')FromDate,Format(ld.ToDate,'dd-MMM-yyyy')ToDate,
+                Format(ld.ProcessingDate,'dd-MMM-yyyy')ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName 
+                as responsiblePerson
+                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.Company c on c.Id=p.CompanyId
+                ) AS TEMP WHERE " + strkey + " order by sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
-            }
+            }       
             catch (Exception ex)
             {
                 throw ex;
@@ -1397,7 +1409,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId='" + data["PlantId"] + "' AND FromDate='" + data["FromDate"] + "' AND ToDate='"+ data["ToDate"]+"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId='" + data["PlantId"] + "' AND FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"]+"'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same From & To Date for Plant already exists!!!");
 

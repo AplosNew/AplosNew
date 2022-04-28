@@ -15,9 +15,12 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
 
     $scope.companyList = [];
-    cboService.getCompanyGroupCompanyCbo(null, function (result) {
-        $scope.companyList = result;
-    });
+    $scope.getCompany = function () {
+        cboService.getCompanyGroupCompanyCbo(null, function (result) {
+            $scope.companyList = result;
+        });
+    };
+    $scope.getCompany();
 
     $scope.PlantList = [];
     $scope.getPlant = function () {
@@ -52,6 +55,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
         ShortName: null,
         StandardName: null,
         RespersonId: null,
+        responsiblePerson: null,
         UserName: null,
         Remarks: null,
     };
@@ -89,6 +93,9 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
+
+        $scope.getPlant();
+        $scope.getStartUp();
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -125,7 +132,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.doubleResp = function (e) {
-        $scope.responsiblePerson = e.data.EmployeeName;
+        $scope.ModelNew.responsiblePerson = e.data.EmployeeName;
         $scope.ModelNew.RespersonId = e.data.SystemId;
         angular.element(document.querySelector('#employeesModal')).modal('hide');
     }

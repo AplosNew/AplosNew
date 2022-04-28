@@ -19,6 +19,7 @@ using System.Web.Hosting;
 using Library.Service.Helpers;
 using Library.Security.Core;
 using Library.Accounting.FixedAssets;
+using Library.Core;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -592,6 +593,13 @@ namespace Aplos.Areas.Accounts.Controllers
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(new { DATA = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetCustomerListForConfirmation(GridParameter parameters, string FromDate, string ToDate, string PaymentStatus)
+        {
+            AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(new { DATA = accountsStatusDashboardService.GetCustomerListForConfirmation(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, FromDate, ToDate, PaymentStatus), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
