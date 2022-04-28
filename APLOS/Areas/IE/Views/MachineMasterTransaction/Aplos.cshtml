@@ -68,8 +68,7 @@
             <label class="col-sm-4 control-label">Detention<sup>*</sup></label>
             <div class="col-sm-8 show-message ">
                 <div class="select-style">
-                    <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList"
-                            tabindex="6">
+                    <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList" ng-change="getAssetWorkCenterApplicable();" tabindex="6">
                         <option value="">---Select---</option>
                     </select>
                 </div>
@@ -82,11 +81,11 @@
                 <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
             </div>
         </div>
-        <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Work Center<sup>*</sup></label>
-            <div class="col-sm-8 show-message ">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Work Center</label>
+            <div class="col-sm-8">
                 <div class="select-style">
-                    <select class="form-control" id="WorkCenter" name="Work Center" ng-model="ModelNew.WorkCenterId" ng-options="item.Id as item.UserName for item in workcenterList"
+                    <select class="form-control" id="WorkCenter" ng-disabled="IsWorkCenterApplicable==false" name="Work Center" ng-model="ModelNew.WorkCenterId" ng-options="item.Id as item.UserName for item in workcenterList"
                             tabindex="6">
                         <option value="">---Select---</option>
                     </select>
@@ -137,12 +136,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label"><span style="font-size:14px">Select asset</span></label>
+            <label class="col-sm-4 control-label"><span style="font-size:14px">Asset</span></label>
             <div class="col-sm-8">
                 <div class="input-group">
                     <input type="text" name="Asset" ng-model="ModelNew.Asset" class="form-control" maxlength="200" tabindex="5" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="selectAsset()" ng-disabled="ModelNew.IfAssetApplicable == false" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-click="selectAsset()" ng-disabled="IsAssetApplicable == false" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                     </span>
                 </div>
             </div>

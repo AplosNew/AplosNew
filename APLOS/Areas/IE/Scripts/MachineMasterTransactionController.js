@@ -199,6 +199,15 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
         });
     }
     $scope.GetDetentionList();
+    $scope.IsAssetApplicable = false; $scope.IsWorkCenterApplicable = false;
+    $scope.getAssetWorkCenterApplicable = function () {
+        for (var i = 0; i < $scope.DetentionList.length; i++) {
+            if ($scope.DetentionList[i].Value == $scope.ModelNew.DetentionId) {
+                $scope.IsAssetApplicable = $scope.DetentionList[i].IsAssetApplicable;
+                $scope.IsWorkCenterApplicable = $scope.DetentionList[i].IsWorkCenterApplicable;
+            }
+        }
+    }
 
     $scope.selectAsset = function () {
         $scope.GetAssetTypeList();
@@ -343,6 +352,7 @@ function MachineMasterTransactionController(cboService, commonMessage, $scope, $
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.GetworkcenterData();
+        $scope.getAssetWorkCenterApplicable();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();

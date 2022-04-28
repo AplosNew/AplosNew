@@ -1,4 +1,4 @@
-﻿<div class="modal fade site-modal in" id="CustomerPayableListPopUP" role="dialog" data-backdrop="static">
+﻿<div class="modal fade site-modal in" id="CustomerListPopUP" role="dialog" data-backdrop="static">
     <div class="modal-dialog" style="width:1000px">
         <div class="modal-content" ng-form name="materialgridCharacteristicsForm">
             <div class="modal-header">
@@ -31,18 +31,15 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>To Pay</th>
-                                <th>Code {{partyType}}</th>
-                                <th>{{partyType}}</th>
-                                <th>Entity</th>
-                                <th>Voucher No</th>
-                                <th>Posting Date</th>
-                                <th>Doc Date</th>
-                                <th>Doc Ref</th>
-                                <th>Currency</th>
-                                <th>Payable</th>
-                                <th>Payment</th>
-                                <th>Balance</th>
+                                <th>To Confirm</th>
+                                <th>No Of Invoice</th>
+                                <th>Party Code</th>
+                                <th>Party</th>
+                                <th>Party Plant</th>
+                                <th>Advance</th>
+                                <th>Books Gross Sales</th>
+                                <th>Books Set-Off</th>
+                                <th>Books Balance</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,17 +55,14 @@
                                         </label>
                                     </div>
                                 </td>
-                                <td ng-show="partyType=='Vendor'">{{x.PartyCode}}</td>
-                                <td ng-show="partyType=='Vendor'">{{x.PartyName}}</td>
-                                <td>{{x.EntityName}}</td>
-                                <td>{{x.VoucherNo}}</td>
-                                <td>{{x.PostingDate | dateFiltering}}</td>
-                                <td>{{x.DocDate | dateFiltering}}</td>
-                                <td>{{x.DocRefNo}}</td>
-                                <td>{{x.CurrencyCode}}</td>
-                                <td class="text-right">{{x.Receivable | number:4}}</td>
-                                <td class="text-right">{{x.Received | number:4}}</td>
-                                <td class="text-right">{{x.Balance | number:4}}</td>
+                                <td>{{x.NoOfInvoice}}</td>
+                                <td>{{x.PartyCode}}</td>
+                                <td>{{x.PartyName}}</td>
+                                <td>{{x.PartyPlantName}}</td>
+                                <td class="text-right">{{x.Advance | number:4}}</td>
+                                <td class="text-right">{{x.BooksGrossSales | number:4}}</td>
+                                <td class="text-right">{{x.BooksReceipts | number:4}}</td>
+                                <td class="text-right">{{x.BooksBalance | number:4}}</td>
                             </tr>
                         </tbody>
                     </table>
