@@ -864,3 +864,18 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     }
 
 }
+
+//-----------------------------------------------------------------------------------
+function confirmDelete() {
+    console.log("Deleting...");
+    $('.modal-header, .modal-footer, .modal-body').addClass('hide');
+    $('.confirm-delete').removeClass('hide');
+    //$('#myModal').modal('hide');
+}
+
+function openModal() {
+    $('.confirm-delete').addClass('hide');
+    $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
+    $('#myModal').modal('show');
+}
+//-----------------------------------------------------------------------------------

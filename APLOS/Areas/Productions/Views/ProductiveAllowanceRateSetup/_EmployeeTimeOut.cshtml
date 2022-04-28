@@ -1,4 +1,9 @@
-﻿<togglable name="{{title}}"></togglable>
+﻿<style>
+    .modal.active{
+        display:block
+    }
+</style>
+<togglable name="{{title}}"></togglable>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -70,7 +75,8 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            <li> <button onclick="openModal()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+            @*<li> <button data-toggle="modal" onclick="openModal()" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>*@
             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
@@ -93,5 +99,66 @@
     </div>
    
 </div>
-<confirm-modal></confirm-modal>
-<confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Deletet();"></confirm-archive-generic>
+@*<confirm-modal></confirm-modal>*@
+@*<confirm-archive-generic modalid="confirmPopUp" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Deletet();"></confirm-archive-generic>*@
+
+@*------------------------------------------------------------------------------------*@
+<style>
+    button.btn-primary {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin-top: -50px;
+        margin-left: -100px;
+    }
+
+    .hide {
+        display: none;
+    }
+
+    .show {
+        display: block;
+    }
+</style>
+
+<div class="container">
+    <!-- Button to Open the Modal -->
+    
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Modal Heading</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    Modal body..
+                </div>
+                <div class="confirm-delete hide">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Delete Confirmed</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <p>Delete Successful!!</p>
+                    <div class="modal-footer1">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@*--------------------------------------------------------------------------*@
