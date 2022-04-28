@@ -95,6 +95,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
         $scope.Action = 'Update';
 
         $scope.getPlant();
+        $scope.getStartUp();
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
