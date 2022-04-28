@@ -712,6 +712,7 @@
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
+    <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
@@ -2069,6 +2070,7 @@
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
+    <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
@@ -2433,6 +2435,7 @@
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueBOQController.js" />
+    <Content Include="Areas\Products\Scripts\InventoryrequisitionapprovedbyController.js" />
     <Content Include="Areas\Products\Scripts\inventorySalesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\InventorySalesReturnController.js" />
     <Content Include="Areas\Products\Scripts\PORollBackController.js" />
@@ -2481,7 +2484,7 @@
     <Content Include="Areas\Products\Scripts\MaterialBudgetController.js" />
     <Content Include="Areas\Products\Scripts\materialMasterWithProductMasterController.js" />
     <Content Include="Areas\Products\Scripts\FgPoFormasterOrderController.js" />
-    <Content Include="Areas\Products\Scripts\InventoryCheckApprovedController.js" />
+    <Content Include="Areas\Products\Scripts\InventoryrequisitionCheckbyController.js" />
     <Content Include="Areas\Products\Scripts\qualityStdSetController.js" />
     <Content Include="Areas\Products\Scripts\purchaseOrderGroupController.js" />
     <Content Include="Areas\Products\Scripts\PurchaseOrderByRequisitionController.js" />
@@ -4114,6 +4117,7 @@
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\CustomerConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\LeaveYearDefination\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

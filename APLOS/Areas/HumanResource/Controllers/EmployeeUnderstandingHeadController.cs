@@ -33,7 +33,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class EmployeeUnderstandingHeadController : BaseController
     {
-        string TableName = "dbo.UtilityMaster";
+      
 
         #region -- Constructor
 
@@ -60,26 +60,45 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Operation
 
-        [HttpPost, Authorize]
-        public ActionResult GetList(string column, string value)
+        [HttpGet, Authorize]
+        public ActionResult GetList(string employeeId)
         {
-            string strkey = "1=1";
-            if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                strkey = column + " like '%" + value + "%'";
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select top 100 * from (SELECT euh.Id, euh.EmployeeId, euh.BudgetCode, euh.PositionCode,FORMAT(euh.[Date],'dd-MMM-yyyy') Date,
-       euh.[Status], euh.Remarks,ei.EmployeeCode ,ei.EmployeeName
-            FROM EmpUnderstandingHead AS euh LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId)
-AS TEMP WHERE " + strkey + "";
+            if (string.IsNullOrEmpty(employeeId) || employeeId == "undefined" || employeeId == "null")
+            {
+                employeeId = identity.EmployeeId;
+            }
+            string sql = @"SELECT euh.Id, euh.EmployeeId, euh.BudgetCode, euh.PositionCode,FORMAT(euh.[Date],'dd-MMM-yyyy') [Date],
+                            euh.[Status], euh.Remarks,ei.EmployeeCode ,ei.EmployeeName
+                            ,p.Code PCode,MB.Code MBCode
+                            FROM EmpUnderstandingHead AS euh 
+                            LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
+                            LEFT JOIN ORG.Position AS p ON p.Id=euh.PositionCode
+                            LEFT JOIN MST.ManpowerBudget AS MB ON MB.Id=euh.BudgetCode
+                            WHERE euh.EmployeeId='" + employeeId + "'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMasterDataFromEI(string EmployeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(EmployeeId)|| EmployeeId== "undefined" || EmployeeId == "null")
+            {
+                EmployeeId = identity.EmployeeId;
+            }
+            string sql = @"SELECT ''Id,ei.SystemId EmployeeId,ei.EmployeeCode, ei.EmployeeName,B.Code MBCode,P.Code PCode,P.Id PositionCode,ei.BudgetCode
+                         FROM  EmployeeInformation AS ei 
+                        LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
+                        LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                        WHERE ei.SystemId='" + EmployeeId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
         public ActionResult GetActivityList(string EmpUnderstandingHeadId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
             string sql = @"SELECT EUA.Id,eua.EmpUnderstandingHeadId, eua.ActivityName, eua.ActivityDetail,
        eua.PurposeOfTheActivity, eua.ActivityCategory, eua.OtherActivityCategory,
        eua.ActivityClass, eua.Priority, eua.Period, eua.Frequency, eua.AverageTime,
@@ -98,30 +117,8 @@ AS TEMP WHERE " + strkey + "";
             string sql = @"SELECT * FROM ActivityDocuments WHERE EmpUnderstandingActivityId='" + EmpUnderstandingActivityId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-        [HttpGet, Authorize]
-        public ActionResult GetMasterData(string EmployeeId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT euh.Id, euh.[Date], euh.[Status], euh.Remarks,ei.SystemId, ei.EmployeeName,B.Code BudgetCode,P.Code PositionCode,P.UserName Position
-  FROM EmpUnderstandingHead AS euh
-LEFT OUTER  JOIN EmployeeInformation AS ei ON ei.SystemId=euh.EmployeeId
-LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=euh.BudgetCode
-LEFT OUTER JOIN org.Position P ON P.Id=euh.PositionCode
-WHERE euh.EmployeeId='" + EmployeeId + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet, Authorize]
-        public ActionResult GetMasterDataFromEI(string EmployeeId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT ei.SystemId,ei.EmployeeCode, ei.EmployeeName,B.Code BudgetCode,P.Code PositionCode,P.UserName Position
- FROM  EmployeeInformation AS ei 
-LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
-LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-WHERE ei.SystemId='" + EmployeeId + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
+        
 
 
         [HttpPost, Authorize]
@@ -140,12 +137,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
-        {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
-        }
-
+       
         [HttpPost, Authorize]
         public JsonResult Create(Dictionary<string, object> data)
         {
@@ -173,12 +165,11 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
                 }
                 #endregion data update
 
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false,Id=_Id, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -197,7 +188,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from EmpUnderstandingActivity where ActivityName='" + data["ActivityName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from EmpUnderstandingActivity where ActivityName='" + data["ActivityName"] + "' AND  Id<>'" + data["Id"] + "' AND EmpUnderstandingHeadId='" + data["EmpUnderstandingHeadId"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Activity already exists!!!");
 
@@ -223,7 +214,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -266,7 +257,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -320,27 +311,6 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
             }
         }
 
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-
-        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -388,16 +358,6 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
             dr.EndEdit();
         }
 
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
-
         public Dictionary<string, object> GetDocFile(string id)
         {
             try
@@ -443,7 +403,9 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
                     dr["Id"] = data.Id;
 
                     dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
+                    dr["EmployeeId"] = data.EmployeeId;
                     dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
+                    dr["DocumentType"] = data.DocumentType;
                     dr["DocumentType"] = data.DocumentType;
                     dr["DocumentFormat"] = data.DocumentFormat;
                     dr["DocumentClass"] = data.DocumentClass;
@@ -467,7 +429,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
 
                     dr.BeginEdit();
-
+                    dr["EmployeeId"] = data.EmployeeId;
                     dr["EmpUnderstandingActivityId"] = data.EmpUnderstandingActivityId;
                     dr["DocumentPreprationFrequency"] = data.DocumentPreprationFrequency;
                     dr["DocumentType"] = data.DocumentType;
@@ -593,6 +555,7 @@ WHERE ei.SystemId='" + EmployeeId + @"'";
 
         public string Id { get; set; }
         public string EmpUnderstandingActivityId { get; set; }
+        public string EmployeeId { get; set; }
         public string DocumentPreprationFrequency { get; set; }
         public string DocumentType { get; set; }
         public string DocumentFormat { get; set; }

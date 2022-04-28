@@ -117,5 +117,9 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/NewEarnLeaveReport/NewSystemEL',
             controller: "NewSystemEarnLeaveReportController"
         })
+        .when('/leave-year-defination', {
+            templateUrl: 'Leave/LeaveYearDefination/Aplos',
+            controller: "LeaveYearDefinationController"
+        })
         ;
 }
