@@ -1024,4 +1024,239 @@ namespace Library.OrderManagement.Production
     }
 
     #endregion
+
+    #region EmployeeTimeOutApplicable
+
+    public class EmployeeTimeOutApplicableService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public EmployeeTimeOutApplicableService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        #region GetOperations
+
+        public IEnumerable<object> Get(string Id)
+        {
+            try
+            {
+                var sql = "select * from dbo.EmployeeTimeOutApplicable where Id = '" + Id + "' ";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetList()
+        {
+            try
+            {
+                //string TableName = "dbo.EmployeeTimeOutApplicable";
+               
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"Select et.* , p.UserName as ProcessName , e.UserName as EntityName ,pp.ID as PlantId , c.Id as CompanyId from dbo.EmployeeTimeOutApplicable et
+                                left join org.Entity e on e.Id = et.EntityId
+                                left join hkp.Process p on p.Id = et.ProcessId
+								left join org.Plant pp on pp.ID = e.PlantId
+								left join org.Company c on c.ID = pp.CompanyId";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getPlants(string cmp)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getCompany()
+        {
+            try
+            {
+
+                var str = @"Select Username as Text , Id as Value from ORG.Company ";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getEntity(string plant)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Entity where PlantId = '" + plant + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getProcesses(string Entity)
+        {
+            try
+            {
+                var str = @"Select p.Id as Value , p.UserName as Text
+                            from hkp.EntityProcessTag ept
+                            left join hkp.Process p on p.Id = ept.ProcessId
+                            where ept.EntityId ='" + Entity + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        #region Saving
+        public string Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                string TableName = " dbo.EmployeeTimeOutApplicable";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ProcessId='" + data["ProcessId"] + "' AND  ProcessId='" + data["EntityId"] + "' And Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Same Entry already exists!!!");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "ETO" + _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+        #endregion
+
+        #region Deleting
+
+        public string Delete(string id)
+        {
+            try
+            {
+
+                string TableName = " dbo.EmployeeTimeOutApplicable";
+                if (string.IsNullOrEmpty(id))
+                    throw new Exception("Select entry first");
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.CommitTransaction();
+
+                return "Success";
+
+            }
+            catch (Exception ex)
+            {
+
+                return ex.Message;
+
+            }
+        }
+
+        #endregion
+
+        #region Misc
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+
+        #endregion
+
+    }
+
+    #endregion
 }

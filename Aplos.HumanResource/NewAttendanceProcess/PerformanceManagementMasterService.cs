@@ -1205,7 +1205,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 string sql = @"select egc.* , eg.* from  EmployeeGoalSettingChild egc
                                left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId
-                                where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "'";
+                               where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "' and eg.ConfirmationStatus = '"+1+"'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1365,7 +1365,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg";
+                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg where isApproved = '"+0+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1375,7 +1375,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
     }
 
-   
+
+
 
     #endregion Goal Setting Approval
 }
