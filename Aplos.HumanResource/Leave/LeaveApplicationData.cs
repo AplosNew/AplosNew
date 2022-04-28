@@ -1326,7 +1326,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var sql = "select * from dbo.LeaveYearDefination where Id = '" + Id + "' ";
+                var sql = "select ld.Id,ld.PlantID,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate," +
+                    "ld.ProcessingDate,ld.RespersonId,ld.remarks,e.EmployeeName as responsiblePerson from dbo.LeaveYearDefination ld left" +
+                    "join EmployeeInformation e on e.SystemId = ld.RespersonId where Id = '"+Id+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
