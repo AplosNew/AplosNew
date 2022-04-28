@@ -12,7 +12,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
 
     $scope.PlantList = [];
     $scope.ResidenceGroupList = [];
-
+/*
     $scope.getPlant = function () {
         $http({
             method: 'POST',
@@ -32,8 +32,8 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.ResidenceGroupList = response.data;
         })
     }
-
-    $scope.PlantId = null;
+    */
+   /* $scope.PlantId = null;
     $scope.selectPlant = function (e) {
         $scope.PlantId = e.data.Id;
     }
@@ -41,5 +41,5 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ResidenceGroupId = null;
     $scope.selectResidenceGroup = function (e) {
         $scope.ResidenceGroupId = e.data.Id;
-    }
+    }*/
 }
