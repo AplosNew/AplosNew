@@ -382,26 +382,64 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             ShowResult(response.data.Message, 'failure');
         }
     };
-    $scope.SaveActivity = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveActivityUrl,
-            data: { 'data': $scope.activityNew, 'EmpUnderstandingHeadId': $scope.ModelNew.Id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                /* ClearFields(response.data.Sequence);*/
-                $scope.getData();
-                $scope.getActivityGridData($scope.ModelNew.Id);
 
+    $scope.savebtndisable = false;
+    $scope.SaveActivity = function () {
+        try {
+            $scope.savebtndisable = true;
+            $http({
+                method: 'POST',
+                url: $scope.saveActivityUrl,
+                data: { 'data': $scope.activityNew, 'EmpUnderstandingHeadId': $scope.ModelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getActivityGridData($scope.ModelNew.Id);
+                    $scope.clearactivity();
+                    $scope.savebtndisable = false;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+                $scope.savebtndisable = false;
             }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
+    };
+
+
+    $scope.clearactivity = function () {
+        $scope.activity = {
+            Id: null,
+            EmpUnderstandingHeadId: null,
+            EmployeeId: null,
+            Code: null,
+            ActivityName: null,
+            ActivityDetail: null,
+            PurposeOfTheActivity: null,
+            ActivityCategory: null,
+            OtherActivityCategory: null,
+            ActivityClass: null,
+            Priority: null,
+            ActivityType: null,
+            Period: null,
+            Frequency: 1,
+            AverageTime: null,
+            ActivityImportance: null,
+            ValueInActivity: null,
+            FinancialImpact: null,
+            Documents: false,
+            Remarks: null,
+            KPI: false,
+            ApplicableDocument: false,
+            ApplicableKPI: false
+        }
+        $scope.activityNew = Object.assign({}, $scope.activity);
+        $scope.savebtndisable = false;
     };
 
     $scope.filedata = null;
@@ -557,15 +595,6 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.Action = 'Save';
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
-
-    $scope.ClearActivity = function () {
-        $scope.activityNew = Object.assign({}, $scope.activity);
-        document.getElementById('uploadBtn').value = '';
-        $scope.filedata = '';
-        $scope.documentActivityNew.FileName = "";
-        $scope.filedata = {};
-        document.getElementById('uploadFile').value = "";
-    };
 
     $scope.ClearDocument = function () {
         $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
