@@ -2097,6 +2097,7 @@
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
+    <Content Include="Areas\Productions\Scripts\EmployeeTimeOutApplicableController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteLocationController.js" />
@@ -4114,6 +4115,7 @@
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\CustomerConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_EmployeeTimeOut.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

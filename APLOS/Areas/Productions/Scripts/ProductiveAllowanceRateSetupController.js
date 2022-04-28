@@ -699,4 +699,168 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         });
 
     }
+
+
+    /// The Page for EmployeeTimeOut Applicable
+
+    $scope.title = "Employee Time Out Applicable";
+    $scope.Action = 'Save';
+    $scope.ModelListeet = [];
+    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.saveUrl = $scope.path + 'create';
+    $scope.deleteUrl = $scope.path + 'delete/';
+    baseService.init($scope.getListUrl);
+    //$scope.searchBy = "UserName"; $scope.search = "";
+    //$scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
+
+
+    $scope.companyListeet = [];
+    $scope.entityListeet  = [];
+    $scope.plantListeet  = [];
+    $scope.processListeet  = [];
+    $scope.companyIdeet  = null;
+    $scope.plantIdeet  = null;
+
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+            //data: { column: $scope.searchBy, value: $scope.search },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelListeet = response.data;
+            
+            ClearFields();
+
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetCompanys',
+            //params: { 'cmp': $scope.Company }
+        }).then(function success(response) {
+            $scope.companyListeet  = response.data;
+        })
+       
+
+    }
+    $scope.getData();
+
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetPlant",
+            params: { cmp: $scope.companyIdeet  },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.plantListeet  = response.data;
+        });
+    }
+
+    $scope.getEntity = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetEntity",
+            params: { plant: $scope.plantIdeet  },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.entityListeet  = response.data;
+        });
+    }
+
+    $scope.getProcesses = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "GetProcess",
+            params: { entity: $scope.ModelNeweet.EntityId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.processListeet  = response.data;
+        });
+    }
+
+    $scope.ModelTemp = {
+        Id: null,
+        EntityId: null,
+        ProcessId: null,
+        IsApplicable: false,
+    };
+    $scope.ModelNeweet = Object.assign({}, $scope.ModelTemp);
+
+
+
+    $scope.Get = function (args) {
+
+        $scope.ModelNeweet = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+
+        $scope.plantIdeet = $scope.ModelNeweet.PlantId;
+        $scope.companyIdeet = $scope.ModelNeweet.CompanyId;
+
+        $scope.getPlant();
+        $scope.getEntity();
+        $scope.getProcesses();
+
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.ModelNewForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNeweet },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+
+        }
+    };
+
+    $scope.Deletet = function () {
+        if (!baseService.isUndefinedOrNull($scope.ModelNeweet.Id)) {
+            $http({
+                method: 'POST',
+                url: $scope.deleteUrl + $scope.ModelNeweet.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    ClearFields();
+                    $scope.getData();
+                }
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.ModelNeweet = Object.assign({}, $scope.ModelTemp);
+    }
+
 }
