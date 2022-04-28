@@ -727,5 +727,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/GoalSettingApproval/Aplos',
             controller: 'GoalSettingApprovalController'
         })
+        .when('/residence-master', {
+            templateUrl: 'humanResource/ResidenceMaster/Aplos',
+            controller: 'ResidenceMasterController'
+        })
         ;
 }

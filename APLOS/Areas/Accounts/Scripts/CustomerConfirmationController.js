@@ -7,7 +7,22 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
     $scope.url = "Accounts/VoucherGlUpdate";
     $scope.parkUrl = $scope.url + "/parkModeVoucher";
     $scope.saveUrl = $scope.path + 'UpdateInvoice';
-   
+
+    $scope.report = {
+        PaymentStatus: null,
+        FromDate: $filter("dateFiltering")(Date.now()),
+        ToDate: $filter("dateFiltering")(Date.now())
+    };
+    $scope.paymentStatusList = [
+        {
+            "Text": "Pending",
+            "Value": "Pending"
+        }
+        //,{
+        //    "Text": "ALL",
+        //    "Value": "ALL"
+        //}
+    ];
     $scope.VoucherDataList = [];
     $scope.getVoucherData = function () {
         try {
@@ -76,59 +91,155 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
 
    
 
-    $scope.searchglByList = [
+    $scope.tempList = [];
+    $scope.paymentSelectedList = [];
+    $scope.multiplevendorInvoiceSearchList = [
+        //{
+        //    "name": "VoucherNo",
+        //    "value": "VoucherNo"
+        //},
         {
-            "name": "GL Code",
-            "value": "GLGeneralInfoCode"
+            "name": "Customer Code",
+            "value": "PartyCode"
         },
         {
-            "name": "GL Name",
-            "value": "GLGeneralInfoName"
-        },
-        {
-            "name": "Budget",
-            "value": "BudgetName"
-        },
-        {
-            "name": "Activity",
-            "value": "ActivityName"
-        },
-        {
-            "name": "Ref No",
-            "value": "RefNo"
+            "name": "Customer Name",
+            "value": "PartyName"
         }
+        //,{
+        //    "name": "Entity",
+        //    "value": "EntityName"
+        //}
+        //,{
+        //    "name": "Posting Date",
+        //    "value": "PostingDate"
+        //},
+        //{
+        //    "name": "Doc Date",
+        //    "value": "DocDate"
+        //},
+        //{
+        //    "name": "Doc Ref",
+        //    "value": "DocRefNo"
+        //}
     ];
-    $scope.glListParameters = {
+    $scope.popUpParameters = {
         limit: 10,
         offset: 0,
-        order: "asc",
-        sort: "GLGeneralInfoName",
-        searchBy: "GLGeneralInfoName",
+        order: 'ASC',
+        sort: 'PartyName',
+        searchBy: 'PartyName',
         pageSize: 10,
         total_count: 0,
         search: null,
         serverPagination: true
     };
-    $scope.indexGL = "";
-    $scope.popUpGL = function (index) {
-        $scope.indexGL = index;
-        baseService.setCurrentPage("cOAICodeList");
-        $scope.GetCOAICodeListData = function (pageno) {
-            baseService.paginationBase("Accounts/GLItem/GetExpenseGLBudgetActivity", pageno, $scope.glListParameters)
+
+    function avoidCheckList(id) {
+        for (var i = 0; i < $scope.paymentSelectedList.length; i++) {
+            if ($scope.paymentSelectedList[i].PartyCode === id) {
+                return true;
+                break;
+            }
+        }
+        return false;
+    }
+    $scope.getPopupCustomerList = function () {
+        $scope.tempList = [];
+        $scope.customerreceivableGLData = function (pageno) {
+            $scope.customerReceivableGLUrl1 = 'accounts/AccountStatusDashboard/GetCustomerListForConfirmation?fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&paymentStatus=' + $scope.report.PaymentStatus;
+            baseService.paginationBase($scope.customerReceivableGLUrl1, pageno, $scope.popUpParameters)
                 .then(function (result) {
-                    $scope.cOAICodeList = result.Rows;
-                    $scope.glListParameters.total_count = result.Total;
+                    try {
+                        $scope.paymentList = [];
+                        angular.forEach(result.DATA.Rows, function (item) {
+                            if (avoidCheckList(item.PartyCode) === false) {
+                                $scope.paymentList.push(item);
+                            }
+                        })
+                        $scope.popUpParameters.total_count = result.Total;
+                        for (var i = 0; i < $scope.paymentList.length; i++) {
+                            $scope.paymentList[i].Active = getActive($scope.tempList, $scope.paymentList[i].PartyCode);
+                        }
+                    } catch (e) {
+                        ShowResult(e, 'Error');
+                    }
                 }, function () {
-                    ShowResult(commonMessage.NetworkError, "failure", "GLPopUp");
+                    ShowResult(commonMessage.NetworkError, 'failure');
                 }).finally(function () {
                 });
         };
-        angular.element(document.querySelector("#GLPopUp")).modal("show");
-        $scope.GetCOAICodeListData();
+        angular.element(document.querySelector('#CustomerListPopUP')).modal('show');
+        $scope.customerreceivableGLData();
     };
+    $scope.closePopUp = function () {
+        angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
+    };
+    $scope.changeDateType = function (type) {
+        $scope.multiplePayment.DateType = type;
+    }
+    function getActive(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].PartyCode === id) {
+                return true;
+            }
+        }
 
-    $scope.closeCOAICodeListPopUp = function () {
-        angular.element(document.querySelector("#GLPopUp")).modal("hide");
+        return false;
+    }
+    $scope.pushInTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.PartyCode) === false) {
+                    $scope.tempList.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.tempList); i++) {
+                        if ($scope.tempList[i].PartyCode === data.PartyCode) {
+                            $scope.tempList.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.tempList); t++) {
+                    if ($scope.tempList[t].PartyCode === data.PartyCode) {
+                        $scope.tempList.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+    function checkExistTempList(list, id) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].PartyCode === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+   
+    $scope.closePopUp = function () {
+        if (baseService.arrayLength($scope.tempList) > 0) {
+            angular.forEach($scope.tempList, function (item) {
+                $scope.paymentSelectedList.push({
+                    PartyId: item.PartyId
+                    , PartyCode: item.PartyCode
+                    , PartyName: item.PartyName
+                    
+                });
+            });
+        }
+        angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
    
     $scope.Save = function () {

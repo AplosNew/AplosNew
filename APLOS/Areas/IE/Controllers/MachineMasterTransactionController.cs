@@ -114,7 +114,7 @@ namespace Aplos.Areas.IE.Controllers
         public JsonResult GetDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select DetentionUserName As Text, Id As Value from DetentionMaster";
+            var sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

@@ -502,6 +502,8 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
     .controller("DocumentCategoryController", DocumentCategoryController)
+    .controller('ResidenceMasterController', ResidenceMasterController)
+
 
     .config(accountConfig)
     .config(AdministrationConfig)

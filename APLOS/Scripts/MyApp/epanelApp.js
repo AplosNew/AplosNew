@@ -23,7 +23,8 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("employeeAdvanceRequisitionApprovalController", employeeAdvanceRequisitionApprovalController)
     .controller("baseMaterialAndArticleController", baseMaterialAndArticleController)
     .controller("RequisitionController", RequisitionController)
-    .controller("InventoryCheckApprovedController", InventoryCheckApprovedController)
+    .controller("InventoryrequisitionCheckbyController", InventoryrequisitionCheckbyController)
+    .controller("InventoryrequisitionapprovedbyController", InventoryrequisitionapprovedbyController)
     .controller("PurchaseOrderController", PurchaseOrderController)
     .controller("PurchaseOrderCheckController", PurchaseOrderCheckController)
     .controller("PurchaseOrderApproveController", PurchaseOrderApproveController)
@@ -141,11 +142,11 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/requisition-approvedby', {
                 templateUrl: 'Products/InventoryCheckApproved/ReqAuthorized',
-                controller: 'InventoryCheckApprovedController'
+                controller: 'InventoryrequisitionapprovedbyController'
             })
             .when('/requisition-checkby', {
                 templateUrl: 'Products/InventoryCheckApproved/Aplos',
-                controller: 'InventoryCheckApprovedController'
+                controller: 'InventoryrequisitionCheckbyController'
             })
 
             .when('/purchaseOrder-Checked-By', {

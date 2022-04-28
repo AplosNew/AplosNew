@@ -177,7 +177,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/requisition-checkby', {
             templateUrl: 'Products/InventoryCheckApproved/Aplos',
-            controller: 'InventoryCheckApprovedController'
+            controller: 'InventoryrequisitionCheckbyController'
         })
         .when('/gate-entry', {
             templateUrl: 'Products/GateentryToken/Aplos',
@@ -185,7 +185,7 @@ function ProductConfig($routeProvider, $locationProvider) {
         })
         .when('/requisition-approvedby', {
             templateUrl: 'Products/InventoryCheckApproved/ReqAuthorized',
-            controller: 'InventoryCheckApprovedController'
+            controller: 'InventoryrequisitionapprovedbyController'
         })
         .when('/procurement-master', {
             templateUrl: 'Products/Procurement/Aplos',
