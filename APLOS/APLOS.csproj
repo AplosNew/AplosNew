@@ -618,6 +618,7 @@
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DailyDayStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ResidenceMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SalaryDisbursementReportController.cs" />
@@ -2008,6 +2009,7 @@
     <Content Include="Areas\HumanResource\Scripts\DailyDayStatusReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ResidenceMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\SalaryDisbursementReportController.js" />
@@ -4117,6 +4119,7 @@
     <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\LeaveYearDefination\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

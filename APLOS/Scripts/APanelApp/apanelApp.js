@@ -500,6 +500,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
+    .controller('ResidenceMasterController', ResidenceMasterController)
 
 
     .config(accountConfig)
