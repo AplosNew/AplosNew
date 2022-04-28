@@ -198,7 +198,6 @@ upanelApp.controller("interTransactionGivenOpeningBalanceController", interTrans
 upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceController);
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
-upanelApp.controller("InventoryCheckApprovedController", InventoryCheckApprovedController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
 upanelApp.controller("inventoryPayableController", inventoryPayableController);
