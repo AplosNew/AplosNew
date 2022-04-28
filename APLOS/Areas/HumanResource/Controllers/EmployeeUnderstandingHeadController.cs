@@ -33,7 +33,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class EmployeeUnderstandingHeadController : BaseController
     {
-        string TableName = "dbo.UtilityMaster";
+      
 
         #region -- Constructor
 
@@ -63,6 +63,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         [HttpGet, Authorize]
         public ActionResult GetList(string employeeId)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(employeeId) || employeeId == "undefined" || employeeId == "null")
+            {
+                employeeId = identity.EmployeeId;
+            }
             string sql = @"SELECT euh.Id, euh.EmployeeId, euh.BudgetCode, euh.PositionCode,FORMAT(euh.[Date],'dd-MMM-yyyy') [Date],
                             euh.[Status], euh.Remarks,ei.EmployeeCode ,ei.EmployeeName
                             ,p.Code PCode,MB.Code MBCode
@@ -74,10 +79,26 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetMasterDataFromEI(string EmployeeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (string.IsNullOrEmpty(EmployeeId)|| EmployeeId== "undefined" || EmployeeId == "null")
+            {
+                EmployeeId = identity.EmployeeId;
+            }
+            string sql = @"SELECT ''Id,ei.SystemId EmployeeId,ei.EmployeeCode, ei.EmployeeName,B.Code MBCode,P.Code PCode,P.Id PositionCode,ei.BudgetCode
+                         FROM  EmployeeInformation AS ei 
+                        LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
+                        LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                        WHERE ei.SystemId='" + EmployeeId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public ActionResult GetActivityList(string EmpUnderstandingHeadId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+           
             string sql = @"SELECT EUA.Id,eua.EmpUnderstandingHeadId, eua.ActivityName, eua.ActivityDetail,
        eua.PurposeOfTheActivity, eua.ActivityCategory, eua.OtherActivityCategory,
        eua.ActivityClass, eua.Priority, eua.Period, eua.Frequency, eua.AverageTime,
@@ -97,16 +118,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
         
-        [HttpGet, Authorize]
-        public ActionResult GetMasterDataFromEI(string EmployeeId)
-        {
-            string sql = @"SELECT ''Id,ei.SystemId EmployeeId,ei.EmployeeCode, ei.EmployeeName,B.Code BMCode,P.Code PCode,P.Id PositionCode,ei.BudgetCode
-                         FROM  EmployeeInformation AS ei 
-                        LEFT OUTER JOIN mst.ManpowerBudget B ON B.Id=ei.BudgetCode
-                        LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
-                        WHERE ei.SystemId='" + EmployeeId + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
-        }
+        
 
 
         [HttpPost, Authorize]
@@ -153,12 +165,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
                 #endregion data update
 
-
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false,Id=_Id, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -203,7 +214,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #endregion data update
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -246,7 +257,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -300,27 +311,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-
-        }
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -367,16 +357,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             dr.EndEdit();
         }
-
-        private double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM " + TableName + "");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
 
         public Dictionary<string, object> GetDocFile(string id)
         {
