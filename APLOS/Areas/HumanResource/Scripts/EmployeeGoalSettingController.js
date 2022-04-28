@@ -89,7 +89,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             url: $scope.path + 'getPerformancePeriod',
         }).then(function success(response) {
             $scope.PerformanceYearList = response.data;
-            $scope.SelectPerformanceYearId = $scope.PerformanceYearList[0].Value;
+            
             
         })
     }
@@ -136,27 +136,29 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.Employee = e.data.EmployeeName;
         $scope.perfYear = document.getElementById("ddperfYear").value;
         $scope.getPMSMaster();
-        $scope.displayEGChild();
+       
         
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
+        $scope.displayEGChild();
     }
 
     $scope.displayEGChild = function () {
       
-        if (baseService.isUndefinedOrNull($scope.SelectPerformanceYearId) && baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-            throw 'Performance Year and Employee Id is Required.';
-            ShowResult('Performance Year and Employee Id is Required.', 'failure');
+        if (baseService.isUndefinedOrNull($scope.ModelNew.PerformanceYearId) ) {
+            ShowResult('Performance Year is Required.', 'failure');
+            throw 'Invalid Request';            
         }
-        //if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-        //    throw 'Employee is Required.';
-        //    ShowResult('Employee is Required.', 'failure');
-        //}
+        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
+            ShowResult('Employee is Required.', 'failure');
+            throw 'Invalid Request';
+        }
 
-        else {
+
             document.getElementById("PerformanceGroupList").style.cssText = "display:block";
-            document.getElementById("EGSGrid").style.cssText = "display:block";
+        document.getElementById("EGSGrid").style.cssText = "display:block";
+        $scope.getChildData();
             
-        }
+        
     }
    
     //$scope.displayEGChild();
@@ -167,7 +169,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         SystemId: null,       
         PerformanceYearId: null,
         ConfirmationStatus: false,
-        isApproved: false,
+        isApproved: 0,
         // ------------------------------------
         Id: null,
         ObjectiveName: null,
@@ -296,27 +298,39 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
                                         */
     //Getting the MasterData
     $scope.ModelListChild = [];
+
     $scope.getChildData = function () {
         $scope.getData();
         $http({
             method: 'POST',
             url: $scope.path + "GetEGChild",
+            data: {
+                'PerformanceYearId': $scope.ModelNew.PerformanceYearId,
+                'SelectedEmployeeId': $scope.SelectedEmployeeId,
+               
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelListChild = response.data;
             
         });
     }
-    $scope.getChildData();
+    //$scope.getChildData();
 
-    $scope.EnableDisable = function (e) {
+    $scope.EnableDisable = function () {
         $scope.result = $scope.ModelNew.CostSaving;
-        if ($scope.result === "Yes") {
-            document.getElementById("txtValue").disabled = false;
+        if ($scope.result == "Yes") {
+            if (document.getElementById("txtValue").disabled == true) {
+                document.getElementById("txtValue").disabled = false;
+            }
+
         } else {
-            document.getElementById("txtValue").disabled = true;
+            if (document.getElementById("txtValue").disabled == false) {
+                document.getElementById("txtValue").disabled = true;
+            }
         }
 
+       
     }
 
   
@@ -344,5 +358,25 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         }
     };
 
+    $scope.UploadFiles = function (files) {
+        $scope.SelectedFiles = files;
+        if ($scope.SelectedFiles && $scope.SelectedFiles.length) {
+            Upload.upload({
+                url: $scope.path +'/SaveFile/',
+                data: {
+                    files: $scope.SelectedFiles
+                }
+            }).then(function (response) {
+                $timeout(function () {
+                    $scope.Result = response.data;
+                });
+            }), function (response) {
+                if (response.status > 0) {
+                    var errorMsg = response.status + ': ' + response.data;
+                    alert(errorMsg);
+                }
+            }
+        }
+    };
    
 }

@@ -325,7 +325,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
                             dr["Id"] = "ED" + _Idx;
                             dr["EmployeeId"] = item.EmployeeId;
-                            dr["Date"] = Convert.ToDateTime(DateTime.Now.ToString("dd-MMM-yyyy"));
+                            dr["Date"] = Convert.ToDateTime(item.PTime).ToString("dd-MMM-yyyy");
                             dr["Time"] = Convert.ToDateTime(item.PTime.ToString());
                             dr["ShiftId"] = ShiftId;
                             dr["EmployeeServiceCategoryId"] = CategoryId;
