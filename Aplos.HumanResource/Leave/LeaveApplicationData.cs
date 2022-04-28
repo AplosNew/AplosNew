@@ -1326,9 +1326,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var sql = "select ld.Id,ld.PlantID,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate," +
-                    "ld.ProcessingDate,ld.RespersonId,ld.remarks,e.EmployeeName as responsiblePerson from dbo.LeaveYearDefination ld left" +
-                    "join EmployeeInformation e on e.SystemId = ld.RespersonId where Id = '"+Id+"'";
+                var sql = @"select ld.Id,ld.PlantID,c.Id as CompanyId,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate,
+                ld.ProcessingDate,ld.RespersonId,ld.remarks,e.EmployeeName as responsiblePerson
+                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.Company c on c.Id=p.CompanyId
+                where ld.Id ='"+Id+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

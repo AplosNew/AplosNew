@@ -15,9 +15,12 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
 
     $scope.companyList = [];
-    cboService.getCompanyGroupCompanyCbo(null, function (result) {
-        $scope.companyList = result;
-    });
+    $scope.getCompany = function () {
+        cboService.getCompanyGroupCompanyCbo(null, function (result) {
+            $scope.companyList = result;
+        });
+    };
+    $scope.getCompany();
 
     $scope.PlantList = [];
     $scope.getPlant = function () {
@@ -90,6 +93,8 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
+
+        $scope.getPlant();
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
