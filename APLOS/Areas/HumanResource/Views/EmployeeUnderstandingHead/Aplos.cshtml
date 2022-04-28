@@ -255,8 +255,8 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id == null || ModelNew.Id == ''" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                            <li> <button ng-click="ClearActivity();" ng-disabled="disableBtn()" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id == null || ModelNew.Id == '' && savebtndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="clearactivity();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
                     <div class="col-xs-12">
