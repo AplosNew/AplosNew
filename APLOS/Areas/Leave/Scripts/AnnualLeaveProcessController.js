@@ -4,170 +4,87 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $rootScope.title = 'Annual Leave Process';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'Leave/AnnualLeaveProcess/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
-    $scope.searchBy = "UserName"; $scope.search = "";
-    $scope.searchByList = [{ value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }];
+    $scope.path = 'Leave/AnnualLeaveProcess/';  
+      
+    //#region The Paging System
 
+    var x = document.getElementById("FDiv");
+    var y = document.getElementById("SDiv");
+    x.style.display = "block";
+    y.style.display = "none";
 
-    $scope.companyList = [];
-    $scope.getCompany = function () {
-        cboService.getCompanyGroupCompanyCbo(null, function (result) {
-            $scope.companyList = result;
-        });
+    $scope.clickdde1 = function () {
+        if (x.style.display === "none") {
+            y.style.display = "none";
+            x.style.display = "block";
+
+        }
     };
+
+    $scope.clickdde2 = function () {
+        if (y.style.display === "none") {
+
+            y.style.display = "block";
+            x.style.display = "none";
+
+        }
+    };
+
+    // #endregion
+
+    // #region Get Plants List and Company List
+    $scope.PlantList = [];
+    $scope.getPlants = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getPlants',
+            params: { 'cmp': $scope.Company }
+        }).then(function success(response) {
+            $scope.PlantList = response.data;
+        })
+    }
+
+    $scope.Company = null;
+    $scope.CompanyList = [];
+    $scope.getCompany = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getCompany'
+        }).then(function success(response) {
+            $scope.CompanyList = response.data;
+        })
+    }
     $scope.getCompany();
 
-    $scope.PlantList = [];
-    $scope.getPlant = function () {
-        cboService.getCboPlantByCompany($scope.ModelNew.CompanyId, function (result) {
-            $scope.PlantList = result;
-        });
-    };
+    // #endregion
 
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetList",
-            data: { column: $scope.searchBy, value: $scope.search },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {          
-            $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
-            $scope.GetSequence();
-        });
-    }
-    $scope.getData();
+    // #region Opening Upload Tab Functions
 
-    $scope.ModelTemp = {
-        Id: null,
-        CompanyId: null,
-        PlantId: null,
-        Sequence: 0,
-        Code: null,
-        FromDate: null,
-        ToDate: null,
-        ProcessingDate: null,
-        ShortName: null,
-        StandardName: null,
-        RespersonId: null,
-        responsiblePerson: null,
-        UserName: null,
-        Remarks: null,
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    $scope.BudgetPlantId = null;
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
 
-    $scope.GetSequence = function () {
-        cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelTemp.Sequence = data;
-            $scope.ModelNew.Sequence = data;
-        });
-    };
-    $scope.GetSequence();
-
-
-    $scope.EmployeeList = [];
-    $scope.getStartUp = function () {
-
-        if (baseService.isUndefinedOrNull($scope.ModelNew.PlantId)) {
-
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
         }
-        else {
 
-            $http({
-                method: 'POST',
-                url: $scope.path + 'GetEmps?PlantId=' + $scope.ModelNew.PlantId,
-            }).then(function succ(resp) {
-                $scope.EmployeeList = resp.data;
-            });
-        }
-    }
-    
-
-
-    $scope.Get = function (args) {
-
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-
-        $scope.getPlant();
-        $scope.getStartUp();
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
-
-    $scope.Save = function () {
-        $scope.$broadcast('show-errors-check-validity');
-        if ($scope.ModelNewForm.$valid) {
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
+        var plantName = "";
+        for (var i = 0; i < $scope.PlantList.length; i++) {
+            if ($scope.PlantList[i].Value == $scope.BudgetPlantId) {
+                plantName = $scope.PlantList[i].Text;
             }
+        }
+
+        try {
+            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=LY4&reportFormat=' + reportFormat, '_blank');
+
+        } catch (e) {
 
         }
-    };
-
-    //Getting the Responsible Person
-    $scope.selectResp = function () {
-        angular.element(document.querySelector('#employeesModal')).modal('show');
     }
 
-    $scope.doubleResp = function (e) {
-        $scope.ModelNew.responsiblePerson = e.data.EmployeeName;
-        $scope.ModelNew.RespersonId = e.data.SystemId;
-        angular.element(document.querySelector('#employeesModal')).modal('hide');
-    }
+    // #endregion
 
-
-    $scope.Delete = function () {
-        if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.ModelNew.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    };
-
-    $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
-        return true;
-    };
-
-    function ClearFields(seq) {
-        $scope.Action = 'Save';
-        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-        $scope.ModelNew.Sequence = seq;
-    }
 }
