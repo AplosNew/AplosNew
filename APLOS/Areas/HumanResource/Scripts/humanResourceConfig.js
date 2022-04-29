@@ -731,5 +731,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/ResidenceMaster/Aplos',
             controller: 'ResidenceMasterController'
         })
+        .when('/scattered-week-off', {
+            templateUrl: 'humanResource/ScatteredWeekOff/Aplos',
+            controller: 'ScatteredWeekOffController'
+        })
         ;
 }
