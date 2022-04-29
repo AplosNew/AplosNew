@@ -15,6 +15,9 @@ using Library.Model.Enums;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using Library.HumanResource.NewAttendanceProcess;
+using System.IO;
+using Library.Data;
+using Library.Service.Extension;
 #endregion Using
 
 namespace Aplos.Areas.Leave.Controllers
@@ -38,6 +41,8 @@ namespace Aplos.Areas.Leave.Controllers
         {
             return View();
         }
+
+        #region Plant & Company List
 
         [HttpGet, Authorize]
         public ActionResult getCompany()
@@ -64,6 +69,10 @@ namespace Aplos.Areas.Leave.Controllers
                 return Json(new { Error = true, Message = ex.Message });
             }
         }
+
+        #endregion
+
+        #region Excel Download
 
         [HttpGet, Authorize]
         public ActionResult GetSampleReport(string PlantId, string name,string LvYearId, ReportFormat reportFormat)
@@ -105,16 +114,24 @@ namespace Aplos.Areas.Leave.Controllers
             int COL = 1;
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 15, ExcelHAlign.HAlignLeft);
-            int ColEmpCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "EmployeeId", 15, ExcelHAlign.HAlignLeft);
+            int ColEmpId = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Leave Year", 16, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "LeaveYear", 16, ExcelHAlign.HAlignLeft);
             int ColLvYear = COL;
+            COL++;
+           
+            report.SetHeaderText(ref sheet, ROW, COL, "LeaveYearId", 14, ExcelHAlign.HAlignLeft);
+            int ColLvYearId = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "LeaveType", 16, ExcelHAlign.HAlignLeft);
             int ColLvType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "LeaveTypeId", 14, ExcelHAlign.HAlignLeft);
+            int ColLvTypeId = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Plant", 12, ExcelHAlign.HAlignLeft);
@@ -146,7 +163,9 @@ namespace Aplos.Areas.Leave.Controllers
             startRow = ROW;
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColEmpCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpId"].ToString();
+                sheet[ROW, ColLvYear].Text = data.Rows[i]["LeaveYear"].ToString();
+                sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColLvYear].Text = data.Rows[i]["LeaveYear"].ToString();
                 sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
@@ -154,6 +173,8 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, ColEarned].Text = data.Rows[i]["Earned"].ToString();
                 sheet[ROW, ColAvailed].Text = data.Rows[i]["Availed"].ToString();
                 sheet[ROW, ColAdjustment].Text = data.Rows[i]["Adjustment"].ToString();
+                sheet[ROW, ColLvYearId].Text = data.Rows[i]["LeaveYearId"].ToString();
+                sheet[ROW, ColLvTypeId].Text = data.Rows[i]["LeaveTypeId"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -169,8 +190,12 @@ namespace Aplos.Areas.Leave.Controllers
             return workbook;
         }
 
+        #endregion
+
+        #region Import Data
+
         [HttpPost, Authorize]
-        public ActionResult ImportData(string PlantId)
+        public ActionResult ImportData()
         {
             string path;
 
@@ -178,8 +203,8 @@ namespace Aplos.Areas.Leave.Controllers
             {
                 var file = Request.Files["file"];
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                //SaveFile(out path);
-                var data = "";// ReadData(path, plantId);
+                SaveFile(out path);
+                var data = ReadData(path);
 
                 var json = Json(data, JsonRequestBehavior.AllowGet);
                 json.MaxJsonLength = int.MaxValue;
@@ -191,5 +216,129 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
+        public List<LeaveOpeningData> ReadData(string path)
+        {
+
+            DataSet dsExcel = null;
+            try
+            {
+                List<LeaveOpeningData> data = new List<LeaveOpeningData>();
+                List<LeaveOpeningData> ret = new List<LeaveOpeningData>();
+                ReadFile(path, out dsExcel);
+
+                data = dsExcel.Tables[0].ToList<LeaveOpeningData>();
+                
+                if (data.Count > 0)
+                {
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        string Earning = clsWebLib.RetValidLen(data[i].Earned).ToString();
+                        string Opening = clsWebLib.RetValidLen(data[i].Opening).ToString();
+                        string Availed = clsWebLib.RetValidLen(data[i].Availed).ToString();
+                        string Adjustment = clsWebLib.RetValidLen(data[i].Adjustment).ToString();
+                        string EmpId = clsWebLib.RetValidLen(data[i].EmployeeId).ToString();
+
+                        if (Earning != "" && Opening != "" && Adjustment != ""
+                            && Availed != "" && EmpId != "")
+                        {
+                            ret.Add(data[i]);
+                        }
+                        else
+                        {
+                            throw new Exception("Plz Enter Valid Data for" + data[i].EmployeeId);
+                        }
+                    }
+                }
+                 
+                return ret;
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        
+        public void SaveFile(out string path)
+        {
+            path = "";
+            try
+            {
+                var file = Request.Files["file"];
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetOTManualFile(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ReadFile(string path, out DataSet dsExcel)
+        {
+            FileInfo docFile;
+            dsExcel = null;
+            try
+            {
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                IWorkbook workbook = null;
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = excelEngine.Excel.Workbooks.Open(path);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+
+                dsExcel = new DataSet();
+                dsExcel.Tables.Add(dt);
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                docFile = new FileInfo(path);
+                if (docFile.Exists)
+                {
+                    docFile.Delete();
+                }
+                throw (ex);
+            }
+        }
+
+        #endregion
+
+    }
+
+    public class LeaveOpeningData
+    {
+        public string Opening { get; set; }
+        public string Earned { get; set; }
+        public string Availed { get; set; }
+        public string Adjustment { get; set; }
+        public string EmployeeId { get; set;}
+        public string LeaveYearId{ get; set; }
+        public string LeaveTypeId { get; set; }
     }
 }

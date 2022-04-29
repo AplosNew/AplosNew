@@ -60,6 +60,8 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     // #region Opening Upload Tab Functions
 
+    // #region Sample Report Download
+
     $scope.BudgetPlantId = null;
     $scope.fileData = [];
     $scope.GetSample = function () {
@@ -83,6 +85,17 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         } catch (e) {
 
         }
+    }
+
+    // #endregion
+
+    $("#uploadFile").change(function () {
+        $scope.fileData = this.files[0];
+    });
+    $scope.ExcelUploadData = [];
+    
+    $scope.ModelNew = {
+        FileName: null
     }
 
     $scope.ImportData = function () {
@@ -116,7 +129,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
                     }
                     return fileData;
                 },
-                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData, 'plantId': $scope.BudgetPlantId }
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, "failure");
@@ -138,8 +151,6 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
             });
             return true;
-
-
         } catch (e) {
 
             ShowResult(e, "failure");
