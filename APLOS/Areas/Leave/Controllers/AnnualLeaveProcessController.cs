@@ -40,6 +40,32 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult getCompany()
+        {
+            try {
+                return Json(_leave.getCompany(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+            
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getPlants(string cmp)
+        {
+            try 
+            {                
+                return Json(_leave.getPlants(cmp), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetSampleReport(string PlantId, string name,string LvYearId, ReportFormat reportFormat)
         {
 

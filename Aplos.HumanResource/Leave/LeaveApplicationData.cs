@@ -1553,7 +1553,34 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-      
+        public IEnumerable<object> getCompany()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Company 
+                where companygroupid='"+identity.CompanyGroupId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getPlants(string cmp)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 
 

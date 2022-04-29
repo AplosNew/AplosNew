@@ -26,7 +26,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="select-style">
                                 <select class="form-control" ng-model="BudgetPlantId" name="Plant"
-                                        ng-options="item.Value as item.Text for item in PlantList" tabindex="2">
+                                        ng-options="item.Value as item.Text for item in PlantList" >
                                     <option value="">--Select--</option>
                                 </select>
                             </div>
@@ -50,8 +50,8 @@
         </div>
         <div class="common-btn" style="margin-top:10px;">
             <ul class="list-inline text-right">
-                <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
-                <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+                <li> <button ng-click="saveFileList();" class="btn"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                <li> <button ng-click="clearFileList();" class="btn" ><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
 
             </ul>
         </div>
