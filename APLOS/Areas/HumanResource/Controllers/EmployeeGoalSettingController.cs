@@ -136,9 +136,6 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
-       
-
         public ActionResult DeleteChild(string id)
         {
             try

@@ -463,6 +463,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("MovementMaterialMasterController", MovementMaterialMasterController)
     .controller("NoticePeriodSettingController", NoticePeriodSettingController)
     .controller("LeaveYearDefinationController", LeaveYearDefinationController)
+    .controller("AnnualLeaveProcessController", AnnualLeaveProcessController)
     .controller("TaxSavingGroupController", TaxSavingGroupController)
     .controller("TaxSavingItemController", TaxSavingItemController)
     .controller("TermsAndConditionsController", TermsAndConditionsController)
@@ -500,8 +501,9 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
-    .controller("DocumentCategoryController", DocumentCategoryController);
+    .controller("DocumentCategoryController", DocumentCategoryController)
     .controller('ResidenceMasterController', ResidenceMasterController)
+    .controller('ScatteredWeekOffController', ScatteredWeekOffController)
 
 
     .config(accountConfig)
