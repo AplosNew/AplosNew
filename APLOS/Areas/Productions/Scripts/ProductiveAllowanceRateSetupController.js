@@ -845,6 +845,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                     ShowResult(response.data.Message, 'success');
                     ClearFields();
                     $scope.getData();
+                    $('#myModal').modal('hide');
                 }
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -866,12 +867,6 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 }
 
 //-----------------------------------------------------------------------------------
-function confirmDelete() {
-    console.log("Deleting...");
-    $('.modal-header, .modal-footer, .modal-body').addClass('hide');
-    $('.confirm-delete').removeClass('hide');
-    //$('#myModal').modal('hide');
-}
 
 function openModal() {
     $('.confirm-delete').addClass('hide');
