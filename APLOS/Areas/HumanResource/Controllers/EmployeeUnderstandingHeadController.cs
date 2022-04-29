@@ -152,8 +152,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
-                    genid.GenID("EmpUnderstandingHead", out _Id);
+                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "EmpUnderstandingHead", out _Id);
+                   // genid.GenID("EmpUnderstandingHead", out _Id);
                     _Id = "EUH" + _Id;
                     data["Id"] = _Id;
                     AddNewRow(dsMaster.Tables[0], data);
