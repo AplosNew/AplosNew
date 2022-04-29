@@ -85,6 +85,68 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
+    $scope.ImportData = function () {
+        try {
+            $scope.ExcelUploadData = [];
+            $scope.msg = "";
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.fileData.length == 0) {
+
+                throw ("Please Select A File!!");
+            }
+            if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+                ShowResult("Please First Select a Plant!!", 'failure');
+                throw ("Please First Select a Plant!!");
+            }
+
+            var fileData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.fileData)) {
+                $scope.ModelNew.FileName = $scope.fileData.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    fileData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.fileData) === false) {
+                        fileData.append('file', data.file);
+                        fileData.append('plantId', $scope.BudgetPlantId);
+                    }
+                    return fileData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData, 'plantId': $scope.BudgetPlantId }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+
+                else {
+                    try {
+                        $scope.ExcelUploadData = response.data;
+                    }
+
+                    catch (e) {
+
+                        ShowResult(e, "failure");
+                    }
+
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+
     // #endregion
 
 }

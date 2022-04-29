@@ -72,7 +72,7 @@ namespace Aplos.Areas.Leave.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string date = DateTime.Now.Date.ToString("dd-MMM");
             var reportFileName = "LeaveOpeningUpload-" + name + "-" + date;
-            var workbook = GetRosterBudgetWorkSheet(PlantId, LvYearId);
+            var workbook = GetWorkSheet(PlantId, LvYearId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
-        private IWorkbook GetRosterBudgetWorkSheet(string PlantId,string LvId)
+        private IWorkbook GetWorkSheet(string PlantId,string LvId)
         {
 
             var excelEngine = new ExcelEngine();
@@ -96,45 +96,49 @@ namespace Aplos.Areas.Leave.Controllers
 
             var sheet = workbook.Worksheets[0];
 
-            RosterPatternService rs = new RosterPatternService();
-
-            DataTable data = rs.getRosterBudgetFile(PlantId);
-           // DataTable data = _leave.getSampleFile(PlantId, LvId);
+            DataTable data = _leave.getSampleFile(PlantId, LvId);
 
             sheet.Name = "LeaveOpeningUpload";
-
-
 
             int ROW = 1;
             int endCol = 1;
             int COL = 1;
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "RosterId", 12, ExcelHAlign.HAlignLeft);
-            int ColRosterId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 15, ExcelHAlign.HAlignLeft);
+            int ColEmpCode = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "BudgetId", 8, ExcelHAlign.HAlignLeft);
-            int ColBudgetId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Leave Year", 16, ExcelHAlign.HAlignLeft);
+            int ColLvYear = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "BudgetCode", 8, ExcelHAlign.HAlignLeft);
-            int ColBudgetCode = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "LeaveType", 16, ExcelHAlign.HAlignLeft);
+            int ColLvType = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 8, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 12, ExcelHAlign.HAlignLeft);
             int ColPlant = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 8, ExcelHAlign.HAlignLeft);
-            int ColEntity = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Opening", 10, ExcelHAlign.HAlignLeft);
+            int colOpening = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Position", 8, ExcelHAlign.HAlignLeft);
-            int ColPosition = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Earned", 10, ExcelHAlign.HAlignLeft);
+            int ColEarned = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Availed", 10, ExcelHAlign.HAlignLeft);
+            int ColAvailed = COL;
+            COL++; 
+            
+            report.SetHeaderText(ref sheet, ROW, COL, "Adjustment", 12, ExcelHAlign.HAlignLeft);
+            int ColAdjustment = COL;
             COL++;
             endCol = COL;
             #endregion Headers
+           
             ROW++;
             var startRow = 0;
             var endRow = 0;
@@ -142,12 +146,14 @@ namespace Aplos.Areas.Leave.Controllers
             startRow = ROW;
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColRosterId].Text = data.Rows[i]["RosterId"].ToString();
-                sheet[ROW, ColBudgetId].Text = data.Rows[i]["BudgetId"].ToString();
-                sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
+                sheet[ROW, ColEmpCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColLvYear].Text = data.Rows[i]["LeaveYear"].ToString();
+                sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
-                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
-                sheet[ROW, ColPosition].Text = data.Rows[i]["Position"].ToString();
+                sheet[ROW, colOpening].Text = data.Rows[i]["Opening"].ToString();
+                sheet[ROW, ColEarned].Text = data.Rows[i]["Earned"].ToString();
+                sheet[ROW, ColAvailed].Text = data.Rows[i]["Availed"].ToString();
+                sheet[ROW, ColAdjustment].Text = data.Rows[i]["Adjustment"].ToString();
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -163,6 +169,27 @@ namespace Aplos.Areas.Leave.Controllers
             return workbook;
         }
 
+        [HttpPost, Authorize]
+        public ActionResult ImportData(string PlantId)
+        {
+            string path;
+
+            try
+            {
+                var file = Request.Files["file"];
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //SaveFile(out path);
+                var data = "";// ReadData(path, plantId);
+
+                var json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
     }
 }
