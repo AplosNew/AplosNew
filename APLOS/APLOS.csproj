@@ -622,6 +622,7 @@
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SalaryDisbursementReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ScatteredWeekOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftChangeSectionWiseController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantWiseHRMSSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDashboardController.cs" />
@@ -2022,6 +2023,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
@@ -4124,8 +4126,11 @@
     <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_EmployeeTimeOut.cshtml" />
     <Content Include="Areas\Leave\Views\LeaveYearDefination\Aplos.cshtml" />
-	<Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
-	<Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout1.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout2.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -503,6 +503,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
     .controller("DocumentCategoryController", DocumentCategoryController)
     .controller('ResidenceMasterController', ResidenceMasterController)
+    .controller('ScatteredWeekOffController', ScatteredWeekOffController)
 
 
     .config(accountConfig)
