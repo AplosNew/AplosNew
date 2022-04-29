@@ -1519,5 +1519,42 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
     }
+   
+    public class LeaveOpeningUploadService
+    {
+        ISqlRepository _sqlRepository;
+        public LeaveOpeningUploadService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public DataTable getSampleFile(string PlantId,string LvId)
+        {
+            try
+            {
+                var sql = @"select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
+                LeaveYearId,ld.UserName as LeaveYear,
+                lt.UserName as LeaveType,lt.Id as LeaveTypeId,ad.Id as SystemId
+                ,isnull(ad.Opening,'0')Opening,isnull(ad.Earned,'0')Earned,
+                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,isnull(ad.Closing,'0')Closing
+                from LeaveYearDefination ld 
+                left join org.Plant p on p.Id=ld.PlantID
+                left join org.CompanyGroup cg on cg.Id=p.CompanyGroupId
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id
+                left join EmployeeInformation e on e.PlantId=p.Id
+                left join AnnualLeaveDataCurrent ad on ad.LeaveYearId=ld.Id
+                where p.Id='"+PlantId+@"' and ld.Id='"+LvId+@"'
+                and e.EmployeeStatus='Active'";
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+      
+    }
+
 
 }
