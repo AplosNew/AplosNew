@@ -6,13 +6,31 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ModelList = [];
     $scope.path = 'HumanResource/ResidenceMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'Create';    
+    $scope.saveUrl = $scope.path + 'Save';    
     $scope.deleteUrl = $scope.path + 'delete/';   
     baseService.init($scope.getListUrl);
 
     $scope.PlantList = [];
     $scope.ResidenceGroupList = [];
-/*
+
+    //Getting the RESIDENCE MASTER Data
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetResidenceMaster",
+            data: {
+                'PlantId': $scope.SelectedPlantId,
+                'ResidenceGroupId': $scope.ResidenceGroupId,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+
+
+        });
+    }
+    $scope.getData();
+
     $scope.getPlant = function () {
         $http({
             method: 'POST',
@@ -22,6 +40,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.PlantList = response.data;
         });
     }
+    $scope.getPlant();
 
     $scope.getResidenceGroup = function () {
         $http({
@@ -32,14 +51,126 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.ResidenceGroupList = response.data;
         })
     }
-    */
-   /* $scope.PlantId = null;
+    $scope.getResidenceGroup();
+    
+    $scope.SelectedPlantId = null;
+    $scope.Plant = null;
     $scope.selectPlant = function (e) {
-        $scope.PlantId = e.data.Id;
+        $scope.SelectedPlantId = e.data.Id;
+        $scope.Plant = e.data.UserName;
+        angular.element(document.querySelector('#PlantPop')).modal('hide');
     }
 
     $scope.ResidenceGroupId = null;
+    $scope.Residence = null;
     $scope.selectResidenceGroup = function (e) {
         $scope.ResidenceGroupId = e.data.Id;
-    }*/
+        $scope.Residence = e.data.UserName;
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
+    }
+
+    // POP OPEN FOR PLANT
+    $scope.openPlantPop = function () {
+
+        angular.element(document.querySelector('#PlantPop')).modal('show');
+    }
+
+    // POP CLOSED FOR PLANT
+    $scope.closePlantPop = function () {
+        angular.element(document.querySelector('#PlantPop')).modal('hide');
+    }
+
+    // POP OPEN FOR RESIDENCE GROUP
+    $scope.openResidencePop = function () {
+
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('show');
+    }
+
+    // POP CLOSED FOR RESIDENCE GROUP
+    $scope.closeResidencePop = function () {
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
+    }
+
+    // SAVE OPERATION
+
+    $scope.ModalTemp = {
+       
+        Location: null,
+        Id: null,
+        ResidenceCategory: null,
+        ResidenceSubCategory: null,
+        Block: null,
+        Floor: null,
+        ResidenceNumber: null,
+        Rooms: null,
+        ResidenceType: null,
+        Vacancy: null,
+        AssetName: null,
+        Remarks: null,
+        isActive: false,
+    };
+    $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        
+    };
+
+    $scope.Save = function () {
+        $http({
+            method: 'POST',
+           url: $scope.saveUrl,
+            data: {
+                'data': $scope.ModalNew,
+                'PlantId': $scope.SelectedPlantId,
+                'ResidenceGroupId': $scope.ResidenceGroupId,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');               
+                $scope.getData();               
+                ClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+
+        $scope.PlantId = null;
+        $scope.ResidenceGroupId = null;
+        $scope.ModalTemp = {
+            Id: null,
+            Location: null,
+            ResidenceCategory: null,
+            ResidenceSubCategory: null,
+            Block: null,
+            Floor: null,
+            ResidenceNumber: null,
+            Rooms: null,
+            ResidenceType: null,
+            Vacancy: null,
+            AssetName: null,
+            Remarks: null,
+            isActive: null,
+        };
+
+        $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+    }
 }

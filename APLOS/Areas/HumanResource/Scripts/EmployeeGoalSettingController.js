@@ -12,13 +12,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.deleteChildUrl = $scope.path + 'deleteChild/';
     baseService.init($scope.getListUrl);
 
-    $scope.checked = function (e) {
-        if (e.checked != true) {
-            document.querySelector('.glyphicon').classList.add('glyphicon-ok');
-        }
-
-    }
-
+   
     //Getting the MasterData
     $scope.getData = function () {
         $http({
@@ -136,8 +130,6 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.Employee = e.data.EmployeeName;
         $scope.perfYear = document.getElementById("ddperfYear").value;
         $scope.getPMSMaster();
-       
-        
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         $scope.displayEGChild();
     }
