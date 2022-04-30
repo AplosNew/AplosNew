@@ -58,19 +58,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     }
     $scope.activityNew = Object.assign({}, $scope.activity);
     $scope.documentActivity = {
-        Id: null,
-        EmpUnderstandingActivityId: null,
-        Name: null,
-        FileName: null,
-        DocumentType: null,
-        DataSourceCategoryId: null,
-        DocumentFormateId: null,
-        ApplicationName: null,
-        PreparedBy: null,
-        Remarks: null,
-        DocumentCategoryId: null,
-        PreparedByInCaseOfOther: null,
-        PreparedByInCaseOfOtherName: null
+        Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
     }
     $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
 
@@ -363,29 +351,103 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.kpiNew = Object.assign({}, args.data);
     };
 
+    function CheckField(fieldValue, fieldName) {
+        try {
+            if (fieldValue == null || fieldValue == '') {
+                throw ('[' + fieldName + '] is required...')
+            }
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    function ValidationEmployee() {
+        try {
+            CheckField($scope.ModelNew.EmployeeId, "Employee");
+            CheckField($scope.ModelNew.Status, "Status.");
+            CheckField($scope.ModelNew.Date, "Date");
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    function ValidationActivity() {
+        try {
+            CheckField($scope.activityNew.ActivityName, "Activity");
+            CheckField($scope.activityNew.ActivityDetail, "Activity Detail");
+            CheckField($scope.activityNew.ActivityCategory, "Activity Category");
+            CheckField($scope.activityNew.OtherActivityCategory, "Other Activity Category");
+            CheckField($scope.activityNew.ActivityImportance, "Activity Importance");
+            CheckField($scope.activityNew.ActivityClass, "Activity Class");
+            CheckField($scope.activityNew.ActivityType, "Activity Type");
+            CheckField($scope.activityNew.Priority, "Priority");
+            CheckField($scope.activityNew.Frequency, "Frequency");
+            CheckField($scope.activityNew.Period, "Period");
+            CheckField($scope.activityNew.FinancialImpact, "Financial Impact");
+            CheckField($scope.activityNew.AverageTime, "Average Time");
+            CheckField($scope.activityNew.PurposeOfTheActivity, "Purpose of the activity");
+        } catch (e) {
+            throw e;
+        }
+    };
+
+    function ValidationDocument() {
+        try {
+            CheckField($scope.documentActivityNew.DocumentName, "Document Name");
+            CheckField($scope.documentActivityNew.DocumentFormat, "Document Format");
+            CheckField($scope.documentActivityNew.DocumentType, "Document Type");
+            CheckField($scope.documentActivityNew.DocumentCode, "Document Code");
+            CheckField($scope.documentActivityNew.DocumentGeneration, "Document Generation");
+            CheckField($scope.documentActivityNew.DocumentPreprationFrequency, "Document Prepration Frequency");
+            CheckField($scope.documentActivityNew.DocumentCategoryId, "Document Category");
+            CheckField($scope.documentActivityNew.DocumentClass, "Document Class");
+            CheckField($scope.documentActivityNew.PreparedBy, "Prepared by");
+        } catch (e) {
+            throw e;
+        }
+    };
+
+  
+    function ValidationKPI() {
+        try {
+            CheckField($scope.kpiNew.KPIName, "KPI Name");
+            CheckField($scope.kpiNew.KPIDetail, "KPI Detail");
+            CheckField($scope.kpiNew.KPIReviewPeriod, "KPI Review Period");
+        } catch (e) {
+            throw e;
+        }
+    };
+
+
     $scope.Save = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'data': $scope.ModelNew },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            ValidationEmployee();
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelNew.Id = response.data.Id
+
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.ModelNew.Id = response.data.Id
-                //$scope.getData();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
     $scope.savebtndisable = false;
     $scope.SaveActivity = function () {
         try {
+            ValidationActivity();
             $scope.savebtndisable = true;
             $http({
                 method: 'POST',
@@ -478,70 +540,80 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         $scope.documentActivityNew.FileName = "";
         $scope.filedata = {};
         document.getElementById('uploadFile').value = "";
-        $scope.UpdateDoc();
     };
 
     $scope.SaveDocument = function () {
-        if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
-            throw $scope.filedata.name + ' File size must be below 2 mb';
-        var fileName = '';
-        if (!baseService.isUndefinedOrNull($scope.filedata))
-            fileName = $scope.filedata.name;
-        $scope.documentActivityNew.FileName = fileName;
-        //$scope.documentActivityNew.Attachment = $scope.fileId();
-        $scope.documentActivityNew.EmpUnderstandingActivityId = $scope.ActivityId;
-        var formData = new FormData();
+        try {
+            ValidationDocument();
+            if (!baseService.isUndefinedOrNull($scope.filedata) && $scope.filedata.size > 2000000)
+                throw $scope.filedata.name + ' File size must be below 2 mb';
+            var fileName = '';
+            if (!baseService.isUndefinedOrNull($scope.filedata))
+                fileName = $scope.filedata.name;
+            $scope.documentActivityNew.FileName = fileName;
+            //$scope.documentActivityNew.Attachment = $scope.fileId();
+            $scope.documentActivityNew.EmpUnderstandingActivityId = $scope.ActivityId;
+            var formData = new FormData();
 
 
-        $http({
-            method: 'POST',
-            url: $scope.saveDocumentUrl,
-            //data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
-            //dataType: 'JSON'
+            $http({
+                method: 'POST',
+                url: $scope.saveDocumentUrl,
+                //data: { 'data': $scope.documentActivityNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
+                //dataType: 'JSON'
 
-            headers: { 'Content-Type': undefined },
-            transformRequest: function (data) {
-                formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
-                if (baseService.isUndefinedOrNull($scope.filedata) == false) {
-                    formData.append('file', data.file);
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    formData.append("documentActivityNew", angular.toJson(data.documentActivityNew));
+                    if (baseService.isUndefinedOrNull($scope.filedata) == false) {
+                        formData.append('file', data.file);
+                    }
+                    return formData;
+                },
+                data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
+
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
                 }
-                return formData;
-            },
-            data: { 'documentActivityNew': $scope.documentActivityNew, 'file': $scope.filedata }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getDocumentGridData();
+                    $scope.ClearDocument();
 
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getDocumentGridData();
-                $scope.ClearDocument();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure','documentPopUp');
         }
     };
+
     $scope.SaveKPI = function () {
-        $http({
-            method: 'POST',
-            url: $scope.saveKPIUrl,
-            data: { 'data': $scope.kpiNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+        try {
+            ValidationKPI();
+            $http({
+                method: 'POST',
+                url: $scope.saveKPIUrl,
+                data: { 'data': $scope.kpiNew, 'EmpUnderstandingActivityId': $scope.ActivityId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    /* ClearFields(response.data.Sequence);*/
+                    $scope.getData();
+                    $scope.getKPIGridData();
+                    $scope.ClearKPI();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                /* ClearFields(response.data.Sequence);*/
-                $scope.getData();
-                $scope.getKPIGridData();
-                $scope.ClearKPI();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure', 'kpiPopUp');
         }
     };
 
@@ -597,6 +669,9 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     }
 
     $scope.ClearDocument = function () {
+        $scope.documentActivity = {
+            Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        }
         $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
         $scope.ClearDoc();
     }

@@ -1389,11 +1389,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetResidenceMaster(string PlantId, string ResidenceGroupId)
+        public IEnumerable<object> GetResidenceMaster()
         {
             try
             {
-                string sql = @"select * from dbo.ResidenceMaster where PlantId = '"+ PlantId + "' and ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                string sql = @"select * from dbo.ResidenceMaster";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1428,7 +1428,20 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId)
+        public IEnumerable<object> getEmployeeCategory()
+        {
+            try
+            {
+                string sql = @"select * from hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp)
         {
 
             try
@@ -1456,14 +1469,12 @@ namespace Library.HumanResource.NewAttendanceProcess
                 bplib.clsGenID genid = new bplib.clsGenID();
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-
-
-                    //bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RM" + _Id;
                     data["PlantId"] = PlantId;
                     data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
                     AddNewRow(dsMaster.Tables[0], data);
 
 
@@ -1473,6 +1484,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     _Id = data["Id"].ToString();
                     data["PlantId"] = PlantId;
                     data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data Master update
