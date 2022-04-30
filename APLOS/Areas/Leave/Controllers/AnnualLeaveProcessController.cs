@@ -42,7 +42,20 @@ namespace Aplos.Areas.Leave.Controllers
             return View();
         }
 
-        #region Plant & Company List
+        #region Other Functions
+
+        [HttpGet, Authorize]
+        public ActionResult getCurrentList(string PlantId,string YearId)
+        {
+            try
+            {
+                return Json(_leave.getCurrentList(PlantId,YearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         [HttpGet, Authorize]
         public ActionResult getCompany()
@@ -76,6 +89,21 @@ namespace Aplos.Areas.Leave.Controllers
             try
             {
                 return Json(_leave.getLeaveYear(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlantId,string YearId)
+        {
+            try
+            {
+                _leave.SaveFileList(data, PlantId,YearId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
             }
             catch (Exception ex)
             {
@@ -250,6 +278,8 @@ namespace Aplos.Areas.Leave.Controllers
                         string Availed = clsWebLib.RetValidLen(data[i].Availed).ToString();
                         string Adjustment = clsWebLib.RetValidLen(data[i].Adjustment).ToString();
                         string EmpId = clsWebLib.RetValidLen(data[i].EmployeeId).ToString();
+                        string LvtypeId= clsWebLib.RetValidLen(data[i].LeaveTypeId).ToString();
+
 
                         if (Earning != "" && Opening != "" && Adjustment != ""
                             && Availed != "" && EmpId != "")
@@ -353,5 +383,6 @@ namespace Aplos.Areas.Leave.Controllers
         public string EmployeeId { get; set;}
         public string LeaveYearId{ get; set; }
         public string LeaveTypeId { get; set; }
+        public string LeaveType { get; set; }
     }
 }

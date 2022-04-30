@@ -32,7 +32,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     // #endregion
 
-    // #region Get Plants List and Company List
+    // #region Other Functions
 
     $scope.SelectedYearId = null;
     $scope.PlantList = [];
@@ -102,6 +102,29 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     // #endregion
 
+    $scope.currentList = [];
+    $scope.getCurrentFileList = function () {
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select a Plant!!", 'failure');
+            throw ("Invalid!!");
+        }
+
+        if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+            ShowResult("Please First Select Leave Year !!", 'failure');
+            throw ("Invalid!!");
+        }
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getCurrentList',
+            params: { 'PlantId': $scope.BudgetPlantId, 'YearId': $scope.SelectedYearId }
+        }).then(function success(response) {
+            $scope.currentList = [];
+            $scope.currentList = response.data;
+        })
+    }
+
     $("#uploadFile").change(function () {
         $scope.fileData = this.files[0];
     });
@@ -170,6 +193,53 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
+    $scope.saveFileList = function () {
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant!!", 'failure');
+            throw ("Please First Select Plant!!");
+        }
+
+        if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+            ShowResult("Please First Select Leave Year!!", 'failure');
+            throw ("Please First Select Leave Year!!");
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveFileList',
+            data: {
+                'data': $scope.ExcelUploadData, 'PlantId': $scope.BudgetPlantId,
+                'YearId': $scope.SelectedYearId
+                }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    if ($rootScope.isCollapsed == true) {
+                        $rootScope.toggle();
+                    }
+                    $scope.getCurrentFileList();
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        }, function errorCallback(response) {
+
+        });
+    }
+
+    $scope.clearFileList = function () {
+
+        $scope.Company = null;
+        $scope.BudgetPlantId = null;
+        $scope.SelectedYearId = null;
+    }
 
     // #endregion
 
