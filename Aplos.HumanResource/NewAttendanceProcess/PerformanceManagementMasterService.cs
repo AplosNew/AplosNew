@@ -1205,7 +1205,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 string sql = @"select egc.* , eg.* from  EmployeeGoalSettingChild egc
                                left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId
-                                where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "'";
+                               where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "' and eg.ConfirmationStatus = '"+1+"'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1365,7 +1365,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg";
+                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg where isApproved = '"+0+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1375,9 +1375,184 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
     }
 
-   
+
+
 
     #endregion Goal Setting Approval
+
+    #region RESIDENCE MASTER SERVICE
+    public class ResidenceMaseterService
+    {
+        SqlRepository _sqlRepository;
+        public ResidenceMaseterService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> GetResidenceMaster()
+        {
+            try
+            {
+                string sql = @"select * from dbo.ResidenceMaster";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getPlant()
+        {
+            try
+            {
+                string sql = @"select * from ORG.Plant";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getResidenceGroup()
+        {
+            try
+            {
+                string sql = @"select * from dbo.ResidenceGroup";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getEmployeeCategory()
+        {
+            try
+            {
+                string sql = @"select * from hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "dbo.ResidenceMaster";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                if (PlantId == null)
+                {
+                    throw new Exception("Please Select Plant Id !!");
+                }
+                if (ResidenceGroupId == null)
+                {
+                    throw new Exception("Please SelectResidenceGroup Id!!");
+                }
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "RM" + _Id;
+                    data["PlantId"] = PlantId;
+                    data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
+                    AddNewRow(dsMaster.Tables[0], data);
+
+
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    data["PlantId"] = PlantId;
+                    data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+               
+               
+               
+               
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region Add & Edit Row
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion Add & Edit Row
+    }
+    #endregion RESIDENCE MASTER SERVICE
 }
 
 

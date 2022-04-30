@@ -1,6 +1,6 @@
 ﻿'use strict';
-InventoryCheckApprovedController.$inject = ['$window', 'cboService', '$scope', '$rootScope', '$http', 'baseService','$filter'];
-function InventoryCheckApprovedController($window, cboService, $scope, $rootScope, $http, baseService, $filter) {
+InventoryrequisitionCheckbyController.$inject = ['$window', 'cboService', '$scope', '$rootScope', '$http', 'baseService','$filter'];
+function InventoryrequisitionCheckbyController($window, cboService, $scope, $rootScope, $http, baseService, $filter) {
     $rootScope.title = "Inventory Approved";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -17,20 +17,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
             $scope.endDate = response.data[0].EndDate;
             location.href = "Products/Requisition/RequisitionReportby?RequisitionId=" + data.Id + '&startDate=' + $scope.startDate + '&endDate=' + $scope.endDate + '&PreparedBy=' + data.PreparedBy + '&FromCheckedUI=' + FromCheckedUI;
         });            };
-
-    //EndRegion Old code
-
-    //#region Requisition 
-    $scope.LoadapprovalStatus = function () {
-        cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
-            $scope.approvalStatusList = result;
-        });
-
-    }
-    $scope.LoadapprovalStatus();
-
-    //#region Requijition hold / Reject TAB In index
-
 
 
     $scope.RequisitionHoldRejectList = [];
@@ -50,16 +36,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
     };
     $scope.RequisitionHoldReject();
 
-
-
-
-
-
-
-    //endregion
-
-
-    // #region  Tab Control for Requisition Check
     $scope.tab = 1;
     $scope.setTabReqUnchecked = function (newTab) {
         $scope.tab = newTab;
@@ -90,46 +66,7 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
     $scope.isSetReqchecked = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
-    // #endregion  Tab Control for Requisition Check
-    // #region  Tab Control for Requisition Approve
-    $scope.setTabReqUnApproved = function (newTab) {
-        $scope.tab = newTab;
-
-        $scope.RequisitionUnapproved();
-        //alert('1');
-
-    };
-    $scope.isSetReqUnApproved = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-
-
-
-    $scope.setTabApprovedReqHoldReject = function (newTab) {
-        $scope.tab = newTab;
-
-        $scope.ApprovedRequisitonHoldReject();
-        //alert('1');
-
-    };
-    $scope.isSetApprovedReqHoldReject = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-
-    $scope.setTabReqapproved = function (newTab) {
-        $scope.tab = newTab;
-
-        $scope.Requisitionapproved();
-        //alert('2');
-
-    };
-    $scope.isSetReqapproved = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
-
-    // #endregion
-
+   
     //#Region Grid data bind 
     $scope.RequisitionUncheckedList = [];
     $scope.RequisitionUnchecked = function () {
@@ -165,83 +102,19 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
     };
     $scope.Requisitionchecked();
 
-    $scope.ReqUnapprovedList = [];
-    $scope.RequisitionUnapproved = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Products/InventoryCheckApproved/GetListRequisionUnApproved',
-        }).then(function successCallback(response) {
-            $scope.ReqUnapprovedList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.RequisitionUnapproved();
-
-
-
-    $scope.ApprovedReqHRList = [];
-    $scope.ApprovedRequisitonHoldReject = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Products/InventoryCheckApproved/GetListRequisionApprovedHoldReject',
-        }).then(function successCallback(response) {
-            $scope.ApprovedReqHRList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.ApprovedRequisitonHoldReject();
-
-
-
-    $scope.RequisitionapprovedList = [];
-    $scope.Requisitionapproved = function () {
-        //debugger;
-        $http({
-            method: "GET",
-            dataType: 'JSON',
-            url: 'Products/InventoryCheckApproved/GetListRequisionApproved',
-        }).then(function successCallback(response) {
-            $scope.RequisitionapprovedList = response.data;
-
-            //entrydata = copy(searchdata);
-        });
-    };
-    $scope.Requisitionapproved();
-
-
-
-
-
     $scope.checkedByList = [];
     $scope.GetSupervisorCboList = function () {
         //debugger;
         $http({
             method: 'GET',
-            url: 'Products/InventoryCheckApproved/GetSupervisorCbo'
+            url: 'Products/InventoryCheckApproved/GetSupervisorCboApproved'
         }).then(function successCallback(response) {
             $scope.checkedByList = response.data;
         });
     }
     $scope.GetSupervisorCboList();
 
-    $scope.checkedByList1 = [];
-    //debugger;
-    $scope.GetSupervisorCboList1 = function () {
-        //debugger;
-        $http({
-            method: 'GET',
-            url: 'Products/InventoryCheckApproved/GetSupervisorCboApproved'
-        }).then(function successCallback(response) {
-            $scope.checkedByList1 = response.data;
-        });
-    }
-    $scope.GetSupervisorCboList1();
+
     $scope.poApproved = function () {
         cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
             $scope.POApprovalList = result;
@@ -254,26 +127,7 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         $scope.podata = gridObj.getSelectedRecords()[0];
-        //if ($scope.podata.CheckedStatus === "For Checked" || $scope.podata.CheckedStatus === "Select" || baseService.isUndefinedOrNull($scope.podata.CheckedStatus)) {
-        //    ShowResult("Please Select Checked By Status", 'failure');
-        //    return false;
-        //}
-
-        //else if ($scope.podata.CheckedStatus === "Checked" && baseService.isUndefinedOrNull($scope.podata.AuthorizedBy)) {
-        //    ShowResult("Please Select To be Approved By", 'failure');
-        //    return false;
-        //}
-        //else if (($scope.podata.CheckedStatus === "Hold" || $scope.podata.CheckedStatus === "Reject") && baseService.isUndefinedOrNull($scope.podata.CheckedRejectReason)) {
-        //    ShowResult("Enter The Reason", 'failure');
-        //    return false;
-        //}
-        ////else if ($scope.podata.CheckedStatus === "Hold" || $scope.podata.CheckedStatus === "Reject") {
-
-        ////}
-
-        //else {
-
-        //}
+       
         $scope.message = 'Are you sure want to ' + $scope.podata.CheckedStatus + '?';
         angular.element(document.querySelector('#poapprovealert')).modal('show');
 
@@ -346,28 +200,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
     };
 
 
-
-    //$scope.commandpoAuth = [{
-    //    type: "details", buttonOptions: {
-    //        text: "Save",
-    //        width: "100",
-    //        height: "30",
-    //        click: $scope.onClickPOAUTH
-    //    }
-    //}];
-
-
-    //$scope.onClickReqAHR = function (args) {
-
-    //    var gridObj = $("#GridReqAHR").data("ejGrid");
-    //    //getting corresponding record 
-    //    $scope.podata = gridObj.getSelectedRecords()[0];
-
-    //    //alert('Approve=' + data.Id);
-    //    $scope.approvalAlert();
-    //};
-
-
     $scope.onClickReqAHR = function (z) {
         //debugger;
         var x = "#" + z;
@@ -425,12 +257,9 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.RequisitionUnchecked();
+                    $scope.GetSupervisorCboList();
                     $scope.RequisitionHoldReject();
                     $scope.Requisitionchecked();
-                    $scope.GetSupervisorCboList();
-                    $scope.poApproved();
-
-
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -439,88 +268,7 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
             ShowResult(e, 'failure');
         }
     }
-    $scope.poAppAuth = function () {
-
-        if (baseService.isUndefinedOrNull($scope.podata.CheckedStatus) || $scope.podata.CheckedStatus === "Select") {
-            ShowResult("Please Select Approved By Status", 'failure');
-            return false;
-        }
-        else if ($scope.podata.CheckedStatus === "Select" || $scope.podata.CheckedStatus === "For Approval") {
-            ShowResult("Please Select Approved By Status", 'failure');
-            return false;
-        }
-        else if (($scope.podata.CheckedStatus === "Hold" || $scope.podata.CheckedStatus === "Reject") && baseService.isUndefinedOrNull($scope.podata.RejectApprovedReason)) {
-
-            ShowResult("Enter The Reason", 'failure');
-            return false;
-        }
-
-        var filteredData = $scope.podata.Id;
-        var data = ej.DataManager(window.lst).executeLocal(ej.Query().where("MaterialReqqusitionMasterId", "equal", parseInt(filteredData), true).take(100));
-        if (data.length == 0) {
-            throw "Requisition Details is reuired.";
-        }
-
-
-        //debugger;
-        $http({
-            method: 'POST',
-            url: 'Products/InventoryCheckApproved/ReqApprovedAuth',
-            data: {
-                'PoId': $scope.podata.Id,
-                'PoValue': 0, //$scope.podata.TotalQty,
-                'CheckedStataus': $scope.podata.CheckedStatus,
-                'RejectApprovedReason': $scope.podata.RejectApprovedReason,
-                'AuthorizedBy': $scope.podata.AuthorizedBy,
-                'RequisitionType': $scope.podata.RequisitionType,
-                'RequirmentType': $scope.podata.RequirmentType,
-                'CheckedBy': $scope.podata.CheckedBy,
-                'PreparedBY': $scope.podata.AddedBy,
-                'PreparedBYId': $scope.podata.PreparedById
-            },
-
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.RequisitionUnapproved();
-                $scope.LoadapprovalStatus();
-            }
-        }, function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-    $scope.poAppUnApproved = function () {
-
-        //debugger;
-        $http({
-            method: 'POST',
-            url: 'Products/InventoryCheckApproved/PoUnApproved',
-            data: {
-                'PoId': $scope.podata1.Id,
-                'PoValue': $scope.podata1.TotalQty
-            },
-
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.getalldata1();
-            }
-        }, function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-
-    // $scope.valuePassInDelModal(data); 
-
-    //#region  Req Detail
+   
     $scope.lst = [];
     $scope.ReqListDetails = function () {
         //debugger;
@@ -618,58 +366,8 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
         angular.element(document.querySelector('#ListOfRequisition1')).modal('hide');
     };
 
-    $scope.calculateAmount = function (data) {
-        //debugger;
-        //data.TotalAmount = (data.ApprovedQty * data.EstimatedRate).toFixed(2);
-        //if (data.TotalAmount === 'NaN')
-        //	data.TotalAmount = 0;
-        //data.TotalAmount = 0;	
-        //data.ApprovedQty = 0;	 
-        angular.forEach($scope.requisitionMaterialList, function (item) {
-            if (item.Id === data.Id) {
-                if (data.ApprovedQty === undefined) {
-                    //data.ApprovedQty = 0;
-                    item.TotalAmount = data.TotalAmount;
-                }
-                else {
-                    item.TotalAmount = (data.ApprovedQty * data.EstimatedRate).toFixed(2);
-                }
-
-
-            }
-
-        });
-    };
-
-    $scope.UpdateQty = function () {
-        //if ($scope.ApprovedQty === null || $scope.ApprovedQty === "") {
-        //	ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
-        //}
-        $http({
-            method: 'POST',
-            url: $scope.detailUpdate,
-            data: { entity: $scope.requisitionMaterialList },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true)
-                ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
-            else {
-                ShowResult(response.data.Message, 'success', 'ListOfRequisition');
-
-                $scope.ReqListDetails();
-                $scope.RequisitionUnapproved();
-                $scope.Requisitionapproved();
-
-                //$scope.clearCharNames();
-
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure', 'ListOfRequisition');
-        };
-
-    }
-
-
+   
+   
 
     $scope.onClickAReqHR = function (args) {
 
@@ -689,14 +387,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
             click: $scope.onClickAReqHR
         }
     }];
-
-
-
-
-
-
-
-
 
 
     $scope.onClickReqApp = function (args) {
@@ -826,99 +516,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
     };
 
 
-
-    $window.onresize = function (event) {
-
-        $scope.ReqistionHRScroll();
-
-    };
-    $scope.ReqistionHRScroll = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridReqHR").ejGrid("instance");
-                var scrollerwidth = $("#id2").width();//Obtain the width of the container
-
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-    };
-
-    //#region Requisition Scroll 
-    $window.onresize = function (event) {
-
-        $scope.actionCompleteSelected2();
-
-    };
-    $scope.actionCompleteSelected2 = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridPOAPp").ejGrid("instance");
-                var scrollerwidth = $("#Unapproved").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-    };
-
-
-    $window.onresize = function (event) {
-
-        $scope.ApprovedReqHRScroll();
-
-    };
-    $scope.ApprovedReqHRScroll = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridReqAHR").ejGrid("instance");
-                var scrollerwidth = $("#ApReqHoldReject").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-    };
-
-
-
-
-
-
-
-    $window.onresize = function (event) {
-
-        $scope.actionCompleteSelected3();
-
-    };
-    $scope.actionCompleteSelected3 = function (args) {
-        try {
-            if (args.requestType === "refresh") {
-                var gridObj = $("#GridPO12").ejGrid("instance");
-                var scrollerwidth = $("#approved").width();//Obtain the width of the container
-
-                //   $("#GridReq").children('.e-grid.e-headercell').css('height', '100px');              
-                gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 400 } });//pass the obtainer width and height to gridmodel options
-                gridObj.windowonresize();
-            }
-        } catch (e) {
-            //$scope.ShowResultCustom(e, 'failure');
-        }
-    };
-
-    //#endregion
-
-    //#region Requisition Print 
-
-
     $scope.onClick1 = function (args) {
 
         var gridObj = $("#GridPO12").data("ejGrid");
@@ -937,57 +534,6 @@ function InventoryCheckApprovedController($window, cboService, $scope, $rootScop
             click: $scope.onClick1
         }
     }];
-
-
-
-    // #endregion    $scope.MaterialLastPOPrice = function (x) {
-        $scope.GetLastPurchaseQtyGrid(x);
-    };
-
-
-    $scope.MaterialLastPOPriceHide = function () {
-        //$scope.taxCategoryList = [];
-        angular.element(document.querySelector('#ListMaterialLastPOPrice')).modal('hide');
-    };
-
-    $scope.GetLastPurchaseQtyList = [];
-    $scope.GetLastPurchaseQtyGrid = function (x) {
-
-        try {            $http({                method: 'POST',                url: 'Products/InventoryCheckApproved/GetMaterialLastPOQty',                data: { 'materialMasterId': x.MaterialMasterId, 'Id': x.ArticleId, 'Sku1': x.FirstCharacteristicsId, 'Sku2': x.SecondCharacteristicsId, 'Sku3': x.ThirdCharacteristicsId },                dataType: 'JSON'            }).then(function successCallback(response) {                if (response.data.Error == true) {                    ShowResult(response.data.Message, 'failure');                }                else {                    $scope.GetLastPurchaseQtyList = response.data;
-                    var eDialog = $("#dialogListMaterialLastPOPrice").data("ejDialog");
-                    eDialog.open();                }            }, function errorCallback(response) {                ShowResult(response.status.Message, 'failure');            });        } catch (e) {            ShowResult(e, 'failure');        }
-
-    };
-
-    $scope.startDate1 = '';
-    $scope.endDate1 = '';
-    $scope.GetFiscalYear1 = function () {
-        $http({
-            method: 'GET',
-            url: 'Products/Requisition/GetFiscalYear?formattedDate=' + $filter("dateFiltering")(Date.now()),
-        }).then(function successCallback(response) {
-            $scope.startDate1 = response.data[0].StartDate;
-            $scope.endDate1 = response.data[0].EndDate;
-            $scope.ReqListDetails1();
-        });
-
-    }
-    $scope.GetFiscalYear1();
-    $scope.ReqListDetails1 = function () {
-        //debugger
-        $http({
-            method: 'GET',
-            url: "Products/Requisition/LoadRequisitionMasterTotalEmpWise1?RequisitionId=" + 1 + '&startDate=' + $scope.startDate1 + '&endDate=' + $scope.endDate1,
-        }).then(function successCallback(response) {
-            //windowemp.lst = response.data;
-            //$scope.empwiseDataList = response.data;
-            $scope.RequisitionId = response.data[0].RequisitionId;
-            $scope.EmployeeName = response.data[0].EmployeeName;
-            $scope.ReqTotalAmount = response.data[0].ReqTotalAmount;
-            $scope.POTotalAmount = response.data[0].POTotalAmount;
-
-        });
-    }
 }
     
 

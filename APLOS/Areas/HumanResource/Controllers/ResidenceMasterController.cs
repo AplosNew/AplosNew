@@ -1,0 +1,91 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using Aplos.Properties;
+using Library.Data;
+using Library.Data.Sql;
+using Library.HumanResource.NewAttendanceProcess;
+using Library.Service.Helpers;
+
+namespace Aplos.Areas.HumanResource.Controllers
+{
+    public class ResidenceMasterController : Controller
+    {
+        ResidenceMaseterService rm = new ResidenceMaseterService();
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult GetResidenceMaster()
+        {
+            try
+            {
+                return Json(rm.GetResidenceMaster(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getPlant()
+        {
+            try
+            {
+                return Json(rm.getPlant(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getResidenceGroup()
+        {
+            try
+            {
+                return Json(rm.getResidenceGroup(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getEmployeeCategory()
+        {
+            try
+            {
+                return Json(rm.getEmployeeCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        #region Save Operations
+        [HttpPost]
+        public JsonResult Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp)
+        {
+
+            try
+            {
+                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId, Emp), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion Save Operations
+    }
+}

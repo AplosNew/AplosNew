@@ -618,9 +618,12 @@
     <Compile Include="Areas\HumanResource\Controllers\OTPlanningController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\DailyDayStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ResidenceMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusLocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SalaryDisbursementReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ScatteredWeekOffController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ShiftChangeSectionWiseController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\PlantWiseHRMSSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDashboardController.cs" />
@@ -710,6 +713,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
+    <Compile Include="Areas\Leave\Controllers\AnnualLeaveProcessController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
@@ -2008,6 +2012,8 @@
     <Content Include="Areas\HumanResource\Scripts\DailyDayStatusReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ResidenceMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ResidenceStatusLocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\SalaryDisbursementReportController.js" />
@@ -2019,6 +2025,7 @@
     <Content Include="Areas\HumanResource\Scripts\salaryStructureAndProcessedReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\salaryStructureSheetDailyController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTConfirmationProcessController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
@@ -2068,6 +2075,7 @@
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
+    <Content Include="Areas\Leave\Scripts\AnnualLeaveProcessController.js" />
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
@@ -2099,6 +2107,7 @@
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
+    <Content Include="Areas\Productions\Scripts\EmployeeTimeOutApplicableController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteLocationController.js" />
@@ -2435,6 +2444,7 @@
     <Content Include="Areas\Products\Scripts\InGatePassEntryController.js" />
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueBOQController.js" />
+    <Content Include="Areas\Products\Scripts\InventoryrequisitionapprovedbyController.js" />
     <Content Include="Areas\Products\Scripts\inventorySalesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\InventorySalesReturnController.js" />
     <Content Include="Areas\Products\Scripts\PORollBackController.js" />
@@ -2483,7 +2493,7 @@
     <Content Include="Areas\Products\Scripts\MaterialBudgetController.js" />
     <Content Include="Areas\Products\Scripts\materialMasterWithProductMasterController.js" />
     <Content Include="Areas\Products\Scripts\FgPoFormasterOrderController.js" />
-    <Content Include="Areas\Products\Scripts\InventoryCheckApprovedController.js" />
+    <Content Include="Areas\Products\Scripts\InventoryrequisitionCheckbyController.js" />
     <Content Include="Areas\Products\Scripts\qualityStdSetController.js" />
     <Content Include="Areas\Products\Scripts\purchaseOrderGroupController.js" />
     <Content Include="Areas\Products\Scripts\PurchaseOrderByRequisitionController.js" />
@@ -4116,7 +4126,14 @@
     <Content Include="Areas\Accounts\Views\VoucherGlUpdate\CustomerConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\GoalSettingApproval\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\DocumentCategory\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductiveAllowanceRateSetup\_EmployeeTimeOut.cshtml" />
     <Content Include="Areas\Leave\Views\LeaveYearDefination\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
+    <Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout1.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout2.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusLocation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

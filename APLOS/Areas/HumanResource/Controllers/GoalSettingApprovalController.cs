@@ -7,6 +7,7 @@ using Library.HumanResource.NewAttendanceProcess;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Service.Helpers;
+using Aplos.Properties;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -80,5 +81,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        
     }
 }

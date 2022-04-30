@@ -198,7 +198,6 @@ upanelApp.controller("interTransactionGivenOpeningBalanceController", interTrans
 upanelApp.controller("intSalesOrderInvoiceController", intSalesOrderInvoiceController);
 upanelApp.controller("intSalesOrderInvoiceEditController", intSalesOrderInvoiceEditController);
 upanelApp.controller("intSalesOrderInvoicePostController", intSalesOrderInvoicePostController);
-upanelApp.controller("InventoryCheckApprovedController", InventoryCheckApprovedController);
 upanelApp.controller("inventoryIssueController", inventoryIssueController);
 upanelApp.controller("inventoryIssueJournalController", inventoryIssueJournalController);
 upanelApp.controller("inventoryPayableController", inventoryPayableController);
@@ -1032,7 +1031,6 @@ upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
-upanelApp.controller("DocumentCategoryController", DocumentCategoryController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
