@@ -1572,7 +1572,6 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1581,7 +1580,33 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 throw e;
             }
         }
+        public IEnumerable<object> getLeaveYear(string PlantId)
+        {
+            try
+            {
+                var str = @"select Username as Text , Id as Value from leaveyeardefination 
+                where plantid='"+PlantId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getCurrentList(string plantId,string YearId)
+        {
+            try
+            {
+                var str = @"Select a.* from dbo.AnnualLeaveDataCurrent a 
+                left join LeaveYearDefination ld on ld.Id=a.LeaveYearId
+                where a.PlantId = '"+plantId+"' and a.LeaveYearId='"+ YearId+"'";
+                return (_sqlRepository.GetDataCollection(str));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
-
-
 }

@@ -83,13 +83,28 @@
                     </div>
                 </div>
             </div>
+            
+            <div><br/></div>
+            <br/>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Leave Year</label>
+                <div class="col-sm-8 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="SelectedYearId" name="Year" 
+                                ng-options="item.Value as item.Text for item in YearList" >
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div class="col-md-6 col-xs-6 col-lg-6 col-sm-12">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Plant</label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="BudgetPlantId" name="Plant"
+                        <select class="form-control" ng-model="BudgetPlantId" name="Plant" ng-change="getLeaveYear()"
                                 ng-options="item.Value as item.Text for item in PlantList" >
                             <option value="">--Select--</option>
                         </select>

@@ -33,6 +33,8 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     // #endregion
 
     // #region Get Plants List and Company List
+
+    $scope.SelectedYearId = null;
     $scope.PlantList = [];
     $scope.getPlants = function () {
         $http({
@@ -41,6 +43,17 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             params: { 'cmp': $scope.Company }
         }).then(function success(response) {
             $scope.PlantList = response.data;
+        })
+    }
+
+    $scope.YearList = [];
+    $scope.getLeaveYear = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getLeaveYear',
+            params: { 'PlantId': $scope.BudgetPlantId }
+        }).then(function success(response) {
+            $scope.YearList = response.data;
         })
     }
 
@@ -80,7 +93,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
 
         try {
-            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=LY4&reportFormat=' + reportFormat, '_blank');
+            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=' + $scope.SelectedYearId+ '&reportFormat=' + reportFormat, '_blank');
 
         } catch (e) {
 

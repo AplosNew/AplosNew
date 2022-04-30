@@ -70,6 +70,19 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult getLeaveYear(string PlantId)
+        {
+            try
+            {
+                return Json(_leave.getLeaveYear(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
         #endregion
 
         #region Excel Download
