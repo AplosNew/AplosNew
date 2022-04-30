@@ -45,8 +45,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
     $scope.ModelTemp = {
         Id: null,
-        CompanyId: null,
-        PlantId: null,
+        CompanyId: null,        
         Sequence: 0,
         Code: null,
         FromDate: null,
@@ -72,15 +71,15 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
     $scope.EmployeeList = [];
     $scope.getStartUp = function () {
-
-        if (baseService.isUndefinedOrNull($scope.ModelNew.PlantId)) {
+        $scope.getPlant();
+        if (baseService.isUndefinedOrNull($scope.ModelNew.CompanyId)) {
 
         }
         else {
 
             $http({
                 method: 'POST',
-                url: $scope.path + 'GetEmps?PlantId=' + $scope.ModelNew.PlantId,
+                url: $scope.path + 'GetEmps?CompId=' + $scope.ModelNew.CompanyId,
             }).then(function succ(resp) {
                 $scope.EmployeeList = resp.data;
             });
@@ -93,9 +92,12 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';
-
-        $scope.getPlant();
+      
         $scope.getStartUp();
+
+        var plantArr = args.data.PlantIds.split(',');
+        var Prs = $("#PlantIdProcess").data("ejDropDownList").selectItemByText(plantArr);
+
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
         }
@@ -104,10 +106,22 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
+
+            var DropDownPlantListObj = $("#PlantIdProcess").data("ejDropDownList");
+            var plantLists = DropDownPlantListObj.getSelectedValue().split(",");
+                      
+            if (plantLists.length < 1) {
+                ShowResult('Plant not selected!', 'failure');
+                throw ("Invalid Request!");
+            }
+
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew },
+                data: {
+                    'data': $scope.ModelNew,
+                    'PlantList': plantLists
+                },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -167,6 +181,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
+        $("#PlantIdProcess").data("ejDropDownList").clearText();
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }

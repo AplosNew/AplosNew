@@ -7,7 +7,7 @@
             <label class="col-sm-4 control-label">Company<sup>*</sup> </label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Company" class="form-control" ng-model="ModelNew.CompanyId" name="Company" ng-change="getPlant();" required>
+                    <select id="Company" class="form-control" ng-model="ModelNew.CompanyId" name="Company" ng-change="getStartUp()" required>
                         <option value="">--Select--</option>
                         <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
@@ -51,17 +51,15 @@
         </div>
 
     </div>
-    <div class="col-xs-12 col-sm-6 col-md-6">
+    <div class="col-xs-12 col-sm-6 col-md-6">           
 
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
             <div class="col-sm-8 show-message">
-                <div class="select-style">
-                    <select id="PlantId" class="form-control" ng-model="ModelNew.PlantId" ng-change="getStartUp();" name="Plant" required>
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
-                    </select>
-                </div>
+                <input id="PlantIdProcess" ej-dropdownlist e-multiselectmode="visualmode"
+                       e-datasource="PlantList" e-fields-value="Value"
+                       e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+
             </div>
         </div>
 
@@ -82,9 +80,9 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
             <div class="col-sm-6 show-message">
-                <input type="text" name="RespPerson" ng-model="ModelNew.responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200" >
+                <input type="text" name="RespPerson" ng-model="ModelNew.responsiblePerson" ng-click="selectResp()" class="form-control" maxlength="200">
 
-            </div>            
+            </div>
         </div>
 
 
@@ -143,6 +141,7 @@
             <div e-column e-field="ToDate" e-headertext="To Date" e-width="3"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="Plants" e-headertext="Plant" e-width="5"></div>
         </div>
     </div>
 </div>
