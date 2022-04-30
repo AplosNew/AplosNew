@@ -1139,7 +1139,7 @@ namespace Library.OrderManagement.Production
                 string TableName = " dbo.EmployeeTimeOutApplicable";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ProcessId='" + data["ProcessId"] + "' AND  ProcessId='" + data["EntityId"] + "' And Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ProcessId='" + data["ProcessId"] + "' AND  EntityId='" + data["EntityId"] + "' And Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Entry already exists!!!");
 
