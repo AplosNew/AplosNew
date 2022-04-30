@@ -5,33 +5,21 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Leave/AnnualLeaveProcess/';  
-      
-    //#region The Paging System
 
-    var x = document.getElementById("FDiv");
-    var y = document.getElementById("SDiv");
-    x.style.display = "block";
-    y.style.display = "none";
 
-    $scope.clickdde1 = function () {
-        if (x.style.display === "none") {
-            y.style.display = "none";
-            x.style.display = "block";
+    // #region The Tab Switching Code    
 
-        }
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
     };
-
-    $scope.clickdde2 = function () {
-        if (y.style.display === "none") {
-
-            y.style.display = "block";
-            x.style.display = "none";
-
-        }
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
     };
 
     // #endregion
-
+        
     // #region Other Functions
 
     $scope.SelectedYearId = null;
@@ -146,6 +134,11 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
                 ShowResult("Please First Select a Plant!!", 'failure');
                 throw ("Please First Select a Plant!!");
+            }
+
+            if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+                ShowResult("Please First Select Leave Year!!", 'failure');
+                throw ("Please First Select Leave Year!!");
             }
 
             var fileData = new FormData();

@@ -1536,14 +1536,16 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
                 lt.UserName as LeaveType,lt.Id as LeaveTypeId,ad.Id as SystemId
                 ,isnull(ad.Opening,'0')Opening,isnull(ad.Earned,'0')Earned,
-                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,isnull(ad.Closing,'0')Closing
+                isnull(ad.RegularEncashment,'0')RegularEncashment,
+                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,
+                isnull(ad.Closing,'0')Closing
                 from LeaveYearDefination ld 
                 left join org.Plant p on p.Id=ld.PlantID
                 left join org.CompanyGroup cg on cg.Id=p.CompanyGroupId
                 left join LeaveType lt on lt.CompanyGroupId=cg.Id
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join AnnualLeaveDataCurrent ad on ad.LeaveYearId=ld.Id
-                where p.Id='"+PlantId+@"' and ld.Id='"+LvId+ @"'
+                where p.Id='" + PlantId+@"' and ld.Id='"+LvId+ @"'
                 and e.EmployeeStatus='Active' order by e.SystemId";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1633,7 +1635,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                         Dictionary<string, object> jj = data[i];                        
                         jj["Id"] = "AC"+_Id + index;
                         index++;
-                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate);
+                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate,PlantId);
                     }
                 }
 
@@ -1657,7 +1659,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate)
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate,string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             DataRow dr = dt.NewRow();
@@ -1672,6 +1674,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                 }
             }
+            double closing_calculate= Convert.ToDouble(dr["Opening"].ToString()) + Convert.ToDouble(dr["Earned"].ToString())
+                -Convert.ToDouble(dr["Availed"].ToString()) - Convert.ToDouble(dr["RegularEncashment"].ToString()) 
+                + Convert.ToDouble(dr["Adjustment"].ToString());
+           
+            dr["PlantId"] = PlantId;
+            dr["Closing"] = closing_calculate;
             dr["AddedBy"] = addedname;
             dr["AddedDate"] = addeddate;
             dr["AddedFromIP"] = identity.IPAddress;

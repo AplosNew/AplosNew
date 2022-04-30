@@ -175,7 +175,7 @@ namespace Aplos.Areas.Leave.Controllers
             int ColLvTypeId = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 14, ExcelHAlign.HAlignLeft);
             int ColPlant = COL;
             COL++;
 
@@ -189,8 +189,12 @@ namespace Aplos.Areas.Leave.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Availed", 10, ExcelHAlign.HAlignLeft);
             int ColAvailed = COL;
-            COL++; 
-            
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RegularEncashment", 16, ExcelHAlign.HAlignLeft);
+            int ColRegEncashment = COL;
+            COL++;         
+
             report.SetHeaderText(ref sheet, ROW, COL, "Adjustment", 12, ExcelHAlign.HAlignLeft);
             int ColAdjustment = COL;
             COL++;
@@ -211,6 +215,7 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, colOpening].Text = data.Rows[i]["Opening"].ToString();
+                sheet[ROW, ColRegEncashment].Text = data.Rows[i]["RegularEncashment"].ToString();
                 sheet[ROW, ColEarned].Text = data.Rows[i]["Earned"].ToString();
                 sheet[ROW, ColAvailed].Text = data.Rows[i]["Availed"].ToString();
                 sheet[ROW, ColAdjustment].Text = data.Rows[i]["Adjustment"].ToString();
@@ -384,5 +389,6 @@ namespace Aplos.Areas.Leave.Controllers
         public string LeaveYearId{ get; set; }
         public string LeaveTypeId { get; set; }
         public string LeaveType { get; set; }
+        public string RegularEncashment { get; set; }
     }
 }
