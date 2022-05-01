@@ -12,13 +12,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.deleteChildUrl = $scope.path + 'deleteChild/';
     baseService.init($scope.getListUrl);
 
-    $scope.checked = function (e) {
-        if (e.checked != true) {
-            document.querySelector('.glyphicon').classList.add('glyphicon-ok');
-        }
-
-    }
-
+   
     //Getting the MasterData
     $scope.getData = function () {
         $http({
@@ -136,8 +130,6 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.Employee = e.data.EmployeeName;
         $scope.perfYear = document.getElementById("ddperfYear").value;
         $scope.getPMSMaster();
-       
-        
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         $scope.displayEGChild();
     }
@@ -188,9 +180,9 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
     $scope.Get = function (args) {
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.Action = 'Update';       
-        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {
-            throw 'Employee is Required.';
+        if (baseService.isUndefinedOrNull($scope.SelectedEmployeeId)) {           
             ShowResult('Employee is Required.', 'failure');
+            throw 'Employee is Required.';
         }
         else {
             document.getElementById("PerformanceGroupList").style.cssText = "display:block";

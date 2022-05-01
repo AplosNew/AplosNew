@@ -25,6 +25,7 @@ namespace Aplos.Areas.Productions.Controllers
         ProductiveAllowanceRateSetupService pa = new ProductiveAllowanceRateSetupService();
         EmployeeOperationBudget eob = new EmployeeOperationBudget();
         SpecialOperationService so = new SpecialOperationService();
+        EmployeeTimeOutApplicableService et = new EmployeeTimeOutApplicableService();
         public ProductiveAllowanceRateSetupController()
         { }
 
@@ -441,6 +442,121 @@ namespace Aplos.Areas.Productions.Controllers
                 return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        #endregion
+
+        #endregion
+
+        #region EmployeeTimeOutApplicable
+
+        #region GetOperations
+
+        [Authorize, HttpPost]
+        public ActionResult Get(string Id)
+        {
+            try
+            {
+                var _master = et.Get(Id);
+
+
+                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetList()
+        {
+            return Json(et.GetList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetCompanys()
+        {
+            return Json(et.getCompany(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPlant(string cmp)
+        {
+            return Json(et.getPlants(cmp), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEntity(string plant)
+        {
+            return Json(et.getEntity(plant), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProcess(string entity)
+        {
+            return Json(et.getProcesses(entity), JsonRequestBehavior.AllowGet);
+        }
+
+
+        #endregion
+
+        #region Saving
+
+        [HttpPost]
+        public JsonResult Create(Dictionary<string, object> data)
+        {
+            try
+            {
+                string ret = et.Create(data);
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret });
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+
+                string ret = et.Delete(id);
+
+                if (ret == "Success")
+                {
+                    return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { Error = true, Message = ret }, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+
+
         #endregion
 
         #endregion

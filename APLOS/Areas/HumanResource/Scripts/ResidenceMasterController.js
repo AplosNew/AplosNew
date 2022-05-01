@@ -1,0 +1,213 @@
+﻿'use strict';
+ResidenceMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Residence Master';
+    $scope.Action = 'Save';
+    $scope.ModelList = [];
+    $scope.path = 'HumanResource/ResidenceMaster/';
+    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.saveUrl = $scope.path + 'Save';    
+    $scope.deleteUrl = $scope.path + 'delete/';   
+    baseService.init($scope.getListUrl);
+
+    // POP CLOSED FOR PLANT
+    $scope.closePlantPop = function () {
+        angular.element(document.querySelector('#PlantPop')).modal('hide');
+    }
+
+    // POP OPEN FOR RESIDENCE GROUP
+    $scope.openResidencePop = function () {
+
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('show');
+    }
+
+    // POP CLOSED FOR RESIDENCE GROUP
+    $scope.closeResidencePop = function () {
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
+    }
+
+    // POP OPEN FOR Employee Category
+    $scope.openEmployeePop = function () {
+
+        angular.element(document.querySelector('#EmpCatPop')).modal('show');
+    }
+
+    // POP CLOSED FOR Employee Category
+    $scope.closeEmployeePop = function () {
+        angular.element(document.querySelector('#EmpCatPop')).modal('hide');
+    }
+
+    $scope.PlantList = [];
+    $scope.ResidenceGroupList = [];
+    $scope.EmployeeCategoryList = [];
+
+    //Getting the RESIDENCE MASTER Data
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetResidenceMaster",
+            data: {
+                'PlantId': $scope.SelectedPlantId,
+                'ResidenceGroupId': $scope.ResidenceGroupId,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+
+
+        });
+    }
+    $scope.getData();
+
+    $scope.getPlant = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getPlant",
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+        });
+    }
+    $scope.getPlant();
+
+    $scope.getResidenceGroup = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getResidenceGroup",
+            dataType: 'JSON',
+        }).then(function successcallback(response) {
+            $scope.ResidenceGroupList = response.data;
+        })
+    }
+    $scope.getResidenceGroup();
+
+    $scope.getEmployeeCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeCategory",
+            dataType: 'JSON',
+        }).then(function successcallback(response) {
+            $scope.EmployeeCategoryList = response.data;
+        })
+    }
+    $scope.getEmployeeCategory();
+    
+    $scope.SelectedPlantId = null;
+    $scope.Plant = null;
+    $scope.selectPlant = function (e) {
+        $scope.SelectedPlantId = e.data.Id;
+        $scope.Plant = e.data.UserName;
+        angular.element(document.querySelector('#PlantPop')).modal('hide');
+    }
+
+    $scope.ResidenceGroupId = null;
+    $scope.Residence = null;
+    $scope.selectResidenceGroup = function (e) {
+        $scope.ResidenceGroupId = e.data.Id;
+        $scope.Residence = e.data.UserName;
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
+    }
+
+    $scope.EmployeeCatId = null;
+    $scope.EmployeeUN = null;
+    $scope.selectEmployeeCategory = function (e) {
+        $scope.EmployeeCatId = e.data.Id;
+        $scope.EmployeeUN = e.data.UserName;
+        angular.element(document.querySelector('#EmpCatPop')).modal('hide');
+    }
+
+    // POP OPEN FOR PLANT
+    $scope.openPlantPop = function () {
+
+        angular.element(document.querySelector('#PlantPop')).modal('show');
+    }
+
+   
+
+    // SAVE OPERATION
+
+    $scope.ModalTemp = {
+       
+        Location: null,
+        Id: null,
+        ResidenceCategory: null,
+        ResidenceSubCategory: null,
+        Block: null,
+        Floor: null,
+        ResidenceNumber: null,
+        Rooms: null,
+        ResidentType: null,
+        Vacancy: null,
+        AssetName: null,
+        Remarks: null,
+        isActive: false,
+    };
+    $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+
+   
+    $scope.Get = function (args) {
+        $scope.ModalNew = Object.assign({}, args.data);
+       
+        $scope.Action = 'Update';
+        
+    };
+
+    $scope.Save = function () {
+        $http({
+            method: 'POST',
+           url: $scope.saveUrl,
+            data: {
+                'data': $scope.ModalNew,
+                'PlantId': $scope.SelectedPlantId,
+                'ResidenceGroupId': $scope.ResidenceGroupId,
+                'Emp': $scope.EmployeeCatId,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');               
+                $scope.getData();               
+                ClearFields();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+
+        $scope.Plant = null;
+        $scope.Residence = null;
+        $scope.EmployeeUN = null;
+        $scope.ModalTemp = {
+            Id: null,
+            Location: null,
+            ResidenceCategory: null,
+            ResidenceSubCategory: null,
+            Block: null,
+            Floor: null,
+            ResidenceNumber: null,
+            Rooms: null,
+            ResidentType: null,
+            Vacancy: null,
+            AssetName: null,
+            Remarks: null,
+            isActive: null,
+        };
+
+        $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+    }
+}

@@ -727,5 +727,17 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/GoalSettingApproval/Aplos',
             controller: 'GoalSettingApprovalController'
         })
+        .when('/residence-master', {
+            templateUrl: 'humanResource/ResidenceMaster/Aplos',
+            controller: 'ResidenceMasterController'
+        })
+        .when('/scattered-week-off', {
+            templateUrl: 'humanResource/ScatteredWeekOff/Aplos',
+            controller: 'ScatteredWeekOffController'
+        })
+        .when('/residence-status-location', {
+            templateUrl: 'humanResource/ResidenceStatusLocation/Aplos',
+            controller: 'ResidenceStatusLocationController'
+        })
         ;
 }

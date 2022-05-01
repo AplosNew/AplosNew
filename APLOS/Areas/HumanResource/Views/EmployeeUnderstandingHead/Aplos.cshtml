@@ -1,4 +1,4 @@
-﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Employee Understanding</h3>
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>Phoenix</h3>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="tab-design" id="tab_show">
@@ -22,13 +22,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Budget Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Standard Name" ng-model="ModelNew.MBCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Status<sup>*</sup></label>
                         <div class="col-sm-8">
                             <div class="select-style">
@@ -46,13 +46,13 @@
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Employee Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Short Name" ng-model="ModelNew.EmployeeCode" class="form-control" maxlength="15" autocomplete="off" required tabindex="3" readonly>
                         </div>
                     </div>
-                    <div class="form-group" show-errors>
+                    <div class="form-group">
                         <label class="col-sm-4 control-label">Position Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
                             <input type="text" name="Standard Name" ng-model="ModelNew.PCode" class="form-control" required autocomplete="off" tabindex="4" maxlength="50" readonly>
@@ -76,7 +76,6 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class="row" ng-form name="activityForm">
                     <input type="hidden" ng-model="activityNew.Id" />
-                    <input type="hidden" ng-model="activityNew.EmployeeId" />
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Activity<sup>*</sup></label>
@@ -84,12 +83,11 @@
                                 <input type="text" name="Name" ng-model="activityNew.ActivityName" class="form-control" maxlength="50" placeholder="Activity" tabindex="31">
                             </div>
                         </div>
-
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Activity Category<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.ActivityCategory" name="ActivityCategoryList" ng-options="item.value as item.name for item in ActivityCategoryList">
+                                    <select class="form-control" ng-model="activityNew.ActivityCategory" name="ActivityCategoryList" ng-options="item.value as item.name for item in ActivityCategoryList"  tabindex="33">
                                     </select>
                                 </div>
                             </div>
@@ -97,71 +95,49 @@
                         <div class="form-group" @*ng-show="otherActivityCategory"*@>
                             <label class="col-sm-4 control-label">Other Activity Category</label>
                             <div class="col-sm-8">
-                                <input type="text" maxlength="200" name="Other Activity Category" ng-model="activityNew.OtherActivityCategory" placeholder="Other Activity Category" class="form-control" tabindex="33">
+                                <input type="text" maxlength="200" name="Other Activity Category" ng-model="activityNew.OtherActivityCategory" placeholder="Other Activity Category" class="form-control" tabindex="34">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Activity Class<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.ActivityClass" name="ActivityClassList" ng-options="item.value as item.name for item in ActivityClassList">
+                                    <select class="form-control" ng-model="activityNew.ActivityClass" name="ActivityClassList" ng-options="item.value as item.name for item in ActivityClassList" tabindex="36">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Priority<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.Priority" name="PriorityList" ng-options="item.value as item.name for item in PriorityList">
+                                    <select class="form-control" ng-model="activityNew.Priority" name="PriorityList" ng-options="item.value as item.name for item in PriorityList" tabindex="38">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Period<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.Period" name="PeriodList" ng-options="item.value as item.name for item in PeriodList">
+                                    <select class="form-control" ng-model="activityNew.Period" name="PeriodList" ng-options="item.value as item.name for item in PeriodList" tabindex="40">
                                     </select>
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Average Time (Min)<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <input type="number" name="AverageTime" ng-model="activityNew.AverageTime" placeholder="Average Time (Min)" class="form-control" tabindex="37">
+                                <input type="number" name="AverageTime" ng-model="activityNew.AverageTime" placeholder="Average Time (Min)" class="form-control" tabindex="42">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="activityNew.Remarks" name="Remarks" maxlength="200" placeholder="Remarks" tabindex="39"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="activityNew.Remarks" name="Remarks" maxlength="200" placeholder="Remarks" tabindex="44"></textarea>
                             </div>
                         </div>
-                        @*<div class="form-group" ng-show="hidediv">
-                                <label class="col-sm-4 control-label">KPI</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="activityNew.KPI">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>*@
-                        @*<div class="form-group" ng-show="hidediv">
-                                <label class="col-sm-4 control-label">Documents</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="activityNew.Documents">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>*@
+                        
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group">
@@ -170,21 +146,20 @@
                                 <textarea class="form-control" rows="3" ng-model="activityNew.ActivityDetail" name="Activity Detail" maxlength="500" placeholder="Activity Detail" tabindex="32"></textarea>
                             </div>
                         </div>
-
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Activity Importance<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.ActivityImportance" name="ActivityImportanceList" ng-options="item.value as item.name for item in ActivityImportanceList">
+                                    <select class="form-control" ng-model="activityNew.ActivityImportance" name="ActivityImportanceList" ng-options="item.value as item.name for item in ActivityImportanceList"  tabindex="35">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Activity Type<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.ActivityType" name="ActivityTypeList" ng-options="item.value as item.name for item in ActivityTypeList">
+                                    <select class="form-control" ng-model="activityNew.ActivityType" name="ActivityTypeList" ng-options="item.value as item.name for item in ActivityTypeList" tabindex="37">
                                     </select>
                                 </div>
                             </div>
@@ -192,14 +167,14 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Frequency<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <input type="number" name="Frequency" ng-model="activityNew.Frequency" placeholder="Frequency" class="form-control" tabindex="36">
+                                <input type="number" name="Frequency" ng-model="activityNew.Frequency" placeholder="Frequency" class="form-control" tabindex="39">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Financial Impact<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="activityNew.FinancialImpact" name="FinancialImpactList" ng-options="item.value as item.name for item in FinancialImpactList">
+                                    <select class="form-control" ng-model="activityNew.FinancialImpact" name="FinancialImpactList" ng-options="item.value as item.name for item in FinancialImpactList" tabindex="41">
                                     </select>
                                 </div>
                             </div>
@@ -207,7 +182,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Purpose of the activity<sup>*</sup></label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="activityNew.PurposeOfTheActivity" name="PurposeOfTheActivity" maxlength="200" placeholder="Purpose Of The Activity" tabindex="40"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="activityNew.PurposeOfTheActivity" name="PurposeOfTheActivity" maxlength="200" placeholder="Purpose Of The Activity" tabindex="43"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -230,33 +205,11 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Applicable KPI</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" class="css-checkbox" ng-model="activityNew.IsApplicableKPI">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>*@
-                        @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Has Financial Impact</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" ng-model="activityNew.FinancialImpact" tabindex="10">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>*@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id == null || ModelNew.Id == ''" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
-                            <li> <button ng-click="ClearActivity();" ng-disabled="disableBtn()" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li> <button ng-click="SaveActivity();" ng-disabled="ModelNew.Id == null || ModelNew.Id == '' && savebtndisable" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
+                            <li> <button ng-click="clearactivity();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
                     </div>
                     <div class="col-xs-12">
@@ -284,43 +237,6 @@
         </div>
     </div>
 </div>
-@*<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-        <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="2"></div>
-            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="3"></div>
-            <div e-column e-field="PositionCode" e-headertext="Position Code" e-width="5"></div>
-            <div e-column e-field="BudgetCode" e-headertext="Budge tCode" e-width="5"></div>
-            <div e-column e-field="Date" e-headertext="Date" e-width="5"></div>
-            <div e-column e-field="Status" e-headertext="Status" e-width="2"></div>
-            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="2"></div>
-        </div>
-    </div>
-</div>*@
 <confirm-modal></confirm-modal>
 
 <div class="modal fade site-modal in" id="documentPopUp" role="dialog" data-backdrop="static">
@@ -334,36 +250,35 @@
                 <div class="row" ng-form name="documentForm">
                     <input type="hidden" ng-model="documentActivityNew.Id" />
                     <div class="col-md-12 col-sm-6 col-md-6">
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Name<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <input type="text" name="Document Name" ng-model="documentActivityNew.DocumentName" class="form-control" required autocomplete="off" tabindex="4">
+                            <div class="col-sm-8">
+                                <input type="text" name="Document Name" ng-model="documentActivityNew.DocumentName" class="form-control" autocomplete="off" tabindex="100">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Type<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentType" name="DocumentTypeList" ng-options="item.value as item.name for item in DocumentTypeList">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentType" name="DocumentTypeList" ng-options="item.value as item.name for item in DocumentTypeList"tabindex="102">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Generation<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentGeneration" name="DocumentGenerationList" ng-options="item.value as item.name for item in DocumentGenerationList">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentGeneration" name="DocumentGenerationList" ng-options="item.value as item.name for item in DocumentGenerationList"tabindex="104">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Document Category<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" @*ng-disabled="documentActivityNew.length>0"*@ id="ddldocument" ng-model="documentActivityNew.DocumentCategoryId" name="Document" ng-options="item.Id as item.UserName for item in DocumentCategoryList">
+                                    <select class="form-control"  id="ddldocument" ng-model="documentActivityNew.DocumentCategoryId" name="Document" ng-options="item.Id as item.UserName for item in DocumentCategoryList"tabindex="106">
                                         <option value=""></option>
                                     </select>
                                 </div>
@@ -372,7 +287,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Remarks</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" rows="3" ng-model="documentActivityNew.Remarks" name="Remarks" placeholder="Remarks" maxlength="200" tabindex="47"></textarea>
+                                <textarea class="form-control" rows="3" ng-model="documentActivityNew.Remarks" name="Remarks" placeholder="Remarks" maxlength="200" tabindex="108"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -391,47 +306,44 @@
                         </div>
                     </div>
                     <div class="col-md-12 col-sm-6 col-md-6">
-                       
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Format<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentFormat" name="DocumentFormatList" ng-options="item.value as item.name for item in DocumentFormatList">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentFormat" name="DocumentFormatList" ng-options="item.value as item.name for item in DocumentFormatList"tabindex="101">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Code<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Document Code" ng-model="documentActivityNew.DocumentCode" class="form-control" required autocomplete="off" tabindex="4">
+                                <input type="text" name="Document Code" ng-model="documentActivityNew.DocumentCode" class="form-control" autocomplete="off" tabindex="103">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Prepration Frequency<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentPreprationFrequency" name="DocumentPreprationFrequencyList" ng-options="item.value as item.name for item in DocumentPreprationFrequencyList">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentPreprationFrequency" name="DocumentPreprationFrequencyList" ng-options="item.value as item.name for item in DocumentPreprationFrequencyList"tabindex="105">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Document Class<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.DocumentClass" name="DocumentClassList" ng-options="item.value as item.name for item in DocumentClassList">
+                                    <select class="form-control" ng-model="documentActivityNew.DocumentClass" name="DocumentClassList" ng-options="item.value as item.name for item in DocumentClassList"tabindex="107">
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        
-
-                        <div class="form-group" show-errors>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Prepared by<sup>*</sup></label>
                             <div class="col-sm-8">
                                 <div class="select-style">
-                                    <select class="form-control" ng-model="documentActivityNew.PreparedBy" name="PreparedByList" ng-options="item.value as item.name for item in PreparedByList">
+                                    <select class="form-control" ng-model="documentActivityNew.PreparedBy" name="PreparedByList" ng-options="item.value as item.name for item in PreparedByList"tabindex="109">
                                     </select>
                                 </div>
                             </div>
@@ -455,6 +367,7 @@
                         <ul class="list-inline text-right">
                             <li> <button ng-click="SaveDocument();" class="btn" @*ng-disabled="activityNew.Id===null"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                             <li> <button ng-click="ClearDocument();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li> <button ng-click="CloseDocumentPopUp();" class="btn" tabindex="9"><i class="glyphicon glyphicon-close"></i> Close</button></li>
                         </ul>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -571,14 +484,14 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Name of KPI<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="kpiNew.KPIName" name="KPI Name" maxlength="200" tabindex="71"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="kpiNew.KPIName" name="KPI Name" maxlength="200" tabindex="401"></textarea>
                                 </div>
                             </div>
-                            <div class="form-group" show-errors>
+                            <div class="form-group">
                                 <label class="col-sm-4 control-label">KPI Review Period<sup>*</sup></label>
                                 <div class="col-sm-8">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="kpiNew.KPIReviewPeriod" name="KPIReviewPeriodList" ng-options="item.value as item.name for item in KPIReviewPeriodList">
+                                        <select class="form-control" ng-model="kpiNew.KPIReviewPeriod" name="KPIReviewPeriodList" ng-options="item.value as item.name for item in KPIReviewPeriodList"tabindex="403">
                                         </select>
                                     </div>
                                 </div>
@@ -589,13 +502,13 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">KPI Detail<sup>*</sup></label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="kpiNew.KPIDetail" name="KPI Detail" maxlength="200" tabindex="72"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="kpiNew.KPIDetail" name="KPI Detail" maxlength="200" tabindex="402"></textarea>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8">
-                                    <textarea class="form-control" rows="3" ng-model="kpiNew.Remarks" name="Remarks" maxlength="200" tabindex="73"></textarea>
+                                    <textarea class="form-control" rows="3" ng-model="kpiNew.Remarks" name="Remarks" maxlength="200" tabindex="404"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -603,9 +516,10 @@
                             <ul class="list-inline text-right">
                                 <li> <button ng-click="SaveKPI();" class="btn" @*ng-disabled="activityNew.Id===null"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>Save</button></li>
                                 <li> <button ng-click="ClearKPI();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                <li> <button ng-click="CloseKPIPopUp();" class="btn" tabindex="9"><i class="glyphicon glyphicon-close"></i> Close</button></li>
                             </ul>
                         </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="col-xs-12">
                             <div id="GridKPIEdit" ng-init="chkinit()" ej-grid e-datasource="KPIList" e-recorddoubleclick="GetKPI" e-load="loadGridEdit"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
@@ -620,11 +534,6 @@
                         </div>
                     </div>
                 </div>
-                @*<div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="SaveKPI();confirmMoreKPI();" class="btn" ng-disabled="disableBtn();savebtndisable"> Done </button></li>
-                        </ul>
-                    </div>*@
             </div>
         </div>
     </div>

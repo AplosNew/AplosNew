@@ -36,7 +36,7 @@ namespace Aplos.Areas.Commercial.Controllers
         #endregion
 
         #region -- Pages
-      
+      [Authorize]
         public ActionResult Aplos()
         {
             return View();
@@ -213,7 +213,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
 
 
-        [HttpPost]
+        [HttpPost,Authorize]
         public JsonResult Create(PostSalesInvoice entity)
         {
 
@@ -230,7 +230,7 @@ namespace Aplos.Areas.Commercial.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Edit(PostSalesInvoice entity)
         {
 
@@ -490,7 +490,7 @@ namespace Aplos.Areas.Commercial.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult Delete(string id)
         {
             DeleteData(id);

@@ -7,6 +7,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.updateUrl = $scope.path + 'Save';
+    $scope.saveChildUrl = $scope.path + 'CreateChild';
 
     $scope.route = {
         Id: null,
@@ -18,11 +19,36 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         ShortName: null,
         Description: null,
         Remarks: null,
+        UpDuration: null,
+        DownDuration: null,
         Active: true,
         UpOrDown: 'Up',      
     };
     $scope.routeNew = Object.assign({}, $scope.route);
-    
+
+    $scope.transport = {
+        TransportId: null,
+        TransportUserName: null,
+        TransportPort: null,
+        DriverId: null,
+        DriverName: null,
+        TransportCategory: null,
+        TransportNo: null,
+        Capacity: null,
+        Remarks: null
+    };
+    $scope.ModelChildNew = Object.assign({}, $scope.transport);
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+        $scope.getalldata1();
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.Save = function () {
         try {
             ValidationMaster();
@@ -61,6 +87,28 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         } catch (e) {
             ShowResult(e, "failure");
         }
+    };
+
+    $scope.SaveChild = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveChildUrl,
+            data: { 'data': $scope.ModelChildNew, 'RouteId': $scope.routeNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getData();
+                //$scope.getUtilityGridData($scope.ModelNew.Id);
+                //$scope.ClearUtilityDetail();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
     };
 
     function CheckField(fieldname, field) {
@@ -205,7 +253,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     }
     
     $scope.dataList = [];
-    $scope.GetEmployeeDeleteInfo = function () {
+    $scope.GetEmployeeDeleteInfo = function (name) {
+        $scope.Name = name;
         $scope.employeeInfo = {};
         $scope.dataList = [];
         $http({
@@ -219,15 +268,30 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     
     $scope.employeeInfo = {};
     $scope.SetEmpData = function (obj) {
-        var emp = obj.data;
-        $scope.employeeInfo.EmpSystemID = emp.SystemID;
-        $scope.employeeInfo.EmployeeCode = emp.EmployeeCode;
-        $scope.employeeInfo.EmployeeName = emp.EmployeeName;
-        $scope.routeNew.DriverId = emp.SystemID;      
+        //var emp = obj.data;
+        //$scope.employeeInfo.EmpSystemID = emp.SystemID;
+        //$scope.employeeInfo.EmployeeCode = emp.EmployeeCode;
+        //$scope.employeeInfo.EmployeeName = emp.EmployeeName;
+        //$scope.routeNew.DriverId = emp.SystemID;      
+
+            var emp = obj.data;
+            if ($scope.Name == 'ad') {
+                $scope.employeeInfo.EmpSystemID = emp.SystemID;
+                $scope.employeeInfo.EmployeeCode = emp.EmployeeCode;
+                $scope.employeeInfo.EmployeeName = emp.EmployeeName;
+                $scope.routeNew.DriverId = emp.SystemID;
+            }
+            else if ($scope.Name == 'mo') {
+                $scope.ModelChildNew.DriverId = emp.SystemID;
+                $scope.ModelChildNew.DriverCode = emp.EmployeeCode;
+                $scope.ModelChildNew.DriverName = emp.EmployeeName;
+            }
+
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     };
 
     $scope.closeEmployeePopUp = function () {
+
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
 
