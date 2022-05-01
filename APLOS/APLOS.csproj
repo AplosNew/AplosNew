@@ -2465,8 +2465,9 @@
     <Content Include="Areas\Products\Scripts\ServiceAckCheckedApprovedByController.js" />
     <Content Include="Areas\Products\Scripts\ServicePoAcknowledgementController.js" />
     <Content Include="Areas\Products\Scripts\InoutGetpassCheckedController.js" />
+    <Content Include="Areas\Products\Scripts\ServicePOApprovedController.js" />
     <Content Include="Areas\Products\Scripts\ServicePOIndividualController.js" />
-    <Content Include="Areas\Products\Scripts\ServicePOCheckAndApprovedController.js" />
+    <Content Include="Areas\Products\Scripts\ServicePOCheckController.js" />
     <Content Include="Areas\Products\Scripts\GatePassEmployeeController.js" />
     <Content Include="Areas\Products\Scripts\GatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardController.js" />
