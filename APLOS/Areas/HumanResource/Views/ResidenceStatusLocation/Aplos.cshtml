@@ -8,25 +8,71 @@
         <div class="col-xs-12 col-sm-6 col-md-6">
             <div class="form-group">
                 <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in PlantList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Location<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in LocationList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
+            
+
             <div class="form-group">
                 <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in ResidenceCategoryList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Block If Applicable<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="Residence Category" ng-model="ModalNew.ResidenceCategory" class="form-control" maxlength="200" tabindex="5">
+                    <div class="select-style">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in BlockList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+           
+            
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in ResidenceGroupIdList" tabindex="2">
+                            <option value="">--Select--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -34,68 +80,11 @@
                 <label class="col-sm-4 control-label">Residence Sub Category<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceSubCategory" required name="Residence Sub Category" tabindex="2">
+                        <select class="form-control" id="" ng-model="" required name=""
+                                ng-options="item.Value as item.Text for item in ResidenceSubCategoryList" tabindex="2">
                             <option value="">--Select--</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
                         </select>
                     </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Block If Applicable<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Floor<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Floor" ng-model="ModalNew.Floor" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Number<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Residence Number" ng-model="ModalNew.ResidenceNumber" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label" style="margin-top:-5px !important">Is Active</label>
-                <div class="col-sm-8">
-                    <div class="checkbox-site" id="">
-                        <label>
-                            <input type="checkbox" name="is Active" ng-model="ModalNew.isActive" tabindex="8" style="margin-top:10px !important">
-                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Residence" ng-model="Residence" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openResidencePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Employee" ng-model="EmployeeUN" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openEmployeePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                 </div>
             </div>
 
@@ -121,25 +110,22 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Vacancy Status<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
+                    <select class="form-control" id="" ng-model="" required name=""
+                            tabindex="2">
+                        <option value="">--Select--</option>
+                        <option value="Valid">Valid</option>
+                        <option value="Occupied">Occupied</option>
+                        <option value="Vacant">Vacant</option>
+                        <option value="">All</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
+            
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-6">
-                    <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
-                </div>
-            </div>
+           
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">

@@ -269,6 +269,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    #region PerformancePeriodMasterService
     public class PerformancePeriodMasterService
     {
 
@@ -420,7 +421,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
     }
+    #endregion PerformancePeriodMasterService
 
+    #region Performance Group Service
     public class PerformanceGroupService
     {
         ISqlRepository _sqlRepository;
@@ -602,7 +605,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion Performance Group Service
 
+    #region PERFORMANCE ATTRIBUTE MASTER SERVICE
     public class PerformanceAttributeMasterService
     {
         ISqlRepository _sqlRepository;
@@ -769,7 +774,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion PERFORMANCE ATTRIBUTE MASTER SERVICE
 
+    #region Performance Grade Master Service
     public class PerformanceGradeMasterService
     {
         ISqlRepository _sqlRepository;
@@ -936,6 +943,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion Performance Grade Master Service
 
     #region EmployeeGoalSetting
     public class EmployeeGoalSetting
@@ -1553,7 +1561,107 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion Add & Edit Row
     }
     #endregion RESIDENCE MASTER SERVICE
+
+    #region Residence Status Location
+    public class ResidenceStatusLocationService
+    {
+        SqlRepository _sqlRepository;
+        public ResidenceStatusLocationService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPlant()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.PlantId, p.UserName as Text from dbo.ResidenceMaster rm
+                               left join ORG.Plant p on p.Id = rm.PlantId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getLocation()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.Location as Text from dbo.ResidenceMaster rm";
+                               
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceGroup()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.ResidenceGroupId, rg.StandardName as Text from dbo.ResidenceMaster rm
+                               left join dbo.ResidenceGroup rg on rg.Id = rm.ResidenceGroupId";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceCategory()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.ResidenceCategory as Text from dbo.ResidenceMaster rm";
+                               
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceSubCategory()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.ResidenceSubCategory as Text from dbo.ResidenceMaster rm";
+
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getBlock()
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.Block as Text from dbo.ResidenceMaster rm";
+
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+    }
+    #endregion Residence Status Location
 }
+
 
 
 
