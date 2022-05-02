@@ -636,7 +636,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select Id as Value , UserName as Text from hkp.OperationCategory";
+                var str = @"Select distinct Id as Value , UserName as Text from hkp.OperationCategory";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -661,10 +661,10 @@ namespace Library.OrderManagement.Production
                     machine = "mm.ID = '"+MachineId+"'";
                 }
 
-                var str = @"Select om.Id as Value , om.UserName as Text 
+                var str = @"Select distinct om.Id as Value , om.UserName as Text 
                             from mst.OperationMaster om
                             left join mst.MachineMaster mm on mm.SkillId = om.SkillId
-                            where "+opCat+" and " +machine;
+                            where " + opCat+" and " +machine;
                 return _sqlRepository.GetDataCollection(str);
 
             }
@@ -718,12 +718,12 @@ namespace Library.OrderManagement.Production
                     mId = "mm.ID = '" + MId + "' ";
                 }
 
-                var str = @"Select 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
+                var str = @"Select distinct 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
                             from mst.OperationVariation ov
                             left join mst.OperationMaster om on ov.OperationMasterId = om.Id
                             left join mst.MachineMaster mm on mm.SkillId = om.SkillId
                             left join dbo.SpecialOperationsRate spo on spo.OperationVariationId = ov.ID
-                            where "+omId+" and "+mId+" and " + ocId;
+                            where " + omId+" and "+mId+" and " + ocId;
 
                 return _sqlRepository.GetDataCollection(str);
             }
