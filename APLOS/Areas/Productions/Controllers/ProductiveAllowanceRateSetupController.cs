@@ -83,7 +83,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Savings
         [HttpPost]
-        public ActionResult saveHeaderPa(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public ActionResult saveHeaderPa(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost]
-        public ActionResult saveChildPa(List<Dictionary<string, object>> childData, string headerId)
+        public ActionResult saveChildPa(List<Dictionary<string, string>> childData, string headerId)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Savings
         [HttpPost]
-        public ActionResult saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public ActionResult saveHeaderRs(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         // --------------------------------------Save Child RS
         [HttpPost]
-        public ActionResult saveChildRs(List<Dictionary<string, object>> childData, string headerId)
+        public ActionResult saveChildRs(List<Dictionary<string, string>> childData, string headerId)
         {
             try
             {

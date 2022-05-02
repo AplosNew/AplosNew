@@ -136,7 +136,7 @@ namespace Library.OrderManagement.Production
 
         #region SaveOps
 
-        public Dictionary<string, object> saveHeaderPa(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public Dictionary<string, string> saveHeaderPa(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -167,9 +167,9 @@ namespace Library.OrderManagement.Production
                 {
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                     dr.BeginEdit();
-                    dr["UserName"] = headerData["UserName"].ToString();
+                    dr["UserName"] = headerData["UserName"];
                     dr["EffectiveDate"] =Convert.ToDateTime(headerData["EffectiveDate"].ToString());
-                    dr["Remarks"] = headerData["Remarks"].ToString();
+                    dr["Remarks"] = headerData["Remarks"];
                     dr.EndEdit();
                 }
                 else
@@ -178,9 +178,9 @@ namespace Library.OrderManagement.Production
                     genid.GenID("dbo.ProducedMinAllowanceHeader", out _Id);
                     headerData["Id"] = _Id;
                     dr["Id"] = _Id;
-                    dr["UserName"] = headerData["UserName"].ToString();
+                    dr["UserName"] = headerData["UserName"];
                     dr["EffectiveDate"] = Convert.ToDateTime(headerData["EffectiveDate"].ToString());
-                    dr["Remarks"] = headerData["Remarks"].ToString();
+                    dr["Remarks"] = headerData["Remarks"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -266,7 +266,7 @@ namespace Library.OrderManagement.Production
         }
 
 
-        public List<Dictionary<string, object>> saveChildPa(List<Dictionary<string, object>> childData , string headerId)
+        public List<Dictionary<string, string>> saveChildPa(List<Dictionary<string, string>> childData , string headerId)
         {
             try
             {
@@ -291,8 +291,8 @@ namespace Library.OrderManagement.Production
                     DataRow dr = dsMaster.Tables[0].NewRow();
                     dr["Id"] = headerId + i;
                     dr["HeaderId"] = headerId;
-                    dr["SkilLCategoryId"] = jj["SkillCategoryId"].ToString();
-                    dr["OperationSequence"] = jj["OperationSequence"].ToString();
+                    dr["SkilLCategoryId"] = jj["SkillCategoryId"];
+                    dr["OperationSequence"] = jj["OperationSequence"];
                     dr["SkillAllowance"] = clsStaticInfo.dbl(jj["SkillAllowance"].ToString());
                     dr["AdditionOperationAllowance"] = clsStaticInfo.dbl(jj["AdditionOperationAllowance"].ToString());
 
@@ -424,7 +424,7 @@ namespace Library.OrderManagement.Production
 
         #region SaveOps
         
-        public Dictionary<string, object> saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public Dictionary<string, string> saveHeaderRs(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -453,9 +453,9 @@ namespace Library.OrderManagement.Production
                 {
                     DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
                     dr.BeginEdit();
-                    dr["UserName"] = headerData["UserName"].ToString();
+                    dr["UserName"] = headerData["UserName"];
                     dr["EffectiveDate"] = Convert.ToDateTime(headerData["EffectiveDate"].ToString());
-                    dr["Remarks"] = headerData["Remarks"].ToString();
+                    dr["Remarks"] = headerData["Remarks"];
                     dr.EndEdit();
                 }
                 else
@@ -464,9 +464,9 @@ namespace Library.OrderManagement.Production
                     genid.GenID("dbo.IncentiveRateSetupHeader", out _Id);
                     headerData["Id"] = _Id;
                     dr["Id"] = _Id;
-                    dr["UserName"] = headerData["UserName"].ToString();
+                    dr["UserName"] = headerData["UserName"];
                     dr["EffectiveDate"] = Convert.ToDateTime(headerData["EffectiveDate"].ToString());
-                    dr["Remarks"] = headerData["Remarks"].ToString();
+                    dr["Remarks"] = headerData["Remarks"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;
@@ -552,7 +552,7 @@ namespace Library.OrderManagement.Production
         }
 
         // -------------------------Save Child RS
-        public List<Dictionary<string, object>> saveChildRs(List<Dictionary<string, object>> childData, string headerId)
+        public List<Dictionary<string, string>> saveChildRs(List<Dictionary<string, string>> childData, string headerId)
         {
             try
             {
@@ -582,7 +582,7 @@ namespace Library.OrderManagement.Production
                         dr["HeaderId"] = headerId;
                         dr["Effeciency"] = clsStaticInfo.dbl(jj["Effeciency"].ToString());
                         dr["EffeciencyRate"] = clsStaticInfo.dbl(jj["EffeciencyRate"].ToString());
-                        dr["Remarks"] = jj["Remarks"].ToString();
+                        dr["Remarks"] = jj["Remarks"];
 
                     
                         dr["AddedBy"] = identity.Name;
@@ -777,7 +777,7 @@ namespace Library.OrderManagement.Production
                         dr["Id"] = _Id;
                         dr["OperationVariationId"] = jj["OperationVariationId"].ToString();
                         dr["Rate"] = clsStaticInfo.dbl(jj["Rate"].ToString());
-                        dr["Remarks"] = jj["Remarks"].ToString();
+                        dr["Remarks"] = jj["Remarks"];
 
 
                         dr["AddedBy"] = identity.Name;
