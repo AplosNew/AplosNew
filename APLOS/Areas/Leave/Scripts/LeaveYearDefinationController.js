@@ -95,8 +95,8 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
       
         $scope.getStartUp();
 
-        var plantArr = args.data.PlantIds.split(',');
-        var Prs = $("#PlantIdProcess").data("ejDropDownList").selectItemByText(plantArr);
+        var plantArr = args.data.Plants.split(',');
+        var ps= $("#PlantProcess").data("ejDropDownList").selectItemByText(plantArr);
 
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -107,7 +107,7 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
 
-            var DropDownPlantListObj = $("#PlantIdProcess").data("ejDropDownList");
+            var DropDownPlantListObj = $("#PlantProcess").data("ejDropDownList");
             var plantLists = DropDownPlantListObj.getSelectedValue().split(",");
                       
             if (plantLists.length < 1) {
@@ -176,12 +176,12 @@ function LeaveYearDefinationController(cboService, commonMessage, $scope, $rootS
 
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
+        $("#PlantProcess").data("ejDropDownList").clearText();
         return true;
     };
 
     function ClearFields(seq) {
         $scope.Action = 'Save';
-        $("#PlantIdProcess").data("ejDropDownList").clearText();
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }

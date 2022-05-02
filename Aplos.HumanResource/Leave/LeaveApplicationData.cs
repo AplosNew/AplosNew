@@ -1343,8 +1343,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-                               
-                string sqlx = @"select top 100 * from (select ld.Id,c.Id as CompanyId,ld.Sequence,
+              
+                string sql = @"select distinct top 100 * from (select ld.Id,c.Id as CompanyId,ld.Sequence,
                 ld.Code,ld.ShortName,ld.StandardName,
                 ld.UserName,Format(ld.FromDate,'dd-MMM-yyyy')FromDate,Format(ld.ToDate,'dd-MMM-yyyy')ToDate,
                 Format(ld.ProcessingDate,'dd-MMM-yyyy')ProcessingDate,
@@ -1362,11 +1362,14 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 							where pp.LeaveYearDefinationId = ld.Id
                             FOR XML PATH('')
                             ),1,1,'') AS PlantIds
-                from dbo.LeaveYearDefination ld left join EmployeeInformation e on 
+                from dbo.LeaveYearDefination ld left join LeaveYearDefinationPlantChild 
+				ldp on ldp.LeaveYearDefinationId=ld.Id
+				left join org.Plant p on p.Id=ldp.PlantId
+				left join org.Company c on c.Id=p.CompanyId              
+				left join EmployeeInformation e on 
 				e.SystemId=ld.RespersonId
-                left join org.Company c on c.Id=e.CompanyId
-                ) AS TEMP WHERE "+strkey+"  order by sequence";
-                return _sqlRepository.GetDataCollection(sqlx, null);
+                ) AS TEMP WHERE " + strkey+ "  order by sequence";
+                return _sqlRepository.GetDataCollection(sql, null);
             }       
             catch (Exception ex)
             {
