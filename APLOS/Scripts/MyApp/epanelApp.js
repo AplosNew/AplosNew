@@ -35,7 +35,8 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("ServiceRequisitionController", ServiceRequisitionController)
     .controller("ServiceRequisitionCheckApprovedController", ServiceRequisitionCheckApprovedController)
     .controller("ServicePOByRequisitionController", ServicePOByRequisitionController)
-    .controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
+    .controller("ServicePOCheckController", ServicePOCheckController)
+    .controller("ServicePOApprovedController", ServicePOApprovedController)
     .controller("GatePassController", GatePassController)
     .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
     .controller("PendingGateoutListController", PendingGateoutListController)
@@ -215,7 +216,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/Service-PO-Checking', {
                 templateUrl: 'Products/PurchaseOrder/ServicePOCheck',
-                controller: 'ServicePOCheckAndApprovedController'
+                controller: 'ServicePOCheckController'
             })
 
             .when('/gate-pass-checked', {
@@ -243,7 +244,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/Service-PO-Approval', {
                 templateUrl: 'Products/PurchaseOrder/ServicePOApproval',
-                controller: 'ServicePOCheckAndApprovedController'
+                controller: 'ServicePOApprovedController'
             })
             .when('/Service-Ack-Checked', {
                 templateUrl: 'Products/PurchaseOrder/ServiceAcknowledgementChecked',

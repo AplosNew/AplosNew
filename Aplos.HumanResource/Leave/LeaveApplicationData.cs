@@ -1321,25 +1321,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             _sqlRepository = new SqlRepository();
         }
-
-        public IEnumerable<object> Get(string Id)
-        {
-            try
-            {
-                var sql = @"select ld.Id,ld.PlantID,c.Id as CompanyId,ld.Sequence,ld.Code,ld.ShortName,ld.StandardName,ld.UserName,ld.FromDate,ld.ToDate,
-                ld.ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName as responsiblePerson
-                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
-                left join org.Plant p on p.Id=ld.PlantID
-                left join org.Company c on c.Id=p.CompanyId
-                where ld.Id ='"+Id+"'";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
+               
         public IEnumerable<object> GetCbo()
         {
             try
@@ -1361,17 +1343,32 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select top 100 * from (select ld.Id,ld.PlantID as PlantId,c.Id as CompanyId,ld.Sequence,
+              
+                string sql = @"select distinct top 100 * from (select ld.Id,c.Id as CompanyId,ld.Sequence,
                 ld.Code,ld.ShortName,ld.StandardName,
                 ld.UserName,Format(ld.FromDate,'dd-MMM-yyyy')FromDate,Format(ld.ToDate,'dd-MMM-yyyy')ToDate,
-                Format(ld.ProcessingDate,'dd-MMM-yyyy')ProcessingDate,ld.RespersonId,ld.Remarks,e.EmployeeName 
-                as responsiblePerson
-                from dbo.LeaveYearDefination ld left join EmployeeInformation e on e.SystemId=ld.RespersonId
-                left join org.Plant p on p.Id=ld.PlantID
-                left join org.Company c on c.Id=p.CompanyId
-                ) AS TEMP WHERE " + strkey + " order by sequence";
+                Format(ld.ProcessingDate,'dd-MMM-yyyy')ProcessingDate,
+				ld.RespersonId,ld.Remarks,e.EmployeeName 
+                as responsiblePerson, STUFF((
+                            SELECT ',' + px.UserName
+                            FROM dbo.LeaveYearDefinationPlantChild pp
+							left join org.Plant px on px.Id=pp.PlantId
+                            where pp.LeaveYearDefinationId = ld.Id
+                            FOR XML PATH('')
+                            ),1,1,'') AS Plants,
+							STUFF((
+                            SELECT ',' + pp.PlantId
+                            FROM dbo.LeaveYearDefinationPlantChild pp
+							where pp.LeaveYearDefinationId = ld.Id
+                            FOR XML PATH('')
+                            ),1,1,'') AS PlantIds
+                from dbo.LeaveYearDefination ld left join LeaveYearDefinationPlantChild 
+				ldp on ldp.LeaveYearDefinationId=ld.Id
+				left join org.Plant p on p.Id=ldp.PlantId
+				left join org.Company c on c.Id=p.CompanyId              
+				left join EmployeeInformation e on 
+				e.SystemId=ld.RespersonId
+                ) AS TEMP WHERE " + strkey+ "  order by sequence";
                 return _sqlRepository.GetDataCollection(sql, null);
             }       
             catch (Exception ex)
@@ -1380,12 +1377,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> GetEmps(string PlantId)
+        public IEnumerable<object> GetEmps(string CompId)
         {
             try
             {
                 var str = @"Select * from EmployeeInformation where
-                EmployeeStatus='Active' and PlantId='"+PlantId+"'";
+                EmployeeStatus='Active' and CompanyId='"+CompId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1394,7 +1391,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public string Create(Dictionary<string, object> data)
+        public string Create(Dictionary<string, object> data,List<string> DataList)
         {
             try
             {
@@ -1409,9 +1406,9 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same User Name already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PlantId='" + data["PlantId"] + "' AND FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"]+"'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where FromDate='" + data["FromDate"] + "' AND  Id<>'" + data["Id"] + "'AND ToDate='" + data["ToDate"]+"'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same From & To Date for Plant already exists!!!");
+                    throw new Exception("Same From & To Date already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
@@ -1436,7 +1433,34 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                DataSet dsChild;
+                ConnectionManager.DAL.ConManager conn = new ConnectionManager.DAL.ConManager("1");
+                conn.OpenDataSetThroughAdapter("select * from dbo.LeaveYearDefinationPlantChild where LeaveYearDefinationId ='" + MasterId + "'", out dsChild, false, "1");
+
+                while (dsChild.Tables[0].DefaultView.Count > 0)
+                {
+                    dsChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < DataList.Count; i++)
+                {
+                    DataRow dr = dsChild.Tables[0].NewRow();
+                    dr["Id"] = MasterId + i.ToString();
+                    dr["LeaveYearDefinationId"] =MasterId.ToString();
+                    dr["PlantId"] = DataList[i].ToString();
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsChild.Tables[0].Rows.Add(dr);
+                }
+                _info.SaveDataSets(dsChild);
                 return "Success";
 
             }
@@ -1453,24 +1477,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-
-                string TableName = "dbo.LeaveYearDefination";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
+                con.executeQuery("delete from LeaveYearDefinationPlantChild where LeaveYearDefinationId ='" + id + "'");
+                con.executeQuery("delete from LeaveYearDefination where id='" + id + "'");
                 con.CommitTransaction();
-
                 return "Success";
 
             }
             catch (Exception ex)
             {
-
                 return ex.Message;
-
             }
         }
 
@@ -1536,14 +1556,16 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
                 lt.UserName as LeaveType,lt.Id as LeaveTypeId,ad.Id as SystemId
                 ,isnull(ad.Opening,'0')Opening,isnull(ad.Earned,'0')Earned,
-                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,isnull(ad.Closing,'0')Closing
+                isnull(ad.RegularEncashment,'0')RegularEncashment,
+                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,
+                isnull(ad.Closing,'0')Closing
                 from LeaveYearDefination ld 
                 left join org.Plant p on p.Id=ld.PlantID
                 left join org.CompanyGroup cg on cg.Id=p.CompanyGroupId
                 left join LeaveType lt on lt.CompanyGroupId=cg.Id
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join AnnualLeaveDataCurrent ad on ad.LeaveYearId=ld.Id
-                where p.Id='"+PlantId+@"' and ld.Id='"+LvId+ @"'
+                where p.Id='" + PlantId+@"' and ld.Id='"+LvId+ @"'
                 and e.EmployeeStatus='Active' order by e.SystemId";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1572,7 +1594,6 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"Select Username as Text , Id as Value from ORG.Plant where CompanyId = '" + cmp + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1581,7 +1602,115 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 throw e;
             }
         }
+        public IEnumerable<object> getLeaveYear(string PlantId)
+        {
+            try
+            {
+                var str = @"select Username as Text , ld.Id as Value from 
+                leaveyeardefination ld left join 
+                LeaveYearDefinationPlantChild lpc on lpc.LeaveYearDefinationId=ld.Id
+                where lpc.plantid='"+PlantId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getCurrentList(string plantId,string YearId)
+        {
+            try
+            {
+                var str = @"Select a.*,lt.LeaveType from dbo.AnnualLeaveDataCurrent a 
+                left join LeaveYearDefination ld on ld.Id=a.LeaveYearId
+                left join LeaveType lt on lt.Id=a.LeaveTypeId
+                where a.PlantId = '" + plantId+"' and a.LeaveYearId='"+ YearId+"'";
+                return (_sqlRepository.GetDataCollection(str));
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void SaveFileList(List<Dictionary<string, object>> data, string PlantId,string YearId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string addedname = identity.Name;
+                string addeddate = DateTime.Now.ToString();
+                string TableName = "dbo.AnnualLeaveDataCurrent";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
+
+                string _Id = "";
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    int index = 0;
+                    for (int i = 0; i < data.Count; i++)
+                    {
+                        Dictionary<string, object> jj = data[i];                        
+                        jj["Id"] = "AC"+_Id + index;
+                        index++;
+                        AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate,PlantId);
+                    }
+                }
+
+                var sqls = @"Delete from dbo.AnnualLeaveDataCurrent                                 
+                                where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
+
+                ConnectionManager.DAL.ConManager objCone = null;
+                objCone = new ConnectionManager.DAL.ConManager("1");
+                objCone.OpenConnection("1");
+                objCone.BeginTransaction();
+
+                objCone.ExecuteNonQueryWrapper(sqls, true, "1");
+                objCone.CommitTransaction();
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public void AddNewRow(DataTable dt, Dictionary<string, object> sourceData, string addedname, string addeddate,string PlantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            double closing_calculate= Convert.ToDouble(dr["Opening"].ToString()) + Convert.ToDouble(dr["Earned"].ToString())
+                -Convert.ToDouble(dr["Availed"].ToString()) - Convert.ToDouble(dr["RegularEncashment"].ToString()) 
+                + Convert.ToDouble(dr["Adjustment"].ToString());
+           
+            dr["PlantId"] = PlantId;
+            dr["Closing"] = closing_calculate;
+            dr["AddedBy"] = addedname;
+            dr["AddedDate"] = addeddate;
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
     }
-
-
 }

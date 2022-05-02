@@ -42,7 +42,20 @@ namespace Aplos.Areas.Leave.Controllers
             return View();
         }
 
-        #region Plant & Company List
+        #region Other Functions
+
+        [HttpGet, Authorize]
+        public ActionResult getCurrentList(string PlantId,string YearId)
+        {
+            try
+            {
+                return Json(_leave.getCurrentList(PlantId,YearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         [HttpGet, Authorize]
         public ActionResult getCompany()
@@ -63,6 +76,34 @@ namespace Aplos.Areas.Leave.Controllers
             try 
             {                
                 return Json(_leave.getPlants(cmp), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getLeaveYear(string PlantId)
+        {
+            try
+            {
+                return Json(_leave.getLeaveYear(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlantId,string YearId)
+        {
+            try
+            {
+                _leave.SaveFileList(data, PlantId,YearId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
             }
             catch (Exception ex)
             {
@@ -134,7 +175,7 @@ namespace Aplos.Areas.Leave.Controllers
             int ColLvTypeId = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 14, ExcelHAlign.HAlignLeft);
             int ColPlant = COL;
             COL++;
 
@@ -148,8 +189,12 @@ namespace Aplos.Areas.Leave.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Availed", 10, ExcelHAlign.HAlignLeft);
             int ColAvailed = COL;
-            COL++; 
-            
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RegularEncashment", 16, ExcelHAlign.HAlignLeft);
+            int ColRegEncashment = COL;
+            COL++;         
+
             report.SetHeaderText(ref sheet, ROW, COL, "Adjustment", 12, ExcelHAlign.HAlignLeft);
             int ColAdjustment = COL;
             COL++;
@@ -170,6 +215,7 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, colOpening].Text = data.Rows[i]["Opening"].ToString();
+                sheet[ROW, ColRegEncashment].Text = data.Rows[i]["RegularEncashment"].ToString();
                 sheet[ROW, ColEarned].Text = data.Rows[i]["Earned"].ToString();
                 sheet[ROW, ColAvailed].Text = data.Rows[i]["Availed"].ToString();
                 sheet[ROW, ColAdjustment].Text = data.Rows[i]["Adjustment"].ToString();
@@ -237,6 +283,8 @@ namespace Aplos.Areas.Leave.Controllers
                         string Availed = clsWebLib.RetValidLen(data[i].Availed).ToString();
                         string Adjustment = clsWebLib.RetValidLen(data[i].Adjustment).ToString();
                         string EmpId = clsWebLib.RetValidLen(data[i].EmployeeId).ToString();
+                        string LvtypeId= clsWebLib.RetValidLen(data[i].LeaveTypeId).ToString();
+
 
                         if (Earning != "" && Opening != "" && Adjustment != ""
                             && Availed != "" && EmpId != "")
@@ -340,5 +388,7 @@ namespace Aplos.Areas.Leave.Controllers
         public string EmployeeId { get; set;}
         public string LeaveYearId{ get; set; }
         public string LeaveTypeId { get; set; }
+        public string LeaveType { get; set; }
+        public string RegularEncashment { get; set; }
     }
 }
