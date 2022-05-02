@@ -10,8 +10,36 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.deleteUrl = $scope.path + 'delete/';   
     baseService.init($scope.getListUrl);
 
+    // POP CLOSED FOR PLANT
+    $scope.closePlantPop = function () {
+        angular.element(document.querySelector('#PlantPop')).modal('hide');
+    }
+
+    // POP OPEN FOR RESIDENCE GROUP
+    $scope.openResidencePop = function () {
+
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('show');
+    }
+
+    // POP CLOSED FOR RESIDENCE GROUP
+    $scope.closeResidencePop = function () {
+        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
+    }
+
+    // POP OPEN FOR Employee Category
+    $scope.openEmployeePop = function () {
+
+        angular.element(document.querySelector('#EmpCatPop')).modal('show');
+    }
+
+    // POP CLOSED FOR Employee Category
+    $scope.closeEmployeePop = function () {
+        angular.element(document.querySelector('#EmpCatPop')).modal('hide');
+    }
+
     $scope.PlantList = [];
     $scope.ResidenceGroupList = [];
+    $scope.EmployeeCategoryList = [];
 
     //Getting the RESIDENCE MASTER Data
     $scope.getData = function () {
@@ -52,6 +80,17 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         })
     }
     $scope.getResidenceGroup();
+
+    $scope.getEmployeeCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeCategory",
+            dataType: 'JSON',
+        }).then(function successcallback(response) {
+            $scope.EmployeeCategoryList = response.data;
+        })
+    }
+    $scope.getEmployeeCategory();
     
     $scope.SelectedPlantId = null;
     $scope.Plant = null;
@@ -69,27 +108,21 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
     }
 
+    $scope.EmployeeCatId = null;
+    $scope.EmployeeUN = null;
+    $scope.selectEmployeeCategory = function (e) {
+        $scope.EmployeeCatId = e.data.Id;
+        $scope.EmployeeUN = e.data.UserName;
+        angular.element(document.querySelector('#EmpCatPop')).modal('hide');
+    }
+
     // POP OPEN FOR PLANT
     $scope.openPlantPop = function () {
 
         angular.element(document.querySelector('#PlantPop')).modal('show');
     }
 
-    // POP CLOSED FOR PLANT
-    $scope.closePlantPop = function () {
-        angular.element(document.querySelector('#PlantPop')).modal('hide');
-    }
-
-    // POP OPEN FOR RESIDENCE GROUP
-    $scope.openResidencePop = function () {
-
-        angular.element(document.querySelector('#ResidenceGroupPop')).modal('show');
-    }
-
-    // POP CLOSED FOR RESIDENCE GROUP
-    $scope.closeResidencePop = function () {
-        angular.element(document.querySelector('#ResidenceGroupPop')).modal('hide');
-    }
+   
 
     // SAVE OPERATION
 
@@ -103,7 +136,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         Floor: null,
         ResidenceNumber: null,
         Rooms: null,
-        ResidenceType: null,
+        ResidentType: null,
         Vacancy: null,
         AssetName: null,
         Remarks: null,
@@ -111,8 +144,10 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
+   
     $scope.Get = function (args) {
-        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ModalNew = Object.assign({}, args.data);
+       
         $scope.Action = 'Update';
         
     };
@@ -125,6 +160,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
                 'data': $scope.ModalNew,
                 'PlantId': $scope.SelectedPlantId,
                 'ResidenceGroupId': $scope.ResidenceGroupId,
+                'Emp': $scope.EmployeeCatId,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -153,8 +189,9 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     function ClearFields() {
         $scope.Action = 'Save';
 
-        $scope.PlantId = null;
-        $scope.ResidenceGroupId = null;
+        $scope.Plant = null;
+        $scope.Residence = null;
+        $scope.EmployeeUN = null;
         $scope.ModalTemp = {
             Id: null,
             Location: null,
@@ -164,7 +201,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             Floor: null,
             ResidenceNumber: null,
             Rooms: null,
-            ResidenceType: null,
+            ResidentType: null,
             Vacancy: null,
             AssetName: null,
             Remarks: null,

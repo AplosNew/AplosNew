@@ -77,13 +77,13 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult getRouteStopage(string RouteId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"  select s.Id as StopagePrimaryId,s.CityId,rs.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description]
-	 , COALESCE(rs.UpInTime,rs.DownInTime,'12:00 AM')as [Time]
+            string sql = @"select s.Id as StopagePrimaryId,s.CityId,rs.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description]
+							 ,rs.UpDuration,rs.DownDuration
                               from [HKP].[Stoppage] s 
                               left join  [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
                               left join [MST].[Route] r on r.Id=rs.RouteId
                                 where r.Id='" + RouteId + @"'
-	                            and s.CompanyId='"+identity.CompanyId+@"' and s.CompanyGroupId='"+identity.CompanyGroupId+ @"' order by rs.Sequence ";
+	                            and s.CompanyId='" + identity.CompanyId + @"' and s.CompanyGroupId='" + identity.CompanyGroupId + @"' order by rs.Sequence";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -158,7 +158,7 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 string RouteId = string.Empty;
                 RouteId = SaveRoute(Route);
-                SaveStopateList(Route, StopageList, RouteId, out DataSet dsDelete);
+                SaveStopageList(Route, StopageList, RouteId, out DataSet dsDelete);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
@@ -246,7 +246,7 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
 
-        public void SaveStopateList(RouteModel Route, List<StopageListModel> StopageList, string RouteId, out DataSet dsDelete)
+        public void SaveStopageList(RouteModel Route, List<StopageListModel> StopageList, string RouteId, out DataSet dsDelete)
         {
             int _Count = 0;
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -274,16 +274,17 @@ namespace Aplos.Areas.Employees.Controllers
                 foreach (var item in StopageList)
                 {
                      _Count ++;
-                    if (item.Time == null)
-                    {
-                        item.Time = "12:00 AM";
-                    }
+                    //if (item.Time == null)
+                    //{
+                    //    item.Time = "12:00 AM";
+                    //}
                     string sql = "SELECT * FROM [MST].[RouteStoppage] WHERE ID='" + item.Id + "' ";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                     DataView DvMaster = new DataView(dsMaster.Tables[0]);
 
+                    
                     if (DvMaster.Count == 0)
                     {
                         DataRow dr = dsMaster.Tables[0].NewRow();
@@ -297,10 +298,13 @@ namespace Aplos.Areas.Employees.Controllers
                         dr["RouteId"] = RouteId;
                         dr["StoppageId"] = item.StopagePrimaryId;
 
-                        if (Route.UpOrDown == "Up")
-                            dr["UpInTime"] = item.Time;
-                        else
-                            dr["DownInTime"] = item.Time;
+                        //if (Route.UpOrDown == "Up")
+                        //    dr["UpDuration"] = item.Time;
+                        //else
+                        //    dr["DownDuration"] = item.Time;
+
+                        dr["UpDuration"] = item.UpDuration;
+                        dr["DownDuration"] = item.DownDuration;
 
                         dr["Sequence"] = _Count;
 
@@ -316,10 +320,14 @@ namespace Aplos.Areas.Employees.Controllers
 
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
-                        if (Route.UpOrDown == "Up")
-                            dr["UpInTime"] = item.Time;
-                        else
-                            dr["DownInTime"] = item.Time;
+                        //if (Route.UpOrDown == "Up")
+                        //    dr["UpDuration"] = item.Time;
+                        //else
+                        //    dr["DownDuration"] = item.Time;
+
+                        dr["UpDuration"] = item.UpDuration;
+                        dr["DownDuration"] = item.DownDuration;
+
                         dr["Sequence"] = item.Sequence;
 
                         dr["UpdatedBy"] = identity.Name;
@@ -337,6 +345,100 @@ namespace Aplos.Areas.Employees.Controllers
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+        [HttpPost, Authorize]
+        public JsonResult CreateChild(Dictionary<string, object> data, string RouteId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from TransportDetail where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "TransportDetail", out _Id);
+
+                    data["Id"] = _Id;
+                    data["RouteId"] = RouteId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
 
@@ -403,7 +505,8 @@ namespace Aplos.Areas.Employees.Controllers
             public string Remarks { get; set; }
             public bool Active { get; set; }
             public string UpOrDown { get; set; }
-
+            public string UpDuration { get; set; }
+            public string DownDuration { get; set; }
 
             #endregion Scalar Properties
 
@@ -429,8 +532,8 @@ namespace Aplos.Areas.Employees.Controllers
             public string StopagePrimaryId { get; set; }
             public string RouteId { get; set; }
             public string StoppageId { get; set; }
-            public DateTime? UpInTime { get; set; }
-            public DateTime? DownInTime { get; set; }
+            public string UpDuration { get; set; }
+            public string DownDuration { get; set; }
             public string Time { get; set; }
             public string Sequence { get; set; }
 

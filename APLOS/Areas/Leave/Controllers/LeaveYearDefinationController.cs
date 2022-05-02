@@ -38,28 +38,19 @@ namespace Aplos.Areas.Leave.Controllers
         public JsonResult GetCbo()
         {
             return Json(_leave.GetCbo(), JsonRequestBehavior.AllowGet);
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult Get(string Id)
-        {
-            try
-            {
-                var _master = _leave.Get(Id);
-                return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-
-        }
+        }              
 
         [HttpPost, Authorize]
         public ActionResult GetList(string column, string value)
         {
-            return Json(_leave.GetList(column, value), JsonRequestBehavior.AllowGet);
+            try
+            {
+                return Json(_leave.GetList(column, value), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
         }
 
         [HttpGet, Authorize]
@@ -69,11 +60,11 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data)
+        public JsonResult Create(Dictionary<string, object> data,List<string> PlantList)
         {
             try
             {
-                string ret = _leave.Create(data);
+                string ret = _leave.Create(data,PlantList);
                 if (ret == "Success")
                 {
                     return Json(new { Error = false, Data = data, Sequence = GetSequence(), Message = AplosMessage.Updated });
@@ -91,11 +82,11 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEmps(string PlantId)
+        public ActionResult GetEmps(string CompId)
         {
             try 
             {
-                var jsondata= Json(_leave.GetEmps(PlantId), JsonRequestBehavior.AllowGet);
+                var jsondata= Json(_leave.GetEmps(CompId), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
 
