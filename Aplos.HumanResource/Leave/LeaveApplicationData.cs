@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
@@ -12,7 +10,6 @@ using System.Reflection;
 using Library.Model.Biometrics;
 using Library.Service.Setups;
 using Library.Data;
-using clsAttendance;
 using Library.Service.Extension.HumanResource.Leave;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
@@ -1718,4 +1715,61 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
     }
+
+    public class AnnualLeaveProcessingService
+    {
+        ISqlRepository _sqlRepository;
+        public AnnualLeaveProcessingService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        
+        public IEnumerable<object> GetEmpCategory()
+        {
+            try
+            {
+                var str = @"select Id as Value,UserName AS Text from 
+                hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> GetLeaveType()
+        {
+            try
+            {
+                var str = @"select Id as Value,UserName AS Text from LeaveType";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+              
+        public IEnumerable<object> GetNewLvYear(string PlantId,string PrevLvYear)
+        {
+            try
+            {
+                var str = @"select ld.Id as Value,ld.UserName AS Text from 
+                LeaveYearDefination ld left join 
+                LeaveYearDefinationPlantChild lc on lc.LeaveYearDefinationId=ld.Id
+                where lc.PlantId='" + PlantId + "' and ld.Id<>'"+PrevLvYear+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+    }
+
 }
