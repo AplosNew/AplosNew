@@ -9,8 +9,89 @@
 
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
             <div class="row">
-                
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-4">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">Company<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Company"
+                                                    ng-options="item.Value as item.Text for item in CompanyList">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                              
+
+                                @*<div class="form-group">
+            <label class="col-sm-4 control-label" style="margin-top:10px;">Sunday</label>
+            <div class="col-sm-8 show-message" style="margin-top:10px;">
+                <div class="select-style">
+                    <select class="form-control" ng-model="WeekDef.Sunday" name="Weekly"
+                            ng-options="item.value as item.text for item in weekOffList">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
             </div>
+        </div>*@
+
+
+                            </div>
+
+                            <div class="col-xs-12 col-md-4">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">Plant<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="BudgetPlantId" name="Plant" 
+                                                    ng-change="getLeaveYear()"
+                                                    ng-options="item.Value as item.Text for item in PlantList">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                                               
+                            </div>
+
+                            <div class="col-xs-12 col-md-4">
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Year<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="SelectedYearId" name="Year"
+                                                    ng-options="item.Value as item.Text for item in YearList">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>                                                                                            
+
+
+                            </div>
+
+
+
+                            @*<br>
+                            <div class="common-btn" style="margin-top:10px;">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="SaveAllDef();" class="btn"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+
+                                </ul>
+                            </div>*@
+
+                        </div>
+
+                    </div>
+
+                </div>
         </div>
 
 

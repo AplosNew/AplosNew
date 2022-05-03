@@ -236,4 +236,24 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     // #endregion
 
+    // #region Annual Process Functions 
+
+    
+    $scope.LeaveModel = {
+        CurrentLvYearId: null,
+        NewLvYearId: null
+    };
+
+    //$scope.CurrentLvList = [];
+    //$scope.getLeaveYearData = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'getLeaveYear',
+    //        params: { 'PlantId': $scope.LeaveModel.SelectedPlant }
+    //    }).then(function success(response) {
+    //        $scope.CurrentLvList = response.data;
+    //    })
+    //}
+
+    // #endregion
 }
