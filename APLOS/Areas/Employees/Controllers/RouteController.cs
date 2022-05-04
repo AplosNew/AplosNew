@@ -442,6 +442,14 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetTransportDetailsData(string RouteId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select *,FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDates from UtilityDetail where UtilityMasterId ='" + RouteId + @"'";
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         void DeleteStopage(string StopagePrimaryId,string RouteId, out System.Data.DataSet dsRef)
         {
            // string strSQL;

@@ -27,14 +27,14 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.routeNew = Object.assign({}, $scope.route);
 
     $scope.transport = {
-        TransportId: null,
+        Id: null,
+        TransportCategory: null,
         TransportUserName: null,
+        TransportNo: null,
         TransportPort: null,
+        Capacity: 0,
         DriverId: null,
         DriverName: null,
-        TransportCategory: null,
-        TransportNo: null,
-        Capacity: null,
         Remarks: null
     };
     $scope.ModelChildNew = Object.assign({}, $scope.transport);
@@ -110,6 +110,18 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         }
 
     };
+
+    $scope.transportDetails = [];
+    $scope.getTransportDetailsGridData = function (id) {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetTransportDetailsData",
+            data: { 'RouteId': id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.transportDetails = response.data;
+        });
+    }
 
     function CheckField(fieldname, field) {
         try {
