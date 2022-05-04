@@ -34,6 +34,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         TransportPort: null,
         Capacity: 0,
         DriverId: null,
+        DriverCode: null,
         DriverName: null,
         Remarks: null
     };
@@ -103,7 +104,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 ShowResult(response.data.Message, 'success');
                 $scope.getData();
                 //$scope.getUtilityGridData($scope.ModelNew.Id);
-                //$scope.ClearUtilityDetail();
+                $scope.getTransportDetailsMaster();
+                $scope.ClearTransDetails();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -111,18 +113,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     };
 
-    $scope.transportDetails = [];
-    $scope.getTransportDetailsGridData = function (id) {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetTransportDetailsData",
-            data: { 'RouteId': id },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.transportDetails = response.data;
-        });
-    }
-
+   
     function CheckField(fieldname, field) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
@@ -171,6 +162,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.employeeInfo.EmployeeName = $scope.routeNew.DriverName;
         $scope.AssetInfo.Id = $scope.routeNew.AssetId;       
         $scope.AssetInfo.FixedAssetName = $scope.routeNew.FixedAsset;
+        $scope.getTransportDetailsMaster();
         try {
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
@@ -365,5 +357,56 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                     }
                 });
         }
+    };
+
+    $scope.transportDetailsList = [];
+    $scope.getTransportDetailsMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetTransportDetails',
+            data: { 'RouteId': $scope.routeNew.Id },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.transportDetailsList = [];
+            $scope.transportDetailsList = resp.data;
+        });
+    }
+
+    $scope.TransportDetailsdoubleclick = function (args) {
+        $scope.ModelChildNew = Object.assign({}, args);
+    };
+
+    $scope.ClearTransDetails = function () {
+        $scope.ModelChildNew = Object.assign({}, $scope.transport);
+    }
+
+    $scope.removeTransportDetailsRowModal = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmTransportDetailsRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeTransportDetailsRow = function () {
+        $http({
+            method: 'POST',
+            url: 'employees/route/TransportDetailsDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getTransportDetailsMaster();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
     };
 }

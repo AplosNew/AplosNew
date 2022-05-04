@@ -442,12 +442,37 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult GetTransportDetailsData(string RouteId)
+        [Authorize, HttpPost]
+        public ActionResult GetTransportDetails(string RouteId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select *,FORMAT(EffectiveDate,'dd-MMM-yyyy') EffectiveDates from UtilityDetail where UtilityMasterId ='" + RouteId + @"'";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            string sql = @"select TD.*,R.UserName Route,EI.EmployeeCode DriverCode,EI.EmployeeName DriverName 
+			                            from TransportDetail TD
+			                            left join MST.Route R on R.Id=TD.RouteId
+			                            left join EmployeeInformation EI on EI.SystemId=TD.DriverId
+										where TD.RouteId='" + RouteId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult TransportDetailsDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from TransportDetail where Id ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
         }
 
         void DeleteStopage(string StopagePrimaryId,string RouteId, out System.Data.DataSet dsRef)
