@@ -1770,6 +1770,41 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
+        public IEnumerable<object> LoadData(string PlantId, string LvYearId)
+        {
+            try
+            {
+                var str = @"select distinct e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
+                LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
+                lt.UserName as LeaveType,lt.Id as LeaveTypeId
+                ,isnull(md.Opening,'0')Opening,isnull(md.Earned,'0')Earned,
+                isnull(md.RegularEncashment,'0')RegularEncashment,
+                isnull(md.Availed,'0')Availed,isnull(md.Adjustment,'0')Adjustment,
+                isnull(md.Closing,'0')Closing
+                from LeaveYearDefination ld 
+                left join LeaveYearDefinationPlantChild pc on 
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='202026'
+                left join org.Plant p on p.Id=pc.PlantId
+				left join org.Company c on c.Id=p.CompanyId
+                left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
+                left join EmployeeInformation e on e.PlantId=p.Id
+                left join ManualLeaveData md on md.EmployeeId=e.SystemId
+				and md.LeaveYearId=ld.Id and 
+				md.LeaveTypeId=lt.Id and md.PlantId='202026'
+				--left join 
+				--()
+                where p.Id='202026' and ld.Id='LY6' and
+                e.EmployeeStatus='Active' order by e.SystemId,lt.Id";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
     }
 
 }
