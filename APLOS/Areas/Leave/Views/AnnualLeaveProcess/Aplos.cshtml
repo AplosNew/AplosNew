@@ -26,21 +26,17 @@
                                     </div>
                                 </div>
 
-                              
-
-                                @*<div class="form-group">
-            <label class="col-sm-4 control-label" style="margin-top:10px;">Sunday</label>
-            <div class="col-sm-8 show-message" style="margin-top:10px;">
-                <div class="select-style">
-                    <select class="form-control" ng-model="WeekDef.Sunday" name="Weekly"
-                            ng-options="item.value as item.text for item in weekOffList">
-                        <option value="">--Select--</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
-
-
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">New Leave Year<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <div class="select-style">
+                                            <select class="form-control" ng-model="LeaveModel.NewLvYearId" name="NewYear"
+                                                    ng-options="item.Value as item.Text for item in NewYearList">
+                                                <option value="">--Select--</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="col-xs-12 col-md-4">
@@ -49,7 +45,7 @@
                                     <label class="col-sm-4 control-label" style="margin-top:10px;">Plant<sup>*</sup></label>
                                     <div class="col-sm-8 show-message" style="margin-top:10px;">
                                         <div class="select-style">
-                                            <select class="form-control" ng-model="BudgetPlantId" name="Plant" 
+                                            <select class="form-control" ng-model="BudgetPlantId" name="Plant"
                                                     ng-change="getLeaveYear()"
                                                     ng-options="item.Value as item.Text for item in PlantList">
                                                 <option value="">--Select--</option>
@@ -57,7 +53,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                                               
+
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Type<sup>*</sup> </label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <input id="LeaveTypeDropdown" ej-dropdownlist e-multiselectmode="visualmode"
+                                               e-datasource="LeaveTypeList" e-fields-value="Value"
+                                               e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="col-xs-12 col-md-4">
@@ -66,26 +71,36 @@
                                     <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Year<sup>*</sup></label>
                                     <div class="col-sm-8 show-message" style="margin-top:10px;">
                                         <div class="select-style">
-                                            <select class="form-control" ng-model="SelectedYearId" name="Year"
-                                                    ng-options="item.Value as item.Text for item in YearList">
+                                            <select class="form-control" ng-model="LeaveModel.CurrentLvYearId" name="Year"
+                                                    ng-change="getNewLeaveYearData()" ng-options="item.Value as item.Text for item in YearList">
                                                 <option value="">--Select--</option>
                                             </select>
                                         </div>
                                     </div>
-                                </div>                                                                                            
+                                </div>
 
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label" style="margin-top:10px;">Employee Category<sup>*</sup> </label>
+                                    <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                        <input id="EmpCategoryDropdown" ej-dropdownlist e-multiselectmode="visualmode"
+                                               e-datasource="EmpCatList" e-fields-value="Value"
+                                               e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                    </div>
+                                </div>
 
                             </div>
+                           
+                            <div><br/></div>
+                            <br/>
 
-
-
-                            @*<br>
-                            <div class="common-btn" style="margin-top:10px;">
+                            <div class="common-btn" style="margin-top:20px;
+                             margin-right:20px;">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveAllDef();" class="btn"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                                    <li> <button ng-click="saveFileList();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>
+                                    <li> <button ng-click="ClearFirstTabData();" class="btn"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
 
                                 </ul>
-                            </div>*@
+                            </div>
 
                         </div>
 
@@ -242,6 +257,7 @@
                 <confirm-modal></confirm-modal>
             </div>
         </div>
+   
     </div>
 </div>
 
