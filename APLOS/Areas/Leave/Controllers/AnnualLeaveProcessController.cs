@@ -419,6 +419,20 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult LoadData(string PlantId, string LvYearId)
+        {
+            try
+            {
+                return Json(alp.LoadData(PlantId, LvYearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
         #endregion
     }
 
