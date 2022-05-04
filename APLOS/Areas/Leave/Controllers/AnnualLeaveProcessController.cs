@@ -28,19 +28,20 @@ namespace Aplos.Areas.Leave.Controllers
         #region Constructor
 
         LeaveOpeningUploadService _leave = new LeaveOpeningUploadService();
+        AnnualLeaveProcessingService alp = new AnnualLeaveProcessingService();
         private readonly ISqlRepository _sqlRepository;
 
         public AnnualLeaveProcessController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
-
-        #endregion Constructor
      
         public ActionResult Aplos()
         {
             return View();
         }
+
+        #endregion Constructor
 
         #region Other Functions
 
@@ -377,6 +378,62 @@ namespace Aplos.Areas.Leave.Controllers
 
         #endregion
 
+        #region Leave Processing Functions
+        
+        [HttpGet, Authorize]
+        public ActionResult getNewLeaveYear(string PlantId,string LvYearId)
+        {
+            try
+            {
+                return Json(alp.GetNewLvYear(PlantId,LvYearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetLeaveType()
+        {
+            try
+            {
+                return Json(alp.GetLeaveType(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpCategory()
+        {
+            try
+            {
+                return Json(alp.GetEmpCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoadData(string PlantId, string LvYearId)
+        {
+            try
+            {
+                return Json(alp.LoadData(PlantId, LvYearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+
+        #endregion
     }
 
     public class LeaveOpeningData
@@ -391,4 +448,5 @@ namespace Aplos.Areas.Leave.Controllers
         public string LeaveType { get; set; }
         public string RegularEncashment { get; set; }
     }
+
 }

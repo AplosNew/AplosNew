@@ -121,6 +121,17 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Is Special Operation</label>
+                            <div class="col-sm-8">
+                                <div class="checkbox-site">
+                                    <label class="control-label">
+                                        <input type="checkbox" ng-model="operationVariationNew.isSpecialOperation">
+                                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -408,6 +419,7 @@
                     <th>Final SPT</th>
                     <th>Frequency</th>
                     <th>Active</th>
+                    <th>Special Operation</th>
                 </tr>
             </thead>
             <tbody>
@@ -422,6 +434,7 @@
                     <td class="text-right">{{x.TotalSAM}}</td>
                     <td class="text-right">{{x.Frequency}}</td>
                     <td>{{x.Active?'Yes':'No'}}</td>
+                    <td>{{x.isSpecialOperation?'Yes':'No'}}</td>
                 </tr>
             </tbody>
         </table>

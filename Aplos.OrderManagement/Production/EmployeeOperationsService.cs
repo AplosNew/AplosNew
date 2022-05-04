@@ -756,10 +756,10 @@ namespace Library.OrderManagement.Production
                     throw new Exception("Processing cannot be done for this date because Productive Allowance is missing!!");
                 }
 
-                var str2 = @"Select epp.Id, po.EntityId , owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
+                var str2 = @"Select epp.Id, epp.EmployeeId,po.EntityId , owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
                             left join trn.ProductionOrder po on po.Id = epp.ProductionOrderId
                             left join ( Select distinct owe.Date , owe.EmployeeId , owe.OperationVariationId , owe.ProcessId from dbo.OperationWiseEmployees owe
-                             where Date='"+Date+ @"') owe on owe.EmployeeId = epp.EmployeeId and owe.Date = epp.Date and owe.OperationVariationId = epp.OperationVariationId
+                             where Date='" + Date+ @"') owe on owe.EmployeeId = epp.EmployeeId and owe.Date = epp.Date and owe.OperationVariationId = epp.OperationVariationId
                             where epp.Date='" + Date + @"'";
 
                 DataTable dtMainDict = _sqlRepository.GetDataTable(str2);
@@ -859,6 +859,9 @@ namespace Library.OrderManagement.Production
                 #endregion
 
                 #region 7. Calculation Of the Duration And Efficiency
+                //Getting the EmployeeTimeOut Applicables
+                var strEmpTApp = @"Select EntityId , ProcessId , IsApplicable from dbo.EmployeeTimeOutApplicable";
+                DataTable dtEmpTOApp = _sqlRepository.GetDataTable(strEmpTApp);
 
                 //Getting the Employee Time Out Durations
                 var strEmpTimeOut = @"Select EmployeeId , WorkDate , Sum(Duration) as Duration from dbo.EmployeesTimeOut where WorkDate = '" + Date + @"' group by EmployeeId , WorkDate";
@@ -868,12 +871,22 @@ namespace Library.OrderManagement.Production
                 {
                     dtApd.DefaultView.RowFilter = @"EmpSystemId ='"+dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString()+"'";
                     dtEmpTimeOut.DefaultView.RowFilter = @"EmployeeId='" + dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString() + "'";
+                    dtMainDict.DefaultView.RowFilter = @"EmployeeId='"+dsMasterHalf.Tables[0].Rows[i]["EmployeeId"].ToString()+"'";
+
+                    dtEmpTOApp.DefaultView.RowFilter = @"EntityId='"+dtMainDict.DefaultView[0]["EntityId"].ToString()+"' and ProcessId='"+dtMainDict.DefaultView[0]["ProcessId"].ToString()+"'";
 
                     double TODur = 0.0;
-                    if (dtEmpTimeOut.DefaultView.Count > 0)
+                    if(dtEmpTOApp.DefaultView.Count > 0)
                     {
-                        TODur = clsStaticInfo.dbl(dtEmpTimeOut.DefaultView[0]["Duration"].ToString());
+                        if( (bool)dtEmpTOApp.DefaultView[0]["IsApplicable"] == true)
+                        {
+                            if (dtEmpTimeOut.DefaultView.Count > 0)
+                            {
+                                TODur = clsStaticInfo.dbl(dtEmpTimeOut.DefaultView[0]["Duration"].ToString());
+                            }
+                        }
                     }
+                    
 
                     double Dur = 1.0;
                     double Durs = 0.0;

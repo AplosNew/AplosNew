@@ -2474,8 +2474,9 @@
     <Content Include="Areas\Products\Scripts\ServiceAckCheckedApprovedByController.js" />
     <Content Include="Areas\Products\Scripts\ServicePoAcknowledgementController.js" />
     <Content Include="Areas\Products\Scripts\InoutGetpassCheckedController.js" />
+    <Content Include="Areas\Products\Scripts\ServicePOApprovedController.js" />
     <Content Include="Areas\Products\Scripts\ServicePOIndividualController.js" />
-    <Content Include="Areas\Products\Scripts\ServicePOCheckAndApprovedController.js" />
+    <Content Include="Areas\Products\Scripts\ServicePOCheckController.js" />
     <Content Include="Areas\Products\Scripts\GatePassEmployeeController.js" />
     <Content Include="Areas\Products\Scripts\GatePassController.js" />
     <Content Include="Areas\Products\Scripts\InventoryDashboardController.js" />
@@ -4131,9 +4132,9 @@
     <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout1.cshtml" />
-    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_Layout2.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusLocation\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekDefinition.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekMaster.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
