@@ -7,6 +7,29 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
     $scope.path = 'employees/budgetcodechange/';
     $scope.getListUrl = $scope.path + 'getemployeelist';
     $scope.updateUrl = $scope.path + 'update';
+
+    //The PAging System
+    var x = document.getElementById("FDiv");
+    var y = document.getElementById("SDiv");
+    x.style.display = "block";
+    y.style.display = "none";
+
+    $scope.clickdde1 = function () {
+        if (x.style.display === "none") {
+            y.style.display = "none";
+            x.style.display = "block";
+
+        }
+    };
+
+    $scope.clickdde2 = function () {
+        if (y.style.display === "none") {
+
+            y.style.display = "block";
+            x.style.display = "none";
+
+        }
+    };
     
     baseService.init($scope.getListUrl, null, 10, null, 'EmployeeCodeNumeric', 'EmployeeCode');
     $scope.getData = function (pageno) {
@@ -516,4 +539,156 @@ function budgetCodeChangeController(fileReader, cboService, commonMessage, $scop
         return true;
         $scope.legalDesignationMessage = null;
     };
+
+
+
+    // Workking on the 2nd Tab ************************************************************
+
+    //Working of the Grids
+    var ug = document.getElementById("UploadedList");
+    var cg = document.getElementById("CurrentLists");
+
+    ug.style.display = "none";
+    cg.style.display = "none";
+
+
+
+    //Variables
+    $scope.ExcelUploadData = [];
+    $scope.currentList = [];
+
+
+
+    //Getting the Sample Data
+    $scope.fileData = [];
+    $scope.GetSample = function () {
+        var reportFormat = "Excel";
+
+        try {
+            window.open('employees/budgetcodechange/GetSampleReport?reportFormat=' + reportFormat, '_blank');
+
+        } catch (e) {
+
+        }
+    }
+
+    //Importing the Data
+
+    $scope.ModelNew = {
+        FileName: null
+    }
+
+    $("#uploadFile").change(function () {
+        $scope.fileData = this.files[0];
+    });
+
+    $scope.ImportData = function () {
+        try {
+            $scope.ExcelUploadData = [];
+            $scope.msg = "";
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.fileData.length == 0) {
+
+                throw ("Please Select A File!!");
+            }
+            
+
+            var fileData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.fileData)) {
+                $scope.ModelNew.FileName = $scope.fileData.name;
+            }
+
+            $http({
+                method: 'POST',
+                url: 'employees/budgetcodechange/' + 'ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    fileData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.fileData) === false) {
+                        fileData.append('file', data.file);
+                    }
+                    return fileData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.fileData }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+
+                else {
+                    try {
+                        $scope.ExcelUploadData = response.data;
+                        ug.style.display = "block";
+                        cg.style.display = "none";
+                    }
+
+                    catch (e) {
+                        ShowResult(e, "failure");
+                    }
+
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
+
+    //Clearing the File List
+    $scope.clearFileList = function () {
+        $('#uploadFileTwo').val('');
+        ug.style.display = "none";
+        cg.style.display = "none";
+    }
+
+    //Saving the File List
+    //Save the File Data
+    $scope.saveFileList = function () {
+
+        $http({
+            method: 'POST',
+            url: 'employees/budgetcodechange/' + 'SaveFileList',
+            data: { 'data': $scope.ExcelUploadData }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    if ($rootScope.isCollapsed == true) {
+                        $rootScope.toggle();
+                    }
+                    $scope.getCurrentFileList();
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        }, function errorCallback(response) {
+
+        });
+    }
+
+    //Getting the Current List
+    $scope.getCurrentFileList = function () {
+
+        $http({
+            method: 'GET',
+            url: 'Employees/BudgetCodeChange/GetCurrentFileList'
+        }).then(function successCallback(response) {
+            $scope.currentList = response.data;
+        })
+
+        ug.style.display = "none";
+        cg.style.display = "block";
+
+    }
 }
