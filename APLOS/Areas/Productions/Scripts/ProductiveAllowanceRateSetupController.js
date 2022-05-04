@@ -573,117 +573,71 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     ///// ******************************************** Special Operation Rate
 
     //Variables
-    $scope.OperationMasterId = null;
-    $scope.OperationCatId = null;
-    $scope.MachineId = null;
+    $scope.DatesList = [];
+    $scope.EffectiveDate = null;
 
-    $scope.operationCatList = [];
-    $scope.operationMasterList = [];
-    $scope.machineList = [];
+    $scope.SpOp = {
+        Id: null,
+        EntityId: null,
+        ProcessId: null,
+        AllowancePercentage: null,
+        Remarks:null,
+    };
 
-    $scope.OperationsList = [];
-    $scope.PrevData = [];
+    //Seletion of Effective Dates
+    $scope.EffectiveDate;
+    $scope.DatesList = [];
+    $scope.AddDates = function () {
+        var c = 0;
+        for (var i = 0; i < $scope.DatesList.length; i++) {
+            if ($scope.DatesList[i].EffectiveDate === $scope.EffectiveDate) {
+                c++;
+            }
+        }
+        if (c === 0) {
+            if (($scope.EffectiveDate + '').length < 21 && ($scope.EffectiveDate + '').length > 5) {
 
-
-    //Getting the Filters
-    $scope.getFilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "getOperationCategory",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.operationCatList = response.data;
-        });
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "getOperationMaster",
-            data: { 'OpCat': $scope.OperationCatId, 'Machine':$scope.MachineId},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.operationMasterList = response.data;
-        });
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "getMachines",
-            data: {'OpM':$scope.OperationMasterId},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.machineList = response.data;
-        });
-
-    }
-
-    $scope.getFilters();
-
-    //Filling the Filters Again
-    $scope.fillOperationMaster = function () {
-        if (angular.isUndefinedOrNull($scope.OperationMasterId) == true) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "getOperationMaster",
-                data: { 'OpCat': $scope.OperationCatId, 'Machine': $scope.MachineId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.operationMasterList = response.data;
-            });
+                $scope.DatesList.push($scope.EffectiveDate);
+            }
         }
     }
 
-    $scope.fillMachine = function () {
-        if (angular.isUndefinedOrNull($scope.MachineId) == true) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "getMachines",
-                data: { 'OpM': $scope.OperationMasterId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.machineList = response.data;
-            });
+    //Delete The Date
+    $scope.DeleteDate = function (e) {
+        for (var i = 0; i < $scope.DatesList.length; i++) {
+            if ($scope.DatesList[i] === e) {
+                $scope.DatesList.splice(i, 1);
+            }
         }
-    }
-
-
-    //Getting all the Operations
-    $scope.getOperations = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getOperations",
-            data: { 'OMId': $scope.OperationMasterId, 'OCId' : $scope.OperationCatId , 'MId':$scope.MachineId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PrevData = response.data;
-            $scope.OperationsList = response.data;
-        });
-    }
-
-    //Clearing the Filters
-    $scope.clearFilters = function () {
-        $scope.OperationMasterId = null;
-        $scope.OperationCatId = null;
-        $scope.MachineId = null;
-    }
-
-    // Clearing the Grid
-    $scope.clearGrid = function () {
-        $scope.OperationsList = $scope.PrevData;
     }
 
     //Saving the Data
     $scope.saveOperations = function () {
-        let savesList = [];
-        for (var i = 0; i < $scope.OperationsList.length; i++) {
-            if ($scope.OperationsList[i].Active == 1) {
-                savesList.push($scope.OperationsList[i]);
-            }
+
+        var DropDownJobLocationListObjP = $("#SpPr").data("ejDropDownList");
+        var Proc = DropDownJobLocationListObjP.getSelectedValue();
+
+        var DropDownJobLocationListObjE = $("#SpEn").data("ejDropDownList");
+        var En = DropDownJobLocationListObjE.getSelectedValue();
+
+        if (Proc.length < 1) {
+            ShowResult('Process/Processes are not selected!', 'failure');
+            throw ("Invalid Request!");
         }
+
+        if (En.length < 1) {
+            ShowResult('Entity/Entities are not selected!', 'failure');
+            throw ("Invalid Request!");
+        }
+
+        $scope.SpOp.EntityId = En;
+        $scope.SpOp.ProcessId = Proc;
 
         $http({
             method: 'POST',
             url: $scope.path + "saveOperations",
             data: {
-                'data': savesList
+                'data': $scope.SpOp , 'dates':$scope.DatesList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -692,12 +646,27 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
                 ShowResult(response.data.Msg, 'success');
                 $scope.getOperations();
+                $scope.clearOperations();
             }
             else {
                 ShowResult(response.data.Msg, 'failure');
             }
         });
 
+    }
+
+    //Clearing of the Data
+    $scope.clearOperations = function () {
+        $scope.DatesList = [];
+        $scope.EffectiveDate = null;
+
+        $scope.SpOp = {
+            Id: null,
+            EntityId: null,
+            ProcessId: null,
+            AllowancePercentage: null,
+            Remarks: null,
+        };
     }
 
 
