@@ -60,68 +60,153 @@
             border-radius: 50%;
         }
 </style>
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="$root.parameters.searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
+<div id="FDiv">
+    <div class="col-md-12 text-left" style="margin:20px; ">
+        <button disabled class="btn" style="border-radius: 00%;cursor:pointer;color:black;" id="forward1">Budget Code Change</button>
+        <button class="btn" style="border-radius: 00%;cursor:pointer;background-color:#242841;color:white;" id="forward1" ng-click="clickdde2();">Budget Code Upload</button>
+
+    </div>
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Employee Code</th>
+                    <th>Employee Name</th>
+                    <th>DOJ</th>
+                    <th>DOB</th>
+                    <th>Budget Code</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Given Designation</th>
+                    <th>Phone Number</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in employees |itemsPerPage:$root.pageSize" total-items="$root.total_count">
+                    <td>{{x.EmployeeCode}}</td>
+                    <td>{{x.EmployeeName}}</td>
+                    <td>{{x.DOJ | dateFiltering}}</td>
+                    <td>{{x.DOB | dateFiltering}}</td>
+                    <td>{{x.Code}}</td>
+                    <td>{{x.Department}}</td>
+                    <td>{{x.Designation}}</td>
+                    <td>{{x.GivenDesignation}}</td>
+                    <td>{{x.CellPhnNo}}</td>
+                    <td class="text-right table-td">
+                        <ul class="list-inline action-list">
+                            <li>
+                                <button ng-click="Get(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
+                                    <i class="glyphicon glyphicon-pencil"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
 </div>
-<div class="table-responsive modal-table aplos-grid-toggle">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Employee Code</th>
-                <th>Employee Name</th>
-                <th>DOJ</th>
-                <th>DOB</th>
-                <th>Budget Code</th>
-                <th>Department</th>
-                <th>Designation</th>
-                <th>Given Designation</th>
-                <th>Phone Number</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr dir-paginate="x in employees |itemsPerPage:$root.pageSize" total-items="$root.total_count">
-                <td>{{x.EmployeeCode}}</td>
-                <td>{{x.EmployeeName}}</td>
-                <td>{{x.DOJ | dateFiltering}}</td>
-                <td>{{x.DOB | dateFiltering}}</td>
-                <td>{{x.Code}}</td>
-                <td>{{x.Department}}</td>
-                <td>{{x.Designation}}</td>
-                <td>{{x.GivenDesignation}}</td>
-                <td>{{x.CellPhnNo}}</td>
-                <td class="text-right table-td">
-                    <ul class="list-inline action-list">
-                        <li>
-                            <button ng-click="Get(x, $index);" class="btn btn-action tooltip-here" data-placement="top" title="Edit" tooltip>
-                                <i class="glyphicon glyphicon-pencil"></i>
-                            </button>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+<div id="SDiv">
+
+    <div class="col-md-12 text-left" style="margin:20px; ">
+        <button class="btn" style="border-radius: 00%;cursor:pointer;background-color:#242841;color:white;" id="forward1" ng-click="clickdde1();">Budget Code Change</button>
+
+        <button disabled class="btn" style="border-radius: 00%;cursor:pointer;color:black;" id="forward1">Budget Code Upload</button>
+
+    </div>
+    <div class="form-elements form-horizontal" ng-form name="HeaderForm">
+        <div class="row">
+            <div class="form-elements">
+                @*<div class="col-md-6 col-xs-6 col-lg-6 col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Plant</label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="BudgetPlantId" name="Plant"
+                                            ng-options="item.Value as item.Text for item in PlantList" tabindex="2">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+                <div class="col-md-10">
+
+                    <div class="inputBtnSection common-btn">
+                        <label class="fileUpload col-sm-4 " style="padding: 0 0 0 0 ; margin-right:8px;">
+                            <input id="uploadFile" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                        </label>
+                        <input type="button" style="margin-right: 8px;" value="Import Data" ng-disabled="enable" class="btn btn-success" ng-click="ImportData()" />
+                        <button ng-click="GetSample();" class="btn" style="margin-right: 8px;"><i class="glyphicon glyphicon-download"></i> Get Sample File </button>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="common-btn" style="margin-top:10px;">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getCurrentFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-search"></i> View </button></li>
+
+                <li> <button ng-click="saveFileList();" class="btn" tabindex="11"><i class="glyphicon glyphicon-save"></i> Save </button></li>
+                <li> <button ng-click="clearFileList();" class="btn" tabindex="12"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+            </ul>
+        </div>
+
+        <div id="UploadedList" ej-grid e-datasource="ExcelUploadData" e-templaterefresh="refreshTemplate"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+            <div e-columns>
+                <div e-column e-field="BudgetId" e-type="string" e-headertext="Budget Id" e-width="80"></div>
+                <div e-column e-field="BudgetCode" e-type="string" e-headertext="Budget Code" e-width="80"></div>
+                <div e-column e-field="EmployeeId" e-type="string" e-headertext="Employee Id" e-width="80"></div>
+                <div e-column e-field="EmployeeCode" e-type="string" e-headertext="Employee Code" e-width="80"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="table-responsive">
+        
+        <div id="CurrentLists" ej-grid e-datasource="currentList" e-templaterefresh="refreshTemplate"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;"
+             >
+            <div e-columns>
+                <div e-column e-field="EmployeeCode" e-headertext="EmployeeCode" e-width="2"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="2"></div>
+                <div e-column e-field="BudgetCode" e-headertext="Budget Code" e-width="2"></div>
+            </div>
+        </div>
+    </div>
 </div>
+
+
 <div class="modal fade site-modal in" id="EntryPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" name="budgetCodeChangeForm">
@@ -197,30 +282,30 @@
                             </div>*@
 
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
-                            <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
-                                <input type="hidden" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignationId" class="form-control">
-                                <input type="text" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignation" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button ng-click="popUpLD('Legal');" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                                    <button ng-click="clearCode('Legal')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="legalDesignationMessage!==null">
-                            <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
-                            <div class="col-sm-8">
-                                <div class="select-style">
-                                    <select class="form-control" ng-model="budgetCodeChangeNew.GivenDesignationId" disabled name="Given Designation" tabindex="1">
-                                        <option value="">--Select--</option>
-                                        <option ng-repeat="option in givenDesignationList" value="{{option.Value}}">{{option.Text}}</option>
-                                    </select>
+                                <label class="col-sm-4 control-label">Legal Designation<sup>*</sup></label>
+                                <div class="col-sm-8 input-group show-message" style="padding-left: 15px;padding-right: 14px;">
+                                    <input type="hidden" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignationId" class="form-control">
+                                    <input type="text" name="Legal Designation" ng-model="budgetCodeChangeNew.LegalDesignation" class="form-control" readonly>
+                                    <span class="input-group-btn">
+                                        <button ng-click="popUpLD('Legal');" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
+                                        <button ng-click="clearCode('Legal')" class="btn single-small-btn"><i class="glyphicon glyphicon-refresh"></i></button>
+                                    </span>
                                 </div>
                             </div>
-                        </div>*@
+                            <div class="form-group" ng-show="legalDesignationMessage!==null">
+                                <label class="col-sm-12 control-label" style="color:red">*This<span style="text-transform:lowercase;">{{legalDesignationMessage}}</span></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Given Designation<sup>*</sup></label>
+                                <div class="col-sm-8">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="budgetCodeChangeNew.GivenDesignationId" disabled name="Given Designation" tabindex="1">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in givenDesignationList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Current Entity</label>
                             <div class="col-sm-8">

@@ -405,37 +405,15 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region GetFilters
 
-        [HttpGet, Authorize]
-        public ActionResult getOperationCategory()
-        {
-            return Json(so.getOperationCategory() , JsonRequestBehavior.AllowGet);
-        }
         
-        [HttpPost, Authorize]
-        public ActionResult getOperationMaster(string OpCat , string Machine)
-        {
-            return Json(so.getOperationMaster(OpCat, Machine), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getMachines(string OpM)
-        {
-            return Json(so.getMachines(OpM), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getOperations(string OMId, string OCId, string MId)
-        {
-            return Json(so.getOperations(OMId, OCId, MId), JsonRequestBehavior.AllowGet);
-        }
         #endregion
         #region Save Operation
         [HttpPost]
-        public ActionResult saveOperations(List<Dictionary<string, object>> data)
+        public ActionResult saveOperations(Dictionary<string, string> data, List<string> dates)
         {
             try
             {
-                return Json(new { Error = "No", Data = so.saveOperations(data), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = so.saveOperations(data , dates), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

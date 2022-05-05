@@ -636,7 +636,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select Id as Value , UserName as Text from hkp.OperationCategory";
+                var str = @"Select distinct Id as Value , UserName as Text from hkp.OperationCategory";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -661,10 +661,10 @@ namespace Library.OrderManagement.Production
                     machine = "mm.ID = '"+MachineId+"'";
                 }
 
-                var str = @"Select om.Id as Value , om.UserName as Text 
+                var str = @"Select distinct om.Id as Value , om.UserName as Text 
                             from mst.OperationMaster om
                             left join mst.MachineMaster mm on mm.SkillId = om.SkillId
-                            where "+opCat+" and " +machine;
+                            where " + opCat+" and " +machine;
                 return _sqlRepository.GetDataCollection(str);
 
             }
@@ -718,12 +718,12 @@ namespace Library.OrderManagement.Production
                     mId = "mm.ID = '" + MId + "' ";
                 }
 
-                var str = @"Select 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
+                var str = @"Select distinct 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
                             from mst.OperationVariation ov
                             left join mst.OperationMaster om on ov.OperationMasterId = om.Id
                             left join mst.MachineMaster mm on mm.SkillId = om.SkillId
                             left join dbo.SpecialOperationsRate spo on spo.OperationVariationId = ov.ID
-                            where "+omId+" and "+mId+" and " + ocId;
+                            where " + omId+" and "+mId+" and " + ocId;
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -735,68 +735,89 @@ namespace Library.OrderManagement.Production
         #endregion
 
         #region saveOperation
-        public List<Dictionary<string, object>> saveOperations(List<Dictionary<string, object>> data)
+        public Dictionary<string, string> saveOperations(Dictionary<string, string> data , List<string> dates)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string TableName = "dbo.SpecialOperationsRate";
+                string TableName = "dbo.SpecialOperationRate";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                var ss = "select * from " + TableName + " where EntityId='" + data["EntityId"] + "' and ProcessId='" + data["ProcessId"] + "' and Id<>'" + data["Id"] + "'";
+                con.OpenDataSetThroughAdapter( ss, out dsMaster, false, "1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName , out dsMaster, false, "1");
-
-                if (data == null)
+                if(dsMaster.Tables[0].Rows.Count>0)
                 {
-                    throw new Exception("Nothing Selected to Save!!");
+                    throw new Exception("Entry Already Exists!!");
                 }
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
-                #region data Upload
-                for (int i = 0; i < data.Count; i++)
+                #region data Upload Master
+                string masterID = "";
+                if(dsMaster.Tables[0].Rows.Count>0)
                 {
-                    var jj = data[i];
-
-                    dsMaster.Tables[0].DefaultView.RowFilter = @"OperationVariationId='"+jj["OperationVariationId"].ToString()+"'";
-
-                    if (dsMaster.Tables[0].DefaultView.Count > 0)
-                    {
-
-                        dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
-                        dsMaster.Tables[0].DefaultView[0]["Rate"] = clsStaticInfo.dbl(jj["Rate"].ToString());
-                        dsMaster.Tables[0].DefaultView[0]["Remarks"] = jj["Remarks"].ToString();
-                        dsMaster.Tables[0].DefaultView[0].Row.EndEdit();
-                    }
-                    else 
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
-                        jj["Id"] = _Id;
-                        DataRow dr = dsMaster.Tables[0].NewRow();
-
-                        dr["Id"] = _Id;
-                        dr["OperationVariationId"] = jj["OperationVariationId"].ToString();
-                        dr["Rate"] = clsStaticInfo.dbl(jj["Rate"].ToString());
-                        dr["Remarks"] = jj["Remarks"];
-
-
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                        dr["UpdatedBy"] = identity.Name;
-                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        dr["UpdatedFromIP"] = identity.IPAddress;
-                        dsMaster.Tables[0].Rows.Add(dr);
-                    }
+                    dsMaster.Tables[0].DefaultView[0].Row.BeginEdit();
+                    dsMaster.Tables[0].DefaultView[0]["AllowancePercentage"] = clsStaticInfo.dbl(data["AllowancePercentage"]);
+                    dsMaster.Tables[0].DefaultView[0]["Remarks"] = data["Remarks"];
+                    dsMaster.Tables[0].DefaultView[0]["EntityId"] = data["EntityId"];
+                    dsMaster.Tables[0].DefaultView[0]["ProcessId"] = data["ProcessId"];
+                    dsMaster.Tables[0].DefaultView[0].Row.EndEdit();
+                }
+                else
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenID(TableName, out _Id);
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+                    dr["Id"] = _Id;
+                    masterID = _Id;
+                    dr["EntityId"] = data["EntityId"];
+                    dr["ProcessId"] = data["ProcessId"];
+                    dr["AllowancePercentage"] = clsStaticInfo.dbl(data["AllowancePercentage"]);
+                    dr["Remarks"] = data["Remarks"];
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
                 }
 
+                #endregion data Upload Master
 
+                #region Save Data Child
+                DataSet dsChild;
+                ConnectionManager.DAL.ConManager con1 = new ConnectionManager.DAL.ConManager("1");
+                con1.OpenDataSetThroughAdapter("Select * from dbo.SpecialOperationRateDates where HeaderId='" + masterID + "'", out dsChild, false, "1");
 
-                #endregion data Upload
+                while(dsChild.Tables[0].DefaultView.Count>0)
+                {
+                    dsChild.Tables[0].DefaultView[0].Delete();
+                }
+
+                for (int i = 0; i < dates.Count; i++)
+                {
+                    DataRow dr = dsChild.Tables[0].NewRow();
+                    dr["Id"] = masterID + i.ToString();
+                    dr["HeaderId"] = masterID;
+                    dr["EffectiveDate"] = Convert.ToDateTime(dates[i]);
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = System.DateTime.Now.ToString();
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dsChild.Tables[0].Rows.Add(dr);
+                }
+
+                #endregion
 
 
                 clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                _info.SaveDataSets(dsMaster,dsChild);
 
                 return data;
 

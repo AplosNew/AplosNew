@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using Library.Data.Sql;
 using OTSBD;
@@ -12,7 +10,6 @@ using System.Reflection;
 using Library.Model.Biometrics;
 using Library.Service.Setups;
 using Library.Data;
-using clsAttendance;
 using Library.Service.Extension.HumanResource.Leave;
 using Library.Data.UnitOfWorks;
 using Library.Service.Biometrics;
@@ -1552,21 +1549,25 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var sql = @"select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
+                var sql = @"select distinct e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
-                lt.UserName as LeaveType,lt.Id as LeaveTypeId,ad.Id as SystemId
+                lt.UserName as LeaveType,lt.Id as LeaveTypeId
                 ,isnull(ad.Opening,'0')Opening,isnull(ad.Earned,'0')Earned,
                 isnull(ad.RegularEncashment,'0')RegularEncashment,
-                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment,
-                isnull(ad.Closing,'0')Closing
+                isnull(ad.Availed,'0')Availed,isnull(ad.Adjustment,'0')Adjustment
                 from LeaveYearDefination ld 
-                left join org.Plant p on p.Id=ld.PlantID
-                left join org.CompanyGroup cg on cg.Id=p.CompanyGroupId
-                left join LeaveType lt on lt.CompanyGroupId=cg.Id
+                left join LeaveYearDefinationPlantChild pc on 
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='"+PlantId+@"'
+                left join org.Plant p on p.Id=pc.PlantId
+				left join org.Company c on c.Id=p.CompanyId
+                left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
                 left join EmployeeInformation e on e.PlantId=p.Id
-                left join AnnualLeaveDataCurrent ad on ad.LeaveYearId=ld.Id
-                where p.Id='" + PlantId+@"' and ld.Id='"+LvId+ @"'
-                and e.EmployeeStatus='Active' order by e.SystemId";
+                left join ManualLeaveData ad on ad.EmployeeId=e.SystemId
+				and ad.LeaveYearId=ld.Id and 
+				ad.LeaveTypeId=lt.Id and ad.PlantId='"+PlantId+@"'
+                where p.Id='"+PlantId+"' and ld.Id='"+LvId+@"' and
+                e.EmployeeStatus='Active' order by e.SystemId,lt.Id";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
@@ -1622,7 +1623,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         {
             try
             {
-                var str = @"Select a.*,lt.LeaveType from dbo.AnnualLeaveDataCurrent a 
+                var str = @"Select a.*,lt.LeaveType from dbo.ManualLeaveData a 
                 left join LeaveYearDefination ld on ld.Id=a.LeaveYearId
                 left join LeaveType lt on lt.Id=a.LeaveTypeId
                 where a.PlantId = '" + plantId+"' and a.LeaveYearId='"+ YearId+"'";
@@ -1641,7 +1642,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string addedname = identity.Name;
                 string addeddate = DateTime.Now.ToString();
-                string TableName = "dbo.AnnualLeaveDataCurrent";
+                string TableName = "dbo.ManualLeaveData";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1 = 2", out dsMaster, false, "1");
@@ -1655,13 +1656,13 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     for (int i = 0; i < data.Count; i++)
                     {
                         Dictionary<string, object> jj = data[i];                        
-                        jj["Id"] = "AC"+_Id + index;
+                        jj["Id"] = "ML"+_Id + index;
                         index++;
                         AddNewRow(dsMaster.Tables[0], jj, addedname, addeddate,PlantId);
                     }
                 }
 
-                var sqls = @"Delete from dbo.AnnualLeaveDataCurrent                                 
+                var sqls = @"Delete from dbo.ManualLeaveData                                 
                                 where plantId = '" + PlantId + @"' and LeaveYearId='"+YearId+"'";
 
                 ConnectionManager.DAL.ConManager objCone = null;
@@ -1696,12 +1697,11 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 {
                 }
             }
-            double closing_calculate= Convert.ToDouble(dr["Opening"].ToString()) + Convert.ToDouble(dr["Earned"].ToString())
-                -Convert.ToDouble(dr["Availed"].ToString()) - Convert.ToDouble(dr["RegularEncashment"].ToString()) 
-                + Convert.ToDouble(dr["Adjustment"].ToString());
+            //double closing_calculate= Convert.ToDouble(dr["Opening"].ToString()) + Convert.ToDouble(dr["Earned"].ToString())
+            //    -Convert.ToDouble(dr["Availed"].ToString()) - Convert.ToDouble(dr["RegularEncashment"].ToString()) 
+            //    + Convert.ToDouble(dr["Adjustment"].ToString());
            
             dr["PlantId"] = PlantId;
-            dr["Closing"] = closing_calculate;
             dr["AddedBy"] = addedname;
             dr["AddedDate"] = addeddate;
             dr["AddedFromIP"] = identity.IPAddress;
@@ -1713,4 +1713,193 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
     }
+
+    public class AnnualLeaveProcessingService
+    {
+        ISqlRepository _sqlRepository;
+        public AnnualLeaveProcessingService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        
+        public IEnumerable<object> GetEmpCategory()
+        {
+            try
+            {
+                var str = @"select Id as Value,UserName AS Text from 
+                hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> GetLeaveType()
+        {
+            try
+            {
+                var str = @"select Id as Value,UserName AS Text from LeaveType";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+              
+        public IEnumerable<object> GetNewLvYear(string PlantId,string PrevLvYear)
+        {
+            try
+            {
+                var str = @"select ld.Id as Value,ld.UserName AS Text from 
+                LeaveYearDefination ld left join 
+                LeaveYearDefinationPlantChild lc on lc.LeaveYearDefinationId=ld.Id
+                where lc.PlantId='" + PlantId + "' and ld.Id<>'"+PrevLvYear+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public IEnumerable<object> LoadData(string PlantId, string LvYearId, List<string> DataList)
+        {
+            try
+            {
+                #region Test Query
+               
+                var sqlx = @"select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
+                LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
+                lt.UserName as LeaveType,lt.Id as LeaveTypeId,lt.Code
+                ,isnull(md.Opening,'0')Opening,isnull(md.Earned,'0')Earned,
+                isnull(md.RegularEncashment,'0')RegularEncashment,
+				Availed= case when Info.AvailedLeave is not null 
+				then(select Info.AvailedLeave) else 
+				(select(isnull(md.Availed,'0')))end,
+			    isnull(md.Adjustment,'0')Adjustment
+                from LeaveYearDefination ld 
+                left join LeaveYearDefinationPlantChild pc on 
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='202026'
+                left join org.Plant p on p.Id=pc.PlantId
+				left join org.Company c on c.Id=p.CompanyId
+                left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
+                left join EmployeeInformation e on e.PlantId=p.Id
+                left join ManualLeaveData md on md.EmployeeId=e.SystemId
+				and md.LeaveYearId=ld.Id and 
+				md.LeaveTypeId=lt.Id and md.PlantId='202026'
+				left join
+				(
+				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID
+				from AttdnProcessData a left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
+				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+		        ei.LegalDesignationId
+				left join mst.DesignationMaster 
+				dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+				and dxc.PlantId=ei.PlantId
+				left join DayStatusPlantChild 
+				dc on dc.EmpTypeId=dm.EmployeeCategoryId
+				and dc.PlantId=ei.PlantId
+				left join DayStatusHeader dh on dh.Id=dc.headerId
+				left join DayTypeWithValues dt on dt.HeaderId=dh.Id
+				and dt.DayType=a.DayStatus				
+				where dt.HeaderId is not null and 
+				a.LvValue=1 and ei.EmployeeStatus='Active'
+				and 
+				a.workdate between '2021-01-31' and '2021-12-31'
+				and ei.PlantId='202026'
+				group by A.EmpSystemID,a.DayStatus,a.PlantID) as Info
+				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
+				and Info.DayStatus=lt.Code
+                where p.Id='202026' and ld.Id='LY6' and
+				lt.Id in ('LVT-20195','LVT-20194') and
+                e.EmployeeStatus='Active' order by e.SystemId,lt.Id";
+
+                #endregion
+
+                DataTable DateTbl;
+                var str = @"select FromDate,ToDate from LeaveYearDefination where id='"+LvYearId+"'";
+                DateTbl=_sqlRepository.GetDataTable(str);
+                string From = "", To = "";
+                if(DateTbl.Rows.Count>0)
+                {
+                   From= DateTbl.Rows[0]["FromDate"].ToString();
+                   To = DateTbl.Rows[0]["ToDate"].ToString();
+                }
+                string LTypeId = "''";
+
+                for(int i = 0; i < DataList.Count; i++)
+                {
+                    LTypeId += "," + DataList[i].ToString() + "''";
+                }
+                
+                
+                var sql = @"select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
+                LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
+                lt.UserName as LeaveType,lt.Id as LeaveTypeId,lt.Code
+                ,isnull(md.Opening,'0')Opening,isnull(md.Earned,'0')Earned,
+                isnull(md.RegularEncashment,'0')RegularEncashment,
+				Availed= case when Info.AvailedLeave is not null 
+				then(select Info.AvailedLeave) else 
+				(select(isnull(md.Availed,'0')))end,
+			    isnull(md.Adjustment,'0')Adjustment
+                from LeaveYearDefination ld 
+                left join LeaveYearDefinationPlantChild pc on 
+				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='"+PlantId+@"'
+                left join org.Plant p on p.Id=pc.PlantId
+				left join org.Company c on c.Id=p.CompanyId
+                left join org.CompanyGroup cg on cg.Id=c.CompanyGroupId
+                left join LeaveType lt on lt.CompanyGroupId=cg.Id 
+                left join EmployeeInformation e on e.PlantId=p.Id
+                left join ManualLeaveData md on md.EmployeeId=e.SystemId
+				and md.LeaveYearId=ld.Id and 
+				md.LeaveTypeId=lt.Id and md.PlantId='"+PlantId+@"'
+				left join
+				(
+				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID
+				from AttdnProcessData a left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
+				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
+		        ei.LegalDesignationId
+				left join mst.DesignationMaster 
+				dm on dm.Id = ddm.DesignationMasterId
+				left join scs.DesignationMasterConfiguration dxc on dxc.DesignationMasterId=dm.Id
+				and dxc.PlantId=ei.PlantId
+				left join DayStatusPlantChild 
+				dc on dc.EmpTypeId=dm.EmployeeCategoryId
+				and dc.PlantId=ei.PlantId
+				left join DayStatusHeader dh on dh.Id=dc.headerId
+				left join DayTypeWithValues dt on dt.HeaderId=dh.Id
+				and dt.DayType=a.DayStatus				
+				where dt.HeaderId is not null and 
+				a.LvValue=1 and ei.EmployeeStatus='Active'
+				and 
+				a.workdate between '"+From+@"' and '"+To+@"'
+				and ei.PlantId='"+PlantId+@"'
+				group by A.EmpSystemID,a.DayStatus,a.PlantID) as Info
+				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
+				and Info.DayStatus=lt.Code
+                where p.Id='"+PlantId+@"' and ld.Id='"+LvYearId+@"' and
+				lt.Id in ("+LTypeId+@") and
+                e.EmployeeStatus='Active' order by e.SystemId,lt.Id";
+
+
+                return _sqlRepository.GetDataCollection(sql);
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+    }
+
 }

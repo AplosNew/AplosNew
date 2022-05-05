@@ -35,6 +35,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.YearList = [];
+    $scope.LeaveTypeList = [];
     $scope.getLeaveYear = function () {
         $http({
             method: 'GET',
@@ -43,6 +44,14 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }).then(function success(response) {
             $scope.YearList = response.data;
         })
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetLeaveType'
+        }).then(function success(response) {
+            $scope.LeaveTypeList = response.data;
+        })
+
     }
 
     $scope.Company = null;
@@ -56,6 +65,32 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         })
     }
     $scope.getCompany();
+
+    $scope.NewYearList = [];
+    $scope.getNewLeaveYearData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getNewLeaveYear',
+            params: {
+                'PlantId': $scope.BudgetPlantId,
+                'LvYearId': $scope.LeaveModel.CurrentLvYearId
+            }
+        }).then(function success(response) {
+            $scope.NewYearList = response.data;
+        })
+    }
+
+    $scope.EmpCatList = [];
+    $scope.getEmpCategory = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmpCategory'
+        }).then(function success(response) {
+            $scope.EmpCatList = response.data;
+        })
+    }
+    $scope.getEmpCategory();
+
 
     // #endregion
 
@@ -236,4 +271,61 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     // #endregion
 
+    // #region Annual Process Functions 
+        
+    $scope.LeaveModel = {
+        CurrentLvYearId: null,
+        NewLvYearId: null
+    };
+
+    
+    $scope.ClearFirstTabData = function () {
+        $("#EmpCategoryDropdown").data("ejDropDownList").clearText();
+        $("#LeaveTypeDropdown").data("ejDropDownList").clearText();
+        $scope.LeaveModel = {
+            CurrentLvYearId: null,
+            NewLvYearId: null
+        };
+        $scope.BudgetPlantId = null;
+        $scope.Company = null;
+    };
+
+    $scope.LoadedData = [];
+    $scope.getGridData = function () {
+
+        $scope.LeaveTypeString = "";
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveModel.CurrentLvYearId == "" ||
+            $scope.LeaveModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Current Leave Year ...", 'failure');
+            throw ("Please First Select Current Leave Year ...");
+        }      
+
+        var LeaveTypeObj = $("#LeaveTypeDropdown").data("ejDropDownList");
+        $scope.LeaveTypeString = LeaveTypeObj.getSelectedValue().split(",");
+
+        if ($scope.LeaveTypeString == "" ) {
+            ShowResult("Please First Select Leave Type ...", 'failure');
+            throw ("Please First Select Leave Type ...");
+        }
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'LoadData',
+            params: {
+                'PlantId': $scope.BudgetPlantId,
+                'LvYearId': $scope.LeaveModel.CurrentLvYearId,
+                'LvTypeId': $scope.LeaveTypeString
+            }
+        }).then(function success(response) {
+            $scope.LoadedData = response.data;
+        })
+    }
+
+    // #endregion
 }
