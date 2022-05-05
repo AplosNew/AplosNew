@@ -16,6 +16,8 @@ using Library.Service.Biometrics;
 using Library.Service.Leave;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Newtonsoft.Json;
+using Library.HumanResource.NewOTProcess;
 
 namespace Library.Service.EmployeeServices
 {
@@ -1837,7 +1839,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                 for(int i = 0; i < DataList.Count; i++)
                 {
-                    LTypeId += "," + DataList[i].ToString() + "''";
+                    LTypeId += ",'" + DataList[i].ToString() + "'";
                 }
                 
                 
@@ -1899,6 +1901,42 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
             }
         }
+
+        public void ProcessData(string Data, string PlantId, string CurrentLvYearId)
+        {
+            try
+            {
+                List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+                DataTable Table = ToDataTable(_objects);
+                if (Table.Rows.Count > 0)
+                {
+                    for (int i = 0; i < Table.Rows.Count; i++)
+                    {
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        static DataTable ToDataTable(List<Dictionary<string, object>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            result.Columns.AddRange(
+                list.First().Select(r => new DataColumn(r.Key)).ToArray()
+            );
+
+            list.ForEach(r => result.Rows.Add(r.Select(c => c.Value).Cast<object>().ToArray()));
+
+            return result;
+        }
+
 
     }
 

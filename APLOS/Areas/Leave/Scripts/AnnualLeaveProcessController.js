@@ -327,5 +327,52 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         })
     }
 
+    $scope.ProcArr = [];
+    $scope.ProcessAll = function () {
+               
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveModel.CurrentLvYearId == "" ||
+            $scope.LeaveModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Current Leave Year ...", 'failure');
+            throw ("Please First Select Current Leave Year ...");
+        }
+
+        
+        $scope.ProcArr = [];
+        for (var i = 0; i < $scope.LoadedData.length; i++) {
+            $scope.ProcArr.push({
+                'EmpId': $scope.LoadedData[i].EmpId,
+                'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
+                'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
+                'Availed': $scope.LoadedData[i].Availed,
+                'Adjustment': $scope.LoadedData[i].Adjustment
+            });
+        }
+    }
+
+    $scope.Proc = JSON.stringify($scope.ProcArr);
+
+    $http({
+        method: 'POST',
+        url: $scope.path + 'ProcessData',
+        data: {
+            'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
+            'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId
+        },
+    }).then(function succ(resp) {
+        if (resp.data.Error === true) {
+            ShowResult(resp.data.Message, 'failure');
+        }
+        else {
+            ShowResult(response.data.Message, 'success');
+        }
+
+    })
+
+
     // #endregion
 }
