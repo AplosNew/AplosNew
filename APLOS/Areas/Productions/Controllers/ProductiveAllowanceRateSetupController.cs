@@ -403,10 +403,33 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Special Operations
 
-        #region GetFilters
+        #region GetOperations
+        [HttpGet, Authorize]
+        public ActionResult getEntitySP()
+        {
+            return Json(so.getEntitySP(), JsonRequestBehavior.AllowGet);
+        }
 
-        
+        [HttpGet, Authorize]
+        public ActionResult getProcessSP(string EntityId)
+        {
+            return Json(so.getProcessSP(EntityId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getSpOpMaster()
+        {
+            return Json(so.getSpOpMaster(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getSpOpDates(string HeaderId)
+        {
+            return Json(so.getSpOpDates(HeaderId), JsonRequestBehavior.AllowGet);
+        }
+
         #endregion
+
         #region Save Operation
         [HttpPost]
         public ActionResult saveOperations(Dictionary<string, string> data, List<string> dates)
