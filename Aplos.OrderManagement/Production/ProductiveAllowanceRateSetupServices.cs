@@ -631,12 +631,17 @@ namespace Library.OrderManagement.Production
             _sqlRepository = new SqlRepository();
         }
 
-        #region GetFilters
-        public IEnumerable<object> getOperationCategory()
+        #region GetOperations
+
+        public IEnumerable<object> getProcessSP(string EntityId)
         {
             try
             {
-                var str = @"Select distinct Id as Value , UserName as Text from hkp.OperationCategory";
+                var str = @"Select distinct p.Id as value , p.UserName as text
+                            from hkp.Process p
+                                left join hkp.EntityProcessTag ept on ept.ProcessId = p.Id
+                                left join org.Entity e on e.Id = ept.EntityId
+                                where e.Id = '" + EntityId + @"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -645,49 +650,26 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> getOperationMaster(string OpCat, string MachineId)
+        public IEnumerable<object> getEntitySP()
         {
             try
             {
-                string opCat = "1=1";
-                if (bplib.clsWebLib.RetValidLen(OpCat).ToString() != "")
-                {
-                    opCat = "om.OperationCategoryId = '" + OpCat + "'";
-                }
-
-                string machine = "1=1";
-                if (bplib.clsWebLib.RetValidLen(MachineId).ToString() != "")
-                {
-                    machine = "mm.ID = '"+MachineId+"'";
-                }
-
-                var str = @"Select distinct om.Id as Value , om.UserName as Text 
-                            from mst.OperationMaster om
-                            left join mst.MachineMaster mm on mm.SkillId = om.SkillId
-                            where " + opCat+" and " +machine;
+                var str = @"Select Id as Value , UserName as Text from org.Entity";
                 return _sqlRepository.GetDataCollection(str);
-
             }
-            catch (Exception re)
+            catch (Exception ex)
             {
-                throw re;
+                throw ex;
             }
         }
-
-        public IEnumerable<object> getMachines(string OpMasterId)
+        public IEnumerable<object> getSpOpMaster()
         {
             try
             {
-                string opMaster = "1=1";
-                if (bplib.clsWebLib.RetValidLen(OpMasterId).ToString() != "")
-                {
-                    opMaster = " ov.OperationMasterId = '" + OpMasterId + "'";
-                }
-
-                var str = @"Select distinct mm.Id as Value , mm.UserName as Text
-                            from mst.OperationVariation ov 
-                            left join mst.MachineMaster mm on mm.SkillId = ov.SkillId
-                            where mm.Id is not null and  " + opMaster;
+                var str = @"Select sp.Id , sp.EntityId,sp.ProcessId, sp.AllowancePercentage,sp.Remarks,e.UserName as EntityNameSp, p.UserName as ProcessNameSp
+                            from dbo.SpecialOperationRate sp
+                            left join hkp.Process p on p.Id = sp.ProcessId
+                            left join org.Entity e on e.Id = sp.EntityId";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -696,42 +678,19 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> getOperations(string OMId, string OCId, string MId)
+        public IEnumerable<object> getSpOpDates(string HeaderId)
         {
             try
             {
-                string omId = "1=1";
-                if (bplib.clsWebLib.RetValidLen(OMId).ToString() != "")
-                {
-                    omId = "ov.OperationMasterId = '"+OMId+"' ";
-                }
-
-                string ocId = "1=1";
-                if (bplib.clsWebLib.RetValidLen(OCId).ToString() != "")
-                {
-                    ocId = "om.OperationCategoryId = '" + OCId + "' ";
-                }
-
-                string mId = "1=1";
-                if (bplib.clsWebLib.RetValidLen(MId).ToString() != "")
-                {
-                    mId = "mm.ID = '" + MId + "' ";
-                }
-
-                var str = @"Select distinct 0 as Active , ov.Id as OperationVariationId , ov.Code as OperationVariationCode , ov.UserName as OperationVariation  , isnull(spo.Rate,0) as Rate , spo.Remarks
-                            from mst.OperationVariation ov
-                            left join mst.OperationMaster om on ov.OperationMasterId = om.Id
-                            left join mst.MachineMaster mm on mm.SkillId = om.SkillId
-                            left join dbo.SpecialOperationsRate spo on spo.OperationVariationId = ov.ID
-                            where " + omId+" and "+mId+" and " + ocId;
-
+                var str = @"Select format(EffectiveDate,'dd-MMM-yyyy') as EffectiveDate from dbo.SpecialOperationRateDates where HeaderId='" + HeaderId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw ex;
+                throw e;
             }
         }
+
         #endregion
 
         #region saveOperation

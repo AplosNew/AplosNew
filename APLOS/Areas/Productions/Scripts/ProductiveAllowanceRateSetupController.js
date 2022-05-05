@@ -575,7 +575,11 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     //Variables
     $scope.DatesList = [];
     $scope.EffectiveDate = null;
+    $scope.SpOpMasterList = [];
+    $scope.EntityListSP = [];
+    $scope.ProcessListSP=[];
 
+    $scope.EntitySpName = null;
     $scope.SpOp = {
         Id: null,
         EntityId: null,
@@ -583,6 +587,66 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         AllowancePercentage: null,
         Remarks:null,
     };
+
+    // Getting the MAster
+    $scope.getSPMsater = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getSpOpMaster',
+        }).then(function successCallback(resp) {
+            $scope.SpOpMasterList = resp.data;
+        });
+
+        
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "getEntitySP",
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.EntityListSP = response.data;
+        });
+    }
+
+    $scope.getSPMsater();
+
+    $scope.getProcessSP = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getProcessSP",
+            params: {EntityId : $scope.SpOp.EntityId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ProcessListSP = response.data;
+        });
+    }
+
+    //Double Clicking Master Table
+    $scope.GetMasterData = function (e) {
+        $scope.SpOp = e.data;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getSpOpDates',
+            params: {HeaderId : $scope.SpOp.Id}
+        }).then(function successCallback(resp) {
+            for (var i = 0; i < resp.data.length; i++) {
+                $scope.DatesList.push(resp.data[i].EffectiveDate);
+            }
+            $scope.getProcessSP();
+             //$("#SpPr").data("ejDropDownList").selectItemByText($scope.SpOp.EntityNameSp);
+             //$("#SpEn").data("ejDropDownList").selectItemByText($scope.SpOp.ProcessNameSp);
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+
+        });
+    }
+    //Changing Entity
+    $scope.EntityChangeSp = function () {
+        var obj = $('#dropDownEntity').data("ejDropDownList");
+        $scope.EntitySpName = obj.option("Text");
+        $scope.SpOp.EntityId = obj.option("Value");
+    }
 
     //Seletion of Effective Dates
     $scope.EffectiveDate;
@@ -617,20 +681,20 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         var DropDownJobLocationListObjP = $("#SpPr").data("ejDropDownList");
         var Proc = DropDownJobLocationListObjP.getSelectedValue();
 
-        var DropDownJobLocationListObjE = $("#SpEn").data("ejDropDownList");
-        var En = DropDownJobLocationListObjE.getSelectedValue();
+        //var DropDownJobLocationListObjE = $("#SpEn").data("ejDropDownList");
+        //var En = DropDownJobLocationListObjE.getSelectedValue();
 
         if (Proc.length < 1) {
             ShowResult('Process/Processes are not selected!', 'failure');
             throw ("Invalid Request!");
         }
 
-        if (En.length < 1) {
-            ShowResult('Entity/Entities are not selected!', 'failure');
-            throw ("Invalid Request!");
-        }
+        //if (En.length < 1) {
+        //    ShowResult('Entity/Entities are not selected!', 'failure');
+        //    throw ("Invalid Request!");
+        //}
 
-        $scope.SpOp.EntityId = En;
+        //$scope.SpOp.EntityId = En;
         $scope.SpOp.ProcessId = Proc;
 
         $http({
@@ -667,6 +731,10 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
             AllowancePercentage: null,
             Remarks: null,
         };
+        $("#SpEn").data("ejDropDownList").clearText();
+        $("#SpPr").data("ejDropDownList").clearText();
+
+
     }
 
 
