@@ -329,7 +329,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     $scope.ProcArr = [];
     $scope.ProcessAll = function () {
-               
+
         if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
             ShowResult("Please First Select Plant ...", 'failure');
             throw ("Please First Select Plant ...");
@@ -341,7 +341,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             throw ("Please First Select Current Leave Year ...");
         }
 
-        
+
         $scope.ProcArr = [];
         for (var i = 0; i < $scope.LoadedData.length; i++) {
             $scope.ProcArr.push({
@@ -352,27 +352,26 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
                 'Adjustment': $scope.LoadedData[i].Adjustment
             });
         }
+
+
+        $scope.Proc = JSON.stringify($scope.ProcArr);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'ProcessData',
+            data: {
+                'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
+                'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId
+            },
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        })
     }
-
-    $scope.Proc = JSON.stringify($scope.ProcArr);
-
-    $http({
-        method: 'POST',
-        url: $scope.path + 'ProcessData',
-        data: {
-            'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
-            'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId
-        },
-    }).then(function succ(resp) {
-        if (resp.data.Error === true) {
-            ShowResult(resp.data.Message, 'failure');
-        }
-        else {
-            ShowResult(response.data.Message, 'success');
-        }
-
-    })
-
 
     // #endregion
 }
