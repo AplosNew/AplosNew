@@ -362,7 +362,8 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             data: {
                 'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
                 'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId,
-                'MaxCarryForward':5
+                'MaxCarryForward': 5,
+                'MaxEncash':2,'MaxLapse':2
             },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {

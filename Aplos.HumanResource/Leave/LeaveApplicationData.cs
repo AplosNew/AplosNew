@@ -1851,7 +1851,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public void ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward)
+        public void ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,
+            decimal MaxEncash,decimal MaxLapse)
         {
             try
             {
@@ -1885,6 +1886,29 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                             Carryforward = Closing;
                         }
 
+                        decimal Balance = Closing - Carryforward;
+                        decimal AnnualEncash = 0;
+                        if(Balance>MaxEncash)
+                        {
+                            AnnualEncash = MaxEncash;
+                        }
+                        else
+                        {
+                            AnnualEncash = Balance;
+                        }
+
+                        decimal LapseBalance = Balance - AnnualEncash;
+                        decimal ResultingLapse = 0;
+                        if(LapseBalance>MaxLapse)
+                        {
+                            ResultingLapse = MaxLapse;
+                        }
+                        else
+                        {
+                            ResultingLapse = LapseBalance;
+                        }
+
+
                         clsGenID genid = new clsGenID();
                         genid.GenID("AnnualLeaveDataPast", out string _Id);
 
@@ -1900,6 +1924,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                             dr["Adjustment"] = Adjustment;
                             dr["Closing"] = Closing;
                             dr["CarryForward"] = Carryforward;
+                            dr["AnnualEncashment"] = AnnualEncash;
+                            dr["Lapse"] = ResultingLapse;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"]= Convert.ToDateTime(DateTime.Now);
                             dr["UpdatedFromIP"] = identity.IPAddress;
@@ -1920,6 +1946,8 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                             dr["Adjustment"] = Adjustment;
                             dr["Closing"] = Closing;
                             dr["CarryForward"] = Carryforward;
+                            dr["AnnualEncashment"] = AnnualEncash;
+                            dr["Lapse"] = ResultingLapse;
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = Convert.ToDateTime(DateTime.Now);
                             dr["AddedFromIP"] = identity.IPAddress;
