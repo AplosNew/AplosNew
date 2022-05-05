@@ -348,7 +348,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
                 'EmpId': $scope.LoadedData[i].EmpId,
                 'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
                 'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
-                'Availed': $scope.LoadedData[i].Availed,
+                'Availed': $scope.LoadedData[i].Availed, 'Closing': $scope.LoadedData[i].Closing,
                 'Adjustment': $scope.LoadedData[i].Adjustment
             });
         }
@@ -361,7 +361,8 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             url: $scope.path + 'ProcessData',
             data: {
                 'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
-                'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId
+                'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId,
+                'MaxCarryForward':5
             },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
