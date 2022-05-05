@@ -432,6 +432,22 @@ namespace Aplos.Areas.Leave.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId)
+        {
+            try
+            {
+                alp.ProcessData(Data, PlantId, CurrentLvYearId);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Annual Leave Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
 
         #endregion
     }
