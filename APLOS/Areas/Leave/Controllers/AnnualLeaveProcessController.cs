@@ -420,11 +420,11 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadData(string PlantId, string LvYearId,List<string> LvTypeId)
+        public ActionResult LoadData(string PlantId, string LvYearId,List<string> LvTypeId,List<string> EmpCategory)
         {
             try
             {
-                return Json(alp.LoadData(PlantId, LvYearId,LvTypeId), JsonRequestBehavior.AllowGet);
+                return Json(alp.LoadData(PlantId, LvYearId,LvTypeId,EmpCategory), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -433,11 +433,11 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId)
+        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,decimal MaxEncash,decimal MaxLapse)
         {
             try
             {
-                alp.ProcessData(Data, PlantId, CurrentLvYearId);
+                alp.ProcessData(Data, PlantId, CurrentLvYearId,MaxCarryForward,MaxEncash,MaxLapse);
             }
             catch (Exception ex)
             {
