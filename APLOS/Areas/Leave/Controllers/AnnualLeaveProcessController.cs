@@ -433,11 +433,12 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,decimal MaxEncash,decimal MaxLapse)
+        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,
+            decimal MaxEncash,decimal MaxLapse,string NewYear,List<string> LeaveTypeList)
         {
             try
             {
-                alp.ProcessData(Data, PlantId, CurrentLvYearId,MaxCarryForward,MaxEncash,MaxLapse);
+                alp.ProcessData(Data, PlantId, CurrentLvYearId,MaxCarryForward,MaxEncash,MaxLapse,NewYear,LeaveTypeList);
             }
             catch (Exception ex)
             {

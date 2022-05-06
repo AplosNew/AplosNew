@@ -1861,10 +1861,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
         }
 
         public void ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,
-            decimal MaxEncash,decimal MaxLapse)
+            decimal MaxEncash,decimal MaxLapse,string NewLeaveYear, List<string> LeaveTypeList)
         {
             try
             {
+                
+                #region Annual Leave Data Past Processing
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1878,7 +1880,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     for (int i = 0; i < Table.Rows.Count; i++)
                     {
                         string EmpId = Table.Rows[i][@"EmpId"].ToString();
-                        string LeaveTypeId= Table.Rows[i][@"LeaveTypeId"].ToString();
+                        string LeaveTypeId = Table.Rows[i][@"LeaveTypeId"].ToString();
                         decimal Opening = Convert.ToDecimal(Table.Rows[i][@"Opening"].ToString());
                         decimal Earned = Convert.ToDecimal(Table.Rows[i][@"Earned"].ToString());
                         decimal Availed = Convert.ToDecimal(Table.Rows[i][@"Availed"].ToString());
@@ -1897,7 +1899,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                         decimal Balance = Closing - Carryforward;
                         decimal AnnualEncash = 0;
-                        if(Balance>MaxEncash)
+                        if (Balance > MaxEncash)
                         {
                             AnnualEncash = MaxEncash;
                         }
@@ -1908,7 +1910,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
                         decimal LapseBalance = Balance - AnnualEncash;
                         decimal ResultingLapse = 0;
-                        if(LapseBalance>MaxLapse)
+                        if (LapseBalance > MaxLapse)
                         {
                             ResultingLapse = MaxLapse;
                         }
@@ -1921,7 +1923,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                         clsGenID genid = new clsGenID();
                         genid.GenID("AnnualLeaveDataPast", out string _Id);
 
-                        dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='"+LeaveTypeId+"'";
+                        dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='" + LeaveTypeId + "'";
                         if (dsRef.Tables[0].DefaultView.Count > 0)
                         {
                             DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
@@ -1936,14 +1938,14 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                             dr["AnnualEncashment"] = AnnualEncash;
                             dr["Lapse"] = ResultingLapse;
                             dr["UpdatedBy"] = identity.Name;
-                            dr["UpdatedDate"]= Convert.ToDateTime(DateTime.Now);
+                            dr["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
                             dr["UpdatedFromIP"] = identity.IPAddress;
                             dr.EndEdit();
                         }
                         else
                         {
                             DataRow dr = dsRef.Tables[0].NewRow();
-                            dr["Id"] = "AP" + _Id +"-"+ i;
+                            dr["Id"] = "AP" + _Id + "-" + i;
                             dr["EmployeeId"] = EmpId;
                             dr["LeaveYearId"] = CurrentLvYearId;
                             dr["PlantId"] = PlantId;
@@ -1966,6 +1968,23 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                     clsStaticInfo info = new clsStaticInfo();
                     info.SaveDataSets(dsRef);
                 }
+                #endregion
+
+                #region Current Table Processing  
+                
+                string LTypeId = "''";
+
+                for (int i = 0; i < LeaveTypeList.Count; i++)
+                {
+                    LTypeId += ",'" + LeaveTypeList[i].ToString() + "'";
+                }
+
+                var sql = @"select * from AnnualLeaveDataCurrent where
+                    LeaveYearId='"+NewLeaveYear+"' and PlantId='"+PlantId+"'and LeaveTypeId in("+LTypeId+")";
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsMaster, false, false, "", "1");
+
+                #endregion
+
             }
             catch (Exception ex)
             {

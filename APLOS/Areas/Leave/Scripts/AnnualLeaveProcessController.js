@@ -343,6 +343,8 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $scope.ProcArr = [];
     $scope.ProcessAll = function () {
 
+        // #region Validations
+
         if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
             ShowResult("Please First Select Plant ...", 'failure');
             throw ("Please First Select Plant ...");
@@ -352,6 +354,12 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             $scope.LeaveModel.CurrentLvYearId == undefined) {
             ShowResult("Please First Select Current Leave Year ...", 'failure');
             throw ("Please First Select Current Leave Year ...");
+        }
+
+        if ($scope.LeaveModel.NewLvYearId == "" ||
+            $scope.LeaveModel.NewLvYearId == undefined) {
+            ShowResult("Please First Select New Leave Year ...", 'failure');
+            throw ("Please First Select New Leave Year ...");
         }
 
         if ($scope.LeaveModel.MaxCarryForward == "" || $scope.LeaveModel.MaxCarryForward == undefined) {
@@ -369,6 +377,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             throw ("Please Enter Max Lapse ...");
         }
 
+        // #endregion
 
         $scope.ProcArr = [];
         for (var i = 0; i < $scope.LoadedData.length; i++) {
@@ -392,7 +401,9 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
                 'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId,
                 'MaxCarryForward': $scope.LeaveModel.MaxCarryForward,
                 'MaxEncash': $scope.LeaveModel.MaxEncash,
-                'MaxLapse': $scope.LeaveModel.MaxLapse
+                'MaxLapse': $scope.LeaveModel.MaxLapse,
+                'LeaveTypeList': $scope.LeaveTypeString,
+                'NewYear': $scope.LeaveModel.NewLvYearId
             },
         }).then(function succ(resp) {
             if (resp.data.Error === true) {
