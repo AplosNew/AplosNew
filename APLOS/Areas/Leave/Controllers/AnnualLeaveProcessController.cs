@@ -420,11 +420,11 @@ namespace Aplos.Areas.Leave.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult LoadData(string PlantId, string LvYearId,List<string> LvTypeId)
+        public ActionResult LoadData(string PlantId, string LvYearId,List<string> LvTypeId,List<string> EmpCategory)
         {
             try
             {
-                return Json(alp.LoadData(PlantId, LvYearId,LvTypeId), JsonRequestBehavior.AllowGet);
+                return Json(alp.LoadData(PlantId, LvYearId,LvTypeId,EmpCategory), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

@@ -294,6 +294,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $scope.getGridData = function () {
 
         $scope.LeaveTypeString = "";
+        $scope.EmpCategoryString = "";
 
         if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
             ShowResult("Please First Select Plant ...", 'failure');
@@ -314,13 +315,22 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             throw ("Please First Select Leave Type ...");
         }
 
+        var EmployeeTypeObj = $("#EmpCategoryDropdown").data("ejDropDownList");
+        $scope.EmpCategoryString = EmployeeTypeObj.getSelectedValue().split(",");
+
+        if ($scope.EmpCategoryString == "") {
+            ShowResult("Please First Select Employee Type ...", 'failure');
+            throw ("Please First Select Employee Type ...");
+        }
+
         $http({
             method: 'GET',
             url: $scope.path + 'LoadData',
             params: {
                 'PlantId': $scope.BudgetPlantId,
                 'LvYearId': $scope.LeaveModel.CurrentLvYearId,
-                'LvTypeId': $scope.LeaveTypeString
+                'LvTypeId': $scope.LeaveTypeString,
+                'EmpCategory': $scope.EmpCategoryString
             }
         }).then(function success(response) {
             $scope.LoadedData = response.data;

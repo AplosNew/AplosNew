@@ -1771,10 +1771,12 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
             }
         }
 
-        public IEnumerable<object> LoadData(string PlantId, string LvYearId, List<string> DataList)
+        public IEnumerable<object> LoadData(string PlantId, string LvYearId, List<string> DataList,List<string> EmpCategoryList)
         {
             try
             {
+                #region Supporting Variables Finding 
+
                 DataTable DateTbl;
                 var str = @"select FromDate,ToDate from LeaveYearDefination where id='"+LvYearId+"'";
                 DateTbl=_sqlRepository.GetDataTable(str);
@@ -1784,14 +1786,20 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                    From= DateTbl.Rows[0]["FromDate"].ToString();
                    To = DateTbl.Rows[0]["ToDate"].ToString();
                 }
-                string LTypeId = "''";
+                string LTypeId = "''", EmpCategoryId = "''";
 
                 for(int i = 0; i < DataList.Count; i++)
                 {
                     LTypeId += ",'" + DataList[i].ToString() + "'";
+                }               
+
+                for (int i = 0; i < EmpCategoryList.Count; i++)
+                {
+                    EmpCategoryId += ",'" + EmpCategoryList[i].ToString() + "'";
                 }
-                
-                
+
+                #endregion
+
                 var sql = @"select dd.*,(dd.Opening+dd.Earned-dd.Availed-dd.RegularEncashment+dd.Adjustment)as Closing
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
@@ -1801,7 +1809,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				Availed= case when Info.AvailedLeave is not null 
 				then(select Info.AvailedLeave) else 
 				(select(isnull(md.Availed,'0')))end,
-			    isnull(md.Adjustment,'0')Adjustment
+			    isnull(md.Adjustment,'0')Adjustment,Info.EmpTypeId
                 from LeaveYearDefination ld 
                 left join LeaveYearDefinationPlantChild pc on 
 				pc.LeaveYearDefinationId=ld.Id and pc.PlantId='" + PlantId+@"'
@@ -1812,10 +1820,10 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 left join EmployeeInformation e on e.PlantId=p.Id
                 left join ManualLeaveData md on md.EmployeeId=e.SystemId
 				and md.LeaveYearId=ld.Id and 
-				md.LeaveTypeId=lt.Id and md.PlantId='"+PlantId+@"'
+				md.LeaveTypeId=lt.Id and md.PlantId='"+PlantId+ @"'
 				left join
 				(
-				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID
+				select a.EmpSystemID,SUM(a.LvValue)AvailedLeave,A.DayStatus,a.PlantID,dc.EmpTypeId
 				from AttdnProcessData a left join EmployeeInformation ei on a.EmpSystemID=ei.SystemId
 				left join mst.DesignationMasterLegalDesignation ddm on ddm.LegalDesignationId = 
 		        ei.LegalDesignationId
@@ -1832,14 +1840,15 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				where dt.HeaderId is not null and 
 				a.LvValue=1 and ei.EmployeeStatus='Active'
 				and 
-				a.workdate between '"+From+@"' and '"+To+@"'
-				and ei.PlantId='"+PlantId+@"'
-				group by A.EmpSystemID,a.DayStatus,a.PlantID) as Info
+				a.workdate between '" + From+@"' and '"+To+@"'
+				and ei.PlantId='"+PlantId+ @"'
+				group by A.EmpSystemID,a.DayStatus,a.PlantID,dc.EmpTypeId) as Info
 				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
 				and Info.DayStatus=lt.Code
-                where p.Id='"+PlantId+@"' and ld.Id='"+LvYearId+@"' and
+                where p.Id='" + PlantId+@"' and ld.Id='"+LvYearId+@"' and
 				lt.Id in ("+LTypeId+ @") and
                 e.EmployeeStatus='Active' ) as dd
+                where dd.EmpTypeId In("+EmpCategoryId+@")
 				order by dd.EmpId,dd.LeaveTypeId";
                 return _sqlRepository.GetDataCollection(sql);
                 
