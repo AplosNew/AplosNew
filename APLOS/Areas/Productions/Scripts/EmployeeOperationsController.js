@@ -324,6 +324,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'getReportView',
+            data:{'Date':$scope.Date},
         }).then(function succ(response) {
             console.log(response.data.Data);
             console.log(response.data.Cols);
@@ -363,7 +364,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + "getReportDownload",
-            
+            data: { 'Date': $scope.Date },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

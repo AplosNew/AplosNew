@@ -90,7 +90,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     $scope.getAllData();
     
     //Getting the MasterData
-    $scope.getMasterData = function () {
+    $scope.getPaMasterData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getMasterData",
@@ -99,7 +99,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
             $scope.PaHeaderList = response.data;
         });
     }
-    $scope.getMasterData();
+    $scope.getPaMasterData();
 
    
 
@@ -160,7 +160,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderPa, response.data.Data);
-                $scope.getMasterData();
+                $scope.getPaMasterData();
                 $scope.getPaChildList($scope.HeaderPa.Id);
             }
             else {
@@ -317,6 +317,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderRs, response.data.Data);
+                $scope.getRsMasterData();
                 $scope.getRsChildList($scope.HeaderRs.Id);
             }
             else {
@@ -574,7 +575,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
     //Variables
     $scope.DatesList = [];
-    $scope.EffectiveDate = null;
+    $scope.EffectiveDateSP = null;
     $scope.SpOpMasterList = [];
     $scope.EntityListSP = [];
     $scope.ProcessListSP=[];
@@ -649,19 +650,19 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     }
 
     //Seletion of Effective Dates
-    $scope.EffectiveDate;
+    $scope.EffectiveDateSP;
     $scope.DatesList = [];
     $scope.AddDates = function () {
         var c = 0;
         for (var i = 0; i < $scope.DatesList.length; i++) {
-            if ($scope.DatesList[i].EffectiveDate === $scope.EffectiveDate) {
+            if ($scope.DatesList[i].EffectiveDate === $scope.EffectiveDateSP) {
                 c++;
             }
         }
         if (c === 0) {
-            if (($scope.EffectiveDate + '').length < 21 && ($scope.EffectiveDate + '').length > 5) {
+            if (($scope.EffectiveDateSP + '').length < 21 && ($scope.EffectiveDateSP + '').length > 5) {
 
-                $scope.DatesList.push($scope.EffectiveDate);
+                $scope.DatesList.push($scope.EffectiveDateSP);
             }
         }
     }
@@ -678,16 +679,16 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     //Saving the Data
     $scope.saveOperations = function () {
 
-        var DropDownJobLocationListObjP = $("#SpPr").data("ejDropDownList");
-        var Proc = DropDownJobLocationListObjP.getSelectedValue();
+        //var DropDownJobLocationListObjP = $("#SpPr").data("ejDropDownList");
+        //var Proc = DropDownJobLocationListObjP.getSelectedValue();
 
         //var DropDownJobLocationListObjE = $("#SpEn").data("ejDropDownList");
         //var En = DropDownJobLocationListObjE.getSelectedValue();
 
-        if (Proc.length < 1) {
-            ShowResult('Process/Processes are not selected!', 'failure');
-            throw ("Invalid Request!");
-        }
+        //if (Proc.length < 1) {
+        //    ShowResult('Process/Processes are not selected!', 'failure');
+        //    throw ("Invalid Request!");
+        //}
 
         //if (En.length < 1) {
         //    ShowResult('Entity/Entities are not selected!', 'failure');
@@ -695,7 +696,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
         //}
 
         //$scope.SpOp.EntityId = En;
-        $scope.SpOp.ProcessId = Proc;
+        //$scope.SpOp.ProcessId = Proc;
 
         $http({
             method: 'POST',
@@ -722,7 +723,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     //Clearing of the Data
     $scope.clearOperations = function () {
         $scope.DatesList = [];
-        $scope.EffectiveDate = null;
+        $scope.EffectiveDateSP = null;
 
         $scope.SpOp = {
             Id: null,

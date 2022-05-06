@@ -477,7 +477,7 @@ namespace Library.OrderManagement.Production
             return 0;
         }
 
-        public IEnumerable<object> getReportView( out List<string> Cols)
+        public IEnumerable<object> getReportView( out List<string> Cols , string Date)
         {
             try
             {
@@ -491,6 +491,7 @@ namespace Library.OrderManagement.Production
                             left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
                             left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
                             left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
+                            where we.Date = '" + Date + @"'
                             group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
                             order by Dates , ei.EmployeeName asc";
 
@@ -569,7 +570,7 @@ namespace Library.OrderManagement.Production
        
         #region Report Tab Download Function
 
-        public DataTable getReportDownload(out List<string> DynCols)
+        public DataTable getReportDownload(out List<string> DynCols , string Date)
         {
             try
             {
@@ -583,6 +584,7 @@ namespace Library.OrderManagement.Production
                             left join SCS.WorkCenterMaster wcm on wcm.Id = we.WorkCenterId
                             left join mst.OperationVariation ov on ov.Id = we.OperationVariationId
                             left join dbo.EmployeeInformation ei on ei.SystemId = we.EmployeeId
+                            where we.Date = '"+Date+@"'
                             group by ov.Code , ov.UserName , p.UserName , ei.EmployeeName , ei.EmployeeCode , we.Date , we.PeriodId  , pb.UserName, wcm.UserName ,we.ProductionOrderId 
                             order by Dates , ei.EmployeeName asc";
 
@@ -751,14 +753,19 @@ namespace Library.OrderManagement.Production
                 var strDate = @"Select top 1 ph.Id , ph.EffectiveDate from dbo.ProducedMinAllowanceHeader ph where EffectiveDate <= '" + Date + @"' order by EffectiveDate desc";
                 DataTable dtDates = _sqlRepository.GetDataTable(strDate);
 
+                string whereAllow = "";
                 if (dtDates.Rows.Count <= 0)
                 {
-                    throw new Exception("Processing cannot be done for this date because Productive Allowance is missing!!");
+                    whereAllow = "where 1 = 2";
+                }
+                else
+                {
+                    whereAllow = " where ph.Id = '" + dtDates.Rows[0]["Id"].ToString() + "'";
                 }
 
-                var str2 = @"Select epp.Id, epp.EmployeeId,po.EntityId , owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
+                var str2 = @"Select epp.Id, epp.EmployeeId,po.EntityId , owe.ShiftId ,owe.ProcessId from dbo.EmployeeWiseProductionProcessing epp
                             left join trn.ProductionOrder po on po.Id = epp.ProductionOrderId
-                            left join ( Select distinct owe.Date , owe.EmployeeId , owe.OperationVariationId , owe.ProcessId from dbo.OperationWiseEmployees owe
+                            left join ( Select distinct owe.Date ,owe.ShiftId, owe.EmployeeId , owe.OperationVariationId , owe.ProcessId from dbo.OperationWiseEmployees owe
                              where Date='" + Date+ @"') owe on owe.EmployeeId = epp.EmployeeId and owe.Date = epp.Date and owe.OperationVariationId = epp.OperationVariationId
                             where epp.Date='" + Date + @"'";
 
@@ -769,47 +776,69 @@ namespace Library.OrderManagement.Production
                             left join dbo.ProducedMinAllowanceEntity pe on pe.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceProcess pp on pp.HeaderId = ph.Id
                             left join dbo.ProducedMinAllowanceChild pc on pc.HeaderId = ph.Id
-                            where ph.Id = '"+dtDates.Rows[0]["Id"].ToString()+"'";
+                             "+ whereAllow;
 
                 DataTable dtAllowance = _sqlRepository.GetDataTable(str3);
+                
 
                 //Special Allowance
-                var str4 = @"Select * from dbo.SpecialOperationsRate";
-                DataTable dtSpecialAllowance = _sqlRepository.GetDataTable(str4);
+                var str4 = @"Select * from mst.Operationvariation where isSpecialOperation = 1";
+                DataTable dtSpecialOperations = _sqlRepository.GetDataTable(str4);
+
+                var spOpTable = @"Select sp.*,
+                                    (Select top 1 format(sr.EffectiveDate ,'dd-MMM-yyyy') as Effective
+                                    from dbo.SpecialOperationRateDates sr
+                                    where sr.HeaderId =sp.Id
+                                    and sr.EffectiveDate <= '"+Date+@"'
+                                    order by EffectiveDate desc) as EffectiveDate
+                                    from dbo.SpecialOperationRate sp";
+                DataTable dtSpecialAllowanceRate = _sqlRepository.GetDataTable(spOpTable);
 
                 for (int i = 0; i < dsMasterHalf.Tables[0].Rows.Count; i++)
                 {
 
                     dtMainDict.DefaultView.RowFilter = @"Id = '" + dsMasterHalf.Tables[0].Rows[i]["Id"].ToString() + "'";
-
+                    double dtSkillVal = 0.0;
+                    double dtAddOpVal = 0.0;
+                    double dtSpOpVal = 0.0;
                     string SkillCatId = dicSkillCat[dsMasterHalf.Tables[0].Rows[i]["Id"].ToString()].ToString();
                     string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
                     string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
                     string OpSeq = dsMasterHalf.Tables[0].Rows[i]["Sequence"].ToString();
 
-                    dtSpecialAllowance.DefaultView.RowFilter = @"OperationVariationId='"+dsMasterHalf.Tables[0].Rows[i]["OperationVariationId"]+"'";
+                    //Getting the Operation
+                    dtSpecialOperations.DefaultView.RowFilter = @"Id='"+dsMasterHalf.Tables[0].Rows[i]["OperationVariationId"]+"'";
+                    if(dtSpecialOperations.DefaultView.Count >0)
+                    {
+                        dtSpecialAllowanceRate.DefaultView.RowFilter = @"EntityId='"+EntityId+"' and ProcessId='"+ProcessId+"'";
+                        if (dtSpecialAllowanceRate.DefaultView.Count > 0)
+                        {
+                            dtSpOpVal = clsStaticInfo.dbl(dtSpecialAllowanceRate.DefaultView[0]["AllowancePercentage"].ToString());
+                        }
+                    }
 
                     
 
                     dtAllowance.DefaultView.RowFilter = @"EntityId='" + EntityId+"' and ProcessId ='"+ProcessId+ @"' 
                                                         and SkillCategoryId='"+ SkillCatId+ "' and OperationSequence='"+OpSeq+"'";
+                    if(dtAllowance.DefaultView.Count > 0)
+                    {
+                        dtSkillVal = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString());
+                        dtAddOpVal = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString());
+                    }
+
                     dsMasterHalf.Tables[0].Rows[i].BeginEdit();
                     //Special Operation Addition
-                    if (dtSpecialAllowance.DefaultView.Count > 0)
-                    {
-                        dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"] = clsStaticInfo.dbl(dtSpecialAllowance.DefaultView[0]["Rate"].ToString())/100;
-                    }
-                    else
-                    {
-                        dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"] = 0.0;
-                    }
+                    
+                        dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"] = dtSpOpVal/100;
+                    
 
-                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowanceRate"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["SkillAllowance"].ToString()) / 100;
-                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowanceRate"] = clsStaticInfo.dbl(dtAllowance.DefaultView[0]["AdditionOperationAllowance"].ToString()) / 100;
+                    dsMasterHalf.Tables[0].Rows[i]["SkillAllowanceRate"] = dtSkillVal / 100;
+                    dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowanceRate"] = dtAddOpVal / 100;
 
                     double spAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowanceRate"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
-                    double skAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
-                    double addAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                    double skAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["SkillAllowanceRate"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
+                    double addAll = clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowanceRate"].ToString()) * clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString());
                     dsMasterHalf.Tables[0].Rows[i]["SpecialOperationAllowance"] = spAll;
                     dsMasterHalf.Tables[0].Rows[i]["SkillAllowance"] = skAll;
                     dsMasterHalf.Tables[0].Rows[i]["AdditionalOperationAllowance"] = addAll;
@@ -837,10 +866,14 @@ namespace Library.OrderManagement.Production
                 //DataTable dsRatesHealf.Tables[0] = dsRatesHealf.Tables[0];
                 var strInDate = @"Select top 1 Id , EffectiveDate from dbo.IncentiveRateSetupHeader where EffectiveDate <= '" + Date + "' order by EffectiveDate desc";
                 DataTable dtInDates = _sqlRepository.GetDataTable(strInDate);
-
+                string whereRates = "";
                 if (dtInDates.Rows.Count <= 0)
                 {
-                    throw new Exception("Processing cannot be done for this date because Rate setup is missing!!");
+                    whereRates = "where 1 = 2";
+                }
+                else
+                {
+                    whereRates = "where ih.Id = '" + dtInDates.Rows[0]["Id"].ToString() + "'";
                 }
 
 
@@ -848,7 +881,7 @@ namespace Library.OrderManagement.Production
                             left join dbo.IncentiveRateSetupEntity ie on ie.HeaderId = ih.Id
                             left join dbo.IncentiveRateSetupProcess ips on ips.HeaderId = ih.Id
                             left join dbo.IncentiveRateSetupChild ics on ics.HeaderId = ih.Id
-                            where ih.Id = '"+dtInDates.Rows[0]["Id"].ToString()+"'";
+                            "+ whereRates;
 
                 DataTable dtRatesTable = _sqlRepository.GetDataTable(str5);
 
@@ -945,6 +978,10 @@ namespace Library.OrderManagement.Production
 
                 #region 8. Calculation Of Efficiency Rate And Amount
 
+                //ShiftsTable
+                var strShift = @"Select SystemID , ShiftDuration from dbo.ShiftDefination ";
+                DataTable dtShifts = _sqlRepository.GetDataTable(strShift);
+
                 for (int i = count; i < dsRatesHealf.Tables[0].Rows.Count; i++)
                 {
 
@@ -952,6 +989,7 @@ namespace Library.OrderManagement.Production
                     dtMainDict.DefaultView.RowFilter = @"Id = '" + dsRatesHealf.Tables[0].Rows[i]["Id"].ToString() + "'";
                     string EntityId = dtMainDict.DefaultView[0]["EntityId"].ToString();
                     string ProcessId = dtMainDict.DefaultView[0]["ProcessId"].ToString();
+                    string ShiftId = dtMainDict.DefaultView[0]["ShiftId"].ToString();
 
                     dtRatesTable.DefaultView.RowFilter = @"EntityId='"+EntityId+"' and ProcessId='"+ProcessId+"'";
 
@@ -959,21 +997,28 @@ namespace Library.OrderManagement.Production
 
                     DataTable dtTemp = dtRatesTable.DefaultView.ToTable();
                     double Rate = 0.0;
-                    for (int j = 0; j < dtTemp.Rows.Count; j++)
+                    for (int j = dtTemp.Rows.Count-1; j >= 0; j--)
                     {
-                        if (clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["GrossEfficiency"].ToString()) <= clsStaticInfo.dbl(dtTemp.Rows[j]["Effeciency"].ToString()))
+                        if (clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["GrossEfficiency"].ToString()) >= clsStaticInfo.dbl(dtTemp.Rows[j]["Effeciency"].ToString()))
                         {
                             Rate = clsStaticInfo.dbl(dtTemp.Rows[j]["EffeciencyRate"].ToString());
-                        }
-                        else
-                        {
+
                             break;
                         }
                     }
 
+                    //ShiftDuration and Calculation of Final Amount
+                    dtShifts.DefaultView.RowFilter = @"SystemID='" + ShiftId + "'";
+
+
+
                     dsRatesHealf.Tables[0].Rows[i].BeginEdit();
                     dsRatesHealf.Tables[0].Rows[i]["Rate"] = Rate;
+
                     dsRatesHealf.Tables[0].Rows[i]["Amount"] = clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["GrossEfficiency"].ToString()) * Rate;
+                    dsRatesHealf.Tables[0].Rows[i]["DurationPercentage"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["NetDuration"].ToString()) / clsStaticInfo.dbl(dtShifts.DefaultView[0]["ShiftDuration"].ToString())) * 100;
+                    dsRatesHealf.Tables[0].Rows[i]["FinalAmount"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["DurationPercentage"].ToString()) / 100) * clsStaticInfo.dbl(dsRatesHealf.Tables[0].Rows[i]["Amount"].ToString()); 
+
                     dsRatesHealf.Tables[0].Rows[i].EndEdit();
 
                 }
@@ -994,98 +1039,107 @@ namespace Library.OrderManagement.Production
         }
 
         #region getProcessDownload
-        public DataTable getProcessDownload(out List<string> DynCols)
+        public DataTable getProcessDownload(string Date)
         {
             try
             {
-                var str = @"select format(ewpp.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName, 
-                            ov.UserName, ov.Code, ewpp.ProductionOrderId as poId, ewpp.Sequence, ewpp.Qty, ewpp.StandardProcessTime, ewpp.TotalSPT,
-                            ewpp.SkillAllowance, ewpp.AdditionalOperationAllowance, ewpp.AllotedProducedMin
-                            from dbo.EmployeeWiseProductionProcessing ewpp
-                            left join dbo.EmployeeInformation ei on ei.SystemId = ewpp.EmployeeId
-                            left join mst.OperationVariation ov on ov.OperationMasterId = ewpp.MasterOperationId";
+                var str = @"Select format(eep.Date,'dd-MMM-yyyy') as Date, eep.EmployeeId, ei.EmployeeCode, ei.EmployeeName , eep.WorkDuration , eep.EmployeesTimeOutDuration , eep.NetDuration , eep.TotalSPT as ProducedMin,
+                            eep.AllotedProducedMin as GrossProducedMin , eep.NetEfficiency , eep.GrossEfficiency, eep.Rate , eep.Amount , eep.FinalAmount
+                            from dbo.EmployeeEfficiencyProcess eep
+                            left join dbo.EmployeeInformation ei on ei.SystemId = eep.EmployeeId
+                            where Date = '" + Date+@"'
+                             ";
 
-                DataTable dtAll = _sqlRepository.GetDataTable(str);
+                #region TestCode
+                // var str = @"select format(ewpp.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName, 
+                //             ov.UserName, ov.Code, ewpp.ProductionOrderId as poId, ewpp.Sequence, ewpp.Qty, ewpp.StandardProcessTime, ewpp.TotalSPT,
+                //             ewpp.SkillAllowance, ewpp.AdditionalOperationAllowance, ewpp.AllotedProducedMin
+                //             from dbo.EmployeeWiseProductionProcessing ewpp
+                //             left join dbo.EmployeeInformation ei on ei.SystemId = ewpp.EmployeeId
+                //             left join mst.OperationVariation ov on ov.OperationMasterId = ewpp.MasterOperationId";
 
-                //Getting the Periods
-                List<string> ltPer = new List<string>();
-                DataTable periods = dtAll.DefaultView.ToTable(true, "poId");
-                for (int i = 0; i < periods.Rows.Count; i++)
-                {
-                    ltPer.Add(periods.Rows[i]["poId"].ToString());
-                }
+                // DataTable dtAll = _sqlRepository.GetDataTable(str);
 
-                ltPer = ltPer.OrderBy(k => k).ToList();
+                // //Getting the Periods
+                // List<string> ltPer = new List<string>();
+                // DataTable periods = dtAll.DefaultView.ToTable(true, "poId");
+                // for (int i = 0; i < periods.Rows.Count; i++)
+                // {
+                //     ltPer.Add(periods.Rows[i]["poId"].ToString());
+                // }
 
-                DataTable dtNew = new DataTable();
-                dtNew.Columns.Add("Date", typeof(string));
-                dtNew.Columns.Add("EmployeeCode", typeof(string));
-                dtNew.Columns.Add("EmployeeName", typeof(string));
-                dtNew.Columns.Add("UserName", typeof(string));
-                dtNew.Columns.Add("Code", typeof(string));
-                dtNew.Columns.Add("poId", typeof(string));
-                dtNew.Columns.Add("Qty", typeof(string));
-                dtNew.Columns.Add("StandardProcessTime", typeof(string));
-                dtNew.Columns.Add("TotalSPT", typeof(string));
-                dtNew.Columns.Add("SkillAllowance", typeof(string));
-                dtNew.Columns.Add("AdditionalOperationAllowance", typeof(string));
-                dtNew.Columns.Add("AllotedProducedMin", typeof(string));
-                
-  
-                for (int i = 0; i < ltPer.Count; i++)
-                {
-                    dtNew.Columns.Add(ltPer[i], typeof(double));
-                }
+                // ltPer = ltPer.OrderBy(k => k).ToList();
 
-                //Filling the DataTable
-               // string opCode = "";
-                string empCode = "";
-                DateTime datess = Convert.ToDateTime("01-Jan-1990");
-                DataRow dr = null;
-                for (int i = 0; i < dtAll.Rows.Count; i++)
-                {
-                    if (dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString()) != datess)
-                    {
+                // DataTable dtNew = new DataTable();
+                // dtNew.Columns.Add("Date", typeof(string));
+                // dtNew.Columns.Add("EmployeeCode", typeof(string));
+                // dtNew.Columns.Add("EmployeeName", typeof(string));
+                // dtNew.Columns.Add("UserName", typeof(string));
+                // dtNew.Columns.Add("Code", typeof(string));
+                // dtNew.Columns.Add("poId", typeof(string));
+                // dtNew.Columns.Add("Qty", typeof(string));
+                // dtNew.Columns.Add("StandardProcessTime", typeof(string));
+                // dtNew.Columns.Add("TotalSPT", typeof(string));
+                // dtNew.Columns.Add("SkillAllowance", typeof(string));
+                // dtNew.Columns.Add("AdditionalOperationAllowance", typeof(string));
+                // dtNew.Columns.Add("AllotedProducedMin", typeof(string));
 
-                        dr = dtNew.NewRow();
-                        dr["Date"] = dtAll.Rows[i]["Date"].ToString();
-                        dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
-                        dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
-                        dr["UserName"] = dtAll.Rows[i]["UserName"].ToString();
-                        
-                        dr["Code"] = dtAll.Rows[i]["Code"].ToString();
-                        dr["poId"] = dtAll.Rows[i]["poId"].ToString();
-                        //dr["Sequence"] = dtAll.Rows[i]["Sequence"].ToString();
-                        dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
-                        dr["StandardProcessTime"] = dtAll.Rows[i]["StandardProcessTime"].ToString();
-                        dr["TotalSPT"] = dtAll.Rows[i]["TotalSPT"].ToString();
-                        dr["SkillAllowance"] = dtAll.Rows[i]["SkillAllowance"].ToString();
-                        dr["AdditionalOperationAllowance"] = dtAll.Rows[i]["AdditionalOperationAllowance"].ToString();
-                        dr["AllotedProducedMin"] = dtAll.Rows[i]["AllotedProducedMin"].ToString();
-                        
-                        
-                        
-                        
 
-                        for (int j = 0; j < ltPer.Count; j++)
-                        {
-                            dr[ltPer[j]] = 0;
-                        }
+                // for (int i = 0; i < ltPer.Count; i++)
+                // {
+                //     dtNew.Columns.Add(ltPer[i], typeof(double));
+                // }
 
-                        dtNew.Rows.Add(dr);
-                    }
+                // //Filling the DataTable
+                //// string opCode = "";
+                // string empCode = "";
+                // DateTime datess = Convert.ToDateTime("01-Jan-1990");
+                // DataRow dr = null;
+                // for (int i = 0; i < dtAll.Rows.Count; i++)
+                // {
+                //     if (dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString()) != datess)
+                //     {
 
-                    //dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
+                //         dr = dtNew.NewRow();
+                //         dr["Date"] = dtAll.Rows[i]["Date"].ToString();
+                //         dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
+                //         dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
+                //         dr["UserName"] = dtAll.Rows[i]["UserName"].ToString();
 
-                   // opCode = dtAll.Rows[i]["OperationCode"].ToString();
-                    empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
-                    datess = Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString());
+                //         dr["Code"] = dtAll.Rows[i]["Code"].ToString();
+                //         dr["poId"] = dtAll.Rows[i]["poId"].ToString();
+                //         //dr["Sequence"] = dtAll.Rows[i]["Sequence"].ToString();
+                //         dr["Qty"] = dtAll.Rows[i]["Qty"].ToString();
+                //         dr["StandardProcessTime"] = dtAll.Rows[i]["StandardProcessTime"].ToString();
+                //         dr["TotalSPT"] = dtAll.Rows[i]["TotalSPT"].ToString();
+                //         dr["SkillAllowance"] = dtAll.Rows[i]["SkillAllowance"].ToString();
+                //         dr["AdditionalOperationAllowance"] = dtAll.Rows[i]["AdditionalOperationAllowance"].ToString();
+                //         dr["AllotedProducedMin"] = dtAll.Rows[i]["AllotedProducedMin"].ToString();
 
-                }
 
-                DynCols = ltPer;
 
-                return dtNew;
+
+
+                //         for (int j = 0; j < ltPer.Count; j++)
+                //         {
+                //             dr[ltPer[j]] = 0;
+                //         }
+
+                //         dtNew.Rows.Add(dr);
+                //     }
+
+                //     //dr[dtAll.Rows[i]["Periods"].ToString()] = OTSBD.clsStaticInfo.dbl(dtAll.Rows[i]["Qty"].ToString());
+
+                //    // opCode = dtAll.Rows[i]["OperationCode"].ToString();
+                //     empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
+                //     datess = Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString());
+
+                // }
+
+                // DynCols = ltPer;
+                #endregion
+
+                return _sqlRepository.GetDataTable(str);
             }
             catch (Exception ex)
             {
@@ -1096,85 +1150,21 @@ namespace Library.OrderManagement.Production
         #endregion getProcessDownload
 
         #region getEmployeeWorkDurationReport
-        public DataTable getEmployeeWorkDurationReport(out List<string> DynCols)
+        public DataTable getEmployeeWorkDurationReport(string Date)
         {
             try
             {
-                var str = @"select format(eep.Date, 'dd-MMM-yyyy') as Date, ei.EmployeeCode, ei.EmployeeName, eep.TotalSPT,
-                            eep.AllotedProducedMin, eep.WorkDuration, eep.NetEfficiency, eep.GrossEfficiency, eep.Rate, eep.Amount
-                            from dbo.EmployeeEfficiencyProcess eep
-                            left join dbo.EmployeeInformation ei on ei.SystemId = eep.EmployeeId";
-
-                DataTable dtAll = _sqlRepository.GetDataTable(str);
-
-                //Getting the Periods
-                List<string> ltPer = new List<string>();
-                DataTable periods = dtAll.DefaultView.ToTable(true, "EmployeeCode");
-                for (int i = 0; i < periods.Rows.Count; i++)
-                {
-                    ltPer.Add(periods.Rows[i]["EmployeeCode"].ToString());
-                }
-
-                ltPer = ltPer.OrderBy(k => k).ToList();
-
-                DataTable dtNew = new DataTable();
-                dtNew.Columns.Add("Date", typeof(string));
-                dtNew.Columns.Add("EmployeeCode", typeof(string));
-                dtNew.Columns.Add("EmployeeName", typeof(string));
-                dtNew.Columns.Add("TotalSPT", typeof(string));
-                dtNew.Columns.Add("AllotedProducedMin", typeof(string));
-                dtNew.Columns.Add("WorkDuration", typeof(string));
-                dtNew.Columns.Add("NetEfficiency", typeof(string));
-                dtNew.Columns.Add("GrossEfficiency", typeof(string));
-                dtNew.Columns.Add("Rate", typeof(string));
-                dtNew.Columns.Add("Amount", typeof(string));
-             
-
-                for (int i = 0; i < ltPer.Count; i++)
-                {
-                    dtNew.Columns.Add(ltPer[i], typeof(double));
-                }
-
-                //Filling the DataTable
-               
-                string empCode = "";
-                DateTime datess = Convert.ToDateTime("01-Jan-1990");
-                DataRow dr = null;
-                for (int i = 0; i < dtAll.Rows.Count; i++)
-                {
-                    if (dtAll.Rows[i]["EmployeeCode"].ToString() != empCode || Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString()) != datess)
-                    {
-
-                        dr = dtNew.NewRow();
-                        dr["Date"] = dtAll.Rows[i]["Date"].ToString();
-                        dr["EmployeeCode"] = dtAll.Rows[i]["EmployeeCode"].ToString();
-                        dr["EmployeeName"] = dtAll.Rows[i]["EmployeeName"].ToString();
-                        dr["TotalSPT"] = dtAll.Rows[i]["TotalSPT"].ToString();
-                        dr["AllotedProducedMin"] = dtAll.Rows[i]["AllotedProducedMin"].ToString();
-                        dr["WorkDuration"] = dtAll.Rows[i]["WorkDuration"].ToString();
-                        //dr["Sequence"] = dtAll.Rows[i]["Sequence"].ToString();
-                        dr["NetEfficiency"] = dtAll.Rows[i]["NetEfficiency"].ToString();
-                        dr["GrossEfficiency"] = dtAll.Rows[i]["GrossEfficiency"].ToString();
-                        dr["Rate"] = dtAll.Rows[i]["Rate"].ToString();
-                        dr["Amount"] = dtAll.Rows[i]["Amount"].ToString();
-                        
-                        for (int j = 0; j < ltPer.Count; j++)
-                        {
-                            dr[ltPer[j]] = 0;
-                        }
-
-                        dtNew.Rows.Add(dr);
-                    }
-
-                    
-                    empCode = dtAll.Rows[i]["EmployeeCode"].ToString();
-                    datess = Convert.ToDateTime(dtAll.Rows[i]["Date"].ToString());
-
-                }
-
-                DynCols = ltPer;
-
-                return dtNew;
+                var str = @"Select format(owe.Date,'dd-MMM-yyyy') as WorkDate ,owe.ShiftId , sd.UserName as ShiftName , owe.ProductionOrderId , owe.EmployeeId , ei.EmployeeCode, ei.EmployeeName , owe.OperationVariationId , ov.Code as OperationCode , owe.Qty , skc.UserName as SkillCategory , epp.TotalSPT , epp.SkillAllowance, epp.AdditionalOperationAllowance, epp.SpecialOperationAllowance ,epp.AllotedProducedMin , owe.Remarks 
+                            from dbo.OperationWiseEmployees owe
+                            left join dbo.EmployeeWiseProductionProcessing epp on epp.Date = owe.Date and epp.EmployeeId = owe.EmployeeId
+                            left join mst.OperationVariation ov on ov.ID = owe.OperationVariationId
+                            left join hkp.Skill sk on sk.ID = ov.SkillId
+                            left join hkp.SkillCategory skc on skc.ID = sk.SkillCategoryId
+                            left join dbo.EmployeeInformation ei on ei.SystemId = owe.EmployeeId
+                            left join dbo.ShiftDefination sd on sd.SystemID = owe.ShiftId
+                            where owe.Date = '"+Date+@"'
+                            "; 
+                return  _sqlRepository.GetDataTable(str);
             }
             catch (Exception ex)
             {
