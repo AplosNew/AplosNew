@@ -119,6 +119,43 @@
                             </div>
                         </div>
 
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group" style="margin-top:20px;">
+                                <label class="col-sm-4 control-label">Max Carryforward</label>
+                                <div class="col-sm-8">
+                                    <input type="text" onkeypress="return isNumber(event)" 
+                                       ng-model="LeaveModel.MaxCarryForward" class="form-control" maxlength="100">
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group" style="margin-top:20px;">
+                                <label class="col-sm-4 control-label">Max Encashment</label>
+                                <div class="col-sm-8">
+                                    <input type="text" onkeypress="return isNumber(event)" 
+                                           ng-model="LeaveModel.MaxEncash" class="form-control" maxlength="100">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group" >
+                                <label class="col-sm-4 control-label" style="margin-top:20px;">Max Lapse</label>
+                                <div class="col-sm-8" style="margin-top:20px;">
+                                    <input type="text" 
+                                     onkeypress="return isNumber(event)" ng-model="LeaveModel.MaxLapse" class="form-control" maxlength="100">
+                                </div>
+                            </div>
+
+                        </div>
+                       <div><br/><br/></div>
+                        <br />
                         <div class="common-btn" style="margin-top:20px;
                              margin-right:20px;">
                             <ul class="list-inline text-right">
@@ -127,12 +164,8 @@
                         </div>
 
                     </div>
-
                 </div>
 
-                <div class="row">
-                   
-                </div>
             </div>
         </div>
 
@@ -287,4 +320,14 @@
     </div>
 </div>
 
+<script>
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+</script>
 
