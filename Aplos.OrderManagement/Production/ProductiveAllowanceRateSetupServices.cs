@@ -56,7 +56,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select Id, UserName, EffectiveDate, Remarks,
+                var str = @"Select Id, UserName, format(EffectiveDate,'dd-MMM-yyyy') as EffectiveDate, Remarks,
                             STUFF((
                             SELECT ',' + p.UserName
 
@@ -335,7 +335,7 @@ namespace Library.OrderManagement.Production
         {
             try
             {
-                var str = @"Select Id, UserName, EffectiveDate, Remarks,
+                var str = @"Select Id, UserName, format(EffectiveDate,'dd-MMM-yyyy') as EffectiveDate, Remarks,
                             STUFF((
                             SELECT ',' + p.UserName
 
