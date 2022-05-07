@@ -40,6 +40,23 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     };
     $scope.ModelChildNew = Object.assign({}, $scope.transport);
 
+    $scope.schedule = {
+        Id: null,
+        TransportId: null,
+        Transport: null,
+        TripNo: null,
+        UpDown: null,
+        ShiftId: null,
+        Shift: null,
+        StartTime: null,
+        EndTime: null,
+        From: null,
+        To: null,
+        Distance: null,
+        Remarks: null
+    };
+    $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -409,4 +426,42 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             }
         });
     };
+
+    $scope.selectShift = function () {
+        $scope.getsS();
+        angular.element(document.querySelector('#ShiftPop')).modal('show');
+    }
+
+    $scope.ShiftList = [];
+    $scope.getsS = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getShift',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ShiftList = resp.data;
+        });
+    }
+
+    $scope.doubleShift = function (e) {
+        $scope.ModelRouteSchedule.ShiftId = e.data.ShiftId;
+        $scope.ModelRouteSchedule.Shift = e.data.ShiftDefination;
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+    $scope.closeShiftPopUp = function () {
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+    $scope.TransportList = [];
+    $scope.getTransport = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetTransport',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.TransportList = resp.data;
+        });
+    }
+    $scope.getTransport();
 }
