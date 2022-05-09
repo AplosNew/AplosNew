@@ -718,11 +718,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/performance-grade-master', {
             templateUrl: 'humanResource/PerformanceGradeMaster/Aplos',
             controller: 'PerformanceGradeMasterController'
-        })
-        .when('/employee-goal-setting', {
-            templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
-            controller: 'EmployeeGoalSettingController'
-        })
+        })      
         .when('/goal-setting-approval', {
             templateUrl: 'humanResource/GoalSettingApproval/Aplos',
             controller: 'GoalSettingApprovalController'
