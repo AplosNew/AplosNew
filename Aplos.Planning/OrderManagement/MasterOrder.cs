@@ -766,13 +766,15 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             }
         }
 
-        public IEnumerable<object> GetCostingSOFormulaData()
+        public IEnumerable<object> GetCostingSOFormulaData(string masterOrderItemId)
         {
             try
             {
-                string sql = @"SELECT OL.Id,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponentId
-                              FROM OrderLineCostingItem AS OL
-                              LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId";
+                string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SoItemName UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,A.Value
+FROM OrderLineCostingItem AS OL
+LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+LEFT JOIN dbo.MasterOrderItemCostingRate A ON A.OrderLineCostingItemId=OL.Id
+WHERE ISNULL(A.MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -780,6 +782,85 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
                 throw ex;
             }
         }
+
+
+        public IEnumerable<object> GetItemRateData(string masterOrderItemId)
+        {
+            try
+            {
+                string sql = @"SELECT * FROM MasterOrderItemCostingRate WHERE MasterOrderItemId='"+ masterOrderItemId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue/*, ref DataTable dtSlrHd*/)
+        {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
+
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "OrderLineCostingItemID = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                                strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }//End 
+
         public IEnumerable<object> GetContractByMasterOrder(string masterId)
         {
             try

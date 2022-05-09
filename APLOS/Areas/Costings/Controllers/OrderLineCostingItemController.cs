@@ -21,7 +21,7 @@ namespace Aplos.Areas.Costings.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-
+        string TableName = "dbo.OrderLineCostingItem";
         public OrderLineCostingItemController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -111,11 +111,18 @@ namespace Aplos.Areas.Costings.Controllers
                 {
                     string _Id = "";
 
-                    DataSet dsMaster, dsDestination;
+                    DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("UserName already exists!!!");
+
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where   SOItemName='" + data["SOItemName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("SOItem Name already exists!!!");
+
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OrderLineCostingItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                    // con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where CostingSOTemplateId='" + data.Id + "'", out dsDestination, false, "1");
 
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
