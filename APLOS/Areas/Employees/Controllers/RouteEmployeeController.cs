@@ -239,11 +239,15 @@ namespace Aplos.Areas.Employees.Controllers
                         dr["Id"] = "RE" + sID;
                         dr["EmployeeId"] = item.SystemID;
 
-                        dr["UpRouteId"] = item.UARouteUpGridId;
-                        dr["UpStoppageId"] = item.UAStopageUpGridId;
+                        dr["RouteId"] = item.UARouteUpGridId;
+                        dr["StoppageId"] = item.UAStopageUpGridId;
+                        dr["ShiftId"] = item.UAStopageUpGridId;
 
-                        dr["DownRouteId"] = item.UARouteDownGridId;
-                        dr["DownStoppageId"] = item.UAStopageDownGridId;
+                        //dr["UpRouteId"] = item.UARouteUpGridId;
+                        //dr["UpStoppageId"] = item.UAStopageUpGridId;
+
+                        //dr["DownRouteId"] = item.UARouteDownGridId;
+                        //dr["DownStoppageId"] = item.UAStopageDownGridId;
 
                         dr["PlantId"] = identity.PlantId;
                         dr["Active"] = true;
@@ -260,11 +264,15 @@ namespace Aplos.Areas.Employees.Controllers
 
                         dr["EmployeeId"] = item.SystemID;
 
-                        dr["UpRouteId"] = item.UARouteUpGridId;
-                        dr["UpStoppageId"] = item.UAStopageUpGridId;
+                        dr["RouteId"] = item.UARouteUpGridId;
+                        dr["StoppageId"] = item.UAStopageUpGridId;
+                        dr["ShiftId"] = item.UAStopageUpGridId;
 
-                        dr["DownRouteId"] = item.UARouteDownGridId;
-                        dr["DownStoppageId"] = item.UAStopageDownGridId;
+                        //dr["UpRouteId"] = item.UARouteUpGridId;
+                        //dr["UpStoppageId"] = item.UAStopageUpGridId;
+
+                        //dr["DownRouteId"] = item.UARouteDownGridId;
+                        //dr["DownStoppageId"] = item.UAStopageDownGridId;
 
                         dr["PlantId"] = identity.PlantId;
                         dr["Active"] = true;
@@ -357,6 +365,19 @@ namespace Aplos.Areas.Employees.Controllers
                             and r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetShift()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
+						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
+						
+						from ShiftDefination SD
+						left join ORG.Plant P on P.Id=SD.PlantID";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet,Authorize]
