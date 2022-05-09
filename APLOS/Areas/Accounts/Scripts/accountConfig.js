@@ -286,6 +286,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Voucher/GeneralLedgerReport",
             controller: "generalLedgerReportController"
         })
+        .when("/gst-ledger", {
+            templateUrl: "Accounts/Voucher/GSTLedgerReport",
+            controller: "generalLedgerGSTReportController"
+        })
         .when("/group-balance-report", {
             templateUrl: "Accounts/GroupBalanceReport/Aplos",
             controller: "GroupBalanceReportController"
