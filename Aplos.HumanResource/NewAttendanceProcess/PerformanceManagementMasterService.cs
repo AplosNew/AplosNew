@@ -269,6 +269,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    #region PerformancePeriodMasterService
     public class PerformancePeriodMasterService
     {
 
@@ -420,7 +421,9 @@ namespace Library.HumanResource.NewAttendanceProcess
             dr.EndEdit();
         }
     }
+    #endregion PerformancePeriodMasterService
 
+    #region Performance Group Service
     public class PerformanceGroupService
     {
         ISqlRepository _sqlRepository;
@@ -602,7 +605,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion Performance Group Service
 
+    #region PERFORMANCE ATTRIBUTE MASTER SERVICE
     public class PerformanceAttributeMasterService
     {
         ISqlRepository _sqlRepository;
@@ -769,7 +774,9 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion PERFORMANCE ATTRIBUTE MASTER SERVICE
 
+    #region Performance Grade Master Service
     public class PerformanceGradeMasterService
     {
         ISqlRepository _sqlRepository;
@@ -936,6 +943,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
     }
+    #endregion Performance Grade Master Service
 
     #region EmployeeGoalSetting
     public class EmployeeGoalSetting
@@ -969,6 +977,22 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join org.Department dep on dep.Id = ei.DepartmentId
                             left join org.Section sec on sec.Id = ei.SectionId
                             left join org.SubSection ss on ss.Id = ei.SubSectionId where SystemId =  '"+ SelectedEmployeeId + "'";
+
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getSelectedEmployeeName(string SelectedEmployeeId)
+        {
+            try
+            {
+
+                var str = @"select ei.SystemId, ei.EmployeeName from dbo.EmployeeGoalSetting egs
+                left join dbo.EmployeeInformation ei on ei.SystemId = egs.EmployeeId where ei.SystemId =  '" + SelectedEmployeeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1085,6 +1109,12 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             try
             {
+
+                // Upload File
+                #region File Upload
+
+                #endregion File Upload
+
                 //Master Table - PMSMaster
                 string TableName = "dbo.EmployeeGoalSetting";
                 DataSet dsMaster;
@@ -1389,11 +1419,11 @@ namespace Library.HumanResource.NewAttendanceProcess
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetResidenceMaster(string PlantId, string ResidenceGroupId)
+        public IEnumerable<object> GetResidenceMaster()
         {
             try
             {
-                string sql = @"select * from dbo.ResidenceMaster where PlantId = '"+ PlantId + "' and ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                string sql = @"select * from dbo.ResidenceMaster";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1419,7 +1449,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select * from dbo.ResidenceGroup";
+                string sql = @"select * from dbo.ResidenceGroup where Active = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1428,7 +1458,33 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId)
+        public IEnumerable<object> getEmployeeCategory()
+        {
+            try
+            {
+                string sql = @"select * from hkp.EmployeeCategory";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getEmpServiceType()
+        {
+            try
+            {
+                string sql = @"select * from dbo.EmpServiceType";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp, string ServiceTypeId)
         {
 
             try
@@ -1456,14 +1512,13 @@ namespace Library.HumanResource.NewAttendanceProcess
                 bplib.clsGenID genid = new bplib.clsGenID();
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-
-
-                    //bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RM" + _Id;
                     data["PlantId"] = PlantId;
                     data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
+                    data["EmpServiceTypeId"] = ServiceTypeId;
                     AddNewRow(dsMaster.Tables[0], data);
 
 
@@ -1473,6 +1528,8 @@ namespace Library.HumanResource.NewAttendanceProcess
                     _Id = data["Id"].ToString();
                     data["PlantId"] = PlantId;
                     data["ResidenceGroupId"] = ResidenceGroupId;
+                    data["EmployeeCategoryId"] = Emp;
+                    data["EmpServiceTypeId"] = ServiceTypeId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data Master update
@@ -1541,7 +1598,364 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion Add & Edit Row
     }
     #endregion RESIDENCE MASTER SERVICE
+
+    #region Residence Status Location
+    public class ResidenceStatusLocationService
+    {
+        SqlRepository _sqlRepository;
+        public ResidenceStatusLocationService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getPlant(string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select p.Id as Value , rm.PlantId, p.UserName as Text from dbo.ResidenceMaster rm
+                               left join ORG.Plant p on p.Id = rm.PlantId where ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getLocation(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.Location as Text from dbo.ResidenceMaster rm 
+                               where rm.PlantId = '"+ PlantId + "' and rm.ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                               
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceGroup()
+        {
+            try
+            {
+                string sql = @"select rg.Id as Value , rg.UserName as Text from dbo.ResidenceMaster rm
+                               left join dbo.ResidenceGroup rg on rg.Id = rm.ResidenceGroupId";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getServiceType(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select es.Id as Value , es.Service as Text from dbo.ResidenceMaster rm
+                                left join dbo.EmpServiceType es on es.Id = rm.EmpServiceTypeId 
+                              where PlantId = '" + PlantId + "' and ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                               
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceSubCategory(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.ResidenceSubCategory as Text from dbo.ResidenceMaster rm
+                               where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getBlock(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value , rm.Block as Text from dbo.ResidenceMaster rm
+                                 where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getRoom(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.Rooms as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getEmployeeType(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select eg.Id as Value , eg.UserName as Text from dbo.ResidenceMaster rm
+                               left join HKP.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidenceNumber(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.ResidenceNumber as Text from dbo.ResidenceMaster rm
+                             where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getFloor(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.Floor as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getResidentType(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.ResidentType as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getAssetName(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.AssetName as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getData()
+        {
+            try
+            {
+                var _sql = @"select * from dbo.ResidenceStatusLocation";
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        public IEnumerable<object> view(string PlantId, string EmployeeCategoryId, string ResidenceGroupId)
+        {
+            try
+            {
+                var _sql = @"select rm.* from dbo.ResidenceMaster rm where rm.PlantId = '"+ PlantId + "'"  +"and rm.EmployeeCategoryId = '"+ EmployeeCategoryId + "'"+
+                    "and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "dbo.ResidenceStatusLocation";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    genid.GenID(TableName, out _Id);
+
+                    data["Id"] = "RM" + _Id;
+                   
+                    AddNewRow(dsMaster.Tables[0], data);
+
+
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                   
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data Master update
+
+
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #region delete
+        /* public void delete(string id)
+         {
+             ConnectionManager.DAL.ConManager objCon;
+
+             objCon = new ConnectionManager.DAL.ConManager("1");
+             objCon.BeginTransaction();
+             objCon.ExecuteNonQueryWrapper("delete FROM dbo.ResidenceStatusLocation where Id='" + id + "'", true, "1");
+
+             objCon.CommitTransaction();
+
+         }*/
+        #endregion delete
+
+        #region Add & Edit Row
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+            dr.EndEdit();
+        }
+        #endregion Add & Edit Row
+
+        public IEnumerable<object> getEmployee()
+        {
+            try
+            {
+                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
+                            ei.EmpType, ei.EmploymentType, ei.JobLocationID 
+                            from dbo.EmployeeInformation ei           
+                            where ei.EmployeeStatus = 'Active'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
+    #endregion Residence Status Location
 }
+
 
 
 

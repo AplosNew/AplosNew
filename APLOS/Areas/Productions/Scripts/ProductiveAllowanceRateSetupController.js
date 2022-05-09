@@ -90,7 +90,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     $scope.getAllData();
     
     //Getting the MasterData
-    $scope.getMasterData = function () {
+    $scope.getPaMasterData = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getMasterData",
@@ -99,7 +99,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
             $scope.PaHeaderList = response.data;
         });
     }
-    $scope.getMasterData();
+    $scope.getPaMasterData();
 
    
 
@@ -160,7 +160,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderPa, response.data.Data);
-                $scope.getMasterData();
+                $scope.getPaMasterData();
                 $scope.getPaChildList($scope.HeaderPa.Id);
             }
             else {
@@ -317,6 +317,7 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
                 ShowResult(response.data.Msg, 'success');
                 //$scope.HeaderPa = response.data.Data;
                 Object.assign($scope.HeaderRs, response.data.Data);
+                $scope.getRsMasterData();
                 $scope.getRsChildList($scope.HeaderRs.Id);
             }
             else {
@@ -573,117 +574,135 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
     ///// ******************************************** Special Operation Rate
 
     //Variables
-    $scope.OperationMasterId = null;
-    $scope.OperationCatId = null;
-    $scope.MachineId = null;
+    $scope.DatesList = [];
+    $scope.EffectiveDateSP = null;
+    $scope.SpOpMasterList = [];
+    $scope.EntityListSP = [];
+    $scope.ProcessListSP=[];
 
-    $scope.operationCatList = [];
-    $scope.operationMasterList = [];
-    $scope.machineList = [];
+    $scope.EntitySpName = null;
+    $scope.SpOp = {
+        Id: null,
+        EntityId: null,
+        ProcessId: null,
+        AllowancePercentage: null,
+        Remarks:null,
+    };
 
-    $scope.OperationsList = [];
-    $scope.PrevData = [];
-
-
-    //Getting the Filters
-    $scope.getFilters = function () {
+    // Getting the MAster
+    $scope.getSPMsater = function () {
         $http({
             method: 'GET',
-            url: $scope.path + "getOperationCategory",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.operationCatList = response.data;
+            url: $scope.path + 'getSpOpMaster',
+        }).then(function successCallback(resp) {
+            $scope.SpOpMasterList = resp.data;
         });
+
+        
 
         $http({
-            method: 'POST',
-            url: $scope.path + "getOperationMaster",
-            data: { 'OpCat': $scope.OperationCatId, 'Machine':$scope.MachineId},
+            method: 'GET',
+            url: $scope.path + "getEntitySP",
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.operationMasterList = response.data;
+            $scope.EntityListSP = response.data;
         });
-
-        $http({
-            method: 'POST',
-            url: $scope.path + "getMachines",
-            data: {'OpM':$scope.OperationMasterId},
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.machineList = response.data;
-        });
-
     }
 
-    $scope.getFilters();
+    $scope.getSPMsater();
 
-    //Filling the Filters Again
-    $scope.fillOperationMaster = function () {
-        if (angular.isUndefinedOrNull($scope.OperationMasterId) == true) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "getOperationMaster",
-                data: { 'OpCat': $scope.OperationCatId, 'Machine': $scope.MachineId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.operationMasterList = response.data;
-            });
+    $scope.getProcessSP = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + "getProcessSP",
+            params: {EntityId : $scope.SpOp.EntityId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ProcessListSP = response.data;
+        });
+    }
+
+    //Double Clicking Master Table
+    $scope.GetMasterData = function (e) {
+        $scope.SpOp = e.data;
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getSpOpDates',
+            params: {HeaderId : $scope.SpOp.Id}
+        }).then(function successCallback(resp) {
+            for (var i = 0; i < resp.data.length; i++) {
+                $scope.DatesList.push(resp.data[i].EffectiveDate);
+            }
+            $scope.getProcessSP();
+             //$("#SpPr").data("ejDropDownList").selectItemByText($scope.SpOp.EntityNameSp);
+             //$("#SpEn").data("ejDropDownList").selectItemByText($scope.SpOp.ProcessNameSp);
+            if (!$rootScope.isCollapsed) {
+                $rootScope.toggle();
+            }
+
+        });
+    }
+    //Changing Entity
+    $scope.EntityChangeSp = function () {
+        var obj = $('#dropDownEntity').data("ejDropDownList");
+        $scope.EntitySpName = obj.option("Text");
+        $scope.SpOp.EntityId = obj.option("Value");
+    }
+
+    //Seletion of Effective Dates
+    $scope.EffectiveDateSP;
+    $scope.DatesList = [];
+    $scope.AddDates = function () {
+        var c = 0;
+        for (var i = 0; i < $scope.DatesList.length; i++) {
+            if ($scope.DatesList[i].EffectiveDate === $scope.EffectiveDateSP) {
+                c++;
+            }
+        }
+        if (c === 0) {
+            if (($scope.EffectiveDateSP + '').length < 21 && ($scope.EffectiveDateSP + '').length > 5) {
+
+                $scope.DatesList.push($scope.EffectiveDateSP);
+            }
         }
     }
 
-    $scope.fillMachine = function () {
-        if (angular.isUndefinedOrNull($scope.MachineId) == true) {
-            $http({
-                method: 'POST',
-                url: $scope.path + "getMachines",
-                data: { 'OpM': $scope.OperationMasterId },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.machineList = response.data;
-            });
+    //Delete The Date
+    $scope.DeleteDate = function (e) {
+        for (var i = 0; i < $scope.DatesList.length; i++) {
+            if ($scope.DatesList[i] === e) {
+                $scope.DatesList.splice(i, 1);
+            }
         }
-    }
-
-
-    //Getting all the Operations
-    $scope.getOperations = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getOperations",
-            data: { 'OMId': $scope.OperationMasterId, 'OCId' : $scope.OperationCatId , 'MId':$scope.MachineId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.PrevData = response.data;
-            $scope.OperationsList = response.data;
-        });
-    }
-
-    //Clearing the Filters
-    $scope.clearFilters = function () {
-        $scope.OperationMasterId = null;
-        $scope.OperationCatId = null;
-        $scope.MachineId = null;
-    }
-
-    // Clearing the Grid
-    $scope.clearGrid = function () {
-        $scope.OperationsList = $scope.PrevData;
     }
 
     //Saving the Data
     $scope.saveOperations = function () {
-        let savesList = [];
-        for (var i = 0; i < $scope.OperationsList.length; i++) {
-            if ($scope.OperationsList[i].Active == 1) {
-                savesList.push($scope.OperationsList[i]);
-            }
-        }
+
+        //var DropDownJobLocationListObjP = $("#SpPr").data("ejDropDownList");
+        //var Proc = DropDownJobLocationListObjP.getSelectedValue();
+
+        //var DropDownJobLocationListObjE = $("#SpEn").data("ejDropDownList");
+        //var En = DropDownJobLocationListObjE.getSelectedValue();
+
+        //if (Proc.length < 1) {
+        //    ShowResult('Process/Processes are not selected!', 'failure');
+        //    throw ("Invalid Request!");
+        //}
+
+        //if (En.length < 1) {
+        //    ShowResult('Entity/Entities are not selected!', 'failure');
+        //    throw ("Invalid Request!");
+        //}
+
+        //$scope.SpOp.EntityId = En;
+        //$scope.SpOp.ProcessId = Proc;
 
         $http({
             method: 'POST',
             url: $scope.path + "saveOperations",
             data: {
-                'data': savesList
+                'data': $scope.SpOp , 'dates':$scope.DatesList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -692,11 +711,30 @@ function ProductiveAllowanceRateSetupController(commonMessage, $scope, $rootScop
 
                 ShowResult(response.data.Msg, 'success');
                 $scope.getOperations();
+                $scope.clearOperations();
             }
             else {
                 ShowResult(response.data.Msg, 'failure');
             }
         });
+
+    }
+
+    //Clearing of the Data
+    $scope.clearOperations = function () {
+        $scope.DatesList = [];
+        $scope.EffectiveDateSP = null;
+
+        $scope.SpOp = {
+            Id: null,
+            EntityId: null,
+            ProcessId: null,
+            AllowancePercentage: null,
+            Remarks: null,
+        };
+        $("#SpEn").data("ejDropDownList").clearText();
+        $("#SpPr").data("ejDropDownList").clearText();
+
 
     }
 

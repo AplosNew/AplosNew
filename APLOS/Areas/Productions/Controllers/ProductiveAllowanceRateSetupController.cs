@@ -83,7 +83,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Savings
         [HttpPost]
-        public ActionResult saveHeaderPa(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public ActionResult saveHeaderPa(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost]
-        public ActionResult saveChildPa(List<Dictionary<string, object>> childData, string headerId)
+        public ActionResult saveChildPa(List<Dictionary<string, string>> childData, string headerId)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Savings
         [HttpPost]
-        public ActionResult saveHeaderRs(Dictionary<string, object> headerData, List<string> process, List<string> entity)
+        public ActionResult saveHeaderRs(Dictionary<string, string> headerData, List<string> process, List<string> entity)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace Aplos.Areas.Productions.Controllers
 
         // --------------------------------------Save Child RS
         [HttpPost]
-        public ActionResult saveChildRs(List<Dictionary<string, object>> childData, string headerId)
+        public ActionResult saveChildRs(List<Dictionary<string, string>> childData, string headerId)
         {
             try
             {
@@ -403,39 +403,40 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Special Operations
 
-        #region GetFilters
+        #region GetOperations
+        [HttpGet, Authorize]
+        public ActionResult getEntitySP()
+        {
+            return Json(so.getEntitySP(), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
-        public ActionResult getOperationCategory()
+        public ActionResult getProcessSP(string EntityId)
         {
-            return Json(so.getOperationCategory() , JsonRequestBehavior.AllowGet);
-        }
-        
-        [HttpPost, Authorize]
-        public ActionResult getOperationMaster(string OpCat , string Machine)
-        {
-            return Json(so.getOperationMaster(OpCat, Machine), JsonRequestBehavior.AllowGet);
+            return Json(so.getProcessSP(EntityId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
-        public ActionResult getMachines(string OpM)
+        [HttpGet, Authorize]
+        public ActionResult getSpOpMaster()
         {
-            return Json(so.getMachines(OpM), JsonRequestBehavior.AllowGet);
+            return Json(so.getSpOpMaster(), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
-        public ActionResult getOperations(string OMId, string OCId, string MId)
+        [HttpGet, Authorize]
+        public ActionResult getSpOpDates(string HeaderId)
         {
-            return Json(so.getOperations(OMId, OCId, MId), JsonRequestBehavior.AllowGet);
+            return Json(so.getSpOpDates(HeaderId), JsonRequestBehavior.AllowGet);
         }
+
         #endregion
+
         #region Save Operation
         [HttpPost]
-        public ActionResult saveOperations(List<Dictionary<string, object>> data)
+        public ActionResult saveOperations(Dictionary<string, string> data, List<string> dates)
         {
             try
             {
-                return Json(new { Error = "No", Data = so.saveOperations(data), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = so.saveOperations(data , dates), Msg = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

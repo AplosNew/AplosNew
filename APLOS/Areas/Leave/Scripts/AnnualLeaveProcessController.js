@@ -5,34 +5,24 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'Leave/AnnualLeaveProcess/';  
-      
-    //#region The Paging System
 
-    var x = document.getElementById("FDiv");
-    var y = document.getElementById("SDiv");
-    x.style.display = "block";
-    y.style.display = "none";
 
-    $scope.clickdde1 = function () {
-        if (x.style.display === "none") {
-            y.style.display = "none";
-            x.style.display = "block";
+    // #region The Tab Switching Code    
 
-        }
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
     };
-
-    $scope.clickdde2 = function () {
-        if (y.style.display === "none") {
-
-            y.style.display = "block";
-            x.style.display = "none";
-
-        }
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
     };
 
     // #endregion
+        
+    // #region Other Functions
 
-    // #region Get Plants List and Company List
+    $scope.SelectedYearId = null;
     $scope.PlantList = [];
     $scope.getPlants = function () {
         $http({
@@ -42,6 +32,26 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }).then(function success(response) {
             $scope.PlantList = response.data;
         })
+    }
+
+    $scope.YearList = [];
+    $scope.LeaveTypeList = [];
+    $scope.getLeaveYear = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getLeaveYear',
+            params: { 'PlantId': $scope.BudgetPlantId }
+        }).then(function success(response) {
+            $scope.YearList = response.data;
+        })
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetLeaveType'
+        }).then(function success(response) {
+            $scope.LeaveTypeList = response.data;
+        })
+
     }
 
     $scope.Company = null;
@@ -55,6 +65,32 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         })
     }
     $scope.getCompany();
+
+    $scope.NewYearList = [];
+    $scope.getNewLeaveYearData = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getNewLeaveYear',
+            params: {
+                'PlantId': $scope.BudgetPlantId,
+                'LvYearId': $scope.LeaveModel.CurrentLvYearId
+            }
+        }).then(function success(response) {
+            $scope.NewYearList = response.data;
+        })
+    }
+
+    $scope.EmpCatList = [];
+    $scope.getEmpCategory = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmpCategory'
+        }).then(function success(response) {
+            $scope.EmpCatList = response.data;
+        })
+    }
+    $scope.getEmpCategory();
+
 
     // #endregion
 
@@ -80,7 +116,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
 
         try {
-            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=LY4&reportFormat=' + reportFormat, '_blank');
+            window.open($scope.path + 'GetSampleReport?PlantId=' + $scope.BudgetPlantId + '&name=' + plantName + '&LvYearId=' + $scope.SelectedYearId+ '&reportFormat=' + reportFormat, '_blank');
 
         } catch (e) {
 
@@ -88,6 +124,29 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     }
 
     // #endregion
+
+    $scope.currentList = [];
+    $scope.getCurrentFileList = function () {
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select a Plant!!", 'failure');
+            throw ("Invalid!!");
+        }
+
+        if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+            ShowResult("Please First Select Leave Year !!", 'failure');
+            throw ("Invalid!!");
+        }
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getCurrentList',
+            params: { 'PlantId': $scope.BudgetPlantId, 'YearId': $scope.SelectedYearId }
+        }).then(function success(response) {
+            $scope.currentList = [];
+            $scope.currentList = response.data;
+        })
+    }
 
     $("#uploadFile").change(function () {
         $scope.fileData = this.files[0];
@@ -110,6 +169,11 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
                 ShowResult("Please First Select a Plant!!", 'failure');
                 throw ("Please First Select a Plant!!");
+            }
+
+            if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+                ShowResult("Please First Select Leave Year!!", 'failure');
+                throw ("Please First Select Leave Year!!");
             }
 
             var fileData = new FormData();
@@ -157,7 +221,199 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         }
     };
 
+    $scope.saveFileList = function () {
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant!!", 'failure');
+            throw ("Please First Select Plant!!");
+        }
+
+        if ($scope.SelectedYearId == "" || $scope.SelectedYearId == undefined) {
+            ShowResult("Please First Select Leave Year!!", 'failure');
+            throw ("Please First Select Leave Year!!");
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveFileList',
+            data: {
+                'data': $scope.ExcelUploadData, 'PlantId': $scope.BudgetPlantId,
+                'YearId': $scope.SelectedYearId
+                }
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                try {
+                    if ($rootScope.isCollapsed == true) {
+                        $rootScope.toggle();
+                    }
+                    $scope.getCurrentFileList();
+                    ShowResult(response.data.Message, 'success')
+                }
+                catch (e) {
+
+                    ShowResult(e, "failure");
+                }
+            }
+        }, function errorCallback(response) {
+
+        });
+    }
+
+    $scope.clearFileList = function () {
+
+        $scope.Company = null;
+        $scope.BudgetPlantId = null;
+        $scope.SelectedYearId = null;
+    }
 
     // #endregion
 
+    // #region Annual Process Functions 
+        
+    $scope.LeaveModel = {
+        CurrentLvYearId: null,
+        NewLvYearId: null,
+        MaxCarryForward: null,
+        MaxEncash: null,
+        MaxLapse: null
+    };
+
+    
+    $scope.ClearFirstTabData = function () {
+        $("#EmpCategoryDropdown").data("ejDropDownList").clearText();
+        $("#LeaveTypeDropdown").data("ejDropDownList").clearText();
+        $scope.LeaveModel = {
+            CurrentLvYearId: null,
+            NewLvYearId: null
+        };
+        $scope.BudgetPlantId = null;
+        $scope.Company = null;
+    };
+
+    $scope.LoadedData = [];
+    $scope.getGridData = function () {
+
+        $scope.LeaveTypeString = "";
+        $scope.EmpCategoryString = "";
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveModel.CurrentLvYearId == "" ||
+            $scope.LeaveModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Current Leave Year ...", 'failure');
+            throw ("Please First Select Current Leave Year ...");
+        }      
+
+        var LeaveTypeObj = $("#LeaveTypeDropdown").data("ejDropDownList");
+        $scope.LeaveTypeString = LeaveTypeObj.getSelectedValue().split(",");
+
+        if ($scope.LeaveTypeString == "" ) {
+            ShowResult("Please First Select Leave Type ...", 'failure');
+            throw ("Please First Select Leave Type ...");
+        }
+
+        var EmployeeTypeObj = $("#EmpCategoryDropdown").data("ejDropDownList");
+        $scope.EmpCategoryString = EmployeeTypeObj.getSelectedValue().split(",");
+
+        if ($scope.EmpCategoryString == "") {
+            ShowResult("Please First Select Employee Type ...", 'failure');
+            throw ("Please First Select Employee Type ...");
+        }
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'LoadData',
+            params: {
+                'PlantId': $scope.BudgetPlantId,
+                'LvYearId': $scope.LeaveModel.CurrentLvYearId,
+                'LvTypeId': $scope.LeaveTypeString,
+                'EmpCategory': $scope.EmpCategoryString
+            }
+        }).then(function success(response) {
+            $scope.LoadedData = response.data;
+        })
+    }
+
+    $scope.ProcArr = [];
+    $scope.ProcessAll = function () {
+
+        // #region Validations
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveModel.CurrentLvYearId == "" ||
+            $scope.LeaveModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Current Leave Year ...", 'failure');
+            throw ("Please First Select Current Leave Year ...");
+        }
+
+        if ($scope.LeaveModel.NewLvYearId == "" ||
+            $scope.LeaveModel.NewLvYearId == undefined) {
+            ShowResult("Please First Select New Leave Year ...", 'failure');
+            throw ("Please First Select New Leave Year ...");
+        }
+
+        if ($scope.LeaveModel.MaxCarryForward == "" || $scope.LeaveModel.MaxCarryForward == undefined) {
+            ShowResult("Please Enter Max Carryforward ...", 'failure');
+            throw ("Please Enter Max Carryforward ...");
+        }
+
+        if ($scope.LeaveModel.MaxEncash == "" || $scope.LeaveModel.MaxEncash == undefined) {
+            ShowResult("Please Enter Max Encashment ...", 'failure');
+            throw ("Please Enter Max Encashment ...");
+        }
+
+        if ($scope.LeaveModel.MaxLapse == "" || $scope.LeaveModel.MaxLapse == undefined) {
+            ShowResult("Please Enter Max Lapse ...", 'failure');
+            throw ("Please Enter Max Lapse ...");
+        }
+
+        // #endregion
+
+        $scope.ProcArr = [];
+        for (var i = 0; i < $scope.LoadedData.length; i++) {
+            $scope.ProcArr.push({
+                'EmpId': $scope.LoadedData[i].EmpId,
+                'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
+                'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
+                'Availed': $scope.LoadedData[i].Availed, 'Closing': $scope.LoadedData[i].Closing,
+                'Adjustment': $scope.LoadedData[i].Adjustment
+            });
+        }
+
+
+        $scope.Proc = JSON.stringify($scope.ProcArr);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'ProcessData',
+            data: {
+                'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
+                'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId,
+                'MaxCarryForward': $scope.LeaveModel.MaxCarryForward,
+                'MaxEncash': $scope.LeaveModel.MaxEncash,
+                'MaxLapse': $scope.LeaveModel.MaxLapse,
+                'LeaveTypeList': $scope.LeaveTypeString,
+                'NewYear': $scope.LeaveModel.NewLvYearId
+            },
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        })
+    }
+
+    // #endregion
 }

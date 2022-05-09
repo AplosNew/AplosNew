@@ -190,7 +190,7 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             controller: 'multipleIdCardController'
         })
         .when('/budgetcode-change', {
-            templateUrl: 'employees/BudgetCodeChange/',
+            templateUrl: 'employees/BudgetCodeChange/Aplos',
             controller: 'budgetCodeChangeController'
         })
         .when('/approval-configuration', {
@@ -515,5 +515,6 @@ function employeeConfig($routeProvider, $locationProvider, $windowProvider) {
             templateUrl: 'Employees/DocumentCategory/Aplos',
             controller: 'DocumentCategoryController'
         })
+        
         ;
 } 

@@ -35,10 +35,12 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("ServiceRequisitionController", ServiceRequisitionController)
     .controller("ServiceRequisitionCheckApprovedController", ServiceRequisitionCheckApprovedController)
     .controller("ServicePOByRequisitionController", ServicePOByRequisitionController)
-    .controller("ServicePOCheckAndApprovedController", ServicePOCheckAndApprovedController)
+    .controller("ServicePOCheckController", ServicePOCheckController)
+    .controller("ServicePOApprovedController", ServicePOApprovedController)
     .controller("GatePassController", GatePassController)
     .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
     .controller("PendingGateoutListController", PendingGateoutListController)
+    .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
     .controller("ServiceAckCheckedApprovedByController", ServiceAckCheckedApprovedByController)
     .controller("PurchaseReturnCheckedApprovedByController", PurchaseReturnCheckedApprovedByController)
     .controller("inventorySalesCheckApproveController", inventorySalesCheckApproveController)
@@ -215,7 +217,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/Service-PO-Checking', {
                 templateUrl: 'Products/PurchaseOrder/ServicePOCheck',
-                controller: 'ServicePOCheckAndApprovedController'
+                controller: 'ServicePOCheckController'
             })
 
             .when('/gate-pass-checked', {
@@ -243,7 +245,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
 
             .when('/Service-PO-Approval', {
                 templateUrl: 'Products/PurchaseOrder/ServicePOApproval',
-                controller: 'ServicePOCheckAndApprovedController'
+                controller: 'ServicePOApprovedController'
             })
             .when('/Service-Ack-Checked', {
                 templateUrl: 'Products/PurchaseOrder/ServiceAcknowledgementChecked',
@@ -296,6 +298,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/employee-understanding-head', {
                 templateUrl: 'humanResource/EmployeeUnderstandingHead/Aplos',
                 controller: 'EmployeeUnderstandingHeadController'
+            })
+            .when('/employee-goal-setting', {
+                templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
+                controller: 'EmployeeGoalSettingController'
             })
             //#endregion
 

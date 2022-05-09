@@ -28,21 +28,35 @@ namespace Aplos.Areas.Leave.Controllers
         #region Constructor
 
         LeaveOpeningUploadService _leave = new LeaveOpeningUploadService();
+        AnnualLeaveProcessingService alp = new AnnualLeaveProcessingService();
         private readonly ISqlRepository _sqlRepository;
 
         public AnnualLeaveProcessController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
-
-        #endregion Constructor
      
         public ActionResult Aplos()
         {
             return View();
         }
 
-        #region Plant & Company List
+        #endregion Constructor
+
+        #region Other Functions
+
+        [HttpGet, Authorize]
+        public ActionResult getCurrentList(string PlantId,string YearId)
+        {
+            try
+            {
+                return Json(_leave.getCurrentList(PlantId,YearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
 
         [HttpGet, Authorize]
         public ActionResult getCompany()
@@ -63,6 +77,34 @@ namespace Aplos.Areas.Leave.Controllers
             try 
             {                
                 return Json(_leave.getPlants(cmp), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult getLeaveYear(string PlantId)
+        {
+            try
+            {
+                return Json(_leave.getLeaveYear(PlantId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SaveFileList(List<Dictionary<string, object>> data, string PlantId,string YearId)
+        {
+            try
+            {
+                _leave.SaveFileList(data, PlantId,YearId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Success });
+
             }
             catch (Exception ex)
             {
@@ -134,13 +176,9 @@ namespace Aplos.Areas.Leave.Controllers
             int ColLvTypeId = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Plant", 14, ExcelHAlign.HAlignLeft);
             int ColPlant = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Opening", 10, ExcelHAlign.HAlignLeft);
-            int colOpening = COL;
-            COL++;
+            COL++;          
 
             report.SetHeaderText(ref sheet, ROW, COL, "Earned", 10, ExcelHAlign.HAlignLeft);
             int ColEarned = COL;
@@ -148,8 +186,12 @@ namespace Aplos.Areas.Leave.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Availed", 10, ExcelHAlign.HAlignLeft);
             int ColAvailed = COL;
-            COL++; 
-            
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "RegularEncashment", 16, ExcelHAlign.HAlignLeft);
+            int ColRegEncashment = COL;
+            COL++;         
+
             report.SetHeaderText(ref sheet, ROW, COL, "Adjustment", 12, ExcelHAlign.HAlignLeft);
             int ColAdjustment = COL;
             COL++;
@@ -169,7 +211,7 @@ namespace Aplos.Areas.Leave.Controllers
                 sheet[ROW, ColLvYear].Text = data.Rows[i]["LeaveYear"].ToString();
                 sheet[ROW, ColLvType].Text = data.Rows[i]["LeaveType"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
-                sheet[ROW, colOpening].Text = data.Rows[i]["Opening"].ToString();
+                sheet[ROW, ColRegEncashment].Text = data.Rows[i]["RegularEncashment"].ToString();
                 sheet[ROW, ColEarned].Text = data.Rows[i]["Earned"].ToString();
                 sheet[ROW, ColAvailed].Text = data.Rows[i]["Availed"].ToString();
                 sheet[ROW, ColAdjustment].Text = data.Rows[i]["Adjustment"].ToString();
@@ -233,12 +275,13 @@ namespace Aplos.Areas.Leave.Controllers
                     for (int i = 0; i < data.Count; i++)
                     {
                         string Earning = clsWebLib.RetValidLen(data[i].Earned).ToString();
-                        string Opening = clsWebLib.RetValidLen(data[i].Opening).ToString();
                         string Availed = clsWebLib.RetValidLen(data[i].Availed).ToString();
                         string Adjustment = clsWebLib.RetValidLen(data[i].Adjustment).ToString();
                         string EmpId = clsWebLib.RetValidLen(data[i].EmployeeId).ToString();
+                        string LvtypeId= clsWebLib.RetValidLen(data[i].LeaveTypeId).ToString();
 
-                        if (Earning != "" && Opening != "" && Adjustment != ""
+
+                        if (Earning != "" && Adjustment != ""
                             && Availed != "" && EmpId != "")
                         {
                             ret.Add(data[i]);
@@ -329,16 +372,91 @@ namespace Aplos.Areas.Leave.Controllers
 
         #endregion
 
+        #region Leave Processing Functions
+        
+        [HttpGet, Authorize]
+        public ActionResult getNewLeaveYear(string PlantId,string LvYearId)
+        {
+            try
+            {
+                return Json(alp.GetNewLvYear(PlantId,LvYearId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetLeaveType()
+        {
+            try
+            {
+                return Json(alp.GetLeaveType(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpCategory()
+        {
+            try
+            {
+                return Json(alp.GetEmpCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult LoadData(string PlantId, string LvYearId,List<string> LvTypeId,List<string> EmpCategory)
+        {
+            try
+            {
+                return Json(alp.LoadData(PlantId, LvYearId,LvTypeId,EmpCategory), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ProcessData(string Data, string PlantId, string CurrentLvYearId,decimal MaxCarryForward,
+            decimal MaxEncash,decimal MaxLapse,string NewYear,List<string> LeaveTypeList)
+        {
+            try
+            {
+                alp.ProcessData(Data, PlantId, CurrentLvYearId,MaxCarryForward,MaxEncash,MaxLapse,NewYear,LeaveTypeList);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Annual Leave Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
+
+        #endregion
     }
 
     public class LeaveOpeningData
     {
-        public string Opening { get; set; }
         public string Earned { get; set; }
         public string Availed { get; set; }
         public string Adjustment { get; set; }
         public string EmployeeId { get; set;}
         public string LeaveYearId{ get; set; }
         public string LeaveTypeId { get; set; }
+        public string LeaveType { get; set; }
+        public string RegularEncashment { get; set; }
     }
+
 }

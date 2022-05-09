@@ -21,11 +21,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetResidenceMaster(string PlantId, string ResidenceGroupId)
+        public ActionResult GetResidenceMaster()
         {
             try
             {
-                return Json(rm.GetResidenceMaster(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+                return Json(rm.GetResidenceMaster(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -59,14 +59,39 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult getEmployeeCategory()
+        {
+            try
+            {
+                return Json(rm.getEmployeeCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult getEmpServiceType()
+        {
+            try 
+            {
+                return Json(rm.getEmpServiceType(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #region Save Operations
         [HttpPost]
-        public JsonResult Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId)
+        public JsonResult Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp, string ServiceTypeId)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId, Emp, ServiceTypeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

@@ -498,12 +498,12 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('IssueMasterController', IssueMasterController)
     .controller('PerformanceAttributeMasterController', PerformanceAttributeMasterController)
     .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
-    .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
     .controller("DocumentCategoryController", DocumentCategoryController)
     .controller('ResidenceMasterController', ResidenceMasterController)
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
+    .controller('ResidenceStatusLocationController', ResidenceStatusLocationController)
 
 
     .config(accountConfig)
