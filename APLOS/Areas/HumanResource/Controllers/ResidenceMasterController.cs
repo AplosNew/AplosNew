@@ -72,14 +72,26 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        public ActionResult getEmpServiceType()
+        {
+            try 
+            {
+                return Json(rm.getEmpServiceType(), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         #region Save Operations
         [HttpPost]
-        public JsonResult Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp)
+        public JsonResult Save(Dictionary<string, object> data, string PlantId, string ResidenceGroupId, string Emp, string ServiceTypeId)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId, Emp), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = rm.Save(data, PlantId, ResidenceGroupId, Emp, ServiceTypeId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

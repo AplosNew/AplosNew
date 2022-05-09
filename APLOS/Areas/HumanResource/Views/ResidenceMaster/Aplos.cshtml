@@ -25,19 +25,13 @@
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Residence Category" ng-model="ModalNew.ResidenceCategory" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Sub Category<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
                         <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceSubCategory" required name="Residence Sub Category" tabindex="2">
                             <option value="">--Select--</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
+                            <option value="Joint">Joint</option>
                         </select>
                     </div>
                 </div>
@@ -47,13 +41,29 @@
                 <label class="col-sm-4 control-label">Block If Applicable<sup>*</sup></label>
                 <div class="col-sm-6">
                     <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" tabindex="5">
+
                 </div>
             </div>
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Floor<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="Floor" ng-model="ModalNew.Floor" class="form-control" maxlength="200" tabindex="5">
+                    <div class="select-style">
+                        <select class="form-control" id="Floor" ng-model="ModalNew.Floor" required name="Floor" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="G">G</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -61,6 +71,16 @@
                 <label class="col-sm-4 control-label">Residence Number<sup>*</sup></label>
                 <div class="col-sm-6">
                     <input type="text" name="Residence Number" ng-model="ModalNew.ResidenceNumber" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Service Type<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Plant" ng-model="ServiceType" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
+                </div>
+                <div class="col-sm-2">
+                    <button ng-click="openEmpServiceType()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                 </div>
             </div>
 
@@ -158,8 +178,9 @@
 
                 <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
                 <div e-column e-field="Location" e-headertext="Location" e-width="50"></div>
-                <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="50"></div>
-                <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="40"></div>
+                <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Category" e-width="50"></div>
+                @*<div e-column e-field="EmpServiceType" e-headertext="Emp Service Type" e-width="100"></div>*@
+                @*<div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="40"></div>*@
                 <div e-column e-field="Block" e-headertext="Block" e-width="40"></div>
                 <div e-column e-field="Floor" e-headertext="Floor" e-width="40"></div>
                 <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="50"></div>
@@ -276,6 +297,41 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--POP UP SCREEN  FOR EMP SERVICE TYPE   -->
+<div class="modal fade site-modal in" id="EmpServiceType" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify ">
+        <div class="modal-content">
+            <div class="modal-header">Employee Service Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p>Please Select Employee Service Detail .</p>
+                        <div style="color:black;" id="GridResidence" ej-grid e-datasource="EmpServiceTypeList" e-recorddoubleclick="selectServiceType"
+                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                            <div e-columns>
+                                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
+                                <div e-column e-field="Service" e-headertext="Service" e-width="50"></div>
+                                <div e-column e-field="Form" e-headertext="From" e-width="70"></div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="closeEmpServiceType();" class="btn"><i class=""></i> Close</button>
                         </li>
                     </ul>
 
