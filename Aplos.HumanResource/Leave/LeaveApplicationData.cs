@@ -1803,7 +1803,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 from (select e.SystemId as EmpId,e.EmployeeCode,ld.Id as 
                 LeaveYearId,ld.UserName as LeaveYear,p.UserName as Plant,
                 lt.UserName as LeaveType,lt.Id as LeaveTypeId,lt.Code
-                ,isnull(ac.Opening,'0')Opening,isnull(md.Earned,'0')Earned,
+                ,isnull(ac.Opening,'0')Opening,isnull(Masterx.EarnDays,'0')+ isnull(md.Earned,'0')Earned,
                 (isnull(md.RegularEncashment,'0')+ISNULL(ac.RegularEncashment,'0')) 
 				RegularEncashment,
 				Availed= (Info.AvailedLeave+isnull(md.Availed,'0')),
@@ -1846,6 +1846,24 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 				group by A.EmpSystemID,a.DayStatus,a.PlantID,dc.EmpTypeId) as Info
 				on Info.EmpSystemID=e.SystemId and Info.PlantID=e.PlantId 
 				and Info.DayStatus=lt.Code
+                left join (SELECT EmpSystemID,SUM(l.EarnValue)EarnDays,T.Id as LeaveId,ei.PlantId
+                FROM  EmployeeInformation AS ei 
+                JOIN AttdnProcessData AS apd   ON apd.EmpSystemID=ei.SystemId
+                LEFT JOIN [MST].[DesignationMasterLegalDesignation] DE ON de.LegalDesignationId=ei.LegalDesignationId
+                LEFT JOIN scs.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=de.DesignationMasterId
+                AND dmc.PlantId=ei.PlantId
+                LEFT JOIN mst.DesignationMaster AS dm ON dm.Id=dmc.DesignationMasterId
+                LEFT JOIN DayStatusPlantChild PC ON pc.PlantId=ei.PlantId AND pc.EmpTypeId=dm.EmployeeCategoryId
+                left JOIN DayTypeWithValues AS ds ON ds.DayType=apd.DayStatus AND ds.HeaderId=pc.HeaderId
+                LEFT JOIN LeaveDayType AS L ON l.DayTypeWithValuesId=ds.Id 
+                JOIN LeaveType T ON t.Id=L.LeaveTypeId
+                --left join LeavePolicyDetail lpd on lpd.LPMSystemID=dmc.LeavePolicyMasterId 
+                --and l.LeaveTypeId=lpd.LTSystemID
+                where apd.workdate between '"+From+"' and '"+To+@"'
+                and EI.PlantID='"+PlantId+@"' and t.LeaveType='Earn'
+                group by EmpSystemID,t.Id,ei.plantid
+                ) as Masterx on Masterx.EmpSystemID=e.SystemId and e.PlantId=Masterx.PlantId and
+                Masterx.LeaveId=lt.Id          
                 where p.Id='" + PlantId+@"' and ld.Id='"+LvYearId+@"' and
 				lt.Id in ("+LTypeId+ @") and
                 e.EmployeeStatus='Active' ) as dd
