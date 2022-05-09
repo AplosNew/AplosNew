@@ -8,7 +8,7 @@ using Aplos.Properties;
 using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.NewAttendanceProcess;
-using Library.Service.Helpers;
+
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -26,9 +26,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getPlant()
+        public ActionResult getPlant(string ResidenceGroupId)
         {
-            return Json(rsl.getPlant(), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getPlant(ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -44,9 +44,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getResidenceCategory(string PlantId, string ResidenceGroupId)
+        public ActionResult getServiceType(string PlantId, string ResidenceGroupId)
         {
-            return Json(rsl.getResidenceCategory(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getServiceType(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -68,9 +68,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getEmployeeType()
+        public ActionResult getEmployeeType(string PlantId, string ResidenceGroupId)
         {
-            return Json(rsl.getEmployeeType(), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getEmployeeType(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
@@ -95,6 +95,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult getAssetName(string PlantId, string ResidenceGroupId)
         {
             return Json(rsl.getAssetName(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult view(string PlantId, string EmployeeCategoryId, string ResidenceGroupId)
+        {
+            return Json(rsl.view(PlantId, EmployeeCategoryId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
         #region Save Operations
@@ -126,19 +132,33 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public JsonResult Delete(string id)
+        public ActionResult getEmployee()
         {
             try
             {
-                rsl.delete(id);
-                return Json(new { Message = "Data deleted successfully", Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(rsl.getEmployee(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-
         }
+
+        /* [HttpPost]
+         public JsonResult Delete(string id)
+         {
+             try
+             {
+                 rsl.delete(id);
+                 return Json(new { Message = "Data deleted successfully", Error = false }, JsonRequestBehavior.AllowGet);
+             }
+             catch (Exception ex)
+             {
+                 return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+             }
+
+         }*/
+
         #endregion Save Operations
     }
 }

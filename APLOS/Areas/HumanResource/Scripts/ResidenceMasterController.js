@@ -36,10 +36,22 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.closeEmployeePop = function () {
         angular.element(document.querySelector('#EmpCatPop')).modal('hide');
     }
+    // --------------------------------------------
+    // POP OPEN FOR Employee SERVICE TYPE
+    $scope.openEmpServiceType = function () {
+
+        angular.element(document.querySelector('#EmpServiceType')).modal('show');
+    }
+
+    // POP CLOSED FOR Employee SERVICE TYPE
+    $scope.closeEmpServiceType = function () {
+        angular.element(document.querySelector('#EmpServiceType')).modal('hide');
+    }
 
     $scope.PlantList = [];
     $scope.ResidenceGroupList = [];
     $scope.EmployeeCategoryList = [];
+    $scope.EmpServiceTypeList = [];
 
     //Getting the RESIDENCE MASTER Data
     $scope.getData = function () {
@@ -91,7 +103,18 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         })
     }
     $scope.getEmployeeCategory();
-    
+
+    $scope.getEmpServiceType = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmpServiceType",
+            dataType: 'JSON',
+        }).then(function successcallback(response) {
+            $scope.EmpServiceTypeList = response.data;
+        })
+    }
+    $scope.getEmpServiceType();
+
     $scope.SelectedPlantId = null;
     $scope.Plant = null;
     $scope.selectPlant = function (e) {
@@ -116,6 +139,13 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#EmpCatPop')).modal('hide');
     }
 
+    $scope.ServiceType = null;
+    $scope.ServiceId = null;
+    $scope.selectServiceType = function (e) {
+        $scope.ServiceType = e.data.Service;
+        $scope.ServiceId = e.data.Id;
+        angular.element(document.querySelector('#EmpServiceType')).modal('hide');
+    }
     // POP OPEN FOR PLANT
     $scope.openPlantPop = function () {
 
@@ -130,8 +160,9 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
        
         Location: null,
         Id: null,
-        ResidenceCategory: null,
+       // ResidenceCategory: null,
         ResidenceSubCategory: null,
+        
         Block: null,
         Floor: null,
         ResidenceNumber: null,
@@ -161,6 +192,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
                 'PlantId': $scope.SelectedPlantId,
                 'ResidenceGroupId': $scope.ResidenceGroupId,
                 'Emp': $scope.EmployeeCatId,
+                'ServiceTypeId': $scope.ServiceId,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -210,4 +242,33 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
 
         $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
     }
+
+    var app = angular.module('vacancyStatus', [])
+    app.controller('vacancyStatuscontroller', function ($scope) {
+        $scope.BookList = [{
+            VacancyStatusId: '1',
+            VacancyStatusName: 'Valid'
+        }, {
+            VacancyStatusId: '2',
+            VacancyStatusName: 'Occupied'
+        }, {
+            VacancyStatusId: '3',
+            VacancyStatusName: 'vacant'
+        }, {
+            BookId: '4',
+            VacancyStatusName: 'All'
+        }, ];
+
+        $scope.GetSelectedValue = function () {
+            if ($scope.SelectedBook) {
+                $scope.selectedVacancyStatusName = $scope.SelectedVacancyStatus.VacancyStatusName;
+               
+            }
+            else {
+                $scope.selectedVacancyStatusName = 'Please select Vacancy Status';
+               
+            }
+        }
+    });
+    $scope.GetSelectedValue();
 }

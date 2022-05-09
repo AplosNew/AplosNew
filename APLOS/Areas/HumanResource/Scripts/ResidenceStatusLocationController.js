@@ -10,7 +10,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
 
-
+    // Tab Change
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -38,6 +38,9 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     $scope.getPlant = function () {
         $http({
             method: 'POST',
+            data: {            
+                    'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+                },
             url: $scope.path + 'getPlant',
         }).then(function success(response) {
             $scope.PlantList = response.data;
@@ -72,16 +75,17 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     }
     $scope.getResidenceGroup();
 
-    $scope.getResidenceCategory = function () {
+    $scope.EmpServiceTypeList = [];
+    $scope.getServiceType = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getResidenceCategory',
+            url: $scope.path + 'getServiceType',
             data: {
                 'PlantId': $scope.selectedData.PlantId,
                 'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
             },
         }).then(function success(response) {
-            $scope.ResidenceCategoryList = response.data;
+            $scope.EmpServiceTypeList = response.data;
         });
     }
     //$scope.getResidenceCategory();
@@ -134,6 +138,10 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     $scope.getEmployeeType = function () {
         $http({
             method: 'POST',
+            data: {
+                'PlantId': $scope.selectedData.PlantId,
+                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+            },
             url: $scope.path + 'getEmployeeType',
         }).then(function success(response) {
             $scope.EmployeeTypeIdList = response.data;
@@ -217,85 +225,35 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         isActive:0,
     };
 
-    $scope.editdoubleclick = function (args) {
-        $scope.selectedData = Object.assign({}, args.data);
-        $scope.Action = "Update";
-        $scope.getPlant();
-        $scope.getResidenceGroup();
-        $scope.getLocation();
-        $scope.getEmployeeType();
-        $scope.getFloor();
-        $scope.getResidenceCategory();
-        
-        $scope.getRoom();
-        $scope.getResidentType();
-        $scope.getResidenceSubCategory();
-        $scope.getResidenceNumber();
-        $scope.getBlock();
-        $scope.getAssetName();
-        
-    }
-
-    $scope.Save = function () {
-        try {
-       // $scope.validations();
+    $scope.view = function () {
         $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: { 'data': $scope.selectedData, },
+            method: "POST",
+            url: $scope.path + "view",
+
+            data: {
+                
+                'data': $scope.selectedData.VacancyStatus,
+                'PlantId': $scope.selectedData.PlantId,
+                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+                'EmployeeCategoryId': $scope.selectedData.EmployeeCategoryId,
+            },
             dataType: 'JSON',
-        }).then(function successCallback() {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-                ClearFields();;
-                $scope.getData();
-            }
-        });
-    }
-        catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
-    $scope.Delete = function () {
-
-        if (!baseService.isUndefinedOrNull($scope.selectedData.Id)) {
-            $http({
-                method: 'POST',
-                url: $scope.deleteUrl + $scope.selectedData.Id,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
-                    $scope.getData();
-                }
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-            });
-        }
-    }
-
-    $scope.getData = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "getData",
-            dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ModelList = response.data;
+            $scope.ModelList = response.data;           
+            var vacancy_status = document.getElementById('VacancyStatus').value;
+            
 
-
-        });
+        })
     }
-    $scope.getData();
+
+    $scope.openChildGrid = function () {
+        angular.element(document.querySelector('#EmpPop')).modal('show');
+    }
+    $scope.closeChildGrid = function () {
+        angular.element(document.querySelector('#EmpPop')).modal('hide');
+    }
+
+
 
     $scope.Clear = function () {
         ClearFields();
@@ -336,4 +294,16 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         };
        
     }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEmployee',
+
+        }).then(function success(resp) {
+            $scope.EmployeeList = resp.data;
+        })
+    }
+    $scope.getEmployee();
 }

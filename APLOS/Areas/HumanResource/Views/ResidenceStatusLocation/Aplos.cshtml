@@ -45,20 +45,31 @@
 
 
 
+                        @*<div class="form-group">
+                        <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                        <div class="col-sm-6 show-message">
+                            <div class="select-style">
+                                <select class="form-control" id="ResidenceCategory" ng-model="selectedData.ResidenceCategory" ng-change="getRoom()" required name="Residence Category"
+                                        tabindex="2">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in ResidenceCategoryList" value="{{option.Text}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
+
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Service Type<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="ResidenceCategory" ng-model="selectedData.ResidenceCategory" ng-change="getRoom()" required name="Residence Category"
-                                            tabindex="2">
+                                    <select class="form-control" id="ResidenceCategory" ng-model="selectedData.EmpServiceType" ng-change="getRoom()" required name="Residence Category"
+                                            ng-options="item.Value as item.Text for item in EmpServiceTypeList" tabindex="2">
                                         <option value="">--Select--</option>
-                                        <option ng-repeat="option in ResidenceCategoryList" value="{{option.Text}}">{{option.Text}}</option>
+                                        <option ng-repeat="option in EmpServiceTypeList" value="{{option.Text}}">{{option.Text}}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-
-
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Block If Applicable<sup>*</sup></label>
@@ -133,8 +144,8 @@
                             <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="ResidenceGroup" ng-model="selectedData.EmployeeCategoryId" ng-change="getResidenceCategory();" required name="Residence Group"
-                                            tabindex="2">
+                                    <select class="form-control" id="ResidenceGroup" ng-model="selectedData.EmployeeCategoryId" ng-change="getServiceType();" required name="Residence Group"
+                                            ng-options="item.Value as item.Text for item in EmployeeTypeIdList" tabindex="2">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in EmployeeTypeIdList" value="{{option.Text}}">{{option.Text}}</option>
 
@@ -160,7 +171,7 @@
                             <label class="col-sm-4 control-label">Residence Sub Category<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <div class="select-style">
-                                    <select class="form-control" id="ResidenceSubCategory" ng-model="selectedData.ResidenceSubCategory" ng-change="getFloor()" required name="Residence Sub Category"
+                                    <select class="form-control" id="ResidenceCategory" ng-model="selectedData.ResidenceSubCategory" ng-change="getFloor()" required name="Residence Category"
                                             tabindex="2">
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in ResidenceSubCategoryList" value="{{option.Text}}">{{option.Text}}</option>
@@ -188,7 +199,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Vacancy Status<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
-                                <select class="form-control" id="VacancyStatus" ng-model="selectedData.VacancyStatus" ng-change="getAssetName()" required name="Vacancy Status"
+                                <select class="form-control" id="VacancyStatus" ng-model="selectedData.SelectedVacancyStatus" ng-change="getAssetName()" required name="Vacancy Status"
                                         tabindex="2">
                                     <option value="">--Select--</option>
                                     <option value="Valid">Valid</option>
@@ -215,15 +226,14 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                            <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                            <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon "></i>View</button></li>
+
                         </ul>
 
                     </div>
                 </div>
                 <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
-                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="editdoubleclick" e-load="loadGridEdit"
+                    <div id="GridEdit" ej-grid e-datasource="ModelList" ng-click="openChildGrid()"  e-load="loadGridEdit"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
                         <div e-columns>
@@ -232,14 +242,14 @@
                             @*<div e-column e-field="Id" e-headertext="Id" e-width="30"></div>*@
                             <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
                             <div e-column e-field="EmployeeCategoryId" e-headertext="Emp Category Id" e-width="100"></div>
-                            <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
+                            @* <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>*@
                             <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>
                             <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="100"></div>
                             <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
                             <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
                             <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
                             <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
-                            <div e-column e-field="VacancyStatus" e-headertext="Vacancy Status" e-width="100"></div>
+                            <div e-column e-field="selectedData.VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>
                             <div e-column e-field="Occupie" e-headertext="Occupie" e-width="100"></div>
                             <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
                             <div e-column e-field="Allocation" e-headertext="Allocation" e-width="100"></div>
@@ -261,7 +271,7 @@
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
                         <div e-columns>
 
-                           
+
                             <div e-column e-field="Id" e-headertext="Id" e-width="10"></div>
                             <div e-column e-field="ResidenceNumber" e-headertext="Residence No." e-width="100"></div>
                             <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="100"></div>
@@ -270,7 +280,7 @@
                             <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
                             <div e-column e-field="Unallocated" e-headertext="Unallocated" e-width="100"></div>
                             <div e-column e-field="UnallocatedDate" e-headertext="Unallocated Date" e-width="100"></div>
-                           
+
 
                         </div>
                     </div>
@@ -285,3 +295,44 @@
 <confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
 
 
+<div class="modal fade site-modal in" id="EmpPop" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg modellgModify ">
+        <div class="modal-content">
+            <div class="modal-header">Residence Status Child Table<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-md-12">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <p></p>
+                        <div class="table-responsive" id="EmpGrid" style="margin-top:20px;">
+                            <div id="GridEdit" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="EmpEditdoubleclick" e-load="loadGridEdit"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
+                                <div e-columns>
+                                    <div e-column e-field="Id" e-headertext="Id" e-width="10"></div>
+                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence No." e-width="100"></div>
+                                    <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="100"></div>
+                                    <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
+                                    <div e-column e-field="AllocationDate" e-headertext="Allocation Date" e-width="100"></div>
+                                    <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+                                    <div e-column e-field="Unallocated" e-headertext="Unallocated" e-width="100"></div>
+                                    <div e-column e-field="UnallocatedDate" e-headertext="Unallocated Date" e-width="100"></div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+
+                            <button ng-click="closeChildGrid();" class="btn"><i class=""></i> Close</button>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
