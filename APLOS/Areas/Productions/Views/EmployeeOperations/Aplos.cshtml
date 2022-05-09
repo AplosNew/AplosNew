@@ -1,5 +1,5 @@
 ﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> {{title}}</h3>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm" id="ShowForm">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6">
 
@@ -247,6 +247,16 @@
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
 
             <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Processing Date<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <input type="text" name="From Date" ng-model="ProcessDate" datepicker class="form-control" tabindex="4">
+
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="common-btn" style="margin-bottom:10px">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="processAll();" class="btn" tabindex="9"><i class="glyphicon glyphicon-repeat"></i> Process </button></li>
@@ -256,6 +266,28 @@
             </div>
 
             <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" tabindex="4">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="text" name="From Date" ng-model="ToDate" datepicker class="form-control" tabindex="4">
+
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li><button ng-click="getProcessDownload();" class="btn" tabindex="9"><i class="glyphicon glyphicon-download"></i> Efficiency Report </button></li>

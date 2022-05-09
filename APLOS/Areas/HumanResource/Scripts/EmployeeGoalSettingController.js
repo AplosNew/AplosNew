@@ -99,7 +99,19 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         })
     }
     $scope.getEmployee();
- 
+
+
+    $scope.getEmployeeName = function () {
+        $http({
+            method: 'POST',
+            data: { "SelectedEmployeeId": $scope.SelectedEmployeeId },
+            url: $scope.path + 'getSelectedEmployeeName',
+
+        }).then(function success() {
+            $scope.Employee;
+        });
+    }
+
     $scope.getPMSMaster = function () {
         
         $http({
@@ -109,8 +121,8 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
             dataType: 'JSON',
         }).then(function success(res) {
             $scope.PerformanceGroupList = res.data;
-            $scope.SelectPMSId = $scope.PerformanceGroupList[0].PMSId
-            //$scope.SelectPMS = $scope.PerformanceGroupList[1].Username
+           // $scope.SelectPMSId = $scope.PerformanceGroupList[0].PMSId
+          
             
         })
     }
@@ -132,6 +144,7 @@ function EmployeeGoalSettingController(cboService, commonMessage, $scope, $rootS
         $scope.getPMSMaster();
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         $scope.displayEGChild();
+       //$scope.getEmployeeName();
     }
 
     $scope.displayEGChild = function () {

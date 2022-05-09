@@ -576,6 +576,10 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/GeneralLedgerReport.cshtml");
         }
+        public ActionResult GSTLedgerReport()
+        {
+            return View("~/Areas/Accounts/Views/GSTLedgerReport.cshtml");
+        }
 
         //General ledger report
         [HttpGet, Authorize]
@@ -643,6 +647,30 @@ namespace Aplos.Areas.Accounts.Controllers
                         return RenderReportAsExcel(workbook, reportFileName);
                 }
             }
+            
+        }
+        //General ledger report
+        [HttpGet, Authorize]
+        public ActionResult GetGeneralLedgerGSTReport(ReportFormat reportFormat, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool active, bool IsGroupBy)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                IWorkbook workbook = null;
+               
+                workbook = _accountVoucherReportService.GetGeneralLedgerGSTReportWithDocRef(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate, active);
+                
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " GST Ledger";
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
+
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+
+                    default:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                }
+            
             
         }
 
