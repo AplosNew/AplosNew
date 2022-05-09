@@ -61,6 +61,38 @@ namespace Aplos.Areas.Accounts.Controllers
 
             return Json(new { Message = AplosMessage.Updated });
         }
+        [HttpPost, Authorize]
+        public ActionResult GetcustomerInvoiceList(string[] CustomerSelectedList, string fromDate, string toDate, string paymentStatus)
+        {
+            string customerSelectedList = "";
+
+            foreach (var item in CustomerSelectedList)
+            {
+                if (string.IsNullOrEmpty(customerSelectedList))
+                {
+                    customerSelectedList += "''," + item;
+                }
+                else
+                {
+                    customerSelectedList += "," + item;
+                }
+
+            }
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = accountsCommonService.GetcustomerInvoiceList(identity.CompanyGroupId, identity.CompanyId,identity.PlantId, customerSelectedList, fromDate, toDate, paymentStatus), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
+        [HttpPost]
+        public JsonResult UpdateInvoice(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.UpdateInvoiceforConfirm(voucherDetailVMList);
+
+            return Json(new { Message = AplosMessage.Updated });
+        }
 
     }
 }
