@@ -53,11 +53,15 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         UARouteDownId: null,
         UAStopageUpId: null,
         UAStopageDownId: null,
+        ShiftId: null,
 
-        UARouteUpGridId: null,
-        UAStopageUpGridId: null,
-        UARouteDownGridId: null,
-        UAStopageDownGridId: null,
+        RouteId: null,
+        StoppageId: null,
+        ShiftId: null,
+        //UARouteUpGridId: null,
+        //UAStopageUpGridId: null,
+        //UARouteDownGridId: null,
+        //UAStopageDownGridId: null,
     }
     $scope.UArouteEmployee = Object.assign({}, $scope.UArouteEmployeeModel);
 
@@ -109,10 +113,15 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                     $scope.UnassignEmpList[i].UARouteDownList = $scope.UARouteDownList;
                     $scope.UnassignEmpList[i].UAStopageDownList = $scope.UAStopageDownList;
                     ////grid model=dropdown model
-                    $scope.UnassignEmpList[i].UARouteUpGridId = $scope.UArouteEmployee.UARouteUpId;
-                    $scope.UnassignEmpList[i].UAStopageUpGridId = $scope.UArouteEmployee.UAStopageUpId;
-                    $scope.UnassignEmpList[i].UARouteDownGridId = $scope.UArouteEmployee.UARouteDownId;
-                    $scope.UnassignEmpList[i].UAStopageDownGridId = $scope.UArouteEmployee.UAStopageDownId;
+                    $scope.UnassignEmpList[i].RouteId = $scope.UArouteEmployee.RouteId;
+                    $scope.UnassignEmpList[i].StoppageId = $scope.UArouteEmployee.StoppageId;
+                    $scope.UnassignEmpList[i].ShiftId = $scope.UArouteEmployee.ShiftId;
+
+
+                    //$scope.UnassignEmpList[i].UARouteUpGridId = $scope.UArouteEmployee.UARouteUpId;
+                    //$scope.UnassignEmpList[i].UAStopageUpGridId = $scope.UArouteEmployee.UAStopageUpId;
+                    //$scope.UnassignEmpList[i].UARouteDownGridId = $scope.UArouteEmployee.UARouteDownId;
+                    //$scope.UnassignEmpList[i].UAStopageDownGridId = $scope.UArouteEmployee.UAStopageDownId;
                 }
             }
             var _data = [];
@@ -427,14 +436,40 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             });
     };
 
-    $scope.UAStopageDownList = [];
-    $scope.getUAstopageDownUpDropDownList = function () {
-        $http.get('employees/routeemployee/GetDownDropDownStopageList?RouteDownId=' + $scope.UArouteEmployee.UARouteDownId)
-            .then(function (response) {
-                response.data.unshift($scope.data);
-                $scope.UAStopageDownList = response.data;
-            });
-    };
+    $scope.selectShift = function () {
+        $scope.getsS();
+        angular.element(document.querySelector('#ShiftPop')).modal('show');
+    }
+
+    $scope.ShiftList = [];
+    $scope.getsS = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getShift',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ShiftList = resp.data;
+        });
+    }
+
+    $scope.doubleShift = function (e) {
+        $scope.ShiftId = e.data.ShiftId;
+        $scope.Shift = e.data.ShiftDefination;
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+    $scope.closeShiftPopUp = function () {
+        angular.element(document.querySelector('#ShiftPop')).modal('hide');
+    }
+
+    //$scope.UAStopageDownList = [];
+    //$scope.getUAstopageDownUpDropDownList = function () {
+    //    $http.get('employees/routeemployee/GetDownDropDownStopageList?RouteDownId=' + $scope.UArouteEmployee.UARouteDownId)
+    //        .then(function (response) {
+    //            response.data.unshift($scope.data);
+    //            $scope.UAStopageDownList = response.data;
+    //        });
+    //};
 
     $scope.UARouteDownList = [];
     $scope.getUADownRouteList = function () {
