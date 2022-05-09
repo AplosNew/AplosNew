@@ -106,9 +106,9 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult getReportView(string Date)
+        public ActionResult getReportView(string Date , string Wkc)
         {
-            return Json(new { Data = eo.getReportView(out List<string> Cols , Date), Cols = Cols }, JsonRequestBehavior.AllowGet);
+            return Json(new { Data = eo.getReportView(out List<string> Cols , Date , Wkc), Cols = Cols }, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -144,12 +144,12 @@ namespace Aplos.Areas.Productions.Controllers
         #region Report Operations
 
         [HttpPost, Authorize]
-        public ActionResult getReportDownload(string Date)
+        public ActionResult getReportDownload(string Date , string Wkc)
         {
 
             try
             {
-                var workbook = generateReportForm(Date);
+                var workbook = generateReportForm(Date,  Wkc);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EOWiseReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -165,14 +165,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook generateReportForm(string Date)
+        private IWorkbook generateReportForm(string Date, string Wkc)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = eo.getReportDownload(out List<string> DynCols , Date);
+            var data = eo.getReportDownload(out List<string> DynCols , Date ,  Wkc);
 
             var sheet = workbook.Worksheets[0];
 
@@ -306,12 +306,12 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult getProcessDownload(string Date)
+        public ActionResult getProcessDownload(string FromDate , string ToDate)
         {
 
             try
             {
-                var workbook = GenerateProcessForm(Date);
+                var workbook = GenerateProcessForm(FromDate , ToDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EfficiencyReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -328,14 +328,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook GenerateProcessForm(string Date)
+        private IWorkbook GenerateProcessForm(string FromDate , string ToDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = eo.getProcessDownload(Date);
+            var data = eo.getProcessDownload(FromDate , ToDate);
 
             var sheet = workbook.Worksheets[0];
 
@@ -423,10 +423,10 @@ namespace Aplos.Areas.Productions.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
+                sheet[ROW, ColDate].Text = data.Rows[i]["WorksDate"].ToString();
                 sheet[ROW, ColEC].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEN].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColWorkDur].Text = data.Rows[i]["WorkDuration"].ToString();
+                sheet[ROW, ColWorkDur].Text = data.Rows[i]["Duration"].ToString();
                 sheet[ROW, ColTO].Text = data.Rows[i]["EmployeesTimeOutDuration"].ToString();
                 sheet[ROW, ColNetMin].Text = data.Rows[i]["NetDuration"].ToString();
                 sheet[ROW, ColProdMin].Text = data.Rows[i]["ProducedMin"].ToString();
@@ -463,12 +463,12 @@ namespace Aplos.Areas.Productions.Controllers
 
         #region Employee Work Duration Report
         [HttpPost, Authorize]
-        public ActionResult getEmployeeWorkDurationReport(string Date)
+        public ActionResult getEmployeeWorkDurationReport(string FromDate , string ToDate)
         {
 
             try
             {
-                var workbook = GenerateEmployeeWorkDuration(Date);
+                var workbook = GenerateEmployeeWorkDuration( FromDate,  ToDate);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "EmployeeWorkDurationReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -485,14 +485,14 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpPost, Authorize]
-        private IWorkbook GenerateEmployeeWorkDuration(string Date)
+        private IWorkbook GenerateEmployeeWorkDuration(string FromDate, string ToDate)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-            var data = eo.getEmployeeWorkDurationReport(Date);
+            var data = eo.getEmployeeWorkDurationReport( FromDate,  ToDate);
 
             var sheet = workbook.Worksheets[0];
 
@@ -511,14 +511,6 @@ namespace Aplos.Areas.Productions.Controllers
             int ColDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Shift", 12, ExcelHAlign.HAlignCenter);
-            int ColShift = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "PO", 12, ExcelHAlign.HAlignCenter);
-            int ColPo = COL;
-            COL++;
-
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
             int ColEmpCode = COL;
             COL++;
@@ -526,6 +518,31 @@ namespace Aplos.Areas.Productions.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 12, ExcelHAlign.HAlignCenter);
             int ColEmpName = COL;
             COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Shift", 12, ExcelHAlign.HAlignCenter);
+            int ColShift = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 12, ExcelHAlign.HAlignCenter);
+            int Colwk = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "PO", 12, ExcelHAlign.HAlignCenter);
+            int ColPo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Reference", 12, ExcelHAlign.HAlignCenter);
+            int ColBuy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Reference", 12, ExcelHAlign.HAlignCenter);
+            int ColORef = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article Code", 12, ExcelHAlign.HAlignCenter);
+            int ColACode = COL;
+            COL++;
+            
 
             report.SetHeaderText(ref sheet, ROW, COL, "Operation Code", 12, ExcelHAlign.HAlignCenter);
             int ColOpCode = COL;
@@ -583,9 +600,13 @@ namespace Aplos.Areas.Productions.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColDate].Text = data.Rows[i]["WorkDate"].ToString();
+                sheet[ROW, ColDate].Text = data.Rows[i]["WorksDate"].ToString();
                 sheet[ROW, ColPo].Text = data.Rows[i]["ProductionOrderId"].ToString();
                 sheet[ROW, ColShift].Text = data.Rows[i]["ShiftName"].ToString();
+                sheet[ROW, Colwk].Text = data.Rows[i]["WorkCenter"].ToString();
+                sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerRef"].ToString();
+                sheet[ROW, ColORef].Text = data.Rows[i]["OwnRef"].ToString();
+                sheet[ROW, ColACode].Text = data.Rows[i]["ArticleCode"].ToString();
                 sheet[ROW, ColEmpCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmpName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColOpCode].Text = data.Rows[i]["OperationCode"].ToString();

@@ -42,20 +42,11 @@
     </div>
     <div class="clearfix"></div>
     <div class="col-md-6 pdl3 pdr3">
-        @*<div class="col-md-8">
-                <div class="form-group" id="div_entryNo">
-                    <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
-                    <div class="col-sm-6 show-message pdr3">
-                        <input type="text" name="Gate EntryNo" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.GateEntryNo" class="form-control" ng-keyup="modelValidation('div_entryNo', 'productNew', 'GateEntryNo');" maxlength="10" tabindex="4" autocomplete="off">
-                    </div>
-                </div>
-            </div>*@
+
         <div class="col-md-8">
             <div class="form-group" id="div_entryNo">
                 <label class="col-sm-6 control-label">Gate Entry No<sup>*</sup></label>
-                @*<div class="col-sm-6 show-message pdr3">
-                        <input type="text" name="Gate EntryNo" ng-model="productNew.GateEntryNo" class="form-control" ng-keyup="modelValidation('div_entryNo', 'productNew', 'GateEntryNo');" maxlength="10" tabindex="4" autocomplete="off">
-                    </div>*@
+
                 <div class="col-sm-6 show-message">
                     <div class="input-group">
                         <input type="text" name="Gate Entry No" ng-model="productNew.GateEntryNo" class="form-control" readonly>
@@ -172,55 +163,9 @@
     </div>
 
     <div class="col-xs-12 col-sm-6 col-md-6">
-        @* <div class="form-group" show-errors ng-show="productNew.AlongwithInvoice">
-                <label class="col-sm-4 control-label">Invoice No<sup>*</sup></label>
-                <div class="col-sm-4 show-message pdr3 ">
-                    <input type="text" name="Invoice No" ng-model="productNew.InvoiceNo" class="form-control" maxlength="20" ng-required="productNew.AlongwithInvoice" tabindex="10" autocomplete="off">
-                </div>
-                <label class="col-sm-1 control-label pdl3 pdr3">Date<sup>*</sup></label>
-                <div class="col-sm-3 show-message pdl3">
-                    <input type="text" name="Invoice Date" ng-model="productNew.InvoiceDate" datepicker class="form-control" placeholder="dd-Mmm-yyyy" ng-required="productNew.AlongwithInvoice" tabindex="11">
-                </div>
-            </div>*@
+
     </div>
-    @*<div class="col-md-12">
-            <fieldset class="scheduler-border">
-                <legend class="scheduler-border">Payment Term</legend>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
-                        <div class="col-sm-8 show-message">
-                            <div class="select-style">
-                                <select id="paymentTermId" class="form-control" name="Payment Term" ng-model="productNew.PaymentTermId" ng-change="changePaymentTerm();" tabindex="12" required>
-                                    <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-5 control-label">Due Date BaseOn<sup>*</sup></label>
-                        <div class="col-sm-7 show-message">
-                            <input type="text" name="BaseOnDueDate" ng-model="productNew.BaseOnDueDate" ng-disabled="IsBaseOnDueDateEnable"
-                                   datepicker="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays);" class="form-control datepicker" tabindex="13" required>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4 col-md-4">
-                    <div class="form-group" show-errors>
-                        <label class="col-sm-3 control-label">No Of Days</label>
-                        <div class="col-sm-2 pdr3 show-message">
-                            <input id="baseNoOfday" type="text" ng-disabled="inventoryMaterialList.length>0" only-numbers name="baseNoOfday" ng-model="productNew.BaseNoOfDays" ng-keyup="getMatureDate(productNew.BaseOnDueDate, productNew.BaseNoOfDays)" class="form-control text-right" tabindex="14">
-                        </div>
-                        <label class="col-sm-3 control-label">Mature Date</label>
-                        <div class="col-sm-4 show-message">
-                            <input type="text" name="DueDate" ng-disabled="inventoryMaterialList.length>0" ng-model="productNew.MatureDate" class="form-control" readonly>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
-        </div>*@
+
     <div class="clearfix"></div>
     <div class="col-xs-12 col-sm-6 col-md-6">
         <div class="form-group">
@@ -335,8 +280,9 @@
     <div class="site-tab">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Material</a></li>
-            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Charges</a></li>
-            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Documents Attach</a></li>
+            <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Same Vendor Charges</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Other Vendor Charges</a></li>
+            <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Documents Attach</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -642,6 +588,59 @@
         </div>
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
             <div ng-form="tabForm2">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group" show-errors>
+                        <label class="col-sm-4 control-label">Other Vendor<sup>*</sup></label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <span class="input-group-addon">{{productNew.OtherPartyCode}}</span>
+                                <input type="text" name="Vendor" ng-model="productNew.OtherPartyName" class="form-control" required readonly>
+                                <span class="input-group-btn">
+                                    <button name="submit" ng-click="showOtherPartyPopUpNew()" ng-disabled="inventoryMaterialList.length==0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button name="submit" ng-click="OtherinvoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-left">
+                    <li><button ng-click="OtherserviceChargePopUp();" ng-disabled="productNew.Id==null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Charges</button></li>
+                </ul>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Amount (TRN)</th>
+                                <th>Total Tax Amount</th>
+                                <th class="col-sm-1"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in otherserviceList">
+                                <td>{{x.ServiceMasterName}}</td>
+                                <td class="text-right">{{x.Amount|number}}</td>
+                                <td class="text-right">{{x.TotalTaxAmount|number}}</td>
+                                <td class="text-right">
+                                    <ul class="list-inline action-list">
+                                        <li><button ng-click="getServiceTaxList1(x, false)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+                                        <li><button ng-click="delModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="1" class="text-right"><strong>Total : </strong></td>
+                                <td class="text-right"><strong>{{otherserviceList | sumByKey : 'Amount'| setDecimal:currencyPrecision| number }}</strong></td>
+                                <td class="text-right"><strong>{{otherserviceList | sumByKey : 'TotalTaxAmount'| setDecimal:currencyPrecision| number }}</strong></td>
+                                <td class="text-right"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div ng-form="tabForm2">
 
                 <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group">
@@ -723,6 +722,7 @@
                     </div>*@
             </div>
         </div>
+
     </div>
 
 
@@ -885,77 +885,6 @@
         </div>
     </div>
 </div>
-
-
-@*shakawt Open this code*@
-
-@*<div class="aplos-grid-toggle">
-        <div class="row text-right">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="table-responsive modal-table">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Vendor</th>
-                        <th>Account Group</th>
-                        <th>GRN No</th>
-                        <th>GRN Date</th>
-                        <th>Vendor DocNo</th>
-                        <th>Invoice No</th>
-                        <th>Invoice Date</th>
-                        <th>Qty</th>
-                        <th>Amount (TRN)</th>
-                        <th>Amount (BC)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in products |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'products'" ng-dblclick="Get($index);">
-                        <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                        <td>{{x.PartyAccountGroupName}}</td>
-                        <td>{{x.Id}}</td>
-                        <td>{{x.GRNDate | date:'dd-MMM-yyyy'}}</td>
-                        <td>{{x.DocRefNo}}</td>
-                        <td>{{x.InvoiceNo}}</td>
-                        <td>{{x.InvoiceDate}}</td>
-                        <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                        <td class="text-right">{{x.TransactionAmount|number:2}} {{x.CurrencyCode}}</td>
-                        <td class="text-right">{{x.BaseAmount|number:2}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" ng-click="GRNReport(x.Id, 'Word');" href="" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'products'" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-        </div>
-    </div>*@
-@*End shakawt Open this code*@
-
-
 
 
 
@@ -1411,7 +1340,7 @@
     </div>
 </div>
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
-@*@Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUp.cshtml")*@
+@Html.Partial("~/Areas/Parties/Views/Party/_PartyOtherPopUpNew.cshtml")
 
 
 <div class="modal fade site-modal in" id="invoicingPartyPopUp" role="dialog" data-backdrop="static">
@@ -1461,6 +1390,59 @@
                 </div>
                 <ul class="common-btn list-inline text-right">
                     <li><button ng-click="closeInvoicingPartyPopUp();" class="btn"> Done</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="OtherinvoicingPartyPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Invoicing Party<button type="button" class="close" ng-click="closeOtherInvoicingPartyPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 col-md-4 control-label">Invoicing by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select ng-model="productNew.OtherInvoicingPartyPlantId" class="col-sm-3 form-control" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.OtherInvoicingPartyPlantId,'billTo')">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.OtherInvoicingPartyPlantId==null">State :{{productNew.OtherInvoicingState}}</p>
+                            <p ng-hide="productNew.OtherInvoicingPartyPlantId==null">GSTIN :{{productNew.OtherInvoicingGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Invoicing by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.OtherInvoicingByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select class="form-control" ng-model="productNew.OtherDeliveryPartyPlantId" ng-options="item.Value as item.Text for item in plantList| filter:{ PartyId: x.PartyId }" ng-change="billShippAddress(productNew.DeliveryPartyPlantId,'shipTo')">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <p ng-hide="productNew.OtherInvoicingPartyPlantId==null">State :{{productNew.OtherDeliveryState}}</p>
+                            <p ng-hide="productNew.OtherInvoicingPartyPlantId==null">GSTIN :{{productNew.OtherDeliveryGSTIN}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Delivery by Address</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" rows="3" ng-model="productNew.OtherDeliveryByAddress" class="form-control" maxlength="300"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closeOtherInvoicingPartyPopUp();" class="btn"> Done</button></li>
                 </ul>
             </div>
         </div>
@@ -1573,78 +1555,7 @@
                         </div>
 
                     </div>
-                    @*<div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
-                            <div class="form-group" ng-hide="detailModel.TypeValueLot ===false">
-                                <label class="col-sm-4 control-label">Is Lot Number</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueLot" tabindex="16" ng-disabled="true">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
 
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueLot ===false">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label">Lot Number</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.LotNumber" class="form-control text-left" ng-hide="detailModel.TypeValueLot ===false">
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Is Diameter</label>
-                                <div class="col-sm-8">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueDiameter" tabindex="16" ng-disabled="true">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6" ng-hide="detailModel.TypeValueDiameter ===false">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueDiameter ===false">Diameter</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Diameter" class="form-control text-left" ng-hide="detailModel.TypeValueDiameter ===false">
-                                </div>
-
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Is Type</label>
-                                <div class="col-sm-8" ng-hide="detailModel.TypeValueType ===false">
-                                    <div class="checkbox-site">
-                                        <label>
-                                            <input type="checkbox" name="TypeValue" ng-model="detailModel.TypeValueType" tabindex="16" ng-hide="detailModel.TypeValueType ===false">
-                                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" id="div_qty">
-                                <label class="col-sm-4 control-label" ng-hide="detailModel.TypeValueType ===false">Type</label>
-                                <div class="col-sm-8 show-message" style="padding-right:0px;">
-                                    <input type="text" name="LotNumber" maxlength="200" ng-model="detailModel.Type" class="form-control text-left" ng-hide="detailModel.TypeValueType ===false">
-                                </div>
-
-                            </div>
-                        </div>*@
                 </fieldset>
                 <!--detailModel Entry Right-->
                 <hr ng-show="char1.CharacteristicsId.length>0;" />
@@ -1821,59 +1732,7 @@
                         </div>
                     </div>
                 </div>
-
-
-                @*<div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Shortage Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ShortageQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','ShortageQty');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Rejection Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.RejectionQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','RejectionQty');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Approved Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.ApprovedQty" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4">
-                        <div class="form-group" id="div_tamnt">
-                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Net Qty<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
-                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>*@
-
                 <div class="clearfix"></div>
-
 
 
                 <fieldset class="scheduler-border" ng-show="detailModel.MaterialMasterName">
@@ -1947,42 +1806,7 @@
     @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterByTypePopUp.cshtml")
     @Html.Partial("~/Areas/Materials/Views/Shared/_MaterialMasterArticleSearchPopUp.cshtml")
     @Html.Partial("~/Areas/Materials/Views/Shared/_CharacteristicsValuePopUp.cshtml")
-    @*<div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
-            <div class="modal-dialog modal-md">
-                <div class="modal-content">
-                    <div class="modal-header"> Tax Information<button type="button" class="close" ng-click="closeReceiveTaxPopUp();">&times;</button></div>
-                    <div class="modal-body form-elements form-horizontal">
-                        <div class="col-md-12">
-                            <p>Taxable amount : <b>{{taxAbleAmnt| number| setDecimal:currencyPrecision}}</b></p>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tax Category</th>
-                                        <th ng-hide="percentageColumn">Percentage</th>
-                                        <th ng-hide="percentageColumn">HSN Code</th>
-                                        <th>Tax Amount (BC)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in receiveTaxList">
-                                        <td>{{x.TaxCategory}}</td>
-                                        <td ng-hide="percentageColumn">{{x.Percentage}}</td>
-                                        <td ng-hide="percentageColumn">{{x.HSNCode}}</td>
-                                        <td>{{x.TaxAmount}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="clearfix"></div>
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li><button ng-click="closeReceiveTaxPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>*@
+
     <div class="modal fade site-modal in" id="receiveTaxPopUp" role="dialog" data-backdrop="static">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -2212,12 +2036,7 @@
                                 </div>
                             </div>
                         </div>
-                        @*<div class="form-group" id="div_toSvcCRate">
-                                <label class="col-sm-4 control-label">To Currency Rate<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" n-decimals="4" ng-model="serviceModel.ToCurrencyRate" disabled class="form-control text-right" placeholder="0.00" />
-                                </div>
-                            </div>*@
+
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" id="div_svcRate">
@@ -2286,6 +2105,99 @@
                         <ul class="list-inline text-right">
                             <li><button ng-click="serviceSave()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{detailModel.Id.length>0?'Update':'Save'}}</button></li>
                             <li><button ng-click="closeServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade site-modal in" id="otherserviceChargePopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">Other Charges Entry<button type="button" class="close" ng-click="closeOtherServiceChargePopUp();">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_svcOther">
+                            <label class="col-sm-4 col-md-4 control-label">Service<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Service" ng-model="OtherserviceModel.ServiceMasterId" class="col-sm-3 form-control"
+                                            ng-options="item.Value as item.Text for item in otherserviceCboList" ng-change="changeOtherService();">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" id="div_svcRateOther">
+                            <label class="col-sm-4 control-label" data-placement="top" title="Cost and Manufacture">Amount<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="OtherserviceModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
+                                           ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
+                                </div>
+                                <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
+                                    <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="col-md-12 modal-table table-responsive" style="padding-top: 13px;" ng-show="taxCategoryList.length>0">
+                        <div class="col-xs-12 col-sm-4 col-md-4" ng-show="OtherserviceModel.ServiceMasterId">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">If Percentage Applicable</label>
+                                <div class="col-sm-6">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="Yes" ng-click="TaxOptionService('Yes');"> @*ng-hide="HSNCode !=null"*@
+                                            <span class="cr"><i class="cr-icon"></i></span>Yes
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="TaxOptionService" ng-model="productNew.TaxOptionService" value="No" ng-click="TaxOptionService('No');">@*ng-hide="HSNCode !=null"*@
+                                            <span class="cr"><i class="cr-icon"></i></span>No
+                                        </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tax Category</th>
+                                    <th>HSN Code</th>
+                                    <th>Percentage</th>
+                                    <th>Tax Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in taxCategoryList">
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.HSNCode}}</td>
+                                    @*<td class="text-right">{{x.Percentage}}</td>*@
+                                    <td class="text-right">
+                                        <input type="text" n-decimals="4" ng-model="x.Percentage" ng-keyup="calculateTaxAmountForService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='No'" />
+                                    </td>
+                                    <td class="text-right">
+                                        <input type="text" n-decimals="2" ng-model="x.TaxAmount" ng-keyup="checkRowValidationService(x);" class="form-control text-right" ng-disabled="productNew.TaxOptionService==='Yes'" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right">Total Tax (BC)</td>
+                                    @*<td class="text-right">{{OtherserviceModel.TotalTaxAmount| setDecimal:currencyPrecision}}</td>*@
+                                    <td class="text-right"><strong>{{taxCategoryList | sumByKey : 'TaxAmount'| setDecimal:2 }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button ng-click="OtherserviceSave()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{detailModel.Id.length>0?'Update':'Save'}}</button></li>
+                            <li><button ng-click="closeOtherServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
                     </div>
                 </div>
@@ -2589,17 +2501,8 @@
 
                                         </div>
 
-                                        @*<script type="text/template" id="bootstrapToggle2">
-                                                <input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />
-                                            </script>
-                                            <script type="text/template" id="CurrentText">
-                                                <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
-
-                                            </script>*@
-
                                         <div id="GridT"></div>
 
-                                        @*</div>*@
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
@@ -2651,14 +2554,6 @@
                                                 </div>
 
                                             </div>
-
-                                            @*<script type="text/template" id="bootstrapToggle2">
-                                                    <input type="checkbox" e-change="$parent.getTaxCategoryList1" e-value="data.CheckedStatus" ej-checkbox class="rowCheckbox" e-checked="data.CheckedStatus" />
-                                                </script>
-                                                <script type="text/template" id="CurrentText">
-                                                    <input type="text" class="input ejinputtext form-control" ng-disabled="RequisitionDetailId" style="background-color:antiquewhite;font-weight:bold;color:black;text-align:right;" ng-model="data.TransactionQty" width="80" ng-change="$parent.calculateRequisitionData(this)" />
-
-                                                </script>*@
 
                                             <div id="GridT"></div>
 
