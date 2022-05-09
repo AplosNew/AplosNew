@@ -14,6 +14,7 @@ namespace Library.Model.Machines
         public string Id { get; set; }
 
         public bool Active { get; set; }
+        public bool isSpecialOperation { get; set; }
 
         public bool Archive { get; set; }
 

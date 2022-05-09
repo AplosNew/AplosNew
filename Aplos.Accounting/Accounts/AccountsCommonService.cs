@@ -549,6 +549,148 @@ namespace Library.Accounting.Accounts
             AddNewRow<InvoiceDetail>(vDetailData.Tables[0], invoiceDetail);
             return invoiceDetail;
         }
+
+        public IEnumerable<object> GetcustomerInvoiceList( string companyGroupId, string companyId, string plantId,string customerSelectedList, string fromDate, string toDate, string paymentStatus)
+        {
+            var sql  = @"SELECT Id,VoucherNo,PostingDate, DocRefNo
+                    ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
+                    ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
+				 ,ISNULL(X.GrossSales,0 )GrossSales 
+				,ISNULL(X.Receipts,0 )Receipts
+				,ISNULL(X.Balance,0) Balance
+                ,ISNULL( X.BooksGrossSales ,0)BooksGrossSales
+				,ISNULL( X.BooksReceipts ,0)BooksReceipts
+				,X.BooksBalance
+				
+                FROM (
+                SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId--,cc.CompanyCurrencyRate
+				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
+				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
+
+                ,ISNULL(IVD.Amount,0) AS GrossSales
+				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
+				,ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+
+                ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
+				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
+				,ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+				, ISNULL(IVD.Amount,0) AS GrossTranAmount
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+                FROM [TRN].[InvoiceDetail] AS IVD
+                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                and IV.PartyId in 	(" + customerSelectedList + @")  AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                UNION ALL
+                SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
+				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
+				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
+			      ,ISNULL(IVD.Amount,0) AS GrossSales
+				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
+				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+
+                 ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
+				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
+				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+				, ISNULL(IVD.Amount,0) AS GrossTranAmount
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+                FROM [TRN].[InvoiceDetail] AS IVD
+                LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
+                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=IVD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+
+							LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
+					    LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								where w.PaymentSource='Tax'
+								group by wd.InvoiceDetailId
+								) IWD ON IWD.InvoiceDetailId=IVD.Id
+
+								
+						LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) DiscountAmount  FROM TRN.InvoiceWriteOffDetail wd 
+					    LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
+								where w.PaymentSource='Discount'
+								group by wd.InvoiceDetailId
+								) DIWD ON DIWD.InvoiceDetailId=IVD.Id
+
+               -- LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+                   LEFT JOIN TRN.InventorySales IVS ON IVS.Id=IV.InventorySalesId
+
+				
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
+                  and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               -- AND IR.PurchaseDocumentAcceptanceId IS NULL
+                
+                union all
+
+
+				 SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
+				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
+				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
+                   ,ISNULL(IVD.Amount,0) AS GrossSales
+				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
+				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
+
+                 ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
+				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
+				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
+				, ISNULL(IVD.Amount,0) AS GrossTranAmount
+				, ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS GrossAmount
+
+                FROM [TRN].[AdjustmentNoteDetail] AS IVD
+                LEFT JOIN [TRN].[AdjustmentNote] AS IV ON IVD.AdjustmentNoteId=IV.Id
+                LEFT JOIN [HKP].[Party] AS P ON P.Id=IV.PartyId
+                LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
+                LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.AdjustmentNoteDetailId=IVD.Id
+                LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
+                LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
+                LEFT JOIN (
+                SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+                VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+                FROM [TRN].[VoucherDetailCurrency] AS VDC
+                JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+                ) AS CC ON CC.VoucherDetailId=VD.Id
+                
+                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
+                 and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                
+				)
+                X
+				--where x.PartyCode='2020100'
+                ";
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
+
         #endregion
 
         #region VoucherGLUpdate
@@ -643,7 +785,48 @@ namespace Library.Accounting.Accounts
             AddNewRow<VoucherGLUpdateLog>(dsData.Tables[0], voucherGLUpdateLog);
 
         }
-       
+
+        #endregion
+
+        #region Update Invoice for Confirm
+        public void UpdateInvoiceforConfirm(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _drvDetailDataset = null;
+                foreach (var voucherDetailVM in voucherDetailVMList)
+                {
+                        con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[Invoice] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailDataset, false, "1");
+                        
+                        DataView dv = new DataView(_drvDetailDataset.Tables[0]);
+                        dv.RowFilter = "Id='" + voucherDetailVM.Id + "'";
+                        if (dv.Count > 0)
+                        {
+                            DataRow dr = dv[0].Row;
+
+                            dr.BeginEdit();
+
+                            dr["GLGeneralInfoId"] = voucherDetailVM.GLGeneralInfoId;
+                            dr["BudgetMasterId"] = voucherDetailVM.BudgetMasterId;
+                            dr["ActivityId"] = voucherDetailVM.ActivityId;
+
+                            dr.EndEdit();
+
+                        }  
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets(_drvDetailDataset);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        
         #endregion
 
         public GridModel GetVoucherListForCashCheckPrinting(GridParameter parameters)

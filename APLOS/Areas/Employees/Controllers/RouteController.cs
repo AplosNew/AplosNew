@@ -442,6 +442,83 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public JsonResult CreateRouteSchedule(Dictionary<string, object> data, string RouteId)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from RouteSchedule where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "RouteSchedule", out _Id);
+
+                    data["Id"] = _Id;
+                    data["RouteId"] = RouteId;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Error = false, Message = AplosMessage.Insert });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetTransportDetails(string RouteId)
+        {
+            string sql = @"select TD.*,R.UserName Route,EI.EmployeeCode DriverCode,EI.EmployeeName DriverName 
+			                            from TransportDetail TD
+			                            left join MST.Route R on R.Id=TD.RouteId
+			                            left join EmployeeInformation EI on EI.SystemId=TD.DriverId
+										where TD.RouteId='" + RouteId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult TransportDetailsDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from TransportDetail where Id ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
         void DeleteStopage(string StopagePrimaryId,string RouteId, out System.Data.DataSet dsRef)
         {
            // string strSQL;
@@ -489,6 +566,62 @@ namespace Aplos.Areas.Employees.Controllers
 
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetShift()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
+						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
+						
+						from ShiftDefination SD
+						left join ORG.Plant P on P.Id=SD.PlantID";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public ActionResult GetTransport()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select Id as Value,TransportUserName as Text from TransportDetail";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetRouteSchedule(string RouteId)
+        {
+            string sql = @"select RS.Id,RS.TransportId,TD.TransportUserName Transport,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
+										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
+										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.Remarks
+                                        from RouteSchedule RS
+                                        left join TransportDetail TD on TD.Id=RS.TransportId
+                                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
+                                        where RS.RouteId='" + RouteId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult RouteScheduleDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from RouteSchedule where Id ='" + id + "'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+
+            }
+        }
+
         public class RouteModel : BaseModel
         {
             #region Scalar Properties            

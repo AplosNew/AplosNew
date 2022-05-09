@@ -35,6 +35,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
         , Remarks: null
         , Description: null
         , Active: true
+        ,isSpecialOperation: false
 
         , BasicProcessTime: 0
         , AssociateProcessTime: 0
@@ -263,6 +264,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
             , AdditionalAllowance: 0
             , SPI: 0
             , Active: true
+            , isSpecialOperation: false
             , TotalSAM: 0
             , IsMachineRequired: 'M'
             , Color: null
@@ -281,6 +283,7 @@ function operationVariationController(commonMessage, $scope, $rootScope, baseSer
             , OperationId: $scope.operationVariationNew.OperationId
             , Sequence: seq
             , Active: true
+            , isSpecialOperation: false
             , SAM: 0
             , SubOperationSAM: 0
             , AdditionalSAM: 0
