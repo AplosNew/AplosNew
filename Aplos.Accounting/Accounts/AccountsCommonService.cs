@@ -807,9 +807,9 @@ namespace Library.Accounting.Accounts
 
                             dr.BeginEdit();
 
-                            dr["GLGeneralInfoId"] = voucherDetailVM.GLGeneralInfoId;
-                            dr["BudgetMasterId"] = voucherDetailVM.BudgetMasterId;
-                            dr["ActivityId"] = voucherDetailVM.ActivityId;
+                            dr["ExpectedPaymentReceivedDate"] = voucherDetailVM.ExpectedPaymentReceivedDate;
+                            dr["BuyerRefNo"] = voucherDetailVM.BuyerRefNo;
+                            dr["CustomerRemarks"] = voucherDetailVM.CustomerRemarks;
 
                             dr.EndEdit();
 
