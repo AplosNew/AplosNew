@@ -576,9 +576,9 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             return View("~/Areas/Accounts/Views/GeneralLedgerReport.cshtml");
         }
-        public ActionResult GeneralLedgerGSTReport()
+        public ActionResult GSTLedgerReport()
         {
-            return View("~/Areas/Accounts/Views/GeneralLedgerGSTReport.cshtml");
+            return View("~/Areas/Accounts/Views/GSTLedgerReport.cshtml");
         }
 
         //General ledger report

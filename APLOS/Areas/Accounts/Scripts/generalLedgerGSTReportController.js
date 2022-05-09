@@ -1,7 +1,7 @@
 ﻿"use strict";
 generalLedgerGSTReportController.$inject = ["$scope", "$rootScope", "$filter", "accountService", "$window", "baseService"];
 function generalLedgerGSTReportController($scope, $rootScope, $filter, accountService, $window, baseService) {
-    $rootScope.title = "General Ledger";
+    $rootScope.title = "GST Ledger";
     $scope.report = {
         GLName: null,
         GLGeneralInfoId: null,

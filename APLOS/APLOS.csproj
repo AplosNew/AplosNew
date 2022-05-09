@@ -4136,7 +4136,7 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusLocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekDefinition.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekMaster.cshtml" />
-    <Content Include="Areas\Accounts\Views\GeneralLedgerGSTReport.cshtml" />
+    <Content Include="Areas\Accounts\Views\GSTLedgerReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
