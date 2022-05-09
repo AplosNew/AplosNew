@@ -42,7 +42,7 @@
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <span class="input-group-addon">{{ModelNew.PreparedByCode}}</span>
-                    <input type="text" name="Chaired By" ng-model="ModelNew.PreparedBy" class="form-control" required readonly>
+                    <input type="text" name="Prepared By" ng-model="ModelNew.PreparedBy" class="form-control" required readonly>
                     <span class="input-group-btn">
                         <button name="submit" ng-click="showEmployeeListPopUp('Prepared')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
@@ -55,7 +55,7 @@
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <span class="input-group-addon">{{ModelNew.ApprovedByCode}}</span>
-                    <input type="text" name="Chaired By" ng-model="ModelNew.ApprovedBy" class="form-control" required readonly>
+                    <input type="text" name="Approved By" ng-model="ModelNew.ApprovedBy" class="form-control" required readonly>
                     <span class="input-group-btn">
                         <button name="submit" ng-click="showEmployeeListPopUp('Approved')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
@@ -69,7 +69,7 @@
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <span class="input-group-addon">{{ModelNew.CheckedByCode}}</span>
-                    <input type="text" name="Chaired By" ng-model="ModelNew.CheckedBy" class="form-control" required readonly>
+                    <input type="text" name="Checked By" ng-model="ModelNew.CheckedBy" class="form-control" required readonly>
                     <span class="input-group-btn">
                         <button name="submit" ng-click="showEmployeeListPopUp('Checked')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                     </span>
@@ -89,7 +89,7 @@
             <label class="col-sm-4 control-label">Purpose</label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select id="Department" class="form-control" ng-model="ModelNew.Purpose" name="IssueStatus<" tabindex="6" required>
+                    <select id="Department" class="form-control" ng-model="ModelNew.Purpose" name="Purpose<" tabindex="6" required>
                         <option value="Production">Production</option>
                         <option value="Sales">Sales</option>
                     </select>

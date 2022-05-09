@@ -275,7 +275,10 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
         
     $scope.LeaveModel = {
         CurrentLvYearId: null,
-        NewLvYearId: null
+        NewLvYearId: null,
+        MaxCarryForward: null,
+        MaxEncash: null,
+        MaxLapse: null
     };
 
     
@@ -294,6 +297,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     $scope.getGridData = function () {
 
         $scope.LeaveTypeString = "";
+        $scope.EmpCategoryString = "";
 
         if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
             ShowResult("Please First Select Plant ...", 'failure');
@@ -314,16 +318,100 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             throw ("Please First Select Leave Type ...");
         }
 
+        var EmployeeTypeObj = $("#EmpCategoryDropdown").data("ejDropDownList");
+        $scope.EmpCategoryString = EmployeeTypeObj.getSelectedValue().split(",");
+
+        if ($scope.EmpCategoryString == "") {
+            ShowResult("Please First Select Employee Type ...", 'failure');
+            throw ("Please First Select Employee Type ...");
+        }
+
         $http({
             method: 'GET',
             url: $scope.path + 'LoadData',
             params: {
                 'PlantId': $scope.BudgetPlantId,
                 'LvYearId': $scope.LeaveModel.CurrentLvYearId,
-                'LvTypeId': $scope.LeaveTypeString
+                'LvTypeId': $scope.LeaveTypeString,
+                'EmpCategory': $scope.EmpCategoryString
             }
         }).then(function success(response) {
             $scope.LoadedData = response.data;
+        })
+    }
+
+    $scope.ProcArr = [];
+    $scope.ProcessAll = function () {
+
+        // #region Validations
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveModel.CurrentLvYearId == "" ||
+            $scope.LeaveModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Current Leave Year ...", 'failure');
+            throw ("Please First Select Current Leave Year ...");
+        }
+
+        if ($scope.LeaveModel.NewLvYearId == "" ||
+            $scope.LeaveModel.NewLvYearId == undefined) {
+            ShowResult("Please First Select New Leave Year ...", 'failure');
+            throw ("Please First Select New Leave Year ...");
+        }
+
+        if ($scope.LeaveModel.MaxCarryForward == "" || $scope.LeaveModel.MaxCarryForward == undefined) {
+            ShowResult("Please Enter Max Carryforward ...", 'failure');
+            throw ("Please Enter Max Carryforward ...");
+        }
+
+        if ($scope.LeaveModel.MaxEncash == "" || $scope.LeaveModel.MaxEncash == undefined) {
+            ShowResult("Please Enter Max Encashment ...", 'failure');
+            throw ("Please Enter Max Encashment ...");
+        }
+
+        if ($scope.LeaveModel.MaxLapse == "" || $scope.LeaveModel.MaxLapse == undefined) {
+            ShowResult("Please Enter Max Lapse ...", 'failure');
+            throw ("Please Enter Max Lapse ...");
+        }
+
+        // #endregion
+
+        $scope.ProcArr = [];
+        for (var i = 0; i < $scope.LoadedData.length; i++) {
+            $scope.ProcArr.push({
+                'EmpId': $scope.LoadedData[i].EmpId,
+                'LeaveTypeId': $scope.LoadedData[i].LeaveTypeId, 'Opening': $scope.LoadedData[i].Opening,
+                'Earned': $scope.LoadedData[i].Earned, 'RegularEncashment': $scope.LoadedData[i].RegularEncashment,
+                'Availed': $scope.LoadedData[i].Availed, 'Closing': $scope.LoadedData[i].Closing,
+                'Adjustment': $scope.LoadedData[i].Adjustment
+            });
+        }
+
+
+        $scope.Proc = JSON.stringify($scope.ProcArr);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'ProcessData',
+            data: {
+                'Data': $scope.Proc, 'PlantId': $scope.BudgetPlantId,
+                'CurrentLvYearId': $scope.LeaveModel.CurrentLvYearId,
+                'MaxCarryForward': $scope.LeaveModel.MaxCarryForward,
+                'MaxEncash': $scope.LeaveModel.MaxEncash,
+                'MaxLapse': $scope.LeaveModel.MaxLapse,
+                'LeaveTypeList': $scope.LeaveTypeString,
+                'NewYear': $scope.LeaveModel.NewLvYearId
+            },
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
         })
     }
 
