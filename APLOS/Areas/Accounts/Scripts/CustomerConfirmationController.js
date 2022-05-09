@@ -227,22 +227,91 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         return false;
     }
 
-   
+    var NewCustomerSelectedList = [];
     $scope.closePopUp = function () {
-        if (baseService.arrayLength($scope.tempList) > 0) {
-            angular.forEach($scope.tempList, function (item) {
-                $scope.paymentSelectedList.push({
-                    PartyId: item.PartyId
-                    , PartyCode: item.PartyCode
-                    , PartyName: item.PartyName
-                    
-                });
-            });
+         NewCustomerSelectedList = [];
+        for (var i = 0; i < $scope.tempList.length; i++) {
+            
+            if (NewCustomerSelectedList, $scope.tempList[i].PartyId) {
+                NewCustomerSelectedList.push($scope.tempList[i].PartyId);
+            }
+            
         }
+        
+        $scope.getcustomerInvoiceList();
         angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
+    $scope.customerInvoiceList = [];
+    $scope.getcustomerInvoiceList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetcustomerInvoiceList",
+                data: {
+                    CustomerSelectedList: NewCustomerSelectedList,
+                    fromDate: $scope.report.FromDate,
+                    toDate: $scope.report.ToDate,
+                    paymentStatus: $scope.report.PaymentStatus
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.customerInvoiceList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
+    $scope.voucherDetailList = [];
+    $scope.pushInTempListforConfirm = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempListforConfirm($scope.voucherDetailList, data.Id) === false) {
+                    $scope.voucherDetailList.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.voucherDetailList); i++) {
+                        if ($scope.voucherDetailList[i].Id === data.Id) {
+                            $scope.voucherDetailList.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.voucherDetailList.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.voucherDetailList); t++) {
+                    if ($scope.voucherDetailList[t].Id === data.Id) {
+                        $scope.voucherDetailList.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+    function checkExistTempListforConfirm(list, id) {
+        for (var i = 0; i < baseService.arrayLength(list); i++) {
+            if (list[i].Id === id) {
+                return true;
+            }
+        }
+        return false;
+    }
    
     $scope.Save = function () {
+        if ($scope.voucherDetailList.length == 0) {
+            ShowResult('Please select at least one Invoice', 'failure');
+            return;
+        }
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -255,7 +324,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
                     ShowResult(response.data.Message, 'failure');
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.Clear();
+                  
                 }
             }), function (response) {
                 ShowResult(response.data.Message, 'failure');

@@ -8,6 +8,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.saveUrl = $scope.path + 'Save';
     $scope.updateUrl = $scope.path + 'Save';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
+    $scope.saveRouteSchedule = $scope.path + 'CreateRouteSchedule';
 
     $scope.route = {
         Id: null,
@@ -43,7 +44,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.schedule = {
         Id: null,
         TransportId: null,
-        Transport: null,
         TripNo: null,
         UpDown: null,
         ShiftId: null,
@@ -60,8 +60,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
-        $scope.getalldata1();
-
     };
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
@@ -119,8 +117,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getData();
-                //$scope.getUtilityGridData($scope.ModelNew.Id);
                 $scope.getTransportDetailsMaster();
                 $scope.ClearTransDetails();
             }
@@ -130,7 +126,27 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     };
 
-   
+    $scope.SaveRouteSchedule = function () {
+        $http({
+            method: 'POST',
+            url: $scope.saveRouteSchedule,
+            data: { 'data': $scope.ModelRouteSchedule, 'RouteId': $scope.routeNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getRouteScheduleMaster();
+                $scope.ClearRouteSchedule();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
     function CheckField(fieldname, field) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
@@ -180,6 +196,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.AssetInfo.Id = $scope.routeNew.AssetId;       
         $scope.AssetInfo.FixedAssetName = $scope.routeNew.FixedAsset;
         $scope.getTransportDetailsMaster();
+        $scope.getRouteScheduleMaster();
         try {
             $scope.Action = 'Update';
             if (!$rootScope.isCollapsed) {
@@ -384,7 +401,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             data: { 'RouteId': $scope.routeNew.Id },
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.transportDetailsList = [];
+            //$scope.transportDetailsList = [];
             $scope.transportDetailsList = resp.data;
         });
     }
@@ -464,4 +481,57 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         });
     }
     $scope.getTransport();
+
+    $scope.routeScheduleList = [];
+    $scope.getRouteScheduleMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetRouteSchedule',
+            data: { 'RouteId': $scope.routeNew.Id },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            //$scope.routeScheduleList = [];
+            $scope.routeScheduleList = resp.data;
+        });
+    }
+    //$scope.getRouteScheduleMaster();
+
+    $scope.routeScheduledoubleclick = function (args) {
+        $scope.ModelRouteSchedule = Object.assign({}, args);
+    };
+    $scope.ClearRouteSchedule = function () {
+        $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
+    }
+
+    $scope.removeRouteScheduleRowModal = function (tempId) {
+        try {
+            $scope.tempId = tempId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmRouteScheduleRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeRouteScheduleRow = function () {
+        $http({
+            method: 'POST',
+            url: 'employees/route/RouteScheduleDelete?id=' + $scope.tempId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ClearRouteSchedule();
+                $scope.getRouteScheduleMaster();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
 }

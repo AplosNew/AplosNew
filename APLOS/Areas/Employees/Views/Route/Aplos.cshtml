@@ -111,27 +111,26 @@
 
                                 <thead>
                                     <tr>
-                                        <th ng-show="StopageListNew.length>1"></th>
+                                        @*<th ng-show="StopageListNew.length>1"></th>*@
                                         <th>Sequence</th>
                                         <th>Code</th>
                                         <th>ShortName</th>
                                         <th>StandardName</th>
                                         <th>UserName</th>
-                                        @*<th colspan="2">Time</th>*@
                                         <th>Up Duration(min)</th>
                                         <th>Down Duration(min)</th>
-                                        @*<th>Remove</th> *@
+                                        <th>Remove</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
 
                                     <tr ng-repeat="x in StopageListNew">
-                                        <td ng-show="StopageListNew.length>1">
+                                        @*<td ng-show="StopageListNew.length>1">
                                             <span ng-show="!$first" ng-click="moveUp($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-top"></i></span>
                                             <br />
                                             <span ng-show="!$last" ng-click="moveDown($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                                        </td>
+                                        </td>*@
                                         <td>{{x.Sequence}}</td>
                                         <td>{{x.Code}}</td>
                                         <td>{{x.ShortName}}</td>
@@ -147,8 +146,6 @@
                                                 <input ng-model="x.DownDuration" style="color:black;" class="form-control" />
                                             </div>
                                         </td>
-                                        <td></td>
-
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
@@ -181,11 +178,11 @@
                         <legend class="scheduler-border"></legend>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Transport Id<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
-                                    <input type="text" name="Transport Id" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelChildNew.Id" class="form-control text-right" required tabindex="110">
-                                </div>
-                            </div>*@
+                                    <label class="col-sm-4 control-label">Transport Id<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Transport Id" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelChildNew.Id" class="form-control text-right" required tabindex="110">
+                                    </div>
+                                </div>*@
 
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transport User Name<sup>*</sup></label>
@@ -247,46 +244,46 @@
                                 <li> <button ng-click="ClearTransDetails();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
                         </div>
-                    </fieldset>
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="table-responsive modal-table" ng-show="transportDetailsList.length>0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Transport Id</th>
-                                        <th>Transport User Name</th>
-                                        <th>Transport No</th>
-                                        <th>Driver Name</th>
-                                        <th>Transport Category</th>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="table-responsive modal-table" ng-show="transportDetailsList.length>0">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Transport Id</th>
+                                            <th>Transport User Name</th>
+                                            <th>Transport No</th>
+                                            <th>Driver Name</th>
+                                            <th>Transport Category</th>
 
-                                        <th>Transport Port</th>
-                                        <th>Capacity</th>
-                                        <th>Remarks</th>
-                                        <th>Remove</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in transportDetailsList" ng-dblclick="TransportDetailsdoubleclick(x);" ng-class="{selected : x.Id==null}">
-                                        <td>{{x.Id}}</td>
-                                        <td>{{x.TransportUserName}}</td>
-                                        <td>{{x.TransportNo}}</td>
-                                        <td>{{x.Driver}}</td>
-                                        <td>{{x.TransportCategory}}</td>
-                                        <td>{{x.TransportPort}}</td>
-                                        <td>{{x.Capacity}}</td>
-                                        <td>{{x.Remarks}}</td>
-                                        <td class="text-right table-td">
-                                            <ul class="list-inline action-list">
-                                                <li>
-                                                    <button ng-click="removeTransportDetailsRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                            <th>Transport Port</th>
+                                            <th>Capacity</th>
+                                            <th>Remarks</th>
+                                            <th>Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="x in transportDetailsList" ng-click="TransportDetailsdoubleclick(x);" ng-class="{selected : x.Id==null}">
+                                            <td>{{x.Id}}</td>
+                                            <td>{{x.TransportUserName}}</td>
+                                            <td>{{x.TransportNo}}</td>
+                                            <td>{{x.Driver}}</td>
+                                            <td>{{x.TransportCategory}}</td>
+                                            <td>{{x.TransportPort}}</td>
+                                            <td>{{x.Capacity}}</td>
+                                            <td>{{x.Remarks}}</td>
+                                            <td class="text-right table-td">
+                                                <ul class="list-inline action-list">
+                                                    <li>
+                                                        <button ng-click="removeTransportDetailsRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </fieldset>
 
                 </div>
             </div>
@@ -379,55 +376,60 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Remark" ng-model="ModelChildNew.Remarks" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="Remark" ng-model="ModelRouteSchedule.Remarks" class="form-control text-right" required tabindex="110">
                                     </div>
                                 </div>
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveChild();" class="btn" @*ng-disabled="selectedStoppageList.length===0"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    <li> <button ng-click="ClearTransDetails();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    <li> <button ng-click="SaveRouteSchedule();" class="btn" @*ng-disabled="selectedStoppageList.length===0"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="ClearRouteSchedule();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 </ul>
                             </div>
-                        </fieldset>
-                        <div class="col-xs-12 col-sm-12 col-md-12">
-                            <div class="table-responsive modal-table" ng-show="transportDetailsList.length>0">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Transport Id</th>
-                                            <th>Transport User Name</th>
-                                            <th>Transport No</th>
-                                            <th>Driver Name</th>
-                                            <th>Transport Category</th>
-                                            <th>Transport Port</th>
-                                            <th>Capacity</th>
-                                            <th>Remarks</th>
-                                            <th>Remove</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="x in transportDetailsList" ng-dblclick="TransportDetailsdoubleclick(x);" ng-class="{selected : x.Id==null}">
-                                            <td>{{x.Id}}</td>
-                                            <td>{{x.TransportUserName}}</td>
-                                            <td>{{x.TransportNo}}</td>
-                                            <td>{{x.Driver}}</td>
-                                            <td>{{x.TransportCategory}}</td>
-                                            <td>{{x.TransportPort}}</td>
-                                            <td>{{x.Capacity}}</td>
-                                            <td>{{x.Remarks}}</td>
-                                            <td class="text-right table-td">
-                                                <ul class="list-inline action-list">
-                                                    <li>
-                                                        <button ng-click="removeTransportDetailsRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="table-responsive modal-table" ng-show="routeScheduleList.length>0">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Trip No</th>
+                                                <th>Transport</th>
+                                                <th>Start Time</th>
+                                                <th>EndTime</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Up/Down</th>
+                                                <th>Distance(km)</th>
+                                                <th>Shift</th>
+                                                <th>Remarks</th>
+                                                <th>Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="x in routeScheduleList" ng-dblclick="routeScheduledoubleclick(x);" ng-class="{selected : x.Id==null}">
+                                                <td>{{x.TripNo}}</td>
+                                                <td>{{x.Transport}}</td>
+                                                <td>{{x.StartTime}}</td>
+                                                <td>{{x.EndTime}}</td>
+                                                <td>{{x.From}}</td>
+                                                <td>{{x.To}}</td>
+                                                <td>{{x.UpDown}}</td>
+                                                <td>{{x.Distance}}</td>
+                                                <td>{{x.Shift}}</td>
+                                                <td>{{x.Remarks}}</td>
+                                                <td class="text-right table-td">
+                                                    <ul class="list-inline action-list">
+                                                        <li>
+                                                            <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
+
+                        </fieldset>
 
                     </div>
                 </div>
@@ -482,6 +484,7 @@
 </div>
 
 <confirm-archive-generic modalid="confirmTransportDetailsRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeTransportDetailsRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRouteScheduleRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRouteScheduleRow();"></confirm-archive-generic>
 
 
 <div class="row text-right aplos-grid-toggle">
