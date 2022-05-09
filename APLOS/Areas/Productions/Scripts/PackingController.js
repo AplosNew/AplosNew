@@ -1031,7 +1031,6 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
 
     $scope.PackingListReport = function (obj) {
-        
         try {
             var file_src = $scope.path + "PackingList?PackingId=" + obj.data.PackingId;
             $rootScope.report(file_src);
