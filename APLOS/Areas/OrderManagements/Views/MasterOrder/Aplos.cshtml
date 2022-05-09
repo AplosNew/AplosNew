@@ -541,7 +541,7 @@
                                         <td>{{x.ProductMaster}}</td>
                                         <td>
                                             @*<input type="text" n-decimals="4" ng-model=" x.Rate" class="form-control text-right">*@
-                                            <button ng-click="GetSORatePopup(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Rate"><i class="glyphicon glyphicon-th-list"></i></button>
+                                            <button ng-click="GetMOSORatePopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Rate"><i class="glyphicon glyphicon-th-list"></i></button>
                                         </td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
@@ -2912,8 +2912,8 @@
     </div>
 </div>
 
-<div class="modal fade site-modal in" id="SORatePopup" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade site-modal in" id="MOSORatePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -2921,10 +2921,10 @@
                     <i class="glyphicon glyphicon-info-sign"></i> CostingSO
                 </h4>
             </div>
-            <div class="modal-body">
-                <div class="row" ng-form name="Descriptionform">
-                    <div class="col-xs-12 col-sm-12 col-md-6">
-                        <div class="table-responsive modal-table aplos-grid-toggle">
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -2936,7 +2936,7 @@
                                 <tbody>
                                     <tr ng-repeat="x in costingSOFormulaList">
                                         <td>{{x.UserName}}</td>
-                                        <td><input class="form-control text-right" ng-pattern="/^[0-9]*$/" type="number" ng-model="x.Value" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" @*ng-pattern="/^[0-9]*$/"*@ type="number" ng-model="x.Value" /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2945,6 +2945,15 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="CalculateRate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="SaveItemCostingRate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                            <button ng-click="CloseMOSORatePopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
