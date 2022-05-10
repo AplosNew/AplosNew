@@ -7,7 +7,8 @@ namespace Library.MaterialManagement.Inventory
 {
     public interface IInventoryServiceService : IService<InventoryService>
     {
-        void InsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList); 
+        void InsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList);
+        void OtherVendorInsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList);
         void InsertGraphUpdate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList); 
         void InsertGraphNew(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList,string id, string AcceptanceId);
         void InsertGraphNewBOQ(IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList,string id, string AcceptanceId);
