@@ -3,7 +3,6 @@ FinishedStockReportController.$inject = ['cboService', 'commonMessage', '$scope'
 function FinishedStockReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Finished Stock Report';
     $scope.path = 'Productions/FinishedStockReport/';
-
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.LocList = [];

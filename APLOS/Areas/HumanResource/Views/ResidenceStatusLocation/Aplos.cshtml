@@ -199,7 +199,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Vacancy Status<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
-                                <select class="form-control" id="VacancyStatus" ng-model="selectedData.SelectedVacancyStatus" ng-change="getAssetName()" required name="Vacancy Status"
+                                <select class="form-control" id="VacancyStatus" ng-model="selectedData.VacancyStatus" ng-change="getAssetName()" required name="Vacancy Status"
                                         tabindex="2">
                                     <option value="">--Select--</option>
                                     <option value="Valid">Valid</option>
@@ -226,13 +226,13 @@
                     </div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon "></i>View</button></li>
+                            <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
 
                         </ul>
 
                     </div>
                 </div>
-                <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
+              <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
                     <div id="GridEdit" ej-grid e-datasource="ModelList" ng-click="openChildGrid()"  e-load="loadGridEdit"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
@@ -249,7 +249,7 @@
                             <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
                             <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
                             <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
-                            <div e-column e-field="selectedData.VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>
+                            <div e-column e-field="VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>
                             <div e-column e-field="Occupie" e-headertext="Occupie" e-width="100"></div>
                             <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
                             <div e-column e-field="Allocation" e-headertext="Allocation" e-width="100"></div>
@@ -265,35 +265,12 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="table-responsive" id="EmpGrid" style="margin-top:20px;">
-                    <div id="GridEdit" ej-grid e-datasource="EmpGridList" e-recorddoubleclick="EmpEditdoubleclick" e-load="loadGridEdit"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" style="width:100vw !important">
-                        <div e-columns>
-
-
-                            <div e-column e-field="Id" e-headertext="Id" e-width="10"></div>
-                            <div e-column e-field="ResidenceNumber" e-headertext="Residence No." e-width="100"></div>
-                            <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="100"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
-                            <div e-column e-field="AllocationDate" e-headertext="Allocation Date" e-width="100"></div>
-                            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-                            <div e-column e-field="Unallocated" e-headertext="Unallocated" e-width="100"></div>
-                            <div e-column e-field="UnallocatedDate" e-headertext="Unallocated Date" e-width="100"></div>
-
-
-                        </div>
-                    </div>
-                </div>
+                <h1>Tab 2</h1>
             </div>
         </div>
     </div>
 </div>
 <confirm-modal></confirm-modal>
-
-<confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-<confirm-archive-generic modalid="confirmPopUpChild" title="Confirmation" message="Are you sure to save without any shifts ?" data-ng-click-left-button="restoreChildShifts();" data-ng-click-right-button="SaveShifts();"></confirm-archive-generic>
-
 
 <div class="modal fade site-modal in" id="EmpPop" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg modellgModify ">

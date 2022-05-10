@@ -226,22 +226,56 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     };
 
     $scope.view = function () {
-        $http({
-            method: "POST",
-            url: $scope.path + "view",
-
-            data: {
-                
-                'data': $scope.selectedData.VacancyStatus,
-                'PlantId': $scope.selectedData.PlantId,
-                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-                'EmployeeCategoryId': $scope.selectedData.EmployeeCategoryId,
-            },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            $scope.ModelList = response.data;           
-            var vacancy_status = document.getElementById('VacancyStatus').value;
+       /* var ColumnList = [
+            { field: 'isActive', width: 150, headerText: "IsActive", type: "boolean" },
+            { field: 'Location', width: 150, headerText: "Location", type: "string" },
+            { field: 'EmployeeCategoryId', width: 150, headerText: "Employee Category Id", type: "string" },
+            { field: 'ResidenceSubCategory', width: 150, headerText: "Residence Sub Category", type: "string" },
+            { field: 'ResidentType', width: 150, headerText: "Resident Type", type: "string" },
+            { field: 'Block', width: 150, headerText: "Block", type: "string" },
+            { field: 'Floor', width: 150, headerText: "Floor", type: "string" },
+            { field: 'ResidenceNumber', width: 150, headerText: "ResidenceNumber", type: "string" },
+            { field: 'Rooms', width: 150, headerText: "Rooms", type: "string" },
+            { field: 'VacancyStatus', width: 150, headerText: "Vacancy Status", type: "string"},
+            { field: 'Occupie', width: 150, headerText: "Occupie", type: "string"},
+            { field: 'Available', width: 150, headerText: "Available", type: "string"},
+            { field: 'Allocation', width: 150, headerText: "Allocation", type: "string"},
+            { field: 'AssetName', width: 150, headerText: "AssetName", type: "string"},
+            { field: 'Remarks', width: 150, headerText: "Remarks", type: "string"},
+            { field: 'AddedBy', width: 150, headerText: "AddedBy", type: "string"},
+            { field: 'AddedDate', width: 150, headerText: "AddedDate", type: "string" },
             
+        ];*/
+        $http({
+            method: "GET",
+            url: $scope.path + 'view?PlantId=' + $scope.selectedData.PlantId + '&ResidenceGroupId=' + $scope.selectedData.ResidenceGroupId + '&EmployeeCategoryId=' + $scope.selectedData.EmployeeCategoryId,
+            
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            
+           
+            $scope.ModelList = response.data;
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.ModelList[i].VacancyStatus = $scope.selectedData.VacancyStatus;
+
+            }
+
+              /*  $("#GridData").ejGrid({
+                    dataSource: $scope.ModelList,
+                    minWidth: 450, minHeight: 400,
+                    allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                    filterSettings: { filterType: "excel" },
+                    columns: ColumnList
+                });
+
+
+            var gridObj = $("#GridData").data("ejGrid");*/
+           
+              
+                
+            
+                      
+           
 
         })
     }
