@@ -1811,7 +1811,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var _sql = @"select rm.* from dbo.ResidenceMaster rm where rm.PlantId = '"+ PlantId + "'"  +"and rm.EmployeeCategoryId = '"+ EmployeeCategoryId + "'"+
+                var _sql = @"select rm.*, '' as VacancyStatus from dbo.ResidenceMaster rm where rm.PlantId = '"+ PlantId + "'"  +"and rm.EmployeeCategoryId = '"+ EmployeeCategoryId + "'"+
                     "and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
 
 
@@ -1940,10 +1940,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
-                            ei.EmpType, ei.EmploymentType, ei.JobLocationID 
-                            from dbo.EmployeeInformation ei           
-                            where ei.EmployeeStatus = 'Active'";
+                var str = @"           
+                            ";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
