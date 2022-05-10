@@ -975,7 +975,7 @@ namespace Aplos.Areas.Products.Controllers
                             item["Id"] = masterId + "-" + IdCount;
                             acptDetailId = masterId + "-" + IdCount;
                             item["PurchaseDocAcceptanceId"] = masterId;
-                            item["MaterialTranAmount"] = item["TrnAmount"];
+                            item["AcceptanceRate"] = 0.0;
                             item["MaterialTranAmount"] = item["TotalMaterialTranAmount"];
                             AddNewRow(dsDetail.Tables[0], item);
                         }
