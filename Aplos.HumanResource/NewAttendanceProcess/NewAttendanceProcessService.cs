@@ -6431,6 +6431,89 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
         #endregion
 
+        #region Leave Process
+        public void LeaveProcess(string Date, string PlantValue, string UserId = null)
+        {
+
+            ProcessLock _lock = new ProcessLock(UserId, ProcessLockId.AttendanceProcess, "", 60);
+            _lock.LockProcess();
+            try
+            {
+                Date = Convert.ToDateTime(Date).ToString("dd-MMM-yyyy");
+                string PreviousDay = Convert.ToDateTime(Date).AddDays(-1).ToString("dd-MMM-yyyy");
+               
+                DataSet PlantLock; // Previous Day Plant Lock Checking
+                PlantLockCheck(PreviousDay, out PlantLock, PlantValue);
+                if (PlantLock.Tables[0].Rows.Count > 0)
+                {
+
+                }
+                else
+                {
+                    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                    DataSet YearFinding;
+                    string YearId="";
+                    FindLeaveYear(PreviousDay, out YearFinding, PlantValue);
+                    if (YearFinding.Tables[0].Rows.Count > 0)
+                    {
+                        YearId = YearFinding.Tables[0].Rows[0][@"Id"].ToString();
+                    }
+
+                    var sqlx = @"select * from AnnualLeaveDataCurrent where PlantId='"+PlantValue+"'and LeaveYearId='"+YearId+"'";
+                    objCon.OpenDataSetThroughAdapter(sqlx, out DataSet dsRef, false, false, "", "1");
+
+                }
+                _lock.UnlockProcess();
+
+            }
+            catch (Exception ex)
+            {
+                _lock.UnlockProcess();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region Leave Process Source Data
+
+        public void FindLeaveYear(string Date, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"select ld.* from LeaveYearDefination ld left 
+                join LeaveYearDefinationPlantChild pc on
+                pc.LeaveYearDefinationId=ld.Id where 
+                FromDate<='" + Date+"' and '"+Date+ "'<=ToDate and pc.PlantId='"+Plant+"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
+        public void LeaveSourceDataGeneration(string Date, out DataSet ds, string Plant)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            try
+            {
+                var sql = @"";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+
+        }
+
+        #endregion
+
         #region Save Function
 
         public static void SaveLog(string Message, string UserName, bool isError = false)

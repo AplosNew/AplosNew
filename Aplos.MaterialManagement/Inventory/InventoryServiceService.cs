@@ -207,6 +207,81 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        public void OtherVendorInsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
+        {
+            if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.InventoryService WHERE InventoryReceiveId='" + entity.InventoryReceiveId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
+                throw new CustomException("This service already taken."); ;
+
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                if (entity.IsNotNull())
+                {
+                    entity.ToCurrencyRate = entity.ToCurrencyRate == 0 ? 1 : entity.ToCurrencyRate;
+                    var currentId = _inventoryServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryService] WHERE InventoryReceiveId='{entity.InventoryReceiveId}'").First();
+                    currentId++;
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        entity.TotalTaxAmount = taxCategoryList.Sum(r => r.TaxAmount);
+                    }
+
+                    var service = new InventoryService
+                    {
+                        Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
+                        InventoryReceiveId = entity.InventoryReceiveId,
+                        ServiceMasterId = entity.ServiceMasterId,
+                        Amount = Math.Round(Convert.ToDecimal(entity.TransactionAmount), 2),
+                        TotalTaxAmount = Math.Round(Convert.ToDecimal(entity.TotalTaxAmount), 2),
+                    };
+                    AuditService.AddedLog(service);
+                    InsertGraph(service);
+                    if (taxCategoryList.IsNotNull())
+                    {
+                        var crrId = _inventoryServiceRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[InventoryReceiveTax] WHERE InventoryServiceId='{service.Id}'").First();
+                        foreach (var item in taxCategoryList)
+                        {
+                            crrId++;
+                            item.Id = MakePK(service.Id, crrId, 2);
+                            item.InventoryReceiveId = entity.InventoryReceiveId;
+                            item.InventoryReceiveDetailId = null;
+                            item.InventoryServiceId = service.Id;
+                            item.TaxAmount = Math.Round(item.TaxAmount, 2);
+                            AuditService.AddedLog(item);
+                            _receiveTaxRepository.Insert(item);
+                        }
+                    }
+                    var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == service.InventoryReceiveId).Select(t => t.IsNonCreditable).FirstOrDefault();//+ service.TotalTaxAmount
+                    var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount) : service.Amount, isNonCreditable);
+                    var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.TotalTaxAmount) : service.TotalTaxAmount, isNonCreditable);
+                    //if (entity.CurrencyId != entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable);
+                    //else if (entity.CurrencyId == entity.BaseCurrencyId)
+                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, 1, entity.IsNonCreditable);
+                }
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
 
 
 

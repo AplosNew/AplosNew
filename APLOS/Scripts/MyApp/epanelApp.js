@@ -40,6 +40,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("GatePassController", GatePassController)
     .controller("InoutGetpassCheckedController", InoutGetpassCheckedController)
     .controller("PendingGateoutListController", PendingGateoutListController)
+    .controller('EmployeeGoalSettingController', EmployeeGoalSettingController)
     .controller("ServiceAckCheckedApprovedByController", ServiceAckCheckedApprovedByController)
     .controller("PurchaseReturnCheckedApprovedByController", PurchaseReturnCheckedApprovedByController)
     .controller("inventorySalesCheckApproveController", inventorySalesCheckApproveController)
@@ -297,6 +298,10 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/employee-understanding-head', {
                 templateUrl: 'humanResource/EmployeeUnderstandingHead/Aplos',
                 controller: 'EmployeeUnderstandingHeadController'
+            })
+            .when('/employee-goal-setting', {
+                templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
+                controller: 'EmployeeGoalSettingController'
             })
             //#endregion
 

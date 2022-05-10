@@ -1,5 +1,5 @@
 ﻿'use strict';
-masterOrderController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller','toaster'];
+masterOrderController.$inject = ['accountService', '$window', 'cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$controller', 'toaster'];
 function masterOrderController(accountService, $window, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, toaster) {
     $rootScope.title = "Master Order";
     $scope.Action = 'Save';
@@ -133,7 +133,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
 
-    $scope.closeProductLibraryPopUp= function () {
+    $scope.closeProductLibraryPopUp = function () {
         angular.element(document.querySelector('#ProductLibraryPopUp')).modal('hide');
     }
 
@@ -1343,11 +1343,11 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.clearEntityOrVendor(list, index);
         if (list[index].JobWorkType === 'EntityWithinCompany') {
             list[index].EntityIdWithinCompany = data.Id;
-            list[index].EntityOrVendorName = data.Company+' - '+ data.Name;
+            list[index].EntityOrVendorName = data.Company + ' - ' + data.Name;
         }
         else if (list[index].JobWorkType === 'EntityWithinGroup') {
             list[index].EntityIdWithinGroup = data.Id;
-            list[index].EntityOrVendorName = data.Company+' - ' + data.Name;
+            list[index].EntityOrVendorName = data.Company + ' - ' + data.Name;
         }
         else {
             list[index].PartyId = data.Id;
@@ -1476,7 +1476,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.OrderPreCosting = function () {
         try {
             $scope.PreCosting = 1;
-            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&preCosting=' + $scope.PreCosting + '&MOIId=' +  $scope.MOIId;
+            var file_src = $scope.CostingPath + 'GetOrderCostingReport?OrderCostingId=' + $scope.OrderCostingId + '&preCosting=' + $scope.PreCosting + '&MOIId=' + $scope.MOIId;
             $rootScope.report(file_src);
 
         } catch (e) {
@@ -1757,6 +1757,36 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TotalMOIQty = 0;
     $scope.JobWorkType = '';
 
+    $scope.ItemRateDataList = [];
+    $scope.GetItemRateData = function (masterItemId) {
+
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetItemRateData?masterOrderItemId=' + masterItemId
+        }).then(function successCallback(response) {
+            $scope.ItemRateDataList = response.data;
+
+            if (baseService.arrayLength($scope.ItemRateDataList) > 0) {
+                for (var i = 0; i < $scope.ItemRateDataList.length; i++) {
+                    if ($scope.ItemRateDataList[i].UserName =="Rate") {
+                        $scope.soModel.Rate = $scope.ItemRateDataList[i].Value;
+                    }
+                    if ($scope.ItemRateDataList[i].UserName == "SalesExpense") {
+                        $scope.soModel.SalesExpense = $scope.ItemRateDataList[i].Value;
+                    }
+                    if ($scope.ItemRateDataList[i].UserName == "Discount") {
+                        $scope.soModel.Discount = $scope.ItemRateDataList[i].Value;
+                    }
+                    if ($scope.ItemRateDataList[i].UserName == "CM") {
+                        $scope.soModel.CM = $scope.ItemRateDataList[i].Value;
+                    }
+                   
+                }
+                SetNetSalesRealization();
+            }
+        });
+    };
+
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
         $scope.TotalMOIQty = x.TotalQty;
         $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
@@ -1801,7 +1831,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         };
         getSalesOrderList();
         $scope.getDestination();
-        //$scope.GetContractPercentage(id);
+        $scope.GetItemRateData($scope.masterItemId);
         angular.element(document.querySelector('#soPoUp')).modal('show');
     };
 
@@ -2744,12 +2774,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         angular.element(document.querySelector('#thirdPopup')).modal('hide');
                     }
 
-                   
+
 
 
                 });
         }
-       
+
     };
 
     function generateCharPopUp() {
@@ -2758,7 +2788,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.generate = function () {
         var firstCharId = '';
-       
+
 
         $http.get($scope.path + 'GetChValueCbo?materialId=' + $scope.materialMasterId)
             .then(function (response) {
@@ -2861,7 +2891,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                 $scope.sumTwoMatQuantity();
             });
-       
+
     }
 
     $scope.addSkuMatrixColumn = function () {
@@ -3278,7 +3308,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     , Qty: null
                     , Flag: null
                 });
-               
+
             });
 
     }
@@ -3417,26 +3447,66 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.AddDescription = function (data) {
         $scope.masterOrderItem = data;
         angular.element(document.querySelector('#DescriptionPopup')).modal('show');
-
     }
 
     $scope.costingSOFormulaList = [];
-    $scope.CloseSORatePopup = function () {
-        angular.element(document.querySelector('#SORatePopup')).modal('hide');
-
+    $scope.CloseMOSORatePopup = function () {
+        angular.element(document.querySelector('#MOSORatePopup')).modal('hide');
     }
     $scope.ProductLibraryList = [];
-    $scope.GetSORatePopup = function (index) {
+    $scope.lieneId = null;
+    $scope.GetMOSORatePopup = function (index, data) {
         $scope.itemIndex = index;
+        $scope.lieneId = data.Id;
+
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData/'
+            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData?masterOrderItemId=' + data.Id
         }).then(function successCallback(response) {
             $scope.costingSOFormulaList = response.data;
-            angular.element(document.querySelector('#SORatePopup')).modal('show');
+            angular.element(document.querySelector('#MOSORatePopup')).modal('show');
         });
     };
 
+
+
+    $scope.CalculateRate = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CalculateRate',
+                data: { 'OpenHeadNew': $scope.costingSOFormulaList},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.costingSOFormulaList = [];
+                $scope.costingSOFormulaList = response.data.NewData;
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveItemCostingRate = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/CreateMasterOrderItemCostingRate',
+            data: { 'data': $scope.costingSOFormulaList,'lieneId': $scope.lieneId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getMasterItemList();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
 
     $scope.SaveItemDescription = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -4844,7 +4914,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , IsDefault: false
             , Active: true
         };
-        if ($scope.ValueAssign =='General') {
+        if ($scope.ValueAssign == 'General') {
             $scope.characteristicsValue.MaterialMasterId = null;
         }
         $scope.characteristicsvalueNew = angular.copy($scope.characteristicsValue);
@@ -4872,7 +4942,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
                 $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1.Id });
                 $scope.char2ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char2.Id });
-                
+
 
             });
     }
@@ -4913,7 +4983,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     //#endregion 
 
     $scope.orderCostingMasterTemplateList = [];
-    $scope.ShowOrderCostingMasterTemplatePopUp = function (index,articleId) {
+    $scope.ShowOrderCostingMasterTemplatePopUp = function (index, articleId) {
         $scope.orderCostingMasterTemplateList = [];
         $scope.itemIndex = index;
         $http({
@@ -4925,7 +4995,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.CloseOrderCostingMasterTemplatePopup= function () {
+    $scope.CloseOrderCostingMasterTemplatePopup = function () {
         angular.element(document.querySelector('#OrderCostingMasterTemplatePopup')).modal('hide');
     }
 

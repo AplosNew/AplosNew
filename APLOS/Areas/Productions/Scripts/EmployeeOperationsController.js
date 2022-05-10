@@ -27,6 +27,8 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     $scope.responsiblePerson = null;
     $scope.responsiblePersonId = null;
 
+    var show = document.getElementById("ShowForm");
+
     //Arrays
     $scope.EntityList = [];
     $scope.workCenterList = [];
@@ -43,10 +45,17 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
+        if (newTab == 3) {
+            show.style.display = "none";
+        }
+        else {
+            show.style.display = "block";
+        }
         $scope.tab = newTab;
 
     };
     $scope.isSet = function (tabNum) {
+      
         return $scope.tab === tabNum;
     };
 
@@ -324,7 +333,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         $http({
             method: 'POST',
             url: $scope.path + 'getReportView',
-            data:{'Date':$scope.Date},
+            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId},
         }).then(function succ(response) {
             console.log(response.data.Data);
             console.log(response.data.Cols);
@@ -360,11 +369,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
         });
     }
     // Download Button Functionality
+    $scope.FromDate = null;
+    $scope.ToDate = null;
     $scope.getReportDownload = function () {
         $http({
             method: 'POST',
             url: $scope.path + "getReportDownload",
-            data: { 'Date': $scope.Date },
+            data: { 'Date': $scope.Date, 'Wkc': $scope.workCenterId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -383,7 +394,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             method: 'POST',
             url: $scope.path + "getProcessDownload",
             data: {
-                'Date': $scope.Date
+                'FromDate': $scope.FromDate , 'ToDate':$scope.ToDate,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -403,7 +414,7 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
             method: 'POST',
             url: $scope.path + "getEmployeeWorkDurationReport",
             data: {
-                'Date': $scope.Date
+                'FromDate': $scope.FromDate, 'ToDate': $scope.ToDate,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -420,12 +431,13 @@ function EmployeeOperationsController(cboService, commonMessage, $scope, $rootSc
     
 
     //Processing Button
+    $scope.ProcessDate = null;
     $scope.processAll = function () {
         $http({
             method: 'POST',
             url: $scope.path + 'processAll',
             data: {
-                'Date': $scope.Date
+                'Date': $scope.ProcessDate
             },
         }).then(function succ(resp) {
 

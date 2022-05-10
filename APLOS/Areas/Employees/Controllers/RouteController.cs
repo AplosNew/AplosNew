@@ -571,8 +571,8 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetShift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription
-						,SD.UserName ShiftDefination,SD.InTime,SD.OutTime
+            string str = @"select SD.SystemID ShiftId,P.Id PlantId,P.UserName Plant,SD.ShiftDefinationDescription,SD.UserName ShiftDefination 
+						,CONVERT(varchar(5),SD.InTime,108) InTime,CONVERT(VARCHAR(5), SD.InTime, 108) OutTime
 						
 						from ShiftDefination SD
 						left join ORG.Plant P on P.Id=SD.PlantID";
