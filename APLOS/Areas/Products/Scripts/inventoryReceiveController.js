@@ -2175,84 +2175,17 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		}
 	}
 	$scope.closeReceiveTaxPopUpValue = function (x) {
-		//debugger;
-		//if ($scope.Action1 === 'Update') {
-		//	for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//		var row = $filter('filter')($scope.new, { 'RCBDetailsID': $scope.inventoryMaterialList[i].RCBDetailsID });
-		//		if (row.length != 0) {
-		//			if ($scope.inventoryMaterialList[i].InventoryReceiveDetailId === row[0].InventoryReceiveDetailId) {
-		//				$scope.inventoryMaterialList[i].ShortageRate = row[0].ShortageRate;
-		//				$scope.inventoryMaterialList[i].ShortageValue = row[0].ShortageValue;
-		//				$scope.inventoryMaterialList[i].RejectionRate = row[0].RejectionRate;
-		//				$scope.inventoryMaterialList[i].RejectionValue = row[0].RejectionValue;
-		//				$scope.inventoryMaterialList[i].RejectionClamRate = row[0].RejectionClamRate;
-		//			}
-		//			//angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//		}
-		//		else {
-		//			angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//		}
-		//		angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//	}
-		//	angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//}
-
-
-
-
-		//else {
-
-		//	for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-		//		var row = $filter('filter')($scope.new1, { 'PODetailsID': $scope.inventoryMaterialList[i].PODetailsID });
-		//		if (row.length != 0) {
-		//			if ($scope.inventoryMaterialList[i].PODetailsID === row[0].PODetailsID) {
-		//				$scope.inventoryMaterialList[i].ShortageRate = row[0].ShortageRate;
-		//				$scope.inventoryMaterialList[i].ShortageValue = row[0].ShortageValue;
-		//				$scope.inventoryMaterialList[i].RejectionRate = row[0].RejectionRate;
-		//				$scope.inventoryMaterialList[i].RejectionValue = row[0].RejectionValue;
-		//				$scope.inventoryMaterialList[i].RejectionClamRate = row[0].RejectionClamRate;
-		//			}
-
-		//		}
-		//		else {
-		//			angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//		}
-		//		angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//	}
-		//	angular.element(document.querySelector('#ValueSet')).modal('hide');
-		//}
-		//$scope.UpdateGRNDetails();
+	
 		angular.element(document.querySelector('#ValueSet')).modal('hide');
 	}
 	$scope.closeReceiveTaxPopUpValue1 = function () {
 		angular.element(document.querySelector('#ValueSet')).modal('hide');
 	}
 	$scope.calculateAmount = function (data, index) {
-		//debugger;
-		//$scope.PreBal = data.Balance;
-
-		// data.TransactionRate = (data.TrnAmount / data.TransactionQty).toFixed(2);
-		//data.TrnAmount = (data.TransactionQty * data.TransactionRate).toFixed(2);
-		//if (data.TrnAmount == 'NaN')
-		//	data.TrnAmount = 0;
-		//data.TaxAmount = 0;
-		//data.BaseTaxAmount = 0;
-		//var TotalServiceAmount = $filter('sumByKey')($filter('filter')($scope.chargesListPO), 'Amount');
-		//var TotalTrnAmount = $filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO), 'TrnAmount');
-		//var TotalServiceTaxAmount = $filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount');
-
-		//angular.forEach(data.POMaterialTaxList, function (item) {
-		//	item.TaxAmount = data.TrnAmount * item.Percentage / 100;
-		//	data.BaseTaxAmount += item.TaxAmount;
-
-		//});
+	
 
 		for (var i = 0; i < $scope.inventoryMaterialList.length; i++) {
-			//$scope.inventoryMaterialListPO[i].Balance = '';
-			//if ($scope.inventoryMaterialListPO[i].POQty < ($scope.inventoryMaterialListPO[i].GRNRcvQty + $scope.inventoryMaterialListPO[i].TransactionQty)) {
-			//	$scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty - $scope.inventoryMaterialListPO[i].GRNRcvQty;
-			//	ShowResult('Current quantity can not grater than balance qty!', 'failure');
-			//}
+			
 			if ($scope.inventoryMaterialList[i].ShortageQty > $scope.inventoryMaterialList[i].TransactionQty) {
 				//$scope.inventoryMaterialListPO[i].Balance = $scope.inventoryMaterialListPO[i].POQty - $scope.inventoryMaterialListPO[i].GRNRcvQty;
 				ShowResult('Shortage Qty quantity can not grater than current qty!', 'failure');
@@ -3953,5 +3886,164 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 
 	};
 	//#endregion
+	//$scope.searchByParty = "UserName"; $scope.searchParty = "";
+	//$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+	$scope.showOtherPartyPopUpNew = function () {
+		
+		if ($scope.partyType === 'Vendor') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+		}
+		$http({
+			method: 'POST',
+			url: $scope.partyUrl,
+			data: { column: $scope.searchByParty, value: $scope.searchParty },
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			$scope.partyList = response.data;
+		});
+		angular.element(document.querySelector('#partyOtherPopUp')).modal('show');
+	};
+	$scope.closeOtherPartyPopUp = function (x) {
+		//if ($scope.partyIndex !== -1) {
+
+		var party = x.data;// $scope.partyList[$scope.partyIndex];
+		$scope.productNew.OtherPartyCode = party.Code;
+		$scope.productNew.OtherPartyName = party.UserName;
+		$scope.productNew.OtherPartyId = party.Id;
+		
+		//$scope.productNew.TaxApplicable = party.TaxApplicable;
+		//$scope.productNew.IsTaxApplicableChangeable = party.IsTaxApplicableChangeable;
+		getOtherPartyPlantList();
+		//}
+		$scope.hideOtherPartyPopUp();
+	};
+	function getOtherPartyPlantList() {
+		$scope.plantList = [];
+		$http.get('Parties/party/GetPartyPlantCbo?partyId=' + $scope.productNew.OtherPartyId).then(function (response) {
+			angular.forEach(response.data, function (item) {
+				$scope.plantList.push(item);
+				if (item.IsDefault) {
+					$scope.productNew.OtherInvoicingPartyPlantId = item.Value;
+					$scope.productNew.OtherDeliveryPartyPlantId = item.Value;
+					$scope.productNew.OtherInvoicingByAddress = item.Address1;
+					$scope.productNew.OtherDeliveryByAddress = item.Address1;
+					$scope.productNew.OtherInvoicingState = item.StateName;
+					$scope.productNew.OtherInvoicingGSTIN = item.GSTIN;
+					$scope.productNew.OtherDeliveryState = item.StateName;
+					$scope.productNew.OtherDeliveryGSTIN = item.GSTIN;
+				}
+			});
+		});
+	}
+
+	$scope.hideOtherPartyPopUp = function () {
+		angular.element(document.querySelector('#partyOtherPopUp')).modal('hide');
+	};
+
+	$scope.OtherinvoicingPartyPopUp = function () {
+		angular.element(document.querySelector('#OtherinvoicingPartyPopUp')).modal('show');
+	};
+	$scope.closeOtherInvoicingPartyPopUp = function () {
+		angular.element(document.querySelector('#OtherinvoicingPartyPopUp')).modal('hide');
+	};
+
+	$scope.otherserviceCboList = [];
+	$scope.OtherserviceChargePopUp = function () {
+		$scope.productNew.TaxOptionService = 'Yes';
+		if (baseService.arrayLength($scope.inventoryMaterialList) === 0)
+			return ShowResult('Without material charges not aplicable.');
+		$scope.taxCategoryList = null;
+		$scope.OtherserviceModel = {
+			Id: null
+			, ServiceMasterId: null
+			, InventoryReceiveId: $scope.productNew.Id
+			, CurrencyName: angular.element("#currency :selected").text()
+			, CurrencyId: $scope.productNew.CurrencyId
+			, BaseCurrencyId: $scope.baseCurrencyId
+			, DocDate: $scope.productNew.DocDate
+			, TransactionAmount: 0
+			, BaseAmount: 0
+			, TotalTaxAmount: 0
+			, ToCurrencyRate: $scope.productNew.ToCurrencyRate
+			, IsNonCreditable: $scope.productNew.IsNonCreditable
+		};
+		$scope.getOtherService();
+		angular.element(document.querySelector('#otherserviceChargePopUp')).modal('show');
+	};
+    $scope.getOtherService = function () {
+		$http.get('Setups/CompanyServiceMaster/GetCboList')
+			.then(function (response) {
+				$scope.otherserviceCboList = response.data;
+			});
+    }
 	
+
+	$scope.closeOtherServiceChargePopUp = function () {
+		$scope.OtherserviceModel = {};
+		$scope.receiveTaxList = [];
+		angular.element(document.querySelector('#otherserviceChargePopUp')).modal('hide');
+	};
+
+	$scope.changeOtherService = function () {
+		if (baseService.isUndefinedOrNull($scope.OtherserviceModel.ServiceMasterId))
+			return getTaxCategoryList(hsnCodeId);//$scope.taxCategoryList = [];
+		var hsnCodeId = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCodeId;
+		var HSNCode = $.grep($scope.otherserviceCboList, function (item) { return item.Value === $scope.OtherserviceModel.ServiceMasterId; })[0].HSNCode;
+		getTaxCategoryList(hsnCodeId, HSNCode);
+	};
+
+	$scope.calculateSvcTaxCategory = function () {
+		$scope.OtherserviceModel.TotalTaxAmount = 0;
+		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
+			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.OtherserviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
+			$scope.OtherserviceModel.TotalTaxAmount = (parseFloat($scope.OtherserviceModel.TotalTaxAmount) + parseFloat($scope.taxCategoryList[i].TaxAmount)).toFixed($rootScope.currencyPrecision);
+		}
+		if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.OtherserviceModel.TotalTaxAmount = 0;
+	};
+	$scope.OthersreviceSaveUrl = $scope.path + 'OtherVendorServiceChargesCreate';
+	$scope.OtherserviceSave = function () {
+		try {
+			$scope.manualValidationAddRemove('div_svcOther', 'OtherserviceModel', 'ServiceMasterId');
+			$scope.manualValidationAddRemove('div_svcRateOther', 'OtherserviceModel', 'TransactionAmount', 'Amount');
+
+			$http({
+				method: 'POST',
+				url: $scope.OthersreviceSaveUrl,
+				data: {
+					entity: $scope.OtherserviceModel
+					, taxCategoryList: $scope.taxCategoryList
+				},
+				dataType: 'JSON'
+			}).then(function successCallback(response) {
+				if (response.data.Error === true)
+					ShowResult(response.data.Message, 'failure', 'otherserviceChargePopUp');
+				else {
+					ShowResult(response.data.Message, 'success', 'otherserviceChargePopUp');
+					$scope.serviceModel = {
+						Id: null
+						, ServiceMasterId: null
+						, InventoryReceiveId: $scope.productNew.Id
+						, CurrencyName: angular.element("#currency :selected").text()
+						, CurrencyId: $scope.productNew.CurrencyId
+						, BaseCurrencyId: $scope.baseCurrencyId
+						, DocDate: $scope.productNew.DocDate
+						, TransactionAmount: 0
+						, BaseAmount: 0
+						, TotalTaxAmount: 0
+						, ToCurrencyRate: $scope.productNew.ToCurrencyRate
+						, IsNonCreditable: $scope.productNew.IsNonCreditable
+					};
+					$scope.taxCategoryList = [];
+					getServiceChargeList($scope.productNew.Id);
+					getInventoryMaterialList($scope.productNew.Id);
+					$scope.getDataList();
+				}
+			}), function errorCallBack(response) {
+				ShowResult(response.data.Message, 'failure', 'otherserviceChargePopUp');
+			};
+		} catch (e) {
+			//ShowResult(e, 'fail', 'detailPopUp');
+		}
+	};
 }

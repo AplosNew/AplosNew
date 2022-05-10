@@ -1806,7 +1806,7 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
                 ,isnull(ac.Opening,'0')Opening,isnull(Masterx.EarnDays,'0')+ isnull(md.Earned,'0')Earned,
                 (isnull(md.RegularEncashment,'0')+ISNULL(ac.RegularEncashment,'0')) 
 				RegularEncashment,
-				Availed= (Info.AvailedLeave+isnull(md.Availed,'0')),
+				Availed= (isnull(Info.AvailedLeave,'0')+isnull(md.Availed,'0')),
 			    (isnull(md.Adjustment,'0') +isnull(ac.Adjustment,'0'))Adjustment,				
                 Info.EmpTypeId
                 from LeaveYearDefination ld 

@@ -552,7 +552,12 @@ namespace Library.Accounting.Accounts
 
         public IEnumerable<object> GetcustomerInvoiceList( string companyGroupId, string companyId, string plantId,string customerSelectedList, string fromDate, string toDate, string paymentStatus)
         {
-            var sql  = @"SELECT Id,VoucherNo,PostingDate, DocRefNo
+            var status = "";
+            if (paymentStatus == "Pending")
+            {
+                status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
+            }
+            var sql  = @"SELECT Id,VoucherNo,PostingDate, DocRefNo,DocRefNo,BuyerRefNo,CustomerRemarks,ExpectedPaymentReceivedDate
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
 				 ,ISNULL(X.GrossSales,0 )GrossSales 
@@ -564,6 +569,7 @@ namespace Library.Accounting.Accounts
 				
                 FROM (
                 SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,IV.[BuyerRefNo] ,IV.[CustomerRemarks],Replace(CONVERT(VARCHAR(11), IV.ExpectedPaymentReceivedDate, 106), ' ', '-') ExpectedPaymentReceivedDate
                 ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId--,cc.CompanyCurrencyRate
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
 				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
@@ -593,10 +599,11 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                and IV.PartyId in 	(" + customerSelectedList + @")  AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                and IV.PartyId in 	(" + customerSelectedList + @")  AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 UNION ALL
                 SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,IV.[BuyerRefNo] ,IV.[CustomerRemarks],Replace(CONVERT(VARCHAR(11), IV.ExpectedPaymentReceivedDate, 106), ' ', '-') ExpectedPaymentReceivedDate
                 ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
 				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
@@ -643,14 +650,15 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                  and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
+                  and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                -- AND IR.PurchaseDocumentAcceptanceId IS NULL
                 
                 union all
 
 
 				 SELECT IV.Id,V.VoucherNo,Replace(CONVERT(VARCHAR(11), IV.PostingDate, 106), ' ', '-') PostingDate, IV.DocRefNo
+                ,'' [BuyerRefNo] ,'' [CustomerRemarks],''  ExpectedPaymentReceivedDate
                 ,ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
 				,ISNULL( P.UserName,'') PartyName,ISNULL( PP.UserName,'') AS PartyPlantName ,ISNULL( c.Code,'') CurrencyCode
@@ -680,8 +688,8 @@ namespace Library.Accounting.Accounts
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
-                 and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
+                 and IV.PartyId in 	(" + customerSelectedList + @") AND IV.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 
 				)
                 X
@@ -793,31 +801,35 @@ namespace Library.Accounting.Accounts
         {
             try
             {
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                DataSet _drvDetailDataset = null;
+                //ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                //DataSet _drvDetailDataset = null;
                 foreach (var voucherDetailVM in voucherDetailVMList)
                 {
-                        con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[Invoice] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailDataset, false, "1");
-                        
-                        DataView dv = new DataView(_drvDetailDataset.Tables[0]);
-                        dv.RowFilter = "Id='" + voucherDetailVM.Id + "'";
-                        if (dv.Count > 0)
-                        {
-                            DataRow dr = dv[0].Row;
+                    var rdBuilder = new System.Text.StringBuilder();
+                    var builderSql = @"UPDATE [TRN].[Invoice] SET ExpectedPaymentReceivedDate='" + voucherDetailVM.ExpectedPaymentReceivedDate + "' , BuyerRefNo='" + voucherDetailVM.BuyerRefNo + "' , CustomerRemarks='" + voucherDetailVM.CustomerRemarks + "'   WHERE Id='" + voucherDetailVM.Id + "' ";
+                    rdBuilder.Append(builderSql);
+                    _sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+                    //con.OpenDataSetThroughAdapter(@"SELECT * FROM [TRN].[Invoice] WHERE Id='" + voucherDetailVM.Id + "'", out _drvDetailDataset, false, "1");
 
-                            dr.BeginEdit();
+                    //DataView dv = new DataView(_drvDetailDataset.Tables[0]);
+                    //dv.RowFilter = "Id='" + voucherDetailVM.Id + "'";
+                    //if (dv.Count > 0)
+                    //{
+                    //    DataRow dr = dv[0].Row;
 
-                            dr["GLGeneralInfoId"] = voucherDetailVM.GLGeneralInfoId;
-                            dr["BudgetMasterId"] = voucherDetailVM.BudgetMasterId;
-                            dr["ActivityId"] = voucherDetailVM.ActivityId;
+                    //    dr.BeginEdit();
 
-                            dr.EndEdit();
+                    //    dr["ExpectedPaymentReceivedDate"] = voucherDetailVM.ExpectedPaymentReceivedDate;
+                    //    dr["BuyerRefNo"] = voucherDetailVM.BuyerRefNo;
+                    //    dr["CustomerRemarks"] = voucherDetailVM.CustomerRemarks;
 
-                        }  
+                    //    dr.EndEdit();
+
+                    //}  
                 }
 
-                clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_drvDetailDataset);
+                //clsStaticInfo objApp = new clsStaticInfo();
+                //objApp.SaveDataSets(_drvDetailDataset);
             }
             catch (Exception ex)
             {

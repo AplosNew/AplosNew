@@ -1152,7 +1152,7 @@ order by  Assigned, ProductCode , PO
                             LEFT JOIN ProductLibrary P ON P.Code = S.ProductCode 
                             LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
-                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' "+loc+ @"
+                            WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc+ @"
                             and M.StandardName is not null
                             group by  M.StandardName , S.LotNo, S.NetWeight 
                             order by M.StandardName , S.LotNo";
