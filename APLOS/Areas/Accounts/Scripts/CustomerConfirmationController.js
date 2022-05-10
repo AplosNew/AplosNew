@@ -237,8 +237,10 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
             }
             
         }
-        
-        $scope.getcustomerInvoiceList();
+        if (NewCustomerSelectedList.length > 0) {
+            $scope.getcustomerInvoiceList();
+        }
+       
         angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
     $scope.customerInvoiceList = [];
