@@ -226,7 +226,7 @@ namespace Library.MaterialManagement.Inventory
                     {
                         entity.TotalTaxAmount = taxCategoryList.Sum(r => r.TaxAmount);
                     }
-
+                     
                     var service = new InventoryService
                     {
                         Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
