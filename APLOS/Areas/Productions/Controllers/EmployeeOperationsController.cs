@@ -548,12 +548,20 @@ namespace Aplos.Areas.Productions.Controllers
             int ColOpCode = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Operation", 12, ExcelHAlign.HAlignCenter);
+            int ColOpName = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Skill Category", 12, ExcelHAlign.HAlignCenter);
             int ColSkCat = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Qty", 12, ExcelHAlign.HAlignCenter);
             int ColQty = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SPT", 12, ExcelHAlign.HAlignCenter);
+            int ColSpt = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Produced Min", 12, ExcelHAlign.HAlignCenter);
@@ -601,8 +609,10 @@ namespace Aplos.Areas.Productions.Controllers
             for (int i = 0; i < data.Rows.Count; i++)
             {
                 sheet[ROW, ColDate].Text = data.Rows[i]["WorksDate"].ToString();
-                sheet[ROW, ColPo].Text = data.Rows[i]["ProductionOrderId"].ToString();
+                sheet[ROW, ColPo].Number = clsStaticInfo.dbl(data.Rows[i]["ProductionOrderId"].ToString());
                 sheet[ROW, ColShift].Text = data.Rows[i]["ShiftName"].ToString();
+                sheet[ROW, ColSpt].Number = clsStaticInfo.dbl(data.Rows[i]["StandardProcessTime"].ToString());
+                sheet[ROW, ColOpName].Text = data.Rows[i]["OperationName"].ToString();
                 sheet[ROW, Colwk].Text = data.Rows[i]["WorkCenter"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerRef"].ToString();
                 sheet[ROW, ColORef].Text = data.Rows[i]["OwnRef"].ToString();
@@ -610,13 +620,13 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColEmpCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmpName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColOpCode].Text = data.Rows[i]["OperationCode"].ToString();
-                sheet[ROW, ColQty].Text = data.Rows[i]["Qty"].ToString();
-                sheet[ROW, ColProdMin].Text = data.Rows[i]["TotalSPT"].ToString();
+                sheet[ROW, ColQty].Number = clsStaticInfo.dbl(data.Rows[i]["Qty"].ToString());
+                sheet[ROW, ColProdMin].Number = clsStaticInfo.dbl(data.Rows[i]["TotalSPT"].ToString());
                 sheet[ROW, ColSkCat].Text = data.Rows[i]["SkillCategory"].ToString();
-                sheet[ROW, ColSkAll].Text = data.Rows[i]["SkillAllowance"].ToString();
-                sheet[ROW, ColAdOpAll].Text = data.Rows[i]["AdditionalOperationAllowance"].ToString();
-                sheet[ROW, ColSpAll].Text = data.Rows[i]["SpecialOperationAllowance"].ToString();
-                sheet[ROW, ColGProd].Text = data.Rows[i]["AllotedProducedMin"].ToString();
+                sheet[ROW, ColSkAll].Number = clsStaticInfo.dbl(data.Rows[i]["SkillAllowance"].ToString());
+                sheet[ROW, ColAdOpAll].Number = clsStaticInfo.dbl(data.Rows[i]["AdditionalOperationAllowance"].ToString());
+                sheet[ROW, ColSpAll].Number = clsStaticInfo.dbl(data.Rows[i]["SpecialOperationAllowance"].ToString());
+                sheet[ROW, ColGProd].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedProducedMin"].ToString());
                 sheet[ROW, ColRem].Text = data.Rows[i]["Remarks"].ToString();
 
                 ROW++;
