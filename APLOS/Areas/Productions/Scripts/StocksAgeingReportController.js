@@ -5,6 +5,7 @@ function StocksAgeingReportController(cboService, commonMessage, $scope, $rootSc
     $scope.path = 'Productions/StocksAgeingReport/';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
+
     // Variables
     //$scope.FromDate = null;
     //$scope.ToDate = null;

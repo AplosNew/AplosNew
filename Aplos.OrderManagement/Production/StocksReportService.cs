@@ -94,6 +94,7 @@ namespace Library.OrderManagement.Production
                 //                )  as TT
                 //                group by tt.ProductCode , tt.POId , tt.LotNo , tt.Material , tt.Article , tt.Customers) as dd";
 
+
                 var str = @"
 Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Article, Customers , Case when D15>0 then D15 else null end as D15
                             , Case when D15T30>0 then D15T30 else null end as D15T30
