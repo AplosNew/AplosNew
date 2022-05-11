@@ -97,7 +97,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rsl.getAssetName(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpGet, Authorize]
         public ActionResult view(string PlantId, string EmployeeCategoryId, string ResidenceGroupId)
         {
             return Json(rsl.view(PlantId, EmployeeCategoryId, ResidenceGroupId), JsonRequestBehavior.AllowGet);

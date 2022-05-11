@@ -3221,6 +3221,11 @@ group by Id) O60 ON O60.Id=IV.Id
         }
         public GridModel GetCustomerListForConfirmation(GridParameter parameters, string companyGroupId, string companyId, string plantId, string FromDate, string ToDate, string PaymentStatus)
         {
+            var status = "";
+            if(PaymentStatus== "Pending")
+            {
+                status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
+            }
             parameters.CmdText = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
@@ -3330,8 +3335,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
+                AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
@@ -3425,8 +3430,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
-                  AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0  AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
+                  AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                -- AND IR.PurchaseDocumentAcceptanceId IS NULL
                 
                 union all
@@ -3518,8 +3523,8 @@ group by Id) O60 ON O60.Id=IV.Id
                 WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
-                WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
-                 AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                WHERE IV.Archive=0  AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
+                 AND IV.PostingDate BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + status + @"
                 
 				)
                 X
