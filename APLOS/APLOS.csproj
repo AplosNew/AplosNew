@@ -1950,6 +1950,7 @@
     <Content Include="Areas\Farming\Scripts\TransactionTypeController.js" />
     <Content Include="Areas\Farming\Scripts\VillageController.js" />
     <Content Include="Areas\Farming\Scripts\VoucherController.js" />
+    <Content Include="Areas\FixedAssets\Scripts\fixedAssetDepreciationProcessController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposePostController.js" />
     <Content Include="Areas\FixedAssets\Scripts\fixedAssetDisposeController.js" />
     <Content Include="Areas\FixedAssets\Scripts\FixedAssetsRegisterDisposedReportController.js" />
@@ -4137,6 +4138,7 @@
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekDefinition.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekMaster.cshtml" />
     <Content Include="Areas\Accounts\Views\GSTLedgerReport.cshtml" />
+    <Content Include="Areas\FixedAssets\Views\FixedAssetDepreciationProcess.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
