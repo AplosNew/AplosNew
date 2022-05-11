@@ -130,4 +130,21 @@ function NewAttendanceProcessController($window, $timeout, cboService, commonMes
             });
         }
     }
+
+    $scope.Run_LeaveProcess = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.NewAttdnProcess.$valid) {
+
+            $http({
+                method: 'GET',
+                url: $scope.path + 'Run_LeaveProcess?Date=' + $scope.Attnd.Date,
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    ShowResult(response.data.Message, 'success');
+                } else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            });
+        }
+    }
  }

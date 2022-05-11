@@ -6490,7 +6490,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             decimal Availed = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Availed"]).ToString());
                             decimal Earned = Convert.ToDecimal(clsWebLib.RetValidLen(dsSource.Tables[0].Rows[i][@"Earned"]).ToString());
 
-                            dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='"+LvTypeId+ "' AND LeaveYearId='"+YearId;
+                            dsRef.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' AND LeaveTypeId='"+LvTypeId+ "' AND LeaveYearId='"+ LvYearId+"'";
                             if (dsRef.Tables[0].DefaultView.Count > 0)
                             {
                                 DataRow dr = dsRef.Tables[0].DefaultView[0].Row;

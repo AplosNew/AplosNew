@@ -17,6 +17,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         return $scope.tab2 === tabNum;
     };
 
+    //baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "InvoiceNo", "InvoiceNo");
     baseService.init("Productions/PackingInvoice/GetList", null, null, "DESC", "AddedDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -1189,6 +1190,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
 
     $scope.Get = function (data) {
         $scope.salesVM = data;
+        $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         $scope.ModelNew.Amount = data.Amount;
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
         $scope.GetSalesMaterialData($scope.salesVM.Id);

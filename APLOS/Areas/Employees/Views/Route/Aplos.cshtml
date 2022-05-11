@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    @*<div class="form-group">
                         <label class="col-sm-4 control-label">Driver Select</label>
                         <div class="col-sm-8">
                             <div class="input-group">
@@ -61,7 +61,7 @@
                                 </span>
                             </div>
                         </div>
-                    </div>
+                    </div>*@
 
                     <div class="col-sm-12">
                         <div class="common-btn">
@@ -117,8 +117,10 @@
                                         <th>ShortName</th>
                                         <th>StandardName</th>
                                         <th>UserName</th>
-                                        <th>Up Duration(min)</th>
-                                        <th>Down Duration(min)</th>
+                                        @*<th>Up Duration(min)</th>
+                                        <th>Down Duration(min)</th>*@
+                                        <th>Up Distance From(In min)</th>
+                                        <th>Down Distance From(In min)</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -138,12 +140,12 @@
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input ng-model="x.UpDuration" style="color:black;" class="form-control" />
+                                                <input n-decimals="2" ng-model="x.UpDistanceFrom" style="color:black;" class="form-control" />
                                             </div>
                                         </td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input ng-model="x.DownDuration" style="color:black;" class="form-control" />
+                                                <input n-decimals="2" ng-model="x.DownDistanceFrom" style="color:black;" class="form-control" />
                                             </div>
                                         </td>
                                         <td class="text-right table-td">
@@ -266,7 +268,7 @@
                                             <td>{{x.Id}}</td>
                                             <td>{{x.TransportUserName}}</td>
                                             <td>{{x.TransportNo}}</td>
-                                            <td>{{x.Driver}}</td>
+                                            <td>{{x.DriverName}}</td>
                                             <td>{{x.TransportCategory}}</td>
                                             <td>{{x.TransportPort}}</td>
                                             <td>{{x.Capacity}}</td>
@@ -333,7 +335,12 @@
                                         <input type="text" n-decimals="4" name="Distance" ng-model="ModelRouteSchedule.Distance" class="form-control text-right" required tabindex="110">
                                     </div>
                                 </div>
-
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Distance Per Unit(In km)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" n-decimals="4" name="Distance Per Unit" ng-model="ModelRouteSchedule.DistancePerUnit" class="form-control text-right" required tabindex="110">
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group" show-errors>
@@ -399,6 +406,7 @@
                                                 <th>To</th>
                                                 <th>Up/Down</th>
                                                 <th>Distance(km)</th>
+                                                <th>Distance Per Unit(In km)</th>
                                                 <th>Shift</th>
                                                 <th>Remarks</th>
                                                 <th>Remove</th>
@@ -414,6 +422,7 @@
                                                 <td>{{x.To}}</td>
                                                 <td>{{x.UpDown}}</td>
                                                 <td>{{x.Distance}}</td>
+                                                <td>{{x.DistancePerUnit}}</td>
                                                 <td>{{x.Shift}}</td>
                                                 <td>{{x.Remarks}}</td>
                                                 <td class="text-right table-td">
@@ -589,8 +598,7 @@
             <div e-column e-field="ShortName" e-headertext="Short Name" e-width="5"></div>
             <div e-column e-field="StandardName" e-headertext="Standard Name" e-width="4"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="4"></div>
-            <div e-column e-field="DriverName" e-headertext="Driver Name" e-width="4"></div>
-            <div e-column e-field="FixedAsset" e-headertext="Fixed Asset" e-width="4"></div>
+            <div e-column e-field="Description" e-headertext="Description" e-width="4"></div>
         </div>
     </div>
 </div>
