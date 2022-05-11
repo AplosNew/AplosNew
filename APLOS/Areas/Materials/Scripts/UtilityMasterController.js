@@ -9,7 +9,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveChildUrl = $scope.path + 'CreateChild';
-    
+
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
     baseService.init($scope.getListUrl);
@@ -85,11 +85,15 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
 
     $scope.partyList = [];
-    $scope.ShowCustomerPopUpNew = function () {
-        $scope.partyType = "Customer";
+    $scope.partyType = "Vendor";
+    $scope.ShowCustomerPopUpNew = function (partyType) {
+        $scope.partyType = partyType;
         $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
-
-        $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + '' + '&PlantId=' + '';
+        if ($scope.partyType == "Vendor" || $scope.partyType == "Customer") {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + $scope.partyType + '&CompanyId=' + '' + '&PlantId=' + '';
+        } else {
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataSearch?partyType=' + null + '&CompanyId=' + '' + '&PlantId=' + '';
+        }
 
         $http({
             method: 'POST',
@@ -197,7 +201,7 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
                 $scope.ModelNew.AdminId = employee.SystemId;
                 $scope.ModelNew.Admin = employee.EmployeeName;
             }
-            
+
         }
         $scope.hideEmployeePopUp();
     };
@@ -320,24 +324,24 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     $scope.ModelChildNew = Object.assign({}, $scope.ModelChild);
 
     $scope.SaveChild = function () {
-            $http({
-                method: 'POST',
-                url: $scope.saveChildUrl,
-                data: { 'data': $scope.ModelChildNew, 'UtilityMasterId': $scope.ModelNew.Id },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.getData();
-                    $scope.getUtilityGridData($scope.ModelNew.Id);
-                    $scope.ClearUtilityDetail();
-                }
-            }), function errorCallBack(response) {
+        $http({
+            method: 'POST',
+            url: $scope.saveChildUrl,
+            data: { 'data': $scope.ModelChildNew, 'UtilityMasterId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getData();
+                $scope.getUtilityGridData($scope.ModelNew.Id);
+                $scope.ClearUtilityDetail();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
 
     };
 
