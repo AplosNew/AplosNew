@@ -370,6 +370,58 @@ namespace Aplos.Areas.Attendances.Controllers
             return Json(new { Error = false, Message = "Roster Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
             
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult Run_LeaveProcess(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            if (Convert.ToDateTime(Date) > DateTime.Now)
+            {
+                throw new Exception("Future Date Cannot be selected!!");
+            }
+
+            string CGId = "";
+
+            DataSet GroupList;
+            NewAttendanceProcessService repo = new NewAttendanceProcessService();
+
+            repo.GetCompanyGp(out GroupList);
+            if (GroupList.Tables[0].Rows.Count > 0)
+            {
+
+                for (int k = 0; k < GroupList.Tables[0].Rows.Count; k++)
+                {
+                    CGId = GroupList.Tables[0].Rows[k][@"CGId"].ToString();
+
+                }
+            }
+
+            DataSet PlantList;
+            repo.GetPlant(CGId, out PlantList);
+
+            if (PlantList.Tables[0].Rows.Count > 0)
+            {
+                for (int j = 0; j < PlantList.Tables[0].Rows.Count; j++)
+                {
+                    string CatchPlant = "";
+                    try
+                    {
+                        var PlantValue = PlantList.Tables[0].Rows[j][@"PlantValue"].ToString();
+                        CatchPlant = PlantValue;
+                        rep.LeaveProcess(Date,PlantValue,identity.Name);
+                    }
+                    catch (Exception ex)
+                    {
+                        rep.CommonLogFunction(ex, CatchPlant, "LeaveProcess");
+                        return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+            }
+            return Json(new { Error = false, Message = "Leave Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
     }
 }
  
