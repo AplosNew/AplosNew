@@ -594,7 +594,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{productNew.OtherPartyCode}}</span>
-                                <input type="text" name="Vendor" ng-model="productNew.OtherPartyName" class="form-control" required readonly>
+                                <input type="text" name="OtherVendor" ng-model="productNew.OtherPartyName" class="form-control"  readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="showOtherPartyPopUpNew()" ng-disabled="inventoryMaterialList.length==0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="OtherinvoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
@@ -2137,7 +2137,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
                                     <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="OtherserviceModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
+                                           ng-keyup="calculateotherSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
                                 </div>
                                 <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
                                     <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />
