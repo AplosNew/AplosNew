@@ -63,12 +63,8 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select r.UserName,r.Code,r.ShortName,r.StandardName ,e.EmployeeName as DriverName,FM.UserName as FixedAsset
-                            ,r.Active,r.DriverId,r.AssetId,r.UpOrDown,r.[Description],r.Remarks,e.EmployeeCode,R.Id
+            string sql = @"select r.Code,r.ShortName,r.StandardName,r.UserName,r.Active,r.[Description],r.Remarks,R.Id
                             from [MST].[Route] r
-                            left join EmployeeInformation e on e.SystemId=r.DriverId
-                            left join TRN.FixedAssetRegister FAR on FAR.id=r.AssetId
-                            LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FAR.FixedAssetMasterId
                             where r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -78,7 +74,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select s.Id as StopagePrimaryId,s.CityId,rs.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description]
-							 ,rs.UpDuration,rs.DownDuration
+							 ,rs.UpDistanceFrom,rs.DownDistanceFrom
                               from [HKP].[Stoppage] s 
                               left join  [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
                               left join [MST].[Route] r on r.Id=rs.RouteId
@@ -191,8 +187,8 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["Id"] = Id;
                     dr["PlantId"] = identity.PlantId;
                     dr["CompanyId"] = identity.CompanyId;
-                    dr["DriverId"] = Route.DriverId;
-                    dr["AssetId"] = Route.AssetId;
+                    //dr["DriverId"] = Route.DriverId;
+                    //dr["AssetId"] = Route.AssetId;
                     dr["UpOrDown"] = Route.UpOrDown;
 
                     dr["Code"] = Route.Code;
@@ -218,8 +214,8 @@ namespace Aplos.Areas.Employees.Controllers
 
                     dr["PlantId"] = identity.PlantId;
                     dr["CompanyId"] = identity.CompanyId;
-                    dr["DriverId"] = Route.DriverId;
-                    dr["AssetId"] = Route.AssetId;
+                    //dr["DriverId"] = Route.DriverId;
+                    //dr["AssetId"] = Route.AssetId;
                     dr["UpOrDown"] = Route.UpOrDown;
 
                     dr["Code"] = Route.Code;
@@ -299,12 +295,12 @@ namespace Aplos.Areas.Employees.Controllers
                         dr["StoppageId"] = item.StopagePrimaryId;
 
                         //if (Route.UpOrDown == "Up")
-                        //    dr["UpDuration"] = item.Time;
+                        //    dr["UpDistanceFrom"] = item.Time;
                         //else
-                        //    dr["DownDuration"] = item.Time;
+                        //    dr["DownDistanceFrom"] = item.Time;
 
-                        dr["UpDuration"] = item.UpDuration;
-                        dr["DownDuration"] = item.DownDuration;
+                        dr["UpDistanceFrom"] = item.UpDistanceFrom;
+                        dr["DownDistanceFrom"] = item.DownDistanceFrom;
 
                         dr["Sequence"] = _Count;
 
@@ -321,12 +317,12 @@ namespace Aplos.Areas.Employees.Controllers
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
                         //if (Route.UpOrDown == "Up")
-                        //    dr["UpDuration"] = item.Time;
+                        //    dr["UpDistanceFrom"] = item.Time;
                         //else
-                        //    dr["DownDuration"] = item.Time;
+                        //    dr["DownDistanceFrom"] = item.Time;
 
-                        dr["UpDuration"] = item.UpDuration;
-                        dr["DownDuration"] = item.DownDuration;
+                        dr["UpDistanceFrom"] = item.UpDistanceFrom;
+                        dr["DownDistanceFrom"] = item.DownDistanceFrom;
 
                         dr["Sequence"] = item.Sequence;
 
@@ -594,7 +590,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             string sql = @"select RS.Id,RS.TransportId,TD.TransportUserName Transport,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
 										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
-										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.Remarks
+										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.DistancePerUnit,RS.Remarks
                                         from RouteSchedule RS
                                         left join TransportDetail TD on TD.Id=RS.TransportId
                                         left join ShiftDefination SD on SD.SystemID=RS.ShiftId
@@ -628,8 +624,8 @@ namespace Aplos.Areas.Employees.Controllers
             public string Id { get; set; }
             public string PlantId { get; set; }
             public string CompanyId { get; set; }
-            public string AssetId { get; set; }
-            public string DriverId { get; set; }
+            //public string AssetId { get; set; }
+            //public string DriverId { get; set; }
             public string Code { get; set; }
             public string UserName { get; set; }
             public string StandardName { get; set; }
@@ -638,8 +634,8 @@ namespace Aplos.Areas.Employees.Controllers
             public string Remarks { get; set; }
             public bool Active { get; set; }
             public string UpOrDown { get; set; }
-            public string UpDuration { get; set; }
-            public string DownDuration { get; set; }
+            public string UpDistanceFrom { get; set; }
+            public string DownDistanceFrom { get; set; }
 
             #endregion Scalar Properties
 
@@ -665,8 +661,8 @@ namespace Aplos.Areas.Employees.Controllers
             public string StopagePrimaryId { get; set; }
             public string RouteId { get; set; }
             public string StoppageId { get; set; }
-            public string UpDuration { get; set; }
-            public string DownDuration { get; set; }
+            public string UpDistanceFrom { get; set; }
+            public string DownDistanceFrom { get; set; }
             public string Time { get; set; }
             public string Sequence { get; set; }
 
