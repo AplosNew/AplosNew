@@ -150,6 +150,8 @@ namespace Library.Model.Inventory
 
         public Voucher JWGRIRVoucher { get; set; }
         public string JWGRIRVoucherId { get; set; }
+        public string OtherPartyId { get; set; }
+        public string OtherPartyPlantId { get; set; }
 
         #endregion Navigation Properties
     }
