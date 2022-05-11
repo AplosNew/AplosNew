@@ -52,6 +52,10 @@ namespace Library.Model.Inventory
         public string JWTransformationPOInputMaterialId { get; set; }
         public string JWTransformationPOByProductId { get; set; }
 
+        public decimal? AdditionalChargesAmount { get; set; }
+        public decimal? AdditionalChargesTax { get; set; }
+
+
         #endregion Scalar Properties
 
         #region Audit Properties
