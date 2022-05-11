@@ -240,7 +240,7 @@ namespace Aplos.Areas.Parties.Controllers
                 {
                     temp = customerVendor;
                 }
-                if (customerVendor ==null)
+                if (customerVendor ==null|| customerVendor == "null")
                 {
                     temp = "Vendor"+"','"+"Customer";
                 }

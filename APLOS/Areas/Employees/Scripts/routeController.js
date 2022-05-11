@@ -12,16 +12,16 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.route = {
         Id: null,
-        DriverId: null,
-        AssetId: null,
+        //DriverId: null,
+        //AssetId: null,
         Code: null,
         UserName: null,
         StandardName: null,
         ShortName: null,
         Description: null,
         Remarks: null,
-        UpDuration: null,
-        DownDuration: null,
+        UpDistanceFrom: null,
+        DownDistanceFrom: null,
         Active: true,
         UpOrDown: 'Up',      
     };
@@ -53,6 +53,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         From: null,
         To: null,
         Distance: null,
+        DistancePerUnit: null,
         Remarks: null
     };
     $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);

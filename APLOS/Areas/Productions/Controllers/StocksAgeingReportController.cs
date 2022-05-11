@@ -26,7 +26,6 @@ using Syncfusion.DocToPDFConverter;
 using Syncfusion.Pdf;
 using Aplos.Areas.Commercial.Controllers;
 using System.Drawing;
-
 #endregion Using
 
 namespace Aplos.Areas.Productions.Controllers

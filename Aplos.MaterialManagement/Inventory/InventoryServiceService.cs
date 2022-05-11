@@ -261,7 +261,7 @@ namespace Library.MaterialManagement.Inventory
                     inventoryReceivedata.OtherPartyPlantId = entity.OtherPartyPlantId;
                     AuditService.AddedLog(inventoryReceivedata); 
                     _inventoryReceiveService.Update(inventoryReceivedata);
-                    if (entity.CurrencyId != entity.BaseCurrencyId)
+                    
                         UpdateOtherVendorChargesInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable, entity.CurrencyId, entity.BaseCurrencyId);
                     
                 }
@@ -836,8 +836,8 @@ namespace Library.MaterialManagement.Inventory
                                 serviceCN1 = serviceex.Sum(r => r.Amount);
                             }
 
-                            item.ChargesTaxTranAmount = Math.Round(Convert.ToDecimal(service.TotalTaxAmount + Tax1) - Tax, 2);
-                            item.ChargesTranAmount = Math.Round(Convert.ToDecimal(service.Amount + serviceCN1) - serviceCN, 2);
+                            item.AdditionalChargesTax = Math.Round(Convert.ToDecimal(service.TotalTaxAmount), 2);
+                            item.AdditionalChargesAmount = Math.Round(Convert.ToDecimal(service.Amount), 2);
                         }
                       
                         item.ModelState = ModelState.Modified;
