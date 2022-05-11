@@ -18,6 +18,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
 
     baseService.init("SalesManagements/Sales/GetMasterOrderSalesDataList", null, null, "DESC", "AddedDate", "InvoiceNo");
+    //baseService.init($scope.listUrl, null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
             .then(function (result) {
@@ -468,6 +469,7 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
 
     $scope.Get = function (data) {
         $scope.salesVM = data;
+        $scope.salesVM.AddedDate = $filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         $scope.ModelNew.Amount = data.Amount;
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
         $scope.GetSalesMaterialData($scope.salesVM.Id);
