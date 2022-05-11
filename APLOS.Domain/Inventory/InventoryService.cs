@@ -12,6 +12,8 @@ namespace Library.Model.Inventory
         public decimal TotalTaxAmount { get; set; }
         public string POID { get; set; }
         public string POServiceId { get; set; }
+        public bool IsOtherVendor { get; set; }
+
 
         #endregion Scalar Properties
 

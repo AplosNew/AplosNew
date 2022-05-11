@@ -3993,7 +3993,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		getTaxCategoryList(hsnCodeId, HSNCode);
 	};
 
-	$scope.calculateSvcTaxCategory = function () {
+	$scope.calculateotherSvcTaxCategory = function () {
 		$scope.OtherserviceModel.TotalTaxAmount = 0;
 		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
 			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.OtherserviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
@@ -4006,6 +4006,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.manualValidationAddRemove('div_svcOther', 'OtherserviceModel', 'ServiceMasterId');
 			$scope.manualValidationAddRemove('div_svcRateOther', 'OtherserviceModel', 'TransactionAmount', 'Amount');
+			$scope.OtherserviceModel.OtherPartyId = $scope.productNew.OtherPartyId;
+			$scope.OtherserviceModel.OtherPartyPlantId = $scope.productNew.OtherInvoicingPartyPlantId;
 
 			$http({
 				method: 'POST',

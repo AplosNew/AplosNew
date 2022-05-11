@@ -353,6 +353,8 @@
                                 <th>Service Tax</th>
                                 <th>Material Amount (Trn)</th>
                                 <th>Material Amount (BC)</th>
+                                <th>Additional Charges</th>
+                                <th>Additional Charges Tax</th>
                                 <th>QualityStatus</th>
                                 <th>Master Order No</th>
                                 <th class="col-sm-1"></th>
@@ -401,6 +403,8 @@
                                 <td class="text-right">{{x.ServiceTax | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.TotalMaterialTranAmount | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.BaseAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.TotalMaterialTranAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.BaseAmount | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.QualityStatus}}</td>
                                 <td class="text-right">{{x.MasterOrderId}}</td>
                                 <td class="text-right">
@@ -431,12 +435,14 @@
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">
                                     @*<ul class="list-inline action-list">
-                                            <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        </ul>*@
+                <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+            </ul>*@
                                 </td>
                             </tr>
                         </tbody>
@@ -594,7 +600,7 @@
                         <div class="col-sm-8 show-message">
                             <div class="input-group">
                                 <span class="input-group-addon">{{productNew.OtherPartyCode}}</span>
-                                <input type="text" name="Vendor" ng-model="productNew.OtherPartyName" class="form-control" required readonly>
+                                <input type="text" name="OtherVendor" ng-model="productNew.OtherPartyName" class="form-control"  readonly>
                                 <span class="input-group-btn">
                                     <button name="submit" ng-click="showOtherPartyPopUpNew()" ng-disabled="inventoryMaterialList.length==0" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                                     <button name="submit" ng-click="OtherinvoicingPartyPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-list-alt"></i></button>
@@ -2137,7 +2143,7 @@
                             <div class="col-sm-8 show-message">
                                 <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
                                     <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="OtherserviceModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
-                                           ng-keyup="calculateSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
+                                           ng-keyup="calculateotherSvcTaxCategory();manualValidationAddRemove('div_svcRate', 'serviceModel', 'TransactionAmount', 'Amount');" />
                                 </div>
                                 <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
                                     <input type="text" ng-model="serviceModel.CurrencyName" class="form-control" disabled />

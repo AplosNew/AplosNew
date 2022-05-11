@@ -18,6 +18,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $controller("baseMaterialAndArticleController", { $scope: $scope, $http: $http });
 
+    //baseService.init("SalesManagements/Sales/GetMaterialSalesList", null, null, "DESC", "InvoiceNo", "InvoiceNo");
     baseService.init("SalesManagements/Sales/GetMaterialSalesList", null, null, "DESC", "AddedDate", "InvoiceNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)
@@ -338,6 +339,7 @@ function salesController(cboService, commonMessage, $window, $scope, $rootScope,
     }
     $scope.Get = function (data) {
         $scope.salesVM = data;
+        $scope.salesVM.AddedDate=$filter('dateFiltering')(new Date($scope.salesVM.AddedDate), 'dd-MM-yyyy');
         getPartyPlantEditList($scope.salesVM.InvoicingPartyPlantId, $scope.salesVM.InvoicingByAddress, $scope.salesVM.DeliveryPartyPlantId, $scope.salesVM.DeliveryByAddress, $scope.salesVM.DeliveryState, $scope.salesVM.DeliveryGSTIN);
         $scope.GetSalesMaterialData($scope.salesVM.Id);
         $scope.getTaxCodeByTaxYearWithhold($scope.salesVM.InvoiceDate);
