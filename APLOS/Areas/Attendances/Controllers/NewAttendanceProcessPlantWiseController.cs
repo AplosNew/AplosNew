@@ -183,6 +183,29 @@ namespace Aplos.Areas.Attendances.Controllers
 
         }
 
+        public ActionResult Run_LeaveProcess(string Date)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string CatchPlant = "";
+            try
+            {
+                if (Convert.ToDateTime(Date) > DateTime.Now)
+                {
+                    throw new Exception("Future Date Cannot be selected!!");
+                }
+                CatchPlant = identity.PlantId;
+                rep.LeaveProcess(Date, CatchPlant);
+            }
+            catch (Exception ex)
+            {
+                rep.CommonLogFunction(ex, CatchPlant, "Leave_Process");
+                return Json(new { Error = true, Message = "Error Occured..." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { Error = false, Message = "Leave Process Triggered Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
+
 
     }
 }
