@@ -1284,5 +1284,12 @@ namespace Aplos.Areas.FixedAssets.Controllers
         }
         #endregion Elastis Search
 
+        #region Fixed Asset Depreciation Process
+        public ActionResult FixedAssetDepreciationProcess()
+        {
+            return View("~/Areas/FixedAssets/Views/FixedAssetDepreciationProcess.cshtml");
+        }
+        #endregion
+
     }
 }
