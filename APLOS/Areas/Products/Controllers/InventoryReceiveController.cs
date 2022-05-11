@@ -1252,6 +1252,11 @@ namespace Aplos.Areas.Products.Controllers
         {
             return Json(_inventoryService.Query(receiveId), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceOtherVendorChargeList(string receiveId)
+        {
+            return Json(_inventoryService.OtherVendorChargesQuery(receiveId), JsonRequestBehavior.AllowGet);
+        }
 
         #endregion Service Charges
 
