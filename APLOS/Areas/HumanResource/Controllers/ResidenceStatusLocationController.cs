@@ -150,6 +150,19 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult getSelectedEmployees(List<Dictionary<string, object>> EmpList)
+        {
+            try
+            {
+                return Json(rsl.getSelectedEmployees(EmpList), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         /* [HttpPost]
          public JsonResult Delete(string id)
          {

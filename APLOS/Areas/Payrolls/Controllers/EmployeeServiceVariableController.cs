@@ -225,7 +225,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet[ROW, ColNonChargable].Text = data.Rows[i]["NonChargable"].ToString();
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
-                sheet[ROW, ColAddedDate].Text = data.Rows[i]["AddedDate"].ToString();
+                sheet[ROW, ColAddedDate].Text = data.Rows[i]["Time"].ToString();
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 ROW++;
@@ -480,7 +480,7 @@ namespace Aplos.Areas.Payrolls.Controllers
 								 else ISNULL( esd.Amount,0) end
                                 , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
                                 ,case when esd.Chargeable = '0' then 'Yes' else '' end NonChargable,esr.Remarks, esd.AddedBy ,
-								FORMAT(esd.addedDate,'dd-MMM-yyyy') AddedDate
+								FORMAT(esd.Time,'dd-MMM-yyyy') Time
                                 from [dbo].[EmpServiceData] esd
                                 left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
 								--left join 

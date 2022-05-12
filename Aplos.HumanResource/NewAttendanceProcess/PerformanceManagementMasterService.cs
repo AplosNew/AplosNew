@@ -1969,6 +1969,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public List<Dictionary<string, object>> getSelectedEmployees(List<Dictionary<string, object>> EmpList)
+        {
+            try
+            {
+                
+                return EmpList;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
     #endregion Residence Status Location
 }
