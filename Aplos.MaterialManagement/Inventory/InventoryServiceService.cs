@@ -992,7 +992,37 @@ namespace Library.MaterialManagement.Inventory
                         left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
                         left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.InventoryReceiveTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
                         
-                        WHERE A.InventoryReceiveId='" + receiveId + "'";
+                        WHERE A.InventoryReceiveId='" + receiveId + "' And A.IsOtherVendor=0";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> OtherVendorChargesQuery(string receiveId)
+        {
+            try
+            {
+                      var sql = @"SELECT A.Id
+                        , A.InventoryReceiveId
+                        , A.ServiceMasterId
+                        , B.UserName AS ServiceMasterName
+                         ,A.Amount Amount,A.Amount GRNServiceAmount
+                        , POT.Amount-A.Amount AS  Bal
+                        , POT.Amount As POAmount
+                        --, A.TotalTaxAmount
+                        ,A.POID
+						,A.POServiceId,IRT.TaxAmount TotalTaxAmount
+                        FROM [TRN].[InventoryService] AS A 
+                        JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                        left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
+                        left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.InventoryReceiveTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
+                        
+                        WHERE A.InventoryReceiveId='" + receiveId + "' And A.IsOtherVendor=1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
