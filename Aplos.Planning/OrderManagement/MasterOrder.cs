@@ -784,6 +784,25 @@ ORDER BY OL.Sequence";
             }
         }
 
+        public IEnumerable<object> GetCostingSORateData(string SalesOrderId)
+        {
+            try
+            {
+                string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SoItemName UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
+LR.Value ItemValue,SOValue=CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+FROM OrderLineCostingItem AS OL
+LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
+LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id
+OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
+ORDER BY OL.Sequence";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         public IEnumerable<object> GetItemRateData(string masterOrderItemId)
         {
