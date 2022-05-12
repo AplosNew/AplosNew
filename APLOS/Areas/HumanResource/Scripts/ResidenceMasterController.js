@@ -270,5 +270,5 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             }
         }
     });
-    $scope.GetSelectedValue();
+    //$scope.GetSelectedValue();
 }

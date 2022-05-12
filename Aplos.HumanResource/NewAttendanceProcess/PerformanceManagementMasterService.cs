@@ -1792,6 +1792,21 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public IEnumerable<object> getVacancy(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.Vacancy as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getData()
         {
             try
@@ -1936,12 +1951,16 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Add & Edit Row
 
-        public IEnumerable<object> getEmployee()
+        public IEnumerable<object> getEmployee(string PlantId, string ResidenceGroupId, string EmployeeCategoryId)
         {
             try
             {
-                var str = @"           
-                            ";
+                var str = @"select ei.EmployeeName, ei.DOJ, ei.EmployeeStatus, ei.SystemId, rm.AddedDate as AllocationDate from dbo.ResidenceMaster rm                           
+                            left join HKP.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId
+                            left join dbo.EmployeeInformation ei on ei.EmployeeCategorySystemID = eg.Id
+                            where rm.PlantId='"+PlantId+ "' and rm.ResidenceGroupId='"+ResidenceGroupId+ "'  and rm.EmployeeCategoryId = '" + EmployeeCategoryId + "' and ei.EmployeeStatus = 'Active'";
+
+                ;
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)

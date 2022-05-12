@@ -586,7 +586,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		}
 		getInventoryMaterialList($scope.productNew.Id);
 		getServiceChargeList($scope.productNew.Id);
-		
+		getServiceOtherVendorChargeList($scope.productNew.Id);
 		$scope.ContractWiseData(x.data.ContractId);
 		//$scope.getToCurrencyRate();
 		//if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
@@ -626,6 +626,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		getPartyPlantList();
 		getInventoryMaterialList($scope.productNew.Id);
 		getServiceChargeList($scope.productNew.Id);
+		getServiceOtherVendorChargeList($scope.productNew.Id);
 		//$scope.getToCurrencyRate();
 		if (!baseService.isUndefinedOrNull($scope.productNew.PaymentTermId)) {
 			var paymentTerm = $.grep($scope.paymentTermList, function (item) { return item.Value === $scope.productNew.PaymentTermId; })[0];
@@ -3993,7 +3994,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		getTaxCategoryList(hsnCodeId, HSNCode);
 	};
 
-	$scope.calculateSvcTaxCategory = function () {
+	$scope.calculateotherSvcTaxCategory = function () {
 		$scope.OtherserviceModel.TotalTaxAmount = 0;
 		for (var i = 0; i < baseService.arrayLength($scope.taxCategoryList); i++) {
 			$scope.taxCategoryList[i].TaxAmount = ((parseFloat($scope.taxCategoryList[i].Percentage) * $scope.OtherserviceModel.TransactionAmount) / 100).toFixed($rootScope.currencyPrecision);
@@ -4006,6 +4007,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.manualValidationAddRemove('div_svcOther', 'OtherserviceModel', 'ServiceMasterId');
 			$scope.manualValidationAddRemove('div_svcRateOther', 'OtherserviceModel', 'TransactionAmount', 'Amount');
+			$scope.OtherserviceModel.OtherPartyId = $scope.productNew.OtherPartyId;
+			$scope.OtherserviceModel.OtherPartyPlantId = $scope.productNew.OtherInvoicingPartyPlantId;
 
 			$http({
 				method: 'POST',
@@ -4037,6 +4040,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 					$scope.taxCategoryList = [];
 					getServiceChargeList($scope.productNew.Id);
 					getInventoryMaterialList($scope.productNew.Id);
+					getServiceOtherVendorChargeList($scope.productNew.Id);
 					$scope.getDataList();
 				}
 			}), function errorCallBack(response) {
@@ -4046,4 +4050,12 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 			//ShowResult(e, 'fail', 'detailPopUp');
 		}
 	};
+
+	function getServiceOtherVendorChargeList(inveReveiveId) {
+		$http.get($scope.path + 'GetServiceOtherVendorChargeList?receiveId=' + inveReveiveId)
+			.then(function (response) {
+				$scope.otherserviceList = [];
+				$scope.otherserviceList = response.data;
+			});
+	}
 }

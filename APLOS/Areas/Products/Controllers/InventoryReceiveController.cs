@@ -1243,6 +1243,7 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
         public JsonResult OtherVendorServiceChargesCreate(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
         {
+
             _inventoryService.OtherVendorInsertGraph(entity, taxCategoryList);
             return Json(new { entity.Id, Message = AplosMessage.Success });
         }
@@ -1250,6 +1251,11 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetServiceChargeList(string receiveId)
         {
             return Json(_inventoryService.Query(receiveId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetServiceOtherVendorChargeList(string receiveId)
+        {
+            return Json(_inventoryService.OtherVendorChargesQuery(receiveId), JsonRequestBehavior.AllowGet);
         }
 
         #endregion Service Charges

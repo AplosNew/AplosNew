@@ -18,7 +18,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         CostingSegment: null,
         SOItemName: null,
         Active: true,
-        IsFixedValue: false,
+        IsFixedValue: true,
         ValueInPercentage: null,
         FixedValue: null,
         Formula: null,
@@ -30,7 +30,8 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         UpdatedFromIP: null,
         Operator: null,
         Precedence: null,
-        Value: null
+        Value: null,
+        EntryState: 'Entry'
     }
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
@@ -127,10 +128,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
 
-    //$scope.ModelNew.Formula = null;
-    //$scope.ModelNew.FormulaDesID = null;
-    //$scope.ModelNew.SalaryHeadFormula = null;
-    //$scope.ModelNew.FormulaDescription = null;
+
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
 
@@ -383,7 +381,31 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.Clear = function () {
         $scope.CompanyId = $scope.ModelNew.CompanyId;
         $scope.PlantId = $scope.ModelNew.PlantId;
-        $scope.ModelNew = {Id:null,Active:true};
+        $scope.Model = {
+            Id: null,
+            PlantId: null,
+            Sequence: null,
+            UserName: null,
+            LineItemCostingSandardName: null,
+            CostingSegment: null,
+            SOItemName: null,
+            Active: true,
+            IsFixedValue: true,
+            ValueInPercentage: null,
+            FixedValue: null,
+            Formula: null,
+            AddedBy: null,
+            AddedDate: null,
+            AddedFromIP: null,
+            UpdatedBy: null,
+            UpdatedDate: null,
+            UpdatedFromIP: null,
+            Operator: null,
+            Precedence: null,
+            Value: null,
+            EntryState: 'Entry'
+        }
+        $scope.ModelNew = Object.assign({}, $scope.Model);
         $scope.ModelNew.CompanyId = $scope.CompanyId;
         $scope.ModelNew.PlantId = $scope.PlantId;
         $scope.Action = 'Save';
@@ -407,7 +429,23 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.Save = function () {
         try {
-           
+
+            if ($scope.ModelNew.EntryState == 'Entry') {
+                if ($scope.ModelNew.IsFixedValue) {
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.FixedValue) || $scope.ModelNew.FixedValue == 0) {
+                        throw "Fixed value is required.";
+                    } 
+                }
+                else {
+                    throw "Percentage value is required.";
+                }
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.Formula)) {
+                    throw "Formula is required.";
+                }
+            }
+
             $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
             $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
             $http({

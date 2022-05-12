@@ -210,7 +210,7 @@ namespace Library.MaterialManagement.Inventory
         public void OtherVendorInsertGraph(InventoryMaterialViewModel entity, IEnumerable<InventoryReceiveTax> taxCategoryList)
         {
             if (Convert.ToBoolean(_inventoryServiceRepository.SqlQuery<int>(@"IF EXISTS(SELECT 1 FROM(SELECT * FROM TRN.InventoryService WHERE InventoryReceiveId='" + entity.InventoryReceiveId + "' AND ServiceMasterId='" + entity.ServiceMasterId + "') AS A) SELECT 1 ELSE SELECT 0 RETURN").First()))
-                throw new CustomException("This service already taken."); ;
+                throw new CustomException("This service already taken.");
 
             var flag = false;
             try
@@ -226,7 +226,7 @@ namespace Library.MaterialManagement.Inventory
                     {
                         entity.TotalTaxAmount = taxCategoryList.Sum(r => r.TaxAmount);
                     }
-                     
+
                     var service = new InventoryService
                     {
                         Id = MakePK(entity.InventoryReceiveId + 2, currentId, 2),
@@ -234,6 +234,7 @@ namespace Library.MaterialManagement.Inventory
                         ServiceMasterId = entity.ServiceMasterId,
                         Amount = Math.Round(Convert.ToDecimal(entity.TransactionAmount), 2),
                         TotalTaxAmount = Math.Round(Convert.ToDecimal(entity.TotalTaxAmount), 2),
+                        IsOtherVendor = true
                     };
                     AuditService.AddedLog(service);
                     InsertGraph(service);
@@ -255,10 +256,14 @@ namespace Library.MaterialManagement.Inventory
                     var isNonCreditable = _inventoryReceiveService.Query(t => t.Id == service.InventoryReceiveId).Select(t => t.IsNonCreditable).FirstOrDefault();//+ service.TotalTaxAmount
                     var ratio = _inventoryReceiveService.GetChargesRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.Amount) : service.Amount, isNonCreditable);
                     var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(service.InventoryReceiveId, null, 0, service.Id, isNonCreditable ? (service.TotalTaxAmount) : service.TotalTaxAmount, isNonCreditable);
-                    //if (entity.CurrencyId != entity.BaseCurrencyId)
-                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable);
-                    //else if (entity.CurrencyId == entity.BaseCurrencyId)
-                    //    UpdateInventoryDetail(service, ratioServiceTax, ratio, 1, entity.IsNonCreditable);
+                    var inventoryReceivedata = _inventoryReceiveService.Query(r => r.Id == service.InventoryReceiveId).Select().FirstOrDefault();
+                    inventoryReceivedata.OtherPartyId = entity.OtherPartyId;
+                    inventoryReceivedata.OtherPartyPlantId = entity.OtherPartyPlantId;
+                    AuditService.AddedLog(inventoryReceivedata); 
+                    _inventoryReceiveService.Update(inventoryReceivedata);
+                    
+                        UpdateOtherVendorChargesInventoryDetail(service, ratioServiceTax, ratio, Convert.ToDecimal(entity.ToCurrencyRate), entity.IsNonCreditable, entity.CurrencyId, entity.BaseCurrencyId);
+                    
                 }
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -799,6 +804,54 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
+        private void UpdateOtherVendorChargesInventoryDetail(InventoryService service, decimal ratioServiceTax, decimal ratio, decimal currencyRate, bool isNonCreditable,string trnCurrencyId,string BaseCurrencyId)
+        {
+            try
+            {
+                var detailList = _invRecDetailRepository.Query(t => t.InventoryReceiveId == service.InventoryReceiveId).Select().ToList();
+                if (detailList.IsNotNull())
+                {
+                    decimal Tax = 0;
+                    decimal serviceCN = 0;
+                    decimal Tax1 = 0;
+                    decimal serviceCN1 = 0;
+                    int i = 0;
+                    foreach (var item in detailList)
+                    {
+                        i++;
+                        
+                        if (i <= detailList.Count - 1)
+                        {
+                            item.AdditionalChargesTax = Math.Round(item.MaterialTranAmount * ratioServiceTax, 2);
+                            item.AdditionalChargesAmount = Math.Round(item.MaterialTranAmount * ratio, 2);
+                            Tax += Convert.ToDecimal(item.ChargesTaxTranAmount);
+                            serviceCN += Convert.ToDecimal(item.ChargesTranAmount);
+                        }
+                        else
+                        {
+                            var serviceex = _inventoryServiceRepository.Query(r => r.InventoryReceiveId == service.InventoryReceiveId && r.IsOtherVendor==true).Select().ToList();
+                            if (serviceex != null)
+                            {
+                                Tax1 = serviceex.Sum(r => r.TotalTaxAmount);
+                                serviceCN1 = serviceex.Sum(r => r.Amount);
+                            }
+
+                            item.AdditionalChargesTax = Math.Round(Convert.ToDecimal(service.TotalTaxAmount), 2);
+                            item.AdditionalChargesAmount = Math.Round(Convert.ToDecimal(service.Amount), 2);
+                        }
+                      
+                        item.ModelState = ModelState.Modified;
+                        AuditService.UpdatedLog(item);
+                        _invRecDetailRepository.Update(item);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         private void UpdateInventoryDetailDelete(InventoryService service, decimal ratioServiceTax, decimal ratio, decimal currencyRate, bool isNonCreditable)
         {
             try
@@ -939,7 +992,37 @@ namespace Library.MaterialManagement.Inventory
                         left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
                         left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.InventoryReceiveTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
                         
-                        WHERE A.InventoryReceiveId='" + receiveId + "'";
+                        WHERE A.InventoryReceiveId='" + receiveId + "' And A.IsOtherVendor=0";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        public IEnumerable<object> OtherVendorChargesQuery(string receiveId)
+        {
+            try
+            {
+                      var sql = @"SELECT A.Id
+                        , A.InventoryReceiveId
+                        , A.ServiceMasterId
+                        , B.UserName AS ServiceMasterName
+                         ,A.Amount Amount,A.Amount GRNServiceAmount
+                        , POT.Amount-A.Amount AS  Bal
+                        , POT.Amount As POAmount
+                        --, A.TotalTaxAmount
+                        ,A.POID
+						,A.POServiceId,IRT.TaxAmount TotalTaxAmount
+                        FROM [TRN].[InventoryService] AS A 
+                        JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
+                        left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
+                        left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.InventoryReceiveTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
+                        
+                        WHERE A.InventoryReceiveId='" + receiveId + "' And A.IsOtherVendor=1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
