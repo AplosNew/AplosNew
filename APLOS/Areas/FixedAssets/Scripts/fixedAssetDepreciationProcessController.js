@@ -153,21 +153,19 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
 
         angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
-    $scope.customerInvoiceList = [];
-    $scope.getcustomerInvoiceList = function () {
+    $scope.fixedAssetMastersList = [];
+    $scope.getFixedAssetMastersData = function () {
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetcustomerInvoiceList",
+                url: $scope.path + "GetfixedAssetMastersListForProcess",
                 data: {
-                    CustomerSelectedList: NewCustomerSelectedList,
-                    fromDate: $scope.report.FromDate,
-                    toDate: $scope.report.ToDate,
-                    paymentStatus: $scope.report.PaymentStatus
+                    fiscalYearId: $scope.FiscalYearId,
+                    toDate: $scope.depreciationProcess.ToDate
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.customerInvoiceList = response.data.DATA;
+                $scope.fixedAssetMastersList = response.data.DATA;
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -179,7 +177,7 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         }
     }
     $scope.voucherDetailList = [];
-    $scope.pushInTempListforConfirm = function (event, data) {
+    $scope.pushInTempListforProcess = function (event, data) {
         try {
             if (event.currentTarget.checked) {
                 if (checkExistTempListforConfirm($scope.voucherDetailList, data.Id) === false) {
