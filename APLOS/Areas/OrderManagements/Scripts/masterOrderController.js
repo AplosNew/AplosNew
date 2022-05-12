@@ -3508,6 +3508,21 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
+    $scope.costingSOConfirmList = [];
+    $scope.GetCostingSORatePopup = function (index, data) {
+        $scope.itemIndex = index;
+        $scope.lieneId = data.Id;
+
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData?masterOrderItemId=' + data.Id
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = response.data;
+            angular.element(document.querySelector('#MOSORatePopup')).modal('show');
+        });
+    };
+
+
     $scope.SaveItemDescription = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.Descriptionform.$valid) {

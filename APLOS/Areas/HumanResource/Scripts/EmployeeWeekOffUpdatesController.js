@@ -8,6 +8,7 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
     $scope.path = "humanresource/WeekOffUpdates/";
 
 
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -21,6 +22,7 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
 
     $scope.employee = null;
     $scope.EmpSystemId = null;
+    $scope.EmpScatteredList = [];
     $scope.EffectiveDates = new Date();
     $scope.EmpGridList = [];
     $http({
@@ -34,6 +36,12 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
     $scope.selectEmployee = function () {
         angular.element(document.querySelector('#employeesModal')).modal('show');
     }
+
+    var nw = document.getElementById("normalweek");
+    var sw = document.getElementById("scWeekhtml");
+
+    sw.style.display = "none";
+    nw.style.display = "block";
 
     $scope.doubleEmployee = function (e) {
         $scope.employee = e.data.EmployeeName;
@@ -61,6 +69,43 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             
         });
 
+        if ($scope.budgetsList.includes(e.data.BudgetCode)) {
+            $http({
+                method: 'POST',
+                url: $scope.path + "getWeekOffsLists",
+                data: { 'EmpID': $scope.EmpSystemId }
+            }).then(function succ(resp) {
+                $scope.EmpScatteredList = resp.data;
+            });
+
+            nw.style.display = "none";
+            sw.style.display = "block";
+        }
+        else {
+            nw.style.display = "block";
+            sw.style.display = "none";
+        }
+        
+
+    }
+
+    $scope.ScWeekName = null;
+    //Scattered Week Lists
+    $scope.scatteredWeek = function () {
+        angular.element(document.querySelector("#scatteredWeekModal")).modal("show");
+    }
+    // Double Clicking ScatterdWeek Off Modal
+    $scope.doubleScatteredWeek = function (e) {
+        if (e.data.Emps > $scope.EmpScatteredList[0].Emps) {
+            ShowResult("Can only Select the minimum amount Employees Week Offs!!", 'failure');
+            throw "Invalid Request!!";
+        }
+        else {
+            $scope.WekId = e.data.WOHeaderId;
+            $scope.ScWeekName = e.data.UserName;
+            angular.element(document.querySelector("#scatteredWeekModal")).modal("hide");
+        }
+        
     }
 
     $scope.weekList = [];
@@ -71,7 +116,14 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
             url: $scope.path + "getWeekOff"
         }).then(function succ(resp) {
             $scope.weekList = resp.data;
-        })
+        });
+
+        $http({
+            method: 'GET',
+            url: $scope.path + "getBudgets"
+        }).then(function succ(resp) {
+            $scope.budgetsList = resp.data;
+        });
     }
     getWeekOff();
 
@@ -105,11 +157,23 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
                             $scope.WekName = resp.data[0].UserName;
                             $scope.WekId = resp.data[0].WOHeaderId;
                             $scope.EffectiveDates = resp.data[0].EffectiveDate;
+                            $scope.ScWeekName = resp.data[0].UserName;
+                            $scope.EmpGridList = resp.data;
+                            if (sw.style.display == "block") {
+                                $http({
+                                    method: 'POST',
+                                    url: $scope.path + "getWeekOffsLists",
+                                    data: { 'EmpID': $scope.EmpSystemId }
+                                }).then(function succ(resp) {
+                                    $scope.EmpScatteredList = resp.data;
+                                });
+                            }
                         }
                         else {
                             $scope.WekName = null;
                             $scope.WekId = null;
                             $scope.EffectiveDates = null;
+                            $scope.EmpGridList = resp.data;
                         }
 
                     });
@@ -128,6 +192,10 @@ function EmployeeWeekOffUpdatesController(commonMessage, $scope, $rootScope, bas
         $scope.EmpSystemId = null;
         $scope.EffectiveDates = new Date();
         $scope.WekId = null;
+        $scope.EmpScatteredList = [];
+        $scope.ScWeekName = null;
+        nw.style.display = "block";
+        sw.style.display = "none";
     }
 
     // Tab Attendance Process Code

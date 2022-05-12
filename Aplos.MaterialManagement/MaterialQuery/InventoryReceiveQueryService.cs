@@ -57,6 +57,7 @@ namespace Aplos.MaterialManagement
 									--,isnull(PO.ContractId,'') ContractId
                                     --,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
 									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									,IR.OtherPartyId,IR.OtherPartyPlantId,OP.UserName OtherPartyName,OP.Code OtherPartyCode
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -68,6 +69,8 @@ namespace Aplos.MaterialManagement
                             LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                             LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                             LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+							LEFT JOIN [HKP].[Party] AS OP ON OP.Id=IR.OtherPartyId
+							LEFT JOIN [HKP].[PartyPlant] AS OPP ON OPP.Id=IR.OtherPartyPlantId
                             LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount 
 							, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent ,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount FROM [TRN].[InventoryReceiveDetail] AS A
 		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
@@ -150,6 +153,7 @@ namespace Aplos.MaterialManagement
 									--,isnull(PO.ContractId,'') ContractId
                                     --,ISNull(po.ContractNo,'') ContractNo,isnull(PO.LCANo,'') LCRef
 									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									,IR.OtherPartyId,IR.OtherPartyPlantId,OP.UserName OtherPartyName,OP.Code OtherPartyCode
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -161,6 +165,8 @@ namespace Aplos.MaterialManagement
                             LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                             LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                             LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+							LEFT JOIN [HKP].[Party] AS OP ON OP.Id=IR.OtherPartyId
+							LEFT JOIN [HKP].[PartyPlant] AS OPP ON OPP.Id=IR.OtherPartyPlantId
                             LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount 
 							, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent ,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount  FROM [TRN].[InventoryReceiveDetail] AS A
 		                            JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id
@@ -242,6 +248,7 @@ namespace Aplos.MaterialManagement
 									,NetQty=IRD.TransactionQty-IRD.Shortageqty
 									,isnull(PO.PurchaseLCId,'') PurchaseLCId
 									,IR.ContractId,C.ContractNo--,PL.Id PurchaseLCId,PL.LCRef
+									,IR.OtherPartyId,IR.OtherPartyPlantId,OP.UserName OtherPartyName,OP.Code OtherPartyCode
 							FROM [TRN].[InventoryReceive] AS IR left JOIN [HKP].[Party] AS P ON IR.PartyId=P.Id
                             LEFT JOIN (SELECT C.PartyId,C.PaymentTermId, C.PlantId, PAG.UserName, C.TaxApplicable, C.IsTaxApplicableChangeable FROM [HKP].[CompanyParty] AS C LEFT JOIN [HKP].[PartyAccountGroup] AS PAG
 		                            ON PAG.Id=C.PartyAccountGroupId WHERE C.PartyType='Vendor') AS CP ON CP.PartyId=IR.PartyId AND CP.PlantId=IR.PlantId
@@ -253,6 +260,8 @@ namespace Aplos.MaterialManagement
                             LEFT JOIN [HKP].[PartyPlant] AS DPP ON IR.DeliveryPartyPlantId=DPP.Id
                             LEFT JOIN [MST].[AddressMaster] AS AM2 ON DPP.AddressMasterId=AM2.Id
                             LEFT JOIN [SCS].[State] AS S2 ON AM2.StateId=S2.Id
+							LEFT JOIN [HKP].[Party] AS OP ON OP.Id=IR.OtherPartyId
+							LEFT JOIN [HKP].[PartyPlant] AS OPP ON OPP.Id=IR.OtherPartyPlantId
                             LEFT JOIN (SELECT A.InventoryReceiveId, SUM(A.TransactionQty) AS TransactionQty, SUM(A.MaterialTranAmount) AS TransactionAmount, SUM(A.TotalMaterialTranAmount) AS BaseAmount 
 							, SUM(GRNQty) AS GRNQTY,SUM (GRNTotalAmount) AS GRNValue ,SUM (ShortageQty) AS Shortageqty, SUM(ShortageRatePercent) AS ShortageRatePercent ,Sum(ShortageValue) AS ShortageValue,Sum(RejectionQty) AS RejectionQty,Sum(RejectRatePercent) AS RejectRatePercent ,Sum(RejectValue) AS RejectionValue,Sum(RejectClamPercent) AS RejectClamPercent,Sum(ChargesTranAmount) AS ServiceTranAmount,Sum( ChargesTaxTranAmount) ServiceTaxTranAmount,Sum(TotalTaxAmount) AS MaterialTaxAmount FROM [TRN].[InventoryReceiveDetail] AS A
 		                    JOIN [TRN].[InventoryReceive] AS B ON A.InventoryReceiveId=B.Id WHERE B.PlantId='" + identity.PlantId + @"' GROUP BY A.InventoryReceiveId) AS IRD ON IRD.InventoryReceiveId=IR.Id

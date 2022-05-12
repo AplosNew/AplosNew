@@ -1,29 +1,24 @@
 ﻿'use strict';
-CustomerConfirmationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function CustomerConfirmationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'Voucher GL Update';
+fixedAssetDepreciationProcessController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function fixedAssetDepreciationProcessController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = 'Depreciation Process';
     $scope.Action = 'Save';
-    $scope.path = 'Accounts/VoucherGlUpdate/';
-    $scope.url = "Accounts/VoucherGlUpdate";
-    $scope.parkUrl = $scope.url + "/parkModeVoucher";
-    $scope.saveUrl = $scope.path + 'UpdateInvoice';
+    $scope.path = 'FixedAssets/FixedAssetRegister/';
+    $scope.url = "FixedAssets/FixedAssetRegister";
+    $scope.saveUrl = $scope.path + 'DepreciationProcess';
 
-    $scope.report = {
-        PaymentStatus: null,
-        FromDate: $filter("dateFiltering")(Date.now()),
+    $scope.depreciationProcess = {
+        FiscalYearId: null,
+        //FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now())
     };
-    $scope.paymentStatusList = [
-        {
-            "Text": "Pending",
-            "Value": "Pending"
-        }
-        //,{
-        //    "Text": "ALL",
-        //    "Value": "ALL"
-        //}
-    ];
-    
+
+    $http({
+        method: 'GET',
+        url: 'accounts/fiscalyear/getcbo'
+    }).then(function successCallback(response) {
+        $scope.fiscalYearList = response.data;
+    });
 
     $scope.tempList = [];
     $scope.paymentSelectedList = [];
@@ -36,7 +31,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
             "name": "Customer Name",
             "value": "PartyName"
         }
-        
+
     ];
     $scope.popUpParameters = {
         limit: 10,
@@ -144,35 +139,33 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
 
     var NewCustomerSelectedList = [];
     $scope.closePopUp = function () {
-         NewCustomerSelectedList = [];
+        NewCustomerSelectedList = [];
         for (var i = 0; i < $scope.tempList.length; i++) {
-            
+
             if (NewCustomerSelectedList, $scope.tempList[i].PartyId) {
                 NewCustomerSelectedList.push($scope.tempList[i].PartyId);
             }
-            
+
         }
         if (NewCustomerSelectedList.length > 0) {
             $scope.getcustomerInvoiceList();
         }
-       
+
         angular.element(document.querySelector('#CustomerListPopUP')).modal('hide');
     };
-    $scope.customerInvoiceList = [];
-    $scope.getcustomerInvoiceList = function () {
+    $scope.fixedAssetMastersList = [];
+    $scope.getFixedAssetMastersData = function () {
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetcustomerInvoiceList",
+                url: $scope.path + "GetfixedAssetMastersListForProcess",
                 data: {
-                    CustomerSelectedList: NewCustomerSelectedList,
-                    fromDate: $scope.report.FromDate,
-                    toDate: $scope.report.ToDate,
-                    paymentStatus: $scope.report.PaymentStatus
+                    fiscalYearId: $scope.FiscalYearId,
+                    toDate: $scope.depreciationProcess.ToDate
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.customerInvoiceList = response.data.DATA;
+                $scope.fixedAssetMastersList = response.data.DATA;
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -184,7 +177,7 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         }
     }
     $scope.voucherDetailList = [];
-    $scope.pushInTempListforConfirm = function (event, data) {
+    $scope.pushInTempListforProcess = function (event, data) {
         try {
             if (event.currentTarget.checked) {
                 if (checkExistTempListforConfirm($scope.voucherDetailList, data.Id) === false) {
@@ -223,34 +216,34 @@ function CustomerConfirmationController(cboService, commonMessage, $scope, $root
         }
         return false;
     }
-   
+
     $scope.Save = function () {
         if ($scope.voucherDetailList.length == 0) {
             ShowResult('Please select at least one Invoice', 'failure');
             return;
         }
-            $http({
-                method: 'POST',
-                url: $scope.saveUrl,
-                data: {
-                    voucherDetailVMList: $scope.voucherDetailList
-                },
-                dataType: 'JSON'
-            }).then(function (response) {
-                if (response.data.Error === true)
-                    ShowResult(response.data.Message, 'failure');
-                else {
-                    ShowResult(response.data.Message, 'success');
-                  
-                }
-            }), function (response) {
+        $http({
+            method: 'POST',
+            url: $scope.saveUrl,
+            data: {
+                voucherDetailVMList: $scope.voucherDetailList
+            },
+            dataType: 'JSON'
+        }).then(function (response) {
+            if (response.data.Error === true)
                 ShowResult(response.data.Message, 'failure');
-            };
-      
+            else {
+                ShowResult(response.data.Message, 'success');
+
+            }
+        }), function (response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+
 
     };
 
-    
+
 
 };
 

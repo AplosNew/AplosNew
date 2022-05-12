@@ -403,8 +403,8 @@
                                 <td class="text-right">{{x.ServiceTax | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.TotalMaterialTranAmount | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.BaseAmount | setDecimal:currencyPrecision| number}}</td>
-                                <td class="text-right">{{x.TotalMaterialTranAmount | setDecimal:currencyPrecision| number}}</td>
-                                <td class="text-right">{{x.BaseAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.AdditionalChargesAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.AdditionalChargesTax | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.QualityStatus}}</td>
                                 <td class="text-right">{{x.MasterOrderId}}</td>
                                 <td class="text-right">
@@ -435,8 +435,8 @@
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
-                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'AdditionalChargesAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'AdditionalChargesTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">

@@ -102,6 +102,10 @@ function fixedAssetConfig($routeProvider, $locationProvider) {
             templateUrl: "FixedAssets/FixedAssetRegister/CapitalizedFixedAssetRegister",
             controller: "capitalizedFixedAssetRegisterController"
         })
+        .when("/fixedAsset-depreciation-process", {
+            templateUrl: "FixedAssets/FixedAssetRegister/FixedAssetDepreciationProcess",
+            controller: "fixedAssetDepreciationProcessController"
+        })
 
         .when("/capitalized-NonAsset-Register", {
             templateUrl: "FixedAssets/FixedAssetRegister/NonAssetRegister",
