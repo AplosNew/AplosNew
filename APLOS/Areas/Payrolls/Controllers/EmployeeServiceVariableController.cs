@@ -191,6 +191,9 @@ namespace Aplos.Areas.Payrolls.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Added Date", 15, ExcelHAlign.HAlignLeft);
             int ColAddedDate = COL;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Date", 15, ExcelHAlign.HAlignLeft);
+            int ColActualDate = COL;
+
             sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
             sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
             sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
@@ -226,6 +229,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                 sheet[ROW, ColAddedDate].Text = data.Rows[i]["Time"].ToString();
+                sheet[ROW, ColActualDate].Text = data.Rows[i]["Date"].ToString();
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 ROW++;
@@ -480,7 +484,8 @@ namespace Aplos.Areas.Payrolls.Controllers
 								 else ISNULL( esd.Amount,0) end
                                 , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
                                 ,case when esd.Chargeable = '0' then 'Yes' else '' end NonChargable,esr.Remarks, esd.AddedBy ,
-								FORMAT(esd.Time,'dd-MMM-yyyy') Time
+								
+								CAST(esd.Time AS Time) [Time], FORMAT(esd.Date, 'dd-MMM-yyyy') as Date
                                 from [dbo].[EmpServiceData] esd
                                 left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
 								--left join 
