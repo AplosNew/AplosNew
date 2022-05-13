@@ -362,6 +362,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             }
             if ($scope.SelEmpList.length > $scope.VacancyList[0].Text) {
                 if ($scope.EmployeeList[i].isSelected == true) {
+                 // var cal =   $scope.SelEmpList.length - $scope.VacancyList[i].Text;
                     throw 'Vacancy has beenn full';
                 }
                 
@@ -370,17 +371,15 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
                 angular.element(document.querySelector('#EmpPop')).modal('hide');
             }
         }
-
-        $scope.SelEmpList = [];
-        for (var i = 0; i < $scope.EmployeeList.length; i++) {
-            if ($scope.EmployeeList[i].isSelected == true) {               
-                $scope.SelEmpList.push($scope.EmployeeList[i]);
-                console.log($scope.SelEmpList);
-            }           
-        }
-        
+       
+        $scope.getSelected();
     }
 
+    $scope.EmpList = [];
+    $scope.getSelected = function () {
+        $scope.EmpList = $scope.SelEmpList;
+         
+    }
     
     
 }

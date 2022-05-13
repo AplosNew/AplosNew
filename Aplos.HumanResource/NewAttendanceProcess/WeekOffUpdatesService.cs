@@ -229,7 +229,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var str = @"Select SystemId , EmployeeCode , EmployeeName from dbo.EmployeeInformation where PlantId = '"+identity.PlantId+"'";
+                var str = @"Select SystemId , EmployeeCode , EmployeeName ,BudgetCode from dbo.EmployeeInformation where PlantId = '"+identity.PlantId+"'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
@@ -245,7 +245,7 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
                 var str = @"Select eow.EmpSystemId , isnull(eow.WOHeaderId,'') as WOHeaderId, format(eow.EffectiveDate,'dd-MMM-yyyy') as EffectiveDate
                             , isnull(wo.UserName,'') as UserName  from dbo.EmployeeWeeklyOff eow 
                             left join dbo.WeekOffHeader wo on wo.Id = eow.WOHeaderId
-                            where EmpSystemId = '" + EmpId+"' order by EffectiveDate desc";
+                            where EmpSystemId = '" + EmpId+ "' order by Convert(datetime , EffectiveDate) desc";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch(Exception ex)
@@ -254,6 +254,55 @@ left join dbo.EmployeeInformation ei on ei.SystemId = ew.EmpSystemId
             }
         }
 
+        public List<string> getBudgets()
+        {
+            try
+            {
+                var str = @"Select Id from mst.ManPowerBudget where IsScattedWeekOffApplicable = 1";
+                DataTable dtBudgets = _sqlRepository.GetDataTable(str);
+                List<string> list = dtBudgets.AsEnumerable()
+                            .Select(r => r.Field<string>("Id"))
+                            .ToList();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getWeekOffsLists(string EmpID)
+        {
+            try
+            {
+                var str = @"Select weeks.WOHeaderId , weeks.UserName , Count(SystemId) as Emps
+                            from
+                            (
+                            Select sd.WOHeaderId  , wh.UserName , sh.PlantId
+                            from dbo.ScatteredWeekHeader sh
+                            left join dbo.ScatteredWeekChild sc on sc.HeaderId = sh.Id
+                            left join dbo.ScatteredWeekDefinition sd on sd.ID = sc.ScatteredWeekDefinitionId
+                            left join dbo.WeekOffHeader wh on wh.Id = sd.WOHeaderId
+                            ) as weeks 
+                            left join 
+                            (
+                            Select ei.SystemId , ei.BudgetCode , ei.PlantId,
+                            (Select top 1 WOHeaderId from dbo.EmployeeWeeklyOff
+                            where EmpSystemId = ei.SystemId 
+                            order by EffectiveDate desc) as WOHeader
+                            from dbo.EmployeeInformation ei
+                            where ei.BudgetCode = (Select BudgetCode from dbo.EmployeeInformation where SystemId = '" + EmpID + @"')
+                            ) as emps on weeks.PlantId = emps.PlantId and weeks.WOHeaderId = emps.WOHeader
+                            group by  weeks.WOHeaderId , weeks.UserName
+                            order by Emps asc , WOHeaderId
+                            ";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> getDistinctEmployeesToBeProcessed(string EffectiveDate)
         {
