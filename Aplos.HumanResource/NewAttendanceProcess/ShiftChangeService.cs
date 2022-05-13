@@ -9,6 +9,7 @@ using bplib;
 using Newtonsoft.Json;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.Model.EmployeeServices;
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
@@ -836,5 +837,83 @@ namespace Library.HumanResource.NewAttendanceProcess
 
     }
 
+    public class EmployeeFeedbackService
+    {
+        SqlRepository _sqlRepository;
+        ConnectionManager.clsConnectionManager ConManager;
+
+        public EmployeeFeedbackService()
+        {
+            _sqlRepository = new SqlRepository();
+            ConManager = new ConnectionManager.clsConnectionManager();
+        }
+        
+        public IEnumerable<object> GetReasoningMaster()
+        {
+            try
+            {
+                var sql = @"select Id as Value,UserName as Text from HKP.AbsentismReasoningMaster";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public string Create(IEnumerable<EmployeeFeedBackModel> DataToSave)
+        {
+
+            try
+            {
+                DataSet dsMaster;
+                string TableName = "dbo.Employeefeedback";
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                if (DataToSave.Count() == 0)
+                    return "";
+
+                List<EmployeeFeedBackModel> items = DataToSave.ToList();
+
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where 1=2", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                foreach (EmployeeFeedBackModel item in DataToSave)
+                {
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        clsGenID genid = new clsGenID();
+                        genid.GenID(TableName, out _Id);
+
+                        dr["Id"] = "EF" + _Id;
+                        dr["EmpSystemId"] = item.EmpSystemId;
+                        dr["Date"] = item.Date;
+                        dr["ReasoningId"] = item.ReasoningId;
+                        dr["Action"] = item.Action;
+                        dr["Remarks"] = item.Remarks;                  
+                        dr["AddedBy"] = item.AddedBy;
+                        dr["AddedDate"] = DateTime.Now.ToString();
+                        dr["AddedFromIP"] = item.AddedFromIP;
+
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                }
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+                string MasterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                return MasterId;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+    }
 }
 

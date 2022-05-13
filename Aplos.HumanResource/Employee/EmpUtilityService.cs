@@ -176,7 +176,7 @@ namespace Library.Service.EmployeeServices
         {
             try
             {
-                var sql = "SELECT EmployeeCode as Code,SystemID as Value,EmployeeName as Text FROM dbo.EmployeeInformation " +
+                var sql = "SELECT EmployeeCode as Code,SystemID as Value,EmployeeName as Text,CellPhnNo FROM dbo.EmployeeInformation " +
                     "where EmployeeStatus = 'Active' and GroupID='" + GpId + "' and CompanyId='" + CompId + "' and PlantId='" + PlantId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
