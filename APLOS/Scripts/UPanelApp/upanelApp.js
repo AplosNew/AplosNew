@@ -1031,6 +1031,7 @@ upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("CustomerConfirmationController", CustomerConfirmationController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
+upanelApp.controller("AbsentismReasoningMasterController", AbsentismReasoningMasterController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 
