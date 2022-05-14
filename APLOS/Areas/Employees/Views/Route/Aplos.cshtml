@@ -341,12 +341,6 @@
                                     <label class="col-sm-4 control-label">Transport<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
                                         <input id="transportList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="transportList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
-
-                                        @*<div class="select-style">
-                                            <select class="form-control" id="Transport" name="Transport" ng-model="ModelRouteSchedule.TransportId" ng-options="item.Value as item.Text for item in TransportList" tabindex="6">
-                                                <option value="">---Select---</option>
-                                            </select>
-                                        </div>*@
                                     </div>
                                 </div>
 
@@ -411,7 +405,7 @@
                                         <tbody>
                                             <tr ng-repeat="x in routeScheduleList" ng-dblclick="routeScheduledoubleclick(x);" ng-class="{selected : x.Id==null}">
                                                 <td>{{x.TripNo}}</td>
-                                                <td>{{x.Transport}}</td>
+                                                <td>{{x.RouteScheduleTransport}}</td>
                                                 <td>{{x.StartTime}}</td>
                                                 <td>{{x.EndTime}}</td>
                                                 <td>{{x.From}}</td>

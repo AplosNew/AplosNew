@@ -303,6 +303,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     function ClearFields() { 
         $scope.routeNew = Object.assign({}, $scope.route);
         $scope.StopageListNew = [];
+        $scope.transportDetailsList = [];
+        $scope.routeScheduleList = [];
         //$scope.employeeInfo.EmployeeCode = null;
         //$scope.employeeInfo.EmployeeName = null;
         //$scope.AssetInfo.Id = null;
@@ -431,10 +433,13 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             $scope.routeScheduleList = resp.data;
         });
     }
-    //$scope.getRouteScheduleMaster();
+    $scope.getRouteScheduleMaster();
 
     $scope.routeScheduledoubleclick = function (args) {
         $scope.ModelRouteSchedule = Object.assign({}, args);
+        var DropDownListObj = $("#transportList").data("ejDropDownList");
+        DropDownListObj.uncheckAll();
+        $scope.GetRouteScheduleTransport(args.Id);
     };
     $scope.ClearRouteSchedule = function () {
         $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
@@ -469,6 +474,39 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 ShowResult(response.data.Message, 'failure');
             }
         });
+    };
+
+    //$scope.RouteScheduleTransport = [];
+    //$scope.getRouteScheduleTransport = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'GetRouteScheduleTransport',
+    //        dataType: 'JSON'
+    //    }).then(function succ(resp) {
+    //        $scope.RouteScheduleTransport = resp.data;
+    //    });
+    //}
+    //$scope.getRouteScheduleTransport();
+
+    $scope.routeScheduleTransportList = [];
+    $scope.GetRouteScheduleTransport = function (routeScheduleId) {
+        $scope.routeScheduleTransportList = [];
+        $http.get("employees/route/GetRouteScheduleTransport?routeScheduleId=" + routeScheduleId)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.routeScheduleTransportList = response.data;
+
+                        var DropDownListObj = $("#transportList").data("ejDropDownList");
+                        for (var j = 0; j < $scope.routeScheduleTransportList.length; j++) {
+                            DropDownListObj.selectItemByValue($scope.routeScheduleTransportList[j].routeScheduleTransportId);
+                        }
+
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
     };
 
 }

@@ -644,7 +644,7 @@ namespace Library.General.TaskScheduler
         {
             try
             {
-                var sql = @"select '1.8.6' as Version from org.CompanyGroup";
+                var sql = @"select '1.8.7' as Version from org.CompanyGroup";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
