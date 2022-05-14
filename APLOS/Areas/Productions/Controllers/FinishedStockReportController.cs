@@ -112,6 +112,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColLot = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Details", 40, ExcelHAlign.HAlignCenter);
+            int ColProdDet = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Bag Size", 13, ExcelHAlign.HAlignCenter);
             int ColBagSize = COL;
             COL++;
@@ -166,10 +170,13 @@ namespace Aplos.Areas.Productions.Controllers
 
                     LotNum = data.Rows[i]["LotNo"].ToString();
                     sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
+                    sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
                     if (i != 0 && LotRow != (ROW - 1))
                     {
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].Merge();
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
+                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
                     LotRow = ROW;
                 }

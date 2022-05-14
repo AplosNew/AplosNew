@@ -186,7 +186,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
             try
             {
                 var str = @"
-Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Article, Customers , Case when D15>0 then D15 else null end as D15
+Select ProductCategory,ProductSubCategory,ProductCode, PordDertails as ProdDetails ,POId,LotNo,Material , Article, Customers , Case when D15>0 then D15 else null end as D15
                             , Case when D15T30>0 then D15T30 else null end as D15T30
                             , Case when D30T60>0 then D30T60 else null end as D30T60
                             , Case when D60T90>0 then D60T90 else null end as D60T90
@@ -196,7 +196,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                             , Case when D180T360>0 then D180T360 else null end as D180T360
                             , Case when DG360>0 then DG360 else null end as DG360
                             from
-                            (Select tt.ProductCategory, tt.ProductSubCategory,tt.ProductCode , tt.POId , tt.LotNo , tt.Material , tt.Article , tt.Customers  , sum(case when Interval<15 then NetWeight else 0 end) as D15
+                            (Select tt.ProductCategory, tt.ProductSubCategory,tt.ProductCode , tt.PordDertails, tt.POId , tt.LotNo , tt.Material , tt.Article , tt.Customers  , sum(case when Interval<15 then NetWeight else 0 end) as D15
                             ,sum(case when Interval>=15 and Interval<30 then NetWeight else 0 end) as D15T30
                             ,sum(case when Interval>=30 and Interval<60 then NetWeight else 0 end) as D30T60
                             ,sum(case when Interval>=60 and Interval<90 then NetWeight else 0 end) as D60T90
@@ -210,7 +210,12 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                                 (select distinct pcc.UserName as ProductCategory , pscc.UserName as ProductSubCategory,
 								S.ProductCode, S.POId, S.LotNo,
                                 S.RefNo, S.Cones, S.NetWeight, S.GWeight, S.PackedBy,
-                                S.Shade, S.AddedBy, S.AddedDate, ma.UserName as Material , M.StandardName as Article, R.FromLocation, R.ToLocation , cus.ProductLibraryId , format(sc.WorkDate,'dd-MMM-yyyy') as WorkDate
+                                S.Shade, S.AddedBy, S.AddedDate, ma.UserName as Material , M.StandardName as Article, R.FromLocation, R.ToLocation , cus.ProductLibraryId ,(Select Stuff((
+Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+from dbo.ProductLibraryAttribute pla
+where pla.ProductLibraryId = cus.ProductLibraryId
+for XML PATH('')
+) , 1, 2, '')) as PordDertails , format(sc.WorkDate,'dd-MMM-yyyy') as WorkDate
                                 , DATEDIFF(DAY, sc.WorkDate, GETDATE()) as Interval
                                 , STUFF((
                                     Select distinct ','+ cuss.UserName
@@ -261,7 +266,7 @@ Select ProductCategory,ProductSubCategory,ProductCode, POId,LotNo,Material , Art
                                 S.Shade, S.AddedBy, S.AddedDate, M.StandardName, R.FromLocation, R.ToLocation , cus.ProductLibraryId, sc.WorkDate , ma.UserName
 								, pcc.UserName, pscc.UserName 
                                 )  as TT
-                                group by tt.ProductCode , tt.POId , tt.LotNo , tt.Material , tt.Article , tt.Customers,tt.ProductCategory , tt.ProductSubCategory) as dd";
+                                group by tt.ProductCode ,tt.PordDertails, tt.POId , tt.LotNo , tt.Material , tt.Article , tt.Customers,tt.ProductCategory , tt.ProductSubCategory) as dd";
                 return _sqlRepository.GetDataTable(str);
 
             }

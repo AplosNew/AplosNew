@@ -238,6 +238,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         ResidenceType: null,
         ResidenceNumber: null,
         VacancyStatus: null,
+        Vacancy:null,
         isActive:0,
     };
 
@@ -356,20 +357,31 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         $scope.EmployeeIds = [];
         $scope.SelEmpList = [];
         for (var i = 0; i < $scope.EmployeeList.length; i++) {
+            //if ($scope.EmployeeList[i].isSelected == true) {
+            //    $scope.EmployeeIds.push($scope.EmployeeList[i].SystemId);
+            //    $scope.SelEmpList.push($scope.EmployeeList[i]);
+            //}
+            //if ($scope.SelEmpList.length > $scope.VacancyList[0].Text) {
+            //    if ($scope.EmployeeList[i].isSelected == true) {
+            //     // var cal =   $scope.SelEmpList.length - $scope.VacancyList[i].Text;
+            //        throw 'Vacancy has beenn full';
+            //    }
+                
+            //}
+            //else {
+            //    angular.element(document.querySelector('#EmpPop')).modal('hide');
+            //}
             if ($scope.EmployeeList[i].isSelected == true) {
-                $scope.EmployeeIds.push($scope.EmployeeList[i].SystemId);
                 $scope.SelEmpList.push($scope.EmployeeList[i]);
             }
-            if ($scope.SelEmpList.length > $scope.VacancyList[0].Text) {
-                if ($scope.EmployeeList[i].isSelected == true) {
-                 // var cal =   $scope.SelEmpList.length - $scope.VacancyList[i].Text;
-                    throw 'Vacancy has beenn full';
-                }
-                
-            }
-            else {
-                angular.element(document.querySelector('#EmpPop')).modal('hide');
-            }
+        }
+
+        if ($scope.SelEmpList.length > $scope.selectedData.VacancyList) {
+            ShowResult('Selected Greater than vacancy allowed', 'failure');
+            throw ('Invalid Request');
+        }
+        else {
+            angular.element(document.querySelector('#EmpPop')).modal('hide');
         }
        
         $scope.getSelected();

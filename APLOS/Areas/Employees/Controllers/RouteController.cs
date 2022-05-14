@@ -439,14 +439,17 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateRouteSchedule(Dictionary<string, object> data, string RouteId)
+        public JsonResult CreateRouteSchedule(Dictionary<string, object> data, string RouteId,string transportId)
         {
             try
             {
-                DataSet dsMaster;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataRow dr;
+                DataSet dsMaster, dsTransport;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 con.OpenDataSetThroughAdapter("select * from RouteSchedule where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from RouteScheduleTransport where RouteScheduleId ='" + data["Id"] + "'", out dsTransport, false, "1");
 
                 string _Id = "";
 
@@ -467,13 +470,43 @@ namespace Aplos.Areas.Employees.Controllers
                 }
                 #endregion data update
 
+                #region Transport 
 
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
+                while (dsTransport.Tables[0].DefaultView.Count > 0)
+                    dsTransport.Tables[0].DefaultView[0].Delete();
+                int count = 0;
+                if (dsTransport != null)
+                {
+                    string[] transports = transportId.Split(',');
+                    foreach (string item in transports)
+                    {
+                        dr = dsTransport.Tables[0].NewRow();
+                        count++;
+                        string pk = _Id + "_" + count;
+                        dr["Id"] = pk;
+                        dr["TransportId"] = item;
+                        dr["RouteScheduleId"] = _Id;
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+
+                        dsTransport.Tables[0].Rows.Add(dr);
+                    }
+
+                    #endregion Transport 
 
 
-                return Json(new { Error = false, Message = AplosMessage.Insert });
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster, dsTransport);
 
+
+
+                }
+                    return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
@@ -585,14 +618,30 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetRouteScheduleTransport(string routeScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select RST.TransportId routeScheduleTransportId,TD.TransportUserName RouteScheduleTransport from RouteScheduleTransport RST
+							left join TransportDetail TD on TD.Id=RST.TransportId
+                            where RouteScheduleId='" + routeScheduleId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule(string RouteId)
         {
-            string sql = @"select RS.Id,RS.TransportId,TD.TransportUserName Transport,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
+            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
 										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
 										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.DistancePerUnit,RS.Remarks
+										,Stuff((Select ','+TD.TransportUserName
+										from dbo.RouteScheduleTransport RST 
+										left join TransportDetail TD on TD.Id=RST.TransportId
+										where RST.RouteScheduleId = RS.Id
+										for xml path('')
+										),1,1,'') as RouteScheduleTransport
                                         from RouteSchedule RS
-                                        left join TransportDetail TD on TD.Id=RS.TransportId
                                         left join ShiftDefination SD on SD.SystemID=RS.ShiftId
                                         where RS.RouteId='" + RouteId + @"'";
 
