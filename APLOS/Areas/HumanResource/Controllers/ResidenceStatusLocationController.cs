@@ -97,6 +97,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rsl.getAssetName(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost, Authorize]
+        public ActionResult getVacancy(string PlantId, string ResidenceGroupId)
+        {
+            return Json(rsl.getVacancy(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult view(string PlantId, string EmployeeCategoryId, string ResidenceGroupId)
         {
@@ -132,11 +138,24 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getEmployee()
+        public ActionResult getEmployee(string PlantId, string ResidenceGroupId, string EmployeeCategoryId)
         {
             try
             {
-                return Json(rsl.getEmployee(), JsonRequestBehavior.AllowGet);
+                return Json(rsl.getEmployee(PlantId, ResidenceGroupId, EmployeeCategoryId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getSelectedEmployees(List<Dictionary<string, object>> EmpList)
+        {
+            try
+            {
+                return Json(rsl.getSelectedEmployees(EmpList), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

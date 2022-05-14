@@ -1901,8 +1901,30 @@ namespace Library.Accounting.FixedAssets
 		}
 
 
-		#endregion Fixed Assets Register Report for Elastis Search
+        #endregion Fixed Assets Register Report for Elastis Search
+
+        #region 
+        public IEnumerable<object> GetfixedAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate)
+        {
+            //var status = "";
+            //if (paymentStatus == "Pending")
+            //{
+            //    status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
+            //}
+            var sql = @"SELECT FAM.*,
+                        FAC.UserName 'FixedAssetCategory',
+                        FASC.UserName 'FixedAssetSubCategory'
+						,'Not Process' ProcessStatus
+                        FROM  MST.[FixedAssetMaster]  FAM
+                        LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
+                        LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
+                     WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
+					 AND FAM.Id IN(select FixedAssetMasterId from [TRN].[FixedAssetRegister] )";
+			return _sqlRepository.GetDataCollection(sql);
+
+        }
+        #endregion
 
 
-	}
+    }
 }

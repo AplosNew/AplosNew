@@ -58,10 +58,16 @@ namespace Library.MaterialManagement.Inventory
 				                             , @totalReceiveAmount DECIMAL(18, 4)=0
 				                             , @totalServiceAmount DECIMAL(18, 4)=0
 				                             , @totalSvcTaxAmount DECIMAL(18, 4)=0
+				                             , @totalAdditionalServiceAmount DECIMAL(18, 4)=0
+				                             , @totalAdditionalSvcTaxAmount DECIMAL(18, 4)=0
 				                  SET @totalReceiveAmount=(SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=@inventoryReceiveId)
-				                  SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=@inventoryReceiveId)
-				                  SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'')
-				                  SELECT IM.Id, IRD.Id AS InventoryReceiveDetailId,IRD.id as RCBDetailsID,IRD.PODetailsId,IRD.POId
+				                  SET @totalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=@inventoryReceiveId and IsOtherVendor=0)
+				                  SET @totalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'' AND InventoryServiceId in (select Id from trn.InventoryService where InventoryReceiveId=@inventoryReceiveId and IsOtherVendor=0) )
+				                  
+								  SET @totalAdditionalServiceAmount=(SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=@inventoryReceiveId and IsOtherVendor=1)
+				                  SET @totalAdditionalSvcTaxAmount=(SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=@inventoryReceiveId AND InventoryServiceId<>'' AND InventoryServiceId in (select Id from trn.InventoryService where InventoryReceiveId=@inventoryReceiveId and IsOtherVendor=1) )
+								  
+								  SELECT IM.Id, IRD.Id AS InventoryReceiveDetailId,IRD.id as RCBDetailsID,IRD.PODetailsId,IRD.POId
 				                      , MGM.UserName AS MaterialGroupMasterName
 				                      , IM.MaterialMasterId, MM.UserName
 				                      , IM.ArticleId, ART.StandardName
@@ -83,8 +89,10 @@ namespace Library.MaterialManagement.Inventory
 				                   , IRD.ChargesTranAmount AS ChargesAmount
 				                   ,ServiceCharge=(@totalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
 	                               , ServiceTax=(@totalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
-				                   ,ServiceCharge=(@totalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
-				                   , ServiceTax=(@totalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+				                  ,AdditionalChargesAmount=(@totalAdditionalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+	                               , AdditionalChargesTax=(@totalAdditionalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+				                 
+
 				                   , IRD.CountryId
 				                    , IRD.TotalMaterialTranAmount AS TotalMaterialTranAmount  
                                     ,null TaxList
@@ -141,8 +149,9 @@ namespace Library.MaterialManagement.Inventory
 				                   , IRD.ChargesTranAmount AS ChargesAmount
 				                   ,ServiceCharge=(@totalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
 	                               , ServiceTax=(@totalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
-				                   ,ServiceCharge=(@totalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
-				                   , ServiceTax=(@totalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+									,AdditionalChargesAmount=(@totalAdditionalServiceAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+	                               , AdditionalChargesTax=(@totalAdditionalSvcTaxAmount/ISNULL(NULLIF(@totalReceiveAmount,0), 1))*IRD.MaterialTranAmount
+				                 
 				                   , IRD.CountryId
 				                    , IRD.TotalMaterialTranAmount AS TotalMaterialTranAmount  
                                     ,null TaxList
@@ -155,15 +164,7 @@ namespace Library.MaterialManagement.Inventory
                                     ,IRD.ShortageRatePercent ShortageRate,IRD.ShortageValue,IRD.RejectRatePercent RejectionRate,IRD.RejectValue RejectionValue,IRD.RejectClamPercent RejectionClamRate
                                     ,C.Id CountryId,C.UserName CountryName,IRD.LotNumber,IRD.Diameter,IRD.Type ,MS.UserName MaterialStorageName,IRD.QualityStatus,MOI.MasterOrderId
 				                  FROM TRN.InventoryMaterial AS IM
-				                  --JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-				                  --LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-				                  --LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-				                  --LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-				                  --LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-				                  --LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-				                  --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-				                  --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-				                  --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+				                 
 				                  JOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id
 				                  JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 				                  JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId=IR.Id

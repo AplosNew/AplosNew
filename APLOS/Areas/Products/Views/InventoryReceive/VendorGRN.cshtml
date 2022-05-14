@@ -353,6 +353,8 @@
                                 <th>Service Tax</th>
                                 <th>Material Amount (Trn)</th>
                                 <th>Material Amount (BC)</th>
+                                <th>Additional Charges</th>
+                                <th>Additional Charges Tax</th>
                                 <th>QualityStatus</th>
                                 <th>Master Order No</th>
                                 <th class="col-sm-1"></th>
@@ -401,6 +403,8 @@
                                 <td class="text-right">{{x.ServiceTax | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.TotalMaterialTranAmount | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.BaseAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.AdditionalChargesAmount | setDecimal:currencyPrecision| number}}</td>
+                                <td class="text-right">{{x.AdditionalChargesTax | setDecimal:currencyPrecision| number}}</td>
                                 <td class="text-right">{{x.QualityStatus}}</td>
                                 <td class="text-right">{{x.MasterOrderId}}</td>
                                 <td class="text-right">
@@ -431,12 +435,14 @@
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'ServiceTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'TotalMaterialTranAmount'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'BaseAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'AdditionalChargesAmount'| setDecimal:currencyPrecision | number}}</strong></td>
+                                <td class="text-right"><strong>{{inventoryMaterialList | sumByKey : 'AdditionalChargesTax'| setDecimal:currencyPrecision | number}}</strong></td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">&nbsp;</td>
                                 <td class="text-right">
                                     @*<ul class="list-inline action-list">
-                                            <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
-                                        </ul>*@
+                <li><button ng-click="getTotalReceiveTaxList(inventoryMaterialList | sumByKey : 'TrnAmount',true)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
+            </ul>*@
                                 </td>
                             </tr>
                         </tbody>

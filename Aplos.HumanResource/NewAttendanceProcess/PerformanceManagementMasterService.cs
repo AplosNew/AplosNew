@@ -1019,9 +1019,26 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var str = @"select ei.SystemId, ei.EmployeeId, ei.EmployeeName, ei.DOB, ei.EmployeeCurrentStatus,
-                            ei.EmpType, ei.EmploymentType, ei.JobLocationID 
-                            from dbo.EmployeeInformation ei           
+                var str = @"select ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, 
+                            FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
+                            LDSG.StandardName as Designation, SC.UserName as Section,
+                            SBC.UserName as SubSection from dbo.EmployeeInformation ei
+                            LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=ei.DesignationGroupId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=ei.LegalDesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
+                            left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
+                            left join SalaryRuleMaster SRM on srm.systemid = ei.salaryrulemastersystemid
+                            left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
+                            left join TransportGroup TG on TG.Id = ei.TransportGroupId          
                             where ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1792,6 +1809,21 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public IEnumerable<object> getVacancy(string PlantId, string ResidenceGroupId)
+        {
+            try
+            {
+                string sql = @"select rm.Id as Value, rm.Vacancy as Text from dbo.ResidenceMaster rm
+                                where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getData()
         {
             try
@@ -1936,12 +1968,16 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
         #endregion Add & Edit Row
 
-        public IEnumerable<object> getEmployee()
+        public IEnumerable<object> getEmployee(string PlantId, string ResidenceGroupId, string EmployeeCategoryId)
         {
             try
             {
-                var str = @"           
-                            ";
+                var str = @"select ei.EmployeeName, ei.DOJ, ei.EmployeeStatus, ei.SystemId, rm.AddedDate as AllocationDate from dbo.ResidenceMaster rm                           
+                            left join HKP.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId
+                            left join dbo.EmployeeInformation ei on ei.EmployeeCategorySystemID = eg.Id
+                            where rm.PlantId='"+PlantId+ "' and rm.ResidenceGroupId='"+ResidenceGroupId+ "'  and rm.EmployeeCategoryId = '" + EmployeeCategoryId + "' and ei.EmployeeStatus = 'Active'";
+
+                ;
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1950,6 +1986,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
+        public List<Dictionary<string, object>> getSelectedEmployees(List<Dictionary<string, object>> EmpList)
+        {
+            try
+            {
+                
+                return EmpList;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
     #endregion Residence Status Location
 }

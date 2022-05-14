@@ -60,6 +60,7 @@ upanelApp.controller("candidateAdministrationController", candidateAdministratio
 upanelApp.controller("candidatedocumentAddRemoveController", candidatedocumentAddRemoveController);
 upanelApp.controller("candidateDocumentAssignmentController", candidateDocumentAssignmentController);
 upanelApp.controller("capitalizedFixedAssetRegisterController", capitalizedFixedAssetRegisterController);
+upanelApp.controller("fixedAssetDepreciationProcessController", fixedAssetDepreciationProcessController);
 upanelApp.controller("cashBaseController", cashBaseController);
 upanelApp.controller("cashBookReportController", cashBookReportController);
 upanelApp.controller("cashJournalController", cashJournalController);
@@ -1030,6 +1031,7 @@ upanelApp.controller("VoucherGlUpdateController", VoucherGlUpdateController);
 upanelApp.controller("CustomerConfirmationController", CustomerConfirmationController);
 upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
+upanelApp.controller("AbsentismReasoningMasterController", AbsentismReasoningMasterController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 

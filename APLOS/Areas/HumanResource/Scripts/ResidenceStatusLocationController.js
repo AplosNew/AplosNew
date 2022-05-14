@@ -203,7 +203,23 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             },
         }).then(function success(response) {
             $scope.AssetNameList = response.data;
+
+            $scope.getVacancy();
         });
+    }
+
+    $scope.getVacancy = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getVacancy',
+            data: {
+                'PlantId': $scope.selectedData.PlantId,
+                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+            },
+            dataType:'JSON',
+        }).then(function success(response) {
+            $scope.VacancyList = response.data;
+        })
     }
 
     $scope.selectedData = {
@@ -222,6 +238,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         ResidenceType: null,
         ResidenceNumber: null,
         VacancyStatus: null,
+        Vacancy:null,
         isActive:0,
     };
 
@@ -259,7 +276,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
                 $scope.ModelList[i].VacancyStatus = $scope.selectedData.VacancyStatus;
 
             }
-
+            $scope.getEmployee();
               /*  $("#GridData").ejGrid({
                     dataSource: $scope.ModelList,
                     minWidth: 450, minHeight: 400,
@@ -267,16 +284,8 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
                     filterSettings: { filterType: "excel" },
                     columns: ColumnList
                 });
-
-
             var gridObj = $("#GridData").data("ejGrid");*/
-           
-              
-                
-            
-                      
-           
-
+      
         })
     }
 
@@ -334,10 +343,55 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         $http({
             method: 'POST',
             url: $scope.path + 'getEmployee',
-
+            data: {
+                'PlantId': $scope.selectedData.PlantId,
+                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+                'EmployeeCategoryId': $scope.selectedData.EmployeeCategoryId,
+            },
         }).then(function success(resp) {
             $scope.EmployeeList = resp.data;
-        })
+        });
     }
-    $scope.getEmployee();
+
+    $scope.selectEmpDetail = function () {
+        $scope.EmployeeIds = [];
+        $scope.SelEmpList = [];
+        for (var i = 0; i < $scope.EmployeeList.length; i++) {
+            //if ($scope.EmployeeList[i].isSelected == true) {
+            //    $scope.EmployeeIds.push($scope.EmployeeList[i].SystemId);
+            //    $scope.SelEmpList.push($scope.EmployeeList[i]);
+            //}
+            //if ($scope.SelEmpList.length > $scope.VacancyList[0].Text) {
+            //    if ($scope.EmployeeList[i].isSelected == true) {
+            //     // var cal =   $scope.SelEmpList.length - $scope.VacancyList[i].Text;
+            //        throw 'Vacancy has beenn full';
+            //    }
+                
+            //}
+            //else {
+            //    angular.element(document.querySelector('#EmpPop')).modal('hide');
+            //}
+            if ($scope.EmployeeList[i].isSelected == true) {
+                $scope.SelEmpList.push($scope.EmployeeList[i]);
+            }
+        }
+
+        if ($scope.SelEmpList.length > $scope.selectedData.VacancyList) {
+            ShowResult('Selected Greater than vacancy allowed', 'failure');
+            throw ('Invalid Request');
+        }
+        else {
+            angular.element(document.querySelector('#EmpPop')).modal('hide');
+        }
+       
+        $scope.getSelected();
+    }
+
+    $scope.EmpList = [];
+    $scope.getSelected = function () {
+        $scope.EmpList = $scope.SelEmpList;
+         
+    }
+    
+    
 }
