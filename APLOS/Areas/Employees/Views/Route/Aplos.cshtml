@@ -117,8 +117,6 @@
                                         <th>ShortName</th>
                                         <th>StandardName</th>
                                         <th>UserName</th>
-                                        @*<th>Up Duration(min)</th>
-                                        <th>Down Duration(min)</th>*@
                                         <th>Up Distance From(Min)</th>
                                         <th>Down Distance From(Min)</th>
                                         <th>Remove</th>
@@ -302,7 +300,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Start Time<sup>*</sup></label>
                                     <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                                        <input id="StartTime" type="text" class="form-control input-small" ng-model="ModelRouteSchedule.StartTime" style="margin-left:-10%; width:94%" tabindex="7">
+                                        <input id="StartTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.StartTime" style="margin-left:-10%; width:94%" tabindex="7">
                                         <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
                                     </div>
                                 </div>
@@ -347,7 +345,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">End Time<sup>*</sup></label>
                                     <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                                        <input id="EndTime" type="text" class="form-control input-small" ng-model="ModelRouteSchedule.EndTime" style="margin-left:-10%; width:94%" tabindex="7">
+                                        <input id="EndTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.EndTime" style="margin-left:-10%; width:94%" tabindex="7">
                                         <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
                                     </div>
                                 </div>
