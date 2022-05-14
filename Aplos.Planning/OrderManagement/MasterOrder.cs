@@ -784,7 +784,7 @@ ORDER BY OL.Sequence";
             }
         }
 
-        public IEnumerable<object> GetCostingSORateData(string SalesOrderId)
+        public IEnumerable<object> GetCostingSORateData(string SalesOrderId, string lineId)
         {
             try
             {
@@ -792,8 +792,8 @@ ORDER BY OL.Sequence";
 LR.Value ItemValue,SOValue=CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
 FROM OrderLineCostingItem AS OL
 LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
-LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id
-OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
+LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'"+ lineId + @"')='" + lineId + @"'
+OUTER APPLY (SELECT * FROM dbo.SOCostingConfirmation WHERE OrderLineCostingItemId=OL.Id AND ISNULL(SalesOrderId,'" + SalesOrderId + @"')='"+ SalesOrderId + @"') A
 ORDER BY OL.Sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
