@@ -580,6 +580,42 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         }
         angular.element(document.querySelector('#receiveTaxPopUp')).modal('show');
     };
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.SaveButtonDisable = "";
+        $scope.Action = "Save";
+        $scope.IsBaseOnDueDateEnable = false;
+        $scope.productNew = {
+            FixedAssetOrInventory: 'Inventory'
+            , PODepended: false
+            , AlongwithInvoice: true
+            , IsNonCreditable: false
+            , BaseCurrencyId: $scope.baseCurrencyId
+            , ToCurrencyRate: 1
+            , TaxApplicable: null
+            , IsTaxApplicable: false
+            , IsTaxApplicableChangeable: false
+            , PartyType: $scope.partyType
+            , PlantId: $window.plantId
+            , GRNDate: $filter("dateFiltering")(Date.now())
+
+        };
+        $scope.DetailList = [];
+        $scope.GriddataSelected = [];
+        $scope.MasterList = [];
+        $scope.POMaterialTaxList = [];
+        $scope.POServiceTaxList = [];
+        $scope.MasterListNew = [];
+        $scope.chargesListPOnew = [];
+        $scope.ApprovedByStatusForNoti = null;
+        $scope.CheckedByStatusForNoti = null;
+        $scope.AcceptanceId = null;
+
+    }
     $scope.chargesListPOnew
     $scope.Save = function () {
         if ($scope.Action === 'Save') {

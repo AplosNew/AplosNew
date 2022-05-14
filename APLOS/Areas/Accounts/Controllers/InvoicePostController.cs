@@ -48,7 +48,7 @@ namespace Aplos.Areas.Accounts.Controllers
          , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList
          , IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
          , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList
-         , IEnumerable<InvoiceTaxViewModel> tdsTaxList)
+         , IEnumerable<InvoiceTaxViewModel> tdsTaxList, IEnumerable<VoucherDetailViewModel> otherVendorChargesList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -98,7 +98,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 return Json(new
                 {
                     Message = string.Format(AplosMessage.VoucherSave, _inventoryPayableService.InsertInventoryPayable(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList
-                        , inventoryPayableVMList, inventoryReceiveDetailVMList, tdsTaxList))
+                        , inventoryPayableVMList, inventoryReceiveDetailVMList, tdsTaxList,otherVendorChargesList))
                 });
 
 

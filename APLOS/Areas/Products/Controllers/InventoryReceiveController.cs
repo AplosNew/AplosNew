@@ -1186,6 +1186,14 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
+        public JsonResult GetOtherVendorChargesPayable(string inveReveiveId,string otherPartyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableService _accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
+            return Json(_accountsInventoryPayableService.GetOtherVendorChargesPayableData(identity.CompanyId,  identity.PlantId, inveReveiveId, otherPartyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialShortagePayable(string inveReveiveId, string employeeId, bool isReversCharge)
         {
             AccountsInventoryPayableService accountsInventoryPayableService = new AccountsInventoryPayableService(_sqlRepository);
