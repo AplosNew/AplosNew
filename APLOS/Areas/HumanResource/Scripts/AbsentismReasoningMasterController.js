@@ -15,7 +15,6 @@ function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
-
      $scope.getData = function () {
         $http({
             method: 'POST',
