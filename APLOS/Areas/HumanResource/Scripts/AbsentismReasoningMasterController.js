@@ -39,7 +39,7 @@ function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: false
+        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
