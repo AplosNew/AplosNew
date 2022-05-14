@@ -411,6 +411,18 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rs.getEmpWeekOff(EmpId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet , Authorize]
+        public ActionResult getBudgets()
+        {
+            return Json(rs.getBudgets(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost , Authorize]
+        public ActionResult getWeekOffsLists(string EmpID)
+        {
+            return Json(rs.getWeekOffsLists(EmpID) , JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult saveSingle(string EmpId, string EffectiveDate, string WeekId)
         {

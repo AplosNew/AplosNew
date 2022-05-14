@@ -119,8 +119,8 @@
                                         <th>UserName</th>
                                         @*<th>Up Duration(min)</th>
                                         <th>Down Duration(min)</th>*@
-                                        <th>Up Distance From(In min)</th>
-                                        <th>Down Distance From(In min)</th>
+                                        <th>Up Distance From(Min)</th>
+                                        <th>Down Distance From(Min)</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -192,30 +192,24 @@
                                     <input type="text" name="TransportUserName" ng-model="ModelChildNew.TransportUserName" class="form-control text-right" required tabindex="110">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Transport No</label>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Transport No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <input type="text" name="TransportNo" ng-model="ModelChildNew.TransportNo" class="form-control text-right" required tabindex="110">
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Driver Name</label>
-                                <div class="col-sm-8">
-                                    <div class="input-group">
-                                        <span class="input-group-addon">{{ModelChildNew.DriverCode}}</span>
-                                        <input type="text" name="DriverName" ng-model="ModelChildNew.DriverName" class="form-control" readonly>
-                                        <span class="input-group-btn">
-                                            <button name="submit" ng-click="GetEmployeeDeleteInfo('mo');" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                        </span>
-                                    </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Driver Name<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                        <input type="text" name="DriverName" ng-model="ModelChildNew.DriverName" class="form-control text-right" required tabindex="110">
                                 </div>
                             </div>
 
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Transport Category</label>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Transport Category<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <input type="text" name="TransportCategory" ng-model="ModelChildNew.TransportCategory" class="form-control text-right" required tabindex="110">
                                 </div>
@@ -346,11 +340,13 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Transport<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <div class="select-style">
+                                        <input id="transportList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="transportList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+
+                                        @*<div class="select-style">
                                             <select class="form-control" id="Transport" name="Transport" ng-model="ModelRouteSchedule.TransportId" ng-options="item.Value as item.Text for item in TransportList" tabindex="6">
                                                 <option value="">---Select---</option>
                                             </select>
-                                        </div>
+                                        </div>*@
                                     </div>
                                 </div>
 
@@ -521,72 +517,6 @@
 <confirm-modal></confirm-modal>
 
 <confirm-archive-generic modalid="confirmPopUpMaster" title="Confirmation" message="Are you sure to delete ?" data-ng-click-right-button="Delete();"></confirm-archive-generic>
-
-<div class="modal fade site-modal in" id="employeeNewPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                Employee List
-                <button type="button" class="close" ng-click="closeEmployeePopUp();">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="SetEmpData" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer common-btn">
-                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade site-modal in" id="AssetPopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                Asset List
-                <button type="button" class="close" ng-click="closeAssetPopUp();">&times;</button>
-            </div>
-
-            <div class="modal-body">
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GridEmp" ej-grid e-datasource="AssetList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-recorddoubleclick="SetAssetData" e-allowselection="true" e-filtersettings-filterType="excel">
-                        <div e-columns>
-                            <div e-column e-field="Id" e-headertext="ID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="SerialNo" e-headertext="SerialNo" e-width="80"></div>
-                            <div e-column e-field="CapitalizationDate" e-headertext="Capitalization Date" e-width="80"></div>
-                            <div e-column e-field="YearOfInstallation" e-headertext="Year Of Installation" e-width="80"></div>
-                            <div e-column e-field="Description" e-headertext="Description" e-width="80"></div>
-                            <div e-column e-field="FixedAssetName" e-headertext="FixedAssetName" e-width="80"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer common-btn">
-                <button ng-click="closeAssetPopUp();" class="btn"><i class=""></i> Close</button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
 
 
 <div class="table-responsive aplos-grid-toggle">

@@ -128,10 +128,14 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     };
 
     $scope.SaveRouteSchedule = function () {
+        var DropDownListObj = $("#transportList").data("ejDropDownList");
+        var dayStatus = DropDownListObj.getSelectedValue();
+        $scope.transportId = dayStatus;
+
         $http({
             method: 'POST',
             url: $scope.saveRouteSchedule,
-            data: { 'data': $scope.ModelRouteSchedule, 'RouteId': $scope.routeNew.Id },
+            data: { 'data': $scope.ModelRouteSchedule, 'RouteId': $scope.routeNew.Id, 'transportId': $scope.transportId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -192,10 +196,10 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.recorddoubleclick = function (args) {
         $scope.routeNew = Object.assign({}, args.data);
-        $scope.employeeInfo.EmployeeCode = $scope.routeNew.EmployeeCode;
-        $scope.employeeInfo.EmployeeName = $scope.routeNew.DriverName;
-        $scope.AssetInfo.Id = $scope.routeNew.AssetId;       
-        $scope.AssetInfo.FixedAssetName = $scope.routeNew.FixedAsset;
+        //$scope.employeeInfo.EmployeeCode = $scope.routeNew.EmployeeCode;
+        //$scope.employeeInfo.EmployeeName = $scope.routeNew.DriverName;
+        //$scope.AssetInfo.Id = $scope.routeNew.AssetId;       
+        //$scope.AssetInfo.FixedAssetName = $scope.routeNew.FixedAsset;
         $scope.getTransportDetailsMaster();
         $scope.getRouteScheduleMaster();
         try {
@@ -290,76 +294,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         }
         return false;
     }
-    
-    $scope.dataList = [];
-    $scope.GetEmployeeDeleteInfo = function (name) {
-        $scope.Name = name;
-        $scope.employeeInfo = {};
-        $scope.dataList = [];
-        $http({
-            method: 'GET',
-            url: 'employees/route/getDriver'
-        }).then(function successCallback(response) {
-            $scope.dataList = response.data;
-        });
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
-    }
-    
-    $scope.employeeInfo = {};
-    $scope.SetEmpData = function (obj) {
-        //var emp = obj.data;
-        //$scope.employeeInfo.EmpSystemID = emp.SystemID;
-        //$scope.employeeInfo.EmployeeCode = emp.EmployeeCode;
-        //$scope.employeeInfo.EmployeeName = emp.EmployeeName;
-        //$scope.routeNew.DriverId = emp.SystemID;      
 
-            var emp = obj.data;
-            if ($scope.Name == 'ad') {
-                $scope.employeeInfo.EmpSystemID = emp.SystemID;
-                $scope.employeeInfo.EmployeeCode = emp.EmployeeCode;
-                $scope.employeeInfo.EmployeeName = emp.EmployeeName;
-                $scope.routeNew.DriverId = emp.SystemID;
-            }
-            else if ($scope.Name == 'mo') {
-                $scope.ModelChildNew.DriverId = emp.SystemID;
-                $scope.ModelChildNew.DriverCode = emp.EmployeeCode;
-                $scope.ModelChildNew.DriverName = emp.EmployeeName;
-            }
 
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    };
-
-    $scope.closeEmployeePopUp = function () {
-
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    }
-
-    $scope.AssetList = [];
-        $scope.AssetInfo = {};
-    $scope.GetAssetInfo = function () {
-       // $scope.AssetList = [];
-        $http({
-            method: 'GET',
-            url: 'employees/route/getFixedAsset'
-        }).then(function successCallback(response) {
-            $scope.AssetList = response.data;
-            });
-
-        angular.element(document.querySelector('#AssetPopUp')).modal('show');
-    }
-
-    $scope.AssetInfo = {};
-    $scope.SetAssetData = function (obj) {
-        var asset = obj.data;
-        $scope.AssetInfo.Id = asset.Id;
-        $scope.AssetInfo.FixedAssetName = asset.FixedAssetName;
-        $scope.routeNew.AssetId = asset.Id;
-        angular.element(document.querySelector('#AssetPopUp')).modal('hide');
-    };
-
-    $scope.closeAssetPopUp = function () {
-        angular.element(document.querySelector('#AssetPopUp')).modal('hide');
-    }
 
     $scope.Clear = function (obj) {
         ClearFields();
@@ -367,11 +303,11 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     function ClearFields() { 
         $scope.routeNew = Object.assign({}, $scope.route);
         $scope.StopageListNew = [];
-        $scope.employeeInfo.EmployeeCode = null;
-        $scope.employeeInfo.EmployeeName = null;
-        $scope.AssetInfo.Id = null;
-        $scope.employeeInfo.DriverName = null;
-        $scope.AssetInfo.FixedAssetName = null;
+        //$scope.employeeInfo.EmployeeCode = null;
+        //$scope.employeeInfo.EmployeeName = null;
+        //$scope.AssetInfo.Id = null;
+        //$scope.employeeInfo.DriverName = null;
+        //$scope.AssetInfo.FixedAssetName = null;
     }
 
     $scope.Delete = function () {
@@ -471,14 +407,14 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         angular.element(document.querySelector('#ShiftPop')).modal('hide');
     }
 
-    $scope.TransportList = [];
+    $scope.transportList = [];
     $scope.getTransport = function () {
         $http({
             method: 'GET',
             url: $scope.path + 'GetTransport',
             dataType: 'JSON'
         }).then(function succ(resp) {
-            $scope.TransportList = resp.data;
+            $scope.transportList = resp.data;
         });
     }
     $scope.getTransport();

@@ -735,5 +735,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/ResidenceStatusLocation/Aplos',
             controller: 'ResidenceStatusLocationController'
         })
+
+        .when('/absentism-reasoning-master', {
+            templateUrl: 'humanResource/AbsentismReasoningMaster/Aplos',
+            controller: 'AbsentismReasoningMasterController'
+        })
         ;
 }

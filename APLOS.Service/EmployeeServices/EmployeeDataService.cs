@@ -258,16 +258,11 @@ namespace Library.Service.EmployeeServices
                " and t.Service='" + Service + "' order by (emp.AddedDate) desc";
                 return _sqlRepository.GetDataCollection(sql, null);
 
-
-
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
-
-
         }
     }
 }
