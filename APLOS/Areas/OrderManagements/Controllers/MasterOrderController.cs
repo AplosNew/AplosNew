@@ -111,6 +111,11 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(MasterOrder.GetCostingSOFormulaData(masterOrderItemId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetCostingSORateData(string SalesOrderId)
+        {
+            return Json(MasterOrder.GetCostingSORateData(SalesOrderId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetItemRateData(string masterOrderItemId)
@@ -173,14 +178,68 @@ namespace Aplos.Areas.OrderManagements.Controllers
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
+        [Authorize]
+        public JsonResult CalculateSOCost(IEnumerable<SOCostModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("OrderLineCostingItemID");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<SOCostModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["OrderLineCostingItemID"] = dsOpenHead.Tables[0].Rows[i]["OrderLineCostingItemId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["SOValue"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    MasterOrder.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["OrderLineCostingItemID"] = dsOpenHead.Tables[0].Rows[i]["OrderLineCostingItemId"].ToString().Trim();
+                    dtValueRow["Amount"] = sFormulaResult;
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "OrderLineCostingItemId='" + dsOpenHead.Tables[0].Rows[i]["OrderLineCostingItemId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        drmo["SOValue"] = sFormulaResult;
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
 
         [HttpPost, Authorize]
-        public JsonResult CreateMasterOrderItemCostingRate(List<Dictionary<string, object>> data, string lieneId)
+        public JsonResult CreateMasterOrderItemCostingRate(List<Dictionary<string, object>> data, string lineId)
         {
             try
             {
 
-                SaveMasterOrderItemCostingRateData(data, lieneId);
+                SaveMasterOrderItemCostingRateData(data, lineId);
 
 
                 return Json(new { Message = AplosMessage.Insert });
@@ -192,7 +251,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         }
 
-        private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string lieneId)
+        private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string lineId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -201,7 +260,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MasterOrderItemCostingRate where  MasterOrderItemId='" + lieneId + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.MasterOrderItemCostingRate where  MasterOrderItemId='" + lineId + "'", out dsMaster, false, "1");
                 int idc = 0;
                 if (data != null)
                 {
@@ -213,8 +272,73 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = lieneId + idc;
-                            item["MasterOrderItemId"] = lieneId;
+                            item["Id"] = lineId + idc;
+                            item["MasterOrderItemId"] = lineId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                #endregion
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateSOCostingConfirm(List<Dictionary<string, object>> data, string lineId)
+        {
+            try
+            {
+
+                SaveSOCostingConfirmData(data, lineId);
+
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
+
+        private void SaveSOCostingConfirmData(List<Dictionary<string, object>> data, string lineId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                #region FUND 
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster = null;
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation where  SalesOrderId='" + lineId + "'", out dsMaster, false, "1");
+                int idc = 0;
+                if (data != null)
+                {
+                    foreach (var item in data)
+                    {
+                        idc++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = lineId + idc;
+                            item["SalesOrderId"] = lineId;
 
                             AddNewRow(dsMaster.Tables[0], item);
                         }
@@ -1675,6 +1799,23 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public string FormulaId { get; set; }
         public string CostingType { get; set; }
         public decimal Value { get; set; }
+
+    }
+
+    public class SOCostModelNew
+    {
+
+        public string Id { get; set; }
+        public string OrderLineCostingItemId { get; set; }
+        public string UserName { get; set; }
+        public string Formula { get; set; }
+        public string FormulaId { get; set; }
+        public string CostingType { get; set; }
+        public decimal ItemValue { get; set; }
+        public decimal SOValue { get; set; }
+        public decimal ValueDiff { get; set; }
+        public string SalesOrderId { get; set; }
+        public string Remark { get; set; }
 
     }
 }
