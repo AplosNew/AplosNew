@@ -112,9 +112,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetCostingSORateData(string SalesOrderId)
+        public ActionResult GetCostingSORateData(string SalesOrderId, string lineId)
         {
-            return Json(MasterOrder.GetCostingSORateData(SalesOrderId), JsonRequestBehavior.AllowGet);
+            return Json(MasterOrder.GetCostingSORateData(SalesOrderId, lineId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

@@ -14,7 +14,7 @@ namespace Library.Service.Invoices
     {
         string InsertInventoryPayable(string receiveId,string acceptanceId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryPayableVMList
-            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList);
+            , IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList, IEnumerable<InvoiceTaxViewModel> additionalTaxList, IEnumerable<VoucherDetailViewModel> otherVendorChargesList);
         string InsertEmployeePayable(string receiveId, VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
             , IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList, IEnumerable<VoucherDetailViewModel> inventoryReceiveDetailVMList);
         string InsertAdditionalTaxPayable(VoucherViewModel voucherVM, string additionalTaxId);

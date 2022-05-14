@@ -313,6 +313,9 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         getServiceChargeList();
         getInventoryMaterialList(data.data.Id, data.data.EmployeeId, data.data.IsTaxApplicable, $scope.modelNew.IsFOC);
         getInventoryTaxList(data.data.Id);
+        if (data.data.OtherPartyId) {
+            getOtherVendorChargesList(data.data.Id, data.data.OtherPartyId);
+        }
         if (data.data.GRNType == 'GRNBYPO') {
 
             $scope.GetPurchaseOrderDiscount(data.data.Id);
@@ -360,6 +363,15 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $http.get('Products/InventoryReceive/GetInventoryTaxList?inveReveiveId=' + inveReveiveId)
             .then(function (response) {
                 $scope.inventoryTaxList = response.data;
+            });
+    }
+
+    $scope.OtherVendorChargesPayableList = [];
+    function getOtherVendorChargesList(inveReveiveId, otherVendorId) {
+        $http.get('Products/InventoryReceive/GetOtherVendorChargesPayable?inveReveiveId=' + inveReveiveId + '&otherPartyId=' + otherVendorId )
+            .then(function (response) {
+                $scope.OtherVendorChargesPayableList = [];
+                $scope.OtherVendorChargesPayableList = response.data;
             });
     }
 
@@ -848,6 +860,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 , inventoryPayableVMList: $scope.inventoryPayableList
                 , inventoryReceiveDetailVMList: $scope.inventoryReceiveDetailList
                 , tdsTaxList: $scope.TDSList
+                , otherVendorChargesList: $scope.OtherVendorChargesPayableList
             },
             dataType: 'JSON'
         }).then(function (response) {
