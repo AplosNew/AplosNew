@@ -1,7 +1,7 @@
 ﻿'use strict';
 AbsentismReasoningMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Absentism Reasoning Master';
+    $rootScope.title = 'Absenteeism Reasoning Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/AbsentismReasoningMaster/';
