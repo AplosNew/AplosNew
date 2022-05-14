@@ -347,6 +347,7 @@ namespace Library.Accounting.Accounts
 						,Replace(CONVERT(VARCHAR(11), GLTD.ReconcileDate , 106), ' ', '-') ReconcileDate
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
+                        ,P.UserCategory,P.UserSubCategory
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -6469,6 +6470,18 @@ namespace Library.Accounting.Accounts
             int colGLUpdate = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Party Category";
+            int colCategory = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Party Sub Category";
+            int colSubCategory = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6527,6 +6540,8 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colReconcileDate].Text = dtDayBookData.Rows[i]["ReconcileDate"].ToString();
                 worksheet[ROW, colReconcile].Text = dtDayBookData.Rows[i]["Reconcile"].ToString();
                 worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
+                worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
+                worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
 
                 //if (checkbox == true)
                 //{
