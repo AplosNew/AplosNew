@@ -1760,6 +1760,9 @@
                                                 <button ng-click="getTaxCategoryList(x, $index);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Tax">Tax</button>
                                             </li>
                                             <li>
+                                                <button ng-click="GetCostingSORatePopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Costing Confirmation">SCC</button>
+                                            </li>
+                                            <li>
                                                 <button ng-click="SplitSO(x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Split">Split</button>
                                             </li>
                                             <li>
@@ -2951,6 +2954,58 @@
                             <button ng-click="CalculateRate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
                             <button ng-click="SaveItemCostingRate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
                             <button ng-click="CloseMOSORatePopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Close</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="SOCostingRatePopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> CostingSO
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Head</th>
+                                        <th>Item Value</th>
+                                        <th>SOValue</th>
+                                        <th>Value Diff</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in costingSOConfirmList">
+                                        <td>{{x.UserName}}</td>
+                                        <td><input class="form-control text-right" ng-disabled="true" type="number" ng-model="x.ItemValue" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="number" ng-model="x.SOValue" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="true"  type="number" ng-model="x.ValueDiff" /></td>
+                                        <td><input class="form-control" type="text" ng-model="x.Remark" ng-maxlength="250" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="CalculateSOCost();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="SaveSOCost();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                            <button ng-click="CloseSOCostPopup();" class="btn" tabindex="9"><i class="glyphicon glyphicon-refresh"></i> Close</button>
                         </li>
                     </ul>
                 </div>

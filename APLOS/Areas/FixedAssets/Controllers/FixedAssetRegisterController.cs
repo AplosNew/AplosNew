@@ -1289,6 +1289,17 @@ namespace Aplos.Areas.FixedAssets.Controllers
         {
             return View("~/Areas/FixedAssets/Views/FixedAssetDepreciationProcess.cshtml");
         }
+        [HttpPost, Authorize]
+        public ActionResult GetfixedAssetMastersListForProcess( string fiscalYearId, string toDate)
+        {
+
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(new { DATA = fixedAssetQueryService.GetfixedAssetMastersListForProcess(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fiscalYearId, toDate), Error = false }, JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
         #endregion
 
     }

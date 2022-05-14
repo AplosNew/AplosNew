@@ -31,7 +31,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         Operator: null,
         Precedence: null,
         Value: null,
-        EntryState:'Entry'
+        EntryState: 'Entry'
     }
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
@@ -128,10 +128,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
 
-    //$scope.ModelNew.Formula = null;
-    //$scope.ModelNew.FormulaDesID = null;
-    //$scope.ModelNew.SalaryHeadFormula = null;
-    //$scope.ModelNew.FormulaDescription = null;
+
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
 
@@ -432,7 +429,23 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.Save = function () {
         try {
-           
+
+            if ($scope.ModelNew.EntryState == 'Entry') {
+                if ($scope.ModelNew.IsFixedValue) {
+                    if (baseService.isUndefinedOrNull($scope.ModelNew.FixedValue) || $scope.ModelNew.FixedValue == 0) {
+                        throw "Fixed value is required.";
+                    } 
+                }
+                else {
+                    throw "Percentage value is required.";
+                }
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.Formula)) {
+                    throw "Formula is required.";
+                }
+            }
+
             $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
             $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
             $http({

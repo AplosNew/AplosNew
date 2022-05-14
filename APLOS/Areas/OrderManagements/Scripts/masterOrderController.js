@@ -1782,7 +1782,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     }
                    
                 }
-                SetNetSalesRealization();
+                $scope.SetNetSalesRealization();
             }
         });
     };
@@ -3493,7 +3493,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http({
             method: 'POST',
             url: 'OrderManagements/MasterOrder/CreateMasterOrderItemCostingRate',
-            data: { 'data': $scope.costingSOFormulaList,'lieneId': $scope.lieneId},
+            data: { 'data': $scope.costingSOFormulaList,'lineId': $scope.lieneId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -3506,6 +3506,71 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
+    };
+
+    $scope.costingSOConfirmList = [];
+    $scope.GetCostingSORatePopup = function (index, data) {
+        $scope.itemIndex = index;
+        $scope.lieneId = data.MasterOrderItemId;
+        $scope.soId = data.Id;
+
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id + '&lineId=' + data.MasterOrderItemId
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = response.data;
+            angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
+        });
+    };
+    $scope.CloseSOCostPopup = function () {
+        angular.element(document.querySelector('#SOCostingRatePopup')).modal('hide');
+    }
+
+    $scope.CalculateSOCost = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CalculateSOCost',
+                data: { 'OpenHeadNew': $scope.costingSOConfirmList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.costingSOConfirmList = [];
+                $scope.costingSOConfirmList = response.data.NewData;
+            }, function errorCallback(response) {
+                $scope.ShowResultCustom(response.status.Message, "failure");
+            });
+        }
+        catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveSOCost = function () {
+        $http({
+            method: 'POST',
+            url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
+            data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetSavedCostingSORateData($scope.soId, $scope.lieneId);
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    };
+
+    $scope.GetSavedCostingSORateData = function (soId, lieneId) {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + soId + '&lineId=' + lieneId
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = response.data;
+        });
     };
 
     $scope.SaveItemDescription = function () {

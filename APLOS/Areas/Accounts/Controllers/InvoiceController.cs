@@ -1226,7 +1226,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         #region Invoice Overehead
 
-        [HttpGet]
+        [HttpGet,Authorize]
         public ActionResult GetInvoiceOvereheadList()
         {
             AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);

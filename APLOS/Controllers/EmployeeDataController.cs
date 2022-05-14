@@ -17,12 +17,14 @@ namespace Aplos.Controllers
         #region Constructor
 
         private readonly IEmployeeDataService _EmployeeData;
+        EmployeeFeedbackService _emp = new EmployeeFeedbackService();
 
         public EmployeeDataController(
              IEmployeeDataService EmployeeData
           )
         {
             _EmployeeData = EmployeeData;
+            _emp = new EmployeeFeedbackService();
         }
 
 
@@ -217,5 +219,42 @@ namespace Aplos.Controllers
                 throw new HttpResponseException(resp);
             }
         }
+
+        #region Employee Feedback Module
+
+        [HttpGet]
+        public IHttpActionResult GetReasoningMaster()
+        {
+            try
+            {
+                var result = _emp.GetReasoningMaster();
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                var resp = new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = ex.Message
+                };
+                throw new HttpResponseException(resp);
+            }
+        }
+
+        [HttpPost]
+        public string SaveEmployeeFeedback([FromBody] IEnumerable<EmployeeFeedBackModel> DataToSave)
+        {
+            try
+            {
+                string Id = _emp.Create(DataToSave);
+                return Id;
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+        }
+
+
+        #endregion
     }
 }

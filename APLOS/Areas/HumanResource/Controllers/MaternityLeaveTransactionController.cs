@@ -183,8 +183,8 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(_maternityLeaveTransactionService.GetPolicyData(EffectiveDate, identity.PlantId), JsonRequestBehavior.AllowGet);
 
         }
-        [HttpGet]
         #region Maternity Leave Reports
+        [HttpGet, Authorize]
         public ActionResult MaternityLeaveReport(ReportFormat reportFormat, string SystemId,string LanguageId,string UserName,string LeaveTransactionId)
         {
             try
