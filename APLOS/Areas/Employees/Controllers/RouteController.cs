@@ -618,12 +618,29 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetRouteScheduleTransport(string routeScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select RST.TransportId routeScheduleTransportId,TD.TransportUserName RouteScheduleTransport from RouteScheduleTransport RST
+							left join TransportDetail TD on TD.Id=RST.TransportId
+                            where RouteScheduleId='" + routeScheduleId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule(string RouteId)
         {
             string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
 										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
 										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.DistancePerUnit,RS.Remarks
+										,Stuff((Select ','+TD.TransportUserName
+										from dbo.RouteScheduleTransport RST 
+										left join TransportDetail TD on TD.Id=RST.TransportId
+										where RST.RouteScheduleId = RS.Id
+										for xml path('')
+										),1,1,'') as RouteScheduleTransport
                                         from RouteSchedule RS
                                         left join ShiftDefination SD on SD.SystemID=RS.ShiftId
                                         where RS.RouteId='" + RouteId + @"'";

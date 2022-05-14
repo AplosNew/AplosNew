@@ -6472,13 +6472,13 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Category";
+            worksheet[ROW, COL].Text = "Party Category";
             int colCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            worksheet[ROW, COL].Text = "Sub Category";
+            worksheet[ROW, COL].Text = "Party Sub Category";
             int colSubCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
