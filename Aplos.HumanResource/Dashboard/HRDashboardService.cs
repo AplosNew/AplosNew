@@ -8902,7 +8902,7 @@ LEFT OUTER JOIN
 									,C.Id AS CompanyId, ISNULL(LDes.UserName,'') Designation
                                     ,DayNumber.DaysCount AbsentDays
                                     ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
-									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
+									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
@@ -9353,7 +9353,7 @@ LEFT OUTER JOIN
 									,C.Id AS CompanyId, ISNULL(LDes.UserName,'') Designation
                                     ,DayNumber.DaysCount LateDays
                                     ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
-									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
+									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
@@ -9470,7 +9470,7 @@ LEFT OUTER JOIN
 									,cg.Id CompanyGroupId--,cg.UserName GroupName,E.BudgetCode
 									,C.Id AS CompanyId,C.UserName CompanyName,Plant.UserName Plant,LDes.UserName Designation
                                     ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
-									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
+									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 								LEFT JOIN EmployeeInformation E ON e.GroupID = CG.Id and c.Id = E.CompanyId
@@ -9573,7 +9573,7 @@ LEFT OUTER JOIN
 									,C.Id AS CompanyId,C.UserName CompanyName,Plant.UserName Plant,ISNULL(LDes.UserName,'') Designation
                                     ,Dept.UserName Department,Sec.UserName Section,SubSec.UserName SubSection
                                     ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
-									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
+									,ISNULL(rg.UserName,NULL) ResGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 								LEFT JOIN EmployeeInformation E ON e.GroupID = CG.Id and c.Id = E.CompanyId
