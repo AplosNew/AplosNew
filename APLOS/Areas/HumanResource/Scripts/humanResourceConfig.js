@@ -740,5 +740,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/AbsentismReasoningMaster/Aplos',
             controller: 'AbsentismReasoningMasterController'
         })
+
+        .when('/training-master', {
+            templateUrl: 'humanResource/TrainingMaster/Aplos',
+            controller: 'TrainingMasterController'
+        })
         ;
 }

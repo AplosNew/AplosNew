@@ -303,7 +303,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetGridUpRouteList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where UpOrDown='Up' and PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -328,7 +328,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetUpRouteList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where UpOrDown='Up' and PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -337,7 +337,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetDownRouteList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where UpOrDown='Down' and PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -351,7 +351,7 @@ namespace Aplos.Areas.Employees.Controllers
                             from [HKP].[Stoppage] s
                             left join [MST].[RouteStoppage] rs on rs.StoppageId=s.Id
                             left join [MST].[Route] r on r.Id=rs.RouteId
-                            where r.Id='" + RouteUpId + @"' and r.UpOrDown='Up'
+                            where r.Id='" + RouteUpId + @"'
                             and r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -414,7 +414,7 @@ namespace Aplos.Areas.Employees.Controllers
 AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=1)
                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
-            string sqlRouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'	and UpOrDown='Up' ";
+            string sqlRouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
             string sqlStopageUpList = @" select re.EmployeeId,sp.Id,sp.UserName
 								from EmployeeInformation ei 
 								inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
@@ -422,7 +422,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
 								inner join [MST].[Route] r on r.Id=rs.RouteId
 								where 
-								r.UpOrDown='Up'  and ei.PlantId='" + identity.PlantId + @"' 
+								ei.PlantId='" + identity.PlantId + @"' 
                                 AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
 								order by re.EmployeeId";
 
@@ -448,7 +448,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
                 data[i]["StopageUpList"] = UpStopage;
             }
 
-            string sqlRouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'	and UpOrDown='Down' ";
+            string sqlRouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
         //    string sqlStopageDownList = @" select re.EmployeeId,sp.Id,sp.UserName
 								//from EmployeeInformation ei 
 								//inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
@@ -536,7 +536,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
                         AND EMP.SystemId not in (select EmployeeId from [TRN].[RouteEmployee] where Active=1)
                         ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
-            string sqlUARouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'	and UpOrDown='Up' ";
+            string sqlUARouteUpList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
             string sqlUAStopageUpList = @"select re.EmployeeId,sp.Id,sp.UserName
 								from EmployeeInformation ei 
 								inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
@@ -544,7 +544,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 								inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
 								inner join [MST].[Route] r on r.Id=rs.RouteId
 								where 
-								r.UpOrDown='Up'  and ei.PlantId='" + identity.PlantId + @"' 
+								ei.PlantId='" + identity.PlantId + @"' 
                                 AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
 								order by re.EmployeeId";
 
@@ -607,9 +607,10 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 
         [HttpGet, Authorize]
         public ActionResult GetUAUpRouteList()
+        
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where UpOrDown='Up' and PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }
@@ -631,7 +632,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         public ActionResult GetUADownRouteList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select Id,UserName from [MST].[Route] where UpOrDown='Down' and PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
+            string sql = @" select Id,UserName from [MST].[Route] where PlantId='" + identity.PlantId + "' and CompanyId='" + identity.CompanyId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
         }

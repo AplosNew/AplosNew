@@ -67,7 +67,8 @@ namespace Library.MaterialManagement.Inventory
 		
 		decimal GetChargesTaxRatio(string receiveId, string detailId, decimal detailTotalAmnt, string serviceId, decimal svcTotalAmnt, bool isNonCreditable);
 
-		void Delete(string id);
+      
+        void Delete(string id);
         void JWDelete(string id);
         void GRNApproved(IEnumerable<InventoryReceive> entities,string GRNStatus);
         void GRNApproved1(IEnumerable<InventoryReceive> entities, string GRNStatus, string GRNNo,string AuthorizedByStatus, string RejectApprovedReason);

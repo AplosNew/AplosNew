@@ -53,12 +53,6 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(new SelectList(_routeService.GetCbo(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetAllDriver(GridParameter parameters)
-        {
-            return Json(_routeService.GetAllDriver(parameters), JsonRequestBehavior.AllowGet);
-        }
-
         [HttpGet]
         public ActionResult GetList()
         {
@@ -106,47 +100,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet,Authorize]
-        public ActionResult getDriver()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
-                                        PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
-                                        FROM EmployeeInformation EMP
-                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
-                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
-                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
-                                        LEFT JOIN HKP.Designation D ON PR.DesignationId=D.Id
-                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
-                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
-                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
-                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
-                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                              Where EMP.PlantId='" + identity.PlantId + @"' 
-                                AND EMP.EmployeeStatus='Active'  And EMP.CompanyId='" + identity.CompanyId + @"'
-                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpGet,Authorize]
-        public ActionResult getFixedAsset()
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select FAR.Id,FAR.SerialNo,FORMAT(FAR.CapitalizationDate,'dd-MMM-yyyy')CapitalizationDate,FAR.YearOfInstallation,FAR.[Description]
-                            ,FM.UserName FixedAssetName
-                            from TRN.FixedAssetRegister FAR
-                            LEFT JOIN MST.FixedAssetMaster FM ON FM.Id=FAR.FixedAssetMasterId
-                            where FAR.PlantId='" + identity.PlantId + @"' and FAR.CompanyId='" + identity.CompanyId + @"' and FAR.CompanyGroupId='" + identity.CompanyGroupId + @"'
-                            ORDER BY SerialNo";
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
-        }
-
+        
         [HttpPost]
         public ActionResult Save(RouteModel Route, List<StopageListModel> StopageList)
         {
@@ -618,12 +572,29 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult GetRouteScheduleTransport(string routeScheduleId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select RST.TransportId routeScheduleTransportId,TD.TransportUserName RouteScheduleTransport from RouteScheduleTransport RST
+							left join TransportDetail TD on TD.Id=RST.TransportId
+                            where RouteScheduleId='" + routeScheduleId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule(string RouteId)
         {
             string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
 										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
 										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.DistancePerUnit,RS.Remarks
+										,Stuff((Select ','+TD.TransportUserName
+										from dbo.RouteScheduleTransport RST 
+										left join TransportDetail TD on TD.Id=RST.TransportId
+										where RST.RouteScheduleId = RS.Id
+										for xml path('')
+										),1,1,'') as RouteScheduleTransport
                                         from RouteSchedule RS
                                         left join ShiftDefination SD on SD.SystemID=RS.ShiftId
                                         where RS.RouteId='" + RouteId + @"'";
@@ -650,14 +621,21 @@ namespace Aplos.Areas.Employees.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult GetDistance(Dictionary<string, object> data)
+        {
+            var ts = Convert.ToDateTime(data["EndTime"]).Subtract(Convert.ToDateTime(data["StartTime"]));
+            var dif =Convert.ToDecimal(ts.TotalMinutes) / Convert.ToDecimal(data["Distance"]);
+
+            return Json(dif, JsonRequestBehavior.AllowGet);
+        }
+
         public class RouteModel : BaseModel
         {
             #region Scalar Properties            
             public string Id { get; set; }
             public string PlantId { get; set; }
             public string CompanyId { get; set; }
-            //public string AssetId { get; set; }
-            //public string DriverId { get; set; }
             public string Code { get; set; }
             public string UserName { get; set; }
             public string StandardName { get; set; }
@@ -666,8 +644,6 @@ namespace Aplos.Areas.Employees.Controllers
             public string Remarks { get; set; }
             public bool Active { get; set; }
             public string UpOrDown { get; set; }
-            public string UpDistanceFrom { get; set; }
-            public string DownDistanceFrom { get; set; }
 
             #endregion Scalar Properties
 

@@ -1901,24 +1901,24 @@ namespace Library.MaterialManagement.Inventory
                             }
                         }
                     }
-                    foreach (var item in entityMat.Where(q => q.MaterialMasterId == itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId))
-                    {
-                        var grnboqmap = new GRNBOQMAP
-                        {
-                            Id = base.GetAutoNumber(nameof(GRNBOQMAP), PKGeneratorEnum.Yearly, null, DateTime.Now),
-                            InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId,
-                            BOQDetailId = item.BOQId,
-                            TransactionQty = item.TransactionQty,
-                            BaseQty = item.BaseQty,
-                            POBOQQty = item.POBOQQty,
-                            BaseUoMId = item.BaseUOMId,
-                            POUoMId = item.POUoMId,
-                            TransactionRate = item.TransactionRate,
+                    //foreach (var item in entityMat.Where(q => q.MaterialMasterId == itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId))
+                    //{
+                    //    var grnboqmap = new GRNBOQMAP
+                    //    {
+                    //        Id = base.GetAutoNumber(nameof(GRNBOQMAP), PKGeneratorEnum.Yearly, null, DateTime.Now),
+                    //        InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId,
+                    //        BOQDetailId = item.BOQId,
+                    //        TransactionQty = item.TransactionQty,
+                    //        BaseQty = item.BaseQty,
+                    //        POBOQQty = item.POBOQQty,
+                    //        BaseUoMId = item.BaseUOMId,
+                    //        POUoMId = item.POUoMId,
+                    //        TransactionRate = item.TransactionRate,
 
-                        };
-                        AuditService.AddedLog(grnboqmap);
-                        _GRNBOQMAPRepository.Insert(grnboqmap);
-                    }
+                    //    };
+                    //    AuditService.AddedLog(grnboqmap);
+                    //    _GRNBOQMAPRepository.Insert(grnboqmap);
+                    //}
                 }
                 _unitOfWork.SaveChanges();
                 flag = false;
@@ -4154,6 +4154,9 @@ namespace Library.MaterialManagement.Inventory
                 {
                     var ratio = _inventoryReceiveService.GetChargesRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TransactionAmount), null, 0, itemDetail.IsNonCreditable);
                     var ratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TransactionAmount), null, 0, itemDetail.IsNonCreditable);
+
+                    var otherchargesratio = _inventoryReceiveService.GetChargesRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TransactionAmount), null, 0, itemDetail.IsNonCreditable);
+                    var otherchargesratioServiceTax = _inventoryReceiveService.GetChargesTaxRatio(itemDetail.InventoryReceiveId, itemDetail.Id, Convert.ToDecimal(itemDetail.TransactionAmount), null, 0, itemDetail.IsNonCreditable);
 
                     var materialData = _inventoryMaterialMasterService.GetInventoryMaterialByUpToSku(itemDetail);
                     if (materialData.IsNotNull()) itemDetail.InventoryMaterialId = materialData.Id;
