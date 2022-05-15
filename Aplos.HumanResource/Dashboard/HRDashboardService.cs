@@ -8901,6 +8901,8 @@ LEFT OUTER JOIN
 									--,cg.Id CompanyGroupId,cg.UserName GroupName,E.BudgetCode
 									,C.Id AS CompanyId, ISNULL(LDes.UserName,'') Designation
                                     ,DayNumber.DaysCount AbsentDays
+                                    ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
+									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
@@ -8918,6 +8920,12 @@ LEFT OUTER JOIN
 								LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
 								LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+                                LEFT JOIN dbo.ResidenceGroup AS rg ON rg.Id=E.ResidenceGroupId
+								LEFT JOIN dbo.TransportGroup AS tg ON tg.Id=E.TransportGroupId	
+								
+								LEFT JOIN(SELECT APD.WorkDate, APD.EmpSystemId,APD.DayStatus
+								FROM AttdnProcessData  APD 
+								WHERE APD.WorkDate=FORMAT(GETDATE(),'dd-MMM-yyyy')) A ON A.EmpSystemId=E.SystemId
 								--LEFT JOIN [ORG].[Plant] Plant ON Plant.Id = E.PlantId
 								" + join + @"
 
@@ -9344,7 +9352,8 @@ LEFT OUTER JOIN
 									--,cg.Id CompanyGroupId,cg.UserName GroupName,E.BudgetCode
 									,C.Id AS CompanyId, ISNULL(LDes.UserName,'') Designation
                                     ,DayNumber.DaysCount LateDays
-
+                                    ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
+									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
@@ -9362,7 +9371,12 @@ LEFT OUTER JOIN
 								LEFT JOIN[MST].[ManpowerBudget] AS MB  on MB.Id = E.BudgetCode
 								LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
 								LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
+								LEFT JOIN dbo.ResidenceGroup AS rg ON rg.Id=E.ResidenceGroupId
+								LEFT JOIN dbo.TransportGroup AS tg ON tg.Id=E.TransportGroupId	
 								
+								LEFT JOIN(SELECT APD.WorkDate, APD.EmpSystemId,APD.DayStatus
+								FROM AttdnProcessData  APD 
+								WHERE APD.WorkDate=FORMAT(GETDATE(),'dd-MMM-yyyy')) A ON A.EmpSystemId=E.SystemId
 								" + join + @"
 
 								INNER JOIN (
@@ -9455,7 +9469,8 @@ LEFT OUTER JOIN
 									,REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106), ' ', '-') DOJs
 									,cg.Id CompanyGroupId--,cg.UserName GroupName,E.BudgetCode
 									,C.Id AS CompanyId,C.UserName CompanyName,Plant.UserName Plant,LDes.UserName Designation
-
+                                    ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
+									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 								LEFT JOIN EmployeeInformation E ON e.GroupID = CG.Id and c.Id = E.CompanyId
@@ -9471,6 +9486,12 @@ LEFT OUTER JOIN
 								LEFT JOIN ORG.Entity AS ENT ON ENT.Id = MB.EntityId
 								LEFT JOIN ORG.Position AS POS ON POS.Id = MB.PositionId
 								LEFT JOIN [ORG].[Plant] Plant ON Plant.Id = E.PlantId
+                                LEFT JOIN dbo.ResidenceGroup AS rg ON rg.Id=E.ResidenceGroupId
+								LEFT JOIN dbo.TransportGroup AS tg ON tg.Id=E.TransportGroupId	
+								
+								LEFT JOIN(SELECT APD.WorkDate, APD.EmpSystemId,APD.DayStatus
+								FROM AttdnProcessData  APD 
+								WHERE APD.WorkDate=FORMAT(GETDATE(),'dd-MMM-yyyy')) A ON A.EmpSystemId=E.SystemId
 								WHERE  (E.DOS IS NULL OR E.DOS <='" + hrToDate + @"')
 								AND
 								E.GroupID = '" + companyGroupId + @"' AND
@@ -9548,10 +9569,11 @@ LEFT OUTER JOIN
 									,REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106), ' ', '-') DOJs
 									,REPLACE(CONVERT(VARCHAR(11), E.DOS, 106), ' ', '-') DOSs
 
-									,cg.Id CompanyGroupId,cg.UserName GroupName,E.BudgetCode,Resig.Reason,Resig.Remarks
+									,cg.Id CompanyGroupId,cg.UserName GroupName,Resig.Reason,Resig.Remarks
 									,C.Id AS CompanyId,C.UserName CompanyName,Plant.UserName Plant,ISNULL(LDes.UserName,'') Designation
                                     ,Dept.UserName Department,Sec.UserName Section,SubSec.UserName SubSection
-
+                                    ,ISNULL(E.EmployeeCurrentStatus,E.EmployeeStatus)EmployeeCurrentStatus,MB.Code BudgetCode,POS.Activity,E.CellPhnNo ContactNo
+									,ISNULL(rg.UserName,NULL) ResidenceGroup,tg.UserName TransportGroup,A.DayStatus LatestWorkingDayStatus,FORMAT(A.WorkDate,'dd-MMM-yyyy')LatestPresentDate,''AbsentReasonifApplicable,''Remark
 								FROM ORG.CompanyGroup CG
 								LEFT JOIN ORG.Company C ON CG.Id = c.CompanyGroupId
 								LEFT JOIN EmployeeInformation E ON e.GroupID = CG.Id and c.Id = E.CompanyId
@@ -9570,7 +9592,12 @@ LEFT OUTER JOIN
 								LEFT JOIN [ORG].[Department] Dept ON Dept.Id = E.DepartmentId
 								LEFT JOIN [ORG].[Section] Sec ON Sec.Id = E.SectionId
 								LEFT JOIN [ORG].[SubSection] SubSec ON SubSec.Id = E.SubSectionId
-
+                                LEFT JOIN dbo.ResidenceGroup AS rg ON rg.Id=E.ResidenceGroupId
+								LEFT JOIN dbo.TransportGroup AS tg ON tg.Id=E.TransportGroupId	
+								
+								LEFT JOIN(SELECT APD.WorkDate, APD.EmpSystemId,APD.DayStatus
+								FROM AttdnProcessData  APD 
+								WHERE APD.WorkDate=FORMAT(GETDATE(),'dd-MMM-yyyy')) A ON A.EmpSystemId=E.SystemId
 								WHERE 
 								(--DOS
 								E.EmployeeStatus = 'Separated' 
