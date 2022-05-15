@@ -928,13 +928,11 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGRNBYPO(string GRNbyPOCheckStatus)
         {
-            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            //return Json(_inventoryReveiveService.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                return Json(obj.QueryGetListForMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
+                return Json(obj.QueryGetListGRNMasterData(identity.PlantId, GRNbyPOCheckStatus), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

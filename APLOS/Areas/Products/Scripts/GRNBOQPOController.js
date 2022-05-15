@@ -708,10 +708,8 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 else {
                                     ShowResult(response.data.Message, 'success');
                                     $scope.SaveButtonDisable = true;
-                                    /* $scope.setTabGRNList(1);*/
-                                    $scope.GetListForGRNBYPO();
-                                    /* $scope.GRNListDetails();*/
-
+                                    $scope.setTabGRNList(1);
+                                   
                                     $scope.productId = response.data.Id;
                                     $scope.productNew.Id = response.data.Id;
                                     $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
@@ -812,7 +810,6 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
                                 else {
                                     ShowResult(response.data.Message, 'success');
                                     $scope.setTabGRNList(1);
-                                    $scope.getDataList();
                                     $scope.GRNListDetails();
 
                                     $scope.productId = response.data.entity.Id;
@@ -1368,36 +1365,20 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
             }
         }
     };
-    $scope.GRN = "";
-    $scope.tab = 1;
-    $scope.GRNbyPOCheckStatus = "ForChecked";
-    $scope.setTabGRNList = function (newTab) {
-        $scope.tab = newTab;
-        $scope.GRNbyPOCheckStatus = "ForChecked";
-        //$scope.getDataList();
-        $scope.GetListForGRNBYPO();
-    };
-    $scope.isSetGRNList = function (tabNum) {
-        return $scope.tab === tabNum;
-        $scope.GRN = 1;
 
-    };
-
-    $scope.GRNbyPOCheckStatus = "ForChecked";
     $scope.GriddataMaster = [];
-    $scope.GetListForGRNBYPO = function () {
-        if ($scope.GRNbyPOCheckStatus === "ForChecked") {
-            $scope.GRNbyPOCheckStatus = "ForChecked";
-        }
+    $scope.GetListForGRNBYPO = function (grnbypostatus) {
+        $scope.GriddataMaster = [];
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + $scope.GRNbyPOCheckStatus,
+            url: 'Products/GoodsReceiveNote/GetListForGRNBYPO?GRNbyPOCheckStatus=' + grnbypostatus,
         }).then(function successCallback(response) {
             $scope.GriddataMaster = response.data;
         });
     };
-    $scope.GetListForGRNBYPO();
+    //$scope.GetListForGRNBYPO();
+   
     $scope.detailTemp = "#tabGridContents";
     $scope.detailgrid = function detailGridData(e) {
         //debugger;
@@ -1423,25 +1404,21 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     }
     $scope.GRN = "";
     $scope.tab = 1;
-    $scope.GRNbyPOCheckStatus = "ForChecked";
     $scope.setTabGRNList = function (newTab) {
         $scope.tab = newTab;
         $scope.GRNbyPOCheckStatus = "ForChecked";
-        $scope.getDataList();
-        $scope.GetListForGRNBYPO();
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
     };
     $scope.isSetGRNList = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 1;
 
     };
-
-
-
+    $scope.setTabGRNList(1);
     $scope.setTabCheckedHR = function (newTab) {
         $scope.tab = newTab;
         $scope.GRNbyPOCheckStatus = "CheckedHoldReject";
-        $scope.GetListForGRNBYPO();
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
 
     };
     $scope.isSetCheckedHR = function (tabNum) {
@@ -1450,24 +1427,23 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
     };
 
     $scope.setTabNotApprovedChecked = function (newTab) {
-
         $scope.tab = newTab;
         $scope.GRNbyPOCheckStatus = "Checked";
-        $scope.GetListForGRNBYPO();
-
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
     };
+
     $scope.isSetNotApprovedChecked = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 3;
     };
 
-    $scope.GRNbyPOApprovedStatus = "ApprovedHoldReject";
+   
     $scope.setTabApprovedHR = function (newTab) {
         $scope.GRNbyPOApprovedStatus = "ApprovedHoldReject";
         $scope.tab = newTab;
-        $scope.getalldataMaster2();
-
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
     };
+
     $scope.isSetApprovedHR = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 4;
@@ -1476,10 +1452,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
     $scope.setTabApprovedNP = function (newTab) {
         $scope.tab = newTab;
-        $scope.GRNbyPOApprovedStatus = "Approved";
-        $scope.getalldataMaster2();
-
+        $scope.GRNbyPOCheckStatus = "Approved";
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
     };
+
     $scope.isSetApprovedNP = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 5;
@@ -1487,10 +1463,10 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
 
     $scope.setTabPosted = function (newTab) {
         $scope.tab = newTab;
-        $scope.GRNbyPOApprovedStatus = "Posted";
-        $scope.getalldataMaster2();
-
+        $scope.GRNbyPOCheckStatus = "Posted";
+        $scope.GetListForGRNBYPO($scope.GRNbyPOCheckStatus);
     };
+
     $scope.isSetPosted = function (tabNum) {
         return $scope.tab === tabNum;
         $scope.GRN = 6;
