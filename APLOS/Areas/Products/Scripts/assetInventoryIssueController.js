@@ -964,7 +964,7 @@ function assetInventoryIssueController($window,cboService, commonMessage, $scope
     $scope.popUp = function () {
         $http({
             method: 'GET',
-            url: 'Products/InventoryIssue/GetGRNFixedAssetList?materialStorageId=' + $scope.productNew.MaterialStorageId
+            url: 'Products/InventoryIssue/GetGRNFixedAssetList?materialStorageId=' + $scope.productNew.MaterialStorageId + '&issueDate='+ $scope.productNew.IssueDate
         }).then(function successCallback(response) {
             $scope.popUpDataList = response.data;
             angular.element(document.querySelector('#popUpId')).modal('show');

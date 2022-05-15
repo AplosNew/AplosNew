@@ -347,7 +347,7 @@ namespace Aplos.Areas.Products.Controllers
         public JsonResult GetGRNFixedAssetList(string materialStorageId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetGRNFixedAssetList(identity.PlantId, materialStorageId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryIssueService.GetGRNFixedAssetList(identity.PlantId, materialStorageId,null), JsonRequestBehavior.AllowGet);
         }
 
 
