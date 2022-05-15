@@ -8,8 +8,10 @@ using System.Threading;
 
 namespace Library.HumanResource.Employee
 {
+
    public class AbsentismReasoningMasterService
     {
+
         ISqlRepository _sqlRepository;
         public AbsentismReasoningMasterService()
         {

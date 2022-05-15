@@ -2123,9 +2123,9 @@ namespace Library.MaterialManagement.Inventory
             {
                 decimal svcAmount = 0;
                 if (isNonCreditable)
-                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "'").First();//+ISNULL(SUM(TotalTaxAmount), 0)
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=0").First();//+ISNULL(SUM(TotalTaxAmount), 0)
                 else
-                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "'").First();
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(Amount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=0").First();
                 if (svcTotalAmnt > 0) svcAmount += svcTotalAmnt;
                 else svcAmount -= svcTotalAmnt;
 
@@ -2162,9 +2162,9 @@ namespace Library.MaterialManagement.Inventory
             {
                 decimal svcAmount = 0;
                 if (isNonCreditable)
-                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "'").First();
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=0 ").First();
                 else
-                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "'").First();
+                    svcAmount = _inventoryReceiveRepository.SqlQuery<decimal>("SELECT ISNULL(SUM(TotalTaxAmount), 0) FROM TRN.InventoryService WHERE InventoryReceiveId='" + receiveId + "' AND ISNULL(Id, '')<>'" + serviceId + "' AND IsOtherVendor=0 ").First();
                 if (svcTotalAmnt > 0) svcAmount += svcTotalAmnt;
                 else svcAmount -= svcTotalAmnt;
 
@@ -2193,10 +2193,6 @@ namespace Library.MaterialManagement.Inventory
                  ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
             }
         }
-
-
-
-
 
         public void GRNApproved(IEnumerable<InventoryReceive> entities, string GRNStatus)
         {

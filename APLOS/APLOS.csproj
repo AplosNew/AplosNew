@@ -299,6 +299,7 @@
     <Folder Include="Areas\EmployeeServices\Views\Shared\" />
     <Folder Include="Areas\Farming\Views\Shared\" />
     <Folder Include="Areas\HumanResource\Controllers\Reports\" />
+    <Folder Include="Areas\HumanResource\Views\Default\" />
     <Folder Include="Areas\HumanResource\Views\GeneralDataOperation\" />
     <Folder Include="Areas\HumanResource\Views\Shared\" />
     <Folder Include="Areas\IssueTracker\Views\IssueAudit\" />
@@ -580,6 +581,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\GoalSettingApprovalController.cs" />
@@ -2032,6 +2034,7 @@
     <Content Include="Areas\HumanResource\Scripts\ScatteredWeekOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\TablesUploadController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeUnderstandingHeadController.js" />
+    <Content Include="Areas\HumanResource\Scripts\TrainingMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeeklyOffController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeWeekOffUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\WeekDefinitionController.js" />
@@ -4142,6 +4145,7 @@
     <Content Include="Areas\Accounts\Views\GSTLedgerReport.cshtml" />
     <Content Include="Areas\FixedAssets\Views\FixedAssetDepreciationProcess.cshtml" />
     <Content Include="Areas\HumanResource\Views\AbsentismReasoningMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\TrainingMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

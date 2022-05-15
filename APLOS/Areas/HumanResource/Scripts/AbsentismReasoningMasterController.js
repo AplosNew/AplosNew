@@ -1,7 +1,7 @@
 ﻿'use strict';
 AbsentismReasoningMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Absentism Reasoning Master';
+    $rootScope.title = 'Absenteeism Reasoning Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/AbsentismReasoningMaster/';
@@ -14,7 +14,6 @@ function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $
     $scope.EmployeeId = null;
     $scope.searchBy = "UserName"; $scope.search = "";
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
-
 
      $scope.getData = function () {
         $http({
@@ -40,7 +39,7 @@ function AbsentismReasoningMasterController(cboService, commonMessage, $scope, $
         UserName: null,
         Description: null,
         Remarks: null,
-        Active: false
+        Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
