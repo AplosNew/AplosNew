@@ -625,8 +625,9 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetDistance(Dictionary<string, object> data)
         {
             var ts = Convert.ToDateTime(data["EndTime"]).Subtract(Convert.ToDateTime(data["StartTime"]));
-            //data["EndTime"] = ts.TotalMinutes / data["Distance"];
-            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+            var dif =Convert.ToDecimal(ts.TotalMinutes) / Convert.ToDecimal(data["Distance"]);
+
+            return Json(dif, JsonRequestBehavior.AllowGet);
         }
 
         public class RouteModel : BaseModel

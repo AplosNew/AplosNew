@@ -431,6 +431,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         var DropDownListObj = $("#transportList").data("ejDropDownList");
         DropDownListObj.uncheckAll();
         $scope.GetRouteScheduleTransport(args.Id);
+        $scope.getDistance();
     };
     $scope.ClearRouteSchedule = function () {
         $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);

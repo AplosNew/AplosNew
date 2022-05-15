@@ -19,54 +19,28 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Code<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Code" ng-model="routeNew.Code" class="form-control" required tabindex="2" maxlength="10">
+                            <input type="text" name="Code" ng-model="routeNew.Code" class="form-control" required tabindex="1001" maxlength="10">
                         </div>
                     </div>
 
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Standard Name" ng-model="routeNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
+                            <input type="text" name="Standard Name" ng-model="routeNew.StandardName" class="form-control" required tabindex="1003" maxlength="50">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Description</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="routeNew.Description" tabindex="6" maxlength="250"></textarea>
+                            <textarea class="form-control" rows="3" ng-model="routeNew.Description" tabindex="1005" maxlength="250"></textarea>
                         </div>
                     </div>
-
-                    @*<div class="form-group">
-                        <label class="col-sm-4 control-label">Driver Select</label>
-                        <div class="col-sm-8">
-                            <div class="input-group">
-                                <span class="input-group-addon">{{employeeInfo.EmployeeCode}}</span>
-                                <input type="text" name="EmployeeName" ng-model="employeeInfo.EmployeeName" class="form-control" readonly>
-                                <span class="input-group-btn">
-                                    <button name="submit" ng-click="GetEmployeeDeleteInfo('ad');" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-4 control-label">Asset Register</label>
-                        <div class="col-sm-8">
-                            <div class="input-group">
-                                <span class="input-group-addon">{{AssetInfo.Id}}</span>
-                                <input type="text" name="EmployeeName" ng-model="AssetInfo.FixedAssetName" class="form-control" required readonly>
-                                <span class="input-group-btn">
-                                    <button name="submit" ng-click="GetAssetInfo()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>*@
-
+                    
                     <div class="col-sm-12">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li> <button ng-click="GetStopageInformation();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="10"></i>Add Stoppage</button></li>
+                                <li> <button ng-click="GetStopageInformation();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="1008"></i>Add Stoppage</button></li>
                             </ul>
                         </div>
                     </div>
@@ -76,19 +50,19 @@
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="Short Name" ng-model="routeNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
+                            <input type="text" name="Short Name" ng-model="routeNew.ShortName" class="form-control" required tabindex="1002" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group" show-errors>
                         <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                         <div class="col-sm-8 show-message">
-                            <input type="text" name="User Name" ng-model="routeNew.UserName" class="form-control" required tabindex="5" maxlength="50">
+                            <input type="text" name="User Name" ng-model="routeNew.UserName" class="form-control" required tabindex="1004" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Remarks</label>
                         <div class="col-sm-8">
-                            <textarea class="form-control" rows="3" ng-model="routeNew.Remarks" maxlength="250" tabindex="7"></textarea>
+                            <textarea class="form-control" rows="3" ng-model="routeNew.Remarks" maxlength="250" tabindex="1006"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
@@ -97,7 +71,7 @@
                             <div class="checkbox-site">
                                 <label>
                                     <input type="checkbox" ng-model="routeNew.Active">
-                                    <span class="cr" tabindex="8"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                    <span class="cr" tabindex="1007"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                 </label>
                             </div>
                         </div>
@@ -138,18 +112,18 @@
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input n-decimals="2" ng-model="x.UpDistanceFrom" style="color:black;" class="form-control" />
+                                                <input n-decimals="2" ng-model="x.UpDistanceFrom" style="color:black;" class="form-control" tabindex="1009"/>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input n-decimals="2" ng-model="x.DownDistanceFrom" style="color:black;" class="form-control" />
+                                                <input n-decimals="2" ng-model="x.DownDistanceFrom" style="color:black;" class="form-control" tabindex="1010"/>
                                             </div>
                                         </td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 <li>
-                                                    <button ng-click="DeleteStopage(x)" class="btn-action tooltip-here" data-placement="top" title="Remove">
+                                                    <button ng-click="DeleteStopage(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tabindex="1011">
                                                         <i class="glyphicon glyphicon-remove"></i>
                                                     </button>
                                                 </li>
@@ -164,9 +138,9 @@
                 </div>
                 <div class="common-btn">
                     <ul class="list-inline text-right">
-                        <li> <button ng-click="Save();" class="btn" ng-disabled="selectedStoppageList.length===0" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex=""><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                        <li> <button ng-click="Save();" class="btn" ng-disabled="selectedStoppageList.length===0"><i class="glyphicon glyphicon-floppy-disk" tabindex="1012"></i> {{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash" tabindex="1013"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="1014"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
@@ -193,14 +167,14 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transport No<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="TransportNo" ng-model="ModelChildNew.TransportNo" class="form-control text-right" required tabindex="110">
+                                    <input type="text" name="TransportNo" ng-model="ModelChildNew.TransportNo" class="form-control text-right" required tabindex="112">
                                 </div>
                             </div>
 
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Driver Name<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                        <input type="text" name="DriverName" ng-model="ModelChildNew.DriverName" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="DriverName" ng-model="ModelChildNew.DriverName" class="form-control text-right" required tabindex="114">
                                 </div>
                             </div>
 
@@ -209,33 +183,33 @@
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transport Category<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="TransportCategory" ng-model="ModelChildNew.TransportCategory" class="form-control text-right" required tabindex="110">
+                                    <input type="text" name="TransportCategory" ng-model="ModelChildNew.TransportCategory" class="form-control text-right" required tabindex="111">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transport Port<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="TransportPort" ng-model="ModelChildNew.TransportPort" class="form-control text-right" required tabindex="110">
+                                    <input type="text" name="TransportPort" ng-model="ModelChildNew.TransportPort" class="form-control text-right" required tabindex="113">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Capacity<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="number" name="Capacity" ng-model="ModelChildNew.Capacity" class="form-control" required>
+                                    <input type="number" name="Capacity" ng-model="ModelChildNew.Capacity" class="form-control" required tabindex="115">
                                     @*<input type="text" n-decimals="4" name="Capacity" ng-model="ModelChildNew.Capacity" class="form-control text-right" required tabindex="110">*@
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Remark" ng-model="ModelChildNew.Remarks" class="form-control text-right" required tabindex="110">
+                                    <input type="text" name="Remark" ng-model="ModelChildNew.Remarks" class="form-control text-right" required tabindex="116">
                                 </div>
                             </div>
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="SaveChild();" class="btn" @*ng-disabled="selectedStoppageList.length===0"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                <li> <button ng-click="ClearTransDetails();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                <li> <button ng-click="SaveChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="117"></i> {{Action}}</button></li>
+                                <li> <button ng-click="ClearTransDetails();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="118"></i> Clear</button></li>
                             </ul>
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
@@ -268,7 +242,7 @@
                                             <td class="text-right table-td">
                                                 <ul class="list-inline action-list">
                                                     <li>
-                                                        <button ng-click="removeTransportDetailsRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                        <button ng-click="removeTransportDetailsRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"  tabindex="119"></i></button>
                                                     </li>
                                                 </ul>
                                             </td>
@@ -292,29 +266,29 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Trip No<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Trip No" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelRouteSchedule.TripNo" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="Trip No" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelRouteSchedule.TripNo" class="form-control text-right" required tabindex="201">
                                     </div>
                                 </div>
 
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Start Time<sup>*</sup></label>
-                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                                        <input id="StartTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.StartTime" style="margin-left:-10%; width:94%" tabindex="7">
+                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right"  tabindex="203">
+                                        <input id="StartTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.StartTime" style="margin-left:-10%; width:94%">
                                         <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
                                     </div>
                                 </div>
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">From<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="From" ng-model="ModelRouteSchedule.From" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="From" ng-model="ModelRouteSchedule.From" class="form-control" required tabindex="205">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Up/Down</label>
                                     <div class="col-sm-8 show-message ">
                                         <div class="select-style">
-                                            <select id="UpDown" class="form-control" ng-model="ModelRouteSchedule.UpDown" name="UpDown<" tabindex="6" required>
+                                            <select id="UpDown" class="form-control" ng-model="ModelRouteSchedule.UpDown" name="UpDown<" tabindex="207" required>
                                                 <option value="Up">Up</option>
                                                 <option value="Down">Down</option>
                                             </select>
@@ -324,28 +298,28 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Distance(km)<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" n-decimals="4" name="Distance" ng-model="ModelRouteSchedule.Distance" class="form-control text-right" required tabindex="110">
+                                        <input type="text" n-decimals="4" name="Distance" ng-change="getDistance();" ng-model="ModelRouteSchedule.Distance" class="form-control text-right" required tabindex="209">
                                     </div>
                                 </div>
                                 <div class="form-group" show-errors>
-                                    <label class="col-sm-4 control-label">Distance Per Unit(In km)<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" n-decimals="4" name="Distance Per Unit" ng-model="ModelRouteSchedule.DistancePerUnit" class="form-control text-right" required tabindex="110">
+                                    <label class="col-sm-4 control-label">Distance Per Unit(km)<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message"  tabindex="211">
+                                        <input type="text" n-decimals="4" ng-disabled="true" name="Distance Per Unit" ng-model="ModelRouteSchedule.DistancePerUnit" class="form-control text-right" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Transport<sup>*</sup></label>
-                                    <div class="col-sm-8 show-message">
-                                        <input id="transportList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="transportList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                    <div class="col-sm-8 show-message"  tabindex="202">
+                                        <input id="transportList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="transportList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true"/>
                                     </div>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">End Time<sup>*</sup></label>
-                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
-                                        <input id="EndTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.EndTime" style="margin-left:-10%; width:94%" tabindex="7">
+                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right"  tabindex="204">
+                                        <input id="EndTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.EndTime" style="margin-left:-10%; width:94%">
                                         <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
                                     </div>
                                 </div>
@@ -353,14 +327,14 @@
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">To<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="To" ng-model="ModelRouteSchedule.To" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="To" ng-model="ModelRouteSchedule.To" class="form-control" required tabindex="206">
                                     </div>
                                 </div>
                                 <div class="form-group" show-errors>
                                     <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                                     <div class="col-sm-8 show-message">
-                                        <div class="input-group">
-                                            <input type="text" name="Entity" ng-model="ModelRouteSchedule.Shift" ng-disabled="true" class="form-control" maxlength="200" tabindex="5" required readonly>
+                                        <div class="input-group"  tabindex="208">
+                                            <input type="text" name="Entity" ng-model="ModelRouteSchedule.Shift" ng-disabled="true" class="form-control" maxlength="200" required readonly>
                                             <span class="input-group-btn">
                                                 <button ng-click="selectShift()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
                                             </span>
@@ -371,14 +345,14 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Remarks</label>
                                     <div class="col-sm-8 show-message">
-                                        <input type="text" name="Remark" ng-model="ModelRouteSchedule.Remarks" class="form-control text-right" required tabindex="110">
+                                        <input type="text" name="Remark" ng-model="ModelRouteSchedule.Remarks" class="form-control" required tabindex="210">
                                     </div>
                                 </div>
                             </div>
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveRouteSchedule();" class="btn" @*ng-disabled="selectedStoppageList.length===0"*@ tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                                    <li> <button ng-click="ClearRouteSchedule();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                                    <li> <button ng-click="SaveRouteSchedule();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="212"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="ClearRouteSchedule();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="213"></i> Clear</button></li>
                                 </ul>
                             </div>
                             <div class="col-xs-12 col-sm-12 col-md-12">
@@ -394,7 +368,6 @@
                                                 <th>To</th>
                                                 <th>Up/Down</th>
                                                 <th>Distance(km)</th>
-                                                <th>Distance Per Unit(In km)</th>
                                                 <th>Shift</th>
                                                 <th>Remarks</th>
                                                 <th>Remove</th>
@@ -410,13 +383,12 @@
                                                 <td>{{x.To}}</td>
                                                 <td>{{x.UpDown}}</td>
                                                 <td>{{x.Distance}}</td>
-                                                <td>{{x.DistancePerUnit}}</td>
                                                 <td>{{x.Shift}}</td>
                                                 <td>{{x.Remarks}}</td>
                                                 <td class="text-right table-td">
                                                     <ul class="list-inline action-list">
                                                         <li>
-                                                            <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                            <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove" tabindex="214"></i></button>
                                                         </li>
                                                     </ul>
                                                 </td>
