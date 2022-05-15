@@ -292,5 +292,42 @@ function employeeAdvanceRequisitionController(cboService, commonMessage, $scope,
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+    $scope.onClickPdfPrint = function (args) {
+
+        var gridObj = $("#gridEmpAdvanceReqList").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Pdf";
+        if (baseService.isUndefinedOrNull(data.SystemId)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/Advance/GetEmployeeAdvanceReportPortal?reportFormat=' + reportFormat + '&employeeAdvanceRequisitionId=' + data.SystemId, '_blank');
+    };
+    $scope.PdfPrint = [{
+
+        type: "details", buttonOptions: {
+            text: "PDF",
+            width: "30",
+            height: "20",
+
+            click: $scope.onClickPdfPrint
+        }
+    }];
+
+    $scope.onClickExcelPrint = function (args) {
+
+        var gridObj = $("#gridEmpAdvanceReqList").data("ejGrid");
+        var data = gridObj.getSelectedRecords()[0];
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.SystemId)) return ShowResult('No Id found', 'failure');
+        $window.open('Accounts/Advance/GetEmployeeAdvanceReportPortal?reportFormat=' + reportFormat + '&employeeAdvanceRequisitionId=' + data.SystemId, '_blank');
+    };
+    $scope.ExcelPrint = [{
+
+        type: "details", buttonOptions: {
+            text: "Excel",
+            width: "40",
+            height: "20",
+
+            click: $scope.onClickExcelPrint
+        }
+    }];
     
 }
