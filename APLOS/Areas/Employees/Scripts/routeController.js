@@ -196,10 +196,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.recorddoubleclick = function (args) {
         $scope.routeNew = Object.assign({}, args.data);
-        //$scope.employeeInfo.EmployeeCode = $scope.routeNew.EmployeeCode;
-        //$scope.employeeInfo.EmployeeName = $scope.routeNew.DriverName;
-        //$scope.AssetInfo.Id = $scope.routeNew.AssetId;       
-        //$scope.AssetInfo.FixedAssetName = $scope.routeNew.FixedAsset;
         $scope.getTransportDetailsMaster();
         $scope.getRouteScheduleMaster();
         try {
@@ -305,11 +301,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $scope.StopageListNew = [];
         $scope.transportDetailsList = [];
         $scope.routeScheduleList = [];
-        //$scope.employeeInfo.EmployeeCode = null;
-        //$scope.employeeInfo.EmployeeName = null;
-        //$scope.AssetInfo.Id = null;
-        //$scope.employeeInfo.DriverName = null;
-        //$scope.AssetInfo.FixedAssetName = null;
     }
 
     $scope.Delete = function () {
@@ -440,6 +431,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         var DropDownListObj = $("#transportList").data("ejDropDownList");
         DropDownListObj.uncheckAll();
         $scope.GetRouteScheduleTransport(args.Id);
+        $scope.getDistance();
     };
     $scope.ClearRouteSchedule = function () {
         $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
@@ -476,18 +468,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         });
     };
 
-    //$scope.RouteScheduleTransport = [];
-    //$scope.getRouteScheduleTransport = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'GetRouteScheduleTransport',
-    //        dataType: 'JSON'
-    //    }).then(function succ(resp) {
-    //        $scope.RouteScheduleTransport = resp.data;
-    //    });
-    //}
-    //$scope.getRouteScheduleTransport();
-
+   
     $scope.routeScheduleTransportList = [];
     $scope.GetRouteScheduleTransport = function (routeScheduleId) {
         $scope.routeScheduleTransportList = [];
@@ -509,4 +490,21 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 });
     };
 
+    $scope.getDistance = function () {
+        try {
+            $scope.DistanceUrl = 'employees/route/GetDistance/'
+            $http({
+                method: 'POST',
+                url: $scope.DistanceUrl,
+                data: { 'data': $scope.ModelRouteSchedule },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ModelRouteSchedule.DistancePerUnit = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
 }
