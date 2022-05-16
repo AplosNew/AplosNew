@@ -419,12 +419,12 @@ namespace Aplos.Areas.Accounts.Controllers
      
 
         [HttpGet, Authorize]
-        public ActionResult ReceivableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
+        public ActionResult ReceivableJournal(ReportFormat reportFormat, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string otherVendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
             var reportFileName = "GRN";
-            var workbook = accountsInventoryPayableReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, reportFileName);
+            var workbook = accountsInventoryPayableReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, reportFileName, otherVendorId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:
