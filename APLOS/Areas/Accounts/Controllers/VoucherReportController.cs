@@ -147,7 +147,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
 
         [Authorize, HttpGet]
-        public ActionResult GetCommonVoucherReport(ReportFormat reportFormat, string compnayGroupId, string companyId, string plantId, string sourceType, string voucherId, string inventoryIssueId, string inventoryReceiveId, string salesSourceType, string invoiceWriteOffGroupNo, string openingBalanceId)
+        public ActionResult GetCommonVoucherReport(ReportFormat reportFormat, string compnayGroupId, string companyId, string plantId, string sourceType, string voucherId, string inventoryIssueId, string inventoryReceiveId, string salesSourceType, string invoiceWriteOffGroupNo, string openingBalanceId,string otherVendorId)
         {
             string reportFileName = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -301,7 +301,7 @@ namespace Aplos.Areas.Accounts.Controllers
             {
                 AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
                 reportFileName = "GRN";
-                workbook = accountsInventoryPayableReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, null, false, false, reportFileName);
+                workbook = accountsInventoryPayableReportService.PabyableJournal(identity.CompanyId, identity.PlantId, inventoryReceiveId, null, false, false, reportFileName, otherVendorId);
 
             }
             /*25*/
