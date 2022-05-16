@@ -538,10 +538,10 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetGRNFixedAssetList(string materialStorageId)
+        public JsonResult GetGRNFixedAssetList(string materialStorageId, string issueDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetGRNFixedAssetList(identity.PlantId, materialStorageId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryIssueService.GetGRNFixedAssetList(identity.PlantId, materialStorageId, issueDate), JsonRequestBehavior.AllowGet);
         }
 
 

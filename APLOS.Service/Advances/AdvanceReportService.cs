@@ -1613,6 +1613,161 @@ namespace Library.Service.Advances
             }
         }
 
+        public IWorkbook GetEmployeeAdvanceReportPortal(string companyGroupId, string companyId, string plantId, string plantName, string employeeAdvanceRequisitionId)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "EmployeeAdvance";
+
+            var headerData = EmployeeAdvanceReportHeaderPortal(companyGroupId, companyId, plantId, employeeAdvanceRequisitionId);
+
+            var _row = 5;
+            var shet2EndxlsCol = 1;
+
+            //report.SetMasterHeaderText(ref sheet, _row, 1, "InvoiceNumber");
+            //report.SetText(ref sheet, _row, 2, headerData["InvoiceNumber"].ToString());
+            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            //_row++;
+            //report.SetMasterHeaderText(ref sheet, _row, 1, "Expeses Date");
+            //report.SetText(ref sheet, _row, 2, headerData["InvoiceDate"].ToString());
+            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            //_row++;
+
+            report.SetMasterHeaderText(ref sheet, _row, 1, "Employee");
+            report.SetText(ref sheet, _row, 2, headerData["EmployeeName"].ToString());
+            sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            _row++;
+
+            var _rowL = 11;
+
+            //report.SetMasterHeaderText(ref sheet, _row, 1, "Narration");
+            //report.SetText(ref sheet, _row, 2, headerData["Narration"].ToString());
+            //sheet.Range[_row, 2].RowHeight = 45;
+            //sheet[report.GetColumnNameForXls(2) + _row + ":" + report.GetColumnNameForXls(3) + _row].Merge();
+            //sheet.Range[_row, 1, _row, 3].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            //_row++;
+            var _rowR = 5;
+
+            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Voucher Date");
+            //report.SetText(ref sheet, _rowR, 5, headerData["VoucherDate"].ToString());
+            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
+
+            //_rowR++;
+            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Approved By");
+            //report.SetText(ref sheet, _rowR, 5, headerData["ApprovedByName"].ToString());
+            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
+
+            //_rowR++;
+            //report.SetMasterHeaderText(ref sheet, _rowR, 4, "Checked By");
+            //report.SetText(ref sheet, _rowR, 5, headerData["ResponsiblePersonName"].ToString());
+            //sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
+
+            //_rowR++;
+            report.SetMasterHeaderText(ref sheet, _rowR, 4, "Status");
+            report.SetText(ref sheet, _rowR, 5, headerData["ApprovalStatus"].ToString());
+            sheet[report.GetColumnNameForXls(5) + _rowR + ":" + report.GetColumnNameForXls(6) + _rowR].Merge();
+            sheet.Range[_row, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            var headreColIndex = 1;
+
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Requisition Date", 14, ExcelHAlign.HAlignCenter);
+            headreColIndex++;
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Requisition Required Date", 20, ExcelHAlign.HAlignCenter);
+            headreColIndex++;
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Advance Type", 12, ExcelHAlign.HAlignCenter);
+            headreColIndex++;
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Remarks", 30, ExcelHAlign.HAlignCenter);
+            headreColIndex++;
+
+            _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
+
+            double _Total_Amount = 0;
+            report.SetHeaderText(ref sheet, _rowL - 1, headreColIndex, companyCurrencyCode, 11, ExcelHAlign.HAlignCenter);
+
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Amount", ExcelHAlign.HAlignCenter);
+
+            shet2EndxlsCol = headreColIndex;
+
+            double vAmount = 0;
+            var data = GetEmployeeAdvanceDataPortal(employeeAdvanceRequisitionId);
+
+            var Row_Total_Start = _rowL + 1;
+            for (int n = 0; n < data.Count; n++)
+            {
+                _rowL++;
+                var drcrCol = 1;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionAddedDate"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["RequisitionRequiredDate"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["AdvanceType"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, data[n]["Remarks"].ToString()); drcrCol++;
+                report.SetText(ref sheet, _rowL, drcrCol, Convert.ToDouble(data[n]["Amount"].ToString())); drcrCol++;
+                _Total_Amount += Convert.ToDouble(data[n]["Amount"].ToString());
+            }
+
+            _rowL++;
+
+            report.SetText(ref sheet, _rowL, 1, "Total :", true);
+            sheet[_rowL, 1, _rowL, shet2EndxlsCol - 1].Merge();
+
+            sheet.Range[_rowL, shet2EndxlsCol - 1].Formula = "=SUM(" + report.GetColumnNameForXls(shet2EndxlsCol - 1) + Row_Total_Start + ":" + report.GetColumnNameForXls(shet2EndxlsCol - 1) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, shet2EndxlsCol - 1].NumberFormat = report.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, shet2EndxlsCol - 1].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+            sheet.Range[_rowL, shet2EndxlsCol].Formula = "=SUM(" + report.GetColumnNameForXls(shet2EndxlsCol) + Row_Total_Start + ":" + report.GetColumnNameForXls(shet2EndxlsCol) + (_rowL - 1) + ")";
+            sheet.Range[_rowL, shet2EndxlsCol].NumberFormat = report.NumberFormatDecimalTwo();
+            sheet.Range[_rowL, shet2EndxlsCol].CellStyle.Font.Bold = true;
+            sheet.Range[_rowL, shet2EndxlsCol].BorderAround(ExcelLineStyle.Hair);
+
+            sheet.Range[12, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[12, 1, _rowL, shet2EndxlsCol].BorderAround(ExcelLineStyle.Hair);
+
+            vAmount = vAmount / 2;
+            _rowL += 1;
+
+            report.SetText(ref sheet, _rowL, 1, "In Word:", true);
+            sheet.Range[report.GetColumnNameForXls(2) + _rowL].Text = report.InWord(_Total_Amount, companyCurrencyId);
+            sheet.Range[report.GetColumnNameForXls(2) + _rowL + ":" + report.GetColumnNameForXls(shet2EndxlsCol) + _rowL].Merge();
+            sheet.Range[report.GetColumnNameForXls(2) + _rowL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[report.GetColumnNameForXls(2) + _rowL].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[report.GetColumnNameForXls(2) + _rowL].CellStyle.Font.Bold = true;
+
+            _rowL = _rowL + 4;
+
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            report.CompanyPlantHeader(ref sheet, shet2EndxlsCol, "Employee Advance", companyId, plantId, plantName, null);
+            report.PageSetup(ref sheet, 5, ExcelPageOrientation.Portrait);
+            return workbook;
+        }
+        private Dictionary<string, object> EmployeeAdvanceReportHeaderPortal(string companyGroupId, string companyId, string plantId, string employeeAdvanceRequisitionId)
+        {
+            var cmdText = @"SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate,EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy  
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.SystemId = '" + employeeAdvanceRequisitionId + "'";
+            return _sqlRepository.GetData(cmdText);
+        }
+        public List<Dictionary<string, object>> GetEmployeeAdvanceDataPortal(string employeeAdvanceRequisitionId)
+        {
+            var sql = @"SELECT CURR.Code CurrencyCode, CURR.Id CurrencyId,EEI.EmployeeName ,Format(EAR.RequisitionAddedDate,'dd-MMM-yyyy') RequisitionAddedDate,
+                            Format(EAR.RequisitionRequiredDate,'dd-MMM-yyyy') RequisitionRequiredDate,EAR.AdvanceType,  EAR.Remarks,EAR.Amount,EAR.SystemId, EEC. EmployeeName CheckedBy,EAR.ApprovalStatus, EEA. EmployeeName ApprovedBy  
+                            FROM [TRN].[EmployeeAdvanceRequisition] EAR 
+                            LEFT JOIN SCS.Currency CURR ON CURR.Id = EAR.CurrencyId
+                            LEFT JOIN EmployeeInformation EEI ON EEI.SystemId = EAR.EmpSystemId
+                            LEFT JOIN EmployeeInformation EEC ON EEC.SystemId = EAR.CheckedBy
+                            LEFT JOIN EmployeeInformation EEA ON EEA.SystemId = EAR.ApprovedBy
+                            WHERE EAR.SystemId = '" + employeeAdvanceRequisitionId + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
         private DataTable GetAdvanceReqSheduleData(string voucherId)
         {
             try

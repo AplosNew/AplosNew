@@ -93,6 +93,7 @@ angular.module('cpanelApp', ['ngRoute', 'ngCookies', 'angularUtils.directives.di
     .controller('EmployeeCodeTypeController', EmployeeCodeTypeController)
     .controller('contractFundUtilizationController', contractFundUtilizationController)
     .controller('OrderLineCostingItemController', OrderLineCostingItemController)
+    .controller("voucherTypeController", VoucherTypeController)
 
     .config(HumanResourceConfig)
     .config(accountConfig)
