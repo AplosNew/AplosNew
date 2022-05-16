@@ -44,32 +44,33 @@ namespace Aplos.Areas.Banks.Controllers
         private readonly ISqlRepository _sqlRepository;
         private readonly ICheckLotService _checkLotService;
         private readonly ICheckLotNewService _checkLotNewService;
-        private readonly ICheckLotDetailService _checkLotDetailService;
+       // private readonly ICheckLotDetailService _checkLotDetailService;
 
         private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IPlantService _plantService;
-        private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
+       // private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
 
 
         public CheckManagementController(
             ICheckLotService checkLotService, ISqlRepository sqlRepository
-            , ICheckLotDetailService checkLotDetailService
+            //, ICheckLotDetailService checkLotDetailService
             , AccountVoucherReportService accountVoucherReportService
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IPlantService plantService
             , ICheckLotNewService checkLotNewService
-            , IRepositoryAsync<CheckLotDetailHistory> checkLotDetailHistoryRepository)
+            //, IRepositoryAsync<CheckLotDetailHistory> checkLotDetailHistoryRepository
+            )
         {
             _checkLotService = checkLotService;
-            _checkLotDetailService = checkLotDetailService;
+            //_checkLotDetailService = checkLotDetailService;
             _sqlRepository = sqlRepository;
 
             _accountVoucherReportService = accountVoucherReportService;
             _companyParallelCurrencyService = companyParallelCurrencyService;
             _plantService = plantService;
             _checkLotNewService = checkLotNewService;
-            _checkLotDetailHistoryRepository = checkLotDetailHistoryRepository;
+            //_checkLotDetailHistoryRepository = checkLotDetailHistoryRepository;
         }
 
         #endregion Constructor
@@ -1113,13 +1114,7 @@ namespace Aplos.Areas.Banks.Controllers
         }
         #endregion RePrintNonCashCheck Report
 
-        //Voucher report print
-
-     
-        //Non cash check print
-
-
-
+       
         [HttpGet, Authorize]
         public ActionResult GetPrintNonCashCheckVoucherReport(ReportFormat reportFormat, string voucherId, string voucherDetailId)
         {
@@ -1139,28 +1134,6 @@ namespace Aplos.Areas.Banks.Controllers
                     return View();
             }
         }
-
-        //Check Management Report
-
-        //[HttpGet, Authorize]
-        //public ActionResult GetCheckManagementReport(ReportFormat reportFormat, string voucherId, string voucherDetailId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    // var workbook = _bankReportService.GetPaymentByBankReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, SourceType.BankJournal);
-        //    var workbook = _accountVoucherReportService.GetPrintNonCashCheckVoucherReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, voucherId, voucherDetailId);
-
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-
-        //        default:
-        //            return View();
-        //    }
-        //}
 
 
         #region Report operation
@@ -1768,10 +1741,6 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
-
-
-
-
         public Dictionary<string, object> GetDashboardJournalHeader(string companyGroupId, string companyId, string plantId, string voucherId)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
@@ -2087,13 +2056,16 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/PrintCashCheck.cshtml");
         }
 
-       
+
 
         #endregion Print cash check
 
+        public ActionResult PostDateCheque()
+        {
+            return View("~/Areas/Banks/Views/PostDateCheque.cshtml");
+        }
 
-      
     }
 
-   
+
 }
