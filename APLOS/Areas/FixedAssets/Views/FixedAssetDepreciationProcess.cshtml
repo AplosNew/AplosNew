@@ -4,17 +4,17 @@
     <div class="row">
         <div class="col-md-12 col-sm-6 col-md-6">
             @*<div class="form-group" show-errors id="div_FromDate">
-            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
-            <div class="col-sm-9 show-message">
-                <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
-            </div>
-        </div>*@
+                <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
+                </div>
+            </div>*@
             <div class="form-group" show-errors>
                 <label class="col-sm-3  control-label">Fiscal Year<sup>*</sup></label>
                 <div class="col-sm-9 show-message">
                     <div class="select-style">
                         <select name="Fiscal Year" ng-model="depreciationProcess.FiscalYearId" class="col-sm-3 form-control"
-                                @*ng-change="getData()"*@ ng-options="item.Value as item.Text for item in fiscalYearList" required tabindex="1">
+                                ng-change="getFiscalYearData()" ng-options="item.Value as item.Text for item in fiscalYearList" required tabindex="1">
                             <option></option>
                         </select>
                     </div>
@@ -30,6 +30,20 @@
                 <ul class="list-inline text-right">
                     <li><button ng-click="getFixedAssetMastersData();" ng-enter="getFixedAssetMastersData();" title="Search" class="btn"><i class="glyphicon glyphicon-refresh"></i>Search</button></li>
                 </ul>
+            </div>
+        </div>
+        <div class="col-md-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors id="div_StartDate">
+                <label class="col-sm-3 control-label">Start Date<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <input type="text" name="Start Date" ng-model="depreciationProcess.StartDate" datepicker tabindex="2" class="form-control">
+                </div>
+            </div>
+            <div class="form-group" show-errors id="div_EndDate">
+                <label class="col-sm-3 control-label">End Date<sup>*</sup></label>
+                <div class="col-sm-9  show-message">
+                    <input type="text" name="End Date" ng-model="depreciationProcess.EndDate" datepicker tabindex="3" class="form-control">
+                </div>
             </div>
         </div>
     </div>

@@ -6598,7 +6598,7 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetGRNFixedAssetList(string plantId, string materialStorageId)
+        public IEnumerable<object> GetGRNFixedAssetList(string plantId, string materialStorageId,string issueDate)
         {
             try
             {
@@ -6679,7 +6679,7 @@ namespace Library.MaterialManagement.Inventory
                                      WHERE IRD.IsAsset=1 AND IRD.CapitalizeVoucherDetailId IS NULL  AND IR.VoucherId<>'' AND IR.PlantId='" + plantId + @"' 
                                     --AND (ISNULL(IRD.BaseQty,0) - ISNULL(IRD.BaseIssueQty, 0))>0 
 									AND ((isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)-isnull(IRD.PurchaseReturnQty,0)-isnull(IRD.ReductionByAdjustmentQty,0)-isnull(IRD.InventorySalesQty,0)-isnull(IRD.InventoryScrapQty,0))+isnull(IRD.IssueReturnQty,0))>0
-								    AND IRD.MaterialStorageId='" + materialStorageId + "'";
+								    AND IRD.MaterialStorageId='" + materialStorageId + "'  AND IR.GRNDate<= '" + issueDate+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

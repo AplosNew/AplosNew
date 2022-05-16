@@ -10,7 +10,9 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     $scope.depreciationProcess = {
         FiscalYearId: null,
         //FromDate: $filter("dateFiltering")(Date.now()),
-        ToDate: $filter("dateFiltering")(Date.now())
+        ToDate: $filter("dateFiltering")(Date.now()),
+        StartDate: $filter("dateFiltering")(Date.now()),
+        EndDate: $filter("dateFiltering")(Date.now())
     };
 
     $http({
@@ -19,6 +21,31 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     }).then(function successCallback(response) {
         $scope.fiscalYearList = response.data;
     });
+
+    $scope.FiscalYearDataList = [];
+    $scope.getFiscalYearData = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: "accounts/fiscalyear/GetDateByFiscalYear?fiscalYearId=" + $scope.depreciationProcess.FiscalYearId
+                //url:  "accounts/fiscalyear/GetFiscalYear",
+                //data: { id: $scope.depreciationProcess.FiscalYearId },
+                //dataType: 'JSON'
+
+            }).then(function successCallback(response) {
+                $scope.FiscalYearDataList = response.data;
+                $scope.depreciationProcess.StartDate = response.data.StartDate;
+                $scope.depreciationProcess.EndDate =response.data.EndDate;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+
+        catch (e) {
+
+        }
+    }
 
     $scope.tempList = [];
     $scope.paymentSelectedList = [];

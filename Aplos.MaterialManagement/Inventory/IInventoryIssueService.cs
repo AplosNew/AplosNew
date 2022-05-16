@@ -63,7 +63,7 @@ namespace Library.MaterialManagement.Inventory
            , InventoryIssue inventoryIssue, IEnumerable<RequisitionIssueDetailViewModel> requisitionIssueDetails);
 
         GridModel GetAssetInventoryIssue(GridParameter parameters, string plantId);
-        IEnumerable<object> GetGRNFixedAssetList(string plantId, string materialStorageId);
+        IEnumerable<object> GetGRNFixedAssetList(string plantId, string materialStorageId,string issueDate);
 
         IEnumerable<object> GetAssetIssueSlipWithGRN(string plantId, string materialStorageId);
 
