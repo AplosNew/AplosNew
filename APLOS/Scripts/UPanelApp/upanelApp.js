@@ -1034,6 +1034,7 @@ upanelApp.controller("UtilityMasterController", UtilityMasterController);
 upanelApp.controller("AbsentismReasoningMasterController", AbsentismReasoningMasterController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
+upanelApp.controller("postDateChequeController", postDateChequeController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

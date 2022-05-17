@@ -803,6 +803,24 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetEmployeeAdvanceReportPortal(ReportFormat reportFormat, string employeeAdvanceRequisitionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "EmployeeAdvance" + employeeAdvanceRequisitionId + "";
+            var workbook = _advanceReportService.GetEmployeeAdvanceReportPortal(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, employeeAdvanceRequisitionId);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
 
         [Authorize, HttpGet]
         public JsonResult GetEmployeeAvilabePayableList(GridParameter parameters, string employeeId)

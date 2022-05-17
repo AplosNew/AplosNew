@@ -33,7 +33,6 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("taxYearController", TaxYearController)
     .controller("fiscalYearPeriodController", FiscalYearPeriodController)
     .controller("taxYearPeriodController", TaxYearPeriodController)
-    .controller("voucherTypeController", VoucherTypeController)
     .controller("voucherTypeMatrixController", VoucherTypeMatrixController)
     .controller("voucherTypeConfigController", voucherTypeConfigController)
     .controller("coaController", COAController)
@@ -504,6 +503,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ResidenceMasterController', ResidenceMasterController)
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
     .controller('ResidenceStatusLocationController', ResidenceStatusLocationController)
+    .controller('TrainingMasterController', TrainingMasterController)
 
 
     .config(accountConfig)
