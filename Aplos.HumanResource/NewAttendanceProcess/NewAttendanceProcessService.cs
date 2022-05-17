@@ -4030,38 +4030,6 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                     SaveLog("0 Processed OT Auto Confirm Ran Successfully for " + PreviousDay + " ...", PlantValue, false);
 
-                    #region Credit Limit Process Commented Code
-
-                    //DataSet CreditLimitData;
-                    //DailyCreditDataSource(PreviousDay, out CreditLimitData, PlantValue);
-                    //if (CreditLimitData.Tables[0].Rows.Count > 0)
-                    //{
-                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    //    objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where MonthNo = month('"+PreviousDay+"')", out DataSet dsRef, false, false, "", "1");
-
-                    //    for (int i = 0; i < CreditLimitData.Tables[0].Rows.Count; i++)
-                    //    {
-                    //        var EmpId = CreditLimitData.Tables[0].Rows[i][@"EmpSystemID"].ToString();
-                    //        dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemId='" + EmpId + "' ";
-
-                    //        if (dsRef.Tables[0].DefaultView.Count > 0)
-                    //        {
-                    //            //DataRow dr = dsRef.Tables[0].DefaultView[0].Row;
-                    //            //dr.BeginEdit();
-                    //            //dr["DayType"] = DayType;
-                    //            //dr["DateUpdated"] = Convert.ToDateTime(DateTime.Now);
-                    //            //dr["UpdatedBy"] = "Schedule";
-                    //            //dr.EndEdit();
-                    //        }
-
-
-                    //    }
-
-
-                    //}
-
-                    #endregion
-
                 }
                 _lock.UnlockProcess();
             }

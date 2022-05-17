@@ -824,7 +824,7 @@ WHERE els.ToDate<(SELECT yc.ToDate
 
                 strSql = @"SELECT * FROM trn.EmployeeLeaveSummary WHERE Id IN (
                             SELECT els.Id FROM trn.EmployeeLeaveSummary AS els
-                            JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId AND ei.dos<=els.ToDate
+                            JOIN EmployeeInformation AS ei ON ei.SystemId=els.EmployeeId --AND ei.dos<=els.ToDate
                             AND ISNULL(els.IsYearlyProcessed,0)=0 AND els.PlantId='" + sPlantID + "')";
 
 

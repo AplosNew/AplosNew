@@ -72,7 +72,8 @@ namespace Library.Service.Enums
         [Description("Sales Expense")]
         SalesExpense,
         [Description("Profit")]
-        Profit
+        Profit,
+        FOB
     }
 
     public enum AcceptancePaymentSource
