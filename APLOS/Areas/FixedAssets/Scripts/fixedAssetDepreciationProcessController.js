@@ -5,14 +5,14 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     $scope.Action = 'Save';
     $scope.path = 'FixedAssets/FixedAssetRegister/';
     $scope.url = "FixedAssets/FixedAssetRegister";
-    $scope.saveUrl = $scope.path + 'DepreciationProcess';
+    $scope.saveUrl = $scope.path + 'FixedAssetDepreciationProcess';
 
     $scope.depreciationProcess = {
         FiscalYearId: null,
         //FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
-        StartDate: $filter("dateFiltering")(Date.now()),
-        EndDate: $filter("dateFiltering")(Date.now())
+        StartDate: null,
+        EndDate: null
     };
 
     $http({
@@ -27,11 +27,7 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         try {
             $http({
                 method: 'GET',
-                url: "accounts/fiscalyear/GetDateByFiscalYear?fiscalYearId=" + $scope.depreciationProcess.FiscalYearId
-                //url:  "accounts/fiscalyear/GetFiscalYear",
-                //data: { id: $scope.depreciationProcess.FiscalYearId },
-                //dataType: 'JSON'
-
+                url: "accounts/fiscalyear/GetFiscalYearDataByFiscalYear?fiscalYearId=" + $scope.depreciationProcess.FiscalYearId
             }).then(function successCallback(response) {
                 $scope.FiscalYearDataList = response.data;
                 $scope.depreciationProcess.StartDate = response.data.StartDate;
@@ -246,7 +242,7 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
 
     $scope.Save = function () {
         if ($scope.voucherDetailList.length == 0) {
-            ShowResult('Please select at least one Invoice', 'failure');
+            ShowResult('Please select at least one Asset master', 'failure');
             return;
         }
         $http({

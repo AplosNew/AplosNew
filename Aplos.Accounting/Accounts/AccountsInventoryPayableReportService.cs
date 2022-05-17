@@ -624,7 +624,7 @@ namespace Library.Accounting.Accounts
         }
 
 
-        public IWorkbook PabyableJournal(string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string sheetHeader)
+        public IWorkbook PabyableJournal(string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string sheetHeader, string otherVendorId)
         {
             try
             {
@@ -632,7 +632,7 @@ namespace Library.Accounting.Accounts
                 var report = new ReportUtility();
                 var workbook = report.GetWorkbook(ref excelEngine, 1);
                 var sheet1 = workbook.Worksheets[0];
-                GetInventoryMaterialPayableReportSheet(ref sheet1, report, sheetHeader, sheetHeader, companyId, plantId, inventoryReceiveId, employeeId, isReversCharge, isFoc);
+                GetInventoryMaterialPayableReportSheet(ref sheet1, report, sheetHeader, sheetHeader, companyId, plantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, otherVendorId);
                 workbook.Version = ExcelVersion.Excel2013;
                 return workbook;
             }
@@ -642,7 +642,7 @@ namespace Library.Accounting.Accounts
             }
         }
         private void GetInventoryMaterialPayableReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName
-            , string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc)
+            , string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc,string otherVendorId)
         {
             IEnumerable<InventoryReportViewModel> dataList;
 
@@ -1010,12 +1010,406 @@ namespace Library.Accounting.Accounts
 
             #endregion Signature
 
+            if (otherVendorId != "null")
+            {
+                GetInventoryOtherVendorChargesReportSheet(ref sheet, reportUtility, companyId, plantId, inventoryReceiveId, employeeId, isReversCharge, isFoc, otherVendorId, _rowL);
+            }
+
             sheet.Name = sheetName;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             reportUtility.CompanyPlantHeader(ref sheet, shet2EndxlsCol, sheetHeader, companyId, plantId, plantName, null);
             reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
 
+        }
+
+        private void GetInventoryOtherVendorChargesReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string companyId, string plantId, string inventoryReceiveId, string employeeId, bool isReversCharge, bool isFoc, string otherVendorId,int _rowL)
+        {
+            IEnumerable<InventoryReportViewModel> dataList;
+
+           
+                        dataList = GetInventoryPayableotherVendorCharges(companyId, plantId, inventoryReceiveId,otherVendorId);
+                
+           
+            if (dataList.Count() == 0) throw new Exception("No Data Found!");
+
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+
+            var sql = @"SELECT IR.PartyId, CONCAT(P.Code,'-', P.UserName) AS Vendor, IR.EmployeeId, EMP.EmployeeCode, EMP.EmployeeName
+	                         , IR.DocDate, IR.IsNonCreditable, IR.AlongwithInvoice,IR.DocRefNo
+							 ,InvoiceNo=CASE WHEN IR.EmployeeId<>'' THEN IV.InvoiceNo ELSE IV.InvoiceNo END
+	                         , VoucherNo=CASE WHEN IR.EmployeeId<>'' THEN V.VoucherNo ELSE V.VoucherNo END
+							 , VoucherDate=CASE WHEN IR.EmployeeId<>'' THEN V.VoucherDate ELSE V.VoucherDate END
+							 , InvoiceDate=CASE WHEN IR.EmployeeId<>'' THEN REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') END
+							 , PostingDate=CASE WHEN IR.EmployeeId<>'' THEN  REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') ELSE REPLACE(CONVERT(CHAR(11), V.PostingDate, 106),' ','-') END
+
+	                         , IR.BaseCurrencyId, BCU.Code AS BaseCurrency, IR.CurrencyId, TCU.Code AS  TranscationCurrency, IR.ToCurrencyRate
+	                         , FiscalYearName=CASE WHEN IR.EmployeeId<>'' THEN FY.FiscalYearName ELSE FY.FiscalYearName END
+	                         , PeriodNo=CASE WHEN IR.EmployeeId<>'' THEN FYP.PeriodNo ELSE FYP.PeriodNo END
+							 , IR.AddedBy, IR.UpdatedBy, IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,IR.POId,IR.NoteforAccounts Narration
+                        FROM [TRN].[InventoryReceive] AS IR
+						LEFT JOIN [TRN].[Invoice] AS IV ON IV.InventoryReceiveId=IR.Id and IV.PartyId='" + otherVendorId + @"'
+						LEFT JOIN [TRN].[Voucher] AS V ON IV.VoucherId=V.Id
+						LEFT JOIN [SCS].[FiscalYear] AS FY ON V.FiscalYearId=FY.Id
+						LEFT  JOIN [SCS].[FiscalYearPeriod] AS FYP ON V.FiscalYearPeriodId=FYP.Id
+						LEFT  JOIN [HKP].[Party] AS P ON IR.OtherPartyId=P.Id
+                        LEFT JOIN [dbo].[EmployeeInformation] AS EMP ON IR.EmployeeId=EMP.SystemId
+                        LEFT JOIN [SCS].[Currency] AS BCU ON IR.BaseCurrencyId=BCU.Id
+                        LEFT JOIN [SCS].[Currency] AS TCU ON IR.CurrencyId=TCU.Id
+						
+                        WHERE IR.Id='" + inventoryReceiveId + "' and V.Id<>''";
+
+            var receiveList = _sqlRepository.GetData(sql);
+            var isNonCreditable = Convert.ToBoolean(receiveList["IsNonCreditable"].ToString());
+            var baseCurrency = receiveList["BaseCurrency"].ToString();
+            var transcationCurrency = receiveList["TranscationCurrency"].ToString();
+            var toCurrencyRate = Convert.ToDouble(receiveList["ToCurrencyRate"].ToString()) == 0 ? 1 : Convert.ToDouble(receiveList["ToCurrencyRate"].ToString());
+
+            var newList = new List<InventoryReportViewModel>();
+
+            if (!isNonCreditable)
+            {
+                var svcList = dataList.Where(t => t.OtherName == "Svc").ToList();
+                foreach (var item in svcList)
+                {
+                    if (item.OtherName == "Svc" && item.TrnType == "Dr")
+                    {
+                        var taxList = dataList.Where(t => t.OtherName == "Tax" && t.TrnType == "Dr" && t.GLGeneralInfoId == item.GLGeneralInfoId
+                                                && t.BudgetMasterId == item.BudgetMasterId && t.ActivityId == item.ActivityId).ToList();
+                        item.Amount = Convert.ToDecimal(item.Amount) / Convert.ToDecimal(taxList.Count() == 0 ? 1 : taxList.Count());
+                        AssignSvcInTax(dataList, item, "Dr");
+                    }
+                    else if (item.OtherName == "Svc" && item.TrnType == "Cr")
+                    {
+                        var taxList = dataList.Where(t => t.OtherName == "Tax" && t.TrnType == "Cr" && t.GLGeneralInfoId == item.GLGeneralInfoId && t.BudgetMasterId == item.BudgetMasterId && t.ActivityId == item.ActivityId).ToList();
+                        item.Amount = Convert.ToDecimal(item.Amount) / Convert.ToDecimal(taxList.Count() == 0 ? 1 : taxList.Count());
+                        AssignSvcInTax(dataList, item, "Cr");
+                    }
+                }
+                foreach (var item in dataList)
+                {
+                    if (item.OtherName == "Tax" && item.TrnType == "Dr")
+                    {
+                        var flag = false;
+                        for (var t = 0; t < newList.Count(); t++)
+                        {
+                            if (item.OtherName == newList[t].OtherName && item.TrnType == newList[t].TrnType
+                                && item.GLGeneralInfoId == newList[t].GLGeneralInfoId
+                                && item.BudgetMasterId == newList[t].BudgetMasterId
+                                && item.ActivityId == newList[t].ActivityId)
+                            {
+                                newList[t].Dr += item.Dr;
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag)
+                            newList.Add(item);
+                    }
+                    else if (item.OtherName == "Tax" && item.TrnType == "Cr")
+                    {
+                        var has = false;
+                        for (var a = 0; a < newList.Count(); a++)
+                        {
+                            if (item.OtherName == newList[a].OtherName && item.TrnType == newList[a].TrnType
+                                && item.GLGeneralInfoId == newList[a].GLGeneralInfoId
+                                && item.BudgetMasterId == newList[a].BudgetMasterId
+                                && item.ActivityId == newList[a].ActivityId)
+                            {
+                                newList[a].Dr += item.Dr;
+                                has = true;
+                                break;
+                            }
+                        }
+                        if (!has)
+                            newList.Add(item);
+                    }
+                    else if (item.OtherName != "Svc") newList.Add(item);
+                }
+            }
+            else
+            {
+                var svcList = dataList.Where(t => t.OtherName == "Svc").ToList();
+                foreach (var item in svcList)
+                {
+                    if (item.OtherName == "Svc" && item.TrnType == "Dr")
+                    {
+                        var taxList = dataList.Where(t => t.OtherName == "Tax" && t.TrnType == "Dr" && t.GLGeneralInfoId == item.GLGeneralInfoId
+                                               && t.BudgetMasterId == item.BudgetMasterId && t.ActivityId == item.ActivityId).ToList();
+                        item.Amount = Convert.ToDecimal(item.Amount) / Convert.ToDecimal(taxList.Count() == 0 ? 1 : taxList.Count());
+                        AssignSvcInTax(dataList, item, "Dr");
+                    }
+                    else if (item.OtherName == "Svc" && item.TrnType == "Cr")
+                    {
+                        var taxList = dataList.Where(t => t.OtherName == "Tax" && t.TrnType == "Cr" && t.GLGeneralInfoId == item.GLGeneralInfoId && t.BudgetMasterId == item.BudgetMasterId && t.ActivityId == item.ActivityId).ToList();
+                        item.Amount = Convert.ToDecimal(item.Amount) / Convert.ToDecimal(taxList.Count() == 0 ? 1 : taxList.Count());
+                        AssignSvcInTax(dataList, item, "Cr");
+                    }
+                }
+                foreach (var item in dataList)
+                {
+                    if (item.OtherName == "Material" && item.TrnType == "Dr")
+                    {
+                        var flag = false;
+                        for (var t = 0; t < newList.Count(); t++)
+                        {
+                            if (newList[t].OtherName == "Material" && newList[t].TrnType == "Dr"
+                                && item.MaterialGroupMasterId == newList[t].MaterialGroupMasterId)
+                            {
+                                newList[t].Dr += item.Dr;
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag)
+                            newList.Add(item);
+                    }
+                    else if (item.OtherName != "Svc")
+                        if (item.OtherName != "Material")
+                            newList.Add(item);
+                }
+            }
+
+            var shet2EndxlsCol = 1;
+
+            #region Right header
+            int _row2 = _rowL + 4;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "Voucher No");
+            reportUtility.SetText(ref sheet, _row2, 2, receiveList["VoucherNo"].ToString());
+            sheet.Range[_row2, 2, _row2, 3].Merge();
+            _row2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "GRN No");
+            reportUtility.SetText(ref sheet, _row2, 2, receiveList["GRNNo"].ToString());
+            sheet.Range[_row2, 2, _row2, 3].Merge();
+            _row2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "PO No");
+            reportUtility.SetText(ref sheet, _row2, 2, receiveList["POId"].ToString());
+            sheet.Range[_row2, 2, _row2, 3].Merge();
+            _row2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "Posting Date");
+            reportUtility.SetText(ref sheet, _row2, 2, receiveList["PostingDate"].ToString());
+            sheet.Range[_row2, 2, _row2, 3].Merge();
+            _row2++;
+
+            if (!string.IsNullOrEmpty(employeeId) && employeeId != "null")
+            {
+                reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "Employee");
+                reportUtility.SetText(ref sheet, _row2, 2, receiveList["EmployeeCode"].ToString() + "-" + receiveList["EmployeeName"].ToString());
+                sheet.Range[_row2, 2, _row2, 3].Merge();
+                _row2++;
+            }
+            reportUtility.SetMasterHeaderText(ref sheet, _row2, 1, "Vendor");
+            reportUtility.SetText(ref sheet, _row2, 2, receiveList["Vendor"].ToString());
+            sheet.Range[_row2, 2, _row2, 3].Merge();
+            _row2++;
+
+            #endregion
+
+            #region Left Header
+
+            var _rowL2 = _row2;
+            var row2 = _row2 + 1;
+            var _rowR2 = _rowL + 4;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR2, 4, "Entry Date");
+            reportUtility.SetText(ref sheet, _rowR2, 5, receiveList["VoucherDate"].ToString());
+            sheet.Range[_rowR2, 5, _rowR2, 8].Merge();
+            _rowR2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR2, 4, "GRN Date");
+            reportUtility.SetText(ref sheet, _rowR2, 5, receiveList["GRNDate"].ToString());
+            sheet.Range[_rowR2, 5, _rowR2, 8].Merge();
+            _rowR2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR2, 4, "Invoice No");
+            reportUtility.SetText(ref sheet, _rowR2, 5, receiveList["InvoiceNo"].ToString());
+            sheet.Range[_rowR2, 5, _rowR2, 8].Merge();
+            _rowR2++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR2, 4, "FiscalYear");
+            reportUtility.SetText(ref sheet, _rowR2, 5, receiveList["FiscalYearName"].ToString() + "(" + receiveList["PeriodNo"].ToString() + ")");
+            sheet.Range[_rowR2, 5, _rowR2, 8].Merge();
+            _rowR2++;
+
+            #endregion
+
+            #region Table
+
+            var headreColIndex = 1;
+
+            reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "GL", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Budget", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Activity", 24); headreColIndex++;
+
+            if (baseCurrency != transcationCurrency)
+            {
+                reportUtility.SetHeaderText(ref sheet, _rowL2 - 1, headreColIndex, transcationCurrency, 24, ExcelHAlign.HAlignCenter);
+                sheet[_rowL2 - 1, headreColIndex, _rowL2 - 1, headreColIndex + 1].Merge();
+                reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Debit", 24, ExcelHAlign.HAlignRight);
+                headreColIndex++;
+                reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Credit", 24, ExcelHAlign.HAlignRight);
+                headreColIndex++;
+            }
+
+            reportUtility.SetHeaderText(ref sheet, _rowL2 - 1, headreColIndex, baseCurrency, ExcelHAlign.HAlignCenter);
+            sheet[_rowL2 - 1, headreColIndex, _rowL2 - 1, headreColIndex + 1].Merge();
+
+            reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Debit", 24, ExcelHAlign.HAlignRight);
+            headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL2, headreColIndex, "Credit", 24, ExcelHAlign.HAlignRight);
+            headreColIndex++;
+
+
+            shet2EndxlsCol = headreColIndex;
+            var Row_Total_Start = _rowL2 + 1;
+            double trnCurrencyAmount = 0;
+            double baseCurrencyAmount = 0;
+
+            foreach (var item in newList)
+            {
+                _rowL2++;
+                reportUtility.SetText(ref sheet, _rowL2, 1, item.GLGeneralInfoCode + '-' + item.GLGeneralInfoName);
+                reportUtility.SetText(ref sheet, _rowL2, 2, item.BudgetName);
+                reportUtility.SetText(ref sheet, _rowL2, 3, item.ActivityName);
+
+                if (baseCurrency != transcationCurrency)
+                {
+                    reportUtility.SetText(ref sheet, _rowL2, 4, Convert.ToDouble(item.Dr));
+                    reportUtility.SetText(ref sheet, _rowL2, 5, Convert.ToDouble(item.Cr));
+                    reportUtility.SetText(ref sheet, _rowL2, 6, Convert.ToDouble(item.Dr) * toCurrencyRate);
+                    reportUtility.SetText(ref sheet, _rowL2, 7, Convert.ToDouble(item.Cr) * toCurrencyRate);
+                    trnCurrencyAmount += Convert.ToDouble(item.Dr);
+                    baseCurrencyAmount += Convert.ToDouble(item.Dr) * toCurrencyRate;
+                }
+                else
+                {
+                    reportUtility.SetText(ref sheet, _rowL2, 4, Convert.ToDouble(item.Dr));
+                    reportUtility.SetText(ref sheet, _rowL2, 5, Convert.ToDouble(item.Cr));
+                    baseCurrencyAmount += Convert.ToDouble(item.Dr);
+                }
+
+            }
+
+            _rowL2++;
+            sheet.Range[_rowL2, 1, _rowL2, 3].Merge();
+            reportUtility.SetText(ref sheet, _rowL2, 1, null, false);
+
+            if (baseCurrency != transcationCurrency)
+            {
+                sheet.Range[_rowL2, 4].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(4) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 4].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 4].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 4].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[_rowL2, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 5].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 5].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[_rowL2, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 6].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 6].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[_rowL2, 7].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(7) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 7].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 7].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 7].BorderAround(ExcelLineStyle.Hair);
+            }
+            else
+            {
+                sheet.Range[_rowL2, 4].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(4) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 4].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 4].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 4].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[_rowL2, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL2 - 1) + ")";
+                sheet.Range[_rowL2, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL2, 5].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL2, 5].BorderAround(ExcelLineStyle.Hair);
+            }
+
+            #endregion
+
+            sheet.Range[(row2), 1, _rowL2, shet2EndxlsCol - 1].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[(row2), 1, _rowL2, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+            _rowL2++;
+            var _col = 2;
+            reportUtility.SetText(ref sheet, _rowL2, 1, "In Word:", true);
+            if (baseCurrency != transcationCurrency)
+            {
+                var _amountValue = reportUtility.InWord(trnCurrencyAmount, receiveList["CurrencyId"].ToString());
+                sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].Text = _amountValue;
+                sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2 + ":" + reportUtility.GetColumnNameForXls(shet2EndxlsCol) + _rowL2].Merge();
+                sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].CellStyle.Font.Bold = true;
+                _rowL2++;
+            }
+
+            var _amount = reportUtility.InWord(baseCurrencyAmount, receiveList["BaseCurrencyId"].ToString());
+            sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].Text = _amount;
+            sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2 + ":" + reportUtility.GetColumnNameForXls(shet2EndxlsCol) + _rowL2].Merge();
+            sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[reportUtility.GetColumnNameForXls(_col) + _rowL2].CellStyle.Font.Bold = true;
+
+            #region Signature
+
+            _rowL2 = _rowL2 + 4;
+
+            sheet.Range[_rowL2, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            sheet.Range[_rowL2, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            sheet.Range[_rowL2, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+
+            reportUtility.SetText(ref sheet, _rowL2 - 1, 1, receiveList["UpdatedBy"].ToString(), false);
+            reportUtility.SetText(ref sheet, _rowL2, 1, "Prepared By", true);
+            reportUtility.SetText(ref sheet, _rowL2, 3, "Checked By", true);
+            reportUtility.SetText(ref sheet, _rowL2, 5, "Authorized By", true);
+
+            #endregion Signature
+
+
+        }
+        private IEnumerable<InventoryReportViewModel> GetInventoryPayableotherVendorCharges(string companyId, string plantId, string inveReveiveId,string otherVendorId)
+        {
+            try
+            {
+                var sql = @"SELECT  V.Id,V.VoucherNo,NULL OtherName, TrnType=Case when VD.DrAmount=0 then 'Cr' else 'Dr' End
+							, NULL MaterialGroupMasterId, NULL TaxCategoryId,VD.GLGeneralInfoId
+							, GL.AccountCode GLGeneralInfoCode
+							,GL.UserName  GLGeneralInfoName
+							,VD.BudgetMasterId
+							,B.Code  BudgetCode
+							,B.UserName  BudgetName
+							,VD.ActivityId 
+							,A.Code ActivityCode
+							,A.UserName  ActivityName
+							,VD.DrAmount Dr
+							,vd.CrAmount Cr
+                            ,V.Narration
+                        FROM TRN.VoucherDetail VD 
+                        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                        LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+						left join TRN.Invoice I on I.VoucherId=V.Id and I.PartyId='" + otherVendorId + @"'
+                        LEFT JOIN TRN.InventoryReceive IR ON IR.Id=I.InventoryReceiveId 
+                        LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
+                        LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
+                        LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+                        LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
+                        WHERE IR.Id='" + inveReveiveId + @"'";
+
+                return _sqlRepository.GetModelCollection<InventoryReportViewModel>(sql);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
         }
 
         public IWorkbook ServicePabyableJournal(string companyGroupId, string companyId, string plantId, string plantName, string serviceAcknowledmentId, string voucherId, bool isReversCharge, string sheetHeader)

@@ -1300,6 +1300,14 @@ namespace Aplos.Areas.FixedAssets.Controllers
             return jsondata;
 
         }
+        [HttpPost]
+        public JsonResult FixedAssetDepreciationProcess(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            //fixedAssetQueryService.FixedAssetDepreciationProcess(voucherDetailVMList);
+
+            return Json(new { Message = AplosMessage.Insert });
+        }
         #endregion
 
     }
