@@ -239,8 +239,31 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         }
         return false;
     }
+    $scope.invalidDocDate = false;
+    $scope.ToDatevalidation = function () {
+        var msg = "";
 
+        if (baseService.isUndefinedOrNull($scope.depreciationProcess.ToDate)) {
+            $scope.invalidDocDate = true;
+            msg = "Please select To Date!";
+        }
+        else if (new Date($scope.depreciationProcess.ToDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "ToDate must be below or equal to current Date!";
+        }
+        else if (new Date($scope.depreciationProcess.StartDate) > new Date($scope.depreciationProcess.ToDate)) {
+            msg = "To Date must be greater or equal to Fiscal Year Start Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (new Date($scope.depreciationProcess.EndDate) < new Date($scope.depreciationProcess.ToDate)) {
+            msg = "To Date must be less or equal to Fiscal Year End Date!";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+    }
     $scope.Save = function () {
+        $scope.ToDatevalidation();
         if ($scope.voucherDetailList.length == 0) {
             ShowResult('Please select at least one Asset master', 'failure');
             return;
