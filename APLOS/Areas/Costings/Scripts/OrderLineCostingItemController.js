@@ -1,6 +1,6 @@
 ﻿'use strict';
-OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$window) {
     $rootScope.title = "OrderLineCostingItem";
     $scope.Action = 'Save';
     $scope.FormulaDetails = [];
@@ -11,16 +11,15 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
     $scope.Model = {
         Id: null,
-        PlantId: null,
         Sequence: null,
         UserName: null,
         LineItemCostingSandardName: null,
         CostingSegment: null,
         SOItemName: null,
         Active: true,
-        IsFixedValue: true,
-        ValueInPercentage: null,
-        FixedValue: null,
+        ValueinDecimal: false,
+        ValueinPercentage: true,
+        DefaultValue: null,
         Formula: null,
         AddedBy: null,
         AddedDate: null,
@@ -34,6 +33,19 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         EntryState: 'Entry'
     }
     $scope.ModelNew = Object.assign({}, $scope.Model);
+
+    $scope.setCheckedValue = function (name) {
+        if (name === 'ValueinPercentage') {
+            $scope.ModelNew.ValueinPercentage = true;
+            $scope.ModelNew.ValueinDecimal = false;
+        }
+
+        if (name === 'ValueinDecimal') {
+            $scope.ModelNew.ValueinDecimal = true;
+            $scope.ModelNew.ValueinPercentage = false;
+        }
+
+    }
 
     $scope.CostingSOList = [];
     cboService.getEnumCbo("enum/GetCostingSOEnumCbo", function (result) {
@@ -379,20 +391,17 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     }
 
     $scope.Clear = function () {
-        $scope.CompanyId = $scope.ModelNew.CompanyId;
-        $scope.PlantId = $scope.ModelNew.PlantId;
         $scope.Model = {
             Id: null,
-            PlantId: null,
             Sequence: null,
             UserName: null,
             LineItemCostingSandardName: null,
             CostingSegment: null,
             SOItemName: null,
             Active: true,
-            IsFixedValue: true,
-            ValueInPercentage: null,
-            FixedValue: null,
+            ValueinDecimal: false,
+            ValueinPercentage: true,
+            DefaultValue: null,
             Formula: null,
             AddedBy: null,
             AddedDate: null,
@@ -406,8 +415,6 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
             EntryState: 'Entry'
         }
         $scope.ModelNew = Object.assign({}, $scope.Model);
-        $scope.ModelNew.CompanyId = $scope.CompanyId;
-        $scope.ModelNew.PlantId = $scope.PlantId;
         $scope.Action = 'Save';
         $scope.ModelNew.FormulaDescription = null;
         $scope.ModelNew.FormulaIDDescription = null;
@@ -430,21 +437,21 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.Save = function () {
         try {
 
-            if ($scope.ModelNew.EntryState == 'Entry') {
-                if ($scope.ModelNew.IsFixedValue) {
-                    if (baseService.isUndefinedOrNull($scope.ModelNew.FixedValue) || $scope.ModelNew.FixedValue == 0) {
-                        throw "Fixed value is required.";
-                    } 
-                }
-                else if (baseService.isUndefinedOrNull($scope.ModelNew.ValueInPercentage) || $scope.ModelNew.ValueInPercentage == 0) {
-                    throw "Percentage value is required.";
-                }
-            }
-            else {
+            if ($scope.ModelNew.EntryState == 'Calculate') {
                 if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaDescription)) {
                     throw "Formula is required.";
                 }
             }
+
+            //if ($scope.ModelNew.ValueinPercentage) {
+            //    if (baseService.isUndefinedOrNull($scope.ModelNew.FixedValue) || $scope.ModelNew.FixedValue == 0) {
+            //        throw "Fixed value is required.";
+            //    }
+            //}
+
+            //if (baseService.isUndefinedOrNull($scope.ModelNew.ValueInPercentage) || $scope.ModelNew.ValueInPercentage == 0) {
+            //    throw "Percentage value is required.";
+            //}
 
             $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
             $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
