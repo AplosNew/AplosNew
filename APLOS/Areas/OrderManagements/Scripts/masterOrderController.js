@@ -3511,11 +3511,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.costingSOConfirmList = [];
     $scope.GetCostingSORatePopup = function (index, data) {
         $scope.itemIndex = index;
-        $scope.lieneId = data.Id;
+        $scope.lieneId = data.MasterOrderItemId;
+        $scope.soId = data.Id;
 
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id + '&lineId=' + data.MasterOrderItemId
         }).then(function successCallback(response) {
             $scope.costingSOConfirmList = response.data;
             angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
@@ -3548,7 +3549,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http({
             method: 'POST',
             url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
-            data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.lieneId },
+            data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -3556,11 +3557,20 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                //$scope.getMasterItemList();
+                $scope.GetSavedCostingSORateData($scope.soId, $scope.lieneId);
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
+    };
+
+    $scope.GetSavedCostingSORateData = function (soId, lieneId) {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + soId + '&lineId=' + lieneId
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = response.data;
+        });
     };
 
     $scope.SaveItemDescription = function () {

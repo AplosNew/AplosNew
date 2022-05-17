@@ -2202,7 +2202,7 @@
                     <div class="clearfix"></div>
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li><button ng-click="OtherserviceSave()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{detailModel.Id.length>0?'Update':'Save'}}</button></li>
+                            <li><button ng-click="showOtherVendorChargesAlart()" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{detailModel.Id.length>0?'Update':'Save'}}</button></li>
                             <li><button ng-click="closeOtherServiceChargePopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                         </ul>
                     </div>
@@ -2320,6 +2320,7 @@
     </div>
     <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="detailDelete();"></confirm-archive-generic>
     <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="serviceDelete();"></confirm-archive-generic>
+    <confirm-archive-generic modalid="OtherVendorChargePopUp" title="Confirmation" message={{message}} data-ng-click-right-button="OtherserviceSave();"></confirm-archive-generic>
     <confirm-archive-generic modalid="removePopUpForDoc" title="Confirmation" message={{message}} data-ng-click-right-button="DeletePOIgame();"></confirm-archive-generic>
 
     <div class="modal site-modal" id="ListOfPOMaterial" role="dialog" data-backdrop="static">

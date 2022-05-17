@@ -151,5 +151,9 @@ function bankConfig($routeProvider, $locationProvider) {
             templateUrl: "Banks/BankReport/BankSheetGeneration",
             controller: "bankSheetGenerationController"
         })
+        .when("/pdc", {
+            templateUrl: "Banks/CheckManagement/PostDateCheque",
+            controller: "postDateChequeController"
+        })
         ;
 }

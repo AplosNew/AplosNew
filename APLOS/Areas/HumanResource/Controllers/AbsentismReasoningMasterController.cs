@@ -12,6 +12,7 @@ using Library.Security.Core;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
+
     public class AbsentismReasoningMasterController : Controller
     {
         string TableName = "HKP.AbsentismReasoningMaster";

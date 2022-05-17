@@ -4003,6 +4003,12 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		if (isNaN($scope.serviceModel.TotalTaxAmount)) $scope.OtherserviceModel.TotalTaxAmount = 0;
 	};
 	$scope.OthersreviceSaveUrl = $scope.path + 'OtherVendorServiceChargesCreate';
+
+		$scope.showOtherVendorChargesAlart = function () {
+		$scope.message = 'Are you sure want to Save Other Vendor Charges?';
+			angular.element(document.querySelector('#OtherVendorChargePopUp')).modal('show');
+	};
+
 	$scope.OtherserviceSave = function () {
 		try {
 			$scope.manualValidationAddRemove('div_svcOther', 'OtherserviceModel', 'ServiceMasterId');
