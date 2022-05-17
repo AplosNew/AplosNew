@@ -118,9 +118,6 @@ namespace Aplos.Areas.Costings.Controllers
                     if (dsMaster.Tables[0].Rows.Count > 0)
                         throw new Exception("UserName already exists!!!");
 
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where   SOItemName='" + data["SOItemName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
-                        throw new Exception("SOItem Name already exists!!!");
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OrderLineCostingItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 

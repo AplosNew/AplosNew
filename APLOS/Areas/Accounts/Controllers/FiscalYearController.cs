@@ -1,8 +1,10 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.FixedAssets;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Calendars;
 using Library.Service.Calendars;
 using System.Threading;
@@ -14,14 +16,17 @@ namespace Aplos.Areas.Accounts.Controllers
     {
         private readonly IFiscalYearService _fiscalYearService;
         private readonly IFiscalYearPeriodService _fiscalYearPeriodService;
+        private readonly ISqlRepository _sqlRepository;
 
         public FiscalYearController(
             IFiscalYearService fiscalYearService
             , IFiscalYearPeriodService fiscalYearPeriodService
+            , ISqlRepository sqlRepository
             )
         {
             _fiscalYearService = fiscalYearService;
             _fiscalYearPeriodService = fiscalYearPeriodService;
+            _sqlRepository = sqlRepository;
         }
 
         [HttpGet]
@@ -111,6 +116,12 @@ namespace Aplos.Areas.Accounts.Controllers
         public JsonResult GetStartDateByFiscalYear(string fiscalYearId)
         {
             return Json(_fiscalYearService.GetStartDateByFiscalYear(fiscalYearId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public JsonResult GetFiscalYearDataByFiscalYear(string fiscalYearId)
+        {
+            FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
+            return Json(fixedAssetQueryService.GetFiscalYearDataByFiscalYear(fiscalYearId), JsonRequestBehavior.AllowGet);
         }
     }
 }
