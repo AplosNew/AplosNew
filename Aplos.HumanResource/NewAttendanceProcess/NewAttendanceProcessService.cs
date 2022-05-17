@@ -959,53 +959,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
 
                     #endregion
-
-                    #region CreditLimit Monthly Opening Creation
-                    //DataSet CreditLimitOpening;
-                    //CreditLimitOpeningSource(out CreditLimitOpening, PlantValue, Date);
-                    //// DataSet Generation from Creditlimitopening
-
-                    //if (CreditLimitOpening.Tables[0].Rows.Count > 0)
-                    //{                       
-                    //    var YearNo = CreditLimitOpening.Tables[0].Rows[0][@"YearNo"].ToString();
-                    //    var GpId = CreditLimitOpening.Tables[0].Rows[0][@"GroupID"].ToString();
-                    //    var MonthNo = CreditLimitOpening.Tables[0].Rows[0][@"MonthNo"].ToString();
-
-                    //    ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                    //    objCon.OpenDataSetThroughAdapter("select * from EmployeeCreditLimit where YearNo='" + YearNo + "' and MonthNo='" + MonthNo + "' and GroupID='" + GpId + "'", out DataSet dsRef, false, false, "", "1");
-
-
-                    //    for (int i = 0; i < CreditLimitOpening.Tables[0].Rows.Count; i++)
-                    //    {
-                    //        string EmpId = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"EmpId"]).ToString();
-                    //        string MonthlyLimit = clsWebLib.RetValidLen(CreditLimitOpening.Tables[0].Rows[i][@"MonthlyLimit"]).ToString();
-
-                    //        dsRef.Tables[0].DefaultView.RowFilter = @"EmpSystemID='" + EmpId + "' ";
-                    //        if (dsRef.Tables[0].DefaultView.Count == 0)
-                    //        {
-                    //            // Row Creation in EmployeeCreditLimit
-                    //            DataRow dr = dsRef.Tables[0].NewRow();
-                    //            clsGenID genid = new clsGenID();
-                    //            genid.GenID("EmployeeCreditLimit", out string _Id);
-
-                    //            dr["Id"] = "EC" + _Id;
-                    //            dr["EmpSystemId"] = EmpId;
-                    //            dr["CreditLimit"] = MonthlyLimit;
-                    //            dr["YearNo"] = YearNo;
-                    //            dr["MonthNo"] = MonthNo;
-                    //            dr["GroupId"] = GpId;
-                    //            dr["AddedBy"] = "Schedule";
-                    //            dr["DateAdded"] = Convert.ToDateTime(DateTime.Now);
-
-                    //            dsRef.Tables[0].Rows.Add(dr);
-                    //        }
-
-
-                    //    }
-                    //    SaveDataSets(dsRef);
-                    //}
-                    #endregion
-
+                    
                 }
                 _lock.UnlockProcess();
             }
@@ -3351,60 +3305,7 @@ namespace Library.HumanResource.NewAttendanceProcess {
         }
 
         #endregion
-
-        #region CreditLimit Process SourceData
-        public void DailyCreditDataSource(string Date, out DataSet ds, string PlantId)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select dd.* from (select  distinct p.EmpSystemID,
-                isnull(SUM(o.DailyLimit),'0')TotalDailyLimit,MONTH('"+Date+"')MonthNo,Year('"+Date+@"')YearNo
-                        from AttdnProcessData p
-                        join EmployeeInformation  ei on ei.SystemId=p.EmpSystemID
-						left join CreditLimitOpening o on o.DesignationId=ei.DesignationSystemID
-                        left join mst.DesignationMasterLegalDesignation ddm on
-                        ddm.LegalDesignationId = ei.LegalDesignationId
-                        left join mst.DesignationMaster dm on dm.Id = ddm.DesignationMasterId
-                        left join DayStatusPlantChild dc on dc.EmpTypeId=dm.EmployeeCategoryId
-                        and dc.PlantId=ei.PlantId
-                        left join DayStatusHeader dh on dh.Id=dc.headerId
-                        left join DayTypeWithValues dt on dt.HeaderId=dh.Id                                          
-                        where dt.DayType=p.DayStatus AND  isnull(p.DayStatus,'')!='' and		
-                        MONTH(WorkDate) = MONTH('"+Date+@"') AND dt.IsCreditLimitAllowed='1' and
-						YEAR(WorkDate) = YEAR('"+Date+@"') and p.PlantID='"+PlantId+@"'                       					
-                        GROUP BY EmpSystemID) as dd";
-
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
-        public void CreditLimitOpeningSource(out DataSet ds, string Plant, string Date)
-        {
-            ConnectionManager.DAL.ConManager objCon;
-            try
-            {
-                var sql = @"select distinct e.SystemId as EmpId,e.GroupID,MONTH('" + Date + @"')MonthNo,
-                YEAR('" + Date + @"')YearNo,isnull(c.DailyLimit,'0')DailyLimit,isnull(c.MonthlyLimit,'0')MonthlyLimit
-                from EmployeeInformation e left join creditlimitopening c on 
-                c.DesignationId=e.DesignationSystemID where EmpType!='Guest'
-                and e.PlantId='" + Plant + "'and e.DOJ <= '" + Date + "' AND(e.DOS >= '" + Date + "' OR ISNULL(e.DOS, '') = '' OR e.DOS = '01/01/1901') ";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out ds, false, false, "", "1");
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        #endregion
-
+       
         #region DayStatus Process
         public void DayStatus(string Date, string PlantValue,string UserId=null)
         {
