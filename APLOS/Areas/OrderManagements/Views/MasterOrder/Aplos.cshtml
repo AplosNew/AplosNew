@@ -420,7 +420,7 @@
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
                                         <th>Product</th>
-                                        <th>Rate</th>
+                                        <th>Item Costing</th>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
                                         <th>Contract No</th>
@@ -541,7 +541,7 @@
                                         <td>{{x.ProductMaster}}</td>
                                         <td>
                                             @*<input type="text" n-decimals="4" ng-model=" x.Rate" class="form-control text-right">*@
-                                            <button ng-click="GetMOSORatePopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Rate"><i class="glyphicon glyphicon-th-list"></i></button>
+                                            <button ng-click="GetMOSORatePopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
                                         </td>
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
@@ -2921,7 +2921,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">
-                    <i class="glyphicon glyphicon-info-sign"></i> CostingSO
+                    <i class="glyphicon glyphicon-info-sign"></i> Item Costing
                 </h4>
             </div>
             <div class="modal-body form-elements form-horizontal">
@@ -2968,7 +2968,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">
-                    <i class="glyphicon glyphicon-info-sign"></i> CostingSO
+                    <i class="glyphicon glyphicon-info-sign"></i>SO Costing Confirmation
                 </h4>
             </div>
             <div class="modal-body form-elements form-horizontal">

@@ -436,12 +436,12 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
                         throw "Fixed value is required.";
                     } 
                 }
-                else {
+                else if (baseService.isUndefinedOrNull($scope.ModelNew.ValueInPercentage) || $scope.ModelNew.ValueInPercentage == 0) {
                     throw "Percentage value is required.";
                 }
             }
             else {
-                if (baseService.isUndefinedOrNull($scope.ModelNew.Formula)) {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.FormulaDescription)) {
                     throw "Formula is required.";
                 }
             }
