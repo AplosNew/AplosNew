@@ -33,6 +33,7 @@ function VoucherTypeController(commonMessage, $scope, $rootScope, baseService, $
         StandardName: null,
         UserName: null,
         Prefix: null,
+        Category: null,
         Description: null,
         Remarks: null,
         Image: null,
