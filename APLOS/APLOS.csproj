@@ -7283,6 +7283,7 @@
     <EmbeddedResource Include="Properties\AplosMessage.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AplosMessage.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
