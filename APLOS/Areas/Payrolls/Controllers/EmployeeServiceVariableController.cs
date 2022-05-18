@@ -188,11 +188,13 @@ namespace Aplos.Areas.Payrolls.Controllers
             int ColAddedBy = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Added Date", 15, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Time", 15, ExcelHAlign.HAlignLeft);
             int ColAddedDate = COL;
+            COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Date", 15, ExcelHAlign.HAlignLeft);
             int ColActualDate = COL;
+            COL++;
 
             sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
             sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
@@ -485,7 +487,7 @@ namespace Aplos.Areas.Payrolls.Controllers
                                 , case when esd.Chargeable = '1' then 'Yes' else '' end Chargable
                                 ,case when esd.Chargeable = '0' then 'Yes' else '' end NonChargable,esr.Remarks, esd.AddedBy ,
 								
-								CAST(esd.Time AS Time) [Time], FORMAT(esd.Date, 'dd-MMM-yyyy') as Date
+								CONVERT(varchar(5),esd.[Time],108) Time, FORMAT(esd.Date, 'dd-MMM-yyyy') as Date
                                 from [dbo].[EmpServiceData] esd
                                 left join EmployeeInformation ei on ei.SystemId = esd.EmployeeId
 								--left join 
