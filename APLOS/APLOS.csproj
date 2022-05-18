@@ -4150,6 +4150,7 @@
     <Content Include="Areas\HumanResource\Views\AbsentismReasoningMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TrainingMaster\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\PostDateCheque.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MultipleCustomerInvoicePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -7286,6 +7287,7 @@
     <EmbeddedResource Include="Properties\AplosMessage.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AplosMessage.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
