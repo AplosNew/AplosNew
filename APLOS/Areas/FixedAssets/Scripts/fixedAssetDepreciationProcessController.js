@@ -239,6 +239,36 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         }
         return false;
     }
+    $scope.refreshTemplateAssetMaster = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAssetMaster });
+    };
+
+    function CheckBoxSelectAllAssetMaster(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridFixedAssetMastersList").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
+                $scope.fixedAssetMastersList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#GridFixedAssetMastersList").data("ejGrid");
+        gridObj.refreshContent();
+    };
     $scope.invalidDocDate = false;
     $scope.ToDatevalidation = function () {
         var msg = "";
@@ -264,7 +294,16 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     }
     $scope.Save = function () {
         $scope.ToDatevalidation();
-        if ($scope.voucherDetailList.length == 0) {
+        var selectedAssetMastersList = [];
+        for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
+            if ($scope.fixedAssetMastersList[i].isSelected == true) {
+
+                if (selectedAssetMastersList, $scope.fixedAssetMastersList[i].Id) {
+                    selectedAssetMastersList.push($scope.fixedAssetMastersList[i].Id);
+                }
+            }
+        }
+        if (selectedAssetMastersList.length == 0) {
             ShowResult('Please select at least one Asset master', 'failure');
             return;
         }
@@ -272,7 +311,10 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
             method: 'POST',
             url: $scope.saveUrl,
             data: {
-                voucherDetailVMList: $scope.voucherDetailList
+                selectedAssetMastersList: selectedAssetMastersList,
+                fromDate: $scope.report.FromDate,
+                toDate: $scope.report.ToDate,
+                paymentStatus: $scope.report.PaymentStatus
             },
             dataType: 'JSON'
         }).then(function (response) {

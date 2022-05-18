@@ -8,7 +8,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
     var url = 'Organizations/Position/getlist';
     $scope.dataList = [];
     $scope.fieldDataList = [];
-
+    $scope.processes = [];
     $scope.dataListParameters = {
         limit: 10,
         offset: 0,
@@ -63,7 +63,9 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         DirectManpowerCost: false,
         CostCenterId: null,
         PerformanceGroupId: null,
-        PhysicalVarification: false
+        PhysicalVarification: false,
+        UserReportGroup: null,
+        ProcessId: null
     };
 
     $scope.positionAllowance = {
@@ -529,17 +531,17 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<select tabindex="11" ng-model="companyStructureSetup.PaymentLink" class="form-control" ng-options="item.Value as item.Text for item in paymentLinkList" required name="PaymentLink"><option value=""></option></select>' +
                         '</div>' +
                         '</div>' +
-                    '</div>' +
+                        '</div>' +
 
-                    '<div class="form-group">' +
-                    '<label class="col-sm-4 control-label">Physical Varification</label>' +
-                    '<div class="col-sm-8">' +
-                    '<div class="checkbox-site">' +
-                    '<label><input tabindex="10" type="checkbox" ng-model="companyStructureSetup.PhysicalVarification">' +
-                    '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
-                    '</div>' +
-                    '</div>' +
-                    '</div>' +
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Physical Varification</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="checkbox-site">' +
+                        '<label><input tabindex="10" type="checkbox" ng-model="companyStructureSetup.PhysicalVarification">' +
+                        '<span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span></label>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
 
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Remarks</label>' +
@@ -550,8 +552,29 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
                         '<div class="form-group">' +
                         '<label class="col-sm-4 control-label">Activity</label>' +
                         '<div class="col-sm-8">' +
-                        '<textarea tabindex="17" maxlength="200" class="form-control" Rows="3" ng-model="companyStructureSetup.Activity"></textarea>' +
+                        '<textarea tabindex="17" maxlength="200" class="form-control" Rows="1" ng-model="companyStructureSetup.Activity"></textarea>' +
                         '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">User Report Group</label>' +
+                        '<div class="col-sm-8">' +
+                        '<input tabindex="9" type="text" maxlength="100" ng-model="companyStructureSetup.UserReportGroup" class="form-control" name="User Report Group">' +
+                        '</div>' +
+                        '</div>' +
+
+                        '<div class="form-group">' +
+                        '<label class="col-sm-4 control-label">Process</label>' +
+                        '<div class="col-sm-8">' +
+                        '<div class="input-group">' +
+                        '<input type="text" name="Process" ng-model="companyStructureSetup.ProcessName" class="form-control" readonly>' +
+                        '<span class="input-group-btn">' +
+                        '<button name="submit" ng-click="processPopUp()" class="btn single-small-btn"><i class="cr-icon glyphicon glyphicon-search"></i></button>' +
+                        '</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+
                         '</div>';
                 }
             });
@@ -600,4 +623,68 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         });
     };
     $scope.getPositionGroupingData();
+
+    // #region Process
+
+    $scope.processSearchList = [
+        {
+            'name': 'Sequence',
+            'value': 'Sequence'
+        },
+        {
+            'name': 'Code',
+            'value': 'Code'
+        },
+        {
+            'name': 'User Name',
+            'value': 'UserName'
+        },
+        {
+            'name': 'Local Name',
+            'value': 'LocalName'
+        },
+        {
+            'name': 'Alias',
+            'value': 'Alias'
+        }
+    ];
+    $scope.processPopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Sequence',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.processPopUp = function () {
+        $scope.popUpProcessUrl = 'Processes/Process/GetList?processId=[]';
+        $scope.getProcessData = function (pageno) {
+            baseService.paginationBase($scope.popUpProcessUrl, pageno, $scope.processPopUpParameters)
+                .then(function (result) {
+                    $scope.processPopUpDataList = result.Rows;
+                    $scope.processPopUpParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'processPopUp');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#processPopUp')).modal('show');
+        $scope.getProcessData();
+    };
+
+    $scope.closeProcessPopUp = function () {
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
+
+    $scope.processAdd = function (data) {
+        $scope.companyStructureSetup.ProcessName = data.UserName;
+        $scope.companyStructureSetup.ProcessId = data.Id;
+        angular.element(document.querySelector('#processPopUp')).modal('hide');
+    };
+    
+    // #endregion
+
 }
