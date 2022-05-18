@@ -7,19 +7,22 @@ function postDateChequeController(commonMessage, $scope, $rootScope, baseService
     $scope.path = "Banks/CheckManagement/";
     //$scope.getLotNumberUrl = $scope.path + "getlotnumber/";
     $controller("bankBaseController", { $scope: $scope, $http: $http });
-
+    $scope.partyType = "Vendor";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
 
     $scope.pdc = {
         Id: null,
         BankMasterId: null,
         BankName: null,
         PartyId: null,
+        PartyName: null,
         DocRefNo: null,
         DocDate: null,
         BaseDate: null,
         DueDate: null,
         CurrencyId: null,
         Days: null,
+        PostingDate: null,
         EffectiveDate: null,
         VoucherId: false,
         IsClose: false,
@@ -52,18 +55,26 @@ function postDateChequeController(commonMessage, $scope, $rootScope, baseService
             ShowResult("Bank Transaction Currency not found!", "failure");
         }
         else {
-            $scope.checkLotNew.BankMasterId = bank.BankMasterId;
-            $scope.checkLotNew.BankName = bank.BankName;
-            $scope.checkLotNew.BankBranch = bank.BankBranchName;
-            $scope.checkLotNew.BankAccount = bank.AccountTitle;
-            $scope.checkLotNew.BankGL = bank.GLItem;
-            $scope.checkLotNew.GLGeneralInfoId = bank.GLGeneralInfoId;
-            $scope.checkLotNew.BankGL = bank.GLGeneralInfoId + ' - ' + bank.GLGeneralInfoName;
-            $scope.checkLotNew.BankCurrencyId = bank.CurrencyId;
-            $scope.checkLotNew.BankCurrency = bank.CurrencyCode;
-            $scope.getchequeLotList($scope.checkLotNew.BankMasterId);
+            $scope.pdcNew.BankMasterId = bank.BankMasterId;
+            $scope.pdcNew.BankName = bank.BankName;
+           
+           //$scope.checkLotNew.BankCurrencyId = bank.CurrencyId;
+            //$scope.checkLotNew.BankCurrency = bank.CurrencyCode;
         }
     }
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+       
+            //$scope.removeDrRow();
+            $scope.pdcNew.PartyId = party.Id;
+            $scope.pdcNew.PartyCode = party.Code;
+            $scope.pdcNew.PartyName = party.UserName;
+            //$scope.pdcNew.CurrencyId = party.CurrencyId;
+          
+        
+        $scope.hidePartyPopUp();
+    };
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -139,16 +150,7 @@ function postDateChequeController(commonMessage, $scope, $rootScope, baseService
        // $scope.checkLotNew.LotNumber = lotNumber;
         $scope.checkLotNew.IsNonSequential = false;
     }
-    $scope.chequeList = [];
-    $scope.getchequeLotList = function (bankMasterId) {
-        $http({
-            method: "get",
-            url: "banks/CheckManagement/GetChequeLotList?bankMasterId=" + bankMasterId
-        }).then(function successCallback(response) {
-            $scope.chequeList = response.data.Rows;
-        });
-    };
-
+   
     $scope.getBank = function () {
         try {
             $scope.getBankData = function (pageno) {
