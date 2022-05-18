@@ -196,15 +196,15 @@ namespace Library.Accounting.Accounts
 							,vd.CrAmount Cr
                             ,V.Narration
                         FROM TRN.VoucherDetail VD 
-                        LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+                             LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
                         LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
-                        LEFT JOIN TRN.Invoice IV ON IV.VoucherId=V.Id
-                        LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IV.InventoryReceiveId
+                        LEFT JOIN TRN.Invoice IV ON IV.VoucherId=V.Id 
+                        LEFT JOIN TRN.InventoryReceive IR ON IR.VoucherId=V.Id
                         LEFT JOIN[HKP].[GLGeneralInfo] AS GL ON VD.GLGeneralInfoId=GL.Id
                         LEFT JOIN[MST].[BudgetMaster] AS BM ON VD.BudgetMasterId= BM.Id
                         LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
                         LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
-                        WHERE IV.InventoryReceiveId=@receiveId order by VD.CrAmount";
+                        WHERE IR.Id=@receiveId order by VD.CrAmount";
                 return _sqlRepository.GetModelCollection<InventoryReportViewModel>(sql);
             }
             catch (CustomException)
