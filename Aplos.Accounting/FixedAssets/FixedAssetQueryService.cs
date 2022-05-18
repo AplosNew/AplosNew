@@ -1923,8 +1923,24 @@ namespace Library.Accounting.FixedAssets
 			return _sqlRepository.GetDataCollection(sql);
 
         }
-        #endregion
+		public Dictionary<string, object> GetFiscalYearDataByFiscalYear(string fiscalYearId)
+		{
+			try
+			{
+				var sql = @"SELECT Replace(CONVERT(VARCHAR(11), FY.StartDate, 106), ' ', '-') StartDate
+							,Replace(CONVERT(VARCHAR(11), FY.EndDate, 106), ' ', '-') EndDate FROM SCS.FiscalYear AS FY
+                            WHERE FY.Id='" + fiscalYearId + "'";
+				return _sqlRepository.GetData(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name.ToString(), null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Calendars.ToString()));
+			}
+		}
+		#endregion
 
 
-    }
+	}
 }

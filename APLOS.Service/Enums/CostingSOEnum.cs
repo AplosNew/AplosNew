@@ -9,6 +9,8 @@
         , CM
         , DirectCost
         , Commission
+            ,ValueLoss
+            ,Other
 
     }
 

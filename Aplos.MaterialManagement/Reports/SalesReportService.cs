@@ -1235,7 +1235,7 @@ namespace Library.MaterialManagement.Reports
             int colPONumber = COL; COL++;
             wTable.Rows[ROW].Cells[colPONumber].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar1].Width = 50;
@@ -1355,7 +1355,7 @@ namespace Library.MaterialManagement.Reports
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colBuyerRef].AddParagraph().AppendText(dsOrderMaster.Rows[i]["YourOrderRefNo"].ToString());
                 TROW.Cells[colPONumber].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
-                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
 
                 //TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
                 //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
@@ -2073,7 +2073,7 @@ namespace Library.MaterialManagement.Reports
             int colArticle = COL; COL++;
             wTable.Rows[ROW].Cells[colArticle].Width = 100;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU");
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
             range.ApplyCharacterFormat(FontBold);
             int colChar1 = COL; COL++;
             wTable.Rows[ROW].Cells[colChar1].Width = 50;
@@ -2164,7 +2164,7 @@ namespace Library.MaterialManagement.Reports
                 }
                 TROW.Cells[colMaterialGroup].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialMaster"].ToString());
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
-                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString() + "-" + dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
                 //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 //TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 TROW.Cells[colHSN].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
@@ -3010,7 +3010,13 @@ namespace Library.MaterialManagement.Reports
 								,B.UserName as Bank,BB.UserName as BankBranch
 								,IRD.BooksCurrencyTransactionAmount
 								,IRD.BooksCurrencyTaxAmount
-								,IRD.BooksCurrencyBaseRate
+								,IRD.BooksCurrencyBaseRate, 
+						(Select Stuff((
+						Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+						from dbo.ProductLibraryAttribute pla
+						where pla.ProductLibraryId = sp.ProductLibraryId
+						for XML PATH('')
+						) , 1, 2, '')) as ProdDetails
 								
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
@@ -3062,7 +3068,7 @@ namespace Library.MaterialManagement.Reports
 						 LEFT JOIN MST.AddressMaster OA on OA.Id = B.AddressMasterId
 						
 						 ) LC on LC.SalesId=IR.Id
-
+                            left join dbo.SalesPacking sp on sp.SalesId = IR.Id
 
                           WHERE IR.Id ='" + SalesId + "'";
 
