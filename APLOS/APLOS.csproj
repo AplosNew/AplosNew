@@ -4148,6 +4148,7 @@
     <Content Include="Areas\HumanResource\Views\AbsentismReasoningMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TrainingMaster\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\PostDateCheque.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MultipleCustomerInvoicePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

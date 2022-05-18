@@ -59,6 +59,7 @@
                  e-enabletouch="false"
                  e-allowresizing="true"
                  e-allowselection="false"
+                 e-templaterefresh="refreshTemplateAssetMaster"
                  e-allowsorting="true">
                 <div e-columns>
                     <div e-column e-headertext="All" e-headertemplateid="#headerTemplate" e-template="#checkdepreciationProcess" e-textalign="center" e-width="30"></div>
@@ -73,7 +74,7 @@
             </div>
 
             <script type="text/template" id="checkdepreciationProcess">
-                <input type="checkbox" ng-model="data.Flag" ng-checked="data.Flag" ng-click="$parent.pushInTempListforProcess($event,data);">
+                <input type="checkbox" ng-model="data.isSelected" ng-checked="data.isSelected" ng-click="$parent.pushInTempListforProcess($event,data);">
             </script>
             <script type="text/x-jsrender" id="headerTemplate">
                 <input type="checkbox" id="headchk" />
