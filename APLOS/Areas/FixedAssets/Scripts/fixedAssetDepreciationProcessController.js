@@ -239,9 +239,71 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         }
         return false;
     }
+    $scope.refreshTemplateAssetMaster = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAssetMaster });
+    };
 
+    function CheckBoxSelectAllAssetMaster(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridFixedAssetMastersList").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
+                $scope.fixedAssetMastersList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+
+
+        }
+        var gridObj = $("#GridFixedAssetMastersList").data("ejGrid");
+        gridObj.refreshContent();
+    };
+    $scope.invalidDocDate = false;
+    $scope.ToDatevalidation = function () {
+        var msg = "";
+
+        if (baseService.isUndefinedOrNull($scope.depreciationProcess.ToDate)) {
+            $scope.invalidDocDate = true;
+            msg = "Please select To Date!";
+        }
+        else if (new Date($scope.depreciationProcess.ToDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "ToDate must be below or equal to current Date!";
+        }
+        else if (new Date($scope.depreciationProcess.StartDate) > new Date($scope.depreciationProcess.ToDate)) {
+            msg = "To Date must be greater or equal to Fiscal Year Start Date!";
+            $scope.invalidDocDate = true;
+        }
+        else if (new Date($scope.depreciationProcess.EndDate) < new Date($scope.depreciationProcess.ToDate)) {
+            msg = "To Date must be less or equal to Fiscal Year End Date!";
+            $scope.invalidDocDate = true;
+        }
+        else $scope.invalidDocDate = false;
+        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+    }
     $scope.Save = function () {
-        if ($scope.voucherDetailList.length == 0) {
+        $scope.ToDatevalidation();
+        var selectedAssetMastersList = [];
+        for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
+            if ($scope.fixedAssetMastersList[i].isSelected == true) {
+
+                if (selectedAssetMastersList, $scope.fixedAssetMastersList[i].Id) {
+                    selectedAssetMastersList.push($scope.fixedAssetMastersList[i].Id);
+                }
+            }
+        }
+        if (selectedAssetMastersList.length == 0) {
             ShowResult('Please select at least one Asset master', 'failure');
             return;
         }
@@ -249,7 +311,10 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
             method: 'POST',
             url: $scope.saveUrl,
             data: {
-                voucherDetailVMList: $scope.voucherDetailList
+                selectedAssetMastersList: selectedAssetMastersList,
+                fromDate: $scope.report.FromDate,
+                toDate: $scope.report.ToDate,
+                paymentStatus: $scope.report.PaymentStatus
             },
             dataType: 'JSON'
         }).then(function (response) {

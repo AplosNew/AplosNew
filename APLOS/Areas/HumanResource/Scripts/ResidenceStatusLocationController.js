@@ -392,6 +392,31 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         $scope.EmpList = $scope.SelEmpList;
          
     }
-    
+
+
+    // TAB - 2
+    // ALL POP UPs
+
+    // POP OPEN
+    $scope.selectEmployee = function () {
+
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+    }
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+    $scope.EmployeeSelectedName = null;
+    $scope.SelectedEmployeeId = null;
+    $scope.selEmp = function (e) {
+        $scope.SelectedEmployeeId = e.data.SystemId;
+        $scope.EmployeeId = e.data.EmployeeId;
+        $scope.SelEmployeeInfoList = e.data;
+        $scope.Employee = e.data.EmployeeName;
+        
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+       
+    }
     
 }
