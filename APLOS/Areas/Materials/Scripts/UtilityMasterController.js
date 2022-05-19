@@ -316,7 +316,6 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     };
     $scope.ModelChild = {
         Id: null,
-        UtilityMasterId: null,
         EffectiveDate: null,
         Rate: 0,
         Remark: null

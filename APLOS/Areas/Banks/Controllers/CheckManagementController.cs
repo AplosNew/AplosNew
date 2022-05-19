@@ -8,6 +8,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Security.Core;
@@ -41,6 +42,7 @@ namespace Aplos.Areas.Banks.Controllers
     public class CheckManagementController : BaseController
     {
         #region Constructor
+        private readonly IInventoryReceiveService _inventoryReveiveService;
         private readonly ISqlRepository _sqlRepository;
         private readonly ICheckLotService _checkLotService;
         private readonly ICheckLotNewService _checkLotNewService;
@@ -2162,6 +2164,42 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "delete dbo.PostDepositCheque Where Id='" + id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }
+
         [HttpGet]
         public ActionResult GetList()
         {
@@ -2178,6 +2216,13 @@ namespace Aplos.Areas.Banks.Controllers
 
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetListOfPO(string PoType, string Status)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
         }
 
     }
