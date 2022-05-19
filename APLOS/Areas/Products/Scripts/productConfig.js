@@ -398,5 +398,10 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/inventoryIssue/inventoryIssueBOQ',
             controller: 'inventoryIssueBOQController'
         })
+
+        .when('/inventory-sales-report-marketing', {
+            templateUrl: 'Products/InventorySalesReportMarketing/Aplos',
+            controller: 'InventorySalesReportMarketingController'
+        })
         ;
 }

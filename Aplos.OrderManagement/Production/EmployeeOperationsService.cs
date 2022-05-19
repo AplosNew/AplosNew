@@ -942,10 +942,15 @@ namespace Library.OrderManagement.Production
                     double NetDurs = 0.0;
                     if (dtApd.DefaultView.Count > 0)
                     {
-                        Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
-                        Durs = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
-                        NetDur = Durs - TODur;
-                        NetDurs = Durs - TODur;
+                        if(clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString()) > 0)
+                        {
+                            Dur = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+                            Durs = clsStaticInfo.dbl(dtApd.DefaultView[0]["Duration"].ToString());
+
+                            NetDur = Durs - TODur;
+                            NetDurs = Durs - TODur;
+                        }
+                        
                     }
 
 
@@ -959,7 +964,7 @@ namespace Library.OrderManagement.Production
                         dsRatesHealf.Tables[0].DefaultView[0]["WorkDuration"] = Durs;
                         dsRatesHealf.Tables[0].DefaultView[0]["EmployeesTimeOutDuration"] = TODur;
                         dsRatesHealf.Tables[0].DefaultView[0]["NetDuration"] = Durs - TODur;
-                        dsRatesHealf.Tables[0].DefaultView[0]["NetEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) / NetDur) * 100;
+                        dsRatesHealf.Tables[0].DefaultView[0]["NetEfficiency"] = clsStaticInfo.dbl(String.Format("{0:0.00}", (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["TotalSPT"].ToString()) / NetDur) * 100));
                         dsRatesHealf.Tables[0].DefaultView[0]["GrossEfficiency"] = (clsStaticInfo.dbl(dsRatesHealf.Tables[0].DefaultView[0]["AllotedProducedMin"].ToString()) / NetDur) * 100;
                         dsRatesHealf.Tables[0].DefaultView[0].Row.EndEdit();
                     }
@@ -973,7 +978,7 @@ namespace Library.OrderManagement.Production
                         dr["WorkDuration"] = Durs;
                         dr["EmployeesTimeOutDuration"] = TODur;
                         dr["NetDuration"] = NetDurs;
-                        dr["NetEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString()) / NetDur) * 100;
+                        dr["NetEfficiency"] = clsStaticInfo.dbl(String.Format("{0:0.00}",(clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["TotalSPT"].ToString()) / NetDur) * 100));
                         dr["GrossEfficiency"] = (clsStaticInfo.dbl(dsMasterHalf.Tables[0].Rows[i]["AllotedProducedMin"].ToString()) / NetDur) * 100;
                         dr["Date"] = Convert.ToDateTime(Date);
                         dr["Rate"] = 0;
