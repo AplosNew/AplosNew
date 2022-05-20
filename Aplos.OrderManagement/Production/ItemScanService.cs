@@ -506,7 +506,6 @@ namespace Library.Service.EmployeeServices
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 string ErrorList = "";
-                //string InventoryListMaster = "";
 
                 if (DataToSave.Count() == 0)
                 {
