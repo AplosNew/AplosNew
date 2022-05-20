@@ -1048,6 +1048,7 @@
     <Compile Include="Areas\Productions\Controllers\RecipeProductionOrderController.cs" />
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
+    <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryPurchaseReturnController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryDashboardController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReturnController.cs" />
@@ -2453,6 +2454,7 @@
     <Content Include="Areas\Products\Scripts\InGatePassController.js" />
     <Content Include="Areas\Products\Scripts\inventoryIssueBOQController.js" />
     <Content Include="Areas\Products\Scripts\InventoryrequisitionapprovedbyController.js" />
+    <Content Include="Areas\Products\Scripts\inventorySalesReportMarketingController.js" />
     <Content Include="Areas\Products\Scripts\inventorySalesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\InventorySalesReturnController.js" />
     <Content Include="Areas\Products\Scripts\PORollBackController.js" />
@@ -4148,6 +4150,7 @@
     <Content Include="Areas\HumanResource\Views\AbsentismReasoningMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\TrainingMaster\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\PostDateCheque.cshtml" />
+    <Content Include="Areas\Accounts\Views\_MultipleCustomerInvoicePopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -4202,6 +4205,7 @@
     <Content Include="Areas\Products\Views\InventoryReceive\FOC.cshtml" />
     <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_SalesOrderItemPopUp.cshtml" />
+    <Content Include="Areas\Products\Views\InventorySalesReportMarketing\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
@@ -7283,6 +7287,7 @@
     <EmbeddedResource Include="Properties\AplosMessage.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>AplosMessage.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

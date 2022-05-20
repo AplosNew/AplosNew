@@ -493,9 +493,29 @@ namespace Aplos.Areas.IE.Controllers
         [HttpPost]
         public ActionResult Delete(string id)
         {
-            _machineMasterUIService.Delete(id);
-            return Json(new { Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Deleted });
+            try
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.BeginTransaction();
+                con.executeQuery("delete from MachineMasterProcess where MachineMasterId ='" + id + "'");
+                con.executeQuery("delete from MachineMasterAsset where MachineMasterId ='" + id + "'");
+                con.executeQuery("delete from EntityCapacity where MachineMasterId ='" + id + "'");
+                con.executeQuery("delete from MST.MachineMaster where id='" + id + "'");
+                con.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
         }
+
+        //public ActionResult Delete(string id)
+        //{
+        //    _machineMasterUIService.Delete(id);
+        //    return Json(new { Sequence = _machineMasterUIService.GetAutoSequence(), Message = AplosMessage.Deleted });
+        //}
 
         #region GetData by Operation Master Id
         [Authorize, HttpGet]
