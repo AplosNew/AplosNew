@@ -16,7 +16,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
+                            <div class="col-sm-3 show-message">
                                 <input type="text" name="Sequence" ej-numerictextbox e-decimalplaces="2" e-minvalue="1" e-enablertl="false" e-value="ModelNew.Sequence" e-width="100" required />
                             </div>
                         </div>
@@ -33,21 +33,31 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Group<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Sub Group<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Group" ng-model="ModelNew.Group" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Sub Group" ng-model="ModelNew.SubGroup" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Class<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Sub Class<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Class" ng-model="ModelNew.Class" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Sub Class" ng-model="ModelNew.SubClass" class="form-control" required tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Select Employee<sup>*</sup></label>
+
+                            <div class="col-sm-6">
+                                <input type="text" name="" ng-model="EmployeeName" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
+                            </div>
+                            <div class="col-sm-2">
+                                <button ng-click="selectEmployee()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
@@ -84,7 +94,7 @@
                     <div class="col-xs-12 col-sm-6 col-md-6">
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Code<sup>*</sup></label>
-                            <div class="col-sm-8 show-message">
+                            <div class="col-sm-3 show-message">
                                 <input type="text" name="Code" ng-model="ModelNew.Code" class="form-control" required tabindex="2" maxlength="10">
                             </div>
                         </div>
@@ -95,33 +105,47 @@
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Sub Category<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Category<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Sub Category" ng-model="ModelNew.SubCategory" class="form-control" required tabindex="4" maxlength="50">
+                                <input type="text" name="Category" ng-model="ModelNew.Category" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Sub Group<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Group<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Sub Group" ng-model="ModelNew.SubGroup" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Group" ng-model="ModelNew.Group" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Sub Class<sup>*</sup></label>
+                            <label class="col-sm-4 control-label">Class<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Sub Class" ng-model="ModelNew.SubClass" class="form-control" required tabindex="5" maxlength="50">
+                                <input type="text" name="Class" ng-model="ModelNew.Class" class="form-control" required tabindex="5" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Attachment<sup></sup></label>
+                            <label class="col-sm-4 control-label">Attachment<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Attachment" ng-model="ModelNew.Attachment" class="form-control" tabindex="5" maxlength="50">
+                                <label class="fileUpload" style="padding: 0 0 0 0 ; margin-right:8px;">
+                                    <input id="uploadFile" ng-file-select="onFileSelect($files)" ng-model="ModelNew.Attachment" class="form-control ng-isolate-scope" type="file" name="Attachment" accept=".xls,.xlsx" ng-model="ModelNew.Attachment">
+                                </label>
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">One Time<sup></sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="One Time" ng-model="ModelNew.OneTime" class="form-control" tabindex="5" maxlength="50">
+                                <input type="number" name="One Time" ng-model="ModelNew.OneTime" class="form-control" tabindex="5" maxlength="50">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Story Points<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
+                                <input type="number" name="StoryPoint" ng-model="ModelNew.StoryPoint" class="form-control" required tabindex="2" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Effective Date</label>
+                            <div class="col-sm-8 show-message">
+                                <input type="text" ng-model="ModelNew.EffectiveDate" name="Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -148,6 +172,44 @@
                             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
                             <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                         </ul>
+                    </div>
+                </div>
+                <!--POP UP SCREEN  FOR EMPLOYEE DETAIL  (EmployeeInformation) TAB 2  -->
+                <div class="modal fade site-modal in" id="EmployeePop" role="dialog" data-backdrop="static">
+                    <div class="modal-dialog modal-lg modellgModify ">
+                        <div class="modal-content">
+                            <div class="modal-header">Employee Detail <button type="button" class="close" data-dismiss="modal">&times;</button></div>
+                            <div class="modal-body form-elements form-horizontal">
+                                <div class="col-md-12">
+                                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                        <p>Please Select Employee Detail .</p>
+                                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="EmployeeList" e-recorddoubleclick="selEmployeeCategory"
+                                             e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
+                                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
+                                            <div e-columns>
+                                                <div e-column e-field="SystemId" e-headertext="System Id" e-width="50"></div>
+                                                @*<div e-column e-field="EmployeeId" e-headertext="EmployeeCode" e-width="50"></div>*@
+                                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
+                                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="120"></div>
+                                                <div e-column e-field="DOB" e-headertext="DOB" e-width="100"></div>
+                                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="common-btn">
+                                    <ul class="list-inline text-right">
+                                        <li>
+                                            <button ng-click="closeEmpPopUp();" class="btn"><i class=""></i> Close</button>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

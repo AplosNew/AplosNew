@@ -103,20 +103,48 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rsl.getVacancy(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult view(string PlantId, string EmployeeCategoryId, string ResidenceGroupId)
+        [Authorize, HttpPost]
+        public ActionResult getAllEmployee(string EmpCategoryId)
         {
-            return Json(rsl.view(PlantId, EmployeeCategoryId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+            try
+            {
+                var jsondata = Json(rsl.getAllEmployee(EmpCategoryId), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getEmployeeCategory()
+        {
+            try
+            {
+                return Json(rsl.getEmployeeCategory(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult view(string PlantId, string ResidenceGroupId)
+        {
+            return Json(rsl.view(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
         #region Save Operations
         [HttpPost]
-        public JsonResult Save(Dictionary<string, object> data)
+        public JsonResult Save(Dictionary<string, object> data, string EmployeeId, string ResidenceMasterId)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = rsl.Save(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = rsl.Save(data, EmployeeId, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
@@ -156,6 +184,19 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 return Json(rsl.getSelectedEmployees(EmpList), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getResidenceStatusLocation(string EmployeeId, string ResidenceMasterId)
+        {
+            try
+            {
+                return Json(rsl.getResidenceStatusLocation(EmployeeId, ResidenceMasterId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
