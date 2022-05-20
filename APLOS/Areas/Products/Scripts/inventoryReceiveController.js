@@ -4005,7 +4005,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 	$scope.OthersreviceSaveUrl = $scope.path + 'OtherVendorServiceChargesCreate';
 
 		$scope.showOtherVendorChargesAlart = function () {
-		$scope.message = 'Are you sure want to Save Other Vendor Charges?';
+		$scope.message = 'Are you sure want to Save Other Vendor Charges? Other vendor Charges amount will not allocate For New Material Item';
 			angular.element(document.querySelector('#OtherVendorChargePopUp')).modal('show');
 	};
 

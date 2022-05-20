@@ -840,14 +840,16 @@ order by  Assigned, ProductCode , PO
         {
             try
             {
-                var str = @"Select PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
-                            ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId from trn.Packing pk
-                            left join hkp.Party p on p.Id = pk.CustomerId
-                            left join dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
-                            left join dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
-                            left join hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
-                            left join org.Entity en on en.Id = pk.EntityId
-                            order by pk.Date  desc";
+                var str = @"Select pk.PackingId, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, DATEDIFF(Day,GETDATE() , InactiveDate) as Active , p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,PS.SalesId
+from trn.Packing pk
+left join hkp.Party p on p.Id = pk.CustomerId
+left join dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
+left join dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
+left join hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
+left join org.Entity en on en.Id = pk.EntityId
+left join dbo.SalesPacking PS on PS.PackingId = pk.PackingId                            
+order by pk.Date  DESC";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)

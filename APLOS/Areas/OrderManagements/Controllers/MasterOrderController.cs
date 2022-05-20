@@ -322,11 +322,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
             try
             {
                 #region FUND 
+
+
                 ConnectionManager.DAL.ConManager objCon;
-                DataSet dsMaster = null;
+                DataSet dsMaster,dsSO = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation where  SalesOrderId='" + lineId + "'", out dsMaster, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.SalesOrder where  Id='" + lineId + "'", out dsSO, false, "1");
                 int idc = 0;
+                List<SOCostModelNew> soList = new List<SOCostModelNew>();
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -347,13 +351,98 @@ namespace Aplos.Areas.OrderManagements.Controllers
                             DataRow drmo = dv[0].Row;
                             EditRow(drmo, item);
                         }
+                        if (soList.Count==0)
+                        {
+                            var so = new SOCostModelNew
+                            {
+                                SOItemName = item["SOItemName"].ToString(),
+                                SOValue = Convert.ToDecimal(item["SOValue"])
+
+                            };
+                            soList.Add(so);
+                        }
+                        else
+                        {
+                           var socheck= soList.Where(s => s.SOItemName == item["SOItemName"].ToString()).FirstOrDefault();
+                            if (socheck!=null)
+                            {
+                                foreach (var it in soList.Where(s => s.SOItemName == item["SOItemName"].ToString()))
+                                {
+                                    if (it.SOItemName== item["SOItemName"].ToString())
+                                    {
+                                        it.SOValue += Convert.ToDecimal(item["SOValue"]);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var so = new SOCostModelNew
+                                {
+                                    SOItemName = item["SOItemName"].ToString(),
+                                    SOValue = Convert.ToDecimal(item["SOValue"])
+                                };
+
+                                soList.Add(so);
+                            }
+                        }
                     }
                 }
 
                 #endregion
 
+                DataView sodv = new DataView(dsSO.Tables[0]);
+                sodv.RowFilter = "Id='" + lineId + "'";
+                if (sodv.Count > 0)
+                {
+                    DataRow drso = sodv[0].Row;
+                        
+                    drso.BeginEdit();
+                    foreach (var so in soList)
+                    {
+                        if (so.SOItemName == "Rate")
+                        {
+                            drso["Rate"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "CM")
+                        {
+                            drso["CM"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "Discount")
+                        {
+                            drso["Discount"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "SalesExpense")
+                        {
+                            drso["SalesExpense"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "DirectCost")
+                        {
+                            drso["DirectCost"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "ValueLoss")
+                        {
+                            drso["ValueLoss"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "Other")
+                        {
+                            drso["Other"] = so.SOValue;
+                        }
+                    }
+                    // drso["ContractId"] = cId;
+                   
+
+                    drso["UpdatedBy"] = identity.Name;
+                    drso["UpdatedDate"] = DateTime.Now.ToString();
+                    drso["UpdatedFromIP"] = identity.IPAddress;
+
+                    drso.EndEdit();
+
+                }
+
+
+
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMaster);
+                obj.SaveDataSets(dsMaster, dsSO);
 
 
             }
@@ -578,7 +667,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             Library.Planning.OrderManagement.MasterOrder mo = new Library.Planning.OrderManagement.MasterOrder();
             mo.GenerateLogForTnA(masterItemId, Library.Service.Enums.TaskAppliedOnEnum.SalesOrder);
 
-            return Json(new { Message = AplosMessage.Updated });
+            return Json(new { Data= salesOrderMaster, Message = AplosMessage.Updated });
         }
 
         //[HttpPost, Authorize]
@@ -1794,6 +1883,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
         public string Id { get; set; }
         public string OrderLineCostingItemId { get; set; }
+        public string SOItemName { get; set; }
         public string UserName { get; set; }
         public string Formula { get; set; }
         public string FormulaId { get; set; }
@@ -1808,6 +1898,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
         public string Id { get; set; }
         public string OrderLineCostingItemId { get; set; }
         public string UserName { get; set; }
+        public string SOItemName { get; set; }
         public string Formula { get; set; }
         public string FormulaId { get; set; }
         public string CostingType { get; set; }
