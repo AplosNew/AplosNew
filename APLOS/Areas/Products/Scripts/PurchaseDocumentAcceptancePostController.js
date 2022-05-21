@@ -631,6 +631,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.PurchaseDocAcceptance.CurrencyId = $event.data.CurrencyId;
         $scope.PurchaseDocAcceptance.CurrencyName = $event.data.CurrencyName;
         $scope.PurchaseDocAcceptance.ToCurrencyRate = $event.data.ToCurrencyRate;
+        $scope.PurchaseDocAcceptance.AcceptanceAmount = $event.data.AcceptanceAmount;
         $scope.PurchaseLCNo = $event.data.PurchaseLCId;
         $scope.inventoryMaterialListPO = [];
         $scope.GetService(x);
