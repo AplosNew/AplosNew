@@ -8,6 +8,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Security.Core;
@@ -2065,7 +2066,191 @@ namespace Aplos.Areas.Banks.Controllers
             return View("~/Areas/Banks/Views/PostDateCheque.cshtml");
         }
 
+        [HttpPost]
+        public ActionResult CreatePdc(Dictionary<string, object> Pdc)
+        {
+            try
+            {
+                SavePdc(Pdc);
+                return Json(new { Message = AplosMessage.Insert }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, ex.Message });
+            }
+        }
+
+
+        public void SavePdc(Dictionary<string, object> Pdc)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            try
+            {
+
+                string sql = "SELECT * FROM PostDepositCheque WHERE ID='" + Pdc["Id"] + "' ";
+                    objCon = new ConnectionManager.DAL.ConManager("1");
+                    objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                    DataView DvMaster = new DataView(dsMaster.Tables[0]);
+
+                    if (DvMaster.Count == 0)
+                    {
+                        DataRow dr = dsMaster.Tables[0].NewRow();
+
+                        string pdcID = string.Empty;
+                        bplib.clsGenID objGenID = new bplib.clsGenID();
+                        objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PostDepositCheque", out pdcID);
+
+                        dr["Id"] = pdcID;
+
+                        dr["BankMasterId"] = Pdc["BankMasterId"];
+                        dr["PartyId"] = Pdc["PartyId"];
+                        dr["DocRefNo"] = Pdc["DocRefNo"];
+                        dr["DocDate"] = Pdc["DocDate"];
+                        dr["PostingDate"] = Pdc["PostingDate"];
+                        dr["PaymentDate"] = Pdc["PaymentDate"];
+                        dr["BaseDate"] = Pdc["BaseDate"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
+                        dr["CurrencyId"] = Pdc["CurrencyId"];
+                        dr["Amount"] = Pdc["Amount"];
+                        dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
+                        dr["POId"] = Pdc["POId"];
+                        dr["RemainderDays"] = Pdc["RemainderDays"];
+                        dr["Days"] = Pdc["Days"];
+                        dr["Remarks"] = Pdc["Remarks"];
+
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = DateTime.Now;
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        dsMaster.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = DvMaster[0].Row;
+                        dr.BeginEdit();
+
+                        dr["BankMasterId"] = Pdc["BankMasterId"];
+                        dr["PartyId"] = Pdc["PartyId"];
+                        dr["DocRefNo"] = Pdc["DocRefNo"];
+                        dr["DocDate"] = Pdc["DocDate"];
+                        dr["PostingDate"] = Pdc["PostingDate"];
+                        dr["PaymentDate"] = Pdc["PaymentDate"];
+                        dr["BaseDate"] = Pdc["BaseDate"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
+                        dr["CurrencyId"] = Pdc["CurrencyId"];
+                        dr["Amount"] = Pdc["Amount"];
+                        dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
+                        dr["POId"] = Pdc["POId"];
+                        dr["RemainderDays"] = Pdc["RemainderDays"];
+                        dr["Days"] = Pdc["Days"];
+                        dr["Remarks"] = Pdc["Remarks"];
+
+                        dr["UpdatedBy"] = identity.Name;
+                        dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                        dr["UpdatedFromIP"] = identity.IPAddress;
+                        dr.EndEdit();
+                    }
+                    DvMaster.RowFilter = null;
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "delete dbo.PostDepositCheque Where Id='" + id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency,PDC.DocRefNo
+                            ,PDC.PostingDate,PDC.POId,PDC.RemainderDays,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
+							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+							,PDC.DocDate,PDC.PaymentDate,PDC.BaseDate,PDC.[Days],PDC.Amount,PDC.Remarks
+                            from PostDepositCheque PDC
+							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
+							left join HKP.Party P on P.Id=PDC.PartyId
+							left join SCS.Currency C on C.Id=PDC.CurrencyId
+							left join EmployeeInformation EI on EI.SystemId=PDC.ResponsiblePersonId";
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetPOList(string VendorId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetListForPOHold(VendorId), JsonRequestBehavior.AllowGet);
+        }
+
+        public IEnumerable<object> GetListForPOHold(string VendorId)
+        {
+            var Sql = "";
+            try
+            {
+                    Sql = @"SELECT IR.Id POId, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate
+                                        ,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
+                                        ,IR.POType, '' LCNo
+                                        ,ISNULL(CON.UDNo,'') UDNo 
+                                        FROM[TRN].[PurchaseOrder] AS IR 
+                                        LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
+                                        LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId
+                                            WHERE IR.PlantId='20171' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+                                        AND IR.IsClosed= 0  
+                                            AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
+	                                        AND IR.PartyId='"+ VendorId + @"'";
+            
+               
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
     }
-
-
 }

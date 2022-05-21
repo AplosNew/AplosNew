@@ -118,7 +118,7 @@ namespace Aplos.Areas.Materials.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false,Id=_Id, Sequence = GetSequence(), Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -210,6 +210,7 @@ namespace Aplos.Areas.Materials.Controllers
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 con.BeginTransaction();
+                con.executeQuery("delete from UtilityDetail where UtilityMasterId ='" + id + "'");
                 con.executeQuery("delete from " + TableName + " where id='" + id + "'");
                 con.CommitTransaction();
 
@@ -223,6 +224,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
+      
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
