@@ -36,7 +36,7 @@
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Prepared By<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.AddedByName" class="form-control" readonly >
+                <input type="text" name="EmployeeName" ng-model="budgetTransactionMaster.AddedByName" class="form-control" readonly>
             </div>
         </div>
         <div class="form-group" show-errors>
@@ -54,6 +54,16 @@
                         <option ng-repeat="option in tranCurrencyList" value="{{option.Value}}">{{option.Text}}</option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-12">
+                <a href="POPResources/OrderCosting/{{budgetTransactionMaster.FileName}}" target="_blank">
+                    <span style="color:red;padding:4px;">  </span>
+                    <span style="height:20px;width:20px;color:blue;">
+                        {{budgetTransactionMaster.FileOriginalName}}
+                    </span>
+                </a>
             </div>
         </div>
     </div>
@@ -182,7 +192,7 @@
                                         <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="80"></div>
                                         <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="80"></div>
                                         <div e-column e-headertext="PDF" e-commands="PdfPrintChecked" e-isunbound=true e-textalign="center" e-width="50"></div>
-                                <div e-column e-headertext="Excel" e-commands="ExcelPrintChecked" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                        <div e-column e-headertext="Excel" e-commands="ExcelPrintChecked" e-isunbound=true e-textalign="center" e-width="50"></div>
                                     </div>
 
                                 </div>
@@ -212,7 +222,7 @@
                                         <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="80"></div>
                                         <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="80"></div>
                                         <div e-column e-headertext="PDF" e-commands="PdfPrintCheckedHold" e-isunbound=true e-textalign="center" e-width="50"></div>
-                                <div e-column e-headertext="Excel" e-commands="ExcelPrintCheckedHold" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                        <div e-column e-headertext="Excel" e-commands="ExcelPrintCheckedHold" e-isunbound=true e-textalign="center" e-width="50"></div>
                                     </div>
 
                                 </div>
@@ -242,7 +252,7 @@
                                         <div e-column e-field="AddedByName" e-headertext="Prepared By" e-width="80"></div>
                                         <div e-column e-field="ResponsiblePersonName" e-headertext="Checked By" e-width="80"></div>
                                         <div e-column e-headertext="PDF" e-commands="PdfPrintCheckedReject" e-isunbound=true e-textalign="center" e-width="50"></div>
-                                <div e-column e-headertext="Excel" e-commands="ExcelPrintCheckedReject" e-isunbound=true e-textalign="center" e-width="50"></div>
+                                        <div e-column e-headertext="Excel" e-commands="ExcelPrintCheckedReject" e-isunbound=true e-textalign="center" e-width="50"></div>
                                     </div>
 
                                 </div>
@@ -255,7 +265,7 @@
         </div>
 
     </div>
-    
+
 
 </div>
 

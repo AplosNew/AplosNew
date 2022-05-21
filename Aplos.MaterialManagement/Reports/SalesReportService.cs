@@ -1228,17 +1228,17 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("BuyerRef#");
             range.ApplyCharacterFormat(FontBold);
             int colBuyerRef = COL; COL++;
-            wTable.Rows[ROW].Cells[colBuyerRef].Width = 80;
+            wTable.Rows[ROW].Cells[colBuyerRef].Width = 70;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("PONumber");
             range.ApplyCharacterFormat(FontBold);
             int colPONumber = COL; COL++;
-            wTable.Rows[ROW].Cells[colPONumber].Width = 50;
+            wTable.Rows[ROW].Cells[colPONumber].Width = 65;
 
-            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
-            //range.ApplyCharacterFormat(FontBold);
-            //int colChar1 = COL; COL++;
-            //wTable.Rows[ROW].Cells[colChar1].Width = 50;
+            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Product Details");
+            range.ApplyCharacterFormat(FontBold);
+            int colChar1 = COL; COL++;
+            wTable.Rows[ROW].Cells[colChar1].Width = 95;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN");
             range.ApplyCharacterFormat(FontBold);
@@ -1248,19 +1248,19 @@ namespace Library.MaterialManagement.Reports
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
-            wTable.Rows[ROW].Cells[colQty].Width = 50;
+            wTable.Rows[ROW].Cells[colQty].Width = 40;
 
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("UoM");
             range.ApplyCharacterFormat(FontBold);
             int colUoM = COL++;
-            wTable.Rows[ROW].Cells[colUoM].Width = 30;
+            wTable.Rows[ROW].Cells[colUoM].Width = 25;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Rate");
             range.ApplyCharacterFormat(FontBold);
             int colRate = COL;
-            wTable.Rows[ROW].Cells[colRate].Width = 50;
+            wTable.Rows[ROW].Cells[colRate].Width = 45;
 
             int colTotalTaxableAmount = COL;
             if (dv.Count > 0)
@@ -1268,7 +1268,7 @@ namespace Library.MaterialManagement.Reports
                 COL++;
                 colTotalTaxableAmount = COL;
                 range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Taxable Amount " + "(" + " " + sales.Rows[0]["BaseCurrencyName"].ToString() + " " + ")" + " ");
-                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 100;
+                wTable.Rows[ROW].Cells[colTotalTaxableAmount].Width = 80;
                 range.ApplyCharacterFormat(FontBold);
                 //COL++;
                 for (int i = 0; i < dv.Count; i++)
@@ -1355,7 +1355,7 @@ namespace Library.MaterialManagement.Reports
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colBuyerRef].AddParagraph().AppendText(dsOrderMaster.Rows[i]["YourOrderRefNo"].ToString());
                 TROW.Cells[colPONumber].AddParagraph().AppendText(dsOrderMaster.Rows[i]["PONumber"].ToString());
-                //TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
+                TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ProdDetails"].ToString());
 
                 //TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
                 //TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
@@ -1398,10 +1398,10 @@ namespace Library.MaterialManagement.Reports
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                //if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
-                //    continue;
-                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || dicTaxes.ContainsValue(C))
+                if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || C == colChar1 || dicTaxes.ContainsValue(C))
                     continue;
+                //if (C == colArticle || C == colBuyerRef || C == colPONumber || C == colHSN || C == colUoM || C == colRate || dicTaxes.ContainsValue(C))
+                //    continue;
                 double value = 0;
                 for (int i = startRow; i < TotalRow; i++)
                 {
@@ -3187,7 +3187,13 @@ namespace Library.MaterialManagement.Reports
 								,IRD.BooksCurrencyTransactionAmount
 								,IRD.BooksCurrencyTaxAmount
 								,IRD.BooksCurrencyBaseRate
-
+                        ,(Select Stuff((
+						Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+						from dbo.ProductLibraryAttribute pla
+						LEFT JOIN dbo.SalesPacking SP ON pla.ProductLibraryId = SP.ProductLibraryId
+						WHERE SP.SalesId=IR.Id
+						for XML PATH('')
+						) , 1, 2, '')) as ProdDetails
                         FROM TRN.Sales IR
                          LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = IR.CompanyGroupId
                          LEFT JOIN ORG.Company Cmp ON Cmp.Id = IR.CompanyId
