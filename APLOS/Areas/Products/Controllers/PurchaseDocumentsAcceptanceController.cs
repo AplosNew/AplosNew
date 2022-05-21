@@ -1459,7 +1459,7 @@ namespace Aplos.Areas.Products.Controllers
 				,UOM.Username UoM,PDAD.TransactionQty  CurrentQty,A.TransactionUoMId,Mapdata.Qty OtherReceived,Balance=Isnull(a.Qty,0)-ISNULL(PDAD.TransactionQty,0)
                 ,PDAD.TransactionQty,PDAD.MaterialTranRate,PDAD.MaterialTranRate TransactionRate,PDAD.MaterialTranAmount,PDAD.TotalMaterialTranAmount,PDAD.AcceptanceRate
 				 FROM TRN.PurchaseDocAcceptanceDetail PDAD
-                LEFT JOIN trn. ServicePODetail a ON A.Id=PDAD.ServicePODetailId AND A.ServicePOMasterId=PDAD.ServicePOMasterId
+                LEFT JOIN trn.ServicePODetail a ON A.Id=PDAD.ServicePODetailId AND A.ServicePOMasterId=PDAD.ServicePOMasterId
                 LEFT join trn.ServicePOMaster d on d.id=a.ServicePOMasterId
                 Left join hkp.ServiceMaster b on a.ServiceMasterId=b.id
                 left join(select ServicePODetailId,sum(TaxAmount) TaxAmount from trn.ServicePOTax group by ServicePODetailId)c On c.ServicePODetailId=a.id
