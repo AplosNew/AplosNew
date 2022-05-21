@@ -144,6 +144,15 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
                     dtValue.Rows.Add(dtValueRow);
                 }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["OrderLineCostingItemID"] = dsOpenHead.Tables[0].Rows[i]["OrderLineCostingItemId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
 
                 if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
                 {
@@ -171,6 +180,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
 
 
                 }
+                
+                
             }
 
 
