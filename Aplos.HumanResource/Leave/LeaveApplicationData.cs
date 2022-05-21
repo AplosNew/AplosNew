@@ -2134,4 +2134,114 @@ LEFT JOIN EmployeeInformation AS emp ON emp.SystemId  = els.EmployeeId
 
     }
 
+    public class RegularEncashmentService
+    {
+        ISqlRepository _sqlRepository;
+        public RegularEncashmentService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        static DataTable ToDataTable(List<Dictionary<string, object>> list)
+        {
+            DataTable result = new DataTable();
+            if (list.Count == 0)
+                return result;
+
+            result.Columns.AddRange(
+                list.First().Select(r => new DataColumn(r.Key)).ToArray()
+            );
+
+            list.ForEach(r => result.Rows.Add(r.Select(c => c.Value).Cast<object>().ToArray()));
+
+            return result;
+        }
+       
+        public IEnumerable<object> GetEmpInfo(string PlantId,string From,string To,string Year)
+        {
+            try
+            {
+                var str = @"select e.EmployeeCode,e.SystemId as EmpId,e.EmployeeName,
+                s.UserName as Section,
+                d.UserName as Department,leh.LeaveTypeId,leh.LeaveTypeId,lt.UserName as LeaveType,
+                ss.UserName as SubSection
+                from employeeinformation e left join org.Department d on d.Id=e.DepartmentId
+                left join org.Section s on s.Id=e.SectionId
+                left join org.SubSection ss on ss.Id=e.SubSectionId
+                left join LeaveEncashmentHistory leh on leh.EmployeeId=e.SystemId
+                left join LeaveType lt on lt.Id=leh.LeaveTypeId
+                where doj between '"+From+"' and '"+To+@"' and leh.LeaveYearId='"+Year+@"'
+                and e.PlantId='"+PlantId+"'";
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
+        }
+
+        public void ProcessRegData(string Data, string PlantId, string CurrentLvYearId,
+           decimal MaxEncash, List<string> LeaveTypeList)
+        {
+            try
+            {
+
+                #region Reg Encashment Processing
+             
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                clsStaticInfo info = new clsStaticInfo();
+
+                string LTypeId = "''";
+
+                for (int i = 0; i < LeaveTypeList.Count; i++)
+                {
+                    LTypeId += ",'" + LeaveTypeList[i].ToString() + "'";
+                }
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+              
+                var sqly = @"select * from LeaveEncashmentHistory where
+                    LeaveYearId='" + CurrentLvYearId + "' and PlantId='" + PlantId + "'and LeaveTypeId in(" + LTypeId + ")";
+                objCon.OpenDataSetThroughAdapter(sqly, out DataSet dsSave, false, false, "", "1");
+
+
+                List<Dictionary<string, object>> _objects = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(Data);
+                DataTable Table =ToDataTable(_objects);
+                if (Table.Rows.Count > 0)
+                {
+                    for (int i = 0; i < Table.Rows.Count; i++)
+                    {
+                        string EmpId = Table.Rows[i][@"EmpId"].ToString();
+                        string LeaveTypeId = Table.Rows[i][@"LeaveTypeId"].ToString();
+                      
+                        #region For Encashment Table
+
+                        dsSave.Tables[0].DefaultView.RowFilter = @"EmployeeId='" + EmpId + "' " +
+                            "AND LeaveTypeId='" + LeaveTypeId + "'";
+                        if (dsSave.Tables[0].DefaultView.Count > 0)
+                        {
+                            DataRow dry = dsSave.Tables[0].DefaultView[0].Row;
+                            dry.BeginEdit();
+                            dry["RegularEncashedLv"] = MaxEncash;
+                            dry["UpdatedBy"] = identity.Name;
+                            dry["UpdatedDate"] = Convert.ToDateTime(DateTime.Now);
+                            dry["UpdatedFromIP"] = identity.IPAddress;
+                            dry.EndEdit();
+                        }                       
+
+                        #endregion
+                    }
+
+                    info.SaveDataSets(dsSave);
+                }
+                #endregion
+                             
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+    }
 }
