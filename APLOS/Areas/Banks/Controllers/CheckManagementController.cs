@@ -42,7 +42,6 @@ namespace Aplos.Areas.Banks.Controllers
     public class CheckManagementController : BaseController
     {
         #region Constructor
-        private readonly IInventoryReceiveService _inventoryReveiveService;
         private readonly ISqlRepository _sqlRepository;
         private readonly ICheckLotService _checkLotService;
         private readonly ICheckLotNewService _checkLotNewService;
@@ -2114,7 +2113,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["PostingDate"] = Pdc["PostingDate"];
                         dr["PaymentDate"] = Pdc["PaymentDate"];
                         dr["BaseDate"] = Pdc["BaseDate"];
-                        //dr["Days"] = Pdc["Days"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
                         dr["CurrencyId"] = Pdc["CurrencyId"];
                         dr["Amount"] = Pdc["Amount"];
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
@@ -2140,7 +2139,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["PostingDate"] = Pdc["PostingDate"];
                         dr["PaymentDate"] = Pdc["PaymentDate"];
                         dr["BaseDate"] = Pdc["BaseDate"];
-                        //dr["Days"] = Pdc["Days"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
                         dr["CurrencyId"] = Pdc["CurrencyId"];
                         dr["Amount"] = Pdc["Amount"];
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
@@ -2204,8 +2203,8 @@ namespace Aplos.Areas.Banks.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId
-                            ,C.[Name] Currency,PDC.DocRefNo,PDC.PostingDate,PDC.POId,PDC.RemainderDays,PDC.[Days]
+            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency,PDC.DocRefNo
+                            ,PDC.PostingDate,PDC.POId,PDC.RemainderDays,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
 							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
 							,PDC.DocDate,PDC.PaymentDate,PDC.BaseDate,PDC.[Days],PDC.Amount,PDC.Remarks
                             from PostDepositCheque PDC
@@ -2219,10 +2218,38 @@ namespace Aplos.Areas.Banks.Controllers
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetListOfPO(string PoType, string Status)
+        public JsonResult GetPOList(string VendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
+            return Json(GetListForPOHold(VendorId), JsonRequestBehavior.AllowGet);
+        }
+
+        public IEnumerable<object> GetListForPOHold(string VendorId)
+        {
+            var Sql = "";
+            try
+            {
+                    Sql = @"SELECT IR.Id POId, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate
+                                        ,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
+                                        ,IR.POType, '' LCNo
+                                        ,ISNULL(CON.UDNo,'') UDNo 
+                                        FROM[TRN].[PurchaseOrder] AS IR 
+                                        LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
+                                        LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId
+                                            WHERE IR.PlantId='20171' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+                                        AND IR.IsClosed= 0  
+                                            AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
+	                                        AND IR.PartyId='"+ VendorId + @"'";
+            
+               
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
         }
 
     }
