@@ -59,9 +59,9 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">File Name</label>
             <div class="col-sm-8">
-                <a href="POPResources/Expenses/{{budgetTransactionMaster.FileName}}" target="_blank">
+                <a href="" target="_blank">
                     <span style="color:red;padding:4px;">  </span>
-                    <span style="height:20px;width:20px;color:blue;">
+                    <span style="height:20px;width:20px;color:blue;" ng-click="FileDownload(budgetTransactionMaster)">
                         {{budgetTransactionMaster.FileName}}
                     </span>
                 </a>
