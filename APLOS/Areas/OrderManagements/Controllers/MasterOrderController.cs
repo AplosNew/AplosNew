@@ -349,6 +349,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.SOCostingConfirmation where  SalesOrderId='" + lineId + "'", out dsMaster, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM TRN.SalesOrder where  Id='" + lineId + "'", out dsSO, false, "1");
                 int idc = 0;
+                decimal upcharge = 0;
                 List<SOCostModelNew> soList = new List<SOCostModelNew>();
                 if (data != null)
                 {
@@ -404,6 +405,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 soList.Add(so);
                             }
                         }
+                        upcharge += Convert.ToDecimal(item["SOValue"]);
                     }
                 }
 
@@ -448,8 +450,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         }
                     }
                     // drso["ContractId"] = cId;
-                   
 
+                    drso["UpCharge"] = upcharge;
                     drso["UpdatedBy"] = identity.Name;
                     drso["UpdatedDate"] = DateTime.Now.ToString();
                     drso["UpdatedFromIP"] = identity.IPAddress;
