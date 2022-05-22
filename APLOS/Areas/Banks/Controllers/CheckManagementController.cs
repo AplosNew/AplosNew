@@ -50,13 +50,14 @@ namespace Aplos.Areas.Banks.Controllers
         private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IPlantService _plantService;
-       // private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
-
+        // private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
+        private readonly AccountsBankService _accountsBankService;
 
         public CheckManagementController(
             ICheckLotService checkLotService, ISqlRepository sqlRepository
             //, ICheckLotDetailService checkLotDetailService
             , AccountVoucherReportService accountVoucherReportService
+            , AccountsBankService accountsBankService
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IPlantService plantService
             , ICheckLotNewService checkLotNewService
@@ -66,6 +67,9 @@ namespace Aplos.Areas.Banks.Controllers
             _checkLotService = checkLotService;
             //_checkLotDetailService = checkLotDetailService;
             _sqlRepository = sqlRepository;
+
+            _accountsBankService = accountsBankService;
+
 
             _accountVoucherReportService = accountVoucherReportService;
             _companyParallelCurrencyService = companyParallelCurrencyService;
@@ -2203,15 +2207,12 @@ namespace Aplos.Areas.Banks.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency,PDC.DocRefNo
-                            ,PDC.PostingDate,PDC.POId,PDC.RemainderDays,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
-							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
-							,PDC.DocDate,PDC.PaymentDate,PDC.BaseDate,PDC.[Days],PDC.Amount,PDC.Remarks
+            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency
+							,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,PDC.Amount
                             from PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
-							left join SCS.Currency C on C.Id=PDC.CurrencyId
-							left join EmployeeInformation EI on EI.SystemId=PDC.ResponsiblePersonId";
+							left join SCS.Currency C on C.Id=PDC.CurrencyId";
 
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
@@ -2252,5 +2253,70 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
+        [HttpPost, Authorize]
+        public ActionResult GetPostDateChequeReport(string POId)
+        {
+            try
+            {
+                AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+                string fileName = "";
+                fileName = _accountsBankService.PostDateChequeReport(POId, "Post Date Cheque Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetPostDateChequeReport(ReportFormat reportFormat, string POId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    //AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+
+        //    var workbook = _accountsBankService.PostDateChequeReport(out string reportFileName, POId);
+        //    switch (reportFormat)
+        //    {
+        //        case ReportFormat.Pdf:
+        //            return RenderReportAsPdf(workbook, reportFileName);
+
+        //        case ReportFormat.Excel:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+
+        //        default:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+        //    }
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Banks;
@@ -10,7 +11,9 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Accounting.Accounts
 {
@@ -992,6 +995,221 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetDataCollection(sql);
         }
         #endregion
+
+
+        public string PostDateChequeReport(string POId, string SheetName)
+        {
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                workbook.Worksheets[0].Name = "PostDateChequeReport";
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+                PostDateChequeSQL(POId, out data);
+
+                int ROW = 6; int COL = 1;
+
+                #region columns
+                sheet[ROW, COL].Text = "PDC No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPDCNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Bank Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBankName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Party Name";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPartyName = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Ref No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDocRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Posting Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPostingDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Doc Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDocDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Payment Date";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPaymentDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BaseDate";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColBaseDate = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Id";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColPOId = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remainder Days";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemainderDays = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Days";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColDays = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Cheque No";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColChequeNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Responsible Person";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColResponsiblePerson = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Amount";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Remarks";
+                sheet[ROW, COL].ColumnWidth = 16;
+                int ColRemarks = COL;
+
+                #endregion columns
+
+                int endCol = COL;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+
+                int startRow = ROW;
+
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    sheet[ROW, ColPDCNo].Text = data.Rows[i]["PDCNo"].ToString();
+                    sheet[ROW, ColBankName].Text = data.Rows[i]["BankName"].ToString();
+                    sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+                    sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+                    sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                    sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                    sheet[ROW, ColDocDate].Text = data.Rows[i]["DocDate"].ToString();
+                    sheet[ROW, ColPaymentDate].Text = data.Rows[i]["PaymentDate"].ToString();
+                    sheet[ROW, ColBaseDate].Text = data.Rows[i]["BaseDate"].ToString();
+                    sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+                    sheet[ROW, ColRemainderDays].Text = data.Rows[i]["RemainderDays"].ToString();
+                    sheet[ROW, ColDays].Text = data.Rows[i]["Days"].ToString();
+                    sheet[ROW, ColChequeNo].Text = data.Rows[i]["ChequeNo"].ToString();
+                    sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                    sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
+                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
+
+                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                    ROW++;
+
+                }
+                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet["A" + startRow.ToString()].FreezePanes();
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.PlantHeader(ref sheet, endCol, "Post Date Cheque Report", identity.PlantId);
+                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                sheet.UsedRange.WrapText = true;
+                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.IsGridLinesVisible = false;
+
+                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+
+
+                //#endregion ******************Report Header******************
+
+                sheet.PageSetup.TopMargin = 0.2;
+                sheet.PageSetup.BottomMargin = 0.8;
+                //sheet.PageSetup.PrintTitleRows = "$1:$6";
+                sheet.PageSetup.LeftMargin = 0.2;
+                sheet.PageSetup.RightMargin = 0.2;
+                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet.PageSetup.FitToPagesTall = 0;
+                sheet.PageSetup.FitToPagesWide = 1;
+                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet.PageSetup.CenterHorizontally = true;
+
+
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void PostDateChequeSQL(string POId, out DataTable data)
+        {
+            try
+            {
+                string strSQL = @"select PDC.Id PDCNo,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency,PDC.DocRefNo
+                            ,format(PDC.PostingDate,'dd-MMM-yyyy') PostingDate,PDC.POId,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
+							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+							,format(PDC.DocDate,'dd-MMM-yyyy') DocDate,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,format(PDC.BaseDate,'dd-MMM-yyyy')BaseDate,PDC.Amount,PDC.Remarks
+                            from PostDepositCheque PDC
+							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
+							left join HKP.Party P on P.Id=PDC.PartyId
+							left join SCS.Currency C on C.Id=PDC.CurrencyId
+							left join EmployeeInformation EI on EI.SystemId=PDC.ResponsiblePersonId
+							where PDC.Id='" + POId + @"'";
+
+                data = _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
 
     }
 }

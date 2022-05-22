@@ -13,6 +13,7 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     $scope.employeeUrl = 'IE/MachineMasterTransaction/GetEmployeeListByWhom';
     //$scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom',
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.downloadgriddataUrlPath = 'Banks/CheckManagement/DownloadUsingFullPath';
 
 
     $scope.pdc = {
@@ -290,16 +291,13 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     }
         //New end
 
-        //$scope.status = 'PO';
         $scope.GetPO = function () {
             $scope.GetPOData();
-            //$scope.getalldata();
             angular.element(document.querySelector('#POPopUp')).modal('show');
         };
 
         $scope.POPopUpClose = function () {
             angular.element(document.querySelector('#POPopUp')).modal('hide');
-
         };
 
 
@@ -307,5 +305,31 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
             $scope.pdcNew.POId = obj.data.POId;
             angular.element(document.querySelector('#POPopUp')).modal('hide');
         }
+
+    $scope.Report = function (obj) {
+        try {
+            $scope.fileName = "Post Date Cheque.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPostDateChequeReport",
+                data: { 'POId': obj.data.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
 
     }
