@@ -155,5 +155,8 @@ function bankConfig($routeProvider, $locationProvider) {
             templateUrl: "Banks/CheckManagement/PostDateCheque",
             controller: "postDateChequeController"
         })
-        ;
+        .when("/current-fund-position-report", {
+            templateUrl: "Banks/BankJournal/CurrentFundPosition",
+            controller: "CurrentFundPositionController"
+        });
 }

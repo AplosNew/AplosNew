@@ -8,6 +8,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.MaterialManagement.Inventory;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Security.Core;
@@ -49,13 +50,14 @@ namespace Aplos.Areas.Banks.Controllers
         private readonly AccountVoucherReportService _accountVoucherReportService;
         private readonly ICompanyParallelCurrencyService _companyParallelCurrencyService;
         private readonly IPlantService _plantService;
-       // private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
-
+        // private readonly IRepositoryAsync<CheckLotDetailHistory> _checkLotDetailHistoryRepository;
+        private readonly AccountsBankService _accountsBankService;
 
         public CheckManagementController(
             ICheckLotService checkLotService, ISqlRepository sqlRepository
             //, ICheckLotDetailService checkLotDetailService
             , AccountVoucherReportService accountVoucherReportService
+            , AccountsBankService accountsBankService
             , ICompanyParallelCurrencyService companyParallelCurrencyService
             , IPlantService plantService
             , ICheckLotNewService checkLotNewService
@@ -65,6 +67,9 @@ namespace Aplos.Areas.Banks.Controllers
             _checkLotService = checkLotService;
             //_checkLotDetailService = checkLotDetailService;
             _sqlRepository = sqlRepository;
+
+            _accountsBankService = accountsBankService;
+
 
             _accountVoucherReportService = accountVoucherReportService;
             _companyParallelCurrencyService = companyParallelCurrencyService;
@@ -2112,7 +2117,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["PostingDate"] = Pdc["PostingDate"];
                         dr["PaymentDate"] = Pdc["PaymentDate"];
                         dr["BaseDate"] = Pdc["BaseDate"];
-                        //dr["Days"] = Pdc["Days"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
                         dr["CurrencyId"] = Pdc["CurrencyId"];
                         dr["Amount"] = Pdc["Amount"];
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
@@ -2138,7 +2143,7 @@ namespace Aplos.Areas.Banks.Controllers
                         dr["PostingDate"] = Pdc["PostingDate"];
                         dr["PaymentDate"] = Pdc["PaymentDate"];
                         dr["BaseDate"] = Pdc["BaseDate"];
-                        //dr["Days"] = Pdc["Days"];
+                        dr["ChequeNo"] = Pdc["ChequeNo"];
                         dr["CurrencyId"] = Pdc["CurrencyId"];
                         dr["Amount"] = Pdc["Amount"];
                         dr["ResponsiblePersonId"] = Pdc["ResponsiblePersonId"];
@@ -2162,14 +2167,50 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult Delete(string id)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "delete dbo.PostDepositCheque Where Id='" + id + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+
+                return Json(new { Message = AplosMessage.Deleted });
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    objCon.CloseConnection();
+                    throw (ex);
+                }
+                catch (Exception)
+                {
+                    throw ex;
+                }
+            }
+            finally
+            {
+
+                objCon = null;
+            }
+        }
+
         [HttpGet]
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId
-                            ,C.[Name] Currency,PDC.DocRefNo,PDC.PostingDate,PDC.POId,PDC.RemainderDays,PDC.[Days]
-							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
-							,PDC.DocDate,PDC.PaymentDate,PDC.BaseDate,PDC.[Days],PDC.Amount,PDC.Remarks
+            string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency
+							,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,PDC.Amount,PDC.DocRefNo,PDC.DocDate,PDC.PostingDate
+							,PDC.BaseDate,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+							,PDC.RemainderDays,PDC.[Days],PDC.POId,PDC.ChequeNo,PDC.Remarks
                             from PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
@@ -2180,5 +2221,105 @@ namespace Aplos.Areas.Banks.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetPOList(string VendorId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(GetListForPOHold(VendorId), JsonRequestBehavior.AllowGet);
+        }
+
+        public IEnumerable<object> GetListForPOHold(string VendorId)
+        {
+            var Sql = "";
+            try
+            {
+                    Sql = @"SELECT IR.Id POId, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate
+                                        ,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
+                                        ,IR.POType, '' LCNo
+                                        ,ISNULL(CON.UDNo,'') UDNo 
+                                        FROM[TRN].[PurchaseOrder] AS IR 
+                                        LEFT JOIN [dbo].[Contract] CON on CON.Id= IR.ContractId
+                                        LEFT JOIN [HKP].[Party] Pr ON Pr.Id =CON.CustomerId
+                                            WHERE IR.PlantId='20171' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
+                                        AND IR.IsClosed= 0  
+                                            AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
+	                                        AND IR.PartyId='"+ VendorId + @"'";
+            
+               
+                return _sqlRepository.GetDataCollection(Sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPostDateChequeReport(string POId)
+        {
+            try
+            {
+                AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+                string fileName = "";
+                fileName = _accountsBankService.PostDateChequeReport(POId, "Post Date Cheque Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        //[HttpGet, Authorize]
+        //public ActionResult GetPostDateChequeReport(ReportFormat reportFormat, string POId)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    //AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+
+        //    var workbook = _accountsBankService.PostDateChequeReport(out string reportFileName, POId);
+        //    switch (reportFormat)
+        //    {
+        //        case ReportFormat.Pdf:
+        //            return RenderReportAsPdf(workbook, reportFileName);
+
+        //        case ReportFormat.Excel:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+
+        //        default:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+        //    }
+        //}
+
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
     }
 }

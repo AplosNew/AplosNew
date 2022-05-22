@@ -36,6 +36,7 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
 
     $scope.YearList = [];
     $scope.LeaveTypeList = [];
+    $scope.RegYearList = [];
     $scope.getLeaveYear = function () {
         $http({
             method: 'GET',
@@ -43,6 +44,14 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
             params: { 'PlantId': $scope.BudgetPlantId }
         }).then(function success(response) {
             $scope.YearList = response.data;
+        })
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getLeaveYear',
+            params: { 'PlantId': $scope.BudgetPlantId }
+        }).then(function success(response) {
+            $scope.RegYearList = response.data;
         })
 
         $http({
@@ -416,4 +425,118 @@ function AnnualLeaveProcessController(cboService, commonMessage, $scope, $rootSc
     }
 
     // #endregion
+
+    // #region Regular Encashment Functions
+
+    $scope.LeaveRegModel = {
+        CurrentLvYearId: null,
+        MaxEncash: null,
+        From: null,
+        To: null
+    };
+
+    $scope.ClearThirdTabData = function () {
+        $("#LeaveRegTypeDropdown").data("ejDropDownList").clearText();
+        $scope.LeaveRegModel = {
+            CurrentLvYearId: null,
+            MaxEncash: null
+        };
+        $scope.BudgetPlantId = null;
+        $scope.Company = null;
+    };
+
+    $scope.EmployeeData = [];
+    $scope.getEmployeeData = function () {
+
+        $scope.LeaveTypexString = "";
+      
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveRegModel.CurrentLvYearId == "" ||
+            $scope.LeaveRegModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Leave Year ...", 'failure');
+            throw ("Please First Select Leave Year ...");
+        }
+
+        var LeaveTypexObj = $("#LeaveRegTypeDropdown").data("ejDropDownList");
+        $scope.LeaveTypexString = LeaveTypexObj.getSelectedValue().split(",");
+
+        if ($scope.LeaveTypexString == "") {
+            ShowResult("Please First Select Leave Type ...", 'failure');
+            throw ("Please First Select Leave Type ...");
+        }       
+
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetEmpInfo',
+            params: {
+                'PlantId': $scope.BudgetPlantId,
+                'From': $scope.LeaveRegModel.From,
+                'To': $scope.LeaveRegModel.To,
+                'Year': $scope.LeaveRegModel.CurrentLvYearId
+            }
+        }).then(function success(response) {
+            $scope.EmployeeData = response.data;
+        })
+    }
+
+
+    $scope.ProcReg = [];
+    $scope.ProcessRegEncash = function () {
+
+        // #region Validations
+
+        if ($scope.BudgetPlantId == "" || $scope.BudgetPlantId == undefined) {
+            ShowResult("Please First Select Plant ...", 'failure');
+            throw ("Please First Select Plant ...");
+        }
+
+        if ($scope.LeaveRegModel.CurrentLvYearId == "" ||
+            $scope.LeaveRegModel.CurrentLvYearId == undefined) {
+            ShowResult("Please First Select Leave Year ...", 'failure');
+            throw ("Please First Select Leave Year ...");
+        }
+
+        if ($scope.LeaveRegModel.MaxEncash == "" || $scope.LeaveRegModel.MaxEncash == undefined) {
+            ShowResult("Please Enter Max Encashment ...", 'failure');
+            throw ("Please Enter Max Encashment ...");
+        }
+
+        
+        // #endregion
+
+        $scope.ProcReg = [];
+        for (var i = 0; i < $scope.EmployeeData.length; i++) {
+            $scope.ProcReg.push({
+                'EmpId': $scope.EmployeeData[i].EmpId,
+                'LeaveTypeId': $scope.EmployeeData[i].LeaveTypeId
+            });
+        }
+
+
+        $scope.ProcData = JSON.stringify($scope.ProcReg);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'ProcessRegData',
+            data: {
+                'Data': $scope.ProcData, 'PlantId': $scope.BudgetPlantId,
+                'CurrentLvYearId': $scope.LeaveRegModel.CurrentLvYearId,
+                'MaxEncash': $scope.LeaveRegModel.MaxEncash,
+                'LeaveTypeList': $scope.LeaveTypexString              
+            },
+        }).then(function succ(resp) {
+            if (resp.data.Error === true) {
+                ShowResult(resp.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+            }
+        })
+    }
+    // #endregion
+
 }

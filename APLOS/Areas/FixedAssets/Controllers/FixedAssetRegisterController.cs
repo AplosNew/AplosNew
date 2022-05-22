@@ -1301,8 +1301,22 @@ namespace Aplos.Areas.FixedAssets.Controllers
 
         }
         [HttpPost]
-        public JsonResult FixedAssetDepreciationProcess(IEnumerable<VoucherDetailViewModel> voucherDetailVMList)
+        public JsonResult FixedAssetDepreciationProcess(string[] selectedAssetMastersList, string fiscalYearId, string toDate)
         {
+            string selectedAssetMastersLists = "";
+
+            foreach (var item in selectedAssetMastersList)
+            {
+                if (string.IsNullOrEmpty(selectedAssetMastersLists))
+                {
+                    selectedAssetMastersLists += "'" + item + "'";
+                }
+                else
+                {
+                    selectedAssetMastersLists += ",'" + item + "'";
+                }
+
+            }
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
             //fixedAssetQueryService.FixedAssetDepreciationProcess(voucherDetailVMList);
 

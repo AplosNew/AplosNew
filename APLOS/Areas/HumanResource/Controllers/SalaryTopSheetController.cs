@@ -3787,11 +3787,13 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                 int colEmployeeCategory = 0;
                 int colTotalEmployee = 0;
                 int colTotalGross = 0;
+                int colTotalAdv = 0;
                 int colTotalNetPay = 0;
                 int colAvg = 0;
 
                 double totalEmployee = 0.00;
                 double totalGross = 0.00;
+                double totalAdv = 0.00;
                 double totalNetPayable = 0.00;
                 double totalAvg = 0.00;
 
@@ -3818,6 +3820,7 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                     SetHeadText("Employee Category", sheet, xlsRow, ref xlsCol, out colEmployeeCategory, 40);
                     SetHeadText("Total Employee", sheet, xlsRow, ref xlsCol, out colTotalEmployee, 35);
                     SetHeadText("Total Gross", sheet, xlsRow, ref xlsCol, out colTotalGross, 35);
+                    SetHeadText("Total Advance", sheet, xlsRow, ref xlsCol, out colTotalAdv, 35);
                     SetHeadText("Total NetPay", sheet, xlsRow, ref xlsCol, out colTotalNetPay, 35);
                     SetHeadText("Avg/Person", sheet, xlsRow, ref xlsCol, out colAvg, 35);
 
@@ -3840,6 +3843,8 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                             SetCellText(sheet, xlsRow, colTotalEmployee, clsStaticInfo.dbl(empCount.ToString()));
                             double TotalGross = clsStaticInfo.dbl(dtTemp.Compute("SUM(DisbusmentAmount)", "HeadCategory='TOTAL GROSS' AND EmployeeCategorySystemID='" + dvTempSummary.Rows[CT]["EmployeeCategorySystemID"].ToString() + "'").ToString());
                             SetCellText(sheet, xlsRow, colTotalGross, TotalGross);
+                            double TotalAdvance = clsStaticInfo.dbl(dtTemp.Compute("SUM(DisbusmentAmount)", "SalaryHead='Advance' AND EmployeeCategorySystemID='" + dvTempSummary.Rows[CT]["EmployeeCategorySystemID"].ToString() + "'").ToString());
+                            SetCellText(sheet, xlsRow, colTotalAdv, TotalAdvance);
                             double TotalNetPay = clsStaticInfo.dbl(dtTemp.Compute("SUM(DisbusmentAmount)", "HeadCategory='Net Payable' AND EmployeeCategorySystemID='" + dvTempSummary.Rows[CT]["EmployeeCategorySystemID"].ToString() + "'").ToString());
                             SetCellText(sheet, xlsRow, colTotalNetPay, TotalNetPay);
 
@@ -3849,6 +3854,7 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
 
                             totalEmployee += empCount;
                             totalGross += TotalGross;
+                            totalAdv += TotalAdvance;
                             totalNetPayable += TotalNetPay;
                             totalAvg += TotAvg;
 
@@ -3860,6 +3866,7 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                         sheet.Range[xlsRow, colTotalEmployee].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + (xlsRow - 1).ToString() + ")";
 
                         sheet.Range[xlsRow, colTotalGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + (xlsRow - 1).ToString() + ")";
+                        sheet.Range[xlsRow, colTotalAdv].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalAdv.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalAdv.ToString())) + (xlsRow - 1).ToString() + ")";
                         sheet.Range[xlsRow, colTotalNetPay].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalNetPay.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalNetPay.ToString())) + (xlsRow - 1).ToString() + ")";
                         sheet.Range[xlsRow, colAvg].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + xlsRow.ToString() + "/" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + (xlsRow).ToString() + ")";
 
@@ -3874,6 +3881,7 @@ left join ORG.Department DP ON DP.Id=EI.DepartmentId
                     sheet.Range[xlsRow, colTotalEmployee].Number = totalEmployee;//"SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + (xlsRow - 1).ToString() + ")";
 
                     sheet.Range[xlsRow, colTotalGross].Number = totalGross; //"SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + (xlsRow - 1).ToString() + ")";
+                    sheet.Range[xlsRow, colTotalAdv].Number = totalAdv;
                     sheet.Range[xlsRow, colTotalNetPay].Number = totalNetPayable; //"SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalNetPay.ToString())) + startRoww.ToString() + ":" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalNetPay.ToString())) + (xlsRow - 1).ToString() + ")";
                     sheet.Range[xlsRow, colAvg].Formula = "SUM(" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalGross.ToString())) + xlsRow.ToString() + "/" + clsStaticInfo.GetxlsCol((int)clsStaticInfo.dbl(colTotalEmployee.ToString())) + (xlsRow).ToString() + ")"; ;
                     //sheet.Range[xlsRow, 1, xlsRow, colAvg].CellStyle.Font.Color = ExcelKnownColors.White;
