@@ -215,7 +215,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                     DataRow dtValueRow = dtValue.NewRow();
 
                     dtValueRow["OrderLineCostingItemID"] = dsOpenHead.Tables[0].Rows[i]["OrderLineCostingItemId"].ToString().Trim();
-                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["SOValue"].ToString().Trim();
 
                     dtValue.Rows.Add(dtValueRow);
                 }
