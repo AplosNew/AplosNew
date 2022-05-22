@@ -2208,11 +2208,14 @@ namespace Aplos.Areas.Banks.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"select PDC.Id,PDC.BankMasterId,BM.AccountTitle BankName,PDC.PartyId,P.UserName PartyName,PDC.CurrencyId,C.[Name] Currency
-							,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,PDC.Amount
+							,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,PDC.Amount,PDC.DocRefNo,PDC.DocDate,PDC.PostingDate
+							,PDC.BaseDate,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
+							,PDC.RemainderDays,PDC.[Days],PDC.POId,PDC.ChequeNo,PDC.Remarks
                             from PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
-							left join SCS.Currency C on C.Id=PDC.CurrencyId";
+							left join SCS.Currency C on C.Id=PDC.CurrencyId
+							left join EmployeeInformation EI on EI.SystemId=PDC.ResponsiblePersonId";
 
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
