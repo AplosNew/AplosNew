@@ -1880,6 +1880,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
     }
 
+    $scope.ShowCostingSORatePopup = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = [];
+            $scope.costingSOConfirmList = response.data;
+            angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
+        });
+    };
+
     $scope.saveSalesOrder = function () {
 
         //if ($scope.soModel.PONumber === null || $scope.soModel.OrderStatusId === null || $scope.soModel.OrderCategoryId === null || $scope.soModel.DestinationId === null || $scope.soModel.ShipmentModeId === null || $scope.soModel.Qty === null) {
@@ -1939,7 +1950,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         getSalesOrderList();
                         $scope.soModel.Id = response.data.Data.Id;
                         //clearSO();
-                        $scope.GetSOCostingConfirmData($scope.soModel.Id, $scope.masterItemId);
+                        $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
@@ -1964,16 +1975,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.ShowCostingSORatePopup = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
-        }).then(function successCallback(response) {
-            $scope.costingSOConfirmList = [];
-            $scope.costingSOConfirmList = response.data;
-            angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
-        });
-    };
+
 
 
     function getSalesOrderTaxCategoryUpdateList(salesOrderId) {
@@ -2114,7 +2116,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     $scope.costingSOConfirmList = response.data;
                     if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[0].Id)) {
                         ShowResult("Please do SO Costing Confirmation.", 'failure', 'soPoUp');
-                    } 
+                    }
+                    else {
+                        angular.element(document.querySelector('#soPoUp')).modal('hide');
+                    }
                 });
             } else {
                 angular.element(document.querySelector('#soPoUp')).modal('hide');
@@ -5041,7 +5046,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
     $scope.getSkus = function () {
-       
+
         $scope.skuList = [];
         $scope.firstSKUList = [];
         if ($scope.hasFirst === 0) {
@@ -5201,7 +5206,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.char1Id = $scope.characteristicsList[1].Value;
                         $scope.char2Id = $scope.characteristicsList[2].Value;
 
-                      
+
                     }
                     else if (baseService.arrayLength($scope.characteristicsList) === 2) {
                         getSkuMatrix(firstData, secondtData);
@@ -5214,7 +5219,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
                         $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
 
-                      
+
                         $scope.sumTwoMatQuantity();
                     }
                     else if (baseService.arrayLength($scope.characteristicsList) === 1) {

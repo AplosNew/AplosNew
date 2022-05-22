@@ -39,6 +39,7 @@ virtualPath.ProductionBulletinImage = virtualPath.ROOT_FOLDRR + '/ProductionBull
 virtualPath.BulletinTemplateImage = virtualPath.ROOT_FOLDRR + '/BulletinTemplate/';
 virtualPath.OSTransformationPO = virtualPath.ROOT_FOLDRR + '/JobWorkPurchaseOrder';
 
+
 function getCookie(cname) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
