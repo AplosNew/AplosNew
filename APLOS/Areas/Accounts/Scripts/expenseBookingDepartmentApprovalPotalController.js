@@ -436,5 +436,12 @@ function expenseBookingDepartmentApprovalPotalController(cboService, commonMessa
         return $scope.tab === tabNum;
     };
 
+    $scope.dwonloadUrl = null;
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
+    };
 
 }
