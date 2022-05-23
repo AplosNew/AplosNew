@@ -901,7 +901,7 @@ namespace Library.OrderManagement.Production
                 DataTable dtRatesTable = _sqlRepository.GetDataTable(str5);
 
 
-                var str6 = @"Select EmpSystemId , isnull(Duration,0) as Duration , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
+                var str6 = @"Select EmpSystemId , isnull(Duration,0) as Durations, ShiftHoursWithoutOT ,(ShiftHoursWithoutOT + isnull(AdditionalOT,0) + ISNULL(StandardOT,0)) as Duration  , WorkDate from dbo.AttdnProcessData where WorkDate = '" + Date + @"'";
                 DataTable dtApd = _sqlRepository.GetDataTable(str6);
 
                 #endregion
@@ -1244,8 +1244,10 @@ namespace Library.OrderManagement.Production
                             (Select top 1 wc.UserName from dbo.OperationWiseEmployees owes
                             left join scs.WorkCenterMaster wc on wc.Id = owes.WorkCenterId
                             where owes.EmployeeId = owe.EmployeeId and owes.Date = owe.Date
-                            order by owe.Qty desc) as WorkCenter
-                            ,sd.UserName as ShiftName , owe.ProductionOrderId , epp.StandardProcessTime , ov.UserName as OperationName ,owe.EmployeeId , ei.EmployeeCode as EmpCode, ei.EmployeeName as EmpName, owe.OperationVariationId , ov.Code as OperationCode , owe.Qty , skc.UserName as SkillCategory , epp.TotalSPT , (Case when epp.SkillAllowance > 0 then epp.SkillAllowance else null end) as SkillAllowance, (Case when epp.AdditionalOperationAllowance > 0 then epp.AdditionalOperationAllowance else null end) AdditionalOperationAllowance, (Case when epp.SpecialOperationAllowance > 0 then epp.SpecialOperationAllowance else null end) SpecialOperationAllowance ,epp.AllotedProducedMin , owe.Remarks ,
+                            order by owes.Qty desc) as WorkCenter
+                            ,sd.UserName as ShiftName , owe.ProductionOrderId , epp.StandardProcessTime , ov.UserName as OperationName ,owe.EmployeeId , ei.EmployeeCode as EmpCode, ei.EmployeeName as EmpName, owe.OperationVariationId , ov.Code as OperationCode , owe.Qty , skc.UserName as SkillCategory , epp.TotalSPT , (Case when epp.SkillAllowance > 0 then epp.SkillAllowance else null end) as SkillAllowance, (Case when epp.AdditionalOperationAllowance > 0 then epp.AdditionalOperationAllowance else null end) AdditionalOperationAllowance, (Case when epp.SpecialOperationAllowance > 0 then epp.SpecialOperationAllowance else null end) SpecialOperationAllowance ,epp.AllotedProducedMin ,(Select top 1 Remarks from dbo.OperationWiseEmployees owes
+							where owes.EmployeeId = owe.EmployeeId and owes.Date = owe.Date
+							order by owes.Qty desc)Remarks ,
                             (Select top 1 mo.BuyerReferenceNo
                             from trn.ProductionOrderDetail pod 
                             left join trn.SalesOrder so on so.Id = pod.SalesOrderId
@@ -1267,7 +1269,11 @@ namespace Library.OrderManagement.Production
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
                             left join mst.MaterialMasterArticle mma on mma.ID = moi.ArticleId
                             where pod.ProductionOrderId = owe.ProductionOrderId) as ArticleCode
-                            from dbo.OperationWiseEmployees owe
+                            from (
+							Select Date , ShiftId , EmployeeId , OperationVariationId,ProductionOrderId,Sum(Qty) as Qty
+							from dbo.OperationWiseEmployees 
+							group by Date , ShiftId , EmployeeId , OperationVariationId,ProductionOrderId
+							) owe
                             left join dbo.EmployeeWiseProductionProcessing epp on epp.Date = owe.Date and epp.EmployeeId = owe.EmployeeId
                             left join mst.OperationVariation ov on ov.ID = owe.OperationVariationId
                             left join hkp.Skill sk on sk.ID = ov.SkillId
