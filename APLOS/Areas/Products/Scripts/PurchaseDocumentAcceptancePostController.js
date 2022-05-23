@@ -185,10 +185,11 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             $scope.currencyExchangeRate = [];
         }
     };
-
+    var ServiceAmount = 0;
     $scope.makerowDetails = function () {
         var DrRows = {}; var CrRows = {};
         $scope.rowDetails = [];
+        ServiceAmount = 0;
         for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
             var getRowDr = $filter("filter")($scope.rowDetails, { "TrnType": "Dr", "ClearingAccountGLId": $scope.inventoryMaterialListPO[i].ClearingAccountGLId, "ClearingAccountBudgetMasterId": $scope.inventoryMaterialListPO[i].ClearingAccountBudgetMasterId, "ClearingAccountActivityId": $scope.inventoryMaterialListPO[i].ClearingAccountActivityId });
             var getRowCr = $filter("filter")($scope.rowDetails, { "TrnType": "Cr", "GLGeneralInfoId": $scope.inventoryMaterialListPO[i].GLGeneralInfoId, "BudgetMasterId": $scope.inventoryMaterialListPO[i].BudgetMasterId, "ActivityId": $scope.inventoryMaterialListPO[i].ActivityId });
@@ -204,6 +205,20 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                 DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].TrnAmount;
                 DrRows.TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount;
                 $scope.rowDetails.push(DrRows);
+            }
+            if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0) {
+                DrRows = {};
+                DrRows.ClearingAccountGLId = $scope.inventoryMaterialListPO[i].ServiceGLId;
+                DrRows.ClearingAccountBudgetMasterId = $scope.inventoryMaterialListPO[i].ServiceBudgetMasterId;
+                DrRows.ClearingAccountActivityId = $scope.inventoryMaterialListPO[i].ServiceActivityId;
+                DrRows.TrnType = 'Dr';
+                DrRows.GLGeneralInfoId = $scope.inventoryMaterialListPO[i].GLGeneralInfoId;
+                DrRows.BudgetMasterId = $scope.inventoryMaterialListPO[i].BudgetMasterId;
+                DrRows.ActivityId = $scope.inventoryMaterialListPO[i].ActivityId;
+                DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].ServiceAmount;
+                DrRows.TotalMaterialTranAmount = 0;
+                $scope.rowDetails.push(DrRows);
+                ServiceAmount += $scope.inventoryMaterialListPO[i].ServiceAmount;
             }
             else {
                 for (var j = 0; j < $scope.rowDetails.length; j++) {
@@ -256,6 +271,8 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         if ($scope.productNewForm.$valid) {
             if ($scope.Action === 'Post') {
                 $scope.makerowDetails();
+                $scope.PurchaseDocAcceptance.AcceptanceAmount = 0;
+                $scope.PurchaseDocAcceptance.AcceptanceAmount = $scope.PurchaseDocAcceptance.Amount + ServiceAmount;
                 try {
                     $http({
                         method: 'POST',
@@ -559,6 +576,17 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
             $scope.acceptanceChargesCheckedList = $scope.GetServiceDetails;
         });
     };
+    $scope.GetServiceChargesDetails = function (Id) {
+        //debugger;
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/PurchaseDocumentsAcceptance/GetAcceptanceServiceDeailsListForPost?Id=' + Id,
+        }).then(function successCallback(response) {
+            $scope.GetServiceDetails = response.data;
+            $scope.acceptanceChargesCheckedList = $scope.GetServiceDetails;
+        });
+    };
     $scope.getMatureDate = function (date, days) {
         if (!baseService.isUndefinedOrNull(date)) {
             date = new Date(date);
@@ -631,9 +659,11 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
         $scope.PurchaseDocAcceptance.CurrencyId = $event.data.CurrencyId;
         $scope.PurchaseDocAcceptance.CurrencyName = $event.data.CurrencyName;
         $scope.PurchaseDocAcceptance.ToCurrencyRate = $event.data.ToCurrencyRate;
+        $scope.PurchaseDocAcceptance.AcceptanceAmount = $event.data.AcceptanceAmount;
         $scope.PurchaseLCNo = $event.data.PurchaseLCId;
         $scope.inventoryMaterialListPO = [];
         $scope.GetService(x);
+        $scope.GetServiceChargesDetails(x);
         //$scope.GetCurrencyExchangeRateList();
         $scope.Action = 'Charges Post';
         if (!$rootScope.isCollapsed) $rootScope.toggle();

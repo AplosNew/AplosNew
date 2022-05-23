@@ -749,11 +749,12 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
 							,A.Code ActivityCode
 							,A.UserName ActivityName
 
-							, NULL Dr, SUM(PDAD.TotalMaterialTranAmount)   AS  Cr
-							, SUM(PDAD.TotalMaterialTranAmount)  AS Amount
+							, NULL Dr, SUM(IRD.TotalMaterialTranAmount)   AS  Cr
+							, SUM(IRD.TotalMaterialTranAmount)  AS Amount
 							,0 IsAsset
 						FROM TRN.PurchaseDocAcceptance PDA
 						LEFT JOIN TRN.PurchaseDocAcceptanceDetail PDAD ON PDAD.PurchaseDocAcceptanceId=PDA.Id
+						LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.PurchaseDocumentAcceptanceDetailId=PDAD.Id
 						LEFT JOIN TRN.InventoryReceive IR ON IR.PurchaseDocumentAcceptanceId=PDA.Id
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON PDAD.GLGeneralInfoId= GL.Id
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON PDAD.BudgetMasterId= BM2.Id
@@ -1725,7 +1726,7 @@ UNION
                                 ,IR.PurchaseDocumentAcceptanceId AcceptanceId, REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106),' ','-') AS AcceptanceDate
 								, PDA.AcceptanceNo
 								,IsFOC=CASE WHEN IR.IsFOC=1 THEN 'YES' ELSE 'NO' END
-								,IR.GRNType,IR.OtherPartyId,IR.OtherPartyPlantId
+								,IR.GRNType,IR.OtherPartyId,IR.OtherPartyPlantId,ISNULL(PLC.IsAccepptanceFirst,0) IsAccepptanceFirst
 								,POId=	STUFF((select distinct ','+PO.Id from
 														TRN.InventoryReceiveDetail XVD JOIN TRN.InventoryReceive AS XP ON XP.Id=XVD.InventoryReceiveId AND IR.Id=XVD.InventoryReceiveId
 														LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=XVD.POId  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')

@@ -44,6 +44,18 @@ function TrainingMasterController(cboService, commonMessage, $scope, $rootScope,
 
     }
 
+    // POP OPEN
+    $scope.selectEmployee = function () {
+
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+    }
+
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
     // ALL GET FUNCTION
 
     $scope.getData = function () {
@@ -81,6 +93,27 @@ function TrainingMasterController(cboService, commonMessage, $scope, $rootScope,
     };
    // $scope.GetSequence();
 
+    $scope.EmployeeList = [];
+    $scope.getAllEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getAllEmployee',
+            //data: { 'EmpCategoryId': $scope.EmpCategoryId },
+        }).then(function success(resp) {
+            $scope.EmployeeList = resp.data;
+        })
+    }
+    $scope.getAllEmployee();
+
+    $scope.EmpCategoryId = null;
+    $scope.EmployeeName = null;
+    $scope.selEmployeeCategory = function (e) {
+        $scope.EmpCategoryId = e.data.SystemId;
+        $scope.EmployeeName = e.data.EmployeeName;
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+        
+    }
+
     // Save Function
     $scope.ModelTemp = {
         Id: null,
@@ -111,17 +144,18 @@ function TrainingMasterController(cboService, commonMessage, $scope, $rootScope,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    $scope.save = function () {
+    $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         $http({
             method: 'POST',
-            url: $scope / path + "save",
+            url: $scope.path + "save",
             data: {
                 'data': $scope.ModelNew,
+                'EmpSystemId': $scope.EmpCategoryId,
             },
             dataType:'JSON',
 
-        }).then(function successCalback() {
+        }).then(function successCalback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure');
             }

@@ -416,11 +416,11 @@
                                         <th>UoM</th>
                                         <th>Order Wastage Percentage</th>
                                         <th>Extra Order Percentage</th>
+                                        <th>Item Costing</th>
                                         <th>Repeat</th>
                                         <th>Product Library</th>
                                         <th>Order Costing</th>
                                         <th>Product</th>
-                                        <th>Item Costing</th>
                                         <th class="col-sm-1">Action</th>
                                         <th>Copy SO</th>
                                         <th>Contract No</th>
@@ -505,6 +505,9 @@
                                             <input type="text" n-decimals="2" ng-model=" x.ExtraOrderPercentage" ng-disabled="!fileNew.IsExtraOrderPercentage" class="form-control text-right">
                                         </td>
                                         <td>
+                                            <button ng-click="GetMOSORatePopup($index,x);" style="background: yellow;" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
+                                        </td>
+                                        <td>
                                             <div class="checkbox-site">
                                                 <label class="control-label">
                                                     <input type="checkbox" ng-model="x.IsRepeat" ng-checked="x.IsRepeat">
@@ -539,10 +542,7 @@
                                             </div>
                                         </td>
                                         <td>{{x.ProductMaster}}</td>
-                                        <td>
-                                            @*<input type="text" n-decimals="4" ng-model=" x.Rate" class="form-control text-right">*@
-                                            <button ng-click="GetMOSORatePopup($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Item Costing"><i class="glyphicon glyphicon-th-list"></i></button>
-                                        </td>
+
                                         <td class="text-right table-td">
                                             <ul class="list-inline action-list">
                                                 @*<li><button ng-click="getAttribute(x.Id, x.MaterialMasterId, x.MaterialMasterName);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Attribute" ng-disabled="x.Id==null || x.MaterialMasterId==null">Attribute</button></li>*@
@@ -1530,33 +1530,27 @@
                                 <input type="text" n-decimals="2" name="Qty" ng-model="soModel.Qty" class="form-control text-right" tabindex="111">
                             </div>
                         </div>
-                        <!--<div class="form-group" show-errors>
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
                             <div class="col-sm-6 show-message">
                                 <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
                             </div>
-                            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">-->
-                                @*<input type="text" ng-model=currency class="form-control" disabled />*@
-                                @*{{currency}}*@
-                                <!--<div class="select-style">
+                            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
+                                {{currency}}
+                                <div class="select-style">
                                     <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
                                         <option value="">--Select--</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>-->
-                        @*<div class="form-group" show-errors>
+                        </div>
+                        <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sales Expense<sup>*</sup></label>
                             <div class="col-sm-8  show-message">
                                 <input type="text" n-decimals="2" name="Sales Expense" ng-model="soModel.SalesExpense" ng-keyup="SetNetSalesRealization();" class="form-control text-right" tabindex="113" required>
                             </div>
-                        </div>*@
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Up Charge</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
-                            </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person</label>
                             <div class="col-sm-8">
@@ -1642,27 +1636,35 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
-                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
+                                <textarea class="form-control" name="DestinationDescription" ng-model="soModel.DestinationDescription" rows="2" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
-                        @*<div class="form-group">
+
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Discount</label>
                             <div class="col-sm-8">
                                 <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
                             </div>
-                        </div>*@
-                        @*<div class="form-group">
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">Net Sales Realization</label>
                             <div class="col-sm-8">
                                 <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
                             </div>
-                        </div>*@
-                        @*<div class="form-group">
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-4 control-label">CM</label>
                             <div class="col-sm-8">
                                 <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
                             </div>
-                        </div>*@
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Up Charge</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
+                            </div>
+                        </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1686,11 +1688,11 @@
                         <ul class="list-inline text-right">
                             @*ng-disabled="soModel.PONumber == null || soModel.OrderStatusId == null || soModel.OrderCategoryId == null || soModel.DestinationId == null || soModel.ShipmentModeId == null || soModel.Qty <= 0"*@
                             <li>
-                                <button ng-click="saveSalesOrder();" class="btn"><i class=""></i> {{soModel.Id==null?'Save':'Update'}}</button>
+                                <button ng-click="saveSalesOrder();" class="btn" title="{{soModel.Id==null?'Save & Confirm Costing':'Update & Confirm Costing'}}"><i class=""></i> {{soModel.Id==null?'Save & Confirm Costing':'Update & Confirm Costing'}}</button>
                             </li>
-                            <li>
-                                <button ng-click="GetCostingSORatePopup();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Costing Confirmation">SCC</button>
-                            </li>
+                            @*<li>
+                                    <button ng-click="ShowCostingSORatePopup();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Costing Confirmation">SCC</button>
+                                </li>*@
                             <li>
                                 <button ng-click="closeSOPopUp();" class="btn">Close</button>
                             </li>
@@ -2389,7 +2391,7 @@
 </div>
 
 <!-- #endregion Sales Order Tax -->
-<!-- #region SO -->
+<!-- #region soSplitPoUp -->
 <div class="modal fade site-modal in" id="soSplitPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -2450,20 +2452,20 @@
                                 <input type="text" n-decimals="2" name="Qty" ng-model="soSplitModel.Qty" class="form-control text-right" tabindex="111">
                             </div>
                         </div>
-                        <div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                            <div class="col-sm-6 show-message">
-                                <input type="text" n-decimals="4" name="Rate" ng-model="soSplitModel.Rate" class="form-control text-right" required tabindex="110">
-                            </div>
-                            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
-
-                                <div class="select-style">
-                                    <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                        <option value="">--Select--</option>
-                                    </select>
+                        @*<div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
+                                <div class="col-sm-6 show-message">
+                                    <input type="text" n-decimals="4" name="Rate" ng-model="soSplitModel.Rate" class="form-control text-right" required tabindex="110">
                                 </div>
-                            </div>
-                        </div>
+                                <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
+
+                                    <div class="select-style">
+                                        <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Up Charge</label>
                             <div class="col-sm-8">
@@ -2549,18 +2551,18 @@
                                 <textarea class="form-control" name="DestinationDescription" ng-model="soSplitModel.DestinationDescription" rows="3" maxlength="250" tabindex="119"></textarea>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Discount</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">CM</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-                            </div>
-                        </div>
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">Discount</label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
+                                </div>
+                            </div>*@
+                        @*<div class="form-group">
+                                <label class="col-sm-4 control-label">CM</label>
+                                <div class="col-sm-8">
+                                    <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
+                                </div>
+                            </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2993,7 +2995,7 @@
                                         <td>{{x.UserName}}</td>
                                         <td><input class="form-control text-right" ng-disabled="true" type="number" ng-model="x.ItemValue" /></td>
                                         <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="number" ng-model="x.SOValue" /></td>
-                                        <td><input class="form-control text-right" ng-disabled="true"  type="number" ng-model="x.ValueDiff" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="true" type="number" ng-model="x.ValueDiff" /></td>
                                         <td><input class="form-control" type="text" ng-model="x.Remark" ng-maxlength="250" /></td>
                                     </tr>
                                 </tbody>

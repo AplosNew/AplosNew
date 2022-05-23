@@ -29,6 +29,7 @@ namespace Aplos.Areas.Leave.Controllers
 
         LeaveOpeningUploadService _leave = new LeaveOpeningUploadService();
         AnnualLeaveProcessingService alp = new AnnualLeaveProcessingService();
+        RegularEncashmentService reg = new RegularEncashmentService();
         private readonly ISqlRepository _sqlRepository;
 
         public AnnualLeaveProcessController(ISqlRepository R)
@@ -443,6 +444,40 @@ namespace Aplos.Areas.Leave.Controllers
 
         }
 
+
+        #endregion
+
+        #region Regular Encashment Functions
+
+        [HttpGet, Authorize]
+        public ActionResult GetEmpInfo(string PlantId, string From, string To,string Year)
+        {
+            try
+            {
+                return Json(reg.GetEmpInfo(PlantId, From, To,Year), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult ProcessRegData(string Data, string PlantId, string CurrentLvYearId,
+          decimal MaxEncash, List<string> LeaveTypeList)
+        {
+            try
+            {
+                reg.ProcessRegData(Data, PlantId, CurrentLvYearId, MaxEncash, LeaveTypeList);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.ToString() }, JsonRequestBehavior.AllowGet);
+
+            }
+            return Json(new { Error = false, Message = "Regular Encashment Process Ran Successfully..." }, JsonRequestBehavior.AllowGet);
+
+        }
 
         #endregion
     }

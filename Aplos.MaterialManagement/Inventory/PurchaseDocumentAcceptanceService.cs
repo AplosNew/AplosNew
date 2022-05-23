@@ -2362,6 +2362,49 @@ namespace Library.MaterialManagement.Inventory
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public IEnumerable<object> GetAcceptanceServiceDeailsListForPost(string plantId, string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
+            {
+                var sql = @"SELECT 
+                           PDAS.Id
+                          ,PurchaseDocAcceptanceId
+                          ,PDAS.AcceptanceServiceId
+                          ,SM.UserName ChargeName
+                          ,PDAS.Amount
+                          ,PDAS.TotalTaxAmount
+                          ,PDAS.AddedBy
+                          ,PDAS.AddedDate
+                          ,PDAS.AddedFromIP
+                          ,PDAS.UpdatedBy
+                          ,PDAS.UpdatedDate
+                          ,PDAS.UpdatedFromIP
+						  ,PDAS.CurrencyId
+						  ,PDAS.OpeningBankMasterId,OB.AccountTitle OpeningBankMaster
+						  ,PDAS.BankAmount
+						  ,C.Id BankCurrencyId, OB.AccountTitle OpeningBankMaster
+						  ,SCGL.ServiceGLId ExpensesGLId, SCGL.ServiceBudgetMasterId ExpensesBudgetMasterId, SCGL.ServiceActivityId ExpensesActivityId
+						  ,OB.GLGeneralInfoId, OB.BudgetMasterId, OB.ActivityId
+						  ,PDAS.CurrencyId, 1 Rate,PDAS.BankAmount
+                        FROM trn.PurchaseDocAcceptanceService PDAS
+  	                    LEFT JOIN [HKP].ServiceMaster AS SM ON PDAS.ServiceMasterId=SM.Id
+  	                    LEFT JOIN [HKP].ServiceGroup AS SG ON SM.ServiceGroupId=SG.Id
+						LEFT JOIN HKP.ServiceGroupGL AS SCGL ON SG.Id=SCGL.ServiceGroupId 
+  	                    LEFT JOIN trn.PurchasedocAcceptance AS PDC ON PDAS.PurchaseDocAcceptanceId=PDC.Id
+  	                    LEFT JOIN dbo.PurchaseLC AS PLC ON PDC.PurchaseLCId=PLC.Id
+						LEFT JOIN MST.BankMaster OB ON OB.Id=PLC.OpeningBankMasterId
+						LEFT JOIN SCS.Currency C ON C.Id=OB.CurrencyId
+	                    Where  PDAS.PurchaseDocAcceptanceId='" + Id + @"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
 
 
         public IEnumerable<object> GetAcceptanceDetailForPost(string companyId, string plantId, string Id, string PoType)
@@ -2423,6 +2466,7 @@ namespace Library.MaterialManagement.Inventory
 	                    ,IRD.RequisitionDetailId
                         --,MRD.MaterialDetail
                         ,null AS[check] ,IRD.Description MaterialDetail
+                        ,PDASD.ChargeName,PDASD.ServiceAmount,PDASD.ServiceMasterId,PDASD.ServiceGLId,PDASD.ServiceBudgetMasterId,PDASD.ServiceActivityId
                         FROM TRN.PurchaseDocAcceptanceDetail PDAD
 	                    LEFT JOIN TRN.PurchaseOrderDetail AS IRD  ON PDAD.PODetailId=IRD.Id
                         left JOIN MST.MaterialMaster AS MM ON PDAD.MaterialMasterId = MM.Id
@@ -2450,6 +2494,14 @@ namespace Library.MaterialManagement.Inventory
 						) GRNMAP ON GRNMAP.PurchaseDocumentAcceptanceId=PDA.Id
 						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
                     LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty FROM TRN.PurchaseDocAcceptanceDetail GROUP BY POId,PODetailId) PAD ON PAD.POId=IRD.InventoryReceiveId AND PAD.PODetailId=IRD.Id
+                    LEFT JOIN(SELECT PurchaseDocAcceptanceId,PDAS.ServiceMasterId  ,SM.UserName ChargeName ,PDAS.Amount ServiceAmount  ,PDAS.TotalTaxAmount ,PDAS.CurrencyId ,SCGL.ServiceGLId , SCGL.ServiceBudgetMasterId , SCGL.ServiceActivityId 
+                        FROM trn.PurchaseDocAcceptanceService PDAS
+  	                    LEFT JOIN [HKP].ServiceMaster AS SM ON PDAS.ServiceMasterId=SM.Id
+  	                    LEFT JOIN [HKP].ServiceGroup AS SG ON SM.ServiceGroupId=SG.Id
+						LEFT JOIN HKP.ServiceGroupGL AS SCGL ON SG.Id=SCGL.ServiceGroupId 
+  	                    LEFT JOIN trn.PurchasedocAcceptance AS PDC ON PDAS.PurchaseDocAcceptanceId=PDC.Id
+  	                    LEFT JOIN dbo.PurchaseLC AS PLC ON PDC.PurchaseLCId=PLC.Id
+	                    Where  PDAS.PurchaseDocAcceptanceId=@docAcceptanceId)PDASD ON PDASD.PurchaseDocAcceptanceId=PDA.Id
                     WHERE PDA.Id=@docAcceptanceId";
                 return _sqlRepository.GetDataCollection(Sql);
             }

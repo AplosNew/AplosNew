@@ -1824,6 +1824,7 @@
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
+    <Content Include="Areas\Banks\Scripts\CurrentFundPositionController.js" />
     <Content Include="Areas\Banks\Scripts\bankSheetGenerationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconcileReportController.js" />
     <Content Include="Areas\Attendances\Scripts\OTManagementController.js" />
@@ -4151,6 +4152,7 @@
     <Content Include="Areas\HumanResource\Views\TrainingMaster\Aplos.cshtml" />
     <Content Include="Areas\Banks\Views\PostDateCheque.cshtml" />
     <Content Include="Areas\Accounts\Views\_MultipleCustomerInvoicePopUp.cshtml" />
+    <Content Include="Areas\Banks\Views\CurrentFundPosition.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -306,7 +306,7 @@ UNION ALL
 						LEFT JOIN HKP.PartyPlant PP ON PP.Id=LAA.PartyPlantId
 						LEFT JOIN MST.BankMaster BM ON BM.Id=LAAD.BankMasterId
 						LEFT JOIN SCS.Currency CU ON CU.Id=LAA.CurrencyId
-						LEFT JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
+						INNER JOIN TRN.Invoice IV ON IV.Id=LAAD.InvoiceId
 						LEFT JOIN TRN.InvoiceDetail IVD ON IVD.InvoiceId=IV.Id
 						LEFT JOIN SEC.[USER] U ON U.UserId=LAA.AddedBy
 						WHERE LAA.IsPark=1 AND LAA.PlantId='" + plantId + "' AND LAAD.LoanAgainstAcceptanceMasterId='" + LoanAgainstAcceptanceMasterId + @"'  AND LAA.VoucherId IS NULL";

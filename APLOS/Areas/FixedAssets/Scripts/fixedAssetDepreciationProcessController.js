@@ -183,7 +183,7 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
                 method: 'POST',
                 url: $scope.path + "GetfixedAssetMastersListForProcess",
                 data: {
-                    fiscalYearId: $scope.FiscalYearId,
+                    fiscalYearId: $scope.depreciationProcess.FiscalYearId,
                     toDate: $scope.depreciationProcess.ToDate
                 },
                 dataType: 'JSON'
@@ -312,9 +312,8 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
             url: $scope.saveUrl,
             data: {
                 selectedAssetMastersList: selectedAssetMastersList,
-                fromDate: $scope.report.FromDate,
-                toDate: $scope.report.ToDate,
-                paymentStatus: $scope.report.PaymentStatus
+                fiscalYearId: $scope.depreciationProcess.FiscalYearId,
+                toDate: $scope.depreciationProcess.ToDate
             },
             dataType: 'JSON'
         }).then(function (response) {

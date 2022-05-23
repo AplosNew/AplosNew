@@ -1,13 +1,16 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
+using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
+using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Enums;
 using Library.Service.Banks;
 using Library.ViewModel.Banks;
 using Library.ViewModel.Vouchers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,14 +22,26 @@ namespace Aplos.Areas.Banks.Controllers
     {
         private readonly IBankJournalService _bankJournalService;
         private readonly IBankReportService _bankReportService;
+        private readonly ISqlRepository _sqlRepository;
+        private readonly AccountsBankService _accountsBankService;
 
         public BankJournalController(
             IBankJournalService bankJournalService
             , IBankReportService bankReportService
+            , ISqlRepository sqlRepository
+            , AccountsBankService accountsBankService
             )
         {
             _bankJournalService = bankJournalService;
             _bankReportService = bankReportService;
+            _sqlRepository = sqlRepository;
+            _accountsBankService = accountsBankService;
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult CurrentFundPosition()
+        {
+            return View("~/Areas/Banks/Views/CurrentFundPosition.cshtml");
         }
 
         [HttpGet, Authorize]
@@ -293,5 +308,80 @@ namespace Aplos.Areas.Banks.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_bankJournalService.GetAvilabeCustomerPaymentList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
         }
+
+
+        //Current Fund Position start//
+
+        [HttpGet]
+        public ActionResult GetList(DateTime PostingDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
+                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,0 PDCOverDue,0 PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
+						 ,0 Surplus_Short_AsOnDate,0 Short_SurplusInNext_7_Days
+						FROM (
+                        SELECT  'Bank' Category,BM.AccountTitle,BM.AccountNumber,CU.Code Currency,BM.LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
+                        , CC.CompanyCurrencyId
+                         
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
+						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
+                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'
+						--AND VD.BankMasterId='20199' 
+						AND V.PostingDate <= '" + PostingDate + @"' and VD.BankMasterId<>''
+                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount
+
+						UNION
+						SELECT 'Cash' Category,CM.UserName AccountTitle, '' AccountNumber,CU.Code Currency,0 LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
+                        , CC.CompanyCurrencyId
+                         
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+						LEFT JOIN MST.CashMaster CM ON CM.Id=VD.CashMasterId
+						LEFT JOIN SCS.Currency CU ON CU.Id=CM.CurrencyId
+                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.CashMasterId=VD.CashMasterId
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' 
+						--AND VD.BankMasterId='20199' 
+						AND V.PostingDate <= '" + PostingDate + @"' and VD.CashMasterId<>''
+                        GROUP BY CC.CompanyCurrencyId ,CM.UserName,CU.Code
+						 ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber";
+
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetCurrentFundPositionReport(DateTime PostingDate)
+        {
+            try
+            {
+                AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
+                string fileName = "";
+                fileName = _accountsBankService.CurrentFundPositionReport(PostingDate, "Post Date Cheque Report");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
+
+        //Current Fund Position end//
     }
 }
