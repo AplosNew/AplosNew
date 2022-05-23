@@ -485,6 +485,7 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         var str = data.FileName;
         var extention = str.substr(str.indexOf('.'));
         $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
+        $window.open($scope.dwonloadUrl, '_blank');
     };
 
 
