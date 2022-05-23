@@ -290,6 +290,7 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.AcceptanceId = data.data.AcceptanceId;
         $scope.AcceptanceDate = data.data.AcceptanceDate;
         $scope.PurchaseLCId = data.data.PurchaseLCId;
+        $scope.IsAccepptanceFirst = data.data.IsAccepptanceFirst;
         $scope.LCNo = data.data.LCNo;
         $scope.modelNew.PaymentMode = data.data.PaymentMode;
         $scope.ContractId = data.data.ContractNo;
@@ -489,8 +490,8 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
             //        newList.push(list[i]);
             //    }
             //}
-             if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {
-                 var has = false;
+            if (row.OtherName === 'Tax' && row.TrnType === 'Dr' && row.Dr > 0) {
+                var has = false;
                 for (var a = 0; a < baseService.arrayLength(newList); a++) {
                     if (row.OtherName === newList[a].OtherName && row.TrnType === newList[a].TrnType && row.GLGeneralInfoId === newList[a].GLGeneralInfoId && row.BudgetMasterId === newList[a].BudgetMasterId
                         && row.ActivityId === newList[a].ActivityId) {
@@ -561,20 +562,23 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
                 if (!has)
                     newList.push(list[i]);
             }
-             else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null  && $scope.modelNew.PaymentMode !== 'LC') {
+            else if (row.OtherName !== 'Svc' && row.OtherName === 'Vendor' && $scope.AcceptanceId === null && $scope.PurchaseLCId == null && $scope.modelNew.PaymentMode !== 'LC') {
                 newList.push(list[i]);
                 $scope.TotalPayableAmount += list[i].Amount;
             }
-            else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' && $scope.PurchaseLCId != null) {
+            else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' && $scope.PurchaseLCId != null && $scope.IsAccepptanceFirst == false) {
                 newList.push(list[i]);
                 $scope.TotalPayableAmount += list[i].Amount;
             }
-             else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' &&  $scope.modelNew.PaymentMode == 'LC') {
-                 newList.push(list[i]);
-                 $scope.TotalPayableAmount += list[i].Amount;
-             }
-            //else if (row.OtherName !== 'Svc' && row.OtherName === 'Acceptance' && $scope.AcceptanceId !== null)
-            //    newList.push(list[i]);
+            else if (row.OtherName !== 'Svc' && row.OtherName === 'LCBase' && $scope.modelNew.PaymentMode == 'LC') {
+                newList.push(list[i]);
+                $scope.TotalPayableAmount += list[i].Amount;
+            }
+            else if (row.OtherName === 'Acceptance' && $scope.AcceptanceId !== null && $scope.IsAccepptanceFirst == true) {
+                newList.push(list[i]);
+                $scope.TotalPayableAmount += list[i].Amount;
+            }
+                
             //else newList.push(list[i]);
         }
         distributeTCSAmount();
