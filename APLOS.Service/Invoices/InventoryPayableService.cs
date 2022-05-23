@@ -3687,7 +3687,7 @@ namespace Library.Service.Invoices
                         GLGeneralInfoId = voucherDetailVM.ClearingAccountGLId,
                         BudgetMasterId = voucherDetailVM.ClearingAccountBudgetMasterId,
                         ActivityId = voucherDetailVM.ClearingAccountActivityId,
-                        DrAmount = voucherVM.Amount,
+                        DrAmount = voucherDetailVM.TrnAmount,
                         CurrencyId = voucherVM.CurrencyId,
                         DocDate = purchaseDocAcceptance.AcceptanceDate,
                         DocRefNo = purchaseDocAcceptance.AcceptanceNo,

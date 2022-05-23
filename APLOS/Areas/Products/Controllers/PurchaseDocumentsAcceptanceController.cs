@@ -725,6 +725,15 @@ namespace Aplos.Areas.Products.Controllers
             return jsondata;
 
         }
+        [Authorize, HttpGet]
+        public JsonResult GetAcceptanceServiceDeailsListForPost(string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var jsondata = Json(_purchaseDocumentAcceptance.GetAcceptanceServiceDeailsListForPost(identity.PlantId, Id), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+        }
         [HttpPost]
         public JsonResult DocumentAcceptanceChargesPost(VoucherViewModel voucherRow, IEnumerable<PurchaseDocAcceptanceViewModel> voucherRows
             , IEnumerable<PurchaseDocAcceptanceChargesViewModel> AcceptancechargesList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList)
