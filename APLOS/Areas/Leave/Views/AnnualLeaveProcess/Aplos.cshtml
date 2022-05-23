@@ -3,6 +3,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="AnnualLeaveProcessing" role="tab" data-toggle="tab">Annual Leave Processing</a></li>
             <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="OpeningUpload" role="tab" data-toggle="tab">Opening Upload</a></li>
+            <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="RegularEncashment" role="tab" data-toggle="tab">Regular Encashment</a></li>
         </ul>
     </div>
     <div class="tab-content">
@@ -169,7 +170,6 @@
             </div>
         </div>
 
-
         <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
             <div class="row">                             
 
@@ -314,6 +314,138 @@
                 <confirm-modal></confirm-modal>
             </div>
         </div>
+
+       <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="row">
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Company<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="Company" ng-change="getPlants()" name="Company"
+                                                ng-options="item.Value as item.Text for item in CompanyList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Type<sup>*</sup> </label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <input id="LeaveRegTypeDropdown" ej-dropdownlist e-multiselectmode="visualmode"
+                                           e-datasource="LeaveTypeList" e-fields-value="Value"
+                                           e-fields-text="Text" e-width="100%" e-showcheckbox="true" />
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Plant<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="BudgetPlantId" name="Plant"
+                                                ng-change="getLeaveYear()"
+                                                ng-options="item.Value as item.Text for item in PlantList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">From Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <input type="text" name="FromDate" ng-model="LeaveRegModel.From" datepicker class="form-control" required >
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">Leave Year<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <div class="select-style">
+                                        <select class="form-control" ng-model="LeaveRegModel.CurrentLvYearId" name="CurrentYear"
+                                                ng-options="item.Value as item.Text for item in RegYearList">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" >
+                                <label class="col-sm-4 control-label" style="margin-top:10px;">To Date<sup>*</sup></label>
+                                <div class="col-sm-8 show-message" style="margin-top:10px;">
+                                    <input type="text" name="ToDate" ng-model="LeaveRegModel.To" datepicker class="form-control" required >
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div><br /></div>
+                        <br />
+                        <div><br/></div>
+
+                        <div class="common-btn" style="margin-top:25px;margin-right:20px;">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="getEmployeeData();" class="btn"><i class="glyphicon glyphicon-download"></i> Go </button></li>
+                                <li> <button ng-click="ClearThirdTabData();" class="btn"><i class="glyphicon glyphicon-repeat"></i> Clear </button></li>
+
+                            </ul>
+                        </div>
+
+                        <div id="EmpDataGrid" ej-grid e-datasource="EmployeeData" e-templaterefresh="refreshTemplate"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true"
+                             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true" e-allowscrolling="true" style="margin-top:30px;">
+                            <div e-columns>
+                                <div e-column e-field="EmpId" e-type="string" e-headertext="EmployeeId" e-width="80"></div>
+                                <div e-column e-field="EmployeeName" e-headertext="EmployeeName" e-width="80"></div>
+                                <div e-column e-field="Section" e-type="string" e-headertext="Section" e-width="60"></div>
+                                <div e-column e-field="Department" e-type="string" e-headertext="Department" e-width="60"></div>
+                                <div e-column e-field="SubSection" e-type="string" e-headertext="SubSection" e-width="60"></div>
+                                <div e-column e-field="LeaveType" e-type="string" e-headertext="LeaveType" e-width="60"></div>
+                                <div e-column e-visible="false" e-field="LeaveTypeId" e-type="string" e-headertext="LeaveTypeId" e-width="60"></div>
+                            </div>
+                        </div>                       
+                        
+                        <div class="col-xs-12 col-md-4">
+
+                            <div class="form-group" style="margin-top:20px;">
+                                <label class="col-sm-4 control-label">Max Encashment</label>
+                                <div class="col-sm-8">
+                                    <input type="text" onkeypress="return isNumber(event)" 
+                                           ng-model="LeaveRegModel.MaxEncash" class="form-control" maxlength="100">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div><br/><br/></div>
+                        <br />
+                        <div class="common-btn" style="margin-top:20px;
+                             margin-right:20px;">
+                            <ul class="list-inline text-right">
+                                <li> <button ng-click="ProcessRegEncash();" class="btn"><i class="glyphicon glyphicon-download"></i> Process </button></li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
    
     </div>
 </div>
