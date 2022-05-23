@@ -1949,7 +1949,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'success', 'soPoUp');
                         getSalesOrderList();
                         $scope.soModel.Id = response.data.Data.Id;
-                        //clearSO();
+                        
                         $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
                     }
@@ -2107,24 +2107,24 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.closeSOPopUp = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
-                $http({
-                    method: 'GET',
-                    url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
-                }).then(function successCallback(response) {
-                    $scope.costingSOConfirmList = [];
-                    $scope.costingSOConfirmList = response.data;
-                    if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[0].Id)) {
-                        ShowResult("Please do SO Costing Confirmation.", 'failure', 'soPoUp');
-                    }
-                    else {
-                        angular.element(document.querySelector('#soPoUp')).modal('hide');
-                    }
-                });
-            } else {
-                angular.element(document.querySelector('#soPoUp')).modal('hide');
-            }
-
+            //if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+            //    $http({
+            //        method: 'GET',
+            //        url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
+            //    }).then(function successCallback(response) {
+            //        $scope.costingSOConfirmList = [];
+            //        $scope.costingSOConfirmList = response.data;
+            //        if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[0].Id)) {
+            //            ShowResult("Please do SO Costing Confirmation.", 'failure', 'soPoUp');
+            //        }
+            //        else {
+            //            angular.element(document.querySelector('#soPoUp')).modal('hide');
+            //        }
+            //    });
+            //} else {
+            //    angular.element(document.querySelector('#soPoUp')).modal('hide');
+            //}
+            angular.element(document.querySelector('#soPoUp')).modal('hide');
 
         } catch (e) {
             ShowResult(e, 'failure', 'soPoUp');
@@ -3591,6 +3591,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 ShowResult(response.data.Message, 'success');
                 $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
                 getSalesOrderList();
+                clearSO();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
