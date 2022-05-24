@@ -1,7 +1,7 @@
 ﻿'use strict';
 CurrentFundPositionController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function CurrentFundPositionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'Current Fund Status Reports';
+    $rootScope.title = 'Current Fund Position Report';
     $scope.ModelList = [];
     $scope.path = 'Banks/BankJournal/';
     $scope.downloadgriddataUrlPath = 'Banks/CheckManagement/DownloadUsingFullPath';

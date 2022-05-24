@@ -1328,15 +1328,15 @@ namespace Library.Accounting.Accounts
                     sheet[ROW, ColBank_CashName].Text = data.Rows[i]["Bank_CashName"].ToString();
                     sheet[ROW, ColAccountNumber].Text = data.Rows[i]["AccountNumber"].ToString();
                     sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-                    sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
-                    sheet[ROW, ColLimitAmount].Text = data.Rows[i]["LimitAmount"].ToString();
-                    sheet[ROW, ColTotalAvailableAmount].Text = data.Rows[i]["TotalAvailableAmount"].ToString();
-                    sheet[ROW, ColPDCOverDue].Text = data.Rows[i]["PDCOverDue"].ToString();
-                    sheet[ROW, ColPDCInNext_7_Days].Text = data.Rows[i]["PDCInNext_7_Days"].ToString();
-                    sheet[ROW, ColPaymentOverdue].Text = data.Rows[i]["PaymentOverdue"].ToString();
-                    sheet[ROW, ColPaymentOverdueInNext_7_Days].Text = data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString();
-                    sheet[ROW, ColSurplus_Short_AsOnDate].Text = data.Rows[i]["Surplus_Short_AsOnDate"].ToString();
-                    sheet[ROW, ColShort_SurplusInNext_7_Days].Text = data.Rows[i]["Short_SurplusInNext_7_Days"].ToString();
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                    sheet[ROW, ColLimitAmount].Number = clsStaticInfo.dbl(data.Rows[i]["LimitAmount"].ToString());
+                    sheet[ROW, ColTotalAvailableAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalAvailableAmount"].ToString());
+                    sheet[ROW, ColPDCOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["PDCOverDue"].ToString());
+                    sheet[ROW, ColPDCInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PDCInNext_7_Days"].ToString());
+                    sheet[ROW, ColPaymentOverdue].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdue"].ToString());
+                    sheet[ROW, ColPaymentOverdueInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString());
+                    sheet[ROW, ColSurplus_Short_AsOnDate].Number = clsStaticInfo.dbl(data.Rows[i]["Surplus_Short_AsOnDate"].ToString());
+                    sheet[ROW, ColShort_SurplusInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["Short_SurplusInNext_7_Days"].ToString());
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remark"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);

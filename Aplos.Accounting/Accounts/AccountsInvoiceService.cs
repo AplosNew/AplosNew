@@ -1,16 +1,23 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Vouchers;
 using Library.Service.Enums;
+using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.ViewModel.OrderManagements;
+using OTSBD;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Library.Accounting.Accounts
@@ -1721,6 +1728,436 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                     Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
+        }
+
+
+        public IWorkbook MultiVendorPaymentReportSheet(out string reportFileName,string mpdId)
+        {
+            var excelEngine = new ExcelEngine();
+            var reportUtility = new ReportUtility();
+            var workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2013;
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Multi Vendor Payment Report";
+
+            var dsLocal = MultiVendorPaymentSQL(mpdId);
+            var dsDetail = MultiVendorPaymentDetailSQL(mpdId);
+            //var _CurrencyId = dsLocal.Rows[0]["CurrencyId"].ToString();
+            //var plCurrencyId = dsLocal.Rows[0]["ParallelCurrencyId"].ToString();
+            //var trnCurrency = dsLocal.Rows[0]["TrnCurrency"].ToString();
+            //var plCurrencyCode = dsLocal.Rows[0]["CurrencyCode"].ToString();
+            //var dvNarration = new DataView(dsLocal)
+            //{
+            //    RowFilter = "Narration IS NOT NULL"
+            //};
+            //var dtNarration = dvNarration.ToTable(true, "Narration");
+            //if (dsLocal.Rows.Count == 0)
+            //    throw new Exception("No Data Found!");
+            int row = 5;
+
+
+            #region Header
+
+            reportUtility.SetMasterHeaderText(ref sheet, 5, 1, "Entry Date");
+            reportUtility.SetText(ref sheet, 5, 2, dsLocal.Rows[0]["EntryDate"].ToString());
+            sheet.Range[5, 2, 5, 3].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, 5, 5, "Doc Ref");
+            reportUtility.SetText(ref sheet, 5, 6, dsLocal.Rows[0]["InvoiceNo"].ToString());
+            sheet.Range[5, 6, 5, 7].Merge();
+
+            reportUtility.SetMasterHeaderText(ref sheet, 6, 1, "Voucher Type");
+            reportUtility.SetText(ref sheet, 6, 2, dsLocal.Rows[0]["VoucherType"].ToString());
+            sheet.Range[6, 2, 6, 3].Merge();
+
+            reportUtility.SetMasterHeaderText(ref sheet, 6, 5, "Payment Source");
+            reportUtility.SetText(ref sheet, 6, 6, dsLocal.Rows[0]["PaymentSource"].ToString());
+            sheet.Range[6, 6, 6, 7].Merge();
+
+            reportUtility.SetMasterHeaderText(ref sheet, 7, 1, "Currency");
+            sheet.Range[7, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            reportUtility.SetText(ref sheet, 7, 2, dsLocal.Rows[0]["Currency"].ToString());
+            sheet.Range[7, 2, 7, 3].Merge();
+
+            reportUtility.SetMasterHeaderText(ref sheet, 7, 5, "Narration");
+            sheet.Range[7, 5].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            reportUtility.SetText(ref sheet, 7, 6, dsLocal.Rows[0]["Narration"].ToString());
+            sheet.Range[7, 6, 7, 7].Merge();
+
+
+            #endregion Header
+
+            reportUtility.SetMasterHeaderText(ref sheet, 9, 1, "Summary");
+            sheet.Range[9, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[9, 1].CellStyle.Font.Bold = true;
+            sheet.Range[9, 1, 9, 1].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[9, 1, 9, 1].CellStyle.Font.Color = ExcelKnownColors.White;
+
+            int ROW2 = 10; int COL2 = 1;
+
+            #region columns
+            sheet[ROW2, COL2].Text = "Payment No";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPaymentNo = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Party";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPartyName = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Bank";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColBank = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Due Up To Date";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColDueUpToDate = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Tentative Date";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColTentativeDate = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Amount";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColAmount = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Park Status";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColParkStatus = COL2;
+
+            #endregion columns
+
+            int endCol2 = COL2;
+            sheet.Range[ROW2, 1, ROW2, endCol2].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW2, 1, ROW2, endCol2].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW2, 1, ROW2, endCol2].CellStyle.Font.Bold = true;
+            sheet.Range[ROW2, 1, ROW2, endCol2].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW2, 1, ROW2, endCol2].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW2, 1, ROW2, endCol2].BorderAround(ExcelLineStyle.Hair);
+
+            ROW2++;
+
+            //int startRow = ROW;
+
+            for (int i = 0; i < dsDetail.Rows.Count; i++)
+            {
+                sheet[ROW2, ColPaymentNo].Text = dsDetail.Rows[i]["Id"].ToString();
+                sheet[ROW2, ColPartyName].Text = dsDetail.Rows[i]["PartyName"].ToString();
+                sheet[ROW2, ColBank].Text = dsDetail.Rows[i]["AccountTitle"].ToString();
+                sheet[ROW2, ColDueUpToDate].Text = dsDetail.Rows[i]["DueUpToDate"].ToString();
+                sheet[ROW2, ColTentativeDate].Text = dsDetail.Rows[i]["TentativeDate"].ToString();
+                sheet[ROW2, ColAmount].Number = clsStaticInfo.dbl(dsDetail.Rows[i]["Amount"].ToString());
+                sheet[ROW2, ColParkStatus].Text = dsDetail.Rows[i]["IsPark"].ToString();
+
+                sheet.Range[ROW2, 1, ROW2, endCol2].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW2, 1, ROW2, endCol2].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW2, 1, ROW2, endCol2].CellStyle.Font.Size = 8f;
+                ROW2++;
+
+            }
+
+
+            // Set report Name
+            reportFileName = "Multi Vendor Payment Report.xlx";
+
+            int ROW3 = ROW2 + 2; int COL3 = 1;
+            reportUtility.SetMasterHeaderText(ref sheet, ROW3, COL3, "Deatils");
+            sheet.Range[ROW3, COL3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[ROW3, COL3].CellStyle.Font.Bold = true;
+            sheet.Range[ROW3, COL3, ROW3, COL3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW3, COL3, ROW3, COL3].CellStyle.Font.Color = ExcelKnownColors.White;
+
+            int colGL = 1;
+
+            int col = 0;
+            row = 12;
+
+            var summerCol = col - 1;
+           
+            row = 13;
+            var startRow = row;
+
+            //int ROW = 9; int COL = 1;
+            int ROW = ROW2 + 3; int COL = 1;
+
+            #region columns
+            sheet[ROW, COL].Text = "Multiple Payment Detail No";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColId = COL;
+            COL++;
+
+            //sheet[ROW, COL].Text = "Account Title";
+            //sheet[ROW, COL].ColumnWidth = 16;
+            //int ColAccountTitle = COL;
+            //COL++;
+
+            sheet[ROW, COL].Text = "Party";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColParty = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Entry Date";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColEntryDate = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Voucher No";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColVoucherNo = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "InvoiceNo";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColInvoiceNo = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Invoice Date";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColInvoiceDate = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Payment Amount";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColPaymentAmount = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Invoice Amount";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColInvoiceAmount = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Setoff";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColSetoff = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Balance";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColBalance = COL;
+
+            #endregion columns
+
+            int endCol = COL;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+            ROW++;
+
+            //int startRow = ROW;
+
+            for (int i = 0; i < dsLocal.Rows.Count; i++)
+            {
+                sheet[ROW, ColId].Text = dsLocal.Rows[i]["Id"].ToString();
+                //sheet[ROW, ColAccountTitle].Text = dsLocal.Rows[i]["AccountTitle"].ToString();
+                sheet[ROW, ColParty].Text = dsLocal.Rows[i]["PartyName"].ToString();
+                sheet[ROW, ColEntryDate].Text = dsLocal.Rows[i]["EntryDate"].ToString();
+                sheet[ROW, ColVoucherNo].Text = dsLocal.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, ColInvoiceNo].Text = dsLocal.Rows[i]["InvoiceNo"].ToString();
+                sheet[ROW, ColInvoiceDate].Text = dsLocal.Rows[i]["InvoiceDate"].ToString();
+                sheet[ROW, ColPaymentAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["PaymentAmount"].ToString());
+                sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["InvoiceAmount"].ToString());
+                sheet[ROW, ColSetoff].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Setoff"].ToString());
+                sheet[ROW, ColBalance].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Balance"].ToString());
+
+                sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                ROW++;
+
+            }
+
+            #region sumCalc
+            var lastRow = ROW;
+
+            //reportUtility.SetText(ref sheet, lastRow, 1, "Total:", true);
+            //sheet.Range[reportUtility.GetColumnNameForXls(1) + lastRow + ":" + reportUtility.GetColumnNameForXls(ColInvoiceDate) + lastRow].Merge();
+
+
+            //ColPaymentAmount++;
+            //    sheet.Range[lastRow, ColPaymentAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColPaymentAmount) + startRow + ":" + reportUtility.GetColumnNameForXls(ColPaymentAmount) + (lastRow - 1) + ")";
+            //    sheet.Range[lastRow, ColPaymentAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            //    sheet.Range[lastRow, ColPaymentAmount].CellStyle.Font.Bold = true;
+            //    sheet.Range[lastRow, ColPaymentAmount].BorderAround(ExcelLineStyle.Hair);
+
+            #endregion sumCalc
+
+            //sheet.Range[13, 1, lastRow, colLast].BorderInside(ExcelLineStyle.Hair);
+            //sheet.Range[13, 1, lastRow, colLast].BorderAround(ExcelLineStyle.Hair);
+
+            #region InWord
+
+            //var _amountValue = reportUtility.InWord(vAmount, _CurrencyId);
+            //var _amount = reportUtility.InWord(_Total_Amount, plCurrencyId);
+            row++;
+
+            //reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
+
+            //if (_CurrencyId != plCurrencyId)
+            //{
+            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amountValue;
+            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+            //    row++;
+            //}
+            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amount;
+            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+
+            #endregion InWord
+
+
+
+
+            //#region sumCalc
+            //var lastRow = ROW2;
+
+            //reportUtility.SetText(ref sheet, lastRow, 1, "Total:", true);
+            //sheet.Range[reportUtility.GetColumnNameForXls(1) + lastRow + ":" + reportUtility.GetColumnNameForXls(summerCol) + lastRow].Merge();
+            
+            //    //for (int i = 0; i < 4; i++)
+            //    //{
+            //        //summerCol++;
+            //        //sheet.Range[lastRow, summerCol].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(summerCol) + startRow + ":" + reportUtility.GetColumnNameForXls(summerCol) + (lastRow - 1) + ")";
+            //        //sheet.Range[lastRow, summerCol].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+            //        //sheet.Range[lastRow, summerCol].CellStyle.Font.Bold = true;
+            //        //sheet.Range[lastRow, summerCol].BorderAround(ExcelLineStyle.Hair);
+            //    //}
+
+            //#endregion sumCalc
+
+            ////sheet.Range[13, 1, lastRow, colLast].BorderInside(ExcelLineStyle.Hair);
+            ////sheet.Range[13, 1, lastRow, colLast].BorderAround(ExcelLineStyle.Hair);
+
+            //#region InWord
+
+            ////var _amountValue = reportUtility.InWord(vAmount, _CurrencyId);
+            ////var _amount = reportUtility.InWord(_Total_Amount, plCurrencyId);
+            //row++;
+
+            ////reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
+
+            ////if (_CurrencyId != plCurrencyId)
+            ////{
+            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amountValue;
+            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+            ////    row++;
+            ////}
+            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amount;
+            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
+
+            //#endregion InWord
+
+            row = row + 4;
+
+            #region Signature
+
+            //reportUtility.SetSignatureText(ref sheet, row - 1, 1, dsDetail.Rows[0]["AddedBy"].ToString());
+            //sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            //reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
+
+
+
+            //reportUtility.SetSignatureText(ref sheet, row - 1, 4, dsDetail.Rows[0]["PostedBy"].ToString());
+            //sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            //reportUtility.SetTextMiddle(ref sheet, row, 4, "Checked By", true);
+
+
+
+            //sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            //reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
+
+            #endregion Signature
+
+            sheet.UsedRange.AutofitColumns();
+            sheet[row, 2].ColumnWidth = 22;
+            sheet[row, 4].ColumnWidth = 15;
+
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+             reportUtility.CompanyPlantHeader(ref sheet, endCol, "Multi Vendor Payment", identity.CompanyId, identity.PlantName, null);
+
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            //sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            return workbook;
+        }
+
+        public DataTable MultiVendorPaymentSQL(string mpdId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId
+							,FORMAT(I.AddedDate,'dd-MMM-yyyy') EntryDate
+							,I.DocRefNo InvoiceNo,V.VoucherNo,Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') InvoiceDate,VT.UserName VoucherType,I.PaymentSource,C.Name Currency,I.Narration
+							,MPD.Amount PaymentAmount,I.Amount InvoiceAmount,I.WrittenOffAmount Setoff,Balance=(I.Amount-I.WrittenOffAmount)
+							FROM TRN.MultiplePaymentDetail MPD 
+							LEFT JOIN TRN.Invoice I ON I.Id=MPD.InvoiceId
+							left join TRN.Voucher V on V.Id=I.VoucherId
+							LEFT JOIN SCS.Currency C ON C.Id=I.CurrencyId
+							LEFT JOIN SCS.VoucherType VT ON VT.Id=I.VoucherTypeId
+							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
+							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
+                            where  MP.PlantId='" + identity.PlantId + @"' AND MPD.MultiplePaymentId='" + mpdId + @"'
+                            order by P.UserName";
+
+               return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
+        }
+
+        public DataTable MultiVendorPaymentDetailSQL(string mpdId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var strSQL = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
+                            ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+							FROM TRN.MultiplePaymentDetail MPD 
+							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
+							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
+							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
+							where  MP.PlantId='" + identity.PlantId + @"' AND MPD.MultiplePaymentId='" + mpdId + @"'
+                            group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
+                            , MP.TentativeDate,MPD.MultiplePaymentId
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId";
+
+                return _sqlRepository.GetDataTable(strSQL);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+
         }
     }
 }
