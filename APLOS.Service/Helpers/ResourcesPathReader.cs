@@ -151,6 +151,19 @@ namespace Library.Service.Helpers
 				throw new CustomException(ServiceResources.FilePathNotFound);
 			}
 		}
+
+		public static string GetInvoiceDocumentPath()
+		{
+			try
+			{
+				return ResolveFilePath(GetVirtualDirectory() + "/InvoiceDocument/");
+			}
+			catch
+			{
+				throw new CustomException(ServiceResources.FilePathNotFound);
+			}
+		}
+
 		public static string GetVASPath()
 		{
 			try

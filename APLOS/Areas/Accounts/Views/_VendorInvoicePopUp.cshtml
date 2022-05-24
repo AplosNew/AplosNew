@@ -53,6 +53,7 @@
                                 <th>Contract No</th>
                                 <th>Customer</th>
                                 <th>Master LCNo</th>
+                                <th>File Name</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,6 +83,7 @@
                                 <td>{{x.ContractNo}}</td>
                                 <td>{{x.Customer}}</td>
                                 <td>{{x.MasterLCNo}}</td>
+                                <td><label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label></td>
                             </tr>
                         </tbody>
                     </table>
