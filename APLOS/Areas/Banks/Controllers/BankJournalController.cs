@@ -38,7 +38,7 @@ namespace Aplos.Areas.Banks.Controllers
             _accountsBankService = accountsBankService;
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult CurrentFundPosition()
         {
             return View("~/Areas/Banks/Views/CurrentFundPosition.cshtml");
