@@ -1966,8 +1966,6 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[row, 2].ColumnWidth = 22;
             sheet[row, 4].ColumnWidth = 15;
 
-
-
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.CellStyle.Font.Size = 8;
              reportUtility.CompanyPlantHeader(ref sheet, endCol, "Multi Vendor Payment", identity.CompanyId, identity.PlantName, null);
@@ -1984,7 +1982,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
         public DataTable MultiVendorPaymentSQL(string mpdId)
         {
             try
-            {
+            { 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId
 							,FORMAT(I.AddedDate,'dd-MMM-yyyy') EntryDate
