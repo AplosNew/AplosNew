@@ -86,9 +86,15 @@
         <div class="form-group">
             <label class="col-sm-4 col-xs-4 control-label" title="Bank" tooltip>Bank<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" name="AccountTitle" ng-model="voucher.AccountTitle" class="form-control" readonly>
+                <div class="input-group">
+                    <input type="text" name="AccountTitle" ng-model="voucher.AccountTitle" class="form-control" readonly>
+                    <span class="input-group-btn">
+                        <button ng-click="showBankPopUp(voucher.EntityId);" class="btn single-small-btn" tabindex="23"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
             </div>
-        </div>
+            </div>
+
         <div id="div_TransactionType" class="form-group" show-errors>
             <label class="col-sm-4 control-label">Loan Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -128,11 +134,11 @@
             </div>
         </div>
         @*<div class="form-group" show-errors>
-                <label class="col-sm-4 control-label">Currency Rate<sup>*</sup></label>
-                <div class="col-sm-8 show-message">
-                    <input type="text" maxlength="50" id="Rate" name="Rate" disabled ng-model="voucher.CompanyCurrencyRate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4">
-                </div>
-            </div>*@
+            <label class="col-sm-4 control-label">Currency Rate<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" maxlength="50" id="Rate" name="Rate" disabled ng-model="voucher.CompanyCurrencyRate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" class="form-control text-right" tabindex="6" required autocomplete="off" n-decimals="4">
+            </div>
+        </div>*@
 
     </div>
     <div class="col-xs-12 col-sm-4 col-md-4">

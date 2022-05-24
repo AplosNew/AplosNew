@@ -688,7 +688,8 @@ namespace Library.Service.Finances
                     FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
                     TaxYearId = voucherVM.TaxYearId,
                     TaxYearPeriodId = voucherVM.TaxYearPeriodId,
-                    IsPark = voucherVM.IsPark
+                    IsPark = voucherVM.IsPark,
+                    TransactionType = voucherVM.TransactionType
                 };
                 var financing = _financingService.FindFinancing(voucherVM.FinancingId);
                 if (voucherVM.Amount > 0)

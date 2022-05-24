@@ -340,6 +340,9 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.objectData = obj.data;
         $scope.ModelNew = Object.assign({}, $scope.objectData);
         $scope.ModelNew.FormulaDescription = $scope.ModelNew.Formula;
+        $scope.FormulaArray = $scope.ModelNew.Formula.split(" ");
+        $scope.FormulaIdArray = $scope.ModelNew.FormulaId.split(" ");
+
         $scope.GetOrderLineCostingItemCbo();
         $scope.GetCostingTypeComponent();
         var value = null;

@@ -1,6 +1,6 @@
 ﻿"use strict";
-expenseBookingDepartmentApprovalPotalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function expenseBookingDepartmentApprovalPotalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+expenseBookingDepartmentApprovalPotalController.$inject = ["cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller","$window"];
+function expenseBookingDepartmentApprovalPotalController(cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Expense Booking Approval";
     $scope.Action = "Save";
     $scope.isPartyListing = false;
@@ -436,5 +436,13 @@ function expenseBookingDepartmentApprovalPotalController(cboService, commonMessa
         return $scope.tab === tabNum;
     };
 
+    $scope.dwonloadUrl = null;
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
+        $window.open($scope.dwonloadUrl, '_blank');
+    };
 
 }

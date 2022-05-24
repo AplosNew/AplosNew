@@ -15,8 +15,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller("partyBaseController", { $scope: $scope, $http: $http });
     $scope.isBankAmount = false;
-    $controller("bankBaseController", { $scope: $scope, $http: $http });
-    $controller("cashBaseController", { $scope: $scope, $http: $http });
+    //$controller("bankBaseController", { $scope: $scope, $http: $http });
+    //$controller("cashBaseController", { $scope: $scope, $http: $http });
     $scope.url = "Commercial/AutoLoan";
     $scope.postUrl = "Accounts/Loan/PostLoan";
     $scope.deleteUrl = "Accounts/Loan/DeleteAutoloanPost";
@@ -488,7 +488,52 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         location.href = "accounts/Loan/LoanReport?voucherId=" + voucherId;
     };
 
+    $scope.bankParameters = {
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        sort: "BankName, BankBranchName, AccountTitle",
+        searchBy: "AccountNumber",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.showBankPopUp = function (entityId) {
+        if (entityId === undefined || entityId === "undefined") {
+            entityId = null;
+        }
+        $scope.getBankList = function (pageno) {
+            $scope.url = "Banks/BankMaster/GetBankMasterList?bankACType=Loan&&entityId=" + entityId;
+            baseService.paginationBase($scope.url, pageno, $scope.bankParameters)
+                .then(function (result) {
+                    $scope.bankList = result.Rows;
+                    $scope.bankParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, "failure");
+                }).finally(function () {
+                });
+        };
+        $scope.getBankList();
+        angular.element(document.querySelector("#bankPopUp")).modal("show");
+    };
+    $scope.selectBankPopUp = function (index, id) {
+        $scope.bankIndex = index;
+    };
+    $scope.closeBankPopUp = function () {
+        if ($scope.bankIndex !== -1) {
+            var bank = $scope.bankList[$scope.bankIndex];
 
+            $scope.voucher.AccountTitle = bank.AccountTitle;
+            $scope.voucher.BankMasterId = bank.BankMasterId;
+        }
+        $scope.hideBankPopUp();
+    };
+    $scope.hideBankPopUp = function () {
+        angular.element(document.querySelector("#bankPopUp")).modal("hide");
+        $scope.bankIndex = -1;
+        $scope.bankSelected = null;
+    };
     $scope.loanRepaymentSchedulelist = [];
 
     $scope.LoadRepamentDetail = function () {

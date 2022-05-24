@@ -915,7 +915,7 @@ namespace Library.Accounting.Accounts
                                         left join dbo.Contract XC ON XC.Id=XLC.ContractId
 										LEFT JOIN dbo.MasterLC MLC ON MLC.Id=XC.MasterLCId
 										LEFT JOIN TRN.Voucher XV ON XV.Id=XPDA.VoucherId
-										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										where XV.Id=V.Id   for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),IV.FileName
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id
 									    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=IV.PartyPlantId
@@ -967,7 +967,7 @@ namespace Library.Accounting.Accounts
 											INNER JOin TRN.VoucherDetail xPDAMAP on xpo.id=xPDAMAP.ActivityId
 											WHERE VD.ActivityId!=xPDAMAP.ActivityId and xPDAMAP.VoucherId=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 										,'&amp;','&'), 'amp;', '')
-                                        ,NULL AcceptanceNo ,NULL LCRef,NULL ContractNo,NULL Customer, NULL MasterLCNo
+                                        ,NULL AcceptanceNo ,NULL LCRef,NULL ContractNo,NULL Customer, NULL MasterLCNo,IV.FileName
 
                                         FROM [TRN].[InvoiceDetail] AS IVD
                                         LEFT JOIN [TRN].[Invoice] AS IV ON IVD.InvoiceId=IV.Id

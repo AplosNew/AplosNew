@@ -38,6 +38,7 @@ virtualPath.JobWorkTransformationContract = virtualPath.ROOT_FOLDRR + '/JobWork/
 virtualPath.ProductionBulletinImage = virtualPath.ROOT_FOLDRR + '/ProductionBulletin/';
 virtualPath.BulletinTemplateImage = virtualPath.ROOT_FOLDRR + '/BulletinTemplate/';
 virtualPath.OSTransformationPO = virtualPath.ROOT_FOLDRR + '/JobWorkPurchaseOrder';
+virtualPath.InvoiceDocument = virtualPath.ROOT_FOLDRR + '/InvoiceDocument';
 
 
 function getCookie(cname) {
