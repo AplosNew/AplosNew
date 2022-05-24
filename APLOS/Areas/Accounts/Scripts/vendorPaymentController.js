@@ -1,6 +1,6 @@
 ﻿"use strict";
-vendorPaymentController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller"];
-function vendorPaymentController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller) {
+vendorPaymentController.$inject = ["bankService", "accountService", "cboService", "commonMessage", "$scope", "$rootScope", "baseService", "$http", "$filter", "$controller","$window"];
+function vendorPaymentController(bankService, accountService, cboService, commonMessage, $scope, $rootScope, baseService, $http, $filter, $controller, $window) {
     $rootScope.title = "Payment";
     $scope.Action = "Save";
     $scope.index = -1;
@@ -572,6 +572,44 @@ function vendorPaymentController(bankService, accountService, cboService, common
         });
         $scope.calBaseAmount();
     };
+
+    //#region File Upload
+    $scope.ItemId = null;
+    $scope.onBeginUpload = function (args) {
+        try {
+            if (angular.isUndefinedOrNull(args.model.Data))
+                throw 'Please select/save the order first'
+            $scope.ItemId = args.model.Data;
+            args.data = args.model.Data;
+        } catch (e) {
+
+            args.cancel = true;
+            ShowResult(e, 'Error');
+        }
+
+    }
+    $scope.uploadUrl = "Accounts/Invoice/SaveDefault";
+    $scope.fileselect = function (e) {
+
+    }
+    $scope.errorPicUpload = function (e) {
+        if (angular.isUndefinedOrNull($scope.ItemId))
+            ShowResult('Please select/save the order first', 'Error');
+        else
+            ShowResult("The selected file size is too large. Please select a file less than " + Math.round(e.model.fileSize / (1024 * 1024)) + "MB", 'failure');
+    }
+
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.InvoiceDocument + '/' + data.InvoiceId + extention;
+      //  $window.open($scope.dwonloadUrl, '_blank');
+    };
+
+    //#endregion
+
+
     $scope.BaseAmountList = [];
     $scope.BaseAmountObj = {
         Type: null,
