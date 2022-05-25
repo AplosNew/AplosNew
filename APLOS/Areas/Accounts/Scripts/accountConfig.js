@@ -342,6 +342,10 @@ function accountConfig($routeProvider) {
             templateUrl: "Accounts/Invoice/VendorPayment",
             controller: "vendorPaymentController"
         })
+        .when("/vendor-pay-app", {
+            templateUrl: "Accounts/Invoice/VendorPaymentApproval",
+            controller: "vendorPaymentApprovalController"
+        })
         .when("/tax-payment", {
             templateUrl: "Accounts/InvoiceTax/TaxPayment",
             controller: "taxPaymentController"

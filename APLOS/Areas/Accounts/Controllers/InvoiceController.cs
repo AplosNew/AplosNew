@@ -9,11 +9,13 @@ using Library.Data.Sql;
 using Library.Model.Accounts;
 using Library.Model.Commercial;
 using Library.Model.Enums;
+using Library.Model.Invoices;
 using Library.Model.Payments;
 using Library.Security.Core;
 using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Helpers;
 using Library.Service.Invoices;
 using Library.Service.Organizations;
@@ -30,6 +32,7 @@ using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
+using OTSBD;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -581,12 +584,46 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/VendorPayment.cshtml");
         }
 
+        public ActionResult VendorPaymentApproval()
+        {
+            return View("~/Areas/Accounts/Views/VendorPaymentApproval.cshtml");
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetVendorPaymentList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
         }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetVendorPaymentParkedNonPostedList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_invoiceWriteOffService.GetVendorPaymentParkedNonPostedList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult ApproveVendorPayment(InvoiceWriteOff invoiceWriteOff)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            OTSBD.IdentityParameter para = new OTSBD.IdentityParameter
+            {
+                CompanyGroupId = identity.CompanyGroupId,
+                CompanyId = identity.CompanyId,
+                PlantId = identity.PlantId,
+                AddedBy = identity.Name,
+                AddedDate = DateTime.Now,
+                AddedFromIP = identity.IPAddress,
+                UpdatedBy = identity.Name,
+                UpdatedDate = DateTime.Now,
+                UpdatedFromIP = identity.IPAddress
+            };
+
+            _invoiceWriteOffService.ApproveVendorPayment(invoiceWriteOff, para);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -1515,7 +1552,7 @@ namespace Aplos.Areas.Accounts.Controllers
                         dsLocal.Tables[0].Rows[0].EndEdit();
 
                         file.SaveAs(destinationPath);
-                        clsStaticInfo info = new clsStaticInfo();
+                        OTSBD.clsStaticInfo info = new OTSBD.clsStaticInfo();
                         info.SaveDataSets(dsLocal);
 
 
