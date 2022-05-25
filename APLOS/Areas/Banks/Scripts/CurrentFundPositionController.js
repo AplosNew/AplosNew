@@ -1,8 +1,7 @@
 ﻿'use strict';
 CurrentFundPositionController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function CurrentFundPositionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'Current Fund Status Reports';
-    $scope.ModelList = [];
+    $rootScope.title = 'Current Fund Position Report';
     $scope.path = 'Banks/BankJournal/';
     $scope.downloadgriddataUrlPath = 'Banks/CheckManagement/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
@@ -10,14 +9,14 @@ function CurrentFundPositionController(cboService, commonMessage, $scope, $rootS
     $scope.ModelList = [];
     $scope.getData = function () {
         $scope.ModelList = [];
-        $http.get('Banks/BankJournal/getlist?PostingDate=' + $filter("dateFiltering")(Date.now()))
+        $http.get('Banks/BankJournal/getCurrentFundPositionlist?PostingDate=' + $filter("dateFiltering")(Date.now()))
             .then(function (response) {
                 $scope.ModelList = response.data;
             });
     };
     $scope.getData();
 
-    $scope.Report = function () {
+    $scope.ReportCurrentFundPosition = function () {
         try {
             $scope.fileName = "Current Fund Position.xlsx";
             $http({

@@ -449,35 +449,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
             }
 
             string sqlRouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'";
-        //    string sqlStopageDownList = @" select re.EmployeeId,sp.Id,sp.UserName
-								//from EmployeeInformation ei 
-								//inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
-								//inner join [MST].[RouteStoppage] rs on re.DownRouteId=rs.RouteId 
-								//inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								//inner join [MST].[Route] r on r.Id=rs.RouteId
-								//where 
-								//r.UpOrDown='Down'  
-        //                        and ei.PlantId='" + identity.PlantId + @"' 
-        //                        AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
-								//order by re.EmployeeId";
-        //    List<Dictionary<string, string>> DownStopage;
-        //    var DTRouteDownList = _sqlRepository.GetDataCollection(sqlRouteDownList);
-
-        //    DataTable dtDownStopageList = _sqlRepository.GetDataTable(sqlStopageDownList);
-        //    for (int i = 0; i < data.Count; i++)
-        //    {
-        //        data[i]["RouteDownList"] = DTRouteDownList;
-        //        DownStopage = new List<Dictionary<string, string>>();
-        //        dtDownStopageList.DefaultView.RowFilter = "EmployeeId='" + data[i]["SystemID"].ToString() + "'";
-        //        for (int DUP = 0; DUP < dtDownStopageList.DefaultView.Count; DUP++)
-        //        {
-        //            Dictionary<string, string> _data = new Dictionary<string, string>();
-        //            _data.Add("Id", dtDownStopageList.DefaultView[DUP]["Id"].ToString());
-        //            _data.Add("UserName", dtDownStopageList.DefaultView[DUP]["UserName"].ToString());
-        //            DownStopage.Add(_data);
-        //        }
-        //        data[i]["StopageDownList"] = DownStopage;
-        //    }
+       
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
@@ -571,35 +543,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
             }
 
             string sqlUARouteDownList = @"select Id,UserName From [MST].[Route]	where CompanyId='" + identity.CompanyId + "' and PlantId='" + identity.PlantId + "'	and UpOrDown='Down' ";
-        //    string sqlUAStopageDownList = @" select re.EmployeeId,sp.Id,sp.UserName
-								//from EmployeeInformation ei 
-								//inner join [TRN].[RouteEmployee] re on re.EmployeeId=ei.SystemId
-								//inner join [MST].[RouteStoppage] rs on re.DownRouteId=rs.RouteId 
-								//inner join [HKP].[Stoppage] sp on sp.Id=rs.StoppageId 
-								//inner join [MST].[Route] r on r.Id=rs.RouteId
-								//where 
-								//r.UpOrDown='Down'  
-        //                        and ei.PlantId='" + identity.PlantId + @"' 
-        //                        AND ei.EmployeeStatus='Active'  And ei.CompanyId='" + identity.CompanyId + @"'
-								//order by re.EmployeeId";
-        //    List<Dictionary<string, string>> UADownStopage;
-        //    var DTRouteDownList = _sqlRepository.GetDataCollection(sqlUARouteDownList);
-
-        //    DataTable dtDownStopageList = _sqlRepository.GetDataTable(sqlUAStopageDownList);
-            //for (int i = 0; i < data.Count; i++)
-            //{
-            //    data[i]["UARouteDownList"] = DTRouteDownList;
-            //    UADownStopage = new List<Dictionary<string, string>>();
-            //    dtDownStopageList.DefaultView.RowFilter = "EmployeeId='" + data[i]["SystemID"].ToString() + "'";
-            //    for (int DUP = 0; DUP < dtDownStopageList.DefaultView.Count; DUP++)
-            //    {
-            //        Dictionary<string, string> _data = new Dictionary<string, string>();
-            //        _data.Add("Id", dtDownStopageList.DefaultView[DUP]["Id"].ToString());
-            //        _data.Add("UserName", dtDownStopageList.DefaultView[DUP]["UserName"].ToString());
-            //        UADownStopage.Add(_data);
-            //    }
-            //    data[i]["UAStopageDownList"] = UADownStopage;
-            //}
+       
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 

@@ -1195,7 +1195,7 @@ namespace Library.Accounting.Accounts
                             ,format(PDC.PostingDate,'dd-MMM-yyyy') PostingDate,PDC.POId,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
 							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
 							,format(PDC.DocDate,'dd-MMM-yyyy') DocDate,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,format(PDC.BaseDate,'dd-MMM-yyyy')BaseDate,PDC.Amount,PDC.Remarks
-                            from PostDepositCheque PDC
+                            from TRN.PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
 							left join SCS.Currency C on C.Id=PDC.CurrencyId
@@ -1283,25 +1283,25 @@ namespace Library.Accounting.Accounts
                 int ColPDCInNext_7_Days = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Payment Over Due";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPaymentOverdue = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Payment Over Due";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColPaymentOverdue = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Payment Over Due In Next 7 Days";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPaymentOverdueInNext_7_Days = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Payment Over Due In Next 7 Days";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColPaymentOverdueInNext_7_Days = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Surplus Short As On Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSurplus_Short_AsOnDate = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Surplus Short As On Date";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColSurplus_Short_AsOnDate = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Short Surplus In Next 7 Days";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColShort_SurplusInNext_7_Days = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Short Surplus In Next 7 Days";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColShort_SurplusInNext_7_Days = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -1328,15 +1328,15 @@ namespace Library.Accounting.Accounts
                     sheet[ROW, ColBank_CashName].Text = data.Rows[i]["Bank_CashName"].ToString();
                     sheet[ROW, ColAccountNumber].Text = data.Rows[i]["AccountNumber"].ToString();
                     sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-                    sheet[ROW, ColAmount].Text = data.Rows[i]["Amount"].ToString();
-                    sheet[ROW, ColLimitAmount].Text = data.Rows[i]["LimitAmount"].ToString();
-                    sheet[ROW, ColTotalAvailableAmount].Text = data.Rows[i]["TotalAvailableAmount"].ToString();
-                    sheet[ROW, ColPDCOverDue].Text = data.Rows[i]["PDCOverDue"].ToString();
-                    sheet[ROW, ColPDCInNext_7_Days].Text = data.Rows[i]["PDCInNext_7_Days"].ToString();
-                    sheet[ROW, ColPaymentOverdue].Text = data.Rows[i]["PaymentOverdue"].ToString();
-                    sheet[ROW, ColPaymentOverdueInNext_7_Days].Text = data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString();
-                    sheet[ROW, ColSurplus_Short_AsOnDate].Text = data.Rows[i]["Surplus_Short_AsOnDate"].ToString();
-                    sheet[ROW, ColShort_SurplusInNext_7_Days].Text = data.Rows[i]["Short_SurplusInNext_7_Days"].ToString();
+                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
+                    sheet[ROW, ColLimitAmount].Number = clsStaticInfo.dbl(data.Rows[i]["LimitAmount"].ToString());
+                    sheet[ROW, ColTotalAvailableAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalAvailableAmount"].ToString());
+                    sheet[ROW, ColPDCOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["PDCOverDue"].ToString());
+                    sheet[ROW, ColPDCInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PDCInNext_7_Days"].ToString());
+                    //sheet[ROW, ColPaymentOverdue].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdue"].ToString());
+                    //sheet[ROW, ColPaymentOverdueInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString());
+                    //sheet[ROW, ColSurplus_Short_AsOnDate].Number = clsStaticInfo.dbl(data.Rows[i]["Surplus_Short_AsOnDate"].ToString());
+                    //sheet[ROW, ColShort_SurplusInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["Short_SurplusInNext_7_Days"].ToString());
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remark"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1401,15 +1401,18 @@ namespace Library.Accounting.Accounts
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string strSQL = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
-                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,0 PDCOverDue,0 PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
+                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,PDCOverDue,PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
 						 ,0 Surplus_Short_AsOnDate,0 Short_SurplusInNext_7_Days
 						FROM (
                         SELECT  'Bank' Category,BM.AccountTitle,BM.AccountNumber,CU.Code Currency,BM.LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
                         , CC.CompanyCurrencyId
-                         
+                         ,PDCOverDue=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<0 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
+                         ,PDCInNext_7_Days=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)>=0 AND DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<7 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
+						 
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
+						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
 						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
                         LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
                         LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -1421,12 +1424,12 @@ namespace Library.Accounting.Accounts
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'
 						--AND VD.BankMasterId='20199' 
 						AND V.PostingDate <= '" + PostingDate + @"' and VD.BankMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount
+                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount,PDC.PostingDate,VD.BankMasterId,PDC.Amount
 
 						UNION
 						SELECT 'Cash' Category,CM.UserName AccountTitle, '' AccountNumber,CU.Code Currency,0 LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
                         , CC.CompanyCurrencyId
-                         
+                         ,0 PDCOverDue,0PDCInNext_7_Days
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.CashMaster CM ON CM.Id=VD.CashMasterId
@@ -1442,7 +1445,7 @@ namespace Library.Accounting.Accounts
 						--AND VD.BankMasterId='20199' 
 						AND V.PostingDate <= '" + PostingDate + @"' and VD.CashMasterId<>''
                         GROUP BY CC.CompanyCurrencyId ,CM.UserName,CU.Code
-						 ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber";
+						  ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber,x.PDCOverDue,X.PDCInNext_7_Days";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }

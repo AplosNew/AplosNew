@@ -5,6 +5,7 @@ using Library.Model.Commercial;
 using Library.Model.Enums;
 using Library.Model.Invoices;
 using Library.Service.Core;
+using Library.Service.Extension;
 using Library.ViewModel.Accounts;
 using Library.ViewModel.Banks;
 using Library.ViewModel.Invoices;
@@ -35,10 +36,11 @@ namespace Library.Service.Invoices
             , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList, IEnumerable<VoucherDetailViewModel> glVMList);
 
         GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
-
+        GridModel GetVendorPaymentParkedNonPostedList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType);
         string InsertReceived(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList, IEnumerable<VoucherDetailCurrencyViewModel> voucherDetailCurrencyVMList);
 
         void Post(string invoiceWriteOffId);
+        void ApproveVendorPayment(InvoiceWriteOff invoiceWriteOff, OTSBD.IdentityParameter para);
         void PostInvoiceToAcceptance(string invoiceWriteOffId);
         string InsertCustomerInvoiceReceipt(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
                , IEnumerable<BankChargeViewModel> bankChargeDetailVMList, IEnumerable<InvoiceTaxViewModel> taxDetailVMList);

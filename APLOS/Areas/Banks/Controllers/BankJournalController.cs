@@ -38,7 +38,7 @@ namespace Aplos.Areas.Banks.Controllers
             _accountsBankService = accountsBankService;
         }
 
-        [HttpGet, Authorize]
+        [HttpGet]
         public ActionResult CurrentFundPosition()
         {
             return View("~/Areas/Banks/Views/CurrentFundPosition.cshtml");
@@ -313,19 +313,22 @@ namespace Aplos.Areas.Banks.Controllers
         //Current Fund Position start//
 
         [HttpGet]
-        public ActionResult GetList(DateTime PostingDate)
+        public ActionResult getCurrentFundPositionlist(DateTime PostingDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
-                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,0 PDCOverDue,0 PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
+                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,PDCOverDue,PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
 						 ,0 Surplus_Short_AsOnDate,0 Short_SurplusInNext_7_Days
 						FROM (
                         SELECT  'Bank' Category,BM.AccountTitle,BM.AccountNumber,CU.Code Currency,BM.LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
                         , CC.CompanyCurrencyId
-                         
+                         ,PDCOverDue=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<0 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
+                         ,PDCInNext_7_Days=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)>=0 AND DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<7 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
+						 
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
+						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
 						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
                         LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
                         LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
@@ -335,14 +338,13 @@ namespace Aplos.Areas.Banks.Controllers
                         ) AS CC ON CC.VoucherDetailId=VD.Id
                         
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'
-						--AND VD.BankMasterId='20199' 
 						AND V.PostingDate <= '" + PostingDate + @"' and VD.BankMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount
+                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount,PDC.PostingDate,VD.BankMasterId,PDC.Amount
 
 						UNION
 						SELECT 'Cash' Category,CM.UserName AccountTitle, '' AccountNumber,CU.Code Currency,0 LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
                         , CC.CompanyCurrencyId
-                         
+                         ,0 PDCOverDue,0PDCInNext_7_Days
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.CashMaster CM ON CM.Id=VD.CashMasterId
@@ -355,10 +357,9 @@ namespace Aplos.Areas.Banks.Controllers
                         ) AS CC ON CC.VoucherDetailId=VD.Id
                         
                         WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' 
-						--AND VD.BankMasterId='20199' 
 						AND V.PostingDate <= '" + PostingDate + @"' and VD.CashMasterId<>''
                         GROUP BY CC.CompanyCurrencyId ,CM.UserName,CU.Code
-						 ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber";
+						  ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber,x.PDCOverDue,X.PDCInNext_7_Days";
 
             var data = _sqlRepository.GetDataCollection(sql);
             return Json(data, JsonRequestBehavior.AllowGet);
