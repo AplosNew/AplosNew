@@ -1740,8 +1740,8 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Multi Vendor Payment Report";
 
-            var dsLocal = MultiVendorPaymentSQL(mpdId);
-            var dsDetail = MultiVendorPaymentDetailSQL(mpdId);
+            var dsLocal = MultiVendorPaymentDetailSQL(mpdId);
+            var dsSummary = MultiVendorPaymentSummarySQL(mpdId);
             
             int row = 5;
 
@@ -1818,6 +1818,21 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[ROW2, COL2].Text = "Park Status";
             sheet[ROW2, COL2].ColumnWidth = 16;
             int ColParkStatus = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "PartyTaxNo";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPartyTaxNo = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "PDC";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPDC = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Advance";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColAdvance = COL2;
 
             #endregion columns
 
@@ -1833,15 +1848,18 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
             //int startRow = ROW;
 
-            for (int i = 0; i < dsDetail.Rows.Count; i++)
+            for (int i = 0; i < dsSummary.Rows.Count; i++)
             {
-                sheet[ROW2, ColPaymentNo].Text = dsDetail.Rows[i]["Id"].ToString();
-                sheet[ROW2, ColPartyName].Text = dsDetail.Rows[i]["PartyName"].ToString();
-                sheet[ROW2, ColBank].Text = dsDetail.Rows[i]["AccountTitle"].ToString();
-                sheet[ROW2, ColDueUpToDate].Text = dsDetail.Rows[i]["DueUpToDate"].ToString();
-                sheet[ROW2, ColTentativeDate].Text = dsDetail.Rows[i]["TentativeDate"].ToString();
-                sheet[ROW2, ColAmount].Number = clsStaticInfo.dbl(dsDetail.Rows[i]["Amount"].ToString());
-                sheet[ROW2, ColParkStatus].Text = dsDetail.Rows[i]["IsPark"].ToString();
+                sheet[ROW2, ColPaymentNo].Text = dsSummary.Rows[i]["Id"].ToString();
+                sheet[ROW2, ColPartyName].Text = dsSummary.Rows[i]["PartyName"].ToString();
+                sheet[ROW2, ColBank].Text = dsSummary.Rows[i]["AccountTitle"].ToString();
+                sheet[ROW2, ColDueUpToDate].Text = dsSummary.Rows[i]["DueUpToDate"].ToString();
+                sheet[ROW2, ColTentativeDate].Text = dsSummary.Rows[i]["TentativeDate"].ToString();
+                sheet[ROW2, ColAmount].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["Amount"].ToString());
+                sheet[ROW2, ColParkStatus].Text = dsSummary.Rows[i]["IsPark"].ToString();
+                sheet[ROW2, ColPartyTaxNo].Text = dsSummary.Rows[i]["PartyTaxNo"].ToString();
+                sheet[ROW2, ColPDC].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["PDC"].ToString());
+                sheet[ROW2, ColAdvance].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["Advance"].ToString());
 
                 sheet.Range[ROW2, 1, ROW2, endCol2].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW2, 1, ROW2, endCol2].BorderInside(ExcelLineStyle.Hair);
@@ -1921,6 +1939,16 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[ROW, COL].Text = "Balance";
             sheet[ROW, COL].ColumnWidth = 16;
             int ColBalance = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "PDC";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColPDC2 = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Advance";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColAdvance2 = COL;
 
             #endregion columns
 
@@ -1946,8 +1974,10 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                 sheet[ROW, ColInvoiceDate].Text = dsLocal.Rows[i]["InvoiceDate"].ToString();
                 sheet[ROW, ColPaymentAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["PaymentAmount"].ToString());
                 sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["InvoiceAmount"].ToString());
-                sheet[ROW, ColSetoff].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Setoff"].ToString());
-                sheet[ROW, ColBalance].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColSetoff].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Setoff"].ToString());
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColPDC2].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["PDC"].ToString());
+                sheet[ROW, ColAdvance2].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Advance"].ToString());
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -1979,12 +2009,12 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             return workbook;
         }
 
-        public DataTable MultiVendorPaymentSQL(string mpdId)
+        public DataTable MultiVendorPaymentDetailSQL(string mpdId)
         {
             try
             { 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId
+                var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId,0 as PDC,0 as Advance
 							,FORMAT(I.AddedDate,'dd-MMM-yyyy') EntryDate
 							,I.DocRefNo InvoiceNo,V.VoucherNo,Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') InvoiceDate,VT.UserName VoucherType,I.PaymentSource,C.Name Currency,I.Narration
 							,MPD.Amount PaymentAmount,I.Amount InvoiceAmount,I.WrittenOffAmount Setoff,Balance=(I.Amount-I.WrittenOffAmount)
@@ -2008,22 +2038,23 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
         }
 
-        public DataTable MultiVendorPaymentDetailSQL(string mpdId)
+        public DataTable MultiVendorPaymentSummarySQL(string mpdId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var strSQL = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,P.TINNO PartyTaxNo,0 as PDC,0 as Advance
+							,MPD.PartyId,SUM(MPD.Amount) Amount
 							FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
 							where  MP.PlantId='" + identity.PlantId + @"' AND MPD.MultiplePaymentId='" + mpdId + @"'
                             group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
-                            , MP.TentativeDate,MPD.MultiplePaymentId
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId";
+                            , MP.TentativeDate,MPD.MultiplePaymentId,MP.BankMasterId
+                            ,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId,P.TINNO";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }
