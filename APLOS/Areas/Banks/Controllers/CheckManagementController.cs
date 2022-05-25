@@ -2094,7 +2094,7 @@ namespace Aplos.Areas.Banks.Controllers
             try
             {
 
-                string sql = "SELECT * FROM PostDepositCheque WHERE ID='" + Pdc["Id"] + "' ";
+                string sql = "SELECT * FROM TRN.PostDepositCheque WHERE ID='" + Pdc["Id"] + "' ";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
@@ -2174,7 +2174,7 @@ namespace Aplos.Areas.Banks.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = "delete dbo.PostDepositCheque Where Id='" + id + "'";
+                strSQL = "delete TRN.PostDepositCheque Where Id='" + id + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -2211,7 +2211,7 @@ namespace Aplos.Areas.Banks.Controllers
 							,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,PDC.Amount,PDC.DocRefNo,PDC.DocDate,PDC.PostingDate
 							,PDC.BaseDate,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
 							,PDC.RemainderDays,PDC.[Days],PDC.POId,PDC.ChequeNo,PDC.Remarks
-                            from PostDepositCheque PDC
+                            from TRN.PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
 							left join SCS.Currency C on C.Id=PDC.CurrencyId
