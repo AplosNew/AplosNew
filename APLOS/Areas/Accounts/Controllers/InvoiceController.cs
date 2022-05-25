@@ -83,8 +83,73 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/InvoiceOverheadPost.cshtml");
         }
 
-       
 
+        [HttpGet, Authorize]
+        public ActionResult GetMultiVendorPaymentReport(ReportFormat reportFormat, string mpdId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountsInvoiceService.MultiVendorPaymentReportSheet(out string reportFileName, mpdId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
+        //[HttpPost, Authorize]
+        //public ActionResult GetMultiVendorPaymentReport(string mpdId)
+        //{
+        //    try
+        //    {
+        //        AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+        //        var workbook = _accountsInvoiceService.MultiVendorPaymentReportSheet(mpdId);
+
+        //        var fileName = "Multi Vendor Payment Report.xlsx";
+        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+        //        workbook.SaveAs(fullPath);
+
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
 
         [HttpGet, Authorize]
