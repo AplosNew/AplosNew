@@ -17,6 +17,7 @@ using Library.Service.Banks;
 using Library.Service.Core;
 using Library.Service.Currencies;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Extension.Accounts;
 using Library.Service.Finances;
 using Library.Service.Logs;
@@ -2804,6 +2805,28 @@ namespace Library.Service.Invoices
 									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo";
             return _sqlRepository.GetGridData(parameters);
         }
+
+        public GridModel GetVendorPaymentParkedNonPostedList(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
+        {
+            parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
+                                    ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end,AW.ApprovalStatus,AW.ApproveRemark
+                                    FROM [TRN].[InvoiceWriteOff] AS AW
+									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
+											FROM [TRN].[InvoiceWriteOffDetail] WD 
+											LEFT JOIN TRN.Invoice IV ON WD.InvoiceId=IV.Id
+											LEFT JOIN TRN.MultiplePaymentDetail MPD ON MPD.InvoiceId=IV.Id
+											Group BY WD.Id,WD.InvoiceWriteOffId,IV.Id ,MPD.MultiplePaymentId) AS IWD ON IWD.InvoiceWriteOffId=AW.Id
+									LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceWriteOffDetailId=IWD.Id
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
+                                    LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
+                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"' AND AW.IsPark=1 AND AW.ApprovalStatus!='Approved'
+                                    Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
+									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.ApprovalStatus,AW.ApproveRemark";
+            return _sqlRepository.GetGridData(parameters);
+        }
         public GridModel GetNoteSetOff(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, vd.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(iwd.Amount) Amount
@@ -3297,6 +3320,44 @@ namespace Library.Service.Invoices
                     _unitOfWork.Rollback();
             }
         }
+
+        public void ApproveVendorPayment(InvoiceWriteOff invoiceWriteOff, OTSBD.IdentityParameter para)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                var financing = _invoiceWriteOffRepository.Find(invoiceWriteOff.Id);
+
+                financing.ApprovalStatus = invoiceWriteOff.ApprovalStatus;
+                financing.ApproveRemark = invoiceWriteOff.ApproveRemark;
+                financing.ApprovedBy = para.AddedBy;
+                financing.ApprovedDate = DateTime.Now;
+                AuditService.UpdatedLog(financing);
+                _invoiceWriteOffRepository.Update(financing);
+              
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         public void PostInvoiceToAcceptance(string invoiceWriteOffId)
         {
             var flag = false;
