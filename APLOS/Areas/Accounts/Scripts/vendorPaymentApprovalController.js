@@ -78,7 +78,7 @@ function vendorPaymentApprovalController(bankService, accountService, cboService
     $scope.confirmPost = function (data) {
         $scope.invoiceWriteOff = Object.assign({}, data);
 
-        $scope.message_confirmation = "Are you sure to Approve?";
+        $scope.message_confirmation = "Are you sure to Save?";
         angular.element(document.querySelector("#confirmPostPopUp")).modal("show");
     };
 
