@@ -98,8 +98,8 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         UpdatedFromIP: null,
         PartyGLType: null,
         Accounttype: null,
-        UserCategory: null,
-        UserSubCategory: null,
+        PartyCategoryId: null,
+        PartySubCategoryId: null,
         Latitude: null,
         Longitude:null
     };
