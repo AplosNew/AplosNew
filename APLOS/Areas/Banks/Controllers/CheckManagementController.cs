@@ -2224,7 +2224,6 @@ namespace Aplos.Areas.Banks.Controllers
         [Authorize, HttpGet]
         public JsonResult GetPOList(string VendorId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(GetListForPOHold(VendorId), JsonRequestBehavior.AllowGet);
         }
 
