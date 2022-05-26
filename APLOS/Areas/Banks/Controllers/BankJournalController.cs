@@ -313,7 +313,7 @@ namespace Aplos.Areas.Banks.Controllers
         //Current Fund Position start//
 
         [HttpGet]
-        public ActionResult GetList(DateTime PostingDate)
+        public ActionResult getCurrentFundPositionlist(DateTime PostingDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
@@ -328,7 +328,7 @@ namespace Aplos.Areas.Banks.Controllers
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
-						LEFT JOIN PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
+						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
 						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
                         LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
                         LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount

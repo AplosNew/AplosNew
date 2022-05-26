@@ -32,7 +32,7 @@
 
                 <div class="table-responsive aplos-grid-toggle">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
-                        <div style="color:black;" id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="recorddoubleclick"
+                        <div style="color:black;" id="GridEdit" ej-grid e-datasource="ModelList"
                              e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                             <div e-columns>
@@ -46,15 +46,15 @@
                                 <div e-column e-field="TotalAvailableAmount" e-headertext="Total Available Amount" e-width="4"></div>
                                 <div e-column e-field="PDCOverDue" e-headertext="PD COver Due" e-width="4"></div>
                                 <div e-column e-field="PDCInNext_7_Days" e-headertext="PDC In Next 7 Days" e-width="4"></div>
-                                <div e-column e-field="PaymentOverdue" e-headertext="Payment Over due" e-width="4"></div>
+                                @*<div e-column e-field="PaymentOverdue" e-headertext="Payment Over due" e-width="4"></div>
                                 <div e-column e-field="PaymentOverdueInNext_7_Days" e-headertext="Payment Over due In Next 7 Days" e-width="4"></div>
                                 <div e-column e-field="Surplus_Short_AsOnDate" e-headertext="Surplus Short As On Date" e-width="4"></div>
-                                <div e-column e-field="Short_SurplusInNext_7_Days" e-headertext="Short Surplus In Next 7 Days" e-width="4"></div>
+                                <div e-column e-field="Short_SurplusInNext_7_Days" e-headertext="Short Surplus In Next 7 Days" e-width="4"></div>*@
                                 <div e-column e-field="Remark" e-headertext="Remark" e-width="4"></div>
                             </div>
                         </div>
                         <div class="col-md-1 text-right" style="margin-top:20px;">
-                            <button type="button" class="btn single-btn" ng-click="Report()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+                            <button type="button" class="btn single-btn" ng-click="ReportCurrentFundPosition()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
                         </div>
                     </div>
                 </div>
