@@ -422,7 +422,7 @@ namespace Library.Service.Invoices
                                     BudgetMasterId = taxCodeGL.CreditableGLBudgetMasterId,
                                     ActivityId = taxCodeGL.CreditableGLActivityId,
                                     Amount = invoiceTax.TaxAmount,
-                                    AType = "Cr"
+                                    AType = "Dr"
                                 };
                                 totalcreditableCrAmount += invoiceTaxDetail.Amount;
                                 _invoiceTaxService.InsertInvoiceTaxDetail(invoiceTax, invoiceTaxDetail, 2);
@@ -433,23 +433,23 @@ namespace Library.Service.Invoices
                                     BudgetMasterId = invoiceTaxDetail.BudgetMasterId,
                                     ActivityId = invoiceTaxDetail.ActivityId,
                                     InvoiceTaxDetailId = invoiceTaxDetail.Id,
-                                    CrAmount = invoiceTaxDetail.Amount,
+                                    DrAmount = invoiceTaxDetail.Amount,
                                     PostingWithoutTaxAllow = voucherDetaiSales.PostingWithoutTaxAllow
                                 };
                                 currentVoucherDetailId++;
                                 _voucherService.InsertVoucherDetail(voucher, voucherDetailTax, currentVoucherDetailId);
-                                totalAmountCr += voucherDetailTax.CrAmount;
+                                totalAmountDr += voucherDetailTax.DrAmount;
                                 var voucherDetailCurrencybase = new VoucherDetailCurrency
                                 {
                                     ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                     ToCurrencyId = companyCurrencyId,
                                     ParallelCurrencyId = companyCurrencyId,
                                     FromCurrencyId = voucherVM.CurrencyId,
-                                    CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
+                                    DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.DrAmount,
                                     ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                                 };
-                                totalBaseCurrencyCrAmount += voucherDetailCurrencybase.CrAmount;
-                                totalAPBaseCurrencyCrAmount += voucherDetailCurrencybase.CrAmount;
+                                totalBaseCurrencyCrAmount += voucherDetailCurrencybase.DrAmount;
+                                totalAPBaseCurrencyCrAmount += voucherDetailCurrencybase.DrAmount;
                                 _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencybase);
                             }
                             if (!merge && !taxCode.IsCreditable && string.IsNullOrEmpty(taxCodeGL.ExpensesGLId))
@@ -522,7 +522,7 @@ namespace Library.Service.Invoices
                 };
                 if (voucherVM.PartyType == "Customer")
                 {
-                    adjustmentNoteDetail.Amount = adjustmentNote.Amount  +  totalwithholdDrAmount;
+                    adjustmentNoteDetail.Amount = adjustmentNote.Amount  +  totalwithholdDrAmount+ totalcreditableCrAmount;
 
                 }
                 else
