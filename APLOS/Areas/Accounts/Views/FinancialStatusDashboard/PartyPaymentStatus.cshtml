@@ -101,10 +101,10 @@
                     <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);GetInvoiceList();" href="" data-toggle="tab">Vendor</a></li>
                     <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);GetCustomerReceiptMasterList();" href="" data-toggle="tab">Customer</a></li>
                     <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Employee</a></li>
-                    @*<li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetDateRangeWisePayableData();" href="" data-toggle="tab">Payable</a></li>*@
                     <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);GetDateRangeWisePaymentData();" href="" data-toggle="tab">Payment</a></li>
                     <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6);GetBankMasterListData();" href="" data-toggle="tab">Bank</a></li>
                     <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7);GetCashListData();" href="" data-toggle="tab">Cash</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);GetDateRangeWisePayableData();" href="" data-toggle="tab">Current Fund Position</a></li>
                     <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" data-toggle="tab">Check</a></li>
                     <li role="presentation" ng-class="{ active: isSet(9) }"><a ng-click="setTab(9);GetFixedAssetsList();" href="" data-toggle="tab">Fixed Assets</a></li>
                     <li role="presentation" ng-class="{ active: isSet(10) }"><a ng-click="setTab(10);GetLoanListData();" href="" data-toggle="tab">Loan Taken</a></li>
@@ -484,66 +484,47 @@
                     </div>
                 </div>
 
-                @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-5 col-md-5">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.FromDate" />
-                                    </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="col-md-4"><span style="font-size: 19px;margin-left: -15%;margin-bottom:10px;"><span class="glyphicon glyphicon-stats"></span>Current Fund Position</span></div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div id="filters">
+                                </div>
 
-                            <div class="col-xs-12 col-sm-5 col-md-5">
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
-                                    <div class="col-sm-8">
-                                        <input e-dateformat="dd-MMM-yyyy" e-change="getDateRangeWisePaymentData" ej-datepicker e-value="reportParameters.ToDate" />
+                                <div class="table-responsive aplos-grid-toggle">
+                                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                                        <div style="color:black;" id="GridEdit" ej-grid e-datasource="ModelList"
+                                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                                            <div e-columns>
+                                                <div e-column e-field="SLNo" e-headertext="SL No" e-width="2"></div>
+                                                <div e-column e-field="Category" e-headertext="Category" e-width="3"></div>
+                                                <div e-column e-field="Bank_CashName" e-headertext="Bank CashName" e-width="6"></div>
+                                                <div e-column e-field="AccountNumber" e-headertext="Account Number" e-width="6"></div>
+                                                <div e-column e-field="Currency" e-headertext="Currency" e-width="2"></div>
+                                                <div e-column e-field="Amount" e-headertext="Amount" e-width="4"></div>
+                                                <div e-column e-field="LimitAmount" e-headertext="Limit Amount" e-width="4"></div>
+                                                <div e-column e-field="TotalAvailableAmount" e-headertext="Total Available Amount" e-width="4"></div>
+                                                <div e-column e-field="PDCOverDue" e-headertext="PD COver Due" e-width="4"></div>
+                                                <div e-column e-field="PDCInNext_7_Days" e-headertext="PDC In Next 7 Days" e-width="4"></div>
+                                                <div e-column e-field="Remark" e-headertext="Remark" e-width="4"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 text-right" style="margin-top:20px;">
+                                            <button type="button" class="btn single-btn" ng-click="ReportCurrentFundPosition()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Download</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="col-xs-12 col-sm-2 col-md-2">
-                                <div class="common-btn">
-                                    <ul class="list-inline text-left">
-                                        <li><button ng-click="getDateRangeWisePayableData();" title="Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <div class="col-xs-12">
-                                <div style="color:black;" id="GridSelectedDocumentPreparedBy" ej-grid e-datasource="DateRangeWisePayableList"
-                                     e-gridlines="vertical" e-allowfiltering="true" e-rowdatabound="preparedByrowcolor" e-allowpaging="true" e-allowsorting="true"
-                                     e-allowselection="false" e-filtersettings-filterType="excel">
-                                    <div e-columns>
-                                        <div e-column e-type="string" e-field="ParticularName" e-headertext="Vendor/Employee" e-width="80"></div>
-                                        <div e-column e-type="string" e-field="Type" e-headertext="Type" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="VoucherNo" e-headertext="Voucher No" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="PostingDate" e-headertext="Posting Date" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="EntryDate" e-headertext="Entry Date" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="DocRefNo" e-headertext="DocRef No" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="DocDate" e-headertext="Doc Date" e-width="50"></div>
-                                        <div e-column e-type="string" e-field="GRNNo" e-headertext="GRN No" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="GRNDate" e-headertext="GRN Date" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="CurrencyCode" e-headertext="Tran. Currency" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="Payable" e-headertext="Tran. Payable" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="PayableBooks" e-headertext="Books Payable" e-width="40"></div>
-                                        <div e-column e-type="string" e-field="Narration" e-headertext="Narration" e-width="40"></div>
-
-                                    </div>
-                                </div>
-
-
                             </div>
                         </div>
+                    </div>
 
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li><button ng-click="DateRangeWiseReport();" title="All active Aging with corresponding values" class="btn"><i class="glyphicon glyphicon-file"></i>Payable</button></li>
-                            </ul>
-                        </div>
-                    </div>*@
+                </div>
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
                     <div class="row">

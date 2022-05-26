@@ -1740,19 +1740,9 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Multi Vendor Payment Report";
 
-            var dsLocal = MultiVendorPaymentSQL(mpdId);
-            var dsDetail = MultiVendorPaymentDetailSQL(mpdId);
-            //var _CurrencyId = dsLocal.Rows[0]["CurrencyId"].ToString();
-            //var plCurrencyId = dsLocal.Rows[0]["ParallelCurrencyId"].ToString();
-            //var trnCurrency = dsLocal.Rows[0]["TrnCurrency"].ToString();
-            //var plCurrencyCode = dsLocal.Rows[0]["CurrencyCode"].ToString();
-            //var dvNarration = new DataView(dsLocal)
-            //{
-            //    RowFilter = "Narration IS NOT NULL"
-            //};
-            //var dtNarration = dvNarration.ToTable(true, "Narration");
-            //if (dsLocal.Rows.Count == 0)
-            //    throw new Exception("No Data Found!");
+            var dsLocal = MultiVendorPaymentDetailSQL(mpdId);
+            var dsSummary = MultiVendorPaymentSummarySQL(mpdId);
+            
             int row = 5;
 
 
@@ -1828,6 +1818,21 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[ROW2, COL2].Text = "Park Status";
             sheet[ROW2, COL2].ColumnWidth = 16;
             int ColParkStatus = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "PartyTaxNo";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPartyTaxNo = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "PDC";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColPDC = COL2;
+            COL2++;
+
+            sheet[ROW2, COL2].Text = "Advance";
+            sheet[ROW2, COL2].ColumnWidth = 16;
+            int ColAdvance = COL2;
 
             #endregion columns
 
@@ -1843,15 +1848,18 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
             //int startRow = ROW;
 
-            for (int i = 0; i < dsDetail.Rows.Count; i++)
+            for (int i = 0; i < dsSummary.Rows.Count; i++)
             {
-                sheet[ROW2, ColPaymentNo].Text = dsDetail.Rows[i]["Id"].ToString();
-                sheet[ROW2, ColPartyName].Text = dsDetail.Rows[i]["PartyName"].ToString();
-                sheet[ROW2, ColBank].Text = dsDetail.Rows[i]["AccountTitle"].ToString();
-                sheet[ROW2, ColDueUpToDate].Text = dsDetail.Rows[i]["DueUpToDate"].ToString();
-                sheet[ROW2, ColTentativeDate].Text = dsDetail.Rows[i]["TentativeDate"].ToString();
-                sheet[ROW2, ColAmount].Number = clsStaticInfo.dbl(dsDetail.Rows[i]["Amount"].ToString());
-                sheet[ROW2, ColParkStatus].Text = dsDetail.Rows[i]["IsPark"].ToString();
+                sheet[ROW2, ColPaymentNo].Text = dsSummary.Rows[i]["Id"].ToString();
+                sheet[ROW2, ColPartyName].Text = dsSummary.Rows[i]["PartyName"].ToString();
+                sheet[ROW2, ColBank].Text = dsSummary.Rows[i]["AccountTitle"].ToString();
+                sheet[ROW2, ColDueUpToDate].Text = dsSummary.Rows[i]["DueUpToDate"].ToString();
+                sheet[ROW2, ColTentativeDate].Text = dsSummary.Rows[i]["TentativeDate"].ToString();
+                sheet[ROW2, ColAmount].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["Amount"].ToString());
+                sheet[ROW2, ColParkStatus].Text = dsSummary.Rows[i]["IsPark"].ToString();
+                sheet[ROW2, ColPartyTaxNo].Text = dsSummary.Rows[i]["PartyTaxNo"].ToString();
+                sheet[ROW2, ColPDC].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["PDC"].ToString());
+                sheet[ROW2, ColAdvance].Number = clsStaticInfo.dbl(dsSummary.Rows[i]["Advance"].ToString());
 
                 sheet.Range[ROW2, 1, ROW2, endCol2].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW2, 1, ROW2, endCol2].BorderInside(ExcelLineStyle.Hair);
@@ -1871,8 +1879,6 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet.Range[ROW3, COL3, ROW3, COL3].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
             sheet.Range[ROW3, COL3, ROW3, COL3].CellStyle.Font.Color = ExcelKnownColors.White;
 
-            int colGL = 1;
-
             int col = 0;
             row = 12;
 
@@ -1889,11 +1895,6 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[ROW, COL].ColumnWidth = 16;
             int ColId = COL;
             COL++;
-
-            //sheet[ROW, COL].Text = "Account Title";
-            //sheet[ROW, COL].ColumnWidth = 16;
-            //int ColAccountTitle = COL;
-            //COL++;
 
             sheet[ROW, COL].Text = "Party";
             sheet[ROW, COL].ColumnWidth = 16;
@@ -1938,6 +1939,16 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             sheet[ROW, COL].Text = "Balance";
             sheet[ROW, COL].ColumnWidth = 16;
             int ColBalance = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "PDC";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColPDC2 = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Advance";
+            sheet[ROW, COL].ColumnWidth = 16;
+            int ColAdvance2 = COL;
 
             #endregion columns
 
@@ -1956,7 +1967,6 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             for (int i = 0; i < dsLocal.Rows.Count; i++)
             {
                 sheet[ROW, ColId].Text = dsLocal.Rows[i]["Id"].ToString();
-                //sheet[ROW, ColAccountTitle].Text = dsLocal.Rows[i]["AccountTitle"].ToString();
                 sheet[ROW, ColParty].Text = dsLocal.Rows[i]["PartyName"].ToString();
                 sheet[ROW, ColEntryDate].Text = dsLocal.Rows[i]["EntryDate"].ToString();
                 sheet[ROW, ColVoucherNo].Text = dsLocal.Rows[i]["VoucherNo"].ToString();
@@ -1964,8 +1974,10 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                 sheet[ROW, ColInvoiceDate].Text = dsLocal.Rows[i]["InvoiceDate"].ToString();
                 sheet[ROW, ColPaymentAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["PaymentAmount"].ToString());
                 sheet[ROW, ColInvoiceAmount].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["InvoiceAmount"].ToString());
-                sheet[ROW, ColSetoff].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Setoff"].ToString());
-                sheet[ROW, ColBalance].Number =clsStaticInfo.dbl(dsLocal.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColSetoff].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Setoff"].ToString());
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Balance"].ToString());
+                sheet[ROW, ColPDC2].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["PDC"].ToString());
+                sheet[ROW, ColAdvance2].Number = clsStaticInfo.dbl(dsLocal.Rows[i]["Advance"].ToString());
 
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -1974,123 +1986,15 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
             }
 
-            #region sumCalc
-            var lastRow = ROW;
+            //var lastRow = ROW;
 
-            //reportUtility.SetText(ref sheet, lastRow, 1, "Total:", true);
-            //sheet.Range[reportUtility.GetColumnNameForXls(1) + lastRow + ":" + reportUtility.GetColumnNameForXls(ColInvoiceDate) + lastRow].Merge();
-
-
-            //ColPaymentAmount++;
-            //    sheet.Range[lastRow, ColPaymentAmount].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(ColPaymentAmount) + startRow + ":" + reportUtility.GetColumnNameForXls(ColPaymentAmount) + (lastRow - 1) + ")";
-            //    sheet.Range[lastRow, ColPaymentAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-            //    sheet.Range[lastRow, ColPaymentAmount].CellStyle.Font.Bold = true;
-            //    sheet.Range[lastRow, ColPaymentAmount].BorderAround(ExcelLineStyle.Hair);
-
-            #endregion sumCalc
-
-            //sheet.Range[13, 1, lastRow, colLast].BorderInside(ExcelLineStyle.Hair);
-            //sheet.Range[13, 1, lastRow, colLast].BorderAround(ExcelLineStyle.Hair);
-
-            #region InWord
-
-            //var _amountValue = reportUtility.InWord(vAmount, _CurrencyId);
-            //var _amount = reportUtility.InWord(_Total_Amount, plCurrencyId);
             row++;
-
-            //reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
-
-            //if (_CurrencyId != plCurrencyId)
-            //{
-            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amountValue;
-            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-            //    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
-            //    row++;
-            //}
-            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amount;
-            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-            //sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
-
-            #endregion InWord
-
-
-
-
-            //#region sumCalc
-            //var lastRow = ROW2;
-
-            //reportUtility.SetText(ref sheet, lastRow, 1, "Total:", true);
-            //sheet.Range[reportUtility.GetColumnNameForXls(1) + lastRow + ":" + reportUtility.GetColumnNameForXls(summerCol) + lastRow].Merge();
-            
-            //    //for (int i = 0; i < 4; i++)
-            //    //{
-            //        //summerCol++;
-            //        //sheet.Range[lastRow, summerCol].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(summerCol) + startRow + ":" + reportUtility.GetColumnNameForXls(summerCol) + (lastRow - 1) + ")";
-            //        //sheet.Range[lastRow, summerCol].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-            //        //sheet.Range[lastRow, summerCol].CellStyle.Font.Bold = true;
-            //        //sheet.Range[lastRow, summerCol].BorderAround(ExcelLineStyle.Hair);
-            //    //}
-
-            //#endregion sumCalc
-
-            ////sheet.Range[13, 1, lastRow, colLast].BorderInside(ExcelLineStyle.Hair);
-            ////sheet.Range[13, 1, lastRow, colLast].BorderAround(ExcelLineStyle.Hair);
-
-            //#region InWord
-
-            ////var _amountValue = reportUtility.InWord(vAmount, _CurrencyId);
-            ////var _amount = reportUtility.InWord(_Total_Amount, plCurrencyId);
-            //row++;
-
-            ////reportUtility.SetText(ref sheet, row, 1, "In Word:", true);
-
-            ////if (_CurrencyId != plCurrencyId)
-            ////{
-            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amountValue;
-            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-            ////    sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
-            ////    row++;
-            ////}
-            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].Text = _amount;
-            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
-            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].VerticalAlignment = ExcelVAlign.VAlignTop;
-            ////sheet.Range[reportUtility.GetColumnNameForXls(2) + row].CellStyle.Font.Bold = true;
-
-            //#endregion InWord
-
+           
             row = row + 4;
-
-            #region Signature
-
-            //reportUtility.SetSignatureText(ref sheet, row - 1, 1, dsDetail.Rows[0]["AddedBy"].ToString());
-            //sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            //reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
-
-
-
-            //reportUtility.SetSignatureText(ref sheet, row - 1, 4, dsDetail.Rows[0]["PostedBy"].ToString());
-            //sheet.Range[row, 4].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            //reportUtility.SetTextMiddle(ref sheet, row, 4, "Checked By", true);
-
-
-
-            //sheet.Range[row, colLast].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            //reportUtility.SetTextMiddle(ref sheet, row, colLast, "Authorized By", true);
-
-            #endregion Signature
 
             sheet.UsedRange.AutofitColumns();
             sheet[row, 2].ColumnWidth = 22;
             sheet[row, 4].ColumnWidth = 15;
-
-
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.CellStyle.Font.Size = 8;
@@ -2105,12 +2009,12 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             return workbook;
         }
 
-        public DataTable MultiVendorPaymentSQL(string mpdId)
+        public DataTable MultiVendorPaymentDetailSQL(string mpdId)
         {
             try
-            {
+            { 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId
+                var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId,0 as PDC,0 as Advance
 							,FORMAT(I.AddedDate,'dd-MMM-yyyy') EntryDate
 							,I.DocRefNo InvoiceNo,V.VoucherNo,Replace(CONVERT(VARCHAR(11), I.PostingDate, 106), ' ', '-') InvoiceDate,VT.UserName VoucherType,I.PaymentSource,C.Name Currency,I.Narration
 							,MPD.Amount PaymentAmount,I.Amount InvoiceAmount,I.WrittenOffAmount Setoff,Balance=(I.Amount-I.WrittenOffAmount)
@@ -2134,22 +2038,23 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
         }
 
-        public DataTable MultiVendorPaymentDetailSQL(string mpdId)
+        public DataTable MultiVendorPaymentSummarySQL(string mpdId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var strSQL = @"SELECT MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,Replace(CONVERT(VARCHAR(11), MP.DueUpToDate, 106), ' ', '-') DueUpToDate
                             ,Replace(CONVERT(VARCHAR(11), MP.TentativeDate, 106), ' ', '-') TentativeDate
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,MPD.PartyId,SUM(MPD.Amount) Amount
+                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle, 0 flag ,P.UserName PartyName,P.TINNO PartyTaxNo,0 as PDC,0 as Advance
+							,MPD.PartyId,SUM(MPD.Amount) Amount
 							FROM TRN.MultiplePaymentDetail MPD 
 							LEFT JOIN TRN.MultiplePayment MP ON MP.Id=MPD.MultiplePaymentId
 							LEFT JOIN HKP.Party P ON P.Id=MPD.PartyId
 							LEFT JOIN MST.BankMaster BM ON BM.Id=MP.BankMasterId
 							where  MP.PlantId='" + identity.PlantId + @"' AND MPD.MultiplePaymentId='" + mpdId + @"'
                             group by MP.Id,MP.CompanyGroupId,MP.CompanyId,MP.PlantId,MP.SourceType,MP.DueUpToDate
-                            , MP.TentativeDate,MPD.MultiplePaymentId
-                            ,MP.BankMasterId,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId";
+                            , MP.TentativeDate,MPD.MultiplePaymentId,MP.BankMasterId
+                            ,MP.IsFifo,MP.IsPark ,BM.AccountTitle,P.UserName,MPD.PartyId,P.TINNO";
 
                 return _sqlRepository.GetDataTable(strSQL);
             }

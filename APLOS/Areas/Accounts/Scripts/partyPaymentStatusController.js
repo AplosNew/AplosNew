@@ -4860,9 +4860,43 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
      //**********************#endregion Invoice GRN With out **************************
 
+    //**********************#startregion Current Fund Position **************************
+    $scope.ModelList = [];
+    $scope.getData = function () {
+        $scope.ModelList = [];
+        $http.get('Banks/BankJournal/getCurrentFundPositionlist?PostingDate=' + $filter("dateFiltering")(Date.now()))
+            .then(function (response) {
+                $scope.ModelList = response.data;
+            });
+    };
+    $scope.getData();
 
+    $scope.ReportCurrentFundPosition = function () {
+        try {
+            $scope.fileName = "Current Fund Position.xlsx";
+            $http({
+                method: 'POST',
+                url: 'Banks/BankJournal/GetCurrentFundPositionReport',
+                data: { 'PostingDate': $filter("dateFiltering")(Date.now()) },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
 
+    }
 
+    //**********************#endregion Current Fund Position **************************
 }
 
 

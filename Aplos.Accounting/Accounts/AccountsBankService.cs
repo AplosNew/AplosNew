@@ -1195,7 +1195,7 @@ namespace Library.Accounting.Accounts
                             ,format(PDC.PostingDate,'dd-MMM-yyyy') PostingDate,PDC.POId,PDC.[Days],PDC.RemainderDays,PDC.ChequeNo
 							,EI.SystemId ResponsiblePersonId,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode
 							,format(PDC.DocDate,'dd-MMM-yyyy') DocDate,format(PDC.PaymentDate,'dd-MMM-yyyy') PaymentDate,format(PDC.BaseDate,'dd-MMM-yyyy')BaseDate,PDC.Amount,PDC.Remarks
-                            from PostDepositCheque PDC
+                            from TRN.PostDepositCheque PDC
 							left join MST.BankMaster BM on BM.Id=PDC.BankMasterId
 							left join HKP.Party P on P.Id=PDC.PartyId
 							left join SCS.Currency C on C.Id=PDC.CurrencyId
@@ -1283,25 +1283,25 @@ namespace Library.Accounting.Accounts
                 int ColPDCInNext_7_Days = COL;
                 COL++;
 
-                sheet[ROW, COL].Text = "Payment Over Due";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPaymentOverdue = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Payment Over Due";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColPaymentOverdue = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Payment Over Due In Next 7 Days";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPaymentOverdueInNext_7_Days = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Payment Over Due In Next 7 Days";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColPaymentOverdueInNext_7_Days = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Surplus Short As On Date";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSurplus_Short_AsOnDate = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Surplus Short As On Date";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColSurplus_Short_AsOnDate = COL;
+                //COL++;
 
-                sheet[ROW, COL].Text = "Short Surplus In Next 7 Days";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColShort_SurplusInNext_7_Days = COL;
-                COL++;
+                //sheet[ROW, COL].Text = "Short Surplus In Next 7 Days";
+                //sheet[ROW, COL].ColumnWidth = 16;
+                //int ColShort_SurplusInNext_7_Days = COL;
+                //COL++;
 
                 sheet[ROW, COL].Text = "Remarks";
                 sheet[ROW, COL].ColumnWidth = 16;
@@ -1333,10 +1333,10 @@ namespace Library.Accounting.Accounts
                     sheet[ROW, ColTotalAvailableAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalAvailableAmount"].ToString());
                     sheet[ROW, ColPDCOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["PDCOverDue"].ToString());
                     sheet[ROW, ColPDCInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PDCInNext_7_Days"].ToString());
-                    sheet[ROW, ColPaymentOverdue].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdue"].ToString());
-                    sheet[ROW, ColPaymentOverdueInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString());
-                    sheet[ROW, ColSurplus_Short_AsOnDate].Number = clsStaticInfo.dbl(data.Rows[i]["Surplus_Short_AsOnDate"].ToString());
-                    sheet[ROW, ColShort_SurplusInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["Short_SurplusInNext_7_Days"].ToString());
+                    //sheet[ROW, ColPaymentOverdue].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdue"].ToString());
+                    //sheet[ROW, ColPaymentOverdueInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString());
+                    //sheet[ROW, ColSurplus_Short_AsOnDate].Number = clsStaticInfo.dbl(data.Rows[i]["Surplus_Short_AsOnDate"].ToString());
+                    //sheet[ROW, ColShort_SurplusInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["Short_SurplusInNext_7_Days"].ToString());
                     sheet[ROW, ColRemarks].Text = data.Rows[i]["Remark"].ToString();
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1412,7 +1412,7 @@ namespace Library.Accounting.Accounts
                         FROM [TRN].[Voucher] AS V
                         LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
 						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
-						LEFT JOIN PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
+						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
 						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
                         LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
                         LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount

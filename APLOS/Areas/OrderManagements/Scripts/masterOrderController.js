@@ -1782,14 +1782,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentModeId: null
             , CustomerPOId: null
             , PONumber: null
-            , UpCharge: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
             , OrderCategoryId: $scope.fileNew.OrderCategoryId
             , SOType: null
             , ResponsiblePersonId: $scope.ResponsiblePersonId
             , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: null
-            , Rate: null
+            , Qty: 0
+            , Rate: 0
             , HSNCodeId: hsnCodeId
             , TotalTaxAmount: 0
             , MainRawMaterialInhouseDate: null
@@ -1803,6 +1802,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
+            ,DirectCost:0
+            , ValueLoss:0
+            , Other: 0
+            , UpCharge:0
+            , Discount:0
+            , CM:0
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -2141,19 +2146,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentModeId: null
             , CustomerPOId: null
             , PONumber: null
-            , UpCharge: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
             , OrderCategoryId: $scope.fileNew.OrderCategoryId
             , SOType: null
             , ResponsiblePersonId: $scope.ResponsiblePersonId
             , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: null
-            , Rate: null
+            , Qty: 0
+            , Rate: 0
             , HSNCodeId: $scope.HSNCodeId
             , TotalTaxAmount: 0
             , MainRawMaterialInhouseDate: null
             , OtherRawMaterialInhouseDate: null
-            , CM: 0
             , SalesOrderYear: null
             , WeekNo: null
             , PlanExFactoryDate: null
@@ -2165,6 +2168,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
+            , DirectCost: 0
+            , ValueLoss: 0
+            , Other: 0
+            , UpCharge: 0
+            , Discount: 0
+            , CM: 0
         };
     }
 
