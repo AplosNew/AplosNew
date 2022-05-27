@@ -1,6 +1,6 @@
 ﻿'use strict';
-OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
-function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter,$window) {
+OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "OrderLineCostingItem";
     $scope.Action = 'Save';
     $scope.FormulaDetails = [];
@@ -339,9 +339,12 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
 
         $scope.objectData = obj.data;
         $scope.ModelNew = Object.assign({}, $scope.objectData);
-        $scope.ModelNew.FormulaDescription = $scope.ModelNew.Formula;
-        $scope.FormulaArray = $scope.ModelNew.Formula.split(" ");
-        $scope.FormulaIdArray = $scope.ModelNew.FormulaId.split(" ");
+        if (!baseService.isUndefinedOrNull($scope.ModelNew.Formula)) {
+            $scope.ModelNew.FormulaDescription = $scope.ModelNew.Formula;
+            $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaId;
+            $scope.FormulaArray = $scope.ModelNew.Formula.split(" ");
+            $scope.FormulaIdArray = $scope.ModelNew.FormulaId.split(" ");
+        }
 
         $scope.GetOrderLineCostingItemCbo();
         $scope.GetCostingTypeComponent();
