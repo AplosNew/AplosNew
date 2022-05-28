@@ -277,5 +277,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/EmployeeTimeOut/Aplos',
             controller: 'EmployeeTimeOutController'
         })
+        .when('/salesorder-status-report', {
+            templateUrl: 'Productions/SalesOrderStatusReport/Aplos',
+            controller: 'SalesOrderStatusReportController'
+        })
         ;
 }

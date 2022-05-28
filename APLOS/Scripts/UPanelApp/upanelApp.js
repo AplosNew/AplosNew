@@ -1039,6 +1039,7 @@ upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 upanelApp.controller("postDateChequeController", postDateChequeController);
 upanelApp.controller("vendorPaymentApprovalController", vendorPaymentApprovalController);
 upanelApp.controller("ManpowerControlReportController", ManpowerControlReportController);
+upanelApp.controller("SalesOrderStatusReportController", SalesOrderStatusReportController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);
