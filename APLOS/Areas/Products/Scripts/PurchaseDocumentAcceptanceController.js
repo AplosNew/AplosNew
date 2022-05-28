@@ -1059,6 +1059,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             $scope.PurchaseDocAcceptance.AcceptanceAmount += $scope.inventoryMaterialListPO[k].TrnAmount;
             //$scope.PurchaseDocAcceptance.CurrentQty += $scope.inventoryMaterialListPO[k].TransactionQty;
         }
+
     };
 
     $scope.inventoryMaterialListPO = [];
@@ -1222,6 +1223,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
     };
 
     $scope.GetDataDoubleClickDetails = [];
+    $scope.TotalPOAmount = 0; $scope.PAmount = 0;
     $scope.getRecordDoubleClickDetail = function (Id) {
         $scope.TotalPOAmount = 0;
         $scope.seletedLST = [];
@@ -1269,6 +1271,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
             for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
                 $scope.TotalPOAmount += $scope.inventoryMaterialListPO[i].TrnAmount;
+                $scope.PAmount += $scope.inventoryMaterialListPO[i].TrnAmount;
             }
 
         });
@@ -2144,6 +2147,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         $scope.SavedServicePODetailList = [];
         $scope.TotalGRNAmount = 0;
         $scope.TotalPOAmount = 0;
+        $scope.POAmount = 0;
+        $scope.ServiceAmount = 0;
         $scope.CurrentQty = 0;
         $scope.TotalAcptValue = 0;
     }
@@ -2407,14 +2412,36 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
     }
 
+    $scope.ServiceAmount = 0;
+
     function getServiceChargeList(purchaseDocAcceptanceId) {
+        $scope.ServiceAmount = 0;
         $http.get('Products/PurchaseDocumentsAcceptance/GetServiceChargeList?purchaseDocAcceptanceId=' + purchaseDocAcceptanceId)
             .then(function (response) {
                 $scope.serviceList = [];
                 $scope.serviceList = response.data;
+                for (var i = 0; i < $scope.serviceList.length; i++) {
+                    $scope.TotalPOAmount += $scope.serviceList[i].Amount;
+                    $scope.PAmount += $scope.serviceList[i].Amount;
+                    $scope.ServiceAmount += $scope.serviceList[i].Amount;
+                }
                 $scope.getServiceTax(purchaseDocAcceptanceId);
             });
-    }
+    };
+
+    $scope.calMatSercharge = function () {
+        $scope.ServiceAmount = 0;
+        $scope.TotalPOAmount = 0;
+        for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+            $scope.TotalPOAmount += $scope.inventoryMaterialListPO[i].TrnAmount;
+        }
+
+        for (var i = 0; i < $scope.serviceList.length; i++) {
+            $scope.TotalPOAmount += $scope.serviceList[i].Amount;
+            $scope.ServiceAmount += $scope.serviceList[i].Amount;
+        }
+    };
+
 
     $scope.newaccServiceTaxList = [];
     $scope.getServiceTaxList1 = function (data, index) {
@@ -2904,6 +2931,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
     };
 
+   
     //#region Service PO 
 
     $scope.ServicePODetailList = [];

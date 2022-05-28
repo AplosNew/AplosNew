@@ -744,6 +744,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/training-master', {
             templateUrl: 'humanResource/TrainingMaster/Aplos',
             controller: 'TrainingMasterController'
+        }) 
+        .when('/manpower-control-report', {
+            templateUrl: 'humanResource/ManpowerControlReport/Aplos',
+            controller: 'ManpowerControlReportController'
         })
         ;
 }

@@ -581,6 +581,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
@@ -733,7 +734,6 @@
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
-    <Compile Include="Areas\PerformanceManagement\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeTimeOutController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
@@ -745,6 +745,7 @@
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductiveAllowanceRateSetupController.cs" />
+    <Compile Include="Areas\Productions\Controllers\SalesOrderStatusReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAgeingReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\WasteLocationController.cs" />
@@ -1982,6 +1983,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
+    <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
@@ -2108,7 +2110,6 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxProcessController.js" />
-    <Content Include="Areas\PerformanceManagement\Scripts\ManpowerControlReportController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
@@ -2121,6 +2122,7 @@
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutApplicableController.js" />
+    <Content Include="Areas\Productions\Scripts\SalesOrderStatusReportController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAdjustmentController.js" />
     <Content Include="Areas\Productions\Scripts\StocksAgeingReportController.js" />
     <Content Include="Areas\Productions\Scripts\WasteLocationController.js" />
@@ -4157,7 +4159,8 @@
     <Content Include="Areas\Accounts\Views\_MultipleCustomerInvoicePopUp.cshtml" />
     <Content Include="Areas\Banks\Views\CurrentFundPosition.cshtml" />
     <Content Include="Areas\Accounts\Views\VendorPaymentApproval.cshtml" />
-    <Content Include="Areas\PerformanceManagement\Views\ManpowerControlReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ManpowerControlReport\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\SalesOrderStatusReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
