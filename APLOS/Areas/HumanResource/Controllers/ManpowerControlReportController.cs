@@ -27,7 +27,7 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.HumanResource.Attendance;
 
-namespace Aplos.Areas.PerformanceManagement.Controllers
+namespace Aplos.Areas.HumanResource.Controllers
 {
     public class ManpowerControlReportController : BaseController
     {
@@ -367,17 +367,18 @@ namespace Aplos.Areas.PerformanceManagement.Controllers
                 }
 
                 var str = @"Select Main.*,
-                            --CalCulations
-                            (Main.BB - Main.LA - Main.TBS) as NetAvailable 
-                            ,(Case when (Main.OnRoll - Main.LA - Main.TBS) > 0 then (Main.OnRoll - Main.LA - Main.TBS) else 0 end) as OnRollExcess
-                            ,(Case when (Main.OnRoll - Main.LA - Main.TBS) < 0 then (Main.OnRoll - Main.LA - Main.TBS) else 0 end) as OnRollShort
-                            ,(Case when (Main.Dep - Main.LA - Main.TBS) > 0 then (Main.Dep - Main.LA - Main.TBS) else 0 end) as DepExcess
-                            ,(Case when (Main.Dep - Main.LA - Main.TBS) < 0 then (Main.Dep - Main.LA - Main.TBS) else 0 end) as DepShort
-                            , (Case when ((Main.BB - Main.LA - Main.TBS) - Main.Leaves) < 0 then ((Main.BB - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetShort
-                            , (Case when ((Main.BB - Main.LA - Main.TBS) - Main.Leaves) > 0 then ((Main.BB - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetExcess
+                              (Main.OnRoll - Main.LA - Main.TBS) as NetAvailable 
+                            ,(Case when (Main.OnRoll - Main.BB) > 0 then (Main.OnRoll - Main.BB) else 0 end) as OnRollExcess
+                            ,(Case when (Main.OnRoll - Main.BB) < 0 then (Main.OnRoll - Main.BB) else 0 end) as OnRollShort
+                            ,(Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) > 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end) as DepExcess
+                            ,(Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) < 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end) as DepShort
+                            , (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) < 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetShort
+                            , (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) > 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetExcess
                             from
                             (
                             Select 
+                            ---Sequences
+							div.Sequence as DivSeq,dept.Sequence as DeptSeq ,sec.Sequence as SecSeq , ssec.Sequence as SSecSeq, desg.Sequence as DesgSeq,
                             --General Entries
                             mb.CompanyId , mb.EntityId , c.UserName as Company , p.UserName as Plant, div.UserName as Division , e.UserName as Entity, dept.UserName as Department, sec.UserName as Section , ssec.UserName as SubSection , desg.UserName as Designation, pos.Activity, 
                             (Case when pos.isDirect = 1 then 'Direct' else 'InDirect' end) as IsDirect
@@ -424,7 +425,7 @@ namespace Aplos.Areas.PerformanceManagement.Controllers
                             left join dbo.LeaveTransaction lt on lt.SystemID = ltd.LvTrnsSystemID
                             left join dbo.EmployeeInformation ei on ei.SystemId = lt.EmpSystemID
                             left join mst.ManpowerBudget mbb on mbb.ID = ei.BudgetCode
-                            where ltd.WorkDate = '" + Dates+@"'
+                            where ltd.WorkDate = '" + Dates+ @"'
                             group by mbb.Id
                             ) as Leaves on Leaves.Id = mb.Id
                             -- All the Joining Queries
@@ -441,10 +442,11 @@ namespace Aplos.Areas.PerformanceManagement.Controllers
                             left join dbo.ShiftDefination shd on shd.SystemID = mb.ShiftDefinationId
                             left join mst.DesignationMaster dm on dm.DesignationId = pos.DesignationId
 
-                            group by  mb.CompanyId , mb.EntityId , c.UserName , p.UserName, div.UserName, e.UserName, dept.UserName , sec.UserName, ssec.UserName, desg.UserName, pos.Activity, pos.isDirect, pp.UserName, pos.Code, mb.Id, mb.Code ,shd.UserName,pos.UserReportGroup , pos.UserName, pos.PhysicalVarification , mb.IsRosterApplicable , mb.IsScattedWeekOffApplicable,pos.PaymentLink,pos.TaskManagementApplicable,dm.EmployeeCategoryId,pp.Id
+                            group by  mb.CompanyId , mb.EntityId , c.UserName , p.UserName, div.UserName, e.UserName, dept.UserName , sec.UserName, ssec.UserName, desg.UserName, pos.Activity, pos.isDirect, pp.UserName, pos.Code, mb.Id, mb.Code ,shd.UserName,pos.UserReportGroup , pos.UserName, pos.PhysicalVarification , mb.IsRosterApplicable , mb.IsScattedWeekOffApplicable,pos.PaymentLink,pos.TaskManagementApplicable,dm.EmployeeCategoryId,pp.Id, div.Sequence ,dept.Sequence,sec.Sequence , ssec.Sequence ,desg.Sequence
                             ) as Main
                             where EntityId in (" + Parameters["EntityId"]+ @") and EmployeeCategoryId in ("+Parameters["EmpTypeId"]+ @")
                             and UserReportGroup in (" + Parameters["UserReportGroup"] + @") and ProcessId in (" + Parameters["ProcessId"] + @")
+                            order by  DivSeq ,DeptSeq,SecSeq , SSecSeq ,DesgSeq
                             ";
 
                 return _sqlRepository.GetDataTable(str);
