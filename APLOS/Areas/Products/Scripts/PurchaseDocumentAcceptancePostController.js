@@ -202,24 +202,27 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                 DrRows.GLGeneralInfoId = $scope.inventoryMaterialListPO[i].GLGeneralInfoId;
                 DrRows.BudgetMasterId = $scope.inventoryMaterialListPO[i].BudgetMasterId;
                 DrRows.ActivityId = $scope.inventoryMaterialListPO[i].ActivityId;
-                DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].TrnAmount;
+                if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0) {
+                    ServiceAmount = $scope.inventoryMaterialListPO[i].ServiceAmount;
+                }
+                DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].TrnAmount + ServiceAmount;
                 DrRows.TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount;
                 $scope.rowDetails.push(DrRows);
             }
-            if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0 && getRowDr.length == 0) {
-                DrRows = {};
-                DrRows.ClearingAccountGLId = $scope.inventoryMaterialListPO[i].ServiceGLId;
-                DrRows.ClearingAccountBudgetMasterId = $scope.inventoryMaterialListPO[i].ServiceBudgetMasterId;
-                DrRows.ClearingAccountActivityId = $scope.inventoryMaterialListPO[i].ServiceActivityId;
-                DrRows.TrnType = 'Dr';
-                DrRows.GLGeneralInfoId = $scope.inventoryMaterialListPO[i].GLGeneralInfoId;
-                DrRows.BudgetMasterId = $scope.inventoryMaterialListPO[i].BudgetMasterId;
-                DrRows.ActivityId = $scope.inventoryMaterialListPO[i].ActivityId;
-                DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].ServiceAmount;
-                DrRows.TotalMaterialTranAmount = 0;
-                $scope.rowDetails.push(DrRows);
-                ServiceAmount += $scope.inventoryMaterialListPO[i].ServiceAmount;
-            }
+            //if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0 && getRowDr.length == 0) {
+            //    DrRows = {};
+            //    DrRows.ClearingAccountGLId = $scope.inventoryMaterialListPO[i].ServiceGLId;
+            //    DrRows.ClearingAccountBudgetMasterId = $scope.inventoryMaterialListPO[i].ServiceBudgetMasterId;
+            //    DrRows.ClearingAccountActivityId = $scope.inventoryMaterialListPO[i].ServiceActivityId;
+            //    DrRows.TrnType = 'Dr';
+            //    DrRows.GLGeneralInfoId = $scope.inventoryMaterialListPO[i].GLGeneralInfoId;
+            //    DrRows.BudgetMasterId = $scope.inventoryMaterialListPO[i].BudgetMasterId;
+            //    DrRows.ActivityId = $scope.inventoryMaterialListPO[i].ActivityId;
+            //    DrRows.TrnAmount = $scope.inventoryMaterialListPO[i].ServiceAmount;
+            //    DrRows.TotalMaterialTranAmount = 0;
+            //    $scope.rowDetails.push(DrRows);
+            //    ServiceAmount += $scope.inventoryMaterialListPO[i].ServiceAmount;
+            //}
             else {
                 for (var j = 0; j < $scope.rowDetails.length; j++) {
                     if ($scope.inventoryMaterialListPO[i].ClearingAccountGLId == $scope.rowDetails[j].ClearingAccountGLId && $scope.inventoryMaterialListPO[i].ClearingAccountBudgetMasterId == $scope.rowDetails[j].ClearingAccountBudgetMasterId
