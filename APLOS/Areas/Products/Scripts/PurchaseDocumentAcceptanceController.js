@@ -705,8 +705,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
         }
         var filtered = $("#GridAcceptance").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-                $scope.inventoryMaterialListPO[i].Active = ChkOrUnchk;
+            for (var i = 0; i < $scope.inventoryMaterialListPO1.length; i++) {
+                $scope.inventoryMaterialListPO1[i].Active = ChkOrUnchk;
             }
         }
         else {
@@ -812,12 +812,12 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                                 $scope.PurchaseDocAcceptance.Id = response.data.entity.Id;
                                 $scope.gridAcceptanceList();
                                 // $scope.setTabAcceptenceList(1);
-                                $scope.Action = 'Update';
+                               
                                 $scope.seletedLST = [];
                                 $scope.GridListPO = [];
 
                                 $scope.getRecordDoubleClickDetail($scope.PurchaseDocAcceptance.Id);
-
+                                $scope.Action = 'Update';
                             }
                         }), function errorCallBack(response) {
                             ShowResult(response.data.Message, 'failure');

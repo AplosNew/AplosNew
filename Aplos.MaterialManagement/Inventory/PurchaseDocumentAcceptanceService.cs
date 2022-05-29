@@ -1409,53 +1409,53 @@ namespace Library.MaterialManagement.Inventory
                     }
                 }
 
-                var poId = PurchaseDocAcceptanceDetail.Select(r => r.POId).FirstOrDefault();
-                var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == poId).Select().ToList();
-                var _purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == poId && r.InventoryReceiveDetailId == null).Select().ToList();
+                //var poId = PurchaseDocAcceptanceDetail.Select(r => r.POId).FirstOrDefault();
+                //var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == poId).Select().ToList();
+                //var _purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == poId && r.InventoryReceiveDetailId == null).Select().ToList();
 
-                if (POServiceList != null)
-                {
-                    foreach (var item in POServiceList)
-                    {
-                        PurchaseDocAcceptanceService service = new PurchaseDocAcceptanceService();
+                //if (POServiceList != null)
+                //{
+                //    foreach (var item in POServiceList)
+                //    {
+                //        PurchaseDocAcceptanceService service = new PurchaseDocAcceptanceService();
 
-                        servicecurrentId++;
-                        service.Id = MakePK(entity.Id + 2, servicecurrentId, 2);
-                        service.PurchaseDocAcceptanceId = entity.Id;
-                        service.Amount = item.Amount;
-                        service.TotalTaxAmount = item.TotalTaxAmount;
-                        service.ServiceMasterId = item.ServiceMasterId;
-                        service.State = "PO";
-                        AuditService.AddedLog(service);
-                        _purchaseDocAcceptanceServiceService.Insert(service);
-
-
-                        if (_purchaseDocAcceptanceServiceTax.IsNotNull())
-                        {
-
-                            foreach (var POserviceTax in _purchaseDocAcceptanceServiceTax)
-                            {
-                                PurchaseDocAcceptanceTax purchaseDocAcceptanceTax = new PurchaseDocAcceptanceTax();
-
-                                currentId++;
-                                purchaseDocAcceptanceTax.Id = "ST" + MakePK(entity.Id, currentId, 2);
-                                purchaseDocAcceptanceTax.PurchaseDocAcceptanceId = entity.Id;
-                                purchaseDocAcceptanceTax.PurchaseDocAcceptanceDetailId = null;
-                                purchaseDocAcceptanceTax.AcceptanceServiceId = service.Id;
-                                purchaseDocAcceptanceTax.TaxCategoryId = POserviceTax.TaxCategoryId;
-                                purchaseDocAcceptanceTax.HSNCodeId = POserviceTax.HSNCodeId;
-                                purchaseDocAcceptanceTax.Percentage = POserviceTax.Percentage;
-                                purchaseDocAcceptanceTax.TaxAmount = POserviceTax.TaxAmount;
-
-                                AuditService.AddedLog(purchaseDocAcceptanceTax);
-                                _purchaseDocAcceptanceTax.Insert(purchaseDocAcceptanceTax);
-
-                            }
-                        }
+                //        servicecurrentId++;
+                //        service.Id = MakePK(entity.Id + 2, servicecurrentId, 2);
+                //        service.PurchaseDocAcceptanceId = entity.Id;
+                //        service.Amount = item.Amount;
+                //        service.TotalTaxAmount = item.TotalTaxAmount;
+                //        service.ServiceMasterId = item.ServiceMasterId;
+                //        service.State = "PO";
+                //        AuditService.AddedLog(service);
+                //        _purchaseDocAcceptanceServiceService.Insert(service);
 
 
-                    }
-                }
+                //        if (_purchaseDocAcceptanceServiceTax.IsNotNull())
+                //        {
+
+                //            foreach (var POserviceTax in _purchaseDocAcceptanceServiceTax)
+                //            {
+                //                PurchaseDocAcceptanceTax purchaseDocAcceptanceTax = new PurchaseDocAcceptanceTax();
+
+                //                currentId++;
+                //                purchaseDocAcceptanceTax.Id = "ST" + MakePK(entity.Id, currentId, 2);
+                //                purchaseDocAcceptanceTax.PurchaseDocAcceptanceId = entity.Id;
+                //                purchaseDocAcceptanceTax.PurchaseDocAcceptanceDetailId = null;
+                //                purchaseDocAcceptanceTax.AcceptanceServiceId = service.Id;
+                //                purchaseDocAcceptanceTax.TaxCategoryId = POserviceTax.TaxCategoryId;
+                //                purchaseDocAcceptanceTax.HSNCodeId = POserviceTax.HSNCodeId;
+                //                purchaseDocAcceptanceTax.Percentage = POserviceTax.Percentage;
+                //                purchaseDocAcceptanceTax.TaxAmount = POserviceTax.TaxAmount;
+
+                //                AuditService.AddedLog(purchaseDocAcceptanceTax);
+                //                _purchaseDocAcceptanceTax.Insert(purchaseDocAcceptanceTax);
+
+                //            }
+                //        }
+
+
+                //    }
+                //}
 
 
                 if (PurchaseDocAcceptanceServiceDetail != null)
