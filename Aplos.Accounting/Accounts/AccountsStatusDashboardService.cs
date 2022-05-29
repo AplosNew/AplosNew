@@ -53,7 +53,7 @@ namespace Library.Accounting.Accounts
             }
 
             var sql = @"SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName,x.CurrencyCode
-
+                , SUM(X.Advance) Advance 
 				, SUM(X.Gross) Gross 
 			--	,sum(x.TranDiscountAmount)TranDiscountAmount
 				-- ,SUM(X.GrossTranAmount) GrossTranAmount
@@ -80,12 +80,13 @@ namespace Library.Accounting.Accounts
 				
                 FROM (
                 SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName,c.Code CurrencyCode
-                 , ISNULL(IVD.Amount,0) AS Gross
-				,ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
+                , ISNULL(Ad.AdvanceAmount,0) Advance
+                , ISNULL(IVD.Amount,0) AS Gross
+				, ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
 
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
-				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
+				, ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksSetOff
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
 
                 , ISNULL(OM30.ODueMoreThan30*CC.CompanyCurrencyRate ,0) ODueMoreThan30
@@ -115,7 +116,11 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-
+                --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
 						
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
@@ -174,7 +179,8 @@ namespace Library.Accounting.Accounts
                 
                 UNION ALL
                 SELECT  IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName,c.Code CurrencyCode
-				, ISNULL(IVD.Amount,0) AS Gross,
+				, ISNULL(Ad.AdvanceAmount,0) Advance
+                , ISNULL(IVD.Amount,0) AS Gross,
                   ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
 				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
 
@@ -211,7 +217,11 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-
+                --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
 							LEFT JOIN (SELECT wd.InvoiceDetailId,sum(wd.Amount) TaxAmount  FROM TRN.InvoiceWriteOffDetail wd 
 					    LEFT JOIN  TRN.InvoiceWriteOff w on wd.InvoiceWriteOffId =w.id
 								where w.PaymentSource='Tax'
@@ -276,8 +286,9 @@ namespace Library.Accounting.Accounts
 
 
 				 SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName,c.Code CurrencyCode
-              , ISNULL(IVD.Amount,0) AS Gross
-				,ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
+                , ISNULL(Ad.AdvanceAmount,0) Advance
+                , ISNULL(IVD.Amount,0) AS Gross
+				, ISNULL(IVD.WrittenOffAmount ,0) AS SetOff
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
 
                 , ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGross
@@ -311,7 +322,11 @@ namespace Library.Accounting.Accounts
                 LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
                 LEFT JOIN [SCS].[Currency] AS C ON C.Id=IV.CurrencyId
                 LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=IV.EntityId
-
+                --********vendor Advance***********
+                        LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        group by A.PartyId
+                        ) Ad ON Ad.PartyId=IV.PartyId
 						
 
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.AdjustmentNote I 
@@ -3798,7 +3813,7 @@ group by Id) O60 ON O60.Id=IV.Id
 					
 											--********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='202034' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId	
 
@@ -3850,7 +3865,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='C20171'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
@@ -3895,7 +3910,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
 					--********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='202034' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -3997,7 +4012,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
 										--********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum( (A.Amount-A.WrittenOffAmount) * A.CompanyCurrencyRate) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='202034' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='CustomerAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
