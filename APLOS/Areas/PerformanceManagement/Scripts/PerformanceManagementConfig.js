@@ -20,9 +20,6 @@
             templateUrl: 'PerformanceManagement/JobEvaluationReport/Aplos',
             controller: 'JobEvaluationReportController'
         })
-        .when('/manpower-control-report', {
-            templateUrl: 'PerformanceManagement/ManpowerControlReport/Aplos',
-            controller: 'ManpowerControlReportController'
-        })
+       
 }
 PerformanceManagementConfig.$inject = ['$routeProvider', '$locationProvider'];
