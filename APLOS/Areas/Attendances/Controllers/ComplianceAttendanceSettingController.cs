@@ -526,6 +526,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                 TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
 								                       WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                                                        WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
                                 ELSE 0 END,
                                 
                                 TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
