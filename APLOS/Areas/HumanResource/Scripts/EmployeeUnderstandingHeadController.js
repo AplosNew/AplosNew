@@ -58,7 +58,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     }
     $scope.activityNew = Object.assign({}, $scope.activity);
     $scope.documentActivity = {
-        Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        Id: null, EmpUnderstandingActivityId: null, DocumentCategoryId: null, EmployeeId: null, DocumentPreprationFrequency: null, DocumentType: null, DocumentFormat: null, DocumentClass: null, DocumentCode: null, DocumentName: null, Remarks: null, Attachment: null, FileName: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, DocumentGeneration: null, PreparedBy: null
     }
     $scope.documentActivityNew = Object.assign({}, $scope.documentActivity);
 
@@ -148,6 +148,15 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         }).then(function successCallback(response) {
             $scope.DocumentCategoryList = response.data;
         });
+    };
+
+    $scope.dwonloadUrl = null;
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ActivityDocuments + '/' + data.Id + extention;
+        $window.open($scope.dwonloadUrl, '_blank');
     };
 
     $scope.StatusList = [{ value: 'InProgress', name: 'In-Progress' },
@@ -341,12 +350,19 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
             $rootScope.toggle();
         }
     };
+
     $scope.GetActivity = function (args) {
         $scope.activityNew = Object.assign({}, args.data);
     };
+
     $scope.GetDocument = function (args) {
+        $scope.filedata = {};
         $scope.documentActivityNew = Object.assign({}, args.data);
+        $scope.filedata.name = $scope.documentActivityNew.FileName;
+        var filename = document.getElementById("uploadFile").value = $scope.documentActivityNew.FileName;
+
     };
+
     $scope.GetKPI = function (args) {
         $scope.kpiNew = Object.assign({}, args.data);
     };
