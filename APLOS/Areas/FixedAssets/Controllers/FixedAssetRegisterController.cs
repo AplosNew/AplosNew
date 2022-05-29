@@ -1412,16 +1412,16 @@ namespace Aplos.Areas.FixedAssets.Controllers
             {
                 if (string.IsNullOrEmpty(selectedAssetMastersLists))
                 {
-                    selectedAssetMastersLists += "'" + item + "'";
+                    selectedAssetMastersLists +=   item ;
                 }
                 else
                 {
-                    selectedAssetMastersLists += ",'" + item + "'";
+                    selectedAssetMastersLists += "," + item ;
                 }
 
             }
             FixedAssetQueryService fixedAssetQueryService = new FixedAssetQueryService(_sqlRepository);
-            //fixedAssetQueryService.FixedAssetDepreciationProcess(voucherDetailVMList);
+            fixedAssetQueryService.FixedAssetDepreciationProcess(selectedAssetMastersLists, fiscalYearId, toDate);
 
             return Json(new { Message = AplosMessage.Insert });
         }
