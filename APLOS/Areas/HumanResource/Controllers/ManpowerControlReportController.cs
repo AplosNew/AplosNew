@@ -27,7 +27,7 @@ using System.Threading;
 using System.Web.Mvc;
 using Library.HumanResource.Attendance;
 
-namespace Aplos.Areas.PerformanceManagement.Controllers
+namespace Aplos.Areas.HumanResource.Controllers
 {
     public class ManpowerControlReportController : BaseController
     {
