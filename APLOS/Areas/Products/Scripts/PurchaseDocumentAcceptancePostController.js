@@ -206,7 +206,7 @@ function PurchaseDocumentAcceptancePostController(addressService, $window, facto
                 DrRows.TotalMaterialTranAmount = $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount;
                 $scope.rowDetails.push(DrRows);
             }
-            if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0) {
+            if ($scope.inventoryMaterialListPO[i].ServiceAmount > 0 && getRowDr.length == 0) {
                 DrRows = {};
                 DrRows.ClearingAccountGLId = $scope.inventoryMaterialListPO[i].ServiceGLId;
                 DrRows.ClearingAccountBudgetMasterId = $scope.inventoryMaterialListPO[i].ServiceBudgetMasterId;
