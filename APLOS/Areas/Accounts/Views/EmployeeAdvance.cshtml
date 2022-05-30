@@ -327,8 +327,8 @@
                     <th>Posting Date</th>
                     <th>Currency</th>
                     <th>Amount</th>
-                    <th>Set-off Amount</th>
-                    <th>Balance</th>
+                    @*<th>Set-off Amount</th>
+                    <th>Balance</th>*@
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -340,8 +340,8 @@
                     <td>{{x.PostingDate | dateFiltering}}</td>
                     <td>{{x.CurrencyCode}}</td>
                     <td class="text-right">{{x.Amount | number:2}}</td>
-                    <td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
-                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>
+                    @*<td class="text-right">{{x.WrittenOffAmount | number:2}}</td>
+                    <td class="text-right">{{x.Amount-x.WrittenOffAmount | number:2}}</td>*@
                     <td>{{x.IsPark?'Parked':'Posted'}}</td>
                     <td class="text-right">
                         <ul class="list-inline action-list">

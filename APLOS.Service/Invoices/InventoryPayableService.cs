@@ -3682,6 +3682,8 @@ namespace Library.Service.Invoices
 
                 foreach (var voucherDetailVM in rowDetails.Where(r => r.TrnType == "Dr"))
                 {
+                    if (voucherDetailVM.ClearingAccountGLId == null && voucherDetailVM.ClearingAccountBudgetMasterId == null && voucherDetailVM.ClearingAccountActivityId == null)
+                        throw new CustomException("GL not found!");
                     var voucherDr = new VoucherDetail
                     {
                         GLGeneralInfoId = voucherDetailVM.ClearingAccountGLId,

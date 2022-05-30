@@ -44,8 +44,8 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         InsuranceValue: 0,
         InsuranceAttachment: null,
         PaymentBasedOn: null,
-        IsAccepptanceFirst:'true',
-        AccepptanceFirst:'true',
+        IsAccepptanceFirst: 'true',
+        AccepptanceFirst: 'true',
         GRNFirst: 'false',
         Status: 'Active'
     };
@@ -104,7 +104,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
 
         //$scope.ChangeBankMaster();
 
-       
+
         $scope.GetPurchaseLCUsedInAcceptance($scope.purchaseLCNew.Id);
         if ($scope.purchaseLCNew.IsAccepptanceFirst) {
             $scope.purchaseLCNew.IsAccepptanceFirst = "true";
@@ -132,7 +132,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
     };
 
     $scope.PlantCountryId = null;
-    $scope.getPantCountry= function () {
+    $scope.getPantCountry = function () {
         $http({
             method: 'GET',
             url: 'Commercial/PurchaseLC/GetPlantCountry'
@@ -203,7 +203,9 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
             url: 'Commercial/PurchaseLC/GetPurchaseLCChargesVersionData?purchaseLCId=' + purchaseLCId + '&Version=' + $scope.version
         }).then(function successCallback(response) {
             $scope.purchaseLCChargesList = response.data;
-            $scope.voucherId = $scope.purchaseLCChargesList[0].VoucherId;
+            if (!baseService.isUndefinedOrNull($scope.purchaseLCChargesList[0].VoucherId)) {
+                $scope.voucherId = $scope.purchaseLCChargesList[0].VoucherId;
+            }
         });
     }
 
@@ -236,21 +238,21 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         angular.element(document.querySelector('#ContractPopUp')).modal('hide');
     }
 
-   
-    $scope.closePartyPopUp = function (x) {
-       
-            var party = x.data;
-            $scope.purchaseLCNew.VendorId = party.Id;
-            $scope.purchaseLCNew.PartyCode = party.Code;
-            $scope.purchaseLCNew.PartyName = party.UserName;
-            $scope.getVendorCountry();
 
-            if ($scope.PantCountryId == $scope.PartyCountryId) {
-                $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
-            } else {
-                $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
-            }
-        
+    $scope.closePartyPopUp = function (x) {
+
+        var party = x.data;
+        $scope.purchaseLCNew.VendorId = party.Id;
+        $scope.purchaseLCNew.PartyCode = party.Code;
+        $scope.purchaseLCNew.PartyName = party.UserName;
+        $scope.getVendorCountry();
+
+        if ($scope.PantCountryId == $scope.PartyCountryId) {
+            $scope.purchaseLCNew.IsAccepptanceFirst = 'false';
+        } else {
+            $scope.purchaseLCNew.IsAccepptanceFirst = 'true';
+        }
+
         $scope.hidePartyPopUp();
     };
 
@@ -474,7 +476,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
         }
     }
 
- 
+
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.purchaseLCNew.Id)) {
@@ -506,7 +508,7 @@ function purchaseLCController(accountService, commonMessage, $scope, $rootScope,
     function ClearFields() {
         $scope.voucherId = null;
         $scope.purchaseLC = {};
-        $scope.purchaseLCNew = { OrderSpecific: 'Yes', Id: null, Tenure: 0, Version: 0, IsAccepptanceFirst: 'true', Status: 'Active'};
+        $scope.purchaseLCNew = { OrderSpecific: 'Yes', Id: null, Tenure: 0, Version: 0, IsAccepptanceFirst: 'true', Status: 'Active' };
         $scope.purchaseLCChargesList = [];
         $scope.Action = 'Save';
         $scope.version = 0;

@@ -11,6 +11,7 @@ using Library.Service.Logs;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 
@@ -1937,6 +1938,26 @@ namespace Library.Accounting.FixedAssets
 				throw new CustomException(ex.Message, ex,
 					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name.ToString(), null,
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Calendars.ToString()));
+			}
+		}
+		public void FixedAssetDepreciationProcess(string selectedAssetMastersLists, string fiscalYearId, string toDate)
+		{
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				var rdBuilder = new System.Text.StringBuilder();
+				var builderSql = @"EXEC SP_FixedAssetDepreciationProcess '" + selectedAssetMastersLists + "' ,'" + fiscalYearId + "' ,'" + toDate + "' ,'" + identity.FullName + "' ,'" + identity.IPAddress + "'";
+				rdBuilder.Append(builderSql);
+				_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString());
+
+
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
 			}
 		}
 		#endregion
