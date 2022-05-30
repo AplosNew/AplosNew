@@ -11,8 +11,9 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.Action = 'Save';
     $scope.searchBy = "UserName"; $scope.searchBySO = "MasterOrderId"; $scope.searchSO = ''; $scope.search = "";
 
+    $scope.partyType = "Vendor";
     $controller('partyBaseController', { $scope: $scope, $http: $http });
-    $scope.partyType = 'Vendor';
+
     $scope.piemarker = { dataLabel: { visible: true, shape: 'none', connectorLine: { type: 'bezier', color: 'black' }, font: { size: '14px' } } };
 
     $scope.CostingSummaryDataMain = { BuyerTotal: 0, QuickCostingValue: 0, OrderCostingValue: 0, ProcurementCostingValue: 0, ProfitQuickCosting: 0, ProfitOrderCosting: 0, ProfitProcurementCosting: 0 };
@@ -1104,19 +1105,29 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.showPartyPopUp = function (ptype) {
         $scope.partyType = ptype;
         $scope.partyList = [];
-        $scope.getPartyList = function (pageno) {
+        $scope.getPartyList = function () {
 
-            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList/' + 'GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
-            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
-                .then(function (result) {
-                    $scope.partyList = result.Rows;
-                    $scope.partyParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure');
-                }).finally(function () {
-                });
+            //$scope.partyUrl = 'Parties/party/GetCompanyPartyDataList/' + 'GetCompanyPartyDataList?companyId=' + $window.companyId + '&PlantId=' + $window.plantId + '&partyType=' + $scope.partyType;
+            $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
+            //baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+            //    .then(function (result) {
+            //        $scope.partyList = result.Rows;
+            //        $scope.partyParameters.total_count = result.Total;
+            //    }, function () {
+            //        ShowResult(commonMessage.NetworkError, 'failure');
+            //    }).finally(function () {
+            //    });
+
+            $http({
+                method: 'POST',
+                url: $scope.partyUrl,
+                data: { column: $scope.searchByParty, value: $scope.searchParty },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.partyList = response.data;
+            });
         };
-        angular.element(document.querySelector('#partyPopUp')).modal('show');
+        angular.element(document.querySelector('#partyPopUpN')).modal('show');
         $scope.getPartyList();
     };
 
@@ -1130,26 +1141,36 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.selectedCustomer = id;
     };
 
-    $scope.closePartyPopUp = function () {
-        if ($scope.partyIndex !== -1) {
-            var party = $scope.partyList[$scope.partyIndex];
-            if ($scope.partyType == 'Customer') {
-                $scope.ModelNew.Customer = party.UserName;
-                $scope.ModelNew.CustomerId = party.Id;
-            }
-            else {
+    //$scope.closePartyPopUp = function () {
+    //    if ($scope.partyIndex !== -1) {
+    //        var party = $scope.partyList[$scope.partyIndex];
+    //        if ($scope.partyType == 'Customer') {
+    //            $scope.ModelNew.Customer = party.UserName;
+    //            $scope.ModelNew.CustomerId = party.Id;
+    //        }
+    //        else {
 
-                $scope.SelectedMaterialRow.Vendor = party.UserName;
-                $scope.SelectedMaterialRow.VendorId = party.Id;
+    //            $scope.SelectedMaterialRow.Vendor = party.UserName;
+    //            $scope.SelectedMaterialRow.VendorId = party.Id;
 
-            }
+    //        }
 
-            angular.element(document.querySelector('#partyPopUp')).modal('hide');
+    //        angular.element(document.querySelector('#partyPopUp')).modal('hide');
 
-        }
+    //    }
 
+    //};
+
+    $scope.closePartyPopUpN = function (args) {
+        var party = args.data;
+        $scope.SelectedMaterialRow.Vendor = party.UserName;
+        $scope.SelectedMaterialRow.VendorId = party.Id;
+        angular.element(document.querySelector('#partyPopUpN')).modal('hide');
     };
 
+    $scope.closePartyPopUp=  function () {
+        angular.element(document.querySelector('#partyPopUpN')).modal('hide');
+    }
 
     //#endregion End customer info
 
@@ -3833,7 +3854,8 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #region Master Order 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    $scope.materialType = ['BOM'];
+    //$scope.materialType = ['BOM'];
+    $scope.materialType = 'ProductDefinition';
     $scope.getMaterial = function (index, entryStage) {
         $scope.CostingStage = entryStage;
         $scope.itemIndex = index;

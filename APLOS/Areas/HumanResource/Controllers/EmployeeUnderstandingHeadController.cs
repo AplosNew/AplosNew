@@ -415,6 +415,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["Remarks"] = data.Remarks;
                     dr["Attachment"] = data.FileName;
                     dr["FileName"] = data.FileName;
+                    dr["DocumentCategoryId"] = data.DocumentCategoryId;
+                    dr["DocumentGeneration"] = data.DocumentGeneration;
+                    dr["PreparedBy"] = data.PreparedBy;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -440,7 +443,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                     dr["Remarks"] = data.Remarks;
                     dr["Attachment"] = data.FileName;
                     dr["FileName"] = data.FileName;
-
+                    dr["DocumentCategoryId"] = data.DocumentCategoryId;
+                    dr["DocumentGeneration"] = data.DocumentGeneration;
+                    dr["PreparedBy"] = data.PreparedBy;
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = DateTime.Now.ToString();
                     dr["UpdatedFromIP"] = identity.IPAddress;
@@ -555,6 +560,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         public string Id { get; set; }
         public string EmpUnderstandingActivityId { get; set; }
+        public string DocumentCategoryId { get; set; }
         public string EmployeeId { get; set; }
         public string DocumentPreprationFrequency { get; set; }
         public string DocumentType { get; set; }
@@ -563,9 +569,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         public string DocumentCode { get; set; }
         public string DocumentName { get; set; }
         public string Remarks { get; set; }
-        public string DocumentCategoryId { get; set; }
         public string Attachment { get; set; }
         public string FileName { get; set; }
+        public string DocumentGeneration { get; set; }
+        public string PreparedBy { get; set; }
         public string AddedBy { get; set; }
         public DateTime? AddedDate { get; set; }
         public string AddedFromIP { get; set; }
