@@ -367,13 +367,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
 
                 var str = @"Select Main.*,
-                              (Main.OnRoll - Main.LA - Main.TBS) as NetAvailable 
-                            ,(Case when (Main.OnRoll - Main.BB) > 0 then (Main.OnRoll - Main.BB) else 0 end) as OnRollExcess
-                            ,(Case when (Main.OnRoll - Main.BB) < 0 then (Main.OnRoll - Main.BB) else 0 end) as OnRollShort
-                            ,(Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) > 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end) as DepExcess
-                            ,(Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) < 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end) as DepShort
-                            , (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) < 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetShort
-                            , (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) > 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end) as NetExcess
+                              abs((Main.OnRoll - Main.LA - Main.TBS)) as NetAvailable 
+                            ,abs((Case when (Main.OnRoll - Main.BB) > 0 then (Main.OnRoll - Main.BB) else 0 end) ) as OnRollExcess
+                            ,abs ((Case when (Main.OnRoll - Main.BB) < 0 then (Main.OnRoll - Main.BB) else 0 end) )as OnRollShort
+                            ,abs ((Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) > 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end)) as DepExcess
+                            ,abs ((Case when (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) < 0 then (Main.Dep - (Main.OnRoll - Main.LA - Main.TBS)) else 0 end)) as DepShort
+                            ,abs ( (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) < 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end)) as NetShort
+                            ,abs ( (Case when ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) > 0 then ((Main.OnRoll - Main.LA - Main.TBS) - Main.Leaves) else 0 end)) as NetExcess
                             from
                             (
                             Select 
@@ -445,7 +445,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             group by  mb.CompanyId , mb.EntityId , c.UserName , p.UserName, div.UserName, e.UserName, dept.UserName , sec.UserName, ssec.UserName, desg.UserName, pos.Activity, pos.isDirect, pp.UserName, pos.Code, mb.Id, mb.Code ,shd.UserName,pos.UserReportGroup , pos.UserName, pos.PhysicalVarification , mb.IsRosterApplicable , mb.IsScattedWeekOffApplicable,pos.PaymentLink,pos.TaskManagementApplicable,dm.EmployeeCategoryId,pp.Id, div.Sequence ,dept.Sequence,sec.Sequence , ssec.Sequence ,desg.Sequence
                             ) as Main
                             where EntityId in (" + Parameters["EntityId"]+ @") and EmployeeCategoryId in ("+Parameters["EmpTypeId"]+ @")
-                            and UserReportGroup in (" + Parameters["UserReportGroup"] + @") and ProcessId in (" + Parameters["ProcessId"] + @")
+                            and UserReportGroup in (" + Parameters["UserReportGroup"] + @") --and ProcessId in (" + Parameters["ProcessId"] + @")
                             order by  DivSeq ,DeptSeq,SecSeq , SSecSeq ,DesgSeq
                             ";
 
