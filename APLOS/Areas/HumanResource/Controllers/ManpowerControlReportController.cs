@@ -367,6 +367,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 }
 
                 var str = @"Select Main.*,
+
                               abs((Main.OnRoll - Main.LA - Main.TBS)) as NetAvailable 
                             ,abs((Case when (Main.OnRoll - Main.BB) > 0 then (Main.OnRoll - Main.BB) else 0 end) ) as OnRollExcess
                             ,abs ((Case when (Main.OnRoll - Main.BB) < 0 then (Main.OnRoll - Main.BB) else 0 end) )as OnRollShort
