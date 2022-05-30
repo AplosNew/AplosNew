@@ -157,6 +157,11 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $scope.SubmitContractNo = null;
         $scope.SubmitCustomerName = null;
     };
+
+    $scope.searchBOQByParty = "UserName"; $scope.searchBOQParty = "";
+    $scope.searchBOQByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
+
+
     $scope.newpartyList = [];
     $scope.showBOQPartyPopUpNew = function () {
 
@@ -167,7 +172,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         $http({
             method: 'POST',
             url: $scope.partyUrl,
-            data: { column: $scope.searchByParty, value: $scope.searchParty },
+            data: { column: $scope.searchBOQByParty, value: $scope.searchBOQParty },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.newpartyList = response.data;
