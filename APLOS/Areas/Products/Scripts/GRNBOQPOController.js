@@ -1979,6 +1979,5 @@ function GRNBOQPOController(addressService, $window, factoryService, cboService,
         var data = gridObj.getSelectedRecords()[0];
         location.href = " GoodsReceiveNote/GRNBOQPOReport?grnBOQPOId=" + data.Id;
     };
-    //#endregion
 
 }

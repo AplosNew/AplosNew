@@ -679,8 +679,9 @@ namespace Library.Accounting.Accounts
 	                         , IR.BaseCurrencyId, BCU.Code AS BaseCurrency, IR.CurrencyId, TCU.Code AS  TranscationCurrency, IR.ToCurrencyRate
 	                         , FiscalYearName=CASE WHEN IR.EmployeeId<>'' THEN FYEP.FiscalYearName ELSE FY.FiscalYearName END
 	                         , PeriodNo=CASE WHEN IR.EmployeeId<>'' THEN FYPEP.PeriodNo ELSE FYP.PeriodNo END
-							 , IR.AddedBy, IR.UpdatedBy, IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,IR.POId,IR.NoteforAccounts Narration
+							 , IR.AddedBy, IR.UpdatedBy, IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate,IRD.POId,IR.NoteforAccounts Narration
                         FROM [TRN].[InventoryReceive] AS IR
+						LEFT JOIN (SELECT DISTINCT InventoryReceiveId,POId FROM TRN.InventoryReceiveDetail ) IRD ON IRD.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[Invoice] AS IV ON IV.InventoryReceiveId=IR.Id
 						LEFT JOIN [TRN].[Voucher] AS V ON IR.VoucherId=V.Id
 						LEFT JOIN [SCS].[FiscalYear] AS FY ON V.FiscalYearId=FY.Id
