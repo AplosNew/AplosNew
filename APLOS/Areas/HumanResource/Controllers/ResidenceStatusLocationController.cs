@@ -136,6 +136,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(rsl.view(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpPost, Authorize]
+        public ActionResult PopupEmployeeView(string fromDate, string toDate, string EmployeeCategorySystemID)
+        {
+            return Json(rsl.PopupEmployeeView(fromDate, toDate, EmployeeCategorySystemID), JsonRequestBehavior.AllowGet);
+        }
 
         #region Save Operations
         [HttpPost]
