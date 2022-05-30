@@ -51,36 +51,50 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
 
-        [HttpGet, Authorize]
-        public ActionResult getFilters()
+       // [HttpGet, Authorize]
+       // public ActionResult getFilters()
+       // {
+       //     try
+       //     {
+       //         var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+							//,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
+							//,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+							//from UtilityTransaction UT
+							//left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+							//left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
+							//group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							//,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
+
+       //         return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+       //     }
+       //     catch (Exception e)
+       //     {
+       //         throw e;
+       //     }
+       // }
+
+        [Authorize, HttpPost]
+        public ActionResult getUtilityTransactionData(string ToDate, string FromDate)
         {
-            try
-            {
-                var sql = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+            var str = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category,UM.Item
 							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
 							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
 							from UtilityTransaction UT
 							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
 							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
-							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+                             where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
+                             group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
 							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpPost, Authorize]
-        public ActionResult GetUtilityTransactionReport(Dictionary<string, string> parameters)
+        public ActionResult GetUtilityTransactionReport(string ToDate , string FromDate)
         {
             try
             {
                 string fileName = "";
-                fileName = UtilityTransactionReport(parameters, "Utility Transaction Report");
+                fileName = UtilityTransactionReport(ToDate,FromDate, "Utility Transaction Report");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -90,7 +104,7 @@ namespace Aplos.Areas.Materials.Controllers
 
         }
 
-        public string UtilityTransactionReport(Dictionary<string, string> parameters, string SheetName)
+        public string UtilityTransactionReport(string ToDate, string FromDate, string SheetName)
         {
             ExcelEngine excelEngine = null;
             IApplication application = null;
@@ -107,7 +121,7 @@ namespace Aplos.Areas.Materials.Controllers
                 workbook.Worksheets[0].Name = "UtilityTransactionReport";
                 sheet = workbook.Worksheets[0];
                 DataTable data;
-                UtilityTransactionReportSQL(parameters, out data);
+                UtilityTransactionReportSQL(ToDate,FromDate, out data);
 
                 int ROW = 6; int COL = 1;
 
@@ -244,21 +258,19 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public void UtilityTransactionReportSQL(Dictionary<string, string> parameters, out DataTable data)
+        public void UtilityTransactionReportSQL(string ToDate, string FromDate, out DataTable data)
         {
             try
             {
-
-
-                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityCategory                                                Category,UM.UtilitySubCategory SubCategory 
-							                ,UM.Item,UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup
-											,UT.Quantity,UT.Reading,UT.Remarks
-							                from UtilityTransaction UT
-							                left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
-                                            where UT.Id in (" + parameters["Id"] + @")
-                                           
-											group by UT.Id,UT.[Date],UT.AddedDate,UM.UtilityCategory,UM.UtilitySubCategory,UM.Item,UM.UtilityGroup,UM.UtilitySubGroup
-											,UT.Quantity,UT.Reading,UT.Remarks";
+                string strSQL = @"select UT.Id,FORMAT(UT.Date,'dd-MMM-yyyy') [Date],MAX(CONVERT(varchar(5),UT.AddedDate,108)) [Time],UM.UtilityGroup [Group],UM.UtilitySubGroup SubGroup,UM.UtilityCategory Category
+							,UM.UtilitySubCategory SubCategory,UM.Item,EI.EmployeeName ResponsiblePerson 
+							,format(UT.AddedDate,'dd-MMM-yyyy')AddedDate,UT.Quantity,UT.Reading,UT.Remarks
+							from UtilityTransaction UT
+							left join UtilityMaster UM on UM.Id=UT.UtilityMasterId
+							left join EmployeeInformation EI on EI.SystemId=UM.ResponsiblePersonId
+							where UT.Date between '" + FromDate + @"' and '" + ToDate + @"'
+							group by UT.Id,UT.Date,UT.AddedDate,UM.UtilityGroup,UM.UtilitySubGroup,UM.UtilityCategory,UM.UtilitySubCategory
+							,UM.Item,EI.EmployeeName,UT.Quantity,UT.Reading,UT.Remarks";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }
