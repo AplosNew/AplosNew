@@ -3,6 +3,7 @@ ManpowerControlReportController.$inject = ['commonMessage', '$scope', '$rootScop
 function ManpowerControlReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Manpower Control Report';
     $scope.path = 'HumanResource/ManpowerControlReport';
+
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.Dates = new Date();
