@@ -13,6 +13,7 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     $scope.employeeUrl = 'IE/MachineMasterTransaction/GetEmployeeListByWhom';
     //$scope.employeeUrl = $scope.path + 'GetEmployeeListByWhom',
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.downloadgriddataUrlPath = 'Banks/CheckManagement/DownloadUsingFullPath';
 
 
     $scope.pdc = {
@@ -31,13 +32,14 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
         //VoucherId: false,
         //IsClose: false,
         //PaymentTermId: null,
+        ChequeNo: null,
         Amount: 0,
         ResponsiblePersonId: null,
         ResponsiblePersonCode: null,
         ResponsiblePerson: null,
         POId: null,
         RemainderDays: null,
-        Days:7,
+        Days: 7,
         Remarks: null
 
     };
@@ -67,22 +69,22 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
         else {
             $scope.pdcNew.BankMasterId = bank.BankMasterId;
             $scope.pdcNew.BankName = bank.BankName;
-           
-           //$scope.checkLotNew.BankCurrencyId = bank.CurrencyId;
+
+            //$scope.checkLotNew.BankCurrencyId = bank.CurrencyId;
             //$scope.checkLotNew.BankCurrency = bank.CurrencyCode;
         }
     }
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-       
-            //$scope.removeDrRow();
-            $scope.pdcNew.PartyId = party.Id;
-            $scope.pdcNew.PartyCode = party.Code;
-            $scope.pdcNew.PartyName = party.UserName;
-            //$scope.pdcNew.CurrencyId = party.CurrencyId;
-          
-        
+
+        //$scope.removeDrRow();
+        $scope.pdcNew.PartyId = party.Id;
+        $scope.pdcNew.PartyCode = party.Code;
+        $scope.pdcNew.PartyName = party.UserName;
+        //$scope.pdcNew.CurrencyId = party.CurrencyId;
+
+
         $scope.hidePartyPopUp();
     };
 
@@ -102,27 +104,27 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     $scope.Save = function () {
         try {
             $scope.$broadcast("show-errors-check-validity");
-            
-                $http({
-                    method: "POST",
-                    url: $scope.saveUrl,
-                    data: { 'Pdc': $scope.pdcNew },
-                    dataType: "JSON"
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.
-                            data.Message, "failure");
-                    }
-                    else {
-                        ShowResult(response.data.Message, "success");
-                        $scope.Action = 'Update';
-                        $scope.getData();
-                        $scope.Clear();
-                    }
-                });
-                    return true;
-            }
-      catch (e) {
+
+            $http({
+                method: "POST",
+                url: $scope.saveUrl,
+                data: { 'Pdc': $scope.pdcNew },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.
+                        data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.Action = 'Update';
+                    $scope.getData();
+                    $scope.Clear();
+                }
+            });
+            return true;
+        }
+        catch (e) {
             ShowResult(e, "failure");
         }
     };
@@ -259,12 +261,12 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
     $scope.getchequeLotDetailList = function (chequeId) {
         $scope.TempchequeLot = null;
         try {
-        $http({
-            method: "get",
-            url: "banks/CheckManagement/GetChequeLotDetailList?chequeId=" + chequeId
-        }).then(function successCallback(response) {
-            $scope.chequeLotDetailList = response.data;
-            $scope.TempchequeLot = chequeId;
+            $http({
+                method: "get",
+                url: "banks/CheckManagement/GetChequeLotDetailList?chequeId=" + chequeId
+            }).then(function successCallback(response) {
+                $scope.chequeLotDetailList = response.data;
+                $scope.TempchequeLot = chequeId;
             });
             angular.element(document.querySelector("#chequeLotPopUp")).modal("show");
         } catch (e) {
@@ -276,50 +278,58 @@ function postDateChequeController(commonMessage, cboService, $scope, $rootScope,
 
     }
 
-    $scope.Griddata = [];
-    $scope.getalldata = function () {
-        //debugger;
-        var PoType = 'PO';
+    //new Start
+    $scope.POGridData = [];
+    $scope.GetPOData = function () {
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Banks/CheckManagement/GetListOfPO?PoType=' + PoType + '&Status=' + $scope.status,
+            url: 'Banks/CheckManagement/GetPOList?VendorId=' + $scope.pdcNew.PartyId,
         }).then(function successCallback(response) {
-            $scope.Griddata = response.data;
-            $scope.productNew.GRNDate = $filter("dateFiltering")(Date.now());
+            $scope.POGridData = response.data;
         });
-    };
+    }
+        //New end
 
-    $scope.POPopUp = function () {
-        //$scope.getalldata();
-        //debugger
-        $scope.status = 'PO';
-        if ($scope.status === 'PO') {
-            $scope.status = 'PO';
-            //alert('1');
-            $scope.productNew.PO = 'PO';
-            $scope.getalldata();
+        $scope.GetPO = function () {
+            $scope.GetPOData();
+            angular.element(document.querySelector('#POPopUp')).modal('show');
+        };
+
+        $scope.POPopUpClose = function () {
+            angular.element(document.querySelector('#POPopUp')).modal('hide');
+        };
+
+
+    $scope.POAdd = function (obj) {
+            $scope.pdcNew.POId = obj.data.POId;
+            angular.element(document.querySelector('#POPopUp')).modal('hide');
         }
-        else if ($scope.status === 'Acceptance') {
-            $scope.status = 'Acceptance';
-            $scope.productNew.PO = 'Acceptance';
-            $scope.getalldata();
+
+    $scope.Report = function (obj) {
+        try {
+            $scope.fileName = "Post Date Cheque.xlsx";
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetPostDateChequeReport",
+                data: { 'POId': obj.data.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error == false) {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    //$window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                }
+                else {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        angular.element(document.querySelector('#POPopUp')).modal('show');
 
-    };
+    }
 
-    $scope.POPopUpClose = function () {
-        //debugger;
-        angular.element(document.querySelector('#POPopUp')).modal('hide');
 
-    };
-
-//    $scope.Get = function (data) {
-//        $scope.checkLotNew.Id = data.Id;
-//        $scope.checkLotNew.FromNo = data.FromNo;
-//        $scope.checkLotNew.ToNo = data.ToNo;
-//        $scope.checkLotNew.LotNumber = data.LotNumber;
-//        $scope.Action = "Update";
-//    };
-}
+    }

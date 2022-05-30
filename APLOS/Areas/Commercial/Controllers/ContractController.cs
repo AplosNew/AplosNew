@@ -63,15 +63,18 @@ namespace Aplos.Areas.Commercial.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string sql = @"SELECT C.Id, C.CustomerId, C.IsLC, C.AddedBy, C.AddedDate, C.AddedFromIP, C.UpdatedBy, C.UpdatedDate, C.UpdatedFromIP, C.MasterLCId, 
-							isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
-							C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
-							C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
-							C.MarketingCommisssionValue, isnull(C.MasterOrderId,'')MasterOrderId, isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo
-							,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
-							TRN.MasterOrder XMOI
-							INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
-							LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
-							where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
+C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
+C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
+C.MarketingCommisssionValue,  isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo
+,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
+TRN.MasterOrder XMOI
+INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
+LEFT JOIN [HKP].[Buyer] AS B ON B.Id=XMOI.BuyerId	  
+where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
+,ItemNo=isnull(STUFF((select distinct ','+I.Id from 
+ TRN.MasterOrderItem I 
+where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
                             FROM [dbo].[Contract] C
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId

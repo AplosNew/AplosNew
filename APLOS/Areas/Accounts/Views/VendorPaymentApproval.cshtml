@@ -1,0 +1,75 @@
+﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{FormTitle}}</h3>
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="$root.parameters.searchBy">
+                            <option ng-repeat="option in searchVendorInvoiceList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>VoucherNo</th>
+                <th>Vendor</th>
+                <th>Posting Date</th>
+                <th>Multiple Payment No</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Approval Status</th>
+                <th>Remarks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr dir-paginate="x in paymentList |itemsPerPage:$root.pageSize" total-items="$root.total_count" @*ng-dblclick="getById(x.Id);"*@>
+                <td>{{x.VoucherNo}}</td>
+                <td>{{x.PartyCode}} - {{x.PartyName}}</td>
+                <td>{{x.PostingDate | dateFiltering}}</td>
+                <td>{{x.MultiplePaymentNo}}</td>
+                <td>{{x.CurrencyCode}}</td>
+                <td class="text-right">{{x.Amount | number:2}}</td>
+                <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                <td>
+                    <div class="select-style">
+                        <select name="Approval Status" ng-model="x.ApprovalStatus" class="form-control" style="height: 28px;width: 100px;">
+                            <option ng-repeat="option in ApprovalStatusList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <textarea type="text" ng-model="x.ApproveRemark" rows="1" class="form-control" style="width: 105px;"></textarea>
+                </td>
+                <td align="right">
+                    <ul class="list-inline action-list">
+                        <li ng-show="x.IsPark"><a ng-click="confirmPost(x);" href="" class="btn btn-action tooltip-here"><i class="glyphicon glyphicon-floppy-disk"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/invoice/VendorInvoicePaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/invoice/VendorInvoicePaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+</div>
+<confirm-archive-generic modalid="confirmPostPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Approve()"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(invoiceWriteOffId,voucherId)"></confirm-archive-generic>
+
+
+
+

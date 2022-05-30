@@ -95,6 +95,7 @@ function InvoiceTaggedWithLCController(accountService, commonMessage, $scope, $r
         $scope.LcModel = Object.assign({}, args.data);
         $scope.LcModel.IsLoan = tempValue;
         $scope.LcModel.LoanAmount = 0;
+        $scope.LcModel.LoanNo = $scope.LcModel.LCRef;
         angular.element(document.querySelector("#PurchaseLCPopUp")).modal("hide");
     }
 

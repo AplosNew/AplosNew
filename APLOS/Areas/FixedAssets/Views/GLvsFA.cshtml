@@ -49,77 +49,29 @@
 
     
 
-    @*<div class="table-responsive modal-table aplos-grid-toggle">
+    <div class="table-responsive modal-table aplos-grid-toggle">
         <div class="content-container-fluid" style="color:black;overflow:scroll">
-            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="MasterLCList"
+            <div style="color:black;" id="GridMasterLC" ej-grid e-datasource="GLFAList"
                  e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                  e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
                 <div e-columns>
 
-                    <div e-column e-template="#checkMasterLC" e-headertext="" e-width="20"></div>
-                    <div e-column e-field="MasterLCNo" e-headertext="MasterLCNo" e-width="100"></div>
-
-                    <div e-column e-field="Vendor" e-headertext="Vendor" e-width="100"></div>
-
-                    <div e-column e-field="PurchaseLCId" e-headertext="Purchase LC Id" e-width="100"></div>
-                    <div e-column e-field="PurchaseLCRef" e-headertext="Purchase LC Ref" e-width="50"></div>
-                    <div e-column e-field="LCOpeningDate" e-headertext="LC OpeningDate" e-width="50"></div>
-                    <div e-column e-field="ExpiryDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="Expiry Date" e-width="80"></div>
-                    <div e-column e-field="PurCurrencyCode" e-headertext="Currency" e-width="80"></div>
-                    <div e-column e-field="PurchaseLCAmount" e-headertext="Purchase LC Value" e-width="100"></div>
-                    <div e-column e-field="Rate" e-headertext="Rate" e-width="100"></div>
-                    <div e-column e-field="Type" e-headertext="Type" e-width="50"></div>
-                    <div e-column e-field="Tenure" e-headertext="Tenure" e-width="50"></div>
-                    <div e-column e-field="OpeningBank" e-headertext="Opening Bank" e-width="120"></div>
-                    <div e-column e-field="BenificiaryBank" e-headertext="Benificiary Bank" e-width="120"></div>
-                    <div e-column e-field="BenificiaryBankDescription" e-headertext="Benif.Bank Descp." e-width="120"></div>
-                    <div e-column e-field="LeinBank" e-headertext="Lein Bank" e-width="120"></div>
-
-                    <div e-column e-field="LeinBankDescription" e-headertext="Lein Bank Descp." e-width="150"></div>
-                    <div e-column e-template="#checkMasterLC" e-headertext="" e-width="40"></div>
-                      <div e-column e-template="#checkMasterLC" e-headertext="" e-width="40"></div>
-                    <div e-column e-field="PortOfLoading" e-headertext="Port Of Loading" e-width="100"></div>
-                    <div e-column e-field="FinalDestination" e-headertext="Final Destination" e-width="120"></div>
-                    <div e-column e-field="Status" e-headertext="Status" e-width="120"></div>
-                    <div e-column e-field="LCANo" e-headertext="LCANo" e-width="120"></div>
-                    <div e-column e-field="PaymentBasedOn" e-headertext="PaymentBasedOn" e-width="150"></div>
-                    <div e-column e-field="ShipmentDate" e-type="date" e-format="{0:dd-MMM-yyyy}" e-headertext="ShipmentDate" e-width="80"></div>
-                    <div e-column e-field="PINo" e-headertext="PI No" e-width="150"></div>
-
-                    <div e-column e-field="ContractNo" e-headertext="Contract No" e-width="100"></div>
-                    <div e-column e-field="Customer" e-headertext="Customer" e-width="100"></div>
-                    <div e-column e-field="UDNo" e-headertext="UDNo" e-width="100"></div>
-
-                    <div e-column e-field="PONo" e-headertext="PO No" e-width="100"></div>
-                    <div e-column e-field="OrderSpecific" e-headertext="Ord.Specific" e-width="100"></div>
-                    <div e-column e-field="GRNNo" e-headertext="GRN No." e-width="100"></div>
-
+                    <div e-column e-field="FixedAsset" e-type="text" e-headertext="Fixed Asset" e-width="100"></div>
+                    <div e-column e-field="GLName" e-type="text" e-headertext="GL Name" e-width="100"></div>
+                    <div e-column e-field="BudgetName" e-type="text" e-headertext="Budget" e-width="100"></div>
+                    <div e-column e-field="ActivityName" e-type="text" e-headertext="Activity" e-width="50"></div>
+                    <div e-column e-field="GLAmount" e-type="Number" e-headertext="GL Amount" e-width="50"></div>
+                    <div e-column e-field="CapitalizeAmount" e-type="Number" e-headertext="Capitalize Amount" e-width="80"></div>
+                    <div e-column e-field="TotalGLAmount" e-type="Number" e-headertext="Total GL Amount" e-width="100"></div>
+                    <div e-column e-field="RegisterAmount" e-type="Number" e-headertext="Register Amount" e-width="100"></div>
+                    <div e-column e-field="SubAssetAmount" e-type="Number" e-headertext="SubAsset Amount" e-width="50"></div>
+                    <div e-column e-field="TotalRegisterAmount" e-type="Number" e-headertext="Total Reg. Amount" e-width="50"></div>
+                    <div e-column e-field="Diffrence" e-type="Number" e-headertext="Diffrence" e-width="120"></div>
 
                 </div>
             </div>
-            <script type="text/template" id="checkMasterLC">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="data.isSelected" tabindex="8">
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-            </script>
-
-            <script type="text/x-jsrender" id="headerTemplate">
-                <input type="checkbox" id="headchk" />
-            </script>
-            <script type="text/template" id="checkMasterLC">
-                <div class="checkbox-site">
-                    <label>
-                        <input type="checkbox" ng-model="data.isSelected" tabindex="10" />
-                        <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                    </label>
-                </div>
-          </script>
-
         </div>
-    </div>*@
+    </div>
 
     <div class="form-group">
         <div class="col-xs-12 col-sm-12 col-md-12">

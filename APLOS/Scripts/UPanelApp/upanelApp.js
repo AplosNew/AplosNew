@@ -1033,9 +1033,13 @@ upanelApp.controller("DetentionMasterController", DetentionMasterController);
 upanelApp.controller("UtilityMasterController", UtilityMasterController);
 upanelApp.controller("AbsentismReasoningMasterController", AbsentismReasoningMasterController);
 upanelApp.controller("InventorySalesReportMarketingController", InventorySalesReportMarketingController);
+upanelApp.controller("CurrentFundPositionController", CurrentFundPositionController);
 
 upanelApp.controller("EmployeeTimeOutController", EmployeeTimeOutController);
 upanelApp.controller("postDateChequeController", postDateChequeController);
+upanelApp.controller("vendorPaymentApprovalController", vendorPaymentApprovalController);
+upanelApp.controller("ManpowerControlReportController", ManpowerControlReportController);
+upanelApp.controller("SalesOrderStatusReportController", SalesOrderStatusReportController);
 
 upanelApp.config(AccessControllerConfig);
 upanelApp.config(AdministrationConfig);

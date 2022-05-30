@@ -287,6 +287,7 @@
                         <th>Exchange Type</th>
                         <th>Exchange Amount</th>
                         <th>Books Amount</th>
+                        <th>File Name</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -312,6 +313,16 @@
                         </td>
                         <td>
                             <input type="text" n-decimals="2" readonly title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                        </td>
+                        <td>
+                            <div class="col-md-12">
+                                <div class="col-md-7">
+                                    <label class="col-sm-4 control-label" ng-click="FileDownload(x)"><a href="{{dwonloadUrl}}" style="text-decoration:underline" download="{{x.FileName}}" target="_self">{{x.FileName}}</a></label>
+                                </div>
+                                <div class="col-md-5">
+                                    <div id="UploadDefault" e-id="{{x.InvoiceId}}" e-data="x.InvoiceId" e-dialogPosition-x="0" e-multiplefilesselection="false" e-width="50" e-buttontext-browse="+File" e-success="$parent.getFileList" e-showroundedcorner="false" @*e-height="30"*@ e-autoupload="true" e-begin="onBeginUpload" e-filesize="2097152" ej-uploadbox e-saveurl="uploadUrl" e-extensionsallow=".jpg,.bmp,.png,.jpeg,.pdf,.xls,.xlsx,.doc,.docx,.ppt,.pptx,.txt" @*e-error="errorUpload"*@></div>
+                                </div>
+                            </div>
                         </td>
                         <td class="text-right">
                             <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">

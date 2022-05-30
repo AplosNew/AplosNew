@@ -202,7 +202,9 @@ function PurchaseLCWithPOController(accountService, commonMessage, $scope, $root
             url: 'Commercial/PurchaseLC/GetPurchaseLCChargesVersionData?purchaseLCId=' + purchaseLCId + '&Version=' + $scope.version
         }).then(function successCallback(response) {
             $scope.purchaseLCChargesList = response.data;
-            $scope.voucherId = $scope.purchaseLCChargesList[0].VoucherId;
+            if (!baseService.isUndefinedOrNull($scope.purchaseLCChargesList[0].VoucherId)) {
+                $scope.voucherId = $scope.purchaseLCChargesList[0].VoucherId;
+            }
         });
     }
 

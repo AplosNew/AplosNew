@@ -98,8 +98,8 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         UpdatedFromIP: null,
         PartyGLType: null,
         Accounttype: null,
-        UserCategory: null,
-        UserSubCategory: null,
+        PartyCategoryId: null,
+        PartySubCategoryId: null,
         Latitude: null,
         Longitude:null
     };
@@ -218,6 +218,8 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
     $scope.AreaList = [];
     $scope.CityList = [];
     $scope.partyGroupList = [];
+    $scope.partyCategoryList = [];
+    $scope.partySubCategoryList = [];
     // #endregion
 
     // #region GetSequence
@@ -272,6 +274,20 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
         url: 'Parties/partygroup/getcbolist'
     }).then(function (response) {
         $scope.partyGroupList = response.data;
+    });
+
+    $http({
+        method: 'GET',
+        url: 'Parties/PartyCategory/GetPartyCategoryCbo'
+    }).then(function (response) {
+        $scope.partyCategoryList = response.data;
+    });
+
+    $http({
+        method: 'GET',
+        url: 'Parties/PartySubCategory/GetPartySubCategoryCboList'
+    }).then(function (response) {
+        $scope.partySubCategoryList = response.data;
     });
 
     $http({

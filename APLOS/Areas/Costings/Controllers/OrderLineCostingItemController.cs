@@ -64,7 +64,7 @@ namespace Aplos.Areas.Costings.Controllers
         {
 
             string sql = @"SELECT N.*,CC.UserName CostingComponent from [dbo].[OrderLineCostingItem] N
-                            LEFT JOIN HKP.CostingComponent AS cc ON CC.Id=N.CostingComponentId";
+                            LEFT JOIN HKP.CostingComponent AS cc ON CC.Id=N.CostingComponentId ORDER BY N.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

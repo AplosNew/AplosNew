@@ -1,7 +1,7 @@
 ﻿<div class="modal fade site-modal in" id="boqpartyPopUp" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg ">
         <div class="modal-content">
-            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUpNew();">&times;</button></div>
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closeBOQPartyPopUpNew();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
                 <div class="row text-right">
                     <div class="col-xs-12 col-sm-12 col-sm-12">
@@ -9,13 +9,13 @@
                             <div class="row">
                                 <div class="col-xs-12 col-sm-3 col-md-3">
                                     <div class="select-style">
-                                        <select ng-model="searchByParty">
-                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        <select ng-model="searchBOQByParty">
+                                            <option ng-repeat="option in searchBOQByPartyList" value="{{option.value}}">{{option.name}}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUpNew()">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchBOQParty" ng-enter="showBOQPartyPopUpNew()">
                                 </div>
                                 <div class="col-xs-12 col-sm-2 col-md-2">
                                     <button type="button" ng-click="showBOQPartyPopUpNew()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>

@@ -9,10 +9,14 @@ using Library.Data.Sql;
 using Library.Model.Accounts;
 using Library.Model.Commercial;
 using Library.Model.Enums;
+using Library.Model.Invoices;
 using Library.Model.Payments;
+using Library.Security.Core;
 using Library.Service.Currencies;
 using Library.Service.Employees;
 using Library.Service.Enums;
+using Library.Service.Extension;
+using Library.Service.Helpers;
 using Library.Service.Invoices;
 using Library.Service.Organizations;
 using Library.ViewModel.Accounts;
@@ -22,9 +26,13 @@ using Library.ViewModel.Vouchers;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Web;
 using System.Web.Mvc;
+using OTSBD;
 
 namespace Aplos.Areas.Accounts.Controllers
 {
@@ -75,8 +83,73 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/InvoiceOverheadPost.cshtml");
         }
 
-       
 
+        [HttpGet, Authorize]
+        public ActionResult GetMultiVendorPaymentReport(ReportFormat reportFormat, string mpdId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accountsInvoiceService.MultiVendorPaymentReportSheet(out string reportFileName, mpdId);
+
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
+        }
+        [HttpGet, Authorize]
+        public ActionResult DownloadUsingFullPath(string FullPath, string fileName)
+        {
+            try
+            {
+                ExcelEngine excelEngine = new ExcelEngine();
+                //string fullPath = HostingEnvironment.MapPath("~/") + FileName;
+                IWorkbook workbook = excelEngine.Excel.Workbooks.Open(FullPath);
+                try
+                {
+                    System.IO.File.Delete(FullPath);
+                }
+                catch (Exception)
+                {
+                }
+
+                workbook.SaveAs(fileName, HttpContext.ApplicationInstance.Response, ExcelDownloadType.Open);
+                return null;
+
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return null;
+        }
+        //[HttpPost, Authorize]
+        //public ActionResult GetMultiVendorPaymentReport(string mpdId)
+        //{
+        //    try
+        //    {
+        //        AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+        //        var workbook = _accountsInvoiceService.MultiVendorPaymentReportSheet(mpdId);
+
+        //        var fileName = "Multi Vendor Payment Report.xlsx";
+        //        string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName);
+        //        workbook.SaveAs(fullPath);
+
+        //        return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+
+        //}
 
 
         [HttpGet, Authorize]
@@ -576,12 +649,46 @@ namespace Aplos.Areas.Accounts.Controllers
             return View("~/Areas/Accounts/Views/VendorPayment.cshtml");
         }
 
+        public ActionResult VendorPaymentApproval()
+        {
+            return View("~/Areas/Accounts/Views/VendorPaymentApproval.cshtml");
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetVendorPaymentList(GridParameter parameters)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_invoiceWriteOffService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
         }
+
+
+        [Authorize, HttpGet]
+        public JsonResult GetVendorPaymentParkedNonPostedList(GridParameter parameters)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_invoiceWriteOffService.GetVendorPaymentParkedNonPostedList(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorPayment), JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult ApproveVendorPayment(InvoiceWriteOff invoiceWriteOff)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            OTSBD.IdentityParameter para = new OTSBD.IdentityParameter
+            {
+                CompanyGroupId = identity.CompanyGroupId,
+                CompanyId = identity.CompanyId,
+                PlantId = identity.PlantId,
+                AddedBy = identity.Name,
+                AddedDate = DateTime.Now,
+                AddedFromIP = identity.IPAddress,
+                UpdatedBy = identity.Name,
+                UpdatedDate = DateTime.Now,
+                UpdatedFromIP = identity.IPAddress
+            };
+
+            _invoiceWriteOffService.ApproveVendorPayment(invoiceWriteOff, para);
+            return Json(new { Message = AplosMessage.Posted });
+        }
+
 
         [HttpPost]
         public JsonResult InsertVendorPayment(VoucherViewModel voucherVM, IEnumerable<VoucherDetailViewModel> voucherDetailVMList
@@ -1453,6 +1560,89 @@ namespace Aplos.Areas.Accounts.Controllers
         //    }
         //    return null;
         //}
+        #endregion
+
+
+        #region Attachment
+
+        [HttpPost, Authorize]
+        public ActionResult SaveDefault(IEnumerable<HttpPostedFileBase> UploadDefault, string UploadDefault_data)
+        {
+            try
+            {
+                UploadDefault_data = UploadDefault_data.Replace("\"", "");
+                if (string.IsNullOrEmpty(UploadDefault_data))
+                    throw new Exception("Save the order first");
+
+                foreach (var file in UploadDefault)
+                {
+
+                    var fileName = Path.GetFileName(UploadDefault_data + new FileInfo(file.FileName).Extension);
+                    var fileN = file.FileName;
+                    var destinationPath = Path.Combine(ResourcesPathReader.GetInvoiceDocumentPath(), fileName);
+
+                    var directory = ResourcesPathReader.GetInvoiceDocumentPath();
+                    var path = Path.Combine(directory);
+
+                    if (System.IO.Directory.Exists(ResourcesPathReader.GetInvoiceDocumentPath()) == false)
+                    {
+                        try
+                        {
+                            System.IO.Directory.CreateDirectory(ResourcesPathReader.GetInvoiceDocumentPath());
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+
+
+                    ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                    string sql = "SELECT * FROM [TRN].[Invoice] WHERE Id='" + UploadDefault_data + "'";
+                    DataSet dsLocal = null;
+                    connection.BeginTransaction();
+                    connection.getDataSet(sql, out dsLocal);
+                    connection.CommitTransaction();
+                    var FN = dsLocal.Tables[0].Rows[0]["FileName"].ToString();
+                    if (fileN != FN)
+                        if (System.IO.File.Exists(path + UploadDefault_data + Path.GetExtension(FN)))
+                            System.IO.File.Delete(path + UploadDefault_data + Path.GetExtension(FN));
+
+                    if (dsLocal.Tables[0].Rows.Count > 0)
+                    {
+                        dsLocal.Tables[0].Rows[0].BeginEdit();
+
+                        dsLocal.Tables[0].Rows[0]["FileName"] = fileN;
+
+                        dsLocal.Tables[0].Rows[0].EndEdit();
+
+                        file.SaveAs(destinationPath);
+                        OTSBD.clsStaticInfo info = new OTSBD.clsStaticInfo();
+                        info.SaveDataSets(dsLocal);
+
+
+
+                    }
+                }
+                return Content("");
+            }
+            catch (Exception ex)
+            {
+                HttpResponse Response = System.Web.HttpContext.Current.Response;
+                Response.Clear();
+                Response.ContentType = "application/json; charset=utf-8";
+                Response.StatusCode = 204;
+                Response.Status = "204 No Content";
+                Response.StatusDescription = ex.Message;
+                Response.End();
+
+                return Content("");
+            }
+
+        }
+
+
+
         #endregion
     }
 }

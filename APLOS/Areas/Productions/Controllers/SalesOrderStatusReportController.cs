@@ -1,0 +1,309 @@
+﻿using Aplos.Controllers;
+using Aplos.Properties;
+using clsAttendance;
+using Library.Core;
+using Library.Crosscutting.Security;
+using Library.Data;
+using Library.Data.Sql;
+using Library.Model.Enums;
+using Library.Model.HumanResources;
+using Library.Service.Attendances;
+using Library.Service.Enums;
+using Library.Service.Helpers;
+using Library.Service.HumanResources;
+using Library.Service.Leave;
+using Library.Service.Logs;
+using OTSBD;
+using Syncfusion.XlsIO;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading;
+using System.Web.Mvc;
+using Library.HumanResource.Attendance;
+
+namespace Aplos.Areas.Productions.Controllers
+{
+    public class SalesOrderStatusReportController : BaseController
+    {
+        #region Constructor
+        private readonly ISqlRepository _sqlRepository;
+
+        public SalesOrderStatusReportController(
+            ISqlRepository sqlRepository
+            )
+        {
+            _sqlRepository = sqlRepository;
+        }
+
+        #endregion Constructor
+
+
+
+        public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        #region -- Operations
+
+        [HttpPost, Authorize]
+        public ActionResult XlsSalesOrderStatusReport(List<string> EntityList)
+        {
+            try
+            {
+                var workbook = SalesOrderStatusReport(EntityList);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "SOStatusReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        private IWorkbook SalesOrderStatusReport(List<string> EntityList)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = SalesOrderStatusReportQuery(EntityList);
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Sales Order Status Report";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignCenter);
+            int ColCus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Group", 12, ExcelHAlign.HAlignCenter);
+            int ColCusG = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 12, ExcelHAlign.HAlignCenter);
+            int ColMO = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Master Order Date", 12, ExcelHAlign.HAlignCenter);
+            int ColMOD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Own Ref No", 12, ExcelHAlign.HAlignCenter);
+            int ColOwn = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Buyer Order No", 12, ExcelHAlign.HAlignCenter);
+            int ColBuy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Detail", 20, ExcelHAlign.HAlignCenter);
+            int ColProd = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 20, ExcelHAlign.HAlignCenter);
+            int ColLot = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 20, ExcelHAlign.HAlignCenter);
+            int ColArt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignCenter);
+            int ColItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO NO", 12, ExcelHAlign.HAlignCenter);
+            int COlSo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 12, ExcelHAlign.HAlignCenter);
+            int ColQty = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Ex Factory Date", 12, ExcelHAlign.HAlignCenter);
+            int ColEFD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Commitment Date", 12, ExcelHAlign.HAlignCenter);
+            int ColComm = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Category", 16, ExcelHAlign.HAlignCenter);
+            int ColSOCat = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
+            int ColRate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "CM", 12, ExcelHAlign.HAlignCenter);
+            int ColCM = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignCenter);
+            int ColDis = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance To Dispatch", 12, ExcelHAlign.HAlignCenter);
+            int ColBal = COL;
+            COL++;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColCus].Text = data.Rows[i]["Customer"].ToString();
+                sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
+                sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
+                sheet[ROW, ColMOD].DateTime =Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+                sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
+                sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
+                sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
+                sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
+                sheet[ROW, COlSo].Text = data.Rows[i]["SONo"].ToString();
+                sheet[ROW, ColProd].Text = data.Rows[i]["ProdDetails"].ToString();
+                sheet[ROW, ColLot].Text = data.Rows[i]["LOT"].ToString();
+                sheet[ROW, ColQty].Text = data.Rows[i]["SOQty"].ToString();
+                sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
+                sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
+                sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
+                sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+                sheet[ROW, ColCM].Number = clsStaticInfo.dbl(data.Rows[i]["CM"].ToString());
+                sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
+                sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Sales Order Status Report", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        #endregion -- Operations  
+
+        #region Queries
+
+        private DataTable SalesOrderStatusReportQuery(List<string> EntityList)
+        {
+            try
+            {
+                string ent = "";
+                if(EntityList.Count > 0 && EntityList[0]!="")
+                {
+                    ent =  "AND mo.EntityId IN (''";
+                    foreach (string e in EntityList)
+                    {
+                        ent += ",'" + e + "'";
+                    }
+                    ent += ")";
+                }
+
+                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,mo.OwnReferenceNo , mo.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
+                            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
+                            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,
+                             (Select Stuff((
+                                                        Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
+                                                        from dbo.ProductLibraryAttribute pla
+                                                        where pla.ProductLibraryId = moi.ProductLibraryId
+                                                        for XML PATH('')
+                                                        ) , 1, 2, '')) as ProdDetails,
+                             (Select Stuff((
+                            Select ', ' + sc.LotNo
+                            from (Select distinct sc.LotNo
+                            from dbo.ProductLibrary pl
+                            left join dbo.ItemScanChild sc on sc.ProductCode = pl.Code
+                            where pl.Id = moi.ProductLibraryId
+                            ) as sc
+                            for XML PATH('')
+                            ),1,2,''))  as LOT,
+
+                            (Select sum(NetWeight) 
+                            from dbo.ItemScanChild sc
+                            left join dbo.ItemScan s on s.Id = sc.MasterId 
+                            left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
+                            where pl.Id = moi.ProductLibraryId 
+                            and s.WorkDate <= GetDate()
+                            and sc.Booked = 0 and sc.IsDespatch = 0) as AllotedStock
+
+                            from trn.SalesOrder so
+                            left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
+                            left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
+                            left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
+                            left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
+                            left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
+                            left join
+                            (
+                            Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
+                            from trn.SalesMaterial sm
+                            group by SalesOrderId
+                            ) as sm on sm.SalesOrderId = so.Id
+                            left join hkp.Party p on p.Id = mo.PartyId
+                            LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
+                             LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
+                            where os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' "+ent+@"
+                            ";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+    }
+}
+    

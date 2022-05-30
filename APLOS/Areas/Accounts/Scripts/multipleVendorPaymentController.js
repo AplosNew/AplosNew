@@ -14,6 +14,7 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
     $scope.partyType = 'Vendor';
     $scope.isAdvance = false;
     $scope.isBankAmount = false;
+    $scope.downloadgriddataUrlPath = 'accounts/invoice/DownloadUsingFullPath';
     $controller("currencyBaseController", { $scope: $scope, $http: $http });
     $controller('bankBaseController', { $scope: $scope, $http: $http });
     $scope.multiplePaymentDataList = [];
@@ -37,7 +38,9 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         }).then(function successCallback(response) {
             $scope.multipleVendorpaymentList = response.data;
             //for (var i = 0; i < $scope.multipleVendorpaymentList.length; i++) {
-            //    response.data[i].DueUpToDate = new Date($scope.multipleVendorpaymentList[i].DueUpToDate);            //    response.data[i].TentativeDate = new Date($scope.multipleVendorpaymentList[i].TentativeDate);            //}
+            //    response.data[i].DueUpToDate = new Date($scope.multipleVendorpaymentList[i].DueUpToDate);
+            //    response.data[i].TentativeDate = new Date($scope.multipleVendorpaymentList[i].TentativeDate);
+            //}
             $scope.getDetailData(id);
         });
     };
@@ -640,5 +643,38 @@ function multipleVendorPaymentController(cboService, commonMessage, $scope, $win
         $scope.message_delete_confirmation = "Are you sure to Delete?";
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
+
+    $scope.Report = function () {
+        var reportFormat = "Excel";
+        //if (baseService.isUndefinedOrNull(data.VoucherId)) return ShowResult('No Id found', 'failure');
+        $window.open('accounts/Invoice/GetMultiVendorPaymentReport?reportFormat=' + reportFormat + '&mpdId=' + $scope.masterId);
+    };
+
+
+    //$scope.reportFormat = "Excel";
+    //$scope.Report = function () {
+    //    try {
+    //        $scope.fileName = "Multi Vendor Payment.xlsx";
+    //        $http({
+    //            method: 'POST',
+    //            url:'accounts/Invoice/GetMultiVendorPaymentReport',
+    //            data: { 'reportFormat': $scope.reportFormat, 'mpdId': $scope.masterId },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error == false) {
+    //                //$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, 'failure');
+    //            }
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        };
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+
+    //}
 
 }

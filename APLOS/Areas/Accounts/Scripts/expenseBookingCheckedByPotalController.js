@@ -479,6 +479,15 @@ function expenseBookingCheckedByPotalController(cboService, commonMessage, $scop
         return $scope.tab === tabNum;
     };
 
+    $scope.dwonloadUrl = null;
+    $scope.FileDownload = function (data) {
+        $scope.dwonloadUrl = null;
+        var str = data.FileName;
+        var extention = str.substr(str.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ExpensesDocument + '/' + data.Id + extention;
+        $window.open($scope.dwonloadUrl, '_blank');
+    };
+
 
     $scope.onClickPdfPrint = function (args) {
         var gridObj = $("#GridCheckedId1").data("ejGrid");

@@ -1782,14 +1782,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentModeId: null
             , CustomerPOId: null
             , PONumber: null
-            , UpCharge: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
             , OrderCategoryId: $scope.fileNew.OrderCategoryId
             , SOType: null
             , ResponsiblePersonId: $scope.ResponsiblePersonId
             , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: null
-            , Rate: null
+            , Qty: 0
+            , Rate: 0
             , HSNCodeId: hsnCodeId
             , TotalTaxAmount: 0
             , MainRawMaterialInhouseDate: null
@@ -1803,6 +1802,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
+            ,DirectCost:0
+            , ValueLoss:0
+            , Other: 0
+            , UpCharge:0
+            , Discount:0
+            , CM:0
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -1880,6 +1885,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.TotalProducedQty = $scope.soModel.ProductionBookedQty + $scope.ProdBookedQty;
     }
 
+    $scope.ShowCostingSORatePopup = function () {
+        $http({
+            method: 'GET',
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
+        }).then(function successCallback(response) {
+            $scope.costingSOConfirmList = [];
+            $scope.costingSOConfirmList = response.data;
+            angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
+        });
+    };
+
     $scope.saveSalesOrder = function () {
 
         //if ($scope.soModel.PONumber === null || $scope.soModel.OrderStatusId === null || $scope.soModel.OrderCategoryId === null || $scope.soModel.DestinationId === null || $scope.soModel.ShipmentModeId === null || $scope.soModel.Qty === null) {
@@ -1938,8 +1954,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'success', 'soPoUp');
                         getSalesOrderList();
                         $scope.soModel.Id = response.data.Data.Id;
-                        //clearSO();
-                        $scope.GetSOCostingConfirmData($scope.soModel.Id, $scope.masterItemId);
+                        
+                        $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
                     }
                 }), function errorCallBack(response) {
@@ -1964,16 +1980,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-    $scope.ShowCostingSORatePopup = function () {
-        $http({
-            method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
-        }).then(function successCallback(response) {
-            $scope.costingSOConfirmList = [];
-            $scope.costingSOConfirmList = response.data;
-            angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
-        });
-    };
+
 
 
     function getSalesOrderTaxCategoryUpdateList(salesOrderId) {
@@ -2105,21 +2112,24 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
     $scope.closeSOPopUp = function () {
         try {
-            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
-                $http({
-                    method: 'GET',
-                    url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
-                }).then(function successCallback(response) {
-                    $scope.costingSOConfirmList = [];
-                    $scope.costingSOConfirmList = response.data;
-                    if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[0].Id)) {
-                        ShowResult("Please do SO Costing Confirmation.", 'failure', 'soPoUp');
-                    } 
-                });
-            } else {
-                angular.element(document.querySelector('#soPoUp')).modal('hide');
-            }
-
+            //if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+            //    $http({
+            //        method: 'GET',
+            //        url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + $scope.soModel.Id + '&lineId=' + $scope.masterItemId
+            //    }).then(function successCallback(response) {
+            //        $scope.costingSOConfirmList = [];
+            //        $scope.costingSOConfirmList = response.data;
+            //        if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[0].Id)) {
+            //            ShowResult("Please do SO Costing Confirmation.", 'failure', 'soPoUp');
+            //        }
+            //        else {
+            //            angular.element(document.querySelector('#soPoUp')).modal('hide');
+            //        }
+            //    });
+            //} else {
+            //    angular.element(document.querySelector('#soPoUp')).modal('hide');
+            //}
+            angular.element(document.querySelector('#soPoUp')).modal('hide');
 
         } catch (e) {
             ShowResult(e, 'failure', 'soPoUp');
@@ -2136,19 +2146,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentModeId: null
             , CustomerPOId: null
             , PONumber: null
-            , UpCharge: null
             , OrderStatusId: $scope.fileNew.OrderStatusId
             , OrderCategoryId: $scope.fileNew.OrderCategoryId
             , SOType: null
             , ResponsiblePersonId: $scope.ResponsiblePersonId
             , ResponsiblePersonName: $scope.ResponsiblePersonName
-            , Qty: null
-            , Rate: null
+            , Qty: 0
+            , Rate: 0
             , HSNCodeId: $scope.HSNCodeId
             , TotalTaxAmount: 0
             , MainRawMaterialInhouseDate: null
             , OtherRawMaterialInhouseDate: null
-            , CM: 0
             , SalesOrderYear: null
             , WeekNo: null
             , PlanExFactoryDate: null
@@ -2160,6 +2168,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
+            , DirectCost: 0
+            , ValueLoss: 0
+            , Other: 0
+            , UpCharge: 0
+            , Discount: 0
+            , CM: 0
         };
     }
 
@@ -2582,8 +2596,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.char3 = {};
     };
 
+    $scope.hasFirst = null;
     $scope.getSku = function (salesOrderId, hasFirst, soItemQty) {
         $scope.salesOrderId = salesOrderId;
+        $scope.hasFirst = hasFirst;
         $scope.rowName = null;
         $scope.columnName = null;
         $scope.rowNo = null;
@@ -3584,6 +3600,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 ShowResult(response.data.Message, 'success');
                 $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
                 getSalesOrderList();
+                clearSO();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -5034,9 +5051,194 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 $scope.char1ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char1.Id });
                 $scope.char2ValueList = $filter("filter")($scope.charValueList, { "CharacteristicsId": $scope.char2.Id });
 
-
+                $scope.getSkus();
             });
     }
+
+    $scope.getSkus = function () {
+
+        $scope.skuList = [];
+        $scope.firstSKUList = [];
+        if ($scope.hasFirst === 0) {
+            $http.get($scope.path + 'getcharacteristicsbymaterialmasterid?materialMasterId=' + $scope.materialMasterId)
+                .then(function (response) {
+                    $scope.characteristicsList = [];
+                    $scope.characteristicsList = response.data;
+                    if (baseService.arrayLength($scope.characteristicsList) === 1) {
+                        $scope.firstSKUList = [];
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+
+                        $scope.addFirstSkuList();
+                    }
+                    else if (baseService.arrayLength($scope.characteristicsList) === 2) {
+                        $scope.rowName = $scope.characteristicsList[0].Text;
+                        $scope.colorCharacteristicsId = $scope.characteristicsList[0].Value;
+                        $scope.columnName = $scope.characteristicsList[1].Text;
+                        $scope.sizeCharacteristicsId = $scope.characteristicsList[1].Value;
+
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char2Id = $scope.characteristicsList[1].Value;
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+                        $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
+
+                        $scope.rowNo = 1;
+                        $scope.columnNo = 1;
+                        $scope.generate();
+                    }
+                    else if (baseService.arrayLength($scope.characteristicsList) === 3) {
+                        $scope.rowName = $scope.characteristicsList[1].Text;
+                        $scope.columnName = $scope.characteristicsList[2].Text;
+                        generateCharPopUp();
+                    }
+                    if (baseService.arrayLength($scope.characteristicsList) !== 0) {
+                        $scope.char1 = {
+                            Id: $scope.characteristicsList[0].Value
+                            , Name: $scope.characteristicsList[0].Text
+                            , CharacteristicsValueId: $scope.characteristicsList[0].CharacteristicsValueId
+                            , ValueFreeText: $scope.characteristicsList[0].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null
+                            , FirstCharacteristicsId: null
+                        };
+                    }
+                    if (baseService.arrayLength($scope.characteristicsList) > 1) {
+                        $scope.char2 = {
+                            Id: $scope.characteristicsList[1].Value
+                            , Name: $scope.characteristicsList[1].Text
+                            , CharacteristicsValueId: $scope.characteristicsList[1].CharacteristicsValueId
+                            , ValueFreeText: $scope.characteristicsList[1].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null
+                        };
+                    }
+                    if (baseService.arrayLength($scope.characteristicsList) > 2) {
+                        $scope.char3 = {
+                            Id: $scope.characteristicsList[2].Value
+                            , Name: $scope.characteristicsList[2].Text
+                            , CharacteristicsValueId: $scope.characteristicsList[2].CharacteristicsValueId
+                            , ValueFreeText: $scope.characteristicsList[2].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null
+                        };
+                    }
+
+                });
+        }
+        else {
+            $http.get($scope.path + 'getAllSkuSalesOrderId?salesOrderId=' + $scope.salesOrderId)
+                .then(function (response) {
+                    var firstData = response.data.firstData;
+                    var secondtData = response.data.secondtData;
+                    var thirdData = response.data.thirdData;
+                    $scope.characteristicsList = [];
+
+                    if (baseService.arrayLength(firstData) > 0) {
+                        $scope.characteristicsList.push({
+                            Value: firstData[0].CharacteristicsId
+                            , Text: firstData[0].CharacteristicsName
+                            , CharacteristicsValueId: null //firstData[0].CharacteristicsValueId
+                            , ValueFreeText: null //firstData[0].ValueFreeText
+                            , ValueAssignmentLevel: firstData[0].ValueAssignmentLevel
+                            , MaterialMasterId: firstData[0].MaterialMasterId
+                            , Qty: null //firstData[0].Qty
+                            , FirstCharacteristicsId: null //firstData[0].Id
+                        });
+                    }
+                    if (baseService.arrayLength(secondtData) > 0) {
+                        $scope.characteristicsList.push({
+                            Value: secondtData[0].CharacteristicsId
+                            , Text: secondtData[0].CharacteristicsName
+                            , CharacteristicsValueId: secondtData[0].CharacteristicsValueId
+                            , ValueFreeText: secondtData[0].ValueFreeText
+                            , ValueAssignmentLevel: secondtData[0].ValueAssignmentLevel
+                            , MaterialMasterId: secondtData[0].MaterialMasterId
+                            , Qty: secondtData[0].Qty
+                        });
+                    }
+                    if (baseService.arrayLength(thirdData) > 0) {
+                        $scope.characteristicsList.push({
+                            Value: thirdData[0].CharacteristicsId
+                            , Text: thirdData[0].CharacteristicsName
+                            , CharacteristicsValueId: thirdData[0].CharacteristicsValueId
+                            , ValueFreeText: thirdData[0].ValueFreeText
+                            , ValueAssignmentLevel: thirdData[0].ValueAssignmentLevel
+                            , MaterialMasterId: thirdData[0].MaterialMasterId
+                            , Qty: thirdData[0].Qty
+                        });
+                    }
+
+                    if (baseService.arrayLength($scope.characteristicsList) !== 0) {
+                        $scope.char1 = {
+                            Id: $scope.characteristicsList[0].Value
+                            , Name: $scope.characteristicsList[0].Text
+                            , CharacteristicsValueId: null //$scope.characteristicsList[0].CharacteristicsValueId
+                            , ValueFreeText: null //$scope.characteristicsList[0].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null //$scope.characteristicsList[0].Qty
+                            , FirstCharacteristicsId: null //$scope.characteristicsList[0].FirstCharacteristicsId
+                        };
+                    }
+                    if (baseService.arrayLength($scope.characteristicsList) > 1) {
+                        $scope.char2 = {
+                            Id: $scope.characteristicsList[1].Value
+                            , Name: $scope.characteristicsList[1].Text
+                            , CharacteristicsValueId: $scope.characteristicsList[1].CharacteristicsValueId
+                            , ValueFreeText: $scope.characteristicsList[1].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null
+                        };
+                    }
+                    if (baseService.arrayLength($scope.characteristicsList) > 2) {
+                        $scope.char3 = {
+                            Id: $scope.characteristicsList[2].Value
+                            , Name: $scope.characteristicsList[2].Text
+                            , CharacteristicsValueId: $scope.characteristicsList[2].CharacteristicsValueId
+                            , ValueFreeText: $scope.characteristicsList[2].ValueFreeText
+                            , ValueAssignmentLevel: $scope.characteristicsList[0].ValueAssignmentLevel
+                            , MaterialMasterId: $scope.characteristicsList[0].MaterialMasterId
+                            , Qty: null
+                        };
+
+                    }
+
+                    if (baseService.arrayLength($scope.characteristicsList) === 3) {
+                        $scope.firstSkuEdit(firstData[0]);
+                        getSkuMatrix(secondtData, thirdData);
+                        $scope.rowName = $scope.characteristicsList[1].Text;
+                        $scope.columnName = $scope.characteristicsList[2].Text;
+
+                        $scope.char1Id = $scope.characteristicsList[1].Value;
+                        $scope.char2Id = $scope.characteristicsList[2].Value;
+
+
+                    }
+                    else if (baseService.arrayLength($scope.characteristicsList) === 2) {
+                        getSkuMatrix(firstData, secondtData);
+                        $scope.rowName = $scope.characteristicsList[0].Text;
+                        $scope.columnName = $scope.characteristicsList[1].Text;
+
+                        $scope.char1Id = $scope.characteristicsList[0].Value;
+                        $scope.char2Id = $scope.characteristicsList[1].Value;
+
+                        $scope.char1ValueAssignmentLevel = $scope.characteristicsList[0].ValueAssignmentLevel;
+                        $scope.char2ValueAssignmentLevel = $scope.characteristicsList[1].ValueAssignmentLevel;
+
+
+                        $scope.sumTwoMatQuantity();
+                    }
+                    else if (baseService.arrayLength($scope.characteristicsList) === 1) {
+                        $scope.firstSKUList = firstData;
+                    }
+                });
+        }
+
+    };
 
 
     $scope.skubtn = false;

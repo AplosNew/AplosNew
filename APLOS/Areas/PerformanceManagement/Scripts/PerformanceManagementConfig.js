@@ -20,5 +20,6 @@
             templateUrl: 'PerformanceManagement/JobEvaluationReport/Aplos',
             controller: 'JobEvaluationReportController'
         })
+       
 }
 PerformanceManagementConfig.$inject = ['$routeProvider', '$locationProvider'];

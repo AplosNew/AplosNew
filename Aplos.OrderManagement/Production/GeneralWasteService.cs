@@ -74,36 +74,47 @@ namespace Library.OrderManagement.Production
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                var budC = @"Select ei.BudgetCode  as Id
-                                from SEC.[USER] u 
-                                left join dbo.EmployeeInformation ei on ei.SystemId = u.EmployeeId
-                                where ei.BudgetCode is not null and u.Id = '"+identity.UserId+@"'  ";
-                DataTable tb = _sqlRepository.GetDataTable(budC);
+                //var budC = @"Select ei.BudgetCode  as Id
+                //                from SEC.[USER] u 
+                //                left join dbo.EmployeeInformation ei on ei.SystemId = u.EmployeeId
+                //                where ei.BudgetCode is not null --and u.Id = '"+identity.UserId+@"'  ";
+                //DataTable tb = _sqlRepository.GetDataTable(budC);
 
                 string str = "";
                 
-                if (tb.Rows.Count == 0)
-                {
-                    throw new Exception("You are not an Employee with a Budget Code!");
-                }
+                //if (tb.Rows.Count == 0)
+                //{
+                //    throw new Exception("You are not an Employee with a Budget Code!");
+                //}
                 
 
-                else
-                {
-                    string Bdc = tb.Rows[0]["Id"].ToString();
-                    str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
-                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
-								mb.Code as BudgetCode , e.UserName as EntityName
+                //else
+                //{
+                    //string Bdc = tb.Rows[0]["Id"].ToString();
+        //            str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
+        //                        wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
+								//mb.Code as BudgetCode , e.UserName as EntityName
+        //                        from dbo.WasteMaster wm
+        //                        left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
+        //                        left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
+        //                        left join hkp.Process p on p.Id = wm.ProcessId
+        //                        left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
+								//left join org.Entity e on e.Id = ept.EntityId
+								//left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
+        //                        where ept.EntityId = '" + Id+"'";
+
+                str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
+                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom , ept.EntityId, e.UserName as EntityName
                                 from dbo.WasteMaster wm
-                                left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
+                                --left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
                                 left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
                                 left join hkp.Process p on p.Id = wm.ProcessId
                                 left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
 								left join org.Entity e on e.Id = ept.EntityId
-								left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
-                                where ept.EntityId = '" + Id+"' and wbd.BudgetId = '"+Bdc+@"'";
-                    
-                }
+								--left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
+                                where ept.EntityId = '" + Id + "'";
+
+                  //}
                   DataTable dt =  _sqlRepository.GetDataTable(str);
                 dt.Columns.Add("Quantity", typeof(double));
                 dt.Columns.Add("Remarks", typeof(string));

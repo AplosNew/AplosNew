@@ -73,6 +73,16 @@ namespace Library.Accounting.FixedAssets
                 worksheet[ROW, COL].ColumnWidth = 35;
                 COL++;
 
+                worksheet[ROW, COL].Text = "Capitalize Amount";
+                int colCapitalizeAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Total GL Amount";
+                int colTotalGLAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Budget Master Id";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 int colBudgetMasterId = COL;
@@ -138,21 +148,23 @@ namespace Library.Accounting.FixedAssets
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
                 string sql = @"SELECT X.FixedAsset,x.FixedAssetMasterId,X.GLName,X.BudgetName,X.ActivityName,X.BudgetMasterId,X.ActivityId
-                    ,SUM(X.GLAmount) GLAmount
+                    ,SUM(X.GLAmount) GLAmount,SUM(X.CapitalizeAmount) CapitalizeAmount
+					,SUM(X.GLAmount) +SUM(X.CapitalizeAmount) TotalGLAmount
                     ,ISNULL( SUM(X.RegisterAmount),0) RegisterAmount
                     ,ISNULL( SUM(X.SubAssetAmount),0)SubAssetAmount 
                     ,TotalRegisterAmount=ISNULL( (SUM(X.RegisterAmount)+SUM(X.SubAssetAmount)),0)
-                    ,Diffrence=ISNULL( SUM(X.GLAmount)-(SUM(X.RegisterAmount)+SUM(X.SubAssetAmount)),0)
+                    ,Diffrence=ISNULL( SUM(X.GLAmount)+SUM(X.CapitalizeAmount)-(SUM(X.RegisterAmount)+SUM(X.SubAssetAmount)),0)
                     FROM (
 
                     SELECT FAM.UserName FixedAsset,FAM.Id FixedAssetMasterId,
                     GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,VD.BudgetMasterId,VD.ActivityId
-                    ,ISNULL( SUM(VDC.DrAmount)-SUM(VDC.CrAmount),0) GLAmount
+                    ,ISNULL( SUM(VDC.DrAmount)-SUM(VDC.CrAmount),0) GLAmount,0 CapitalizeAmount
                     ,0 RegisterAmount
                     ,0 SubAssetAmount
  
                     FROM TRN.VoucherDetail VD 
                     join trn.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+					LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
                     LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
                     LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
                     LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
@@ -161,7 +173,31 @@ namespace Library.Accounting.FixedAssets
                     LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=VD.BudgetMasterId
                     LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
 
-                    WHERE GLAT.AccountType='Asset' 
+                    WHERE GLAT.AccountType='Asset' AND V.SourceType in  ('VendorInvoice','EmployeePayable','JournalVoucher','AdvanceJournalVoucher') 
+					--AND V.SourceType NOT IN ('OpeningBalance')
+                    GROUP BY FAM.UserName,
+                    GL.UserName ,B.UserName ,A.UserName ,VD.BudgetMasterId,VD.ActivityId,FAM.Id
+
+					UNION ALL
+					  SELECT FAM.UserName FixedAsset,FAM.Id FixedAssetMasterId,
+                    GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,VD.BudgetMasterId,VD.ActivityId
+                    ,0 GLAmount
+                    ,ISNULL( SUM(VDC.DrAmount)-SUM(VDC.CrAmount),0) CapitalizeAmount
+                    ,0 RegisterAmount
+                    ,0 SubAssetAmount
+ 
+                    FROM TRN.VoucherDetail VD 
+                    join trn.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+					LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
+                    LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                    LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GL.Id
+                    LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=VD.BudgetMasterId
+                    LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
+
+                    WHERE GLAT.AccountType='Asset' AND V.SourceType NOT in  ('VendorInvoice','EmployeePayable','JournalVoucher','AdvanceJournalVoucher') 
                     GROUP BY FAM.UserName,
                     GL.UserName ,B.UserName ,A.UserName ,VD.BudgetMasterId,VD.ActivityId,FAM.Id
 
@@ -169,7 +205,7 @@ namespace Library.Accounting.FixedAssets
 
                     SELECT    FAM.UserName FixedAsset,FAR.FixedAssetMasterId,
                     GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,FAR.FABudgetMasterId BudgetMasterId,FAR.FAActivityId ActivityId
-                    ,0 GLAmount
+                    ,0 GLAmount,0 CapitalizeAmount
                     ,ISNULL( FAR.FABaseAmount,0) RegisterAmount
                     ,ISNULL( SR.SubAssetAmount,0) SubAssetAmount
 			                    FROM [TRN].[FixedAssetRegister] FAR
@@ -210,6 +246,8 @@ namespace Library.Accounting.FixedAssets
                     worksheet[ROW, colFixedAssetMasterId].Text = dsData.Tables[0].Rows[i]["FixedAssetMasterId"].ToString();
                     worksheet[ROW, colFixedAsset].Text = dsData.Tables[0].Rows[i]["FixedAsset"].ToString();
                     worksheet[ROW, colGLName].Text = dsData.Tables[0].Rows[i]["GLName"].ToString();
+                    worksheet[ROW, colCapitalizeAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["CapitalizeAmount"].ToString());
+                    worksheet[ROW, colTotalGLAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TotalGLAmount"].ToString());
 
                     worksheet[ROW, colBudgetName].Text = dsData.Tables[0].Rows[i]["BudgetName"].ToString();
                     worksheet[ROW, colBudgetMasterId].Text = dsData.Tables[0].Rows[i]["BudgetMasterId"].ToString();
@@ -2283,6 +2321,86 @@ namespace Library.Accounting.FixedAssets
             }
         }
 
+        public IEnumerable<object> getGLVSfaListSql()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT X.FixedAsset,x.FixedAssetMasterId,X.GLName,X.BudgetName,X.ActivityName,X.BudgetMasterId,X.ActivityId
+                    ,SUM(X.GLAmount) GLAmount,SUM(X.CapitalizeAmount) CapitalizeAmount
+					,SUM(X.GLAmount) +SUM(X.CapitalizeAmount) TotalGLAmount
+                    ,ISNULL( SUM(X.RegisterAmount),0) RegisterAmount
+                    ,ISNULL( SUM(X.SubAssetAmount),0)SubAssetAmount 
+                    ,TotalRegisterAmount=ISNULL( (SUM(X.RegisterAmount)+SUM(X.SubAssetAmount)),0)
+                    ,Diffrence=ISNULL( SUM(X.GLAmount)+SUM(X.CapitalizeAmount)-(SUM(X.RegisterAmount)+SUM(X.SubAssetAmount)),0)
+                    FROM (
 
+                    SELECT FAM.UserName FixedAsset,FAM.Id FixedAssetMasterId,
+                    GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,VD.BudgetMasterId,VD.ActivityId
+                    ,ISNULL( SUM(VDC.DrAmount)-SUM(VDC.CrAmount),0) GLAmount,0 CapitalizeAmount
+                    ,0 RegisterAmount
+                    ,0 SubAssetAmount
+ 
+                    FROM TRN.VoucherDetail VD 
+                    join trn.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+					LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
+                    LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                    LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GL.Id
+                    LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=VD.BudgetMasterId
+                    LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
+
+                    WHERE GLAT.AccountType='Asset' AND V.SourceType in  ('VendorInvoice','EmployeePayable','JournalVoucher','AdvanceJournalVoucher') 
+					--AND V.SourceType NOT IN ('OpeningBalance')
+                    GROUP BY FAM.UserName,
+                    GL.UserName ,B.UserName ,A.UserName ,VD.BudgetMasterId,VD.ActivityId,FAM.Id
+
+					UNION ALL
+					  SELECT FAM.UserName FixedAsset,FAM.Id FixedAssetMasterId,
+                    GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,VD.BudgetMasterId,VD.ActivityId
+                    ,0 GLAmount
+                    ,ISNULL( SUM(VDC.DrAmount)-SUM(VDC.CrAmount),0) CapitalizeAmount
+                    ,0 RegisterAmount
+                    ,0 SubAssetAmount
+ 
+                    FROM TRN.VoucherDetail VD 
+                    join trn.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
+					LEFT JOIN TRN.Voucher V ON V.Id=VD.VoucherId
+                    LEFT JOIN MST.BudgetMaster BM ON VD.BudgetMasterId = BM.Id
+                    LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+                    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=VD.GLGeneralInfoId
+                    LEFT JOIN HKP.Activity A ON A.Id=VD.ActivityId
+                    LEFT JOIN [HKP].[GLAccountType] AS GLAT ON GLAT.GLGeneralInfoId=GL.Id
+                    LEFT JOIN HKP.FixedAssetMasterBudgetTag FAMB ON FAMB.BudgetMasterId=VD.BudgetMasterId
+                    LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAMB.FixedAssetMasterId
+
+                    WHERE GLAT.AccountType='Asset' AND V.SourceType NOT in  ('VendorInvoice','EmployeePayable','JournalVoucher','AdvanceJournalVoucher') 
+                    GROUP BY FAM.UserName,
+                    GL.UserName ,B.UserName ,A.UserName ,VD.BudgetMasterId,VD.ActivityId,FAM.Id
+
+                    UNION ALL
+
+                    SELECT    FAM.UserName FixedAsset,FAR.FixedAssetMasterId,
+                    GL.UserName GLName,B.UserName BudgetName,A.UserName ActivityName ,FAR.FABudgetMasterId BudgetMasterId,FAR.FAActivityId ActivityId
+                    ,0 GLAmount,0 CapitalizeAmount
+                    ,ISNULL( FAR.FABaseAmount,0) RegisterAmount
+                    ,ISNULL( SR.SubAssetAmount,0) SubAssetAmount
+			                    FROM [TRN].[FixedAssetRegister] FAR
+			                    LEFT JOIN MST.BudgetMaster BM ON FAR.FABudgetMasterId = BM.Id
+			                    LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
+			                    LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=BM.GLGeneralInfoId
+			                    LEFT JOIN HKP.Activity A ON A.Id=FAR.FAActivityId
+			                    LEFT JOIN MST.FixedAssetMaster FAM ON FAM.Id=FAR.FixedAssetMasterId
+
+			                    LEFT JOIN (SELECT FixedAssetRegisterId,SUM(Amount) SubAssetAmount FROM TRN.SubFixedAssetRegister 
+			                    GROUP BY FixedAssetRegisterId
+			                    ) SR ON SR.FixedAssetRegisterId=FAR.Id AND  FAR.CompanyId='" + identity.CompanyId + @"' AND FAR.PlantId='" + identity.PlantId +@"'  AND FAR.IsFinancial=1  
+			                     WHERE  far.DisposedVoucherId is null
+			                    --GROUP BY FAM.UserName , GL.UserName ,B.UserName ,A.UserName 
+			                    ) X
+			                    GROUP BY X.FixedAsset,x.FixedAssetMasterId,X.GLName,X.BudgetName,X.ActivityName,X.BudgetMasterId,X.ActivityId";
+
+            return _sqlRepository.GetDataCollection(sql);
+        }
     }
 }

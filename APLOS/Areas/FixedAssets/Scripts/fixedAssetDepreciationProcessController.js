@@ -178,12 +178,13 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     };
     $scope.fixedAssetMastersList = [];
     $scope.getFixedAssetMastersData = function () {
+        $scope.ToDatevalidation();
         try {
             $http({
                 method: 'POST',
                 url: $scope.path + "GetfixedAssetMastersListForProcess",
                 data: {
-                    fiscalYearId: $scope.FiscalYearId,
+                    fiscalYearId: $scope.depreciationProcess.FiscalYearId,
                     toDate: $scope.depreciationProcess.ToDate
                 },
                 dataType: 'JSON'
@@ -274,23 +275,35 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
         var msg = "";
 
         if (baseService.isUndefinedOrNull($scope.depreciationProcess.ToDate)) {
-            $scope.invalidDocDate = true;
-            msg = "Please select To Date!";
+            ShowResult('Please select To Date!', 'failure');
+            return;
+            //$scope.invalidDocDate = true;
+            //msg = "Please select To Date!";
+            //return;
         }
         else if (new Date($scope.depreciationProcess.ToDate) > new Date()) {
-            $scope.invalidDocDate = true;
-            msg = "ToDate must be below or equal to current Date!";
+            ShowResult('ToDate must be below or equal to current Date!', 'failure');
+            return;
+            //$scope.invalidDocDate = true;
+            //msg = "ToDate must be below or equal to current Date!";
+            //return;
         }
         else if (new Date($scope.depreciationProcess.StartDate) > new Date($scope.depreciationProcess.ToDate)) {
-            msg = "To Date must be greater or equal to Fiscal Year Start Date!";
-            $scope.invalidDocDate = true;
+            ShowResult('To Date must be greater or equal to Fiscal Year Start Date!', 'failure');
+            return;
+            //msg = "To Date must be greater or equal to Fiscal Year Start Date!";
+            //$scope.invalidDocDate = true;
+            //return;
         }
         else if (new Date($scope.depreciationProcess.EndDate) < new Date($scope.depreciationProcess.ToDate)) {
-            msg = "To Date must be less or equal to Fiscal Year End Date!";
-            $scope.invalidDocDate = true;
+            ShowResult('To Date must be less or equal to Fiscal Year End Date!', 'failure');
+            return;
+            //msg = "To Date must be less or equal to Fiscal Year End Date!";
+            //$scope.invalidDocDate = true;
+            //return;
         }
-        else $scope.invalidDocDate = false;
-        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+        //else $scope.invalidDocDate = false;
+        //return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
     }
     $scope.Save = function () {
         $scope.ToDatevalidation();
@@ -312,9 +325,8 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
             url: $scope.saveUrl,
             data: {
                 selectedAssetMastersList: selectedAssetMastersList,
-                fromDate: $scope.report.FromDate,
-                toDate: $scope.report.ToDate,
-                paymentStatus: $scope.report.PaymentStatus
+                fiscalYearId: $scope.depreciationProcess.FiscalYearId,
+                toDate: $scope.depreciationProcess.ToDate
             },
             dataType: 'JSON'
         }).then(function (response) {
