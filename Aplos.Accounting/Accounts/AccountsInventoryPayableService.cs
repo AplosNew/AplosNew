@@ -2733,8 +2733,8 @@ UNION
                         FROM [TRN].[PurchaseReturnService] AS A 
                         JOIN [HKP].[ServiceMaster] AS B ON A.ServiceMasterId=B.Id 
                         left JOIN (select Id, Amount from TRN.POService) AS POT on A.POServiceId=POT.Id
-                        left join ( Select InventoryServiceId, sum(TaxAmount) TaxAmount from  trn.PurchaseReturnTax group by InventoryServiceId) IRT On IRT.InventoryServiceId=A.Id
-                        
+                        left join ( Select PurchaseReturnId, sum(TaxAmount) TaxAmount from  trn.PurchaseReturnTax group by PurchaseReturnId) IRT On IRT.PurchaseReturnId=A.Id
+                     
                         WHERE A.PurchaseReturnId='" + purchaseReturnId + "'";
                 return _sqlRepository.GetDifferentGridData(parameters);
             }
@@ -2973,9 +2973,8 @@ UNION
 						,  SUM(IRT.TaxAmount) AS Cr
 						, SUM(IRT.TaxAmount) AS Amount
                         ,0 IsAsset, NULL InventoryReceiveDetailId
-					FROM [TRN].[PurchaseReturnTax] AS IRT
-					LEFT JOIN [TRN].[PurchaseReturnService] AS IRD ON IRT.InventoryServiceId=IRD.Id
-                    LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRD.PurchaseReturnId=PR.Id
+					FROM [TRN].[PurchaseReturnAdditionalTax] AS IRT
+					LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRT.PurchaseReturnId=PR.Id
 					LEFT JOIN TRN.[InventoryReceive] AS IR ON IR.Id=PR.InventoryReceiveId
 					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
 					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
@@ -2983,7 +2982,7 @@ UNION
 					LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
 					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
 					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
-					WHERE IRD.PurchaseReturnId=@receiveId  AND IRT.InventoryServiceId<>'' AND ITD.AType='Dr'
+					WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
 					UNION
 					SELECT 'TCS' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
