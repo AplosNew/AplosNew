@@ -554,20 +554,20 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         }
     }
 
-	$scope.PurchaseOrderReportPdf = function (id, reportFormat) {
+	//$scope.PurchaseOrderReportPdf = function (id, reportFormat) {
 		
-		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-			ShowResult('Select To Date', 'failure');
-			return false;
-		}
-		var reportFormat = "Pdf";
-		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-		$window.open('Materials/MaterialLedger/PurchaseRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-	};
+	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+	//		ShowResult('Select From Date', 'failure');
+	//		return false;
+	//	}
+	//	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+	//		ShowResult('Select To Date', 'failure');
+	//		return false;
+	//	}
+	//	var reportFormat = "Pdf";
+	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
+	//	$window.open('Materials/MaterialLedger/PurchaseRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
+	//};
 
     
 
@@ -612,6 +612,43 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
     //    }
     //}
 
+    $scope.PurchaseOrderGRNWiseReportExcel = function (reportFormat) {
+        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        try {
+            var Excel;
+            var file_src = 'Materials/MaterialLedger/PurchaseRegisterGRNWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
+
+    $scope.PurchaseOrderPartyWiseReportExcel = function (reportFormat) {
+        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        try {
+            var Excel;
+            var file_src = 'Materials/MaterialLedger/PurchaseRegisterPartyWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+
+        }
+    }
 
 
     $scope.PurchaseOrderReportExcel = function (reportFormat) {
