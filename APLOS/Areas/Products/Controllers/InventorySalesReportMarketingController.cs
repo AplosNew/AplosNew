@@ -236,6 +236,13 @@ left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
 left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
 left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
 where sp.SalesId = SM.SalesId) as Bags,
+Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+from dbo.SalesPacking sp
+left join trn.Packing p on p.PackingId = sp.PackingId
+left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+where sp.SalesId = SM.SalesId) ) as GrossWeights,
 PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 								FROM TRN.SalesMaterial AS SM 
@@ -454,6 +461,13 @@ left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
 left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
 left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
 where sp.SalesId = IR.Id) as Bags,
+Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+from dbo.SalesPacking sp
+left join trn.Packing p on p.PackingId = sp.PackingId
+left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+where sp.SalesId = IR.Id) ) as GrossWeights,
 PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
@@ -613,7 +627,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,''OwnReferenceNo
 													,0 RealizeAmount
 
-									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,
+									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
 '' TransportVehicleNo , '' TransportDriverNo
 
 									--,0BalanceAmount
@@ -783,7 +797,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,''CNFVesselTrackingNo
 						,''OwnReferenceNo
 						,0 RealizeAmount
-					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,
+					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
 '' TransportVehicleNo , '' TransportDriverNo
 
 							--,0BalanceAmount
@@ -974,6 +988,13 @@ left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
 left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
 left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
 where sp.SalesId = SM.SalesId) as Bags,
+Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+from dbo.SalesPacking sp
+left join trn.Packing p on p.PackingId = sp.PackingId
+left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+where sp.SalesId = SM.SalesId) ) as GrossWeights,
 PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 								FROM TRN.SalesMaterial AS SM 
@@ -1189,6 +1210,13 @@ left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
 left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
 left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
 where sp.SalesId = IR.Id) as Bags,
+Convert(varchar , (Select SUM(sc.GWeight)  as Bags
+from dbo.SalesPacking sp
+left join trn.Packing p on p.PackingId = sp.PackingId
+left join trn.PackingLineItem pli on pli.PackingId = p.PackingId
+left join trn.POLotReference pol on pol.PackingLineItemId = pli.PackingLineItemId
+left join dbo.ItemScanChild sc on sc.PackingId = pol.Id
+where sp.SalesId = IR.Id) ) as GrossWeights,
 PSI.TransportVehicleNo , PSI.TransportDriverNo
 
 									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
@@ -1348,7 +1376,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 								,''OwnReferenceNo
 													,0 RealizeAmount
 
-									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,
+									,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
 '' TransportVehicleNo , '' TransportDriverNo
 
 									--,0BalanceAmount
@@ -1516,7 +1544,7 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
 						,''CNFVesselTrackingNo
 						,''OwnReferenceNo
 						,0 RealizeAmount
-					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,
+					    ,''RealizeDate,'' PordDertails  ,'' LOT ,'' BuyerRefNo,'' Bags,'' GrossWeights,
 '' TransportVehicleNo , '' TransportDriverNo
 
 							--,0BalanceAmount
@@ -3139,12 +3167,13 @@ PSI.TransportVehicleNo , PSI.TransportDriverNo
                                 worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TaxAmount"].ToString());
                                 worksheet.Range[ROW, colTaxAmount].NumberFormat = NumberFormatTwoDecimal;
 								worksheet[ROW, colContainer].Text = dtInventorySalesReportList.Rows[i]["ContainerNo"].ToString();
-								worksheet[ROW, colTransporterName].Text = dtInventorySalesReportList.Rows[i]["TransporterName"].ToString();
+								/// In The Query The Transpoert Name is actually the Agent Name 
+								worksheet[ROW, colTransporterName].Text = dtInventorySalesReportList.Rows[i]["AgentName"].ToString();
 								worksheet[ROW, colTranspoterDocRefNo].Text = dtInventorySalesReportList.Rows[i]["TransportDocRefNo"].ToString();
 								worksheet[ROW, colTransporterDocRefDate].Text = dtInventorySalesReportList.Rows[i]["TransportDocDate"].ToString();
-								worksheet[ROW, colAgentName].Text = dtInventorySalesReportList.Rows[i]["AgentName"].ToString();
+								worksheet[ROW, colAgentName].Text = dtInventorySalesReportList.Rows[i]["TransporterName"].ToString();
 								worksheet[ROW, colAgentCommission].Text = dtInventorySalesReportList.Rows[i]["AgentCommission"].ToString();
-								worksheet[ROW, colGrossWeight].Text = dtInventorySalesReportList.Rows[i]["GrossWeight"].ToString();
+								worksheet[ROW, colGrossWeight].Text = dtInventorySalesReportList.Rows[i]["GrossWeights"].ToString();
 								worksheet[ROW, colLotNo].Text = dtInventorySalesReportList.Rows[i]["LOT"].ToString();
 								worksheet[ROW, colPaymentTerm].Text = dtInventorySalesReportList.Rows[i]["PaymentTerm"].ToString();
 								worksheet[ROW, colBaseOnDueDate].Text = dtInventorySalesReportList.Rows[i]["BaseOnDueDate"].ToString();
