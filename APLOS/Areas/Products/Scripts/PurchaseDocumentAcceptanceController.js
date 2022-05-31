@@ -878,6 +878,11 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
                 $scope.TotalAcptValue = 0;
                 $scope.TotalAcptValue = $scope.PurchaseDocAcceptance.AcceptanceAmount + $scope.OtherTotalAcptValue;
 
+                for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
+                    if ($scope.inventoryMaterialListPO[i].TransactionQty == 'NaN' || $scope.inventoryMaterialListPO[i].TransactionQty == 0 || baseService.isUndefinedOrNull($scope.inventoryMaterialListPO[i].TransactionQty)) {
+                        throw "Current Acceptance Qty is required.";
+                    }
+                }
                 
                 if ($scope.TotalAcptValue > $scope.productNew.LCAmount) {
                     throw "Acceptance Amount can't greater than Total LC Amount.";
@@ -897,7 +902,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                         $http({
                             method: 'POST',
-                            url: 'Products/PurchaseDocumentsAcceptance/CreateAndUpdateGRNAcceptance',
+                            url: 'Products/PurchaseDocumentsAcceptance/CreateGRNAcceptance',
                             data: {
                                 'entity': $scope.PurchaseDocAcceptance
                                 , 'PurchaseDocAcceptanceDetail': $scope.seletedLST
@@ -933,7 +938,7 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
 
                         $http({
                             method: 'POST',
-                            url: 'Products/PurchaseDocumentsAcceptance/CreateAndUpdateGRNAcceptance',
+                            url: 'Products/PurchaseDocumentsAcceptance/UpdateGRNAcceptance',
                             data: {
                                 'entity': $scope.PurchaseDocAcceptance
                                 , 'PurchaseDocAcceptanceDetail': $scope.seletedLST
@@ -1597,6 +1602,8 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             else {
                 for (var i = 0; i < $scope.seletedLST.length; i++) {
                     if ($scope.seletedLST[i].Active === true) {
+                       
+                        
                         for (var j = 0; j < $scope.ServicePODetailList.length; j++) {
                             if ($scope.ServicePODetailList[j].ServicePOMasterId === $scope.seletedLST[i].Id) {
                                 ShowResult('First delete items for this PO');
@@ -1625,6 +1632,10 @@ function PurchaseDocumentAcceptanceController(accountService, addressService, $w
             }
         }
         else {
+            if (baseService.arrayLength($scope.inventoryMaterialListPO) > 0) {
+                ShowResult('First delete items for this PO');
+                return false;
+            }
             for (var i = 0; i < $scope.seletedLST.length; i++) {
                 if ($scope.seletedLST[i].Active === true) {
                     var gridObj = $("#seletedLSTGrid").data("ejGrid");
