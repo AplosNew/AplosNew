@@ -189,6 +189,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                **Showing top 300 records.
                                 <dir-pagination-controls max-size="5"
                                                          pagination-id="metaData.name + 'partyList'"
                                                          direction-links="true" boundary-links="true"
@@ -202,3 +203,59 @@
                     </div>
                 </div>
             </div>
+
+
+<div class="modal fade site-modal in" id="partyPopUpN" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg ">
+        <div class="modal-content">
+            <div class="modal-header"> {{partyType}} List <button type="button" class="close" ng-click="closePartyPopUp();">&times;</button></div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="searchByParty">
+                                            <option ng-repeat="option in searchByPartyList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="searchParty" ng-enter="showPartyPopUp()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="showPartyPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="content-container-fluid">
+                        @*style="color:black;overflow:scroll"*@
+                        <div style="color:black;" id="partyPopUpGrid" ej-grid e-datasource="partyList" e-recorddoubleclick="closePartyPopUpN"
+                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                            <div e-columns>
+                                <div e-column e-field="Code" e-headertext="Code" e-width="50" e-filter="false"></div>
+                                <div e-column e-field="UserName" e-headertext="Party" e-width="130"></div>
+                                <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="130"></div>
+                                @*<div  e-column e-field="ReconciliationGLName" e-headertext="GL" e-width="60"></div>
+                                    <div e-column e-field="ReconciliationBudgetName" e-headertext="Budget" e-width="60"></div>
+                                    <div e-column e-field="ReconciliationActivityName" e-headertext="Activity" e-width="60"></div>*@
+                                <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                <div e-column e-field="CountryName" e-headertext="Country" e-width="80" textAlign='Right'></div>
+                                <div e-column e-field="StateName" e-headertext="State" e-width="80" textAlign='Right'></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="common-btn list-inline text-right">
+                    <li><button ng-click="closePartyPopUp();" class="btn"> Close</button></li>
+                </ul>
+                <i>**Showing top 100 {{partyType}} order by Code</i>
+            </div>
+        </div>
+    </div>
+</div>

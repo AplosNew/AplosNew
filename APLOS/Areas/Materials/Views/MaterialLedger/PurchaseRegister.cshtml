@@ -278,20 +278,31 @@
 		</div>-->
 
 		<div class="common-btn">
-			<ul class="list-inline text-left">
+            <ul class="list-inline text-left">
 
-				<li>
-					<div ej-tooltip e-showshadow="true" e-content="Export To Pdf" ng-click="PurchaseOrderReportPdf('Pdf');" e-width="width">
-						<button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Pdf</button>
-					</div>
-				</li>
+                @*<li>
+            <div ej-tooltip e-showshadow="true" e-content="Export To Pdf" ng-click="PurchaseOrderReportPdf('Pdf');" e-width="width">
+                <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Pdf</button>
+            </div>
+        </li>*@
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="GRN Wise" ng-click="PurchaseOrderGRNWiseReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i>GRN Wise</button>
+                    </div>
+                </li>
 
-				<li>
-					<div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderReportExcel('Excel');" e-width="width">
-						<button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Excel</button>
-					</div>
-				</li>
-			</ul>
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Party Wise" ng-click="PurchaseOrderPartyWiseReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Party Wise</button>
+                    </div>
+                </li>
+
+                <li>
+                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Item Wise</button>
+                    </div>
+                </li>
+            </ul>
 		</div>
 		<div class="clearfix"></div>
 		<fieldset class="scheduler-border">
