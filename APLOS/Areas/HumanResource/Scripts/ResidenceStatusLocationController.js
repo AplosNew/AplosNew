@@ -239,7 +239,9 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         ResidenceNumber: null,
         VacancyStatus: null,
         Vacancy:null,
-        isActive:0,
+        isActive: 0,
+        afterDate: null,
+        toDate:null,
     };
 
     $scope.view = function () {
@@ -279,6 +281,23 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             $scope.getEmployee();
              
       
+        })
+    }
+
+    $scope.popupEmployeeList = [];
+    $scope.PopupEmployeeView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'PopupEmployeeView',
+            data: {
+                'EmployeeCategorySystemID': $scope.selectedData.EmployeeCategoryId,
+                'fromDate': $scope.selectedData.fromDate,
+                'toDate': $scope.selectedData.toDate,
+            }
+
+        }).then(function successCallback(response) {
+            $scope.popupEmployeeList = response.data;
+            document.getElementById("EmpGrid").style.display = "block";
         })
     }
 
@@ -508,5 +527,14 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         })
             
     }
-    
+
+
+    //-----------------------------------------------------------------------------------
+
+    function openModal() {
+        $('.confirm-delete').addClass('hide');
+        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
+        $('#myModal').modal('show');
+    }
+//-----------------------------------------------------------------------------------
 }

@@ -92,7 +92,7 @@ namespace Library.HumanResource.Leave.LeaveUploadXL
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"select * from LeaveTransaction where plantid='" + plantid + "'";
+                strSQL = @"select * from LeaveTransaction where plantid=''";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
             }

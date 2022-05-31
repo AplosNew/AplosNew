@@ -529,15 +529,16 @@ namespace Library.Service.HumanResources
             try
             {
                 string sql = @"SELECT [CheckBoxSelect] = Convert(BIT, 'False') , EI.*,Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
-                                 ,LGD.userName LegalDesignation
-                                    
+                                 ,LGD.userName LegalDesignation                                    
                                     ,se.UserName Section
                                     ,Sus.UserName SubSection
 								  ,DG.UserName GivenDesignation 
-								  ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId, ISNULL(IIF(SM.IsApproved=1 , 'Approved', 'Un-approved'),'New') as ApprovedStatus , DeG.UserName DesignationGroupName,IH.IsConfirmation,IH.IncrementType
-                              FROM dbo.Employeeinformation EI                             
+								  ,DG.UserName GivenDesignation, DP.UserName Department, PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId, ISNULL(IIF(SM.IsApproved=1 , 'Approved', 'Un-approved'),'New') as ApprovedStatus , DeG.UserName DesignationGroupName,IH.IsConfirmation,IH.IncrementType
+								  ,PMB.Id,PMB.Code,mbd.TotalNumber BudgetedManPower,OnRollManPwr=ONR.OnRoll-ISNULL(A.TS,0),CAR.CurrentApprovalRequired,BalanceRequired=mbd.TotalNumber-(ONR.OnRoll-ISNULL(A.TS,0))
+                       FROM dbo.Employeeinformation EI                             
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                              JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
@@ -551,12 +552,15 @@ namespace Library.Service.HumanResources
                             LEFT JOIN ORG.Section AS Se ON Se.Id= EI.SectionID 
                             LEFT JOIN ORG.SubSection AS SuS ON SuS.Id= EI.SubSectionID
                               LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemID AND SM.EmpInfoSystemID=(SELECT TOP 1 EmpInfoSystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID  ORDER BY   EffectiveDate DESC) AND isnull(SM.IsApproved,0)=0
-							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID   AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC)  AND sm.SystemID=IH.ToSalaryId 
-                              WHERE --EI.EmployeeStatus ='Active' AND 
-                                    EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' 
-                                       AND ( EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
-                                            )  
-							         --AND EI.SystemID IN  (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0)";
+							  LEFT JOIN IncrementHistory IH ON IH.EmpSystemID=EI.SystemID AND IH.IsApproved=0  AND IH.EmpSystemID=(SELECT TOP 1 EmpSystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID  ORDER BY FromEffectiveDate DESC)  AND sm.SystemID=IH.ToSalaryId
+							 
+							 LEFT JOIN (SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' GROUP BY BudgetCode) ONR ON ONR.BudgetCode=EI.BudgetCode
+							 LEFT JOIN (SELECT COUNT(BudgetCode) CurrentApprovalRequired,SystemId FROM EmployeeInformation GROUP BY SystemId) CAR ON CAR.SystemId=EI.SystemId
+							 LEFT JOIN (SELECT COUNT(SystemId) TS,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS','LONG ABSENTEEISM') GROUP BY SystemId,BudgetCode) A ON A.BudgetCode=PMB.Id
+							   
+                             
+                              WHERE EI.PlantId='"+ plantId + @"' AND  EI.GroupId='"+ companyGroupId + @"' AND (EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
+                                            )";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
