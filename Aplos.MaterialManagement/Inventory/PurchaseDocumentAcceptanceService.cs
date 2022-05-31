@@ -696,8 +696,8 @@ namespace Library.MaterialManagement.Inventory
 
                 var poId = PurchaseDocAcceptanceDetail.Select(r => r.POId).FirstOrDefault();
 
-                var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == poId).Select().ToList();
-                var purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == poId && r.InventoryReceiveDetailId == null).Select().ToList();
+                    var POServiceList = _inventoryService.Query(r => r.InventoryReceiveId == poId).Select().ToList();
+                    var purchaseDocAcceptanceServiceTax = _receiveTaxRepository.Query(r => r.InventoryReceiveId == poId && r.InventoryReceiveDetailId == null).Select().ToList();
 
 
                 var AcceptdocMap = new PurchaseDocAcceptancePOMap
