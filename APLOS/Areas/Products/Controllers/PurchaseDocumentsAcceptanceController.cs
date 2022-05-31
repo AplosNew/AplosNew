@@ -776,7 +776,7 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
+        public JsonResult XCreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail)
         {
             string acptDetailId = "";
             DataSet dsMaster, detailDestination, taxDestination, servicetaxDestination, dsdetailGRN, dsdetailPO;
@@ -932,7 +932,160 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
-        public JsonResult CreateAndUpdateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail, List<Dictionary<string, object>> PurchaseDocAcceptanceDetails)
+        public JsonResult CreateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail, List<Dictionary<string, object>> PurchaseDocAcceptanceDetails)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            objCon = new ConnectionManager.DAL.ConManager("1");
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                string inventoryReceiveId = "";
+                string PoId = "";
+                foreach (var item in PurchaseDocAcceptanceDetail)
+                {
+                    if (string.IsNullOrEmpty(inventoryReceiveId))
+                    {
+                        inventoryReceiveId += "''," + item.Id;
+                    }
+                    else
+                    {
+                        inventoryReceiveId += "," + item.Id;
+                    }
+                    if (string.IsNullOrEmpty(PoId))
+                    {
+                        PoId += "''," + item.POId;
+                    }
+                    else
+                    {
+                        PoId += "," + item.POId;
+                    }
+                }
+
+                DataSet dsMaster, dsDetail, dsGRNService, dsdetailPO, dsAcptService, dsSerId;
+                DataView dvAcptService, dvdetailPO = null;
+                DataRow drAcptService = null;
+
+                string acptDetailId = null;
+                SaveData(entity, out dsMaster, out string masterId);
+                entity.Id = masterId;
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [TRN].[PurchaseDocAcceptanceDetail] Where PurchaseDocAcceptanceId='" + masterId + "'", out dsDetail, false, "1");
+                objCon.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.[PurchaseOrderDetail] WHERE InventoryReceiveId IN (" + PoId + ")", out dsdetailPO, false, "1");
+                objCon.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.InventoryService WHERE InventoryReceiveId IN (" + inventoryReceiveId + ")", out dsGRNService, false, "1");
+                objCon.OpenDataSetThroughAdapter(@"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[PurchaseDocAcceptanceService] WHERE PurchaseDocAcceptanceId='" + masterId + "'", out dsSerId, false, "1");
+
+                objCon.OpenDataSetThroughAdapter(@"SELECT * FROM TRN.PurchaseDocAcceptanceService WHERE PurchaseDocAcceptanceId='" + masterId + "'", out dsAcptService, false, "1");
+
+                int servicecurrentId = 0;
+                if (dsSerId.Tables[0].Rows.Count>0)
+                {
+                    servicecurrentId = Convert.ToInt32(dsSerId.Tables[0].Rows[0]["Id"].ToString());
+                }
+
+                int IdCount = 0;
+                if (PurchaseDocAcceptanceDetails != null)
+                {
+                    foreach (var item in PurchaseDocAcceptanceDetails)
+                    {
+                        IdCount++;
+                        DataView dv = new DataView(dsDetail.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = masterId + "-" + IdCount;
+                            acptDetailId = masterId + "-" + IdCount;
+                            item["PurchaseDocAcceptanceId"] = masterId;
+                            item["AcceptanceRate"] = 0.0;
+                            item["MaterialTranAmount"] = item["TotalMaterialTranAmount"];
+                            AddNewRow(dsDetail.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+
+                        //dvdetailGRN = new DataView(dsdetailGRN.Tables[0]);
+                        //dvdetailGRN.RowFilter = "Id='" + item["InventoryReceiveDetailId"] + "'";
+                        //if (dvdetailGRN.Count > 0)
+                        //{
+                        //    DataRow drGRN = dvdetailGRN[0].Row;
+                        //    drGRN.BeginEdit();
+
+                        //    drGRN["PurchaseDocumentAcceptanceId"] = masterId;
+                        //    drGRN["PurchaseDocumentAcceptanceDetailId"] = acptDetailId;
+
+                        //    drGRN.EndEdit();
+                        //}
+
+                        dvdetailPO = new DataView(dsdetailPO.Tables[0]);
+                        dvdetailPO.RowFilter = "Id='" + item["PODetailId"].ToString() + "'";
+                        if (dvdetailPO.Count > 0)
+                        {
+                            DataRow drPO = dvdetailPO[0].Row;
+                            drPO.BeginEdit();
+
+                            drPO["AcceptanceRcvQty"] = Convert.ToDecimal(drPO["AcceptanceRcvQty"].ToString()) + Convert.ToDecimal(item["TransactionQty"]);
+                            drPO.EndEdit();
+                        }
+                    }
+                }
+
+                SaveGRNAcceptanceMapData(PurchaseDocAcceptanceDetail, masterId, out DataSet dsGRNAcceptanceMap);
+
+
+                if (dsGRNService.Tables[0].Rows.Count>0)
+                {
+                    for (int i = 0; i < dsGRNService.Tables[0].Rows.Count; i++)
+                    {
+                        dvAcptService = new DataView(dsAcptService.Tables[0]);
+
+                        dvAcptService.RowFilter = "PurchaseDocAcceptanceId='" + masterId + "'";
+
+                        if (dvAcptService.Count == 0)
+                        {
+                            servicecurrentId++;
+
+                            drAcptService = dsAcptService.Tables[0].NewRow();
+                            drAcptService["Id"] = MakePK(entity.Id + 2, servicecurrentId, 2);
+                            drAcptService["PurchaseDocAcceptanceId"] = masterId;
+                            drAcptService["ServiceMasterId"] = dsGRNService.Tables[0].Rows[i]["ServiceMasterId"].ToString();
+                            drAcptService["Amount"] = dsGRNService.Tables[0].Rows[i]["Amount"].ToString();
+                            drAcptService["TotalTaxAmount"] = dsGRNService.Tables[0].Rows[i]["TotalTaxAmount"].ToString();
+                            drAcptService["State"] = "GRN";
+                            drAcptService["BankAmount"] = 0;
+                            drAcptService["Rate"] = 0;
+
+                            drAcptService["AddedBy"] = identity.Name;
+                            drAcptService["AddedDate"] = DateTime.Now;
+                            drAcptService["AddedFromIP"] = identity.IPAddress;
+
+                            dsAcptService.Tables[0].Rows.Add(drAcptService);
+                        }
+                    } 
+                }
+
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster, dsDetail, dsGRNAcceptanceMap, dsdetailPO, dsAcptService);
+                return Json(new { entity, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public static string MakePK(string masterId, int currentId, int padLeft)
+        {
+            return masterId + currentId.ToString().PadLeft(padLeft, '0');
+        }
+
+        [HttpPost]
+        public JsonResult UpdateGRNAcceptance(PurchaseDocAcceptance entity, IEnumerable<PurchaseDocAcceptanceDetailViewModel> PurchaseDocAcceptanceDetail, List<Dictionary<string, object>> PurchaseDocAcceptanceDetails)
         {
             ConnectionManager.DAL.ConManager objCon;
             objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1021,6 +1174,8 @@ namespace Aplos.Areas.Products.Controllers
                 }
 
                 SaveGRNAcceptanceMapData(PurchaseDocAcceptanceDetail, masterId, out DataSet dsGRNAcceptanceMap);
+
+
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsDetail, dsGRNAcceptanceMap, dsdetailPO);
                 return Json(new { entity, Message = AplosMessage.Updated });

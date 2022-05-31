@@ -1905,22 +1905,24 @@ namespace Library.Accounting.FixedAssets
 		#endregion Fixed Assets Register Report for Elastis Search
 
 		#region Fixed Asset Depreciation Process
-		public IEnumerable<object> GetfixedAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate)
+		public IEnumerable<object> GetfixedAssetMastersListForProcess(string companyGroupId, string companyId, string plantId, string fiscalYearId, string toDate,string startDate)
         {
-            //var status = "";
-            //if (paymentStatus == "Pending")
-            //{
-            //    status = "AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0";
-            //}
-            var sql = @"SELECT FAM.*,
+            var sql = @"DECLARE @FromDate NVARCHAR(20) = DATEADD(day,-1,'" + startDate + @"');
+						DECLARE @FiscalYearId AS [varchar](20)
+						select @FiscalYearId=Id from [SCS].[FiscalYear] where @FromDate BETWEEN StartDate AND EndDate
+						SELECT FAM.*,
                         FAC.UserName 'FixedAssetCategory',
                         FASC.UserName 'FixedAssetSubCategory'
-						,'Not Process' ProcessStatus
+						,CASE WHEN ( select TOP 1 FiscalYearId from [TRN].[FixedAssetDepreciationProcess]  where FiscalYearId	='" + fiscalYearId + @"'	AND FixedAssetMasterId=FAM.Id)>0 
+					    THEN 'Processed upto '+ CAST(( select TOP 1 DepreciationProcessDate from [TRN].[FixedAssetDepreciationProcess]  where FiscalYearId	='" + fiscalYearId + @"'	AND FixedAssetMasterId=FAM.Id) AS varchar)
+						ELSE   'Not Process' END ProcessStatus
+						,(select COUNT(Id) from [TRN].[FixedAssetRegister] where CapitalizationDate<=@FromDate AND FixedAssetMasterId=FAM.Id)PreviousYearAsset
+						,(select COUNT(Id) from [TRN].[FixedAssetDepreciationProcess] where FiscalYearId=@FiscalYearId AND FixedAssetMasterId=FAM.Id)PreviousYearAssetProcess
                         FROM  MST.[FixedAssetMaster]  FAM
                         LEFT OUTER JOIN  HKP.[FixedAssetCategory]  FAC ON FAM.FixedAssetCategoryId=FAC.Id
                         LEFT OUTER JOIN  HKP.[FixedAssetSubCategory]  FASC ON FAM.FixedAssetSubCategoryId=FASC.Id
                      WHERE FAM.CompanyGroupId='" + companyGroupId + @"' 
-					 AND FAM.Id IN(select FixedAssetMasterId from [TRN].[FixedAssetRegister] )";
+					 AND FAM.Id IN(select FixedAssetMasterId from [TRN].[FixedAssetRegister] where CapitalizationDate<='" + toDate + @"')";
 			return _sqlRepository.GetDataCollection(sql);
 
         }

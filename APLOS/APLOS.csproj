@@ -301,7 +301,6 @@
     <Folder Include="Areas\HumanResource\Controllers\Reports\" />
     <Folder Include="Areas\HumanResource\Views\Default\" />
     <Folder Include="Areas\HumanResource\Views\GeneralDataOperation\" />
-    <Folder Include="Areas\HumanResource\Views\Shared\" />
     <Folder Include="Areas\IssueTracker\Views\IssueAudit\" />
     <Folder Include="Areas\Materials\Views\P\" />
     <Folder Include="Areas\MeetingManagement\Views\Shared\" />
@@ -581,6 +580,8 @@
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FuguaiController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FuguaiTransactionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
@@ -1979,6 +1980,8 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FuguaiController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FuguaiTransactionController.js" />
     <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
@@ -4161,6 +4164,9 @@
     <Content Include="Areas\Accounts\Views\VendorPaymentApproval.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerControlReport\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\SalesOrderStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\Shared\_Layout.cshtml" />
+    <Content Include="Areas\HumanResource\Views\Fuguai\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\FuguaiTransaction\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

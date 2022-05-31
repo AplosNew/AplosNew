@@ -179,25 +179,28 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     $scope.fixedAssetMastersList = [];
     $scope.getFixedAssetMastersData = function () {
         $scope.ToDatevalidation();
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetfixedAssetMastersListForProcess",
-                data: {
-                    fiscalYearId: $scope.depreciationProcess.FiscalYearId,
-                    toDate: $scope.depreciationProcess.ToDate
-                },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.fixedAssetMastersList = response.data.DATA;
-            }),
-                function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-        }
+        if ($scope.invalidDocDate == false) {
+            try {
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetfixedAssetMastersListForProcess",
+                    data: {
+                        fiscalYearId: $scope.depreciationProcess.FiscalYearId,
+                        toDate: $scope.depreciationProcess.ToDate,
+                        startDate: $scope.depreciationProcess.StartDate
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    $scope.fixedAssetMastersList = response.data.DATA;
+                }),
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+            }
 
-        catch (e) {
+            catch (e) {
 
+            }
         }
     }
     $scope.voucherDetailList = [];
@@ -273,73 +276,81 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
     $scope.invalidDocDate = false;
     $scope.ToDatevalidation = function () {
         var msg = "";
-
+        $scope.invalidDocDate = false;
         if (baseService.isUndefinedOrNull($scope.depreciationProcess.ToDate)) {
             ShowResult('Please select To Date!', 'failure');
-            return;
-            //$scope.invalidDocDate = true;
+            $scope.invalidDocDate = true;
             //msg = "Please select To Date!";
-            //return;
+            return;
+        }
+        else if (baseService.isUndefinedOrNull($scope.depreciationProcess.FiscalYearId)) {
+            ShowResult('Please select Fiscal Year!', 'failure');
+            $scope.invalidDocDate = true;
+            //msg = "Please select To Date!";
+            return;
         }
         else if (new Date($scope.depreciationProcess.ToDate) > new Date()) {
             ShowResult('ToDate must be below or equal to current Date!', 'failure');
-            return;
-            //$scope.invalidDocDate = true;
+            $scope.invalidDocDate = true;
             //msg = "ToDate must be below or equal to current Date!";
-            //return;
+            return;
         }
         else if (new Date($scope.depreciationProcess.StartDate) > new Date($scope.depreciationProcess.ToDate)) {
             ShowResult('To Date must be greater or equal to Fiscal Year Start Date!', 'failure');
-            return;
             //msg = "To Date must be greater or equal to Fiscal Year Start Date!";
-            //$scope.invalidDocDate = true;
-            //return;
+            $scope.invalidDocDate = true;
+            return;
         }
         else if (new Date($scope.depreciationProcess.EndDate) < new Date($scope.depreciationProcess.ToDate)) {
             ShowResult('To Date must be less or equal to Fiscal Year End Date!', 'failure');
-            return;
             //msg = "To Date must be less or equal to Fiscal Year End Date!";
-            //$scope.invalidDocDate = true;
-            //return;
+            $scope.invalidDocDate = true;
+            return;
         }
         //else $scope.invalidDocDate = false;
         //return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
     }
     $scope.Save = function () {
         $scope.ToDatevalidation();
-        var selectedAssetMastersList = [];
-        for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
-            if ($scope.fixedAssetMastersList[i].isSelected == true) {
+        if ($scope.invalidDocDate == false) {
+            var selectedAssetMastersList = [];
+            for (var i = 0; i < $scope.fixedAssetMastersList.length; i++) {
+                if ($scope.fixedAssetMastersList[i].isSelected == true) {
 
-                if (selectedAssetMastersList, $scope.fixedAssetMastersList[i].Id) {
-                    selectedAssetMastersList.push($scope.fixedAssetMastersList[i].Id);
+                    if (selectedAssetMastersList, $scope.fixedAssetMastersList[i].Id) {
+                        selectedAssetMastersList.push($scope.fixedAssetMastersList[i].Id);
+                    }
+                }
+                if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess==0) {
+                    ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
+                    return;
                 }
             }
-        }
-        if (selectedAssetMastersList.length == 0) {
-            ShowResult('Please select at least one Asset master', 'failure');
-            return;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.saveUrl,
-            data: {
-                selectedAssetMastersList: selectedAssetMastersList,
-                fiscalYearId: $scope.depreciationProcess.FiscalYearId,
-                toDate: $scope.depreciationProcess.ToDate
-            },
-            dataType: 'JSON'
-        }).then(function (response) {
-            if (response.data.Error === true)
-                ShowResult(response.data.Message, 'failure');
-            else {
-                ShowResult(response.data.Message, 'success');
-
+            if (selectedAssetMastersList.length == 0) {
+                ShowResult('Please select at least one Asset master', 'failure');
+                return;
             }
-        }), function (response) {
-            ShowResult(response.data.Message, 'failure');
-        };
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: {
+                    selectedAssetMastersList: selectedAssetMastersList,
+                    fiscalYearId: $scope.depreciationProcess.FiscalYearId,
+                    toDate: $scope.depreciationProcess.ToDate
+                },
+                dataType: 'JSON'
+            }).then(function (response) {
+                if (response.data.Error === true)
+                    ShowResult(response.data.Message, 'failure');
+                else {
+                    $scope.getFixedAssetMastersData();
+                    ShowResult(response.data.Message, 'success');
 
+                }
+            }), function (response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        }
 
     };
 

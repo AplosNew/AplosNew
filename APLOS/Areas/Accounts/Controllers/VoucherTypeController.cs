@@ -66,8 +66,8 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             if (ModelState.IsValid)
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                voucherType.CompanyGroupId = identity.CompanyGroupId;
+                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //voucherType.CompanyGroupId = identity.CompanyGroupId;
                 _voucherTypeService.Insert(voucherType);
                 return Json(new { VoucherType = voucherType, Sequence = _voucherTypeService.GetAutoSequence(), Message = AplosMessage.Insert });
             }
