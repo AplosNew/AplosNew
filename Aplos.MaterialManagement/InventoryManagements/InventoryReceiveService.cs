@@ -1303,6 +1303,186 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
+        public IWorkbook CreatePurchaseRegisterGRNWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate, string Type)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = getPurchaseRegisterGRNWiseReportSql(CompanyId, PlantId, FromDate, ToDate, Type);
+
+            var sheet = workbook.Worksheets[0];
+
+            #region sheet1
+            sheet.Name = "Purchase Report Register GRN Wise";
+
+            int ROW = 8;
+            int endCol = 1;
+            int COL = 1;
+
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 13, ExcelHAlign.HAlignLeft);
+            int ColGRNNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 13, ExcelHAlign.HAlignLeft);
+            int ColGRNEntryDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 13, ExcelHAlign.HAlignLeft);
+            int ColVoucherNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
+            int ColPostingDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
+            int ColDocRefNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
+            int ColGateEntryNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 13, ExcelHAlign.HAlignLeft);
+            int ColPartyName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
+            int ColPartyCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "GS TIN No", 13, ExcelHAlign.HAlignLeft);
+            int ColGSTINNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
+            int ColCurrency = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Tran Amount", 13, ExcelHAlign.HAlignRight);
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            int ColTotalMaterialTranAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignRight);
+            int ColTotalMaterialBaseAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignRight);
+            int ColPayment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignRight);
+            int ColBalance = COL;
+            COL++;
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+                sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
+                sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+                sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+                sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+                sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
+                sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+                sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+                sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+                sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
+                sheet[ROW, ColTotalMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialTranAmount"].ToString());
+                sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
+                sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+                sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+
+                sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            ROW++;
+
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            #endregion sheet1
+
+
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        public DataTable getPurchaseRegisterGRNWiseReportSql(string CompanyId,string PlantId, string FromDate, string ToDate,string Type)
+        {
+            try
+            {
+                var str = @"SELECT  Distinct IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
+							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount
+						   ,SUM(I.WrittenOffAmount) as Payment
+						   ,(ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2))-(SUM(I.WrittenOffAmount)) as Balance
+						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						   ,IR.DocRefNo,CU.Code CurrencyName
+			
+
+					from [TRN].[InventoryReceive] AS IR
+					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount from [TRN].[InventoryReceiveDetail]
+					group by InventoryReceiveId ) AS IRD ON IR.Id=IRD.InventoryReceiveId 
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V on V.Id=I.VoucherId
+                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V1 on V1.Id=ep.VoucherId
+						
+					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+
+					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount
+					,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         public IWorkbook CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
         {
