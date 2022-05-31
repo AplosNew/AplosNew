@@ -1,6 +1,6 @@
 ﻿'use strict';
-VoucherTypeController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function VoucherTypeController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+VoucherTypeController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
+function VoucherTypeController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Voucher Type';
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -75,6 +75,10 @@ function VoucherTypeController(commonMessage, $scope, $rootScope, baseService, $
     };
 
     $scope.GetSequence();
+    $scope.companyGroupList = [];
+    cboService.getCboCompanyGroup(function (result) {
+        $scope.companyGroupList = result;
+    });
 
     $scope.Get = function (id, index) {
         $scope.index = index;

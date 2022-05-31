@@ -91,19 +91,30 @@ namespace Library.OrderManagement.Production
                 //else
                 //{
                     //string Bdc = tb.Rows[0]["Id"].ToString();
-                    str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
-                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
-								mb.Code as BudgetCode , e.UserName as EntityName
+        //            str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
+        //                        wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom ,wbd.BudgetId , ept.EntityId,
+								//mb.Code as BudgetCode , e.UserName as EntityName
+        //                        from dbo.WasteMaster wm
+        //                        left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
+        //                        left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
+        //                        left join hkp.Process p on p.Id = wm.ProcessId
+        //                        left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
+								//left join org.Entity e on e.Id = ept.EntityId
+								//left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
+        //                        where ept.EntityId = '" + Id+"'";
+
+                str = @"Select wm.Id ,wm.Sequence, wm.ProcessId ,p.UserName as process, wm.ItemName, wm.Category ,
+                                wm.SubCategory , wm.code , wm.UOMId ,uom.UserName as Uom , ept.EntityId, e.UserName as EntityName
                                 from dbo.WasteMaster wm
-                                left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
+                                --left join dbo.WasteBudgetDetail wbd on wbd.WasteMasterId = wm.Id
                                 left join hkp.EntityProcessTag ept on ept.ProcessId = wm.ProcessId
                                 left join hkp.Process p on p.Id = wm.ProcessId
                                 left join scs.UnitOfMeasurement uom on uom.Id = wm.UOMId
 								left join org.Entity e on e.Id = ept.EntityId
-								left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
-                                where ept.EntityId = '" + Id+"'";
-                    
-                //}
+								--left join mst.ManpowerBudget mb on mb.Id = wbd.BudgetId
+                                where ept.EntityId = '" + Id + "'";
+
+                  //}
                   DataTable dt =  _sqlRepository.GetDataTable(str);
                 dt.Columns.Add("Quantity", typeof(double));
                 dt.Columns.Add("Remarks", typeof(string));
