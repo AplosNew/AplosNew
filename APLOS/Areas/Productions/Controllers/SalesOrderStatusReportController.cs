@@ -173,6 +173,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColBal = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Alloted Stock", 12, ExcelHAlign.HAlignCenter);
+            int ColAll = COL;
+            COL++;
+
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -211,6 +215,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCM].Number = clsStaticInfo.dbl(data.Rows[i]["CM"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
+                sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
 
                 ROW++;
 
