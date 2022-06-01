@@ -1986,7 +1986,7 @@
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
-    <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
