@@ -126,13 +126,14 @@ namespace Aplos.Areas.Attendances.Controllers
                             format(ShiftInTime,'dd-MMM-yyyy hh:mm tt') AS ShiftInTime,
                      	    format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt') ShiftOutTime,
                             format(isnull(KK.InTime,ShiftInTime),'dd-MMM-yyyy') AS  InDateOriginal,
-                            format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
+                            --format(KK.InTime,'hh:mm tt') AS  InTimeOriginal, 
+                            ISNULL(CONVERT(varchar(15),CAST(KK.Intime AS TIME),100),'')InTimeOriginal,
                             KK.IsManualInTime,
                             format(isnull(KK.OutTime,format(CASE WHEN KK.ShiftInTime>kk.ShiftOutTime THEN DATEADD(DAY,1,kk.ShiftOutTime) ELSE kk.ShiftOutTime END ,'dd-MMM-yyyy hh:mm tt')),'dd-MMM-yyyy') AS  OutDateOriginal,
-                            format(KK.OutTime,'hh:mm tt') AS  OutTimeOriginal, 
+                            ISNULL(format(KK.OutTime,'hh:mm tt'),'') OutTimeOriginal,                             
                             KK.IsManualOutTime,
-                            format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt') AS PunchInTime,
-                            format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt') AS PunchOutTime,
+                            ISNULL(format(KK.PunchInTime,'dd-MMM-yyyy hh:mm tt'),'') PunchInTime,
+                            ISNULL(format(KK.PunchOutTime,'dd-MMM-yyyy hh:mm tt'),'') PunchOutTime,
                             KK.DayStatus, KK.OTHr,
                             KK.IsOTComfirm, KK.IsOTEntitled,KK.IsManualDayStatus
 							,kk.isApprovedIN,kk.isApprovedOUT
