@@ -96,13 +96,18 @@ namespace Aplos.Areas.Productions.Controllers
 
             #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignCenter);
-            int ColCus = COL;
-            COL++;
-
             report.SetHeaderText(ref sheet, ROW, COL, "Customer Group", 12, ExcelHAlign.HAlignCenter);
             int ColCusG = COL;
             COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Created Date", 12, ExcelHAlign.HAlignCenter);
+            int ColCd = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignCenter);
+            int ColCus = COL;
+            COL++;
+            
 
             report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 12, ExcelHAlign.HAlignCenter);
             int ColMO = COL;
@@ -110,6 +115,14 @@ namespace Aplos.Areas.Productions.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Master Order Date", 12, ExcelHAlign.HAlignCenter);
             int ColMOD = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignCenter);
+            int ColItem = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Article", 20, ExcelHAlign.HAlignCenter);
+            int ColArt = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Own Ref No", 12, ExcelHAlign.HAlignCenter);
@@ -120,24 +133,24 @@ namespace Aplos.Areas.Productions.Controllers
             int ColBuy = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 20, ExcelHAlign.HAlignCenter);
+            int ColProdC = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Product Detail", 20, ExcelHAlign.HAlignCenter);
             int ColProd = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 20, ExcelHAlign.HAlignCenter);
-            int ColLot = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Article", 20, ExcelHAlign.HAlignCenter);
-            int ColArt = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Item Id", 12, ExcelHAlign.HAlignCenter);
-            int ColItem = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "PR No", 20, ExcelHAlign.HAlignCenter);
+            int ColPR = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "SO NO", 12, ExcelHAlign.HAlignCenter);
             int COlSo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SO Category", 16, ExcelHAlign.HAlignCenter);
+            int ColSOCat = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "SO Qty", 12, ExcelHAlign.HAlignCenter);
@@ -153,16 +166,8 @@ namespace Aplos.Areas.Productions.Controllers
             int ColComm = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "SO Category", 16, ExcelHAlign.HAlignCenter);
-            int ColSOCat = COL;
-            COL++;
-
             report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
             int ColRate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "CM", 12, ExcelHAlign.HAlignCenter);
-            int ColCM = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignCenter);
@@ -173,7 +178,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColBal = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Alloted Stock", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "FG Current Stock", 12, ExcelHAlign.HAlignCenter);
             int ColAll = COL;
             COL++;
 
@@ -200,19 +205,20 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
                 sheet[ROW, ColMOD].DateTime =Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+                sheet[ROW, ColCd].DateTime =Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
                 sheet[ROW, ColItem].Text = data.Rows[i]["ItemId"].ToString();
                 sheet[ROW, COlSo].Text = data.Rows[i]["SONo"].ToString();
                 sheet[ROW, ColProd].Text = data.Rows[i]["ProdDetails"].ToString();
-                sheet[ROW, ColLot].Text = data.Rows[i]["LOT"].ToString();
+                sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
+                sheet[ROW, ColPR].Text = data.Rows[i]["ProductionOrderId"].ToString();
                 sheet[ROW, ColQty].Text = data.Rows[i]["SOQty"].ToString();
                 sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
                 sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
-                sheet[ROW, ColCM].Number = clsStaticInfo.dbl(data.Rows[i]["CM"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
@@ -257,22 +263,14 @@ namespace Aplos.Areas.Productions.Controllers
 
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,mo.OwnReferenceNo , mo.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
-                            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,
+                            (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
+
                              (Select Stuff((
                                                         Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
                                                         from dbo.ProductLibraryAttribute pla
                                                         where pla.ProductLibraryId = moi.ProductLibraryId
                                                         for XML PATH('')
                                                         ) , 1, 2, '')) as ProdDetails,
-                             (Select Stuff((
-                            Select ', ' + sc.LotNo
-                            from (Select distinct sc.LotNo
-                            from dbo.ProductLibrary pl
-                            left join dbo.ItemScanChild sc on sc.ProductCode = pl.Code
-                            where pl.Id = moi.ProductLibraryId
-                            ) as sc
-                            for XML PATH('')
-                            ),1,2,''))  as LOT,
 
                             (Select sum(NetWeight) 
                             from dbo.ItemScanChild sc
@@ -288,6 +286,7 @@ namespace Aplos.Areas.Productions.Controllers
                             left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
                             left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
                             left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
+							left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
                             left join
                             (
                             Select SalesOrderId , SUM(isnull(sm.TransactionQty , 0)) as DispatchQty
@@ -297,7 +296,9 @@ namespace Aplos.Areas.Productions.Controllers
                             left join hkp.Party p on p.Id = mo.PartyId
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
-                            where os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' "+ent+@"
+							 left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
+                            where os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' "+ent+ @"
+                            order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
                             ";
 
                 return _sqlRepository.GetDataTable(str);
