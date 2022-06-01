@@ -166,6 +166,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColComm = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Delivery Date", 12, ExcelHAlign.HAlignCenter);
+            int ColDel = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Rate", 12, ExcelHAlign.HAlignCenter);
             int ColRate = COL;
             COL++;
@@ -206,6 +210,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
                 sheet[ROW, ColMOD].DateTime =Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
                 sheet[ROW, ColCd].DateTime =Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
+                sheet[ROW, ColDel].DateTime =Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
@@ -262,7 +267,7 @@ namespace Aplos.Areas.Productions.Controllers
                 }
 
                 var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,mo.OwnReferenceNo , mo.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
-                            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
+                            format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
                              (Select Stuff((
