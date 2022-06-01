@@ -1423,11 +1423,11 @@ namespace Library.OrderManagement.Costing
                 int colMaterialCode = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Material";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int colMaterial = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Article";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int colArticle = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Article Code";
@@ -1435,7 +1435,7 @@ namespace Library.OrderManagement.Costing
                 int colArticleCode = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Vendor";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int colVendor = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SO Id";
@@ -1513,6 +1513,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colItemDesc].Text = dtEmployeeData.Rows[i]["ItemDesc"].ToString();
                     sheet[ROW, colMaterial].Text = dtEmployeeData.Rows[i]["Material"].ToString();
                     sheet[ROW, colArticle].Text = dtEmployeeData.Rows[i]["Article"].ToString();
+                    sheet[ROW, colVendor].Text = dtEmployeeData.Rows[i]["Vendor"].ToString();
                     sheet[ROW, colUOM].Text = dtEmployeeData.Rows[i]["UOM"].ToString();
                     sheet[ROW, colCurrency].Text = dtEmployeeData.Rows[i]["Currency"].ToString();
                     sheet[ROW, colBOQCriteria].Text = dtEmployeeData.Rows[i]["BOQCriteria"].ToString();
@@ -1537,7 +1538,7 @@ namespace Library.OrderManagement.Costing
 
                 sheet.IsGridLinesVisible = false;
 
-                sheet.UsedRange.WrapText = true;
+                //sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
 
@@ -1568,39 +1569,30 @@ namespace Library.OrderManagement.Costing
 
                 COL = 1;
                 sheet[ROW, COL].Text = "Customer";
-                sheet[ROW, COL].ColumnWidth = 14;
                 int colCustomerSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Master Order";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colMasterOrderSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Item No";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colItemNoSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Delivery Date";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colDeliveryDateSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SO Id";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colSOIdSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SO Qty";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colSOQtySO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "BOM No";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colBOMNoSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "BOM Remarks";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colBOMRemarksSO = COL;
                 COL++;
                 sheet[ROW, COL].Text = "BOM Items";
-                sheet[ROW, COL].ColumnWidth = 8;
                 int colBOMItemsSO = COL;
 
 

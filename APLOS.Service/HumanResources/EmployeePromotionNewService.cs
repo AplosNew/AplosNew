@@ -556,10 +556,10 @@ namespace Library.Service.HumanResources
 							 
 							 LEFT JOIN (SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' GROUP BY BudgetCode) ONR ON ONR.BudgetCode=EI.BudgetCode
 							 LEFT JOIN (SELECT COUNT(BudgetCode) CurrentApprovalRequired,SystemId FROM EmployeeInformation GROUP BY SystemId) CAR ON CAR.SystemId=EI.SystemId
-							 LEFT JOIN (SELECT COUNT(SystemId) TS,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS','LONG ABSENTEEISM') GROUP BY SystemId,BudgetCode) A ON A.BudgetCode=PMB.Id
+							 LEFT JOIN (SELECT COUNT(BudgetCode) TS,SystemId FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS','LONG ABSENTEEISM') GROUP BY SystemId) A ON A.SystemId=EI.SystemId
 							   
                              
-                              WHERE EI.PlantId='"+ plantId + @"' AND  EI.GroupId='"+ companyGroupId + @"' AND (EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
+                              WHERE EI.PlantId='" + plantId + @"' AND  EI.GroupId='"+ companyGroupId + @"' AND (EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
                                             )";
                 return _sqlRepository.GetDataCollection(sql);
             }
