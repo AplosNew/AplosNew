@@ -747,7 +747,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         }) 
         .when('/manpower-control-report', {
             templateUrl: 'humanResource/ManpowerControlReport/Aplos',
-            controller: 'ManpowerControlReportController'
+            controller: 'ManpowerControlReportsController'
         })
 
         .when('/zone-master', {
