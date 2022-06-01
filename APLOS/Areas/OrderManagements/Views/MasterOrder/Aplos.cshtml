@@ -2937,6 +2937,7 @@
                                 <thead>
                                     <tr>
                                         <th>Head</th>
+                                        <th>State</th>
                                         <th>Value</th>
 
                                     </tr>
@@ -2944,6 +2945,7 @@
                                 <tbody>
                                     <tr ng-repeat="x in costingSOFormulaList">
                                         <td>{{x.UserName}}</td>
+                                        <td>{{x.EntryState}} ({{x.ValueIN}})</td>
                                         <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" @*ng-pattern="/^[0-9]*$/"*@ type="number" ng-model="x.Value" /></td>
                                     </tr>
                                 </tbody>
