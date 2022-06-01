@@ -927,6 +927,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		//debugger;
 		$scope.index = index;
 		$scope.selectedRowQty = data.TransactionQty;
+		$scope.productNew.Id = null;
 		$http({
 			method: 'POST'
 			, url: $scope.path + 'GetSpecificMaterialStock'

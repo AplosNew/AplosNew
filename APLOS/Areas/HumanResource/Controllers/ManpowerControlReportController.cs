@@ -398,7 +398,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             left join EmployeeInformation ei on ei.SystemId = ap.EmpSystemID
                             left join mst.ManpowerBudget mb on mb.Id=ei.BudgetCode
                             --left join dbo.PhysicalVerification pv on pv.EmpSystemID = ap.EmpSystemID and pv.WorkDate = '" + Dates + @"'
-                            where ap.WorkDate = '" + Dates + @"'   and  ei.EmployeeCurrentStatus is null
+                            where ap.WorkDate = '" + Dates + @"' and ei.EmployeeStatus = 'Active'  --and  ei.EmployeeCurrentStatus is null
                             group by mb.Id 
                             ) 
                             as orole on orole.BudgetId = mb.Id

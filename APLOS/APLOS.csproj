@@ -4164,7 +4164,6 @@
     <Content Include="Areas\Accounts\Views\VendorPaymentApproval.cshtml" />
     <Content Include="Areas\HumanResource\Views\ManpowerControlReport\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\SalesOrderStatusReport\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\_ViewStart.cshtml" />
     <Content Include="Areas\HumanResource\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\HumanResource\Views\Fuguai\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiTransaction\Aplos.cshtml" />
