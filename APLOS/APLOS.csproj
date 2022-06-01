@@ -580,7 +580,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\FuguaiController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FuguaiTransactionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
@@ -1980,7 +1980,7 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
-    <Content Include="Areas\HumanResource\Scripts\FuguaiController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiTransactionController.js" />
     <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
@@ -4168,6 +4168,7 @@
     <Content Include="Areas\HumanResource\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\HumanResource\Views\Fuguai\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiTransaction\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ZoneMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

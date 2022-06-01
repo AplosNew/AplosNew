@@ -12,15 +12,38 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
 
 
     // ALL POP UPs
-    // POP OPEN
-    $scope.selectEmployee = function () {
+
+     // Observed By
+    $scope.OpenEmployeePopUp = function () {
 
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
 
-    // POP CLOSED
+    
     $scope.closeEmpPopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+
+    // Entity Master
+    $scope.OpenEntityPopUp = function () {
+
+        angular.element(document.querySelector('#EntityPop')).modal('show');
+    }
+
+   
+    $scope.closeEntityPopUp = function () {
+        angular.element(document.querySelector('#EntityPop')).modal('hide');
+    }
+
+   // Fuguai Master
+    $scope.OpenFuguaiPopUp = function () {
+
+        angular.element(document.querySelector('#FuguaiPop')).modal('show');
+    }
+
+
+    $scope.closeFuguaiPopUp = function () {
+        angular.element(document.querySelector('#FuguaiPop')).modal('hide');
     }
 
 }
