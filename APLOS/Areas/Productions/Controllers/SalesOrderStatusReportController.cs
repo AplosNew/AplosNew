@@ -297,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
 							 left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                            where os.Id='" + Library.Model.Enums.OrderStatusEnum.Active.ToString() + @"' "+ent+ @"
+                            where os.Id not in ('Closed' , 'Cancelled') " + ent+ @"
                             order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
                             ";
 
