@@ -417,7 +417,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                             Select mbb.Id,Sum(Case when ei.EmployeeCurrentStatus = 'LONG ABSENTEEISM' then 1 else 0 end) as LA , Sum(Case when ei.EmployeeCurrentStatus = 'TBS' then 1 else 0 end) as TBS 
                             from dbo.EmployeeInformation ei
                             left join mst.ManpowerBudget mbb on mbb.Id = ei.BudgetCode
+                            where ei.EmployeeStatus = 'Active' 
                             group by mbb.Id
+                            
                             ) as EmpStatus on EmpStatus.Id = mb.Id
                             left join 
                             (
