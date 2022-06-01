@@ -137,22 +137,24 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.LiabilityBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in liabilityBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getLiabilityActivity()">
-                                    <option></option>
-                                </select>
-                            </div>
+                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="liabilityBudgetList" e-value="investmentTypeGivenGL.LiabilityBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getLiabilityActivity" />
+                            @*<div class="select-style">
+                            <select class="form-control" ng-model="investmentTypeGivenGL.LiabilityBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in liabilityBudgetList" id="BudgetId"
+            name="Budget" tabindex="1" ng-change="getLiabilityActivity()">
+        <option></option>
+                            </select>
+                        </div>*@
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Activity</label>
                         <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.LiabilityActivityId" ng-options="item.ActivityId as item.ActivityName for item in liabilityActivityList" id="ActivityId" name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
+                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="liabilityActivityList" e-value="investmentTypeGivenGL.LiabilityActivityId" e-fields-value="ActivityId" e-fields-text="ActivityName" e-width="305px" />
+                            @*<div class="select-style">
+                            <select class="form-control searchableDDL" ng-model="investmentTypeGivenGL.LiabilityActivityId" ng-options="item.ActivityId as item.ActivityName for item in liabilityActivityList" id="ActivityId" name="Activity" tabindex="1">
+        <option></option>
+                            </select>
+                        </div>*@
                         </div>
                     </div>
                 </fieldset>
@@ -171,22 +173,24 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in expensesBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getExpensesActivity()">
-                                    <option></option>
-                                </select>
-                            </div>
+                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="expensesBudgetList" e-value="investmentTypeGivenGL.ExpensesBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getExpensesActivity" />
+                            @*<div class="select-style">
+            <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in expensesBudgetList" id="BudgetId"
+                    name="Budget" tabindex="1" ng-change="getExpensesActivity()">
+                <option></option>
+            </select>
+        </div>*@
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Activity</label>
                         <div class="col-sm-8">
-                            <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesActivityId" ng-options="item.ActivityId as item.ActivityName for item in expensesActivityList" id="ActivityId" name="Activity" tabindex="1">
-                                    <option></option>
-                                </select>
-                            </div>
+                            <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="expensesActivityList" e-value="investmentTypeGivenGL.ExpensesActivityId" e-fields-value="ActivityId" e-fields-text="ActivityName"  e-width="305px" />
+                            @*<div class="select-style">
+            <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesActivityId" ng-options="item.ActivityId as item.ActivityName for item in expensesActivityList" id="ActivityId" name="Activity" tabindex="1">
+                <option></option>
+            </select>
+        </div>*@
                         </div>
                     </div>
                 </fieldset>
@@ -206,12 +210,14 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
+                            @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="expensesPayableBudgetList" e-value="investmentTypeGivenGL.ExpensesPayableBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getExpensesPayableActivity" />*@
                             <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesPayableBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in expensesPayableBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getExpensesPayableActivity()">
-                                    <option></option>
-                                </select>
+            <select class="form-control" ng-model="investmentTypeGivenGL.ExpensesPayableBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in expensesPayableBudgetList" id="BudgetId"
+                    name="Budget" tabindex="1" ng-change="getExpensesPayableActivity()">
+                <option></option>
+            </select>
                             </div>
+                            
                         </div>
                     </div>
                     <div class="form-group">
@@ -240,11 +246,12 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
+                            @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="chargesPayableBudgetList" e-value="investmentTypeGivenGL.ChargesPayableBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getChargesPayableActivity" />*@
                             <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.ChargesPayableBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in chargesPayableBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getChargesPayableActivity()">
-                                    <option></option>
-                                </select>
+                            <select class="form-control" ng-model="investmentTypeGivenGL.ChargesPayableBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in chargesPayableBudgetList" id="BudgetId"
+            name="Budget" tabindex="1" ng-change="getChargesPayableActivity()">
+        <option></option>
+                            </select>
                             </div>
                         </div>
                     </div>
@@ -277,10 +284,11 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
+                            @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="assetBudgetList" e-value="investmentTypeGivenGL.AssetBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getAssetActivity" />*@
                             <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.AssetBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in assetBudgetList" id="BudgetId" name="Budget" tabindex="1" ng-change="getAssetActivity()">
-                                    <option></option>
-                                </select>
+            <select class="form-control" ng-model="investmentTypeGivenGL.AssetBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in assetBudgetList" id="BudgetId" name="Budget" tabindex="1" ng-change="getAssetActivity()">
+                <option></option>
+            </select>
                             </div>
                         </div>
                     </div>
@@ -310,11 +318,12 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Budget</label>
                         <div class="col-sm-8">
+                            @*<input ej-dropdownlist e-enablefiltersearch="true" e-datasource="revenueBudgetList" e-value="investmentTypeGivenGL.RevenueBudgetMasterId" e-fields-value="BudgetMasterId" e-fields-text="BudgetName" e-width="305px" e-change="getRevenueActivity" />*@
                             <div class="select-style">
-                                <select class="form-control" ng-model="investmentTypeGivenGL.RevenueBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in revenueBudgetList" id="BudgetId"
-                                        name="Budget" tabindex="1" ng-change="getRevenueActivity()">
-                                    <option></option>
-                                </select>
+            <select class="form-control" ng-model="investmentTypeGivenGL.RevenueBudgetMasterId" ng-options="item.BudgetMasterId as item.BudgetName for item in revenueBudgetList" id="BudgetId"
+                    name="Budget" tabindex="1" ng-change="getRevenueActivity()">
+                <option></option>
+            </select>
                             </div>
                         </div>
                     </div>

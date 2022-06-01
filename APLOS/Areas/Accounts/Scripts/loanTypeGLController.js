@@ -34,7 +34,6 @@ function loanTypeGLController(cboService, commonMessage, $scope, $rootScope, bas
         ChargesPayableActivityId: null,
         ChargesPayableGLId: null
     };
-
     $scope.itemSearchPopup = function () {
         angular.element(document.querySelector('#itemsearchpopup')).modal('show');
     };
