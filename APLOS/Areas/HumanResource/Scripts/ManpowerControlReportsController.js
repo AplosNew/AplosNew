@@ -1,6 +1,6 @@
 ﻿'use strict';
-ManpowerControlReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function ManpowerControlReportController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+ManpowerControlReportsController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
+function ManpowerControlReportsController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = 'Manpower Control Report';
     $scope.path = 'HumanResource/ManpowerControlReport';
 
@@ -13,7 +13,7 @@ function ManpowerControlReportController(commonMessage, $scope, $rootScope, base
     $scope.loadfilters = function () {
         $http({
             method: 'GET',
-            url: $scope.path + '/getFilters',
+            url: 'HumanResource/ManpowerControlReport/getFilters',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.filters = response.data;
