@@ -137,9 +137,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     };
     $scope.GetData();
 
-
     $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
-
 
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
