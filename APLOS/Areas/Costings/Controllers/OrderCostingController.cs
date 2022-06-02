@@ -2479,7 +2479,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         [HttpPost, Authorize]
         public ActionResult SaveOrderPreCostingDirectMaterial(IEnumerable<OrderPreCostingDirectMaterial> data, string OrderCostingMasterTemplateId)
         {
-            DataSet dsMaster = null;
+            DataSet dsMaster, dsProMaster = null;
             try
             {
                 if (data != null)
@@ -2495,12 +2495,15 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                         CostingItemIds += ",'" + item.CostingItemId + "'";
 
                     string sql = "SELECT * FROM [dbo].[OrderPreCostingDirectMaterial] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
+                    string sqlPro = "SELECT * FROM [dbo].[OrderProcurementCostingDirectMaterial] WHERE CostingItemId IN (" + CostingItemIds + ") AND OrderCostingMasterTemplateId='" + OrderCostingMasterTemplateId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+                    objCon.OpenDataSetThroughAdapter(sqlPro, out dsProMaster, false, "1");
 
                     foreach (var item in data)
                     {
                         dsMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
+                        dsProMaster.Tables[0].DefaultView.RowFilter = "CostingItemId='" + item.CostingItemId + "'";
 
                         //if (item.Consumption > 0 && item.Rate > 0)
                         //{
@@ -2601,6 +2604,22 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
                             dr["UpdatedFromIP"] = identity.IPAddress;
 
                             dr.EndEdit();
+
+
+
+                            if (dsProMaster.Tables[0].DefaultView.Count >0)
+                            {
+                                DataRow drpro = dsProMaster.Tables[0].DefaultView[0].Row;
+                                drpro.BeginEdit();
+
+                                drpro["IsGeneric"] = item.IsGeneric;
+                                drpro["IsMandatory"] = item.IsMandatory;
+                                drpro["MaterialMasterId"] = item.MaterialMasterId;
+                                drpro["ArticleId"] = item.ArticleId;
+                                drpro["VendorId"] = item.VendorId;
+
+                                drpro.EndEdit(); 
+                            }
                         }
 
                         //}
@@ -2618,7 +2637,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 
 
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster);
+                    obj.SaveDataSets(dsMaster, dsProMaster);
 
                 }
                 RecalculateValues(OrderCostingMasterTemplateId);

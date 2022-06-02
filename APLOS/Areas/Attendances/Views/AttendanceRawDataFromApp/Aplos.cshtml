@@ -89,41 +89,45 @@
                 </div>
             </div>
             <div class="row">
-                <div id="GridChangeAttendances" ng-init="chkinit()" ej-grid e-datasource="employeeAttendance"
+                @*<div id="GridChangeAttendances" ng-init="chkinit()" ej-grid e-datasource="employeeAttendance"
                      e-allowfiltering="true" e-allowpaging="true" e-enabletouch="false" e-responsive="true" e-querycellinfo="queryCellInfo"
-                     e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" @*e-showstackedheader="true"*@
+                     e-allowscrolling="true" e-minheight="400" e-gridlines="vertical" 
                      e-actioncomplete="actionCompleteSingleEmployee" e-height="400px" e-rowdatabound="rowDataBoundSingleEmployee"
-                     e-filtersettings-filterType="excel">
-                    <div e-columns>
-                        <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
-                        <div e-column e-template="#shift" e-headertext="Shift" e-width="150"></div>
-                        <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
+                     e-filtersettings-filterType="excel">*@
 
-                        <div e-column e-template="#Saadindate" e-headertext="In Date" e-width="130"></div>
-                        <div e-column e-template="#Saadintime" e-headertext="In Time" e-width="120"></div>
-                        <div e-column e-template="#Saadoutdate" e-headertext="Out Date" e-width="130"></div>
-                        <div e-column e-template="#Saadouttime" e-headertext="Out Time" e-width="120"></div>
+                    <div style="color:black;" id="GridChangeAttendances" ej-grid e-datasource="employeeAttendance" e-querycellinfo="queryCellInfo"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"  e-actioncomplete="actionCompleteSingleEmployee" e-rowdatabound="rowDataBoundSingleEmployee"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-field="WorkDate" e-headertext="WorkDate" e-width="100" e-primarykey="true"></div>
+                            <div e-column e-template="#shift" e-headertext="Shift" e-width="150"></div>
+                            <div e-column e-field="DayStatus" e-headertext="DayStatus" e-width="50"></div>
 
-                        <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
-                        <div e-column e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
-                        <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
-                        <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="130"></div>
-                        <div e-column e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
-                        <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
+                            <div e-column e-template="#Saadindate" e-headertext="In Date" e-width="130"></div>
+                            <div e-column e-template="#Saadintime" e-headertext="In Time" e-width="120"></div>
+                            <div e-column e-template="#Saadoutdate" e-headertext="Out Date" e-width="130"></div>
+                            <div e-column e-template="#Saadouttime" e-headertext="Out Time" e-width="120"></div>
+
+                            <div e-column e-field="InDateOriginal" e-headertext="Processed In Date" e-width="130"></div>
+                            <div e-column e-type="string" e-field="InTimeOriginal" e-headertext="Processed In Time" e-width="120"></div>
+                            <div e-column e-field="IsManualInTime" e-headertext="Manual In" e-width="50"></div>
+                            <div e-column e-field="OutDateOriginal" e-headertext="Processed Out Date" e-width="130"></div>
+                            <div e-column e-type="string" e-field="OutTimeOriginal" e-headertext="Processed Out Time" e-width="120"></div>
+                            <div e-column e-field="IsManualOutTime" e-headertext="Manual Out" e-width="50"></div>
 
 
 
-                        <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
-                        <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
-                        <div e-column e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
-                        <div e-column e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
-                        <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
-                        <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
-                        <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
-                        <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+                            <div e-column e-field="IsManualDayStatus" e-headertext="Manual DayStatus" e-width="40"></div>
+                            <div e-column e-template="#showAttendance" e-headertext="Punch" e-width="50"></div>
+                            <div e-column e-type="string" e-field="PunchInTime" e-headertext="Punch In Time" e-width="150"></div>
+                            <div e-column e-type="string" e-field="PunchOutTime" e-headertext="Punch Out Time" e-width="150"></div>
+                            <div e-column e-field="OTHr" e-headertext="OT. Hr" e-width="50"></div>
+                            <div e-column e-field="IsOTEntitled" e-headertext="OT Entitled" e-width="50"></div>
+                            <div e-column e-field="IsOTComfirm" e-headertext="OT Confirm" e-width="50"></div>
+                            <div e-column e-field="ErrorMessage" e-headertext="Error Message" e-width="300"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
             <div class="row">
                 <div class="common-btn">
                     <ul class="list-inline text-right">

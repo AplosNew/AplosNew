@@ -772,6 +772,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
 Value=CASE WHEN ISNULL(A.Value,0)<>0 THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
+,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 FROM OrderLineCostingItem AS OL
 LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
 OUTER APPLY (SELECT * FROM dbo.MasterOrderItemCostingRate WHERE OrderLineCostingItemId=OL.Id AND ISNULL(MasterOrderItemId,'" + masterOrderItemId + @"')='"+ masterOrderItemId + @"') A

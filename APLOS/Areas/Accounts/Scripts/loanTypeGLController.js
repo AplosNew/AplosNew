@@ -9,6 +9,7 @@ function loanTypeGLController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.loanTypeGivenGLWithCombineList = [];
     $scope.path = 'accounts/FinancingType/';
     $scope.saveUrl = $scope.path + 'SaveFinancingTypeGL';
+    $(".searchableDDL").select2();
     $scope.investmentTypeGivenGL = {
         Id: null,
         CountryId: null,
@@ -34,7 +35,6 @@ function loanTypeGLController(cboService, commonMessage, $scope, $rootScope, bas
         ChargesPayableActivityId: null,
         ChargesPayableGLId: null
     };
-
     $scope.itemSearchPopup = function () {
         angular.element(document.querySelector('#itemsearchpopup')).modal('show');
     };
