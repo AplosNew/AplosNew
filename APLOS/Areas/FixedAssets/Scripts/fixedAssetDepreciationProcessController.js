@@ -325,6 +325,10 @@ function fixedAssetDepreciationProcessController(cboService, commonMessage, $sco
                     ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
                     return;
                 }
+                if ($scope.fixedAssetMastersList[i].PreviousYearAsset > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetProcess > 0 && $scope.fixedAssetMastersList[i].PreviousYearAssetFullProcess == "No") {
+                    ShowResult('Please process previous fiscal year fixed Asset First!', 'failure');
+                    return;
+                }
             }
             if (selectedAssetMastersList.length == 0) {
                 ShowResult('Please select at least one Asset master', 'failure');

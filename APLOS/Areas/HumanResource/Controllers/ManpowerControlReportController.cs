@@ -253,6 +253,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
+               
                 sheet[ROW, ColComapny].Text = data.Rows[i]["Company"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColDiv].Text = data.Rows[i]["Division"].ToString();
@@ -414,10 +415,18 @@ namespace Aplos.Areas.HumanResource.Controllers
                             as bud on bud.ManpowerBudgetId = mb.Id
                             left join
                             (
-                            Select mbb.Id,Sum(Case when ei.EmployeeCurrentStatus = 'LONG ABSENTEEISM' then 1 else 0 end) as LA , Sum(Case when ei.EmployeeCurrentStatus = 'TBS' then 1 else 0 end) as TBS 
-                            from dbo.EmployeeInformation ei
+                            Select mbb.Id,Sum(Case when apd.IsLongAbsentism = 1 then 1 else 0 end) as LA , Sum(Case when apd.IsTBS = 1 then 1 else 0 end) as TBS 
+                            from dbo.AttdnProcessData apd
+							left join dbo.EmployeeInformation ei on ei.SystemId = apd.EmpSystemID
                             left join mst.ManpowerBudget mbb on mbb.Id = ei.BudgetCode
+                            where ei.EmployeeStatus = 'Active' and apd.WorkDate = '" + Dates + @"'
                             group by mbb.Id
+                            --Select mbb.Id,Sum(Case when ei.EmployeeCurrentStatus = 'LONG ABSENTEEISM' then 1 else 0 end) as LA , Sum(Case when ei.EmployeeCurrentStatus = 'TBS' then 1 else 0 end) as TBS 
+                            --from dbo.EmployeeInformation ei
+                            --left join mst.ManpowerBudget mbb on mbb.Id = ei.BudgetCode
+                            --where ei.EmployeeStatus = 'Active' 
+                            --group by mbb.Id
+                            
                             ) as EmpStatus on EmpStatus.Id = mb.Id
                             left join 
                             (

@@ -3606,15 +3606,21 @@ namespace Library.MaterialManagement.InventoryManagements
             }
 
 
-
-            public void SaveAdditinalTaxInPurchaseReturn(string MasterId, List<Dictionary<string, object>> UserSendData)
+        private string PurchaseReturnAddiTaxId()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PurchaseReturnAdditionalTax", out sID);
+            return sID;
+        }
+        public void SaveAdditinalTaxInPurchaseReturn(string MasterId, List<Dictionary<string, object>> UserSendData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            try
             {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                try
-                {
-                    string sql = "select * from TRN.PurchaseReturnAdditionalTax where PurchaseReturnId='" + MasterId + "'";
-                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                    con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+                string sql = "select * from TRN.PurchaseReturnAdditionalTax where PurchaseReturnId='" + MasterId + "'";
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
 
                     for (int i = 0; i < UserSendData.Count; i++)
                     {
@@ -3622,33 +3628,33 @@ namespace Library.MaterialManagement.InventoryManagements
                         if (dsDetail.Tables[0].DefaultView.Count == 0)
                         {
 
-                            DataRow dr = dsDetail.Tables[0].NewRow();
-                            dr["Id"] = GRNDAddiTaxId();
-                            dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                            dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                            dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                            dr["AddedBy"] = identity.Name;
-                            dr["AddedDate"] = System.DateTime.Now.ToString();
-                            dr["AddedFromIP"] = identity.IPAddress;
-                            //dr["UpdatedBy"] = "";
-                            //dr["UpdatedDate"] = "";
-                            //dr["UpdatedFromIP"] = "";
-                            dr["PurchaseReturnId"] = MasterId.ToString();
-                            dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
-                            dsDetail.Tables[0].Rows.Add(dr);
-                        }
-                        //else
-                        //{
-                        //	DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
-                        //	dr.BeginEdit();
-                        //	dr["ShortageRatePercent"] = UserSendData[i]["ShortageRate"];
-                        //	dr["ShortageValue"] = UserSendData[i]["ShortageValue"];
-                        //	dr["RejectRatePercent"] = UserSendData[i]["RejectionRate"];
-                        //	dr["RejectValue"] = UserSendData[i]["RejectionValue"];
-                        //	dr["RejectClamPercent"] = UserSendData[i]["RejectionClamRate"];
-                        //	dr.EndEdit();
-                        //}
+                        DataRow dr = dsDetail.Tables[0].NewRow();
+                        dr["Id"] = PurchaseReturnAddiTaxId();
+                        dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        dr["AddedBy"] = identity.Name;
+                        dr["AddedDate"] = System.DateTime.Now.ToString();
+                        dr["AddedFromIP"] = identity.IPAddress;
+                        //dr["UpdatedBy"] = "";
+                        //dr["UpdatedDate"] = "";
+                        //dr["UpdatedFromIP"] = "";
+                        dr["PurchaseReturnId"] = MasterId.ToString();
+                        dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+                        dsDetail.Tables[0].Rows.Add(dr);
                     }
+                    //else
+                    //{
+                    //	DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
+                    //	dr.BeginEdit();
+                    //	dr["ShortageRatePercent"] = UserSendData[i]["ShortageRate"];
+                    //	dr["ShortageValue"] = UserSendData[i]["ShortageValue"];
+                    //	dr["RejectRatePercent"] = UserSendData[i]["RejectionRate"];
+                    //	dr["RejectValue"] = UserSendData[i]["RejectionValue"];
+                    //	dr["RejectClamPercent"] = UserSendData[i]["RejectionClamRate"];
+                    //	dr.EndEdit();
+                    //}
+                }
 
 
                     clsStaticInfo info = new clsStaticInfo();
