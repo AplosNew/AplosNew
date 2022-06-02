@@ -1168,7 +1168,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         angular.element(document.querySelector('#partyPopUpN')).modal('hide');
     };
 
-    $scope.closePartyPopUp=  function () {
+    $scope.closePartyPopUp = function () {
         angular.element(document.querySelector('#partyPopUpN')).modal('hide');
     }
 
@@ -2484,12 +2484,12 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $scope.DirectMaterialList[i].ArticleId = null;
                 }
                 if ($scope.DirectMaterialList[i].Consumption == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Consumption) || $scope.DirectMaterialList[i].Consumption == 'NaN') {
-                    ShowResult("Consumption is required.", 'failure');
+                    ShowResult("Consumption is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
                     return false;
                 }
 
                 if ($scope.DirectMaterialList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Rate) || $scope.DirectMaterialList[i].Rate == 'NaN') {
-                    ShowResult("Rate is required.", 'failure');
+                    ShowResult("Rate is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
                     return false;
                 }
 
@@ -2609,6 +2609,13 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     $scope.SaveOperation = function () {
         var flag = false;
         if ($scope.OperationList.length > 0) {
+
+            for (var i = 0; i < $scope.OperationList.length; i++) {
+                if ($scope.OperationList[i].Value == 0 || baseService.isUndefinedOrNull($scope.OperationList[i].Value) || $scope.OperationList[i].Value == 'NaN') {
+                    ShowResult("Value is required for '" + $scope.OperationList[i].UserName + "'.", 'failure');
+                    return false;
+                }
+            }
 
             if (flag == false) {
                 $scope.hideOperationPopUp();
@@ -2777,9 +2784,11 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         var flag = false;
         if ($scope.DirectProcessList.length > 0) {
 
-            if ($scope.DirectProcessList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectProcessList[i].Rate) || $scope.DirectProcessList[i].Rate == 'NaN') {
-                ShowResult("Rate is required.", 'failure');
-                return false;
+            for (var i = 0; i < $scope.DirectProcessList.length; i++) {
+                if ($scope.DirectProcessList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectProcessList[i].Rate) || $scope.DirectProcessList[i].Rate == 'NaN') {
+                    ShowResult("Rate is required for '" + $scope.DirectProcessList[i].UserName + "'.", 'failure');
+                    return false;
+                }
             }
 
             if (flag == false) {
@@ -2989,6 +2998,10 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             try {
 
                 for (var i = 0; i < $scope.SalesExpenseList.length; i++) {
+                    if ($scope.SalesExpenseList[i].Value == 0 || baseService.isUndefinedOrNull($scope.SalesExpenseList[i].Value) || $scope.SalesExpenseList[i].Value == 'NaN') {
+                        throw "Value is required for '" + $scope.SalesExpenseList[i].UserName + "'.";
+                    }
+
                     if ($scope.SalesExpenseList[i].Value > 0) {
                         if (angular.isUndefinedOrNull($scope.SalesExpenseList[i].Type))
                             throw 'Type is missing';
@@ -3223,6 +3236,10 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             var flag = false;
             if ($scope.ValueLossList.length > 0) {
                 for (var i = 0; i < $scope.ValueLossList.length; i++) {
+                    if ($scope.ValueLossList[i].Value == 0 || baseService.isUndefinedOrNull($scope.ValueLossList[i].Value) || $scope.ValueLossList[i].Value == 'NaN') {
+                        throw "Value is required for '" + $scope.ValueLossList[i].UserName + "'.";
+                    }
+
                     if ($scope.ValueLossList[i].Value > 0) {
                         if (angular.isUndefinedOrNull($scope.ValueLossList[i].Type))
                             throw 'Type is missing';
@@ -3310,6 +3327,10 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             if ($scope.ProfitList.length > 0) {
 
                 for (var i = 0; i < $scope.ProfitList.length; i++) {
+                    if ($scope.ProfitList[i].Value == 0 || baseService.isUndefinedOrNull($scope.ProfitList[i].Value) || $scope.ProfitList[i].Value == 'NaN') {
+                        throw "Value is required for '" + $scope.ProfitList[i].UserName + "'.";
+                    }
+
                     if ($scope.ProfitList[i].Value > 0) {
                         if (angular.isUndefinedOrNull($scope.ProfitList[i].Type))
                             throw 'Type is missing';
