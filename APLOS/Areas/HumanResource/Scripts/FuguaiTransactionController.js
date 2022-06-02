@@ -72,15 +72,34 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
     $scope.ResponsiblePersonList = [];
     $scope.ProcessList = [];
 
+    $scope.ModelTemp = {
+        Id: null,
+        EntityList : null,
+        CategoryList : null,
+        DepartmentList : null,
+        MachineList : null,
+        ObservedByList : null,
+        TagList : null,
+        PersonList : null,
+        ProcessList : null,
+        MachineRefList : null,
+        ResponsiblePersonList : null,
+        ProcessList : null,
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+
+
     // ALL GET FUNCTIONS
-    $scope.EntityId = null;
+    
     $scope.getEntity = function () {
         $http({
             method: 'POST',          
             url: $scope.path + 'getEntity',
         }).then(function success(response) {
             $scope.EntityList = response.data;
+            
         });
+        $scope.getObservedBy();
     }
 
     $scope.getEntity();
@@ -89,14 +108,14 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         $http({
             method: 'POST',
             data: {
-                
+                'EntityId': $scope.ModelNew.EntityId,
             },
             url: $scope.path + 'getObservedBy',
         }).then(function success(response) {
             $scope.ObservedByList = response.data;
         });
     }
-    $scope.getObservedBy();
+    
 
     $scope.getCategory = function () {
         $http({

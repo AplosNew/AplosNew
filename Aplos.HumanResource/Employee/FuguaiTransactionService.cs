@@ -30,13 +30,13 @@ namespace Library.HumanResource.Employee
             }
         }
 
-        public IEnumerable<object> getObservedBy()
+        public IEnumerable<object> getObservedBy(string EntityId)
         {
             try
             {
                 var sql = @"select emp.EmployeeCode, emp.EmployeeName, e.UserName from ORG.Entity e
                             left join dbo.EmployeeInformation emp on emp.SystemId = e.EmployeeId
-                            where e.Id = '112'";
+                            where e.Id = '"+ EntityId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

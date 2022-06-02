@@ -43,11 +43,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getObservedBy()
+        public ActionResult getObservedBy(string EntityId)
         {
             try
             {
-                return Json(ft.getObservedBy(), JsonRequestBehavior.AllowGet);
+                return Json(ft.getObservedBy(EntityId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
