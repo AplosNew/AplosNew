@@ -1041,7 +1041,7 @@ upanelApp.controller("vendorPaymentApprovalController", vendorPaymentApprovalCon
 upanelApp.controller("ManpowerControlReportsController", ManpowerControlReportsController);
 upanelApp.controller("SalesOrderStatusReportController", SalesOrderStatusReportController);
 upanelApp.controller("ZoneMasterController", ZoneMasterController);
-upanelApp.controller("FuguaiTransactionController", FuguaiTransactionController);
+//upanelApp.controller("FuguaiTransactionController", FuguaiTransactionController);
 
 
 
