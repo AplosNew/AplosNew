@@ -625,8 +625,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             method: 'POST',
             url: $scope.path + "PurchaseRegisterGRNWiseReport",
             data: {
-                'ToDate': $scope.report.ToDate, 'FromDate': $scope.report.FromDate,
-                'Type': $scope.productNew.Type
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -660,7 +660,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
     //    }
     //}
 
-    $scope.PurchaseOrderPartyWiseReportExcel = function (reportFormat) {
+    $scope.PurchaseOrderPartyWiseReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -669,15 +669,45 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/PurchaseRegisterPartyWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-            $rootScope.report(file_src);
-
-        } catch (e) {
-
-        }
+        $http({
+            method: 'POST',
+            url: $scope.path + "PurchaseRegisterPartyWiseReport",
+            data: {
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
+
+    //$scope.PurchaseOrderPartyWiseReportExcel = function (reportFormat) {
+    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+    //        ShowResult('Select From Date', 'failure');
+    //        return false;
+    //    }
+    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+    //        ShowResult('Select To Date', 'failure');
+    //        return false;
+    //    }
+    //    try {
+    //        var Excel;
+    //        var file_src = 'Materials/MaterialLedger/PurchaseRegisterPartyWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
+    //        $rootScope.report(file_src);
+
+    //    } catch (e) {
+
+    //    }
+    //}
 
 
     $scope.PurchaseOrderItemReportExcel = function (reportFormat) {
