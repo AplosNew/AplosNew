@@ -253,6 +253,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
+               
                 sheet[ROW, ColComapny].Text = data.Rows[i]["Company"].ToString();
                 sheet[ROW, ColPlant].Text = data.Rows[i]["Plant"].ToString();
                 sheet[ROW, ColDiv].Text = data.Rows[i]["Division"].ToString();
