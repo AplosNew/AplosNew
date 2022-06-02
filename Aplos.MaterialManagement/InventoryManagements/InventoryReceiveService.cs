@@ -3494,7 +3494,13 @@ namespace Library.MaterialManagement.InventoryManagements
         }
 
 
-
+        private string PurchaseReturnAddiTaxId()
+        {
+            string sID = string.Empty;
+            bplib.clsGenID objGenID = new bplib.clsGenID();
+            objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PurchaseReturnAdditionalTax", out sID);
+            return sID;
+        }
         public void SaveAdditinalTaxInPurchaseReturn(string MasterId, List<Dictionary<string, object>> UserSendData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -3511,7 +3517,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
 
                         DataRow dr = dsDetail.Tables[0].NewRow();
-                        dr["Id"] = GRNDAddiTaxId();
+                        dr["Id"] = PurchaseReturnAddiTaxId();
                         dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
                         dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
                         dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
