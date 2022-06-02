@@ -963,7 +963,6 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	};
 
 	$scope.addMaterialStock = function () {
-		//debugger;
 		try {
 			var sumOfmaterialStockList = $filter('sumByKey')($filter('filter')($scope.materialStockList), 'RequisitionQty');
 		
@@ -1011,10 +1010,8 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 				nRow.BaseQty = $scope.materialStockList[n].BaseQty;
 				nRow.BaseIssueQty =$scope.materialStockList[n].BaseIssueQty;
 				if (!baseService.valueCheckInList($scope.specificStockList, 'InventoryReceiveDetailId', nRow.InventoryReceiveDetailId) && nRow.Flag)
-					//$scope.detailModel.IsSpecific = true;
 					$scope.specificStockList.push(nRow);
 			}
-			//$scope.detailList[$scope.index].TransactionQty = issueQty;
 			angular.element(document.querySelector('#stockPopUp')).modal('hide');
 			CloseModalShowResult();
 		} catch (e) {

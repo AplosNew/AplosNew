@@ -2964,26 +2964,27 @@ UNION
 					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
 					
 					
-					UNION
-					SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
-						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
-						, ITD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
-						, ITD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
-						, NULL Dr
-						,  SUM(IRT.TaxAmount) AS Cr
-						, SUM(IRT.TaxAmount) AS Amount
-                        ,0 IsAsset, NULL InventoryReceiveDetailId
-					FROM [TRN].[PurchaseReturnAdditionalTax] AS IRT
-					LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRT.PurchaseReturnId=PR.Id
-					LEFT JOIN TRN.[InventoryReceive] AS IR ON IR.Id=PR.InventoryReceiveId
-					LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
-					LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
-					LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ITD.GLGeneralInfoId=GL.Id
-					LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
-					LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
-					LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
-					WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
-					GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
+					--UNION
+					--SELECT 'Tax' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
+					--	, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+					--	, ITD.BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+					--	, ITD.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+					--	, NULL Dr
+					--	,  SUM(IRT.TaxAmount) AS Cr
+					--	, SUM(IRT.TaxAmount) AS Amount
+					--    ,0 IsAsset, NULL InventoryReceiveDetailId
+					--FROM [TRN].[PurchaseReturnAdditionalTax] AS IRT
+					--LEFT JOIN [TRN].[PurchaseReturn] AS PR ON IRT.PurchaseReturnId=PR.Id
+					--LEFT JOIN TRN.[InventoryReceive] AS IR ON IR.Id=PR.InventoryReceiveId
+					--LEFT JOIN TRN.InvoiceTax IT ON IT.VoucherId=IR.VoucherId and IRT.TaxCategoryId=IT.TaxCategoryId
+					--LEFT JOIN TRN.InvoiceTaxDetail ITD ON ITD.InvoiceTaxId=IT.Id 
+					--LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON ITD.GLGeneralInfoId=GL.Id
+					--LEFT JOIN [MST].[BudgetMaster] AS BM ON ITD.BudgetMasterId= BM.Id
+					--LEFT JOIN [HKP].[Budget] AS B ON BM.BudgetId= B.Id
+					--LEFT JOIN [HKP].[Activity] AS A ON ITD.ActivityId= A.Id
+					--WHERE IRT.PurchaseReturnId=@receiveId   AND ITD.AType='Dr'
+					--GROUP BY  IRT.TaxCategoryId, ITD.GLGeneralInfoId, GL.AccountCode, GL.UserName, ITD.BudgetMasterId, B.Code, B.UserName, ITD.ActivityId, A.Code, A.UserName
+					
 					UNION
 					SELECT 'TCS' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, IRT.TaxCategoryId
 						, ITD.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
