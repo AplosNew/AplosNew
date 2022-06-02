@@ -73,10 +73,10 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
     $scope.ProcessList = [];
 
     // ALL GET FUNCTIONS
+    $scope.EntityId = null;
     $scope.getEntity = function () {
         $http({
-            method: 'POST',
-           
+            method: 'POST',          
             url: $scope.path + 'getEntity',
         }).then(function success(response) {
             $scope.EntityList = response.data;
@@ -96,6 +96,7 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
             $scope.ObservedByList = response.data;
         });
     }
+    $scope.getObservedBy();
 
     $scope.getCategory = function () {
         $http({

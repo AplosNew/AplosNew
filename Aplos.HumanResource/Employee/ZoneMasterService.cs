@@ -90,10 +90,10 @@ namespace Library.HumanResource.Employee
                 string TableName = "HKP.ZoneMaster";
                 DataSet dsMaster;
 
-                if (Employee == null)
+               /* if (Employee == null)
                 {
                     throw new Exception("Please Select Responsible Person !!");
-                }
+                }*/
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");

@@ -21,7 +21,7 @@ namespace Library.HumanResource.Employee
         {
             try 
             {
-                var sql = @"select e.Id as Vallue, e.UserName as Text from ORG.Entity e";
+                var sql = @"select e.Id as Value, e.UserName as Text from ORG.Entity e";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
