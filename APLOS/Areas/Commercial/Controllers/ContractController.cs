@@ -79,7 +79,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
-                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.CustomerId";
+                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.CustomerId DESC";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -335,7 +335,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
 							LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=S.MasterOrderItemId
 							GROUP BY MOI.Id
 							) SO ON SO.Id=I.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId IS NULL  ORDER BY P.Id";
+                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId IS NULL  ORDER BY P.Id and order by date DESC";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
