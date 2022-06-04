@@ -3376,7 +3376,7 @@ namespace Library.Service.HumanResources
 
                 if (dsMasterValidation.Tables[0].Rows.Count > 0)
                 {
-                    throw new Exception("Salary is approved.");
+                    throw new Exception("Salary is Locked.");
 
                 }
 

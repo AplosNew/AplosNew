@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Linq;
+
 namespace Library.HumanResource.Employee
 {
   public  class ZoneMasterService
@@ -86,24 +87,16 @@ namespace Library.HumanResource.Employee
             try
             {
                 //Master Table - PMSMaster
-                string TableName = "HKP.zoneMaster";
+                string TableName = "HKP.ZoneMaster";
                 DataSet dsMaster;
 
-                if (Employee == null)
+               /* if (Employee == null)
                 {
                     throw new Exception("Please Select Responsible Person !!");
-                }
+                }*/
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same StandardName already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["UserName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same UserName already exists!!!");
-
-
+                
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
