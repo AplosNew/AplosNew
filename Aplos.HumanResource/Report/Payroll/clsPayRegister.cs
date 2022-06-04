@@ -7656,10 +7656,10 @@ where h.HeadCategory='GROSS'
                         totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
                         totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
                         totalPresentDays = dvSummary.ToTable().Compute(@"Sum(TotalPresent)", null);
-                        if (Convert.ToInt32(totalPresentDays) >26)
-                        {
-                            totalPresentDays = 26;
-                        }
+                        //if (Convert.ToInt32(totalPresentDays) >26)
+                        //{
+                        //    totalPresentDays = 26;
+                        //}
                         string presentBangla = ru.cnDgt(Convert.ToString(totalPresentDays), localLanguage);
                         string weekOff = ru.cnDgt(totalWeekOFFDays.ToString(), localLanguage);
                         string holiDay = ru.cnDgt(Convert.ToDouble(totalHolidays).ToString(), localLanguage);
@@ -8944,12 +8944,12 @@ where h.HeadCategory='GROSS'
                                 --WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
                                 --ELSE 0 END,
     
-							TotalPresent = CASE WHEN DayStatus = 'P' and LTSystemID is null THEN 1
-							    WHEN DayStatus = 'PW' and LTSystemID is null THEN 1
-                                WHEN DayStatus = 'P' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN DayStatus = 'L' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
-                                WHEN DayStatus = 'NW' and LTSystemID is not null THEN (1-LeaveDuration)
-                                WHEN DayStatus = 'NW' and LTSystemID is null THEN 0.5
+							TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
+                                WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Late' and LTSystemID is null THEN 1
+                                WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
+                                WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
                                 ELSE 0 END,
     
                                 TotalLate = CASE WHEN Category = 'Late' and LTSystemID is null THEN 1
@@ -8974,9 +8974,13 @@ where h.HeadCategory='GROSS'
                                 TotalMLv = 0,
                                 TotalCompAssignLv = 0,
 
-                                TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
-								                       WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
-								                       WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                               -- TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                       --WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+								                       --WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+								                       --WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=0 THEN 1
+
+                                TotalWeekOff = CASE WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1        
+								                       WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
                                 ELSE 0 END,
                                 
                                 TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
