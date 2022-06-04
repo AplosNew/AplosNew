@@ -21,6 +21,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         ValueinPercentage: true,
         DefaultValue: null,
         Formula: null,
+        FormulaId:null,
         AddedBy: null,
         AddedDate: null,
         AddedFromIP: null,
@@ -30,7 +31,12 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         Operator: null,
         Precedence: null,
         Value: null,
-        EntryState: 'Entry'
+        EntryState: 'Entry',
+        FormulaDes: null,
+        FormulaDesID: null,
+        SalaryHeadFormula: null,
+        FormulaDescription:null
+
     }
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
@@ -142,19 +148,8 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
 
-    $scope.checkFormula = function (List, lastvalue) {
-        var available = false;
-        for (var i = 0; i < List.length; i++) {
-            if (List[i].Text === lastvalue) {
-                available = true;
-                break;
-            }
-        }
-        return available;
-    }
-
     $scope.FormulaDetails = [];
-    $scope.SetFormula = function (formula) {
+    $scope.XSetFormula = function (formula) {
 
         if (formula === 'SHead') {
             $scope.ModelNew.FormulaDescription = null;
@@ -290,7 +285,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         }
     }
 
-    $scope.RemoveFormula = function () {
+    $scope.XRemoveFormula = function () {
         $scope.ModelNew.FormulaDesID = null;
 
         var count = $scope.FormulaArray.length;
@@ -327,7 +322,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         }
     }
 
-    $scope.Get = function (obj) {
+    $scope.XGet = function (obj) {
         $scope.FormulaDetails = [];
         $scope.CompanyId = $scope.ModelNew.CompanyId;
         $scope.ModelNew.HeadIdFormula = null;
@@ -358,7 +353,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
     function CheckDuplicate(ob) {
         try {
             for (var i = 0; i < $scope.NoticePeriodList.length; i++) {
-                if (ob.SalaryRuleGeneralSystemID !== $scope.NoticePeriodList[i].SalaryRuleGeneralSystemID && ob.SalaryHeadID === $scope.NoticePeriodList[i].SalaryHeadID) {
+                if (ob.SalaryRuleGeneralSystemID !== $scope.NoticePeriodList[i].SalaryRuleGeneralSystemID && ob.OrderLineHeadId === $scope.NoticePeriodList[i].OrderLineHeadId) {
                     throw "Salary Head has already been taken...";
                 }
             }
@@ -367,32 +362,6 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         }
     }
 
-    $scope.AddEditRow = function () {
-        try {
-
-            // ValidationRuleGeneral();
-
-            // CheckDuplicate($scope.ModelNew);
-
-            $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
-            $scope.ModelNew.FormulaDesID = $scope.ModelNew.FormulaIDDescription;
-            $scope.ModelNew.SalaryHead = $("#SH option:selected").text();
-
-            $scope.Row = 'Add Row';
-            $scope.ModelNew.FormulaDescription = null;
-            $scope.ModelNew.FormulaIDDescription = null;
-
-            $scope.ModelNew.SalaryHeadIdFormula = null;
-            $scope.ModelNew.Operator = null;
-            $scope.ModelNew.Precedence = null;
-            $scope.ModelNew.Value = null;
-
-            $scope.FormulaArray = [];
-            $scope.FormulaIdArray = [];
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
 
     $scope.Clear = function () {
         $scope.Model = {
@@ -438,7 +407,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         }
     }
 
-    $scope.Save = function () {
+    $scope.XSave = function () {
         try {
 
             if ($scope.ModelNew.EntryState == 'Calculate') {
@@ -508,6 +477,335 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
             ShowResult(e, "failure");
         }
     };
+
+    //#region New
+
+    $scope.ModelNew.FormulaDes = null;
+    $scope.ModelNew.FormulaDesID = null;
+    $scope.ModelNew.SalaryHeadFormula = null;
+    $scope.ModelNew.FormulaDescription = null;
+    $scope.FormulaArray = [];
+    $scope.FormulaIdArray = [];
+
+    $scope.checkFormula = function (List, lastvalue) {
+        var available = false;
+        for (var i = 0; i < List.length; i++) {
+            if (List[i].Text === lastvalue) {
+                available = true;
+                break;
+            }
+        }
+        return available;
+    }
+
+    $scope.FormulaDetails = [];
+    $scope.SetFormula = function (formula) {
+        try {
+            var formulaObj = {};
+
+            if (formula === 'SHead') {
+
+                formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                formulaObj.OrderLineHeadId = $scope.ModelNew.HeadIdFormula;
+                formulaObj.SalaryHead = $("#HeadFormula option:selected").text();
+                formulaObj.Component = null;
+                $scope.FormulaDetails.push(formulaObj);
+
+                $scope.ModelNew.FormulaDes = '';
+                $scope.ModelNew.FormulaDesID = '';
+
+                $scope.ModelNew.FormulaDescription = '';
+                $scope.ModelNew.FormulaIDDescription = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
+                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                    } else {
+                        $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
+                    }
+                }
+
+                $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+                $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+
+            }
+            else if (formula === 'Operator') {
+                if ($scope.FormulaDetails.length != 0) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.Operator)) {
+
+
+                        formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                        formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                        formulaObj.OrderLineHeadId = null;
+                        formulaObj.Component = $scope.ModelNew.Operator;
+                        formulaObj.SalaryHead = $scope.ModelNew.Operator;;
+
+                        $scope.FormulaDetails.push(formulaObj);
+
+                        $scope.ModelNew.FormulaDes = '';
+                        $scope.ModelNew.FormulaDesID = '';
+
+                        $scope.ModelNew.FormulaDescription = '';
+                        $scope.ModelNew.FormulaIDDescription = '';
+
+                        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                            $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                            $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+
+                        }
+
+                        $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+                        $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+                    }
+                }
+                else {
+                    throw "First select Salary Head or input value.";
+                }
+
+
+
+            }
+            else if (formula === 'Precedence') {
+
+
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.Precedence)) {
+
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                    formulaObj.OrderLineHeadId = null;
+                    formulaObj.SalaryHead = $scope.ModelNew.Precedence;
+                    formulaObj.Component = $scope.ModelNew.Precedence;
+                    $scope.FormulaDetails.push(formulaObj);
+
+
+                    $scope.ModelNew.FormulaDes = '';
+                    $scope.ModelNew.FormulaDesID = '';
+
+                    $scope.ModelNew.FormulaDescription = '';
+                    $scope.ModelNew.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+
+                    }
+
+                    $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+                    $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+                }
+
+
+            }
+
+            else if (formula === 'Value') {
+
+                if (!baseService.isUndefinedOrNull($scope.ModelNew.Value)) {
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                    formulaObj.OrderLineHeadId = null;
+                    formulaObj.SalaryHead = $scope.ModelNew.Value;
+                    formulaObj.Component = $scope.ModelNew.Value;
+                    $scope.FormulaDetails.push(formulaObj);
+
+                    $scope.ModelNew.FormulaDes = '';
+                    $scope.ModelNew.FormulaDesID = '';
+
+                    $scope.ModelNew.FormulaDescription = '';
+                    $scope.ModelNew.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+
+                    }
+
+                    $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+                    $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.RemoveFormula = function () {
+
+        var maxseq = Math.max.apply(Math, $scope.FormulaDetails.map(function (o) { return o.Sequence; }))
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (maxseq === $scope.FormulaDetails[i].Sequence) {
+                $scope.FormulaDetails.splice(i, 1);
+                break;
+            }
+        }
+
+        $scope.ModelNew.FormulaDes = '';
+        $scope.ModelNew.FormulaDesID = '';
+
+        $scope.ModelNew.FormulaDescription = '';
+        $scope.ModelNew.FormulaIDDescription = '';
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
+                $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                $scope.ModelNew.FormulaDesID += ' ' + $scope.FormulaDetails[i].OrderLineHeadId;
+            } else {
+                $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
+            }
+        }
+
+        $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+        $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+    }
+
+    $scope.Get = function (obj) {
+        $scope.FormulaDetails = [];
+        $scope.ModelNew.HeadIdFormula = null;
+        $scope.ModelNew.Operator = null;
+        $scope.ModelNew.Precedence = null;
+        $scope.ModelNew.Value = null;
+
+        $scope.objectData = obj.data;
+        $scope.ModelNew = Object.assign({}, $scope.objectData);
+
+        $http({
+            method: 'GET',
+            url: "Costings/OrderLineCostingItem/GetDetailList?OrderLineCostingItemId=" + $scope.ModelNew.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.FormulaDetails = response.data;
+
+                $scope.ModelNew.FormulaDes = '';
+                $scope.ModelNew.FormulaDesID = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                    if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
+                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+
+                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                    } else {
+                        $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId;
+                    }
+                }
+
+                $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
+                $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+
+
+            }
+        });
+
+
+        var value = null;
+
+        $scope.GetOrderLineCostingItemCbo();
+        $scope.GetCostingTypeComponent();
+
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
+    $scope.AddEditRow = function () {
+        try {
+
+
+            $scope.ModelNew.FormulaDes = $scope.ModelNew.FormulaDescription;
+            $scope.ModelNew.FormulaDesID = $scope.ModelNew.FormulaIDDescription;
+
+            $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
+            $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
+
+            $scope.ModelNew.SalaryHead = $("#SH option:selected").text();
+
+            $scope.Row = 'Add Row';
+            $scope.ModelNew.FormulaDescription = null;
+            $scope.ModelNew.FormulaIDDescription = null;
+
+            $scope.ModelNew.HeadIdFormula = null;
+            $scope.ModelNew.Operator = null;
+            $scope.ModelNew.Precedence = null;
+            $scope.ModelNew.Value = null;
+
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.Clear = function () {
+        $scope.CompanyId = $scope.ModelNew.CompanyId;
+        $scope.PlantId = $scope.ModelNew.PlantId;
+        $scope.ModelNew = {};
+        $scope.ModelNew.CompanyId = $scope.CompanyId;
+        $scope.ModelNew.PlantId = $scope.PlantId;
+        $scope.Action = 'Save';
+        $scope.ModelNew.FormulaDescription = null;
+        $scope.ModelNew.FormulaIDDescription = null;
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+    }
+
+    function CheckField(fieldValue, fieldName) {
+        try {
+            if (baseService.isUndefinedOrNull(fieldValue) || fieldValue === '') {
+                throw ('[' + fieldName + '] is required...');
+            }
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    $scope.Save = function () {
+        try {
+            $scope.AddEditRow();
+            $http({
+                method: 'POST',
+                url: $scope.saveUrl,
+                data: { 'data': $scope.ModelNew, 'details': $scope.FormulaDetails },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetData();
+                    $scope.Clear();
+                    $scope.FormulaDetails = [];
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+
+    //#endregion New
+
+
 
 
 }
