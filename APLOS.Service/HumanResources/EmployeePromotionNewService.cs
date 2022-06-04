@@ -538,7 +538,7 @@ namespace Library.Service.HumanResources
                        FROM dbo.Employeeinformation EI                             
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                              JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId=PMB.Id
+                              LEFT JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId=PMB.Id
                               LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                               LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
 							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
@@ -1257,59 +1257,59 @@ namespace Library.Service.HumanResources
                               SELECT EmpInfoSystemID FROM SalaryInfoBackMaster where EmpInfoSystemID NOT IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster)
                               )";
 
-                string xsql = @"SELECT EI.*,Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
-                                  ,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
-								  ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
-                                  ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
-								  ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
-								  ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
-								  ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId
-                                  ,EP.Id,IH.IsConfirmation,IH.ConfirmationCode,
-								  IIF(EP.Id = IH.ConfirmationCode , 1, 0) as IsGross, 
-								  CASE WHEN ISNULL(EP.Id,'')<>'' AND ISNULL(IH.ConfirmationCode,'')='' THEN 1 ELSE 0 END AS IsPending
-                                  ,ISNULL(IIF(SM.IsApproved=1 , 'Approved', 'Un-approved'),'New') as ApprovedStatus, DeG.UserName DesignationGroupName
-                              FROM dbo.Employeeinformation EI
-                              LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
-							  LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
-							  LEFT JOIN scs.PoliceStation ParmPO ON EI.ParmThanaID=ParmPO.Id
-							  LEFT JOIN SCS.District D ON EI.PresDistrictID = D.Id
-							  LEFT JOIN SCS.District ParmD ON EI.ParmDistrictID = ParmD.Id
-		                      LEFT JOIN SCS.Country C ON EI.PresCountryID = C.ID
-		                      LEFT JOIN SCS.Country ParmC	ON EI.ParmCountryID = ParmC.ID
-		                      LEFT JOIN SCS.PostOffice ParmP ON EI.ParmPostOfficeID = ParmP.ID
-		                      LEFT JOIN SCS.PostOffice PerP ON EI.PresPostOfficeID = PerP.ID
-                              LEFT JOIN SCS.City PerCT ON EI.PresCityID = PerCT.ID
-		                      LEFT JOIN SCS.City ParCT ON EI.ParmCityID = ParCT.ID
-                              LEFT JOIN SCS.[State] ParmS ON EI.ParmStateId = ParmS.Id
-							  LEFT JOIN SCS.[State] PresS ON EI.PresStateId = PresS.Id
-							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
-							  LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id
-							  LEFT JOIN SCS.Country CNT ON AM.CountryId=CNT.Id
-							  LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
-                              LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
-                              LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
-                              LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
-							  LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
-							  LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
-				              LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
-							  LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
-							  LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
-                              LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
-                              LEFT JOIN HKP.DesignationGroup DeG ON DeG.Id=DM.DesignationGroupId
-	                          LEFT JOIN TRN.EmployeeProbationalPeriod AS EP ON EP.Id = (SELECT TOP 1 Id FROM TRN.EmployeeProbationalPeriod WHERE EmployeeId = EI.SystemID	ORDER BY AddedDate DESC	) and EI.SystemId=EP.EmployeeId
-							  LEFT JOIN IncrementHistory AS IH ON  IH.SystemID=(SELECT TOP 1 SystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID
-							  ORDER BY ConfirmationDate DESC) AND  EI.SystemId=IH.EmpSystemID
-                              LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemId
-                              AND sm.SystemID=(SELECT TOP 1 SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID
-							  ORDER BY   EffectiveDate DESC)
+         //       string xsql = @"SELECT EI.*,Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+         //                         ,PO.UserName PresThanaName,ParmPO.UserName ParmThanaName,D.UserName PresDistrictName,ParmD.UserName ParmDistrictName
+								 // ,C.UserName PresCountryName,ParmC.UserName ParmCountryName,ParmP.UserName ParmPostOfficeName, PerP.UserName PresPostOfficeName
+         //                         ,PerCT.UserName PresCityName,ParCT.UserName ParmCityName,AM.CountryId
+								 // ,CG.[Image] CompanyGroupLogo, CNT.PhoneLength, COM.IsTINRequiredForSalaryAbove
+								 // ,CNT.TINCaption, CNT.NIDCaption, CNT.NIDLength, CNT.TINLength, COM.TINRequiredForSalaryAbove
+								 // ,DG.UserName GivenDesignation, DP.UserName Department, PMB.Code,PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId
+         //                         ,EP.Id,IH.IsConfirmation,IH.ConfirmationCode,
+								 // IIF(EP.Id = IH.ConfirmationCode , 1, 0) as IsGross, 
+								 // CASE WHEN ISNULL(EP.Id,'')<>'' AND ISNULL(IH.ConfirmationCode,'')='' THEN 1 ELSE 0 END AS IsPending
+         //                         ,ISNULL(IIF(SM.IsApproved=1 , 'Approved', 'Un-approved'),'New') as ApprovedStatus, DeG.UserName DesignationGroupName
+         //                     FROM dbo.Employeeinformation EI
+         //                     LEFT JOIN ORG.CompanyGroup AS CG ON EI.GroupId=CG.Id
+							  //LEFT JOIN scs.PoliceStation PO ON EI.PresThanaID=PO.Id
+							  //LEFT JOIN scs.PoliceStation ParmPO ON EI.ParmThanaID=ParmPO.Id
+							  //LEFT JOIN SCS.District D ON EI.PresDistrictID = D.Id
+							  //LEFT JOIN SCS.District ParmD ON EI.ParmDistrictID = ParmD.Id
+		       //               LEFT JOIN SCS.Country C ON EI.PresCountryID = C.ID
+		       //               LEFT JOIN SCS.Country ParmC	ON EI.ParmCountryID = ParmC.ID
+		       //               LEFT JOIN SCS.PostOffice ParmP ON EI.ParmPostOfficeID = ParmP.ID
+		       //               LEFT JOIN SCS.PostOffice PerP ON EI.PresPostOfficeID = PerP.ID
+         //                     LEFT JOIN SCS.City PerCT ON EI.PresCityID = PerCT.ID
+		       //               LEFT JOIN SCS.City ParCT ON EI.ParmCityID = ParCT.ID
+         //                     LEFT JOIN SCS.[State] ParmS ON EI.ParmStateId = ParmS.Id
+							  //LEFT JOIN SCS.[State] PresS ON EI.PresStateId = PresS.Id
+							  //LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id
+							  //LEFT JOIN MST.AddressMaster AM ON PL.AddressMasterId=AM.Id
+							  //LEFT JOIN SCS.Country CNT ON AM.CountryId=CNT.Id
+							  //LEFT JOIN ORG.Company COM ON EI.CompanyId=COM.Id
+         //                     LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+         //                     LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+         //                     LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+							  //LEFT JOIN HKP.Designation DSG ON PR.DesignationId=DSG.Id
+							  //LEFT JOIN HKP.Designation DG on DG.Id=EI.GivenDesignationId
+				     //         LEFT JOIN ORG.Department DP on DP.Id=EI.DepartmentId
+							  //LEFT JOIN MST.payrollgroupmaster PM on PM.EmployeeId=EI.SystemId
+							  //LEFT JOIN hkp.payrollgroup PG on PG.Id=PM.PayRollGroupId
+         //                     LEFT JOIN MST.DesignationMaster DM ON DM.DesignationId=EI.GivenDesignationId
+         //                     LEFT JOIN HKP.DesignationGroup DeG ON DeG.Id=DM.DesignationGroupId
+	        //                  LEFT JOIN TRN.EmployeeProbationalPeriod AS EP ON EP.Id = (SELECT TOP 1 Id FROM TRN.EmployeeProbationalPeriod WHERE EmployeeId = EI.SystemID	ORDER BY AddedDate DESC	) and EI.SystemId=EP.EmployeeId
+							  //LEFT JOIN IncrementHistory AS IH ON  IH.SystemID=(SELECT TOP 1 SystemID FROM IncrementHistory WHERE EmpSystemID= EI.SystemID
+							  //ORDER BY ConfirmationDate DESC) AND  EI.SystemId=IH.EmpSystemID
+         //                     LEFT JOIN SalaryInfoDefineMaster SM ON SM.EmpInfoSystemID=EI.SystemId
+         //                     AND sm.SystemID=(SELECT TOP 1 SystemID FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID= EI.SystemID
+							  //ORDER BY   EffectiveDate DESC)
 
-                              WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' AND EI.SystemId IN (
-                              SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where IsApproved = 1
-                              union
-                              SELECT EmpInfoSystemID FROM SalaryInfoBackMaster where EmpInfoSystemID IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where IsApproved = 0)                            
-                              union
-                              SELECT EmpInfoSystemID FROM SalaryInfoBackMaster where EmpInfoSystemID NOT IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster)
-                              )";
+         //                     WHERE EI.EmployeeStatus ='Active' AND EI.PlantId='" + plantId + @"' AND  EI.GroupId='" + companyGroupId + @"' AND EI.SystemId IN (
+         //                     SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where IsApproved = 1
+         //                     union
+         //                     SELECT EmpInfoSystemID FROM SalaryInfoBackMaster where EmpInfoSystemID IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where IsApproved = 0)                            
+         //                     union
+         //                     SELECT EmpInfoSystemID FROM SalaryInfoBackMaster where EmpInfoSystemID NOT IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster)
+         //                     )";
 
 
 

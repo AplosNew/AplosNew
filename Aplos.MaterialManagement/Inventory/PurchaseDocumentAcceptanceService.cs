@@ -2530,7 +2530,7 @@ namespace Library.MaterialManagement.Inventory
                         ,ISNULL(PACD.TransactionQty, 0) AS TransactionQty,ISNULL(PAD.AcptTransactionQty, 0) Otherqty
                         ,ISNULL(((SELECT Min(v) FROM (VALUES (POD.TransactionQty), (SUM(IRD.TransactionQty))) AS value(v)) -(ISNULL(PAD.AcptTransactionQty, 0)+ PACD.TransactionQty)),0) AS Balance
                         ,POD.TransactionAmount TotalPOValue,ISNULL(PAD.TotalAcptValue,0) TotalAcptValue,POD.TransactionRate,POD.TransactionRate MaterialTranRate,ISNULL(PACD.MaterialTranAmount,0) TrnAmount,ISNULL(PACD.TotalMaterialTranAmount,0)TotalMaterialTranAmount,0 AS ToTalMaterialBooksCurrencyAmount
-                        ,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate 
+                        ,POD.TransactionUoMId,TUoM.UserName AS TransactionUoM,CU.Code AS CurrencyName,PO.ToCurrencyRate,PDASD.ServiceAmount 
                         FROM TRN.PurchaseOrderDetail AS POD
                         LEFT JOIN MST.MaterialMaster AS MM ON POD.InventoryMaterialId = MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
@@ -2560,6 +2560,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN [HKP].[MaterialGroupPartyAccountGroupGL] AS MGPGL ON MGGL.MaterialGroupMasterId = MGPGL.MaterialGroupMasterId AND MGPGL.PartyAccountGroupId= PACG.Id
                         
                         LEFT JOIN (SELECT POId,PODetailId,Sum(TransactionQty) AcptTransactionQty,SUM(TotalMaterialTranAmount) TotalAcptValue FROM TRN.PurchaseDocAcceptanceDetail WHERE PurchaseDocAcceptanceId<>'" + Id + @"' GROUP BY POId,PODetailId) PAD ON PAD.POId = POD.InventoryReceiveId AND PAD.PODetailId = POD.Id
+                        LEFT JOIN(SELECT PurchaseDocAcceptanceId,PDAS.ServiceMasterId  ,PDAS.Amount ServiceAmount FROM trn.PurchaseDocAcceptanceService PDAS Where  PDAS.PurchaseDocAcceptanceId='" + Id + @"')PDASD ON PDASD.PurchaseDocAcceptanceId=PDA.Id
                         WHERE IRD.InventoryReceiveId IN(Select GRNId from TRN.GRNAcceptanceMap where PurchaseDocumentAcceptanceId='" + Id + @"')
                         GROUP BY 
 						MGPGL.GLGeneralInfoId,MGPGL.BudgetMasterId,MGPGL.ActivityId
@@ -2567,7 +2568,7 @@ namespace Library.MaterialManagement.Inventory
                         ,FC.UserName,POD.FirstCharacteristicsValueId,FCV.UserName,POD.SecondCharacteristicsId,SC.UserName,POD.SecondCharacteristicsValueId,SCV.UserName,POD.ThirdCharacteristicsId
                         ,TC.UserName,POD.ThirdCharacteristicsValueId,TCV.UserName,POD.CountryId,POD.TransactionQty,PACD.TransactionQty,PAD.AcptTransactionQty,POD.TransactionQty,POD.TransactionAmount,PAD.TotalAcptValue,POD.TransactionRate,PACD.MaterialTranAmount
                         ,PACD.TotalMaterialTranAmount,POD.TransactionUoMId,TUoM.UserName,CU.Code,PO.ToCurrencyRate, PLC.IsAccepptanceFirst, MGGL.InventoryInTransitGLId,GRNMAP.PostCRGLGeneralInfoId
-						,MGGL.InventoryInTransitBudgetMasterId, GRNMAP.PostCRBudgetMasterId,MGGL.InventoryInTransitActivityId,GRNMAP.PostCRActivityId ORDER BY PACD.Id";
+						,MGGL.InventoryInTransitBudgetMasterId, GRNMAP.PostCRBudgetMasterId,MGGL.InventoryInTransitActivityId,GRNMAP.PostCRActivityId,PDASD.ServiceAmount ORDER BY PACD.Id";
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)

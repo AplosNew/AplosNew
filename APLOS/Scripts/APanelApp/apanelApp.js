@@ -504,7 +504,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
     .controller('ResidenceStatusLocationController', ResidenceStatusLocationController)
     .controller('TrainingMasterController', TrainingMasterController)    
-    .controller('ZoneMasterController', ZoneMasterController)
+    //.controller('ZoneMasterController', ZoneMasterController)
     .controller('FuguaiTransactionController', FuguaiTransactionController)
 
     .config(accountConfig)

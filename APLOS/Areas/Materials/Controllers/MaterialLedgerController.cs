@@ -343,13 +343,13 @@ namespace Aplos.Areas.Materials.Controllers
         #region PurchaseRegister
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate,string Type)
+        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId,identity.PlantId, FromDate, ToDate, Type);
+                var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId,identity.PlantId, FromDate, ToDate);
 
                 var strFileName = "Purchase Report Register GRN Wise"+" " + FromDate + "To" + ToDate + " " + "Report.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -385,33 +385,55 @@ namespace Aplos.Areas.Materials.Controllers
         //    }
         //}
 
-        [Authorize, HttpGet]
-        public ActionResult PurchaseRegisterPartyWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        [HttpPost, Authorize]
+        public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-            switch (reportFormat)
+            try
             {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                var workbook = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
 
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-                default:
-                    return View();
+                var strFileName = "Purchase Report Register Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
             }
         }
+
+        //[Authorize, HttpGet]
+        //public ActionResult PurchaseRegisterPartyWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        //{
+        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+        //    plantId = identity.PlantId;
+        //    var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
+        //    Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+        //    // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+        //    var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
+        //    switch (reportFormat)
+        //    {
+        //        case ReportFormat.Pdf:
+        //            return RenderReportAsPdf(workbook, reportFileName);
+
+        //        case ReportFormat.Excel:
+        //            return RenderReportAsExcel(workbook, reportFileName);
+        //        default:
+        //            return View();
+        //    }
+        //}
 
         [Authorize, HttpGet]
         public ActionResult PurchaseRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
-            var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
+            var reportFileName = "Purchase Report Register Item Wise" + fromDate + "To" + toDate + "";
             Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
             // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
             var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
