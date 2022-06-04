@@ -1243,7 +1243,8 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
             { field: "TransactionUoM", headerText: "UoM", width: 80 },
             { field: "TransactionRate", headerText: "Transaction Rate", width: 100 },
             { field: "CurrencyName", headerText: "Currency Name", width: 100 },
-            { field: "TotalAmount", headerText: "Amount", width: 100 }],
+            { field: "TotalAmount", headerText: "Amount", width: 100 },
+            { field: "RequisitionId", headerText: "Requisition No", width: 100 }],
             recordDoubleClick: rowSelectedforGRN
         });
         e.detailsElement.find(".tabcontrol").ejTab();
