@@ -1143,7 +1143,7 @@ namespace Library.MaterialManagement.Inventory
 	                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
                             Left join (select InventoryReceiveId,sum(TaxAmount) TaxAmount from TRN.purchaseOrderTax where InventoryReceiveId=@inventoryReceiveId and InventoryServiceId is null group by InventoryReceiveId) aaa On aaa.InventoryReceiveId=IM.InventoryReceiveId
                             LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  
-                            where IM.InventoryMaterialId is not  null
+                            where IM.InventoryMaterialId is not  null AND IM.QtyStatus=0
 
 	                      -- WHERE IM.InventoryReceiveId = @inventoryReceiveId
                           
@@ -1231,7 +1231,8 @@ namespace Library.MaterialManagement.Inventory
 	                        LEFT JOIN [ORG].[Plant] AS PT ON PT.Id = IR.PlantId
 	                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
                             Left join (select InventoryReceiveId,sum(TaxAmount) TaxAmount from TRN.purchaseOrderTax where InventoryReceiveId=@inventoryReceiveId and InventoryServiceId is null group by InventoryReceiveId) aaa On aaa.InventoryReceiveId=IM.InventoryReceiveId
-                            LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  where IM.InventoryMaterialId is  null";
+                            LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  
+                            where IM.InventoryMaterialId is  null AND IM.QtyStatus=0";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
