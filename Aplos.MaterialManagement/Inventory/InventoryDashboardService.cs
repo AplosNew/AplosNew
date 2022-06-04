@@ -22537,6 +22537,9 @@ UNION ALL
 								,FORMAT(CONVERT(NUMERIC(10,2),sum(POD.BaseAmount)),'#,#') Amount
 								,CONVERT(NUMERIC(10,2),sum(POD.TransactionQty)) Qty
 								,CONVERT(NUMERIC(10,2),(sum(POD.BaseAmount)/sum(POD.TransactionQty))) AvarageRate
+								,RequisitionNo=	STUFF((select distinct ','+XVD.Id from trn.MaterialRequsitionMaster XVD 
+														 join TRN.PurchaseOrderDetail xPOD on  xPOD.RequisitionId=XVD.Id and xPOD.InventoryReceiveId=PO.Id
+														  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								FROM trn.PurchaseOrder PO
 								LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId=PO.id 
                                 LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 	
@@ -22593,6 +22596,9 @@ UNION ALL
 ,CONVERT(DECIMAL(18,2),sum(POD.BaseAmount))Amount
 								,CONVERT(DECIMAL(18,2),sum(POD.TransactionQty))Qty
 								,CONVERT(DECIMAL(18,4),(sum(POD.BaseAmount)/sum(POD.TransactionQty))) AvarageRate
+								,RequisitionNo=	STUFF((select distinct ','+XVD.Id from trn.MaterialRequsitionMaster XVD 
+														 join TRN.PurchaseOrderDetail xPOD on  xPOD.RequisitionId=XVD.Id and xPOD.InventoryReceiveId=PO.Id
+														  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								FROM trn.PurchaseOrder PO
 								LEFT JOIN TRN.PurchaseOrderDetail POD ON POD.InventoryReceiveId=PO.id 
                                 LEFT JOIN [MST].[PaymentTerm] PT ON PT.id=PO.PaymentTermId 	
