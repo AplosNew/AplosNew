@@ -1106,6 +1106,7 @@
     <Compile Include="Areas\SalesManagements\Controllers\SalesInvoiceController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesController.cs" />
     <Compile Include="Areas\SalesManagements\SalesManagementsAreaRegistration.cs" />
+    <Compile Include="Areas\Securities\Controllers\LICController.cs" />
     <Compile Include="Areas\Securities\Controllers\SyncURLController.cs" />
     <Compile Include="Areas\Securities\Controllers\MenuUserCodeController.cs" />
     <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
@@ -2563,6 +2564,7 @@
     <Content Include="Areas\SalesManagements\Scripts\salesInvoicePendingController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesManagementService.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesManagementConfig.js" />
+    <Content Include="Areas\Securities\Scripts\LICController.js" />
     <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
     <Content Include="Areas\Securities\Scripts\syncURLController.js" />
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
@@ -4223,6 +4225,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_SalesOrderItemPopUp.cshtml" />
     <Content Include="Areas\Products\Views\InventorySalesReportMarketing\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\LIC\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
