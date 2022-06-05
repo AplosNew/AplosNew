@@ -245,6 +245,13 @@ namespace Aplos.Areas.Employees.Controllers
 
 
         [HttpGet, Authorize]
+        public JsonResult GetAvailableBudgetCode(string budgetCode)
+        {
+            return Json(employeeProfile.GetAvailableBudgetCode(budgetCode), JsonRequestBehavior.AllowGet);
+        }
+
+
+        [HttpGet, Authorize]
         public ActionResult GetLocalLanguageLabel(string plantId)
         {
             if (string.IsNullOrEmpty(plantId))
