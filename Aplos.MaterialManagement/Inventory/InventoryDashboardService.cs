@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using Syncfusion.XlsIO;
+using Library.Service.Extension;
+using Library.Service.Helpers;
 
 namespace Library.Service.Expenses
 {
@@ -27840,8 +27843,443 @@ UNION ALL
 
         }
 
-        #endregion
+		#endregion
+
+		//Summary Report
+		public IWorkbook GetPOPurchaseDetailsReport(ExcelEngine excelEngine, string poPurchaseDetailsId, string companyGroupId, string companyId, string plantId)
+		{
+			excelEngine = new ExcelEngine();
+			//Instantiate the Excel application object
+			IApplication application = excelEngine.Excel;
+
+			//Set the default application version
+			application.DefaultVersion = ExcelVersion.Excel2013;
+
+			//Load the existing Excel workbook into IWorkbook
+			IWorkbook workbook = application.Workbooks.Create(1);
+
+			//Get the first worksheet in the workbook into IWorksheet
+			IWorksheet worksheet = workbook.Worksheets[0];
+			try
+			{
+				worksheet.Name = "GetPOPurchaseDetailsReport";
+
+				int COL = 1; int ROW = 6;
+
+				int startCol = COL;
+				worksheet[ROW, COL].Text = "PO No";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colPONo = COL;
+				worksheet[ROW, COL].ColumnWidth = 10;
+				COL++;
+
+				worksheet[ROW, COL].Text = "PO Details Row";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colPODetailsId = COL;
+				worksheet[ROW, COL].ColumnWidth = 14;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Requisition No";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colRequisitionId = COL;
+				worksheet[ROW, COL].ColumnWidth = 14;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Material Group";
+				int colMaterialGroupName = COL;
+				worksheet[ROW, COL].ColumnWidth = 20;
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Material Name";
+				int colMaterialName = COL;
+				worksheet[ROW, COL].ColumnWidth = 20;
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Article";
+				int colArticle = COL;
+				worksheet[ROW, COL].ColumnWidth = 42;
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				COL++;
+
+				worksheet[ROW, COL].Text = "SKU1";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colSku1 = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "SKU2";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colSku2 = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "SKU3";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colSku3 = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Material Detail";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colMaterialDetail = COL;
+				worksheet[ROW, COL].ColumnWidth = 14;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Qty";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colTransactionQty = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "UoM";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colTransactionUoM = COL;
+				worksheet[ROW, COL].ColumnWidth = 6;
+				COL++;
+
+				worksheet[ROW, COL].Text = "GRN Rcv Qty";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colGRNRcvQty = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Balance";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colBalance = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Transaction Rate";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colTransactionRate = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Currency";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				int colCurrencyName = COL;
+				worksheet[ROW, COL].ColumnWidth = 8;
+				COL++;
+
+				worksheet[ROW, COL].Text = "Amount";
+				worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				int colTotalAmount = COL;
+				worksheet[ROW, COL].ColumnWidth = 15;
 
 
-    }
+				int endCol = COL;
+
+				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
+				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
+
+				//worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
+				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+				worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+				worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+				// worksheet.Range[ROW,  ROW].BorderInside(ExcelLineStyle.Hair);
+
+
+				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+
+				string sql = @"SELECT  IR.Id AS POmasterId,IM.InventoryReceiveId
+		                        ,IM.Id AS InventoryReceiveDetailId
+		                        ,MGM.UserName AS MaterialGroupName
+		                        ,IM.InventoryMaterialId AS MaterialMasterId
+		                        ,MM.UserName MaterialName
+		                        ,IM.ArticleId
+		                        ,ART.StandardName AS Article
+		                        ,IM.FirstCharacteristicsId
+		                        ,FC.UserName AS FirstCharacteristics
+		                        ,IM.FirstCharacteristicsValueId
+		                        ,FCV.UserName AS Sku1
+		                        ,IM.SecondCharacteristicsId
+		                        ,SC.UserName AS SecondCharacteristics
+		                        ,IM.SecondCharacteristicsValueId
+		                        ,SCV.UserName AS Sku2
+		                        ,IM.ThirdCharacteristicsId
+		                        ,TC.UserName AS ThirdCharacteristics
+		                        ,IM.ThirdCharacteristicsValueId
+		                        ,TCV.UserName AS Sku3
+		                        ,ROUND(IM.TransactionQty, 2) TransactionQty
+		                        ,IM.TransactionUoMId
+		                        ,TUoM.UserName AS TransactionUoM
+		                        ,ROUND(IM.TransactionRate, 4) TransactionRate
+		                        ,CU.Code AS CurrencyName
+		                        ,IR.ToCurrencyRate
+		                        ,ROUND((IM.TransactionQty * IM.TransactionRate), 2) AS TotalAmount
+                                ,BaseAmount
+		                        --,BaseAmount = CASE 
+			                       -- WHEN IR.IsNonCreditable = 1
+				                      --  THEN (
+						                    --    (ROUND((IM.TransactionQty * IM.TransactionRate), 2)) + (
+							                   --     SELECT SUM(TaxAmount)
+							                   --     FROM [TRN].[PurchaseOrderTax]
+							                   --     WHERE InventoryReceiveDetailId = IM.Id
+							                   --     )
+						                    --    )
+			                       -- ELSE IM.BaseAmount
+			                       -- E
+		                        ,BaseTaxAmount = (
+			                        SELECT SUM(TaxAmount)
+			                        FROM [TRN].[PurchaseOrderTax]
+			                        WHERE InventoryReceiveDetailId = IM.Id
+			                        )
+		                        ,IM.ChargesAmount
+		                       
+		                        ,IM.CountryId
+		                        ,NULL TaxList
+		                        ,IR.InvoicingPartyPlantId
+		                        ,AMD.StateId AS InvoicingStateId
+		                        ,AMP.StateId AS PlantStateId
+		                        ,IR.DeliveryInstruction
+		                        ,IR.SpecialInstruction
+		                        ,IM.Description
+		                        ,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
+		                        ,Im.RequisitionId
+		                        ,IM.RequisitionDetailId
+                                 ,ccc.ReqTransactionQty
+	                             ,IM.RefferenceNo
+								,ccc.MaterialDetail,IM.GRNRcvQty,Balance=(ROUND(IM.TransactionQty, 2)-IM.GRNRcvQty)
+	                        FROM [TRN].[PurchaseOrderDetail] AS IM
+	                        LEFT JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId = MM.Id
+	                        LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+	                        LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+	                        LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+	                        LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+	                        LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+	                        LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+	                        LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+	                        LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+	                        JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId = TUoM.Id
+	                        JOIN [TRN].[PurchaseOrder] AS IR ON IM.InventoryReceiveId = IR.Id
+	                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+	                        LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id = IR.InvoicingPartyPlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id = PPI.AddressMasterId
+	                        LEFT JOIN [SCS].[State] AS ST ON ST.Id = AM.StateId
+	                        LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id = IR.DeliveryPartyPlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id = PPD.AddressMasterId
+	                        LEFT JOIN [SCS].[State] AS STD ON STD.Id = AMD.StateId
+	                        LEFT JOIN [ORG].[Plant] AS PT ON PT.Id = IR.PlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
+                            LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  
+                            where IM.InventoryMaterialId is not  null AND IM.QtyStatus=0
+							AND IM.InventoryReceiveId in (" + poPurchaseDetailsId + @")
+
+	                      -- WHERE IM.InventoryReceiveId = @inventoryReceiveId
+                          
+                          Union All
+							SELECT  IR.Id AS POmasterId,IM.InventoryReceiveId
+		                        ,IM.Id AS InventoryReceiveDetailId
+		                        ,'' AS MaterialGroupName
+		                        ,'' AS MaterialMasterId
+		                        ,'' MaterialName
+		                        ,IM.ArticleId
+		                        ,'' Article
+		                        ,IM.FirstCharacteristicsId
+		                        ,'' AS FirstCharacteristics
+		                        ,IM.FirstCharacteristicsValueId
+		                        ,'' AS Sku1
+		                        ,IM.SecondCharacteristicsId
+		                        ,'' SecondCharacteristics
+		                        ,IM.SecondCharacteristicsValueId
+		                        ,'' AS Sku2
+		                        ,IM.ThirdCharacteristicsId
+		                        ,'' AS ThirdCharacteristics
+		                        ,IM.ThirdCharacteristicsValueId
+		                        ,'' AS Sku3
+		                        ,ROUND(IM.TransactionQty, 2) TransactionQty
+		                        ,IM.TransactionUoMId
+		                        ,TUoM.UserName AS TransactionUoM
+		                        ,ROUND(IM.TransactionRate, 2) TransactionRate
+		                        ,CU.Code AS CurrencyName
+		                        ,IR.ToCurrencyRate
+		                        ,ROUND((IM.TransactionQty * IM.TransactionRate), 2) AS TotalAmount
+                                ,BaseAmount
+		                        --,BaseAmount = CASE 
+			                       -- WHEN IR.IsNonCreditable = 1
+				                      --  THEN (
+						                    --    (ROUND((IM.TransactionQty * IM.TransactionRate), 2)) + (
+							                   --     SELECT SUM(TaxAmount)
+							                   --     FROM [TRN].[PurchaseOrderTax]
+							                   --     WHERE InventoryReceiveDetailId = IM.Id
+							                   --     )
+						                    --    )
+			                       -- ELSE IM.BaseAmount
+			                       -- E
+		                        ,BaseTaxAmount = (
+			                        SELECT SUM(TaxAmount)
+			                        FROM [TRN].[PurchaseOrderTax]
+			                        WHERE InventoryReceiveDetailId = IM.Id
+			                        )
+		                        ,IM.ChargesAmount
+		                     
+		                        ,IM.CountryId
+		                        ,NULL TaxList
+		                        ,IR.InvoicingPartyPlantId
+		                        ,AMD.StateId AS InvoicingStateId
+		                        ,AMP.StateId AS PlantStateId
+		                        ,IR.DeliveryInstruction
+		                        ,IR.SpecialInstruction
+		                        ,IM.Description
+		                        ,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
+		                        ,Im.RequisitionId
+		                        ,IM.RequisitionDetailId
+                                 ,ccc.ReqTransactionQty
+	                            ,IM.RefferenceNo
+								,ccc.MaterialDetail,IM.GRNRcvQty,Balance=(ROUND(IM.TransactionQty, 2)-IM.GRNRcvQty)
+	                        FROM [TRN].[PurchaseOrderDetail] AS IM
+	                        --JOIN MST.MaterialMaster AS MM ON IM.InventoryMaterialId = MM.Id
+	                        --LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
+	                        --LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId = ART.Id
+	                        --LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId = FC.Id
+	                        --LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId = SC.Id
+	                        --LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId = TC.Id
+	                        --LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId = FCV.Id
+	                        --LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId = SCV.Id
+	                        --LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId = TCV.Id
+	                        JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId = TUoM.Id
+	                        JOIN [TRN].[PurchaseOrder] AS IR ON IM.InventoryReceiveId = IR.Id
+	                        JOIN [SCS].[Currency] AS CU ON IR.CurrencyId = CU.Id
+	                        LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id = IR.InvoicingPartyPlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id = PPI.AddressMasterId
+	                        LEFT JOIN [SCS].[State] AS ST ON ST.Id = AM.StateId
+	                        LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id = IR.DeliveryPartyPlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id = PPD.AddressMasterId
+	                        LEFT JOIN [SCS].[State] AS STD ON STD.Id = AMD.StateId
+	                        LEFT JOIN [ORG].[Plant] AS PT ON PT.Id = IR.PlantId
+	                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
+                            LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  
+                            where IM.InventoryMaterialId is  null AND IM.QtyStatus=0";
+
+
+				ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+				objCon.OpenDataSetThroughAdapter(sql, out System.Data.DataSet dsData, false, "1");
+
+
+				if (dsData.Tables[0].Rows.Count == 0)
+				{
+					throw new Exception("No Data Found");
+				}
+
+				ROW++;
+				int StartDataRow = ROW;
+
+				for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
+				{
+					//worksheet[ROW, colSLNO].Number = i + 1;
+					worksheet[ROW, colPONo].Text = dsData.Tables[0].Rows[i]["POmasterId"].ToString();
+					worksheet[ROW, colPODetailsId].Text = dsData.Tables[0].Rows[i]["InventoryReceiveDetailId"].ToString();
+					worksheet[ROW, colRequisitionId].Text = dsData.Tables[0].Rows[i]["RequisitionId"].ToString();
+					worksheet[ROW, colMaterialGroupName].Text = dsData.Tables[0].Rows[i]["MaterialGroupName"].ToString();
+					worksheet[ROW, colMaterialName].Text = dsData.Tables[0].Rows[i]["MaterialName"].ToString();
+					worksheet[ROW, colArticle].Text = dsData.Tables[0].Rows[i]["Article"].ToString();
+					worksheet[ROW, colSku1].Text = dsData.Tables[0].Rows[i]["Sku1"].ToString();
+					worksheet[ROW, colSku2].Text = dsData.Tables[0].Rows[i]["Sku2"].ToString();
+					worksheet[ROW, colSku3].Text = dsData.Tables[0].Rows[i]["Sku3"].ToString();
+					worksheet[ROW, colMaterialDetail].Text = dsData.Tables[0].Rows[i]["MaterialDetail"].ToString();
+
+					worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TransactionQty"].ToString());
+					worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
+					
+					worksheet[ROW, colGRNRcvQty].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GRNRcvQty"].ToString());
+					worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Balance"].ToString());
+					worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colTransactionUoM].Text = dsData.Tables[0].Rows[i]["TransactionUoM"].ToString();
+
+					worksheet[ROW, colTransactionRate].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TransactionRate"].ToString());
+					worksheet[ROW, colTransactionRate].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colCurrencyName].Text = dsData.Tables[0].Rows[i]["CurrencyName"].ToString();
+
+					worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TotalAmount"].ToString());
+					worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					ROW++;
+				}
+
+				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+
+                worksheet[ROW, colTransactionQty - 1].Text = "Total";
+                worksheet[ROW, colTransactionQty - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTransactionQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTransactionQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTransactionQty) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colGRNRcvQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colGRNRcvQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTotalAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTotalAmount) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                //worksheet[ROW, colBaseTaxAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBaseTaxAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBaseTaxAmount) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colBaseTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colBaseTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                //worksheet[ROW, colChargesAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colChargesAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colChargesAmount) + (ROW - 1).ToString() + ")";
+                //worksheet[ROW, colChargesAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[ROW, colChargesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                
+                worksheet.Range[ROW, colTransactionQty - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				ReportUtility reportUtility = new ReportUtility();
+				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "PO Purchase Details", identity.CompanyId, identity.PlantName, "");
+				reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+				//worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+				worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+				#region Freeze Panes
+
+				worksheet.IsDisplayZeros = false;
+				worksheet.UsedRange["A7"].FreezePanes();
+				worksheet.FirstVisibleColumn = 1;
+				worksheet.FirstVisibleRow = 6;
+
+				#endregion Freeze Panes
+
+
+
+				return workbook;
+
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+
+			}
+
+
+
+
+		}
+
+	}
 }

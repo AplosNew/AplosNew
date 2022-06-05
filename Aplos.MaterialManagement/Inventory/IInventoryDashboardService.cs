@@ -1,5 +1,6 @@
 ﻿using Library.Core;
 using Library.ViewModel.Accounts;
+using Syncfusion.XlsIO;
 using System.Collections.Generic;
 
 namespace Library.MaterialManagement.Inventory
@@ -76,7 +77,8 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> RevenueListLineChart(string companyGroupId, string companyId, string factDate, string fromDate, string toDate);
 
         IEnumerable<object> GetFiscalYearForBarChart(string fromDate, string toDate);
-      
+
+        IWorkbook GetPOPurchaseDetailsReport(ExcelEngine excelEngine, string poPurchaseDetailsId, string companyGroupId, string companyId, string plantId);
         void UpdateInActive(string ReqId);
         void UpdateInActivePO(string POId);
         
