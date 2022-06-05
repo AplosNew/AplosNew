@@ -535,6 +535,7 @@ namespace Library.Service.HumanResources
 								  ,DG.UserName GivenDesignation 
 								  ,DG.UserName GivenDesignation, DP.UserName Department, PR.UserName PositionName,E.UserName EntityName,DSG.UserName Designation,PR.DesignationId,PG.StandardName PayRollGroupName,PG.Id PayRollGroupId, ISNULL(IIF(SM.IsApproved=1 , 'Approved', 'Un-approved'),'New') as ApprovedStatus , DeG.UserName DesignationGroupName,IH.IsConfirmation,IH.IncrementType
 								  ,PMB.Id,PMB.Code,mbd.TotalNumber BudgetedManPower,OnRollManPwr=ONR.OnRoll-ISNULL(A.TS,0),CAR.CurrentApprovalRequired,BalanceRequired=mbd.TotalNumber-(ONR.OnRoll-ISNULL(A.TS,0))
+                                  ,ISNULL(LA.LAEmp,0)LA,ISNULL(TBS.TBSEmp,0)TBS,NetShortage=mbd.TotalNumber-(ONR.OnRoll-ISNULL(A.TS,0))-ISNULL(LA.LAEmp,0)-ISNULL(TBS.TBSEmp,0)
                        FROM dbo.Employeeinformation EI                             
 							  LEFT JOIN ORG.Plant PL ON EI.PlantId = PL.Id							 
                               LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
@@ -557,6 +558,8 @@ namespace Library.Service.HumanResources
 							 LEFT JOIN (SELECT COUNT(SystemId) OnRoll,BudgetCode FROM EmployeeInformation WHERE EmployeeStatus = 'Active' GROUP BY BudgetCode) ONR ON ONR.BudgetCode=EI.BudgetCode
 							 LEFT JOIN (SELECT COUNT(BudgetCode) CurrentApprovalRequired,SystemId FROM EmployeeInformation GROUP BY SystemId) CAR ON CAR.SystemId=EI.SystemId
 							 LEFT JOIN (SELECT COUNT(BudgetCode) TS,SystemId FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS','LONG ABSENTEEISM') GROUP BY SystemId) A ON A.SystemId=EI.SystemId
+							 LEFT JOIN (SELECT COUNT(BudgetCode) TBSEmp,SystemId FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS') GROUP BY SystemId) TBS ON TBS.SystemId=EI.SystemId
+							 LEFT JOIN (SELECT COUNT(BudgetCode) LAEmp,SystemId FROM EmployeeInformation WHERE EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('LONG ABSENTEEISM') GROUP BY SystemId) LA ON LA.SystemId=EI.SystemId
 							   
                              
                               WHERE EI.PlantId='" + plantId + @"' AND  EI.GroupId='"+ companyGroupId + @"' AND (EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
