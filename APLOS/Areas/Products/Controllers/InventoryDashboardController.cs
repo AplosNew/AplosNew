@@ -1199,14 +1199,56 @@ namespace Aplos.Areas.Products.Controllers
 		#endregion
 
 		[HttpGet, Authorize]
+		public ActionResult RequisitionDetailsReport(string[] RequisitionDetailsRow)
+		{
+			try
+			{
+				
+				string[] empIdList = null;
+				foreach (string id in RequisitionDetailsRow)
+				{
+					empIdList = id.Split(',');
+
+				}
+
+				string requisitionDetailsRow = "";
+
+				foreach (var item in empIdList)
+				{
+					if (string.IsNullOrEmpty(requisitionDetailsRow))
+					{
+						requisitionDetailsRow += "'','" + item+"'";
+					}
+					else
+					{
+						requisitionDetailsRow += ",'" + item + "'";
+					}
+				}
+
+
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				ExcelEngine excelEngine = new ExcelEngine();
+				IWorkbook workbook = _inventoryDashboardService.GetRequisitionDetailsReport(excelEngine, requisitionDetailsRow, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+
+				string strFileName = "RequisitionDetailsReports.xlsx";
+				workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
+				workbook.Close();
+			}
+			catch (Exception ex)
+			{
+				return Json(ex.Message, JsonRequestBehavior.AllowGet);
+			}
+
+			return null;
+		}
+
+		[HttpGet, Authorize]
 		public ActionResult POPurchaseDetailsReport(string[] POPurchaseDetailsId)
 		{
 
 			try
 			{
-				
 				string poPurchaseDetailsId = "";
-
 				foreach (var item in POPurchaseDetailsId)
 				{
 					if (string.IsNullOrEmpty(poPurchaseDetailsId))
@@ -1217,28 +1259,22 @@ namespace Aplos.Areas.Products.Controllers
 					{
 						poPurchaseDetailsId += "," + item;
 					}
-
 				}
-
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
 				//AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 				//return Json(_inventoryDashboardService.GetCompanyGroupInformation(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
 
 				ExcelEngine excelEngine = new ExcelEngine();
 				IWorkbook workbook = _inventoryDashboardService.GetPOPurchaseDetailsReport(excelEngine, poPurchaseDetailsId, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
-				string strFileName = "POPurchaseDetails.xlsx";
+				string strFileName = "POPurchaseDetailsReport.xlsx";
 				workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
 				workbook.Close();
 			}
 			catch (Exception ex)
 			{
 				return Json(ex.Message, JsonRequestBehavior.AllowGet);
-
 			}
-
-
 			return null;
 		}
 	}

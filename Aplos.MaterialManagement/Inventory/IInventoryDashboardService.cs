@@ -79,6 +79,7 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetFiscalYearForBarChart(string fromDate, string toDate);
 
         IWorkbook GetPOPurchaseDetailsReport(ExcelEngine excelEngine, string poPurchaseDetailsId, string companyGroupId, string companyId, string plantId);
+        IWorkbook GetRequisitionDetailsReport(ExcelEngine excelEngine, string requisitionDetailsRow, string companyGroupId, string companyId, string plantId);
         void UpdateInActive(string ReqId);
         void UpdateInActivePO(string POId);
         
