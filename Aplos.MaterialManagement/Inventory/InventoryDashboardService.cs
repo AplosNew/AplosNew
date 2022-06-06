@@ -27999,7 +27999,6 @@ UNION ALL
 				worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
 				// worksheet.Range[ROW,  ROW].BorderInside(ExcelLineStyle.Hair);
 
-
 				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
 
 				DataTable dsData = getRequisitionDetailsReportSql(requisitionDetailsRow);
