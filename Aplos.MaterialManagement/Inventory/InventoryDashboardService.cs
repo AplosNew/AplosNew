@@ -27987,8 +27987,6 @@ UNION ALL
 				int colRequisitionStatus = COL;
 				worksheet[ROW, COL].ColumnWidth = 25;
 
-
-
 				int endCol = COL;
 
 				worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
