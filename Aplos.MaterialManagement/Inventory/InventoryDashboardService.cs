@@ -14,6 +14,7 @@ using System.Threading;
 using Syncfusion.XlsIO;
 using Library.Service.Extension;
 using Library.Service.Helpers;
+using System.Data;
 
 namespace Library.Service.Expenses
 {
@@ -27984,6 +27985,112 @@ UNION ALL
 
 				ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
 
+				DataTable dsData = getInventoryDashboardDetailsReportSql(poPurchaseDetailsId);
+
+				if (dsData.Rows.Count == 0)
+				{
+					throw new Exception("No Data Found");
+				}
+
+				ROW++;
+				int StartDataRow = ROW;
+
+				for (int i = 0; i < dsData.Rows.Count; i++)
+				{
+					//worksheet[ROW, colSLNO].Number = i + 1;
+					worksheet[ROW, colPONo].Text = dsData.Rows[i]["POmasterId"].ToString();
+					worksheet[ROW, colPODetailsId].Text = dsData.Rows[i]["InventoryReceiveDetailId"].ToString();
+					worksheet[ROW, colRequisitionId].Text = dsData.Rows[i]["RequisitionId"].ToString();
+					worksheet[ROW, colMaterialGroupName].Text = dsData.Rows[i]["MaterialGroupName"].ToString();
+					worksheet[ROW, colMaterialName].Text = dsData.Rows[i]["MaterialName"].ToString();
+					worksheet[ROW, colArticle].Text = dsData.Rows[i]["Article"].ToString();
+					worksheet[ROW, colSku1].Text = dsData.Rows[i]["Sku1"].ToString();
+					worksheet[ROW, colSku2].Text = dsData.Rows[i]["Sku2"].ToString();
+					worksheet[ROW, colSku3].Text = dsData.Rows[i]["Sku3"].ToString();
+					worksheet[ROW, colMaterialDetail].Text = dsData.Rows[i]["MaterialDetail"].ToString();
+
+					worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["TransactionQty"].ToString());
+					worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
+					
+					worksheet[ROW, colGRNRcvQty].Number = clsStaticInfo.dbl(dsData.Rows[i]["GRNRcvQty"].ToString());
+					worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["Balance"].ToString());
+					worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colTransactionUoM].Text = dsData.Rows[i]["TransactionUoM"].ToString();
+
+					worksheet[ROW, colTransactionRate].Number = clsStaticInfo.dbl(dsData.Rows[i]["TransactionRate"].ToString());
+					worksheet[ROW, colTransactionRate].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					worksheet[ROW, colCurrencyName].Text = dsData.Rows[i]["CurrencyName"].ToString();
+
+					worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["TotalAmount"].ToString());
+					worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+					ROW++;
+				}
+
+				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colTransactionQty - 1].Text = "Total";
+                worksheet[ROW, colTransactionQty - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTransactionQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTransactionQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTransactionQty) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colGRNRcvQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colGRNRcvQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTotalAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTotalAmount) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet.Range[ROW, colTransactionQty - 1, ROW, COL].CellStyle.Font.Bold = true;
+
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+				ReportUtility reportUtility = new ReportUtility();
+				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "PO Purchase Details", identity.CompanyId, identity.PlantName, "");
+				worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+				//worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+				worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+				worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				#region Freeze Panes
+
+				worksheet.IsDisplayZeros = false;
+				worksheet.UsedRange["A7"].FreezePanes();
+				worksheet.FirstVisibleColumn = 1;
+				worksheet.FirstVisibleRow = 6;
+
+				#endregion Freeze Panes
+
+				return workbook;
+			}
+			catch (Exception ex)
+			{
+				throw (ex);
+
+			}
+		}
+
+		public DataTable getInventoryDashboardDetailsReportSql(string poPurchaseDetailsId)
+        {
+            try
+            {
 				string sql = @"SELECT  IR.Id AS POmasterId,IM.InventoryReceiveId
 		                        ,IM.Id AS InventoryReceiveDetailId
 		                        ,MGM.UserName AS MaterialGroupName
@@ -28153,133 +28260,12 @@ UNION ALL
 	                        LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id = PT.AddressMasterId
                             LEFT JOIN (select MRD.Id,MRD.MaterialDetail, Sum(MRD.TransactionQty) ReqTransactionQty from TRN.MaterialRequsitionDetails MRD group By MRD.Id,MRD.MaterialDetail) ccc On ccc.Id=IM.RequisitionDetailId  
                             where IM.InventoryMaterialId is  null AND IM.QtyStatus=0";
-
-
-				ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-				objCon.OpenDataSetThroughAdapter(sql, out System.Data.DataSet dsData, false, "1");
-
-
-				if (dsData.Tables[0].Rows.Count == 0)
-				{
-					throw new Exception("No Data Found");
-				}
-
-				ROW++;
-				int StartDataRow = ROW;
-
-				for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
-				{
-					//worksheet[ROW, colSLNO].Number = i + 1;
-					worksheet[ROW, colPONo].Text = dsData.Tables[0].Rows[i]["POmasterId"].ToString();
-					worksheet[ROW, colPODetailsId].Text = dsData.Tables[0].Rows[i]["InventoryReceiveDetailId"].ToString();
-					worksheet[ROW, colRequisitionId].Text = dsData.Tables[0].Rows[i]["RequisitionId"].ToString();
-					worksheet[ROW, colMaterialGroupName].Text = dsData.Tables[0].Rows[i]["MaterialGroupName"].ToString();
-					worksheet[ROW, colMaterialName].Text = dsData.Tables[0].Rows[i]["MaterialName"].ToString();
-					worksheet[ROW, colArticle].Text = dsData.Tables[0].Rows[i]["Article"].ToString();
-					worksheet[ROW, colSku1].Text = dsData.Tables[0].Rows[i]["Sku1"].ToString();
-					worksheet[ROW, colSku2].Text = dsData.Tables[0].Rows[i]["Sku2"].ToString();
-					worksheet[ROW, colSku3].Text = dsData.Tables[0].Rows[i]["Sku3"].ToString();
-					worksheet[ROW, colMaterialDetail].Text = dsData.Tables[0].Rows[i]["MaterialDetail"].ToString();
-
-					worksheet[ROW, colTransactionQty].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TransactionQty"].ToString());
-					worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
-					
-					worksheet[ROW, colGRNRcvQty].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GRNRcvQty"].ToString());
-					worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
-
-					worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Balance"].ToString());
-					worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-					worksheet[ROW, colTransactionUoM].Text = dsData.Tables[0].Rows[i]["TransactionUoM"].ToString();
-
-					worksheet[ROW, colTransactionRate].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TransactionRate"].ToString());
-					worksheet[ROW, colTransactionRate].NumberFormat = "#,##0.00;(#,##0.00)";
-
-					worksheet[ROW, colCurrencyName].Text = dsData.Tables[0].Rows[i]["CurrencyName"].ToString();
-
-					worksheet[ROW, colTotalAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TotalAmount"].ToString());
-					worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-					ROW++;
-				}
-
-				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-				worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-
-                worksheet[ROW, colTransactionQty - 1].Text = "Total";
-                worksheet[ROW, colTransactionQty - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colTransactionQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTransactionQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTransactionQty) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colGRNRcvQty].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colGRNRcvQty) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colGRNRcvQty].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colGRNRcvQty].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colTotalAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTotalAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTotalAmount) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colTotalAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                //worksheet[ROW, colBaseTaxAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBaseTaxAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBaseTaxAmount) + (ROW - 1).ToString() + ")";
-                //worksheet[ROW, colBaseTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[ROW, colBaseTaxAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                //worksheet[ROW, colChargesAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colChargesAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colChargesAmount) + (ROW - 1).ToString() + ")";
-                //worksheet[ROW, colChargesAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[ROW, colChargesAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                
-                worksheet.Range[ROW, colTransactionQty - 1, ROW, COL].CellStyle.Font.Bold = true;
-
-
-                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				ReportUtility reportUtility = new ReportUtility();
-				reportUtility.CompanyPlantHeader(ref worksheet, endCol, "PO Purchase Details", identity.CompanyId, identity.PlantName, "");
-				reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-				//worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
-				worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-				worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-
-
-				#region Freeze Panes
-
-				worksheet.IsDisplayZeros = false;
-				worksheet.UsedRange["A7"].FreezePanes();
-				worksheet.FirstVisibleColumn = 1;
-				worksheet.FirstVisibleRow = 6;
-
-				#endregion Freeze Panes
-
-
-
-				return workbook;
-
+				return _sqlRepository.GetDataTable(sql);
 			}
 			catch (Exception ex)
-			{
-				throw (ex);
-
-			}
-
-
-
-
-		}
-
+            {
+				throw ex;
+            }
+        }
 	}
 }
