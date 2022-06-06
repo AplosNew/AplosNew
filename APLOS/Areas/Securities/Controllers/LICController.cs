@@ -2,6 +2,7 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
+using aplosLicenseService;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data.Sql;
@@ -27,7 +28,7 @@ namespace Aplos.Areas.Securities.Controllers
 
 
         #region Constructor
-
+        EncDec encDec = new EncDec();
         private readonly ISqlRepository _sqlRepository;
         public LICController(ISqlRepository R)
         {
@@ -43,20 +44,28 @@ namespace Aplos.Areas.Securities.Controllers
             return View();
         }
 
-        [HttpGet,AllowAnonymous]
-        public JsonResult GetCbo()
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM MeetingType"), JsonRequestBehavior.AllowGet);
-        }
-
+      
         [HttpGet, Authorize]
         public ActionResult GetList()
         {
-            string sql = @"select * from SEC.LIC";
+            DataSet dsData;
+            string key = "@plosGlobalL1cens1ingServ1ce";
 
+            ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            con.OpenDataSetThroughAdapter("SELECT * FROM SEC.LIC", out dsData, false, "1");
+            if (dsData.Tables[0].Rows.Count > 0)
+            {
 
+                for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
+                {
+                    dsData.Tables[0].Rows[i]["LicKey1"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey1"].ToString(), key));
+                    dsData.Tables[0].Rows[i]["LicKey2"] = Convert.ToDateTime(EncDec.Decrypt(dsData.Tables[0].Rows[i]["LicKey2"].ToString(), key));
+                }
+            }
 
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsData.Tables[0]);
+
+            return Json(NewData, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -70,15 +79,12 @@ namespace Aplos.Areas.Securities.Controllers
         {
             try
             {
+              
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-               
-                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where   Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                //if (dsMaster.Tables[0].Rows.Count > 0)
-                //    throw new Exception("Code already exists!!!");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["id"] + "'", out dsMaster, false, "1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                string key = "@plosGlobalL1cens1ingServ1ce";
 
                 string _Id = "";
 
@@ -88,12 +94,24 @@ namespace Aplos.Areas.Securities.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(TableName), out _Id);
 
-                    data["Id"] = _Id;
+                    DateTime license1 = Convert.ToDateTime(EncDec.Encrypt(data["LicKey1"].ToString(), key));
+                    DateTime license2 = Convert.ToDateTime(EncDec.Encrypt(data["LicKey2"].ToString(), key));
+
+                    data["id"] = _Id;
+                    data["LicKey1"] = license1;
+                    data["LicKey2"] = license2;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    DateTime dateTime1 = Convert.ToDateTime(data["LicKey1"].ToString());
+                    DateTime dateTime2 = Convert.ToDateTime(data["LicKey2"].ToString());
+
+                    _Id = data["id"].ToString();
+                    var license1 = EncDec.Encrypt(dateTime1.ToString(), key);
+                    var license2 = EncDec.Encrypt(dateTime2.ToString(), key);
+                    data["LicKey1"] = license1;
+                    data["LicKey2"] = license2;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data update
@@ -103,7 +121,7 @@ namespace Aplos.Areas.Securities.Controllers
                 _info.SaveDataSets(dsMaster);
 
 
-                return Json(new { Error = false, Sequence = GetSequence(), Message = AplosMessage.Updated });
+                return Json(new { Error = false, Message = AplosMessage.Updated });
 
             }
             catch (Exception ex)
@@ -153,17 +171,6 @@ namespace Aplos.Areas.Securities.Controllers
                 {
                 }
             }
-
-
-
-           
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            //dr["UpdatedBy"] = identity.Name;
-            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            //dr["UpdatedFromIP"] = identity.IPAddress;
-
             dt.Rows.Add(dr);
         }
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
@@ -181,11 +188,6 @@ namespace Aplos.Areas.Securities.Controllers
                 {
                 }
             }
-
-            
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
 
             dr.EndEdit();
         }
