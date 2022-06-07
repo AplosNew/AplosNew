@@ -238,7 +238,78 @@ union
                             LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
                             WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"'  AND VDO.GLGeneralInfoId='" + glId + @"' AND VO.SourceType!='OpeningBalance' AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
 							GROUP BY GLGI.AccountCode,GLGI.UserName,  BG.UserName,BGM.Id)T
-							WHERE T.BudgetOpeningBalance<>0";
+							WHERE T.BudgetOpeningBalance<>0
+union
+
+							SELECT * FROM 
+							  (SELECT 
+                              0 CompanyCurrencyDrAmount, 0 CompanyCurrencyCrAmount, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,  BG.UserName AS BudgetName 
+                           ,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate <='" + fromDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)BudgetOpeningBalance
+						,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyCL
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate <='" + toDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)BudgetClosingBalance
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"'   AND VD.GLGeneralInfoId='" + glId + @"' AND V.SourceType='OpeningBalance' --AND V.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
+							AND BGM.Id NOT IN(SELECT  VDO.BudgetMasterId 
+							 FROM [TRN].[VoucherDetail] AS VDO
+                            LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VDO.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"'  AND VDO.GLGeneralInfoId='" + glId + @"' AND VO.SourceType!='OpeningBalance' ) --AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
+							GROUP BY GLGI.AccountCode,GLGI.UserName,  BG.UserName,BGM.Id)T ";
         }
 
         private string BudgetSql(string glId, string budgetMasterId, string fromDate, string toDate)
@@ -384,7 +455,78 @@ union
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
                             WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND VDO.BudgetMasterId='" + budgetMasterId + @"'  AND VDO.GLGeneralInfoId='" + glId + @"' AND VO.SourceType!='OpeningBalance' AND   VO.PostingDate BETWEEN '" + fromDate+ @"' AND '" + toDate + @"' )
 							GROUP BY GLGI.AccountCode,GLGI.UserName,  BG.UserName,A.Id, A.UserName)T
-							WHERE T.ActivityOpeningBalance<>0";
+							WHERE T.ActivityOpeningBalance<>0
+union
+	SELECT * FROM 
+							  (SELECT 
+                             0 CompanyCurrencyDrAmount, 0 CompanyCurrencyCrAmount, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName,  BG.UserName AS BudgetName ,A.Id ActivityID, A.UserName AS ActivityName
+                           ,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyOB
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + fromDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'   AND VD.ActivityId=A.Id  AND V.PostingDate <='" + fromDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)ActivityOpeningBalance
+						,ISNULL(( SELECT SUM(CompanyCurrencyDrAmount)-SUM(CompanyCurrencyCrAmount) AS CompanyncyCL
+                         FROM (
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        UNION
+                        SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
+                        FROM [TRN].[Voucher] AS V
+                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
+                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
+	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
+	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
+                        ) AS CC ON CC.VoucherDetailId=VD.Id
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'   AND VD.ActivityId=A.Id  AND V.PostingDate <='" + toDate + @"' AND V.SourceType='OpeningBalance'
+                        GROUP BY CC.CompanyCurrencyId
+                        ) AS X GROUP BY X.CompanyCurrencyId ),0)ActivityClosingBalance
+                            FROM [TRN].[VoucherDetail] AS VD
+                            LEFT JOIN [TRN].[Voucher] V ON V.Id=VD.VoucherId
+                            LEFT join HKP.Party as P on VD.PartyId = p.Id
+                            LEFT JOIN [SCS].[Currency] AS C ON C.Id=VD.CurrencyId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
+							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
+                            WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.GLGeneralInfoId='" + glId + @"' AND V.SourceType='OpeningBalance' --AND   V.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
+							AND A.Id NOT IN(SELECT  VDO.ActivityId 
+							 FROM [TRN].[VoucherDetail] AS VDO
+                            LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
+                            LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VDO.GLGeneralInfoId
+                            LEFT JOIN [MST].[BudgetMaster] AS BGM ON BGM.Id=VDO.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BGM.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS A ON A.Id=VDO.ActivityId
+                            WHERE VO.Archive=0 AND VO.IsPark=0 AND VO.CompanyGroupId='" + identity.CompanyGroupId + @"' AND VO.CompanyId='" + identity.CompanyId + @"' AND VO.PlantId='" + identity.PlantId + @"' AND VDO.BudgetMasterId='" + budgetMasterId + @"'  AND VDO.GLGeneralInfoId='" + glId + @"' AND VO.SourceType!='OpeningBalance' ) --AND   VO.PostingDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' )
+							GROUP BY GLGI.AccountCode,GLGI.UserName,  BG.UserName,A.Id, A.UserName)T ";
         }
 
         public IWorkbook GetGeneralLedgerGroupReport(string companyGroupId, string companyId, string plantId, string plantName, string glId, string budgetMasterId, string fromDate, string toDate)

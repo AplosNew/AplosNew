@@ -291,8 +291,8 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0)FABaseAmount
 									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
-									,isnull( FR.ADBaseAmount,0)ADBaseAmount
-                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+									,isnull( FR.ADBaseAmount,0) + ISNULL(FADP.FixedAssetDepreciationAmount,0) ADBaseAmount
+                                    ,isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) - ISNULL(FADP.FixedAssetDepreciationAmount,0) NetBaseBookValue 
 									, 0 NegotiationValue,0 BaseNagotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
@@ -328,6 +328,7 @@ namespace Library.Accounting.FixedAssets
 								   LEFT JOIN HKP.Budget B ON B.Id=BM.BudgetId
 								   LEFT JOIN HKP.Activity A ON A.Id=FR.FAActivityId
 								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM TRN.SubFixedAssetRegister group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+								   LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
                                    WHERE FR.CompanyId= '" + companyId + @"'  and FR.Archive= 0 and FR.IsAUC= 0 AND FR.Status IS NULL ) AS TEMP WHERE " + strkey + " order by SerialNo ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -1773,8 +1774,8 @@ namespace Library.Accounting.FixedAssets
 				 ,sum( ISNULL(FAR.FABaseAmount,0))FABaseAmount
 				  ,sum( isnull(sar.SubAssetAmount,0))SubAssetAmount
 				  ,sum(ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) ) TotalBaseAmount
-				 ,sum( ISNULL(FAR.ADBaseAmount,0)) ADBaseAmount
-				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) NetFixedAssetsAmount
+				 ,sum( ISNULL(FAR.ADBaseAmount,0)) + SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) ADBaseAmount
+				 ,sum( ISNULL(FAR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FAR.ADBaseAmount,0) ) - SUM(ISNULL(FADP.FixedAssetDepreciationAmount,0)) NetFixedAssetsAmount
 				  --,TotalAssetsBaseAmount= sum( ISNULL(FAR.FABaseAmount,0) + (isnull(sar.SubAssetAmount,0) )) 
 
 
@@ -1792,7 +1793,7 @@ namespace Library.Accounting.FixedAssets
 		        left join(select sum(Amount * CapitalizationRate) SubAssetAmount,FixedAssetRegisterId from  trn.SubFixedAssetRegister
 				group by FixedAssetRegisterId
 				) sar on sar.FixedAssetRegisterId=FAR.Id
-
+				LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FAR.Id
 
 		        WHERE FAR.CompanyGroupId='" + companyGroupId + "' AND FAR.CompanyId='" + companyId + "' AND FAR.PlantId='" + plantId + @"'  AND FAR.Status is null
 				  --and FAR.MaterialMasterId in (" + materialMasterId + ") AND FAR.MaterialMasterArticleId in (" + materialMasterArticleId + ") AND FAR.FixedAssetMasterId in (" + fixedAssetMasterId + @")
