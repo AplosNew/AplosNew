@@ -4,25 +4,11 @@ function LICController(cboService, commonMessage, $scope, $rootScope, baseServic
     $rootScope.title = 'LIC';
     $scope.Action = 'Save';
     $scope.LICModelList = [];
-    $scope.path = 'Securities/LICController/';
+    $scope.path = 'Securities/LIC/';
     $scope.getListUrl = $scope.path + 'getlist';
-    $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'create';
-    $scope.deleteUrl = $scope.path + 'delete/';
     $scope.Action = 'Save';
 
-    $scope.getLICData = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetList",
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.LICModelList = response.data;
-        });
-    }
-    $scope.getLICData();
-
-    
     $scope.ModelTemp = {
         Id: null,
         LicKey1: null,
@@ -30,22 +16,33 @@ function LICController(cboService, commonMessage, $scope, $rootScope, baseServic
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    //$scope.GetSequence = function () {
-    //    cboService.getSequence($scope.getSeqUrl, function (data) {
-    //        $scope.ModelTemp.Sequence = data;
-    //        $scope.ModelNew.Sequence = data;
-    //    });
+    $scope.getLICData = function () {
+        $scope.LICModelList = [];
+        $http({
+            method: 'GET',
+            url: $scope.getListUrl,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.LICModelList = response.data;
+            if (baseService.arrayLength($scope.LICModelList)>0) {
+                $scope.ModelNew = Object.assign({}, response.data[0]);
+                $scope.ModelNew.LicKey1 = $filter('dateFiltering')($scope.ModelNew.LicKey1, 'dd-M-yyyy');
+                $scope.ModelNew.LicKey2 = $filter('dateFiltering')($scope.ModelNew.LicKey2, 'dd-M-yyyy');
+            }
+
+        });
+    }
+    $scope.getLICData();
+
+    //$scope.Get = function (args) {
+    //    $scope.ModelNew = Object.assign({}, args.data);
+    //    $scope.ModelNew.LicKey1 = $filter('dateFiltering')($scope.ModelNew.LicKey1, 'dd-M-yyyy');
+    //    $scope.ModelNew.LicKey2 = $filter('dateFiltering')($scope.ModelNew.LicKey2, 'dd-M-yyyy');
+    //    $scope.Action = 'Update';
+    //    if (!$rootScope.isCollapsed) {
+    //        $rootScope.toggle();
+    //    }
     //};
-    //$scope.GetSequence();
-
-    $scope.Get = function (args) {
-
-        $scope.ModelNew = Object.assign({}, args.data);
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
-    };
 
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
@@ -61,7 +58,6 @@ function LICController(cboService, commonMessage, $scope, $rootScope, baseServic
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    //ClearFields(response.data.Sequence);
                     $scope.getLICData();
 
                 }
@@ -72,36 +68,5 @@ function LICController(cboService, commonMessage, $scope, $rootScope, baseServic
         }
     };
 
-    //$scope.Delete = function () {
-    //    if (!baseService.isUndefinedOrNull($scope.ModelNew.Id)) {
-    //        $http({
-    //            method: 'POST',
-    //            url: $scope.deleteUrl + $scope.ModelNew.Id,
-    //            dataType: 'JSON'
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, 'failure');
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, 'success');
-    //                ClearFields(response.data.Sequence);
-    //                $scope.getData();
-    //            }
-    //            function errorCallBack(response) {
-    //                ShowResult(response.data.Message, 'failure'); 
-    //            }
-    //        });
-    //    } 
-    //};
-
-    //$scope.Clear = function () {
-    //    ClearFields($scope.GetSequence());
-    //    return true;
-    //};
-
-    //function ClearFields(seq) {
-    //    $scope.Action = 'Save';
-    //    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-    //    $scope.ModelNew.Sequence = seq;
-    //}
+    
 }

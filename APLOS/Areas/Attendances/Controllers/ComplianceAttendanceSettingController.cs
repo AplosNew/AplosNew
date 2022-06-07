@@ -495,8 +495,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 , DayValue = ISNULL(TotalPresent, 0) + ISNULL(TotalLate, 0) + ISNULL(TotalLv, 0) + ISNULL(TotalMLv, 0) + ISNULL(TotalWeekOff, 0)
                                 + ISNULL(TotalCompAssignLv, 0) + ISNULL(TotalHoliDay, 0) + ISNULL(TotalWeekOffHoliDay, 0),Category,DayStatus
                                 FROM(SELECT EmpSystemID, WorkDate, EmployeeCode,Category,DayStatus,
+
                                 TotalPresent = CASE WHEN Category = 'Present' and LTSystemID is null THEN 1
                                 WHEN Category = 'Present' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
+                                WHEN Category = 'Late' and LTSystemID is null THEN 1
                                 WHEN Category = 'Leave' and LTSystemID is not null and LeaveDuration<1 THEN (1-LeaveDuration)
                                 WHEN Category = 'Half Day' and LTSystemID is not null THEN (1-LeaveDuration)
                                 WHEN Category = 'Half Day' and LTSystemID is null THEN 0.5
@@ -524,9 +526,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 TotalMLv = 0,
                                 TotalCompAssignLv = 0,
 
-                                TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
-								                       WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
-                                                        WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+                               -- TotalWeekOff = CASE WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                       -- WHEN OriginalDayType = 'W' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+								                       -- WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
+								                       -- WHEN OriginalDayType = 'CW' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=0 THEN 1
+
+                                TotalWeekOff = CASE WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTEntitle=1 and a.IsOTEntitled=0 THEN 1
+								                       WHEN Category = 'Weekend' and c.IsNoPunchOnWeekOffForOTNotEntitle=1 and a.IsOTEntitled=1 THEN 1
                                 ELSE 0 END,
                                 
                                 TotalHoliDay = CASE WHEN p.OriginalDayType = 'H' AND C.IsNoPunchOnHolidayForOTEntitle=1 AND A.IsOTEntitled=0 THEN 1
@@ -1407,7 +1413,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1418,7 +1425,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1430,7 +1438,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1442,7 +1451,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
+                                    sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].RowHeight = 13;
                                     sheet1.Range[xlsRow, iDayStatus].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iDayStatus].VerticalAlignment = ExcelVAlign.VAlignCenter;

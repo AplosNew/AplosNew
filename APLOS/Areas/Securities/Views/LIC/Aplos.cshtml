@@ -16,22 +16,23 @@
         width: 50px;
     }
 </style>
-<togglable name="{{title}}"></togglable>
+
+<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span>{{title}}</h3>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
        
-        <div class="form-group" show-errors id="div_FromDate">
+        <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
             <div class="col-sm-9 show-message">
-                <input type="text" name="Form Date" ng-model="ModelNew.LicKey1" datepicker tabindex="1" class="form-control">
+                <input type="text" name="Form Date" ng-model="ModelNew.LicKey1" datepicker required class="form-control" tabindex="3">
             </div>
         </div>
 
-        <div class="form-group" show-errors id="div_ToDate">
+        <div class="form-group" show-errors>
             <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
             <div class="col-sm-9  show-message">
-                <input type="text" name="To Date" ng-model="ModelNew.LicKey2" datepicker tabindex="2" class="form-control">
+                <input type="text" name="To Date" ng-model="ModelNew.LicKey2" datepicker required class="form-control" tabindex="3">
             </div>
         </div>
 
@@ -39,41 +40,19 @@
     <div class="common-btn">
         <ul class="list-inline text-right">
             <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-            <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-            <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
     </div>
 </div>
-<div class="row text-right aplos-grid-toggle">
-    <div class="col-xs-12 col-sm-12 col-sm-12">
-        <div class="search-form">
-            <div class="row">
-                <div class="col-xs-12 col-sm-3 col-md-3">
-                    <div class="select-style">
-                        <select ng-model="searchBy">
-                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-7 col-md-7">
-                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
-                </div>
-                <div class="col-xs-12 col-sm-2 col-md-2">
-                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="LICModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+
+@*<div class="table-responsive aplos-grid-toggle">
+    <div id="GridEdit" ng-init="chkinit()" ej-grid e-datasource="LICModelList" e-recorddoubleclick="Get"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
-            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
-            <div e-column e-field="LicKey2" e-headertext="From Date" e-width="3"></div>
-            <div e-column e-field="LicKey1" e-headertext="To Date" e-width="2"></div>
+            <div e-column e-field="id" e-headertext="Id" e-width="2" e-isprimarykey="true"></div>
+            <div e-column e-field="LicKey1" e-headertext="From Date" e-width="3"></div>
+            <div e-column e-field="LicKey2" e-headertext="To Date" e-width="2"></div>
         </div>
     </div>
-</div>
+</div>*@
 <confirm-modal></confirm-modal>
