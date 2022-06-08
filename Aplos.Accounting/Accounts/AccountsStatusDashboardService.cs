@@ -394,17 +394,22 @@ namespace Library.Accounting.Accounts
         }
 
         //Summary Report
-        public IWorkbook GetPartyPaymentStatusReport(ExcelEngine excelEngine, string MasterLCList, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetPartyPaymentStatusReport(/*ExcelEngine excelEngine,*/ Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
         {
-            excelEngine = new ExcelEngine();
-            //Instantiate the Excel application object
-            IApplication application = excelEngine.Excel;
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
 
-            //Set the default application version
-            application.DefaultVersion = ExcelVersion.Excel2013;
+            //excelEngine = new ExcelEngine();
+            ////Instantiate the Excel application object
+            //IApplication application = excelEngine.Excel;
 
-            //Load the existing Excel workbook into IWorkbook
-            IWorkbook workbook = application.Workbooks.Create(1);
+            ////Set the default application version
+            //application.DefaultVersion = ExcelVersion.Excel2013;
+
+            ////Load the existing Excel workbook into IWorkbook
+            //IWorkbook workbook = application.Workbooks.Create(1);
 
             //Get the first worksheet in the workbook into IWorksheet
             IWorksheet worksheet = workbook.Worksheets[0];
@@ -492,50 +497,6 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, COL].ColumnWidth = 15;
                 COL++;
 
-                //worksheet[ROW, COL].Text = "Currency";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //int colCurrencyCode = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Gross";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colGrossTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Debit Note";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colDebitNoteTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Discount";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranDiscountAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Tax";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranTaxAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Payment";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colSetOff = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Balance";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colBalance = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-
-                //TodayBalance
                 worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colODueMoreThan30 = COL;
@@ -598,7 +559,19 @@ namespace Library.Accounting.Accounts
 
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-               
+
+                string masterLCList = "''";
+
+
+                for (int i = MasterLCList.Count - 1; i >= 0; i--)
+                {
+                    var item = MasterLCList.ElementAt(i);
+                    var itemKey = item.Key;
+                    var itemValue = item.Value;
+                    masterLCList += ",'" + itemValue + "'";
+                }
+
+
                 string sql = @"--select * from TRN.Advance where SourceType='VendorAdvance' and PartyId='2021242'
                 DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='"+ plantId + @"')
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
@@ -748,7 +721,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','EmployeePayable')
-               AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + MasterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
 
                         UNION ALL
                         SELECT IV.PartyId NoOfInvoice,IV.PartyId, IV.PartyPlantId,P.Code PartyCode,P.UserName PartyName, PP.UserName AS PartyPlantName
@@ -855,7 +828,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventoryPayable','ServicePayable')
-                 AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + MasterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+                 AND IV.CompanyGroupId='" + companyGroupId + "'  and IV.PartyId in 	(" + masterLCList + @")  AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 AND IR.PurchaseDocumentAcceptanceId IS NULL
 
                         union all
@@ -963,7 +936,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('VendorPayment','CreditNote')
-               and IV.PartyId in 	(" + MasterLCList + @") AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
+               and IV.PartyId in 	(" + masterLCList + @") AND IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
 
                         )
                         X
@@ -1017,25 +990,6 @@ group by Id) O60 ON O60.Id=IV.Id
 
                     worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
                     worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colGrossTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GrossTranAmount"].ToString());
-                    // worksheet[ROW, colGrossTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    //worksheet[ROW, colSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["SetOff"].ToString());
-                    //worksheet[ROW, colSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colDebitNoteTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteTranAmount"].ToString());
-                    // worksheet[ROW, colDebitNoteTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colTranDiscountAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranDiscountAmount"].ToString());
-                    // worksheet[ROW, colTranDiscountAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    //  worksheet[ROW, colTranTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranTaxAmount"].ToString());
-                    // worksheet[ROW, colTranTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Balance"].ToString());
-                    //  worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
 
                     worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
                     worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -1129,6 +1083,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Party Payment Status Summary", identity.CompanyId, identity.PlantName, "");
                 reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
                 //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 

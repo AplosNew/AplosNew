@@ -492,6 +492,7 @@
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeGLController.cs" />
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeController.cs" />
     <Compile Include="Areas\Commercial\Controllers\ProformaInvoiceController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOQStatusReportController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQPurchaseOrderController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQCostingApprovalSettingController.cs" />
@@ -1871,6 +1872,7 @@
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
+    <Content Include="Areas\Costings\Scripts\BOQStatusReportController.js" />
     <Content Include="Areas\Costings\Scripts\BOQCostingApprovalSettingController.js" />
     <Content Include="Areas\Costings\Scripts\BOQApprovalController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
@@ -4170,6 +4172,8 @@
     <Content Include="Areas\HumanResource\Views\Fuguai\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiTransaction\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ZoneMaster\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQStatusReport\Approval.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
