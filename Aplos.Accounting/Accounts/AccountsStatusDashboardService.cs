@@ -394,7 +394,7 @@ namespace Library.Accounting.Accounts
         }
 
         //Summary Report
-        public IWorkbook GetPartyPaymentStatusReport(/*ExcelEngine excelEngine,*/ Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
+        public IWorkbook GetPartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -560,8 +560,176 @@ namespace Library.Accounting.Accounts
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
 
-                string masterLCList = "''";
 
+
+                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                var dsData = vendorReportSQL(MasterLCList, companyGroupId, companyId, plantId);
+
+                //objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
+
+
+                if (dsData.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found");
+                }
+
+                ROW++;
+                int StartDataRow = ROW;
+
+                for (int i = 0; i < dsData.Rows.Count; i++)
+                {
+                    //  worksheet[ROW, colSLNO].Number = (i + 1);
+                    worksheet[ROW, colSLNO].Number = i + 1;
+                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
+                    worksheet[ROW, colPartyCode].Text = dsData.Rows[i]["PartyCode"].ToString();
+
+                    worksheet[ROW, colPartyName].Text = dsData.Rows[i]["PartyName"].ToString();
+                    worksheet[ROW, colPartyCountry].Text = dsData.Rows[i]["PartyCountry"].ToString();
+
+                    worksheet[ROW, colPartyPlantName].Text = dsData.Rows[i]["PartyPlantName"].ToString();
+                    //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
+                    worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksGross"].ToString());
+                    worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksSetOff"].ToString());
+                    worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colDebitNoteAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["DebitNoteAmount"].ToString());
+                    worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colBooksDiscount].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksDiscountAmount"].ToString());
+                    worksheet[ROW, colBooksDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksTaxAmount"].ToString());
+                    worksheet[ROW, colTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
+                    worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Rows[i]["Advance"].ToString());
+                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan30"].ToString());
+                    worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan15"].ToString());
+                    worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueLessThan15"].ToString());
+                    worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                    worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["TodayBalance"].ToString());
+                    worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["OneToSevenBalance"].ToString());
+                    worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["EightToThirtyBalance"].ToString());
+                    worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ThirtyToSixtyBalance"].ToString());
+                    worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Rows[i]["Onword60"].ToString());
+                    worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    ROW++;
+                }
+
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksGross - 1].Text = "Total";
+                worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colBooksGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksGross) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksGross) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksSetOff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksSetOff) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksSetOff) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Party Payment Status Summary", identity.CompanyId, identity.PlantName, "");
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+                #region Freeze Panes
+
+                worksheet.IsDisplayZeros = false;
+                worksheet.UsedRange["A7"].FreezePanes();
+                worksheet.FirstVisibleColumn = 1;
+                worksheet.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+
+
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+
+            }
+        }
+
+        public DataTable vendorReportSQL(Dictionary<string, string> MasterLCList, string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
+
+                string masterLCList = "''";
 
                 for (int i = MasterLCList.Count - 1; i >= 0; i--)
                 {
@@ -573,7 +741,7 @@ namespace Library.Accounting.Accounts
 
 
                 string sql = @"--select * from TRN.Advance where SourceType='VendorAdvance' and PartyId='2021242'
-                DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='"+ plantId + @"')
+                DECLARE @plantCountryId varchar(10)= (SELECT CountryId FROM ORG.Plant p join MST.AddressMaster m on m.Id=p.AddressMasterId WHERE p.Id='" + plantId + @"')
                         SELECT count(X.NoOfInvoice) NoOfInvoice,convert(bit,0) AS isSelected,X.PartyId,X.PartyPlantId,X.PartyCode,X.PartyName,X.PartyPlantName
                         --,x.CurrencyCode
                             ,x.PartyCountry
@@ -664,7 +832,7 @@ namespace Library.Accounting.Accounts
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount-A.WrittenOffAmount) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='" + plantId+ @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -779,7 +947,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='" + plantId+ @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -879,7 +1047,7 @@ group by Id) O60 ON O60.Id=IV.Id
 
                         --********vendor Advance***********
                         LEFT JOIN (SELECT A.PartyId,sum(A.Amount) AdvanceAmount FROM TRN.Advance A
-                        where A.PlantId='" + plantId+ @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
+                        where A.PlantId='" + plantId + @"' and A.SourceType='VendorAdvance' and A.IsWrittenOff=0
                         group by A.PartyId
                         ) Ad ON Ad.PartyId=IV.PartyId
 
@@ -946,173 +1114,13 @@ group by Id) O60 ON O60.Id=IV.Id
                             ,Advance
                             order by X.PartyName";
 
-
-                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
-
-
-                if (dsData.Tables[0].Rows.Count == 0)
-                {
-                    throw new Exception("No Data Found");
-                }
-
-                ROW++;
-                int StartDataRow = ROW;
-
-                for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
-                {
-                    //  worksheet[ROW, colSLNO].Number = (i + 1);
-                    worksheet[ROW, colSLNO].Number = i + 1;
-                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["NoOfInvoice"].ToString());
-                    worksheet[ROW, colPartyCode].Text = dsData.Tables[0].Rows[i]["PartyCode"].ToString();
-
-                    // worksheet[ROW, colPartyId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyId"].ToString());
-                    // worksheet[ROW, colPartyPlantId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyPlantId"].ToString());
-                    worksheet[ROW, colPartyName].Text = dsData.Tables[0].Rows[i]["PartyName"].ToString();
-                    worksheet[ROW, colPartyCountry].Text = dsData.Tables[0].Rows[i]["PartyCountry"].ToString();
-
-                    worksheet[ROW, colPartyPlantName].Text = dsData.Tables[0].Rows[i]["PartyPlantName"].ToString();
-                    //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
-                    worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksGross"].ToString());
-                    worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksSetOff"].ToString());
-                    worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colDebitNoteAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteAmount"].ToString());
-                    worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colBooksDiscount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksDiscountAmount"].ToString());
-                    worksheet[ROW, colBooksDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksTaxAmount"].ToString());
-                    worksheet[ROW, colTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksBalance"].ToString());
-                    worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Advance"].ToString());
-                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
-                    worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan15"].ToString());
-                    worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueLessThan15"].ToString());
-                    worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                    worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TodayBalance"].ToString());
-                    worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OneToSevenBalance"].ToString());
-                    worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["EightToThirtyBalance"].ToString());
-                    worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ThirtyToSixtyBalance"].ToString());
-                    worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Onword60"].ToString());
-                    worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    ROW++;
-                }
-
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colBooksGross - 1].Text = "Total";
-                worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colBooksGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksGross) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksGross) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colBooksSetOff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksSetOff) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksSetOff) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
-                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Party Payment Status Summary", identity.CompanyId, identity.PlantName, "");
-                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-
-
-                #region Freeze Panes
-
-                worksheet.IsDisplayZeros = false;
-                worksheet.UsedRange["A7"].FreezePanes();
-                worksheet.FirstVisibleColumn = 1;
-                worksheet.FirstVisibleRow = 6;
-
-                #endregion Freeze Panes
-
-
-
-                return workbook;
-
+                return _sqlRepository.GetDataTable(sql);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                throw (ex);
-
+                throw ex;
             }
-
-
-
-
         }
-
         //Detail Or Aging Report
         public string GetPartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string CompanyGroupId, string CompanyId, string PlantId,  string SheetName) 
         {
@@ -3571,24 +3579,6 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-                //worksheet[ROW, COL].Text = "Books Credit Note";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colDebitNoteAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Books Discount";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colBooksDiscount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Books Tax";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTaxAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
                 worksheet[ROW, COL].Text = "Books Set-Off";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colBooksSetOff = COL;
@@ -3601,50 +3591,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-                //worksheet[ROW, COL].Text = "Currency";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                //int colCurrencyCode = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Gross";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colGrossTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Debit Note";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colDebitNoteTranAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Discount";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranDiscountAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Tax";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colTranTaxAmount = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Payment";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colSetOff = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-                //worksheet[ROW, COL].Text = "Balance";
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                //int colBalance = COL;
-                //worksheet[ROW, COL].ColumnWidth = 15;
-                //COL++;
-
-
-                //TodayBalance
+               
                 worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colODueMoreThan30 = COL;
@@ -3707,6 +3654,162 @@ group by Id) O60 ON O60.Id=IV.Id
 
 
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+
+                var dsData = CustomerReporSQL (masterCustomerReceiptSummaryList, companyGroupId, companyId, plantId);
+
+                //ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
+
+
+                if (dsData.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found");
+                }
+
+
+                //con.getDataSet(@"Select * from EmployeeInformation", out DataSet dsData);
+                //left join EmpDateWiseShiftAssign on ei.EmployeeCode=EmpDateWiseShiftAssign.GroupID
+                ROW++;
+                int StartDataRow = ROW;
+
+                for (int i = 0; i < dsData.Rows.Count; i++)
+                {
+                    //  worksheet[ROW, colSLNO].Number = (i + 1);
+                    worksheet[ROW, colSLNO].Number = i + 1;
+                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Rows[i]["NoOfInvoice"].ToString());
+                    worksheet[ROW, colPartyCode].Text = dsData.Rows[i]["PartyCode"].ToString();
+
+                   
+                    worksheet[ROW, colPartyName].Text = dsData.Rows[i]["PartyName"].ToString();
+                    worksheet[ROW, colPartyPlantName].Text = dsData.Rows[i]["PartyPlantName"].ToString();
+                    //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
+                    worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksGrossSales"].ToString());
+                    worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksReceipts"].ToString());
+                    worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    
+                    worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
+                    worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan30"].ToString());
+                    worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan15"].ToString());
+                    worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueLessThan15"].ToString());
+                    worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+
+
+                    worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["TodayBalance"].ToString());
+                    worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                    worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["OneToSevenBalance"].ToString());
+                    worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["EightToThirtyBalance"].ToString());
+                    worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ThirtyToSixtyBalance"].ToString());
+                    worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Rows[i]["Onword60"].ToString());
+                    worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksAdvance"].ToString());
+                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    ROW++;
+                }
+
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //colGross = COL;
+                worksheet[ROW, colBooksGross - 1].Text = "Total";
+                worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colBooksGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksGross) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksGross) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksSetOff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksSetOff) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksSetOff) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+
+                worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Financial Dashboard Customer Receipt Summary", identity.CompanyId, identity.PlantName, "");
+                worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                return workbook;
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+
+            }
+
+
+
+
+        }
+
+        public DataTable CustomerReporSQL(string masterCustomerReceiptSummaryList, string companyGroupId, string companyId, string plantId)
+        {
+            try
+            {
                 string sql = @"SELECT ISNULL( count(X.NoOfInvoice),0 )NoOfInvoice, convert(bit,0) AS isSelected
                     ,ISNULL( X.PartyId,'')PartyId,ISNULL( X.PartyPlantId,'')PartyPlantId,ISNULL( X.PartyCode,'')PartyCode
                     ,ISNULL( X.PartyName,'')PartyName,ISNULL( X.PartyPlantName,'')PartyPlantName,ISNULL( x.CurrencyCode,'')CurrencyCode
@@ -3775,7 +3878,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan30 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-30 
 							and I.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice') 
-                            and  I.CompanyGroupId='" + companyGroupId+"'   AND I.CompanyId='"+companyId+"' AND I.PlantId='"+plantId+ @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
+                            and  I.CompanyGroupId='" + companyGroupId + "'   AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + @"' and I.Archive=0 AND I.IsWrittenOff=0 AND I.IsWrittenOff=0 AND i.IsPark=0
                             group by Id) OM30 ON OM30.Id=IV.Id
 				LEFT JOIN (SELECT Id,SUM(ISNULL(I.Amount - I.WrittenOffAmount,0)) AS ODueMoreThan15 FROM TRN.Invoice I 
 							WHERE DATEDIFF(DAY, GETDATE(),I.ActualDueDate)<-15 and DATEDIFF(DAY, GETDATE(),I.ActualDueDate)>=-30
@@ -3824,7 +3927,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
-                  and IV.PartyId in (" + masterCustomerReceiptSummaryList + @")   and  IV.CompanyGroupId='"+companyGroupId+"'   AND IV.CompanyId='"+companyId+"' AND IV.PlantId='"+plantId+ @"'
+                  and IV.PartyId in (" + masterCustomerReceiptSummaryList + @")   and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'
                 
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
@@ -3922,7 +4025,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0 AND IVD.IsBlock=0 AND IV.SourceType in ('InventorySales')
@@ -4021,7 +4124,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
                 FROM [TRN].[VoucherDetailCurrency] AS VDC
                 JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='"+companyId+@"'
+                WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
                 ) AS CC ON CC.VoucherDetailId=VD.Id
                 
                 WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND V.IsPark=0  AND IV.SourceType in ('CustomerReceipt')
@@ -4033,184 +4136,12 @@ group by Id) O60 ON O60.Id=IV.Id
                 GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,CurrencyCode,Advance
                 order by X.PartyName";
 
-
-                ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
-
-
-                if (dsData.Tables[0].Rows.Count == 0)
-                {
-                    throw new Exception("No Data Found");
-                }
-
-
-                //con.getDataSet(@"Select * from EmployeeInformation", out DataSet dsData);
-                //left join EmpDateWiseShiftAssign on ei.EmployeeCode=EmpDateWiseShiftAssign.GroupID
-                ROW++;
-                int StartDataRow = ROW;
-
-                for (int i = 0; i < dsData.Tables[0].Rows.Count; i++)
-                {
-                    //  worksheet[ROW, colSLNO].Number = (i + 1);
-                    worksheet[ROW, colSLNO].Number = i + 1;
-                    worksheet[ROW, colNoOfInvoice].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["NoOfInvoice"].ToString());
-                    worksheet[ROW, colPartyCode].Text = dsData.Tables[0].Rows[i]["PartyCode"].ToString();
-
-                    // worksheet[ROW, colPartyId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyId"].ToString());
-                    // worksheet[ROW, colPartyPlantId].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["PartyPlantId"].ToString());
-                    worksheet[ROW, colPartyName].Text = dsData.Tables[0].Rows[i]["PartyName"].ToString();
-                    worksheet[ROW, colPartyPlantName].Text = dsData.Tables[0].Rows[i]["PartyPlantName"].ToString();
-                    //worksheet[ROW, colCurrencyCode].Text = dsData.Tables[0].Rows[i]["CurrencyCode"].ToString();
-                    worksheet[ROW, colBooksGross].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksGrossSales"].ToString());
-                    worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colBooksSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksReceipts"].ToString());
-                    worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    //worksheet[ROW, colDebitNoteAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteAmount"].ToString());
-                    //worksheet[ROW, colDebitNoteAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    //worksheet[ROW, colBooksDiscount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksDiscountAmount"].ToString());
-                    //worksheet[ROW, colBooksDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    //worksheet[ROW, colTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksTaxAmount"].ToString());
-                    //worksheet[ROW, colTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksBalance"].ToString());
-                    worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                    // worksheet[ROW, colGrossTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["GrossTranAmount"].ToString());
-                    // worksheet[ROW, colGrossTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    //worksheet[ROW, colSetOff].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["SetOff"].ToString());
-                    //worksheet[ROW, colSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colDebitNoteTranAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["DebitNoteTranAmount"].ToString());
-                    // worksheet[ROW, colDebitNoteTranAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colTranDiscountAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranDiscountAmount"].ToString());
-                    // worksheet[ROW, colTranDiscountAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-                    //  worksheet[ROW, colTranTaxAmount].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TranTaxAmount"].ToString());
-                    // worksheet[ROW, colTranTaxAmount].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    // worksheet[ROW, colBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Balance"].ToString());
-                    //  worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-
-                    worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan30"].ToString());
-                    worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colODueMoreThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueMoreThan15"].ToString());
-                    worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colODueLessThan15].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OverDueLessThan15"].ToString());
-                    worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                    worksheet[ROW, colTodayBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["TodayBalance"].ToString());
-                    worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                    worksheet[ROW, colOneToSevenBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["OneToSevenBalance"].ToString());
-                    worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colEightToThirtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["EightToThirtyBalance"].ToString());
-                    worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colThirtyToSixtyBalance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["ThirtyToSixtyBalance"].ToString());
-                    worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colOnword60].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["Onword60"].ToString());
-                    worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    worksheet[ROW, colAdvance].Number = clsStaticInfo.dbl(dsData.Tables[0].Rows[i]["BooksAdvance"].ToString());
-                    worksheet[ROW, colAdvance].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                    ROW++;
-                }
-
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                //colGross = COL;
-                worksheet[ROW, colBooksGross - 1].Text = "Total";
-                worksheet[ROW, colBooksGross - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                //worksheet[ROW, colBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBalance) + (ROW - 1).ToString() + ")";
-                //worksheet[ROW, colBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                //worksheet[ROW, colBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colBooksGross].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksGross) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksGross) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksGross].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colBooksSetOff].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksSetOff) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksSetOff) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksSetOff].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                worksheet[ROW, colBooksBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colBooksBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colBooksBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan30].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colODueMoreThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueMoreThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueMoreThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet[ROW, colODueLessThan15].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueLessThan15) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueLessThan15) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colODueLessThan15].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colODueLessThan15].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colTodayBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colTodayBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colTodayBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colTodayBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colTodayBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colOneToSevenBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOneToSevenBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOneToSevenBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOneToSevenBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colEightToThirtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colEightToThirtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colEightToThirtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colEightToThirtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colThirtyToSixtyBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colThirtyToSixtyBalance) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colThirtyToSixtyBalance].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colThirtyToSixtyBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                worksheet[ROW, colOnword60].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colOnword60) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colOnword60) + (ROW - 1).ToString() + ")";
-                worksheet[ROW, colOnword60].NumberFormat = "#,##0.00;(#,##0.00)";
-                worksheet[ROW, colOnword60].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                worksheet.Range[ROW, colBooksGross - 1, ROW, COL].CellStyle.Font.Bold = true;
-                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
-                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
-
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Financial Dashboard Customer Receipt Summary", identity.CompanyId, identity.PlantName, "");
-                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
-                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                return workbook;
-
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
-                throw (ex);
-
+                throw ex;
             }
-
-
-
-
         }
 
         public string GetCustomerReceiptTaxYearId(string companyId) 
