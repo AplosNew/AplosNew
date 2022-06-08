@@ -369,14 +369,69 @@ namespace Aplos.Areas.Costings.Controllers
                 int ROW = 6; int COL = 1;
 
                 #region columns
+                sheet[ROW, COL].Text = "Row Id";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColRowId = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Sequence";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColSequence = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Item Ref No";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 10;
                 int ColItemRefNo = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Costing Item";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColCostingItem = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "BOQ Criteria";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColBOQCriteria = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                sheet[ROW, COL].ColumnWidth = 8;
+                int ColCurrency = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Vendor";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColVendor = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Material";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColMaterial = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Article";
+                sheet[ROW, COL].ColumnWidth = 20;
+                int ColArticle = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SKU1";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColSKU1 = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SKU2";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int ColSKU2 = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "SKU Description";
+                sheet[ROW, COL].ColumnWidth = 15;
+                int ColSKUDescription = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "PO Criteria";
+                sheet[ROW, COL].ColumnWidth = 12;
+                int ColPOCriteria = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "Consumption";
@@ -385,69 +440,86 @@ namespace Aplos.Areas.Costings.Controllers
                 COL++;
 
                 sheet[ROW, COL].Text = "BOM Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColBOMQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "BOQ UOM";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].ColumnWidth = 8;
                 int ColBOQUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "BOM Qty Base";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColBOMQtyBase = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Required Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColRequiredQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "PO BOQ Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColPOBOQQty = COL;
                 COL++;
                 sheet[ROW, COL].Text = "PO UOM";
-                sheet[ROW, COL].ColumnWidth = 22;
+                sheet[ROW, COL].ColumnWidth = 8;
                 int ColPOUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "PO Trn BO QQty";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColPOTrnBOQQty = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "PO Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColPOAmount = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Balance BOQ";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColBalanceBOQ = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "GRN Base Qty";
-                sheet[ROW, COL].ColumnWidth = 16;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColGRNBaseQty = COL;
                 COL++;
 
                 sheet[ROW, COL].Text = "GRN Amount";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColGRNAmount = COL;
                 COL++;
                 sheet[ROW, COL].Text = "GRN UOM";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 8;
                 int ColGRNUOM = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Balance PO Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColBalancePOQty = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Issue Base Qty";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColIssueBaseQty = COL;
                 COL++;
-                sheet[ROW, COL].Text = "IssueAmount";
-                sheet[ROW, COL].ColumnWidth = 12;
+
+                sheet[ROW, COL].Text = "Issue Amount";
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColIssueAmount = COL;
                 COL++;
-                sheet[ROW, COL].Text = "BalanceGRNQty";
-                sheet[ROW, COL].ColumnWidth = 6;
+
+                sheet[ROW, COL].Text = "Balance GRN Qty";
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int ColBalanceGRNQty = COL;
 
 
@@ -467,12 +539,23 @@ namespace Aplos.Areas.Costings.Controllers
 
                 for (int i = 0; i < data.Rows.Count; i++)
                 {
+                    sheet[ROW, ColRowId].Text = data.Rows[i]["RowId"].ToString();
                     sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
-                    sheet[ROW, ColItemRefNo].Text = clsStaticInfo.GetDate(data.Rows[i]["ItemRefNo"].ToString());
+                    sheet[ROW, ColItemRefNo].Text = data.Rows[i]["ItemRefNo"].ToString();
+                    sheet[ROW, ColCostingItem].Text = data.Rows[i]["CostingItem"].ToString();
+                    sheet[ROW, ColBOQCriteria].Text = data.Rows[i]["BOQCriteria"].ToString();
+                    sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+                    sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
+                    sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                    sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+                    sheet[ROW, ColSKU1].Text = data.Rows[i]["SKU1"].ToString();
+                    sheet[ROW, ColSKU2].Text = data.Rows[i]["SKU2"].ToString();
+                    sheet[ROW, ColSKUDescription].Text = data.Rows[i]["SKUDesc"].ToString();
+                    sheet[ROW, ColPOCriteria].Text = data.Rows[i]["POCriteria"].ToString();
                     sheet[ROW, ColConsumption].Text = data.Rows[i]["Consumption"].ToString();
                     sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQty"].ToString());
                     sheet[ROW, ColBOQUOM].Text = data.Rows[i]["BOQUOM"].ToString();
-                    sheet[ROW, ColBOMQtyBase].Text = data.Rows[i]["BOMQtyBase"].ToString();
+                    sheet[ROW, ColBOMQtyBase].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQtyBase"].ToString());
                     sheet[ROW, ColRequiredQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredQty"].ToString());
                     sheet[ROW, ColPOBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POBOQQty"].ToString());
                     sheet[ROW, ColPOUOM].Text = data.Rows[i]["POUOM"].ToString();
@@ -484,6 +567,7 @@ namespace Aplos.Areas.Costings.Controllers
                     sheet[ROW, ColGRNUOM].Text = data.Rows[i]["GRNUOM"].ToString();
                     sheet[ROW, ColBalancePOQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalancePOQty"].ToString());
                     sheet[ROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueBaseQty"].ToString());
+
                     sheet[ROW, ColIssueAmount].Number = clsStaticInfo.dbl(data.Rows[i]["IssueAmount"].ToString());
                     sheet[ROW, ColBalanceGRNQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceGRNQty"].ToString());
 
@@ -504,8 +588,8 @@ namespace Aplos.Areas.Costings.Controllers
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Costing BOQ Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -550,8 +634,10 @@ namespace Aplos.Areas.Costings.Controllers
             {
 
 
-                string strSQL = @"SELECT boq.[Sequence],boq.ItemRefNo,boq.Consumption,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
-										, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+                string strSQL = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article
+										,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
+										,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
+										,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
 										, grnboq.GRNBaseQty
 										, grnboq.GRNAmount
 										, grnboq.GRNUOM
@@ -561,7 +647,14 @@ namespace Aplos.Areas.Costings.Controllers
 										, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
 										FROM BOQ  boq
 										LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
-										--left join dbo.CostingMasterTemplate cmt on cmt.Id=boq.CostingItemId
+										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+										LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+										LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+										LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+										LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+									    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+
 										left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
 													FROM  trn.POBOQMAP pomap 
 													JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId

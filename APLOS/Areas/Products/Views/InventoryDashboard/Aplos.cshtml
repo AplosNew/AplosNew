@@ -1337,23 +1337,25 @@
 
 			</div>
 			<div>
-				<ul class="common-btn list-inline text-left">
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition1();" ng-show="headerstatus==='Pending Requisition For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition();" ng-show="headerstatus==='Pending Requisition For PO'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO();" ng-show="headerstatus==='PO Pending For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPOPurchase();" ng-show="headerstatus==='PO Pending For Purchase'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO1();" ng-show="headerstatus==='PO Pending For LC Taging'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO2();" ng-show="headerstatus==='PO Pending For Acceptance'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO3();" ng-show="headerstatus==='Acceptance Pending For GRN'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO4();" ng-show="headerstatus==='Pending For GRN'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO5();" ng-show="headerstatus==='Pending GRN Posting'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO6();" ng-show="headerstatus==='Pending Inventory Issue'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO7();" ng-show="headerstatus==='Pending Inventory Issue Posting'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                <ul class="common-btn list-inline text-left">
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition1();" ng-show="headerstatus==='Pending Requisition For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisition();" ng-show="headerstatus==='Pending Requisition For PO'"><i class="glyphicon glyphicon-download"></i>Summary</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintRequisitionDetails();" ng-show="headerstatus==='Pending Requisition For PO'"><i class="glyphicon glyphicon-download"></i>Details</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO();" ng-show="headerstatus==='PO Pending For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPOPurchase();" ng-show="headerstatus==='PO Pending For Purchase'"><i class="glyphicon glyphicon-download"></i>Summary</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPOPurchaseDetails();" ng-show="headerstatus==='PO Pending For Purchase'"><i class="glyphicon glyphicon-download"></i>Details</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO1();" ng-show="headerstatus==='PO Pending For LC Taging'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO2();" ng-show="headerstatus==='PO Pending For Acceptance'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO3();" ng-show="headerstatus==='Acceptance Pending For GRN'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO4();" ng-show="headerstatus==='Pending For GRN'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO5();" ng-show="headerstatus==='Pending GRN Posting'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO6();" ng-show="headerstatus==='Pending Inventory Issue'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li style="text-align:left;"> <button id="" class="btn" ng-click="PrintPO7();" ng-show="headerstatus==='Pending Inventory Issue Posting'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
 
-					<li> <button id="" class="btn" ng-click="PrintPO8();" ng-show="headerstatus==='Invoice Pending For Acceptance'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
-					<li> <button id="" class="btn" ng-click="PrintPO81();" ng-show="headerstatus==='Pending GRN For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li> <button id="" class="btn" ng-click="PrintPO8();" ng-show="headerstatus==='Invoice Pending For Acceptance'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
+                    <li> <button id="" class="btn" ng-click="PrintPO81();" ng-show="headerstatus==='Pending GRN For Approval'"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>
 
-				</ul>
+                </ul>
 			</div>
 		</div>
 	</div>

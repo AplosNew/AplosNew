@@ -3676,8 +3676,8 @@ GROUP BY FAR.FABudgetMasterId
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
 				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+				,ISNULL(FR.ADBaseAmount,0) + ISNULL(FADP.FixedAssetDepreciationAmount,0)  ADBaseAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) - ISNULL(FADP.FixedAssetDepreciationAmount,0) NetFixedAssetsBaseAmount
 
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
@@ -3712,6 +3712,7 @@ GROUP BY FAR.FABudgetMasterId
 
                left join ORG.Entity E on E.Id= FR.EntityId
 			   left join ORG.Department D on D.Id = FR.DepartmentId
+               LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
                 --WHERE FR.CompanyId='" + companyId + @"' and FR.Archive=0 and FR.IsAUC=0
                -- AND FR.Id NOT IN(' ')
 

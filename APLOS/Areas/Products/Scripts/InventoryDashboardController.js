@@ -14,6 +14,7 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
     $scope.MonthlyBudgetVSExpense = [];
     $scope.chartRevenueList = [];
     $scope.chartBudgetedRevenueList = [];
+    $scope.path = 'Products/InventoryDashboard/';
 
     $scope.PeriodicBudgetVSExpense = [];
     window.chartColors = {
@@ -1534,6 +1535,41 @@ function InventoryDashboardController(cboService, commonMessage, $window, $scope
         });
     };
 
+    $scope.PrintRequisitionDetails = function () {
+        try {
+            var RequisitionDetailsRow = [];
+            for (var i = 0; i < $scope.DetailList.length; i++) {
+                if (RequisitionDetailsRow, $scope.DetailList[i].RequisitionNo) {
+                    RequisitionDetailsRow.push($scope.DetailList[i].RequisitionNo);
+                }
+            }
+            var file_src = $scope.path + "RequisitionDetailsReport?RequisitionDetailsRow=" + RequisitionDetailsRow;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+
+
+    $scope.POPurchaseId = [];
+    $scope.PrintPOPurchaseDetails = function () {
+        try {
+            var POPurchaseId = [];
+            for (var i = 0; i < $scope.DetailList.length; i++) {
+                if (POPurchaseId, $scope.DetailList[i].PONo) {
+                    POPurchaseId.push($scope.DetailList[i].PONo);
+                }
+            }
+            var file_src = $scope.path + "POPurchaseDetailsReport?POPurchaseDetailsId=" + POPurchaseId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+    
 
     $scope.PrintPO1 = function () {
         //debugger;

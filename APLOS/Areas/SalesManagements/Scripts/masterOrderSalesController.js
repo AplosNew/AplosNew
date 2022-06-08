@@ -2079,6 +2079,10 @@ function masterOrderSalesController(cboService, commonMessage, $window, $scope, 
         location.href = "Sales/LocalTaxInvoice?salesId=" + data.Id;
     };
 
+    $scope.LocalTaxInvoiceWithoutSUIReport = function (data) {
+        location.href = "Sales/LocalTaxInvoiceWithoutSUI?salesId=" + data.Id;
+    };
+
     $scope.CommercialInvoiceReport = function (data) {
         location.href = "Sales/CommercialInvoice?salesId=" + data.Id;
     };

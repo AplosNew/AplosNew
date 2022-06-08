@@ -274,10 +274,26 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ShowResult('Please select at least one Party', 'failure');
                 //throw 'Please enter to date';
 
-            } else {
-                var file_src = $scope.path + "PartyPaymentStatusReport?MasterLCList=" + NewMasterLCList;
-                $rootScope.report(file_src);
             }
+
+            $scope.downloadgriddataUrl = 'GridReports/Download';
+
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "PartyPaymentStatusReport",
+                    data: { 'MasterLCList': NewMasterLCList },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == false) {
+                        //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                        $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
 
 
         } catch (e) {
@@ -285,32 +301,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         }
     }
 
-    //$scope.InvoiceDetailReport = function () {
-
-    //    try {
-
-    //        var MasterLCList = [];
-    //        for (var i = 0; i < $scope.MasterLCList.length; i++) {
-    //            if ($scope.MasterLCList[i].isSelected == true) {
-
-    //                if (MasterLCList, $scope.MasterLCList[i].PartyId) {
-    //                    MasterLCList.push($scope.MasterLCList[i].PartyId);
-    //                }
-    //            }
-    //        }
-    //        var file_src = $scope.path + "PartyPaymentStatusDetailReport?MasterLCList=" + MasterLCList;
-    //        $rootScope.report(file_src);
-
-
-
-
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-    //    }
-    //}
-
-
-    
+   
     $scope.InvoiceAgingReport = function () {
 
         try {

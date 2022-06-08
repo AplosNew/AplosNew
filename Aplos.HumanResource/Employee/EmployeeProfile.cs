@@ -2340,6 +2340,24 @@ namespace Aplos.HumanResource
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetAvailableBudgetCode(string budgetCode)
+        {
+            try
+            {
+                string sql = @"SELECT COUNT(E.SystemId) OnRoll,BudgetCode,mbd.TotalNumber,CA= mbd.TotalNumber-COUNT(E.SystemId)+ISNULL(TBS.TBSEmp,0)
+FROM EmployeeInformation E
+LEFT JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId= E.BudgetCode
+LEFT JOIN (SELECT COUNT(BudgetCode) TBSEmp,SystemId FROM EmployeeInformation WHERE BudgetCode='"+ budgetCode + @"' AND EmployeeStatus = 'Active' AND ISNULL(EmployeeCurrentStatus,'') IN ('TBS') GROUP BY SystemId) TBS ON TBS.SystemId=E.SystemId
+WHERE E.EmployeeStatus = 'Active' AND E.BudgetCode='"+ budgetCode + @"' GROUP BY E.BudgetCode,mbd.TotalNumber,TBS.TBSEmp";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion
     }
     public class EmployeeOperation

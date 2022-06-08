@@ -193,6 +193,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
         $scope.GetOrderLineCostingItemCbo();
+        $scope.ModelNewEntryState= 'Entry';
     }
 
     function CheckField(fieldValue, fieldName) {

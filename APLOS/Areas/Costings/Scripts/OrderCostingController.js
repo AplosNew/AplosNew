@@ -3890,8 +3890,8 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
     };
     // #region Master Order 
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-    //$scope.materialType = ['BOM'];
-    $scope.materialType = 'ProductDefinition';
+    $scope.materialType = 'BOM';
+    //$scope.materialType = 'ProductDefinition';
     $scope.getMaterial = function (index, entryStage) {
         $scope.CostingStage = entryStage;
         $scope.itemIndex = index;
