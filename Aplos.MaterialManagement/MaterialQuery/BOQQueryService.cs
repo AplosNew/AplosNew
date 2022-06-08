@@ -134,7 +134,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
  , IRD.InventoryMaterialId, P.Code AS PartyCode, P.UserName AS PartyName
 	                     , IsPosting=CASE WHEN IR.[Status] IS NULL THEN 0 else 1 END
 						, IsApproved=CASE WHEN IR.IsApproved= 0 THEN 0 else 1 END
-						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor
+						, IR.Id AS GRNNo, IRD.POId AS PONo, TUoM.UserName AS TUoM, BUoM.UserName AS BUoM, IRD.TransactionUoMId,  IRD.BaseUOMId, IRD.BaseUoMFactor,IRD.BaseUoMFactor GRNBaseUoMFactor, 1 TempBaseUoMFactor
                         , round(IRD.MaterialTranRate,4) MaterialTranRate,  TCU.Code AS TCurrency, BCU.Code AS BCurrency, IRD.MaterialTranAmount
                         --, BaseRate=CASE WHEN IRD.TransactionUoMId<>IRD.BaseUOMId THEN IRD.MaterialTranAmount/IRD.BaseQty ELSE IRD.BooksCurrencyBaseRate END
 						, IRD.TrnCurrencyBaseRate BaseRate
@@ -166,8 +166,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,IM.SecondCharacteristicsId
 						,IM.ThirdCharacteristicsId,IssueByUoM=CASE WHEN MM.IssueByUoM=0 THEN 'No' ELSE 'Yes' END
                         ,TrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
-						--,0 TrasactopmUomQty
-						,'' IssueTransactionUoMId
+                        ,TempTrasactopmUomQty=(((ISNULL(IRD.BaseQty,0) - ISNULL(II.IssueQty, 0))*BaseUoMFactor)/BaseUoMFactor) 
+						,IRD.BaseUOMId IssueTransactionUoMId
 						,'' IssueTransactionUoM
                     FROM TRN.GRNPORequisitionAllocation grnmap
 					join [TRN].[InventoryReceiveDetail] AS IRD  on grnmap.InventoryReceiveDetailId=ird.Id

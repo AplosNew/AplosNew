@@ -154,7 +154,7 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
     $scope.advanceDetailList = [];
     baseService.getCompanyConfiguration(function (result) {
         $scope.companyConfig = result;
-           
+
     });
     cboService.getCboEntityByPlant(null, null, "", function (result) {
         $scope.entityList = result;
@@ -430,49 +430,49 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
 
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            $scope.clearDrData();
-            if (baseService.isUndefinedOrNull(party.DownPaymentGLId)) {
-                ShowResult("Customer DownPaymentGL not found!", "failure", "partyPopUp");
-                return;
-            }
-            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.DownPaymentBudgetId)) {
-                ShowResult("Customer budget not found!", "failure", "partyPopUp");
-                return;
-            }
-            else if (baseService.isUndefinedOrNull(party.CurrencyId)) {
-                ShowResult("Customer transaction currency not found!", "failure", "partyPopUp");
-                return;
-            }
-            else {
-                $scope.advanceDetail.GLGeneralInfoId = party.DownPaymentGLId;
-                $scope.advanceDetail.GLGeneralInfoCode = party.DownPaymentGLCode;
-                $scope.advanceDetail.GLGeneralInfoName = party.DownPaymentGLName;
-                $scope.advanceDetail.BudgetMasterId = party.DownPaymentBudgetId;
-                $scope.advanceDetail.BudgetCode = party.DownPaymentBudgetCode;
-                $scope.advanceDetail.BudgetName = party.DownPaymentBudgetName;
-                $scope.advanceDetail.ActivityId = party.DownPaymentActivityId;
-                $scope.advanceDetail.ActivityCode = party.DownPaymentActivityCode;
-                $scope.advanceDetail.ActivityName = party.DownPaymentActivityName;
-            }
+        $scope.clearDrData();
+        if (baseService.isUndefinedOrNull(party.DownPaymentGLId)) {
+            ShowResult("Customer DownPaymentGL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.DownPaymentBudgetId)) {
+            ShowResult("Customer budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if (baseService.isUndefinedOrNull(party.CurrencyId)) {
+            ShowResult("Customer transaction currency not found!", "failure", "partyPopUp");
+            return;
+        }
+        else {
+            $scope.advanceDetail.GLGeneralInfoId = party.DownPaymentGLId;
+            $scope.advanceDetail.GLGeneralInfoCode = party.DownPaymentGLCode;
+            $scope.advanceDetail.GLGeneralInfoName = party.DownPaymentGLName;
+            $scope.advanceDetail.BudgetMasterId = party.DownPaymentBudgetId;
+            $scope.advanceDetail.BudgetCode = party.DownPaymentBudgetCode;
+            $scope.advanceDetail.BudgetName = party.DownPaymentBudgetName;
+            $scope.advanceDetail.ActivityId = party.DownPaymentActivityId;
+            $scope.advanceDetail.ActivityCode = party.DownPaymentActivityCode;
+            $scope.advanceDetail.ActivityName = party.DownPaymentActivityName;
+        }
 
-            // Set to Advance
-            $scope.advance.PartyId = party.Id;
-            $scope.advance.PartyCode = party.Code;
-            $scope.advance.PartyName = party.Code + " - " + party.UserName;
-            $scope.advance.PartyType = party.PartyType;
-            $scope.advance.CurrencyId = party.CurrencyId;
-            $scope.advance.TotalPartyPlant = party.TotalPartyPlant;
+        // Set to Advance
+        $scope.advance.PartyId = party.Id;
+        $scope.advance.PartyCode = party.Code;
+        $scope.advance.PartyName = party.Code + " - " + party.UserName;
+        $scope.advance.PartyType = party.PartyType;
+        $scope.advance.CurrencyId = party.CurrencyId;
+        $scope.advance.TotalPartyPlant = party.TotalPartyPlant;
 
-            // Set to AdvanceDetail
-            $scope.advanceDetail.PartyId = party.Id;
-            $scope.advanceDetail.PartyCode = party.Code;
-            $scope.advanceDetail.PartyName = party.Code + " - " + party.UserName;
-            $scope.advanceDetail.PartyType = party.PartyType;
+        // Set to AdvanceDetail
+        $scope.advanceDetail.PartyId = party.Id;
+        $scope.advanceDetail.PartyCode = party.Code;
+        $scope.advanceDetail.PartyName = party.Code + " - " + party.UserName;
+        $scope.advanceDetail.PartyType = party.PartyType;
 
-            $scope.GetCurrencyExchangeRateList();
-            $scope.checkBankAmount();
-            $scope.getPartyPlantList(party.Id);
-       
+        $scope.GetCurrencyExchangeRateList();
+        $scope.checkBankAmount();
+        $scope.getPartyPlantList(party.Id);
+        $scope.advance.POId = null;
         $scope.hidePartyPopUp();
     };
 
@@ -651,6 +651,7 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         $scope.clearEmployeePopUp();
         $scope.advance.CompanyCurrencyRate = null;
         $scope.advanceTaxesList = [];
+        $scope.advance.POId = null;
     };
 
     $scope.rateChangeBankCharge = function (rate) {
@@ -914,4 +915,29 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
+    $scope.POList = [];
+    $scope.getPOList = function () {
+        //debugger;
+        var PoType = 'PO';
+        $scope.status = 'PO';
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Products/GoodsReceiveNote/GetPOListForAdvance?PoType=' + PoType + '&Status=' + $scope.status + '&vendorId=' + $scope.advance.PartyId,
+        }).then(function successCallback(response) {
+            $scope.POList = response.data;
+        });
+        angular.element(document.querySelector("#POPopUp")).modal("show");
+
+    };
+
+    $scope.SelectPO = function (data) {
+        $scope.advance.POId = data.data.Id;
+        angular.element(document.querySelector("#POPopUp")).modal("hide");
+    }
+
+    $scope.ClsoePOPopUp = function () {
+        angular.element(document.querySelector("#POPopUp")).modal("hide");
+
+    }
 }

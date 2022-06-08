@@ -1421,8 +1421,8 @@ UNION
 		                    , NULL AS GLGeneralInfoId, NULL AS GLGeneralInfoCode, NULL AS GLGeneralInfoName
 		                    , NULL AS BudgetMasterId, NULL AS BudgetCode, NULL AS BudgetName
 		                    , NULL ActivityId, NULL AS ActivityCode, NULL AS ActivityName
-		                    , NULL Dr, SUM(IRD.TotalMaterialBooksCurrencyAmount) + SUM(IRD.TotalTaxAmount)+SUM(ISNULL(TCS.TCSAmount,0)) AS  Cr
-		                    , SUM(IRD.TotalMaterialBooksCurrencyAmount) + SUM(IRD.TotalTaxAmount)+ SUM(ISNULL(TCS.TCSAmount,0)) AS Amount,0 IsAsset
+		                    , NULL Dr, SUM(IRD.TotalMaterialBooksCurrencyAmount) + SUM(IRD.TotalTaxAmount)+ ISNULL(TCS.TCSAmount,0) AS  Cr
+		                    , SUM(IRD.TotalMaterialBooksCurrencyAmount) + SUM(IRD.TotalTaxAmount)+  ISNULL(TCS.TCSAmount,0)  AS Amount,0 IsAsset
 	                    FROM [TRN].[InventoryMaterial] AS IM
 	                    JOIN [MST].[MaterialMaster] AS MM ON IM.MaterialMasterId=MM.Id
 	                    LEFT JOIN [MST].[MaterialMasterArticle] AS ART ON IM.ArticleId=ART.Id
@@ -1435,6 +1435,7 @@ UNION
                         where InventoryReceiveId=@receiveId group by INS.InventoryReceiveId
 						) AS TCS on TCS.InventoryReceiveId=@receiveId
 	                    WHERE IRD.InventoryReceiveId=@receiveId
+						group by TCS.TCSAmount
                     ) AS T
                     GROUP BY T.MaterialGroupMasterId, T.GLGeneralInfoId, T.GLGeneralInfoCode, T.GLGeneralInfoName, T.BudgetMasterId, T.BudgetCode, T.BudgetName, T.ActivityId, T.ActivityCode, T.ActivityName, T.Dr, T.Cr, T.Amount, T.OtherName, T.TrnType,T.TaxCategoryId";
                     return _sqlRepository.GetDataCollection(sql);

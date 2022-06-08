@@ -20,6 +20,7 @@ namespace Library.MaterialManagement.Inventory
 
 
         IEnumerable<object> GetListForHold(string plantId,string PoType,string Status);
+        IEnumerable<object> GetPOListForAdvance(string plantId, string PoType, string Status, string vendorId);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
         IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId);
 
