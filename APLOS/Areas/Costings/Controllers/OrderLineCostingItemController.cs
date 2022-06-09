@@ -69,6 +69,18 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetDetailList(string OrderLineCostingItemId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.OrderLineHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.OrderLineCostingItemId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.OrderLineCostingItem SD ON SD.Id=D.OrderLineHeadId
+                            WHERE OrderLineCostingItemId='"+ OrderLineCostingItemId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetCostingComponentByCostingType(string costingType)
         {
             string sql = @"SELECT * FROM  HKP.CostingComponent WHERE Id IN(SELECT CostingComponentId  FROM [dbo].[CostingTypeComponent] WHERE CostingType='"+ costingType + "') ORDER BY Sequence";
@@ -76,11 +88,11 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult Create(Dictionary<string, object> data/*, IEnumerable<CostingSOTemplateFormulaDetail> details*/)
+        public JsonResult Create(Dictionary<string, object> data, IEnumerable<CostingSOTemplateFormulaDetail> details)
         {
             try
             {
-                SaveCostingSOTemplateData(data/*, details*/);
+                SaveCostingSOTemplateData(data, details);
                 return Json(new { Message = AplosMessage.Insert });
             }
             catch (Exception ex)
@@ -101,7 +113,7 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
 
-        private void SaveCostingSOTemplateData(Dictionary<string, object> data/*, IEnumerable<CostingSOTemplateFormulaDetail> details*/)
+        private void SaveCostingSOTemplateData(Dictionary<string, object> data, IEnumerable<CostingSOTemplateFormulaDetail> details)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -111,7 +123,7 @@ namespace Aplos.Areas.Costings.Controllers
                 {
                     string _Id = "";
 
-                    DataSet dsMaster;
+                    DataSet dsMaster, dsDestination;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                     con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -120,6 +132,7 @@ namespace Aplos.Areas.Costings.Controllers
 
 
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OrderLineCostingItem WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where OrderLineCostingItemId='" + data["Id"] + "'", out dsDestination, false, "1");
 
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
@@ -138,8 +151,34 @@ namespace Aplos.Areas.Costings.Controllers
 
                     string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
+                    #region NoticePeriodFormulaDetail 
+                    DataRow drF;
+                    while (dsDestination.Tables[0].DefaultView.Count > 0)
+                        dsDestination.Tables[0].DefaultView[0].Delete();
+
+                    int count = 0;
+                    if (details != null)
+                    {
+
+                        foreach (var item in details)
+                        {
+                            drF = dsDestination.Tables[0].NewRow();
+                            count++;
+                            string pk = _Id + "_" + count;
+                            drF["Id"] = pk;
+                            drF["OrderLineCostingItemId"] = _Id;
+                            drF["Sequence"] = item.Sequence;
+                            drF["OrderLineHeadId"] = item.OrderLineHeadId;
+                            drF["Component"] = item.Component;
+
+                            dsDestination.Tables[0].Rows.Add(drF);
+                        }
+
+                    }
+                    #endregion NoticePeriodFormulaDetail 
+
                     clsStaticInfo obj = new clsStaticInfo();
-                    obj.SaveDataSets(dsMaster/*, dsDestination*/);
+                    obj.SaveDataSets(dsMaster, dsDestination);
 
 
                 }
@@ -149,6 +188,8 @@ namespace Aplos.Areas.Costings.Controllers
                 throw (ex);
             }
         }
+
+      
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -273,5 +314,8 @@ namespace Aplos.Areas.Costings.Controllers
         public string NoticePeriodSettingId { get; set; }
         public string SalaryHeadID { get; set; }
         public string Component { get; set; }
+        public string OrderLineCostingItemId { get; set; }
+        public string OrderLineHeadId { get; set; }
+
     }
 }

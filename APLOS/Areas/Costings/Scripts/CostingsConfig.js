@@ -82,6 +82,10 @@ function CostingsConfig($routeProvider, $locationProvider) {
             templateUrl: 'costings/OrderLineCostingItem/Aplos',
             controller: 'OrderLineCostingItemController'
         })
+        .when('/boq-status-report', {
+            templateUrl: 'costings/BOQStatusReport/Aplos',
+            controller: 'BOQStatusReportController'
+        })
 
 
 

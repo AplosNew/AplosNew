@@ -149,5 +149,9 @@ function SecurityConfig($routeProvider, $locationProvider) {
             templateUrl: 'Securities/MenuUserCode',
             controller: 'menuUserCodeController'
         })
+        .when('/lic', {
+            templateUrl: 'Securities/LIC/Aplos',
+            controller: 'LICController'
+        })
         ;
 }

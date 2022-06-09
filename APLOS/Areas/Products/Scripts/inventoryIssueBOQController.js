@@ -50,6 +50,28 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
     }).then(function (response) {
         $scope.storageList = response.data;
     });
+
+
+    $scope.uOMList = [];
+  
+    $scope.getuOMList = function () {
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            url: 'Setups/UnitOfMeasurement/GetALLUOMCbo',
+        }).then(function successCallback(response) {
+            $scope.uOMList = response.data;
+        });
+    };
+    $scope.getuOMList();
+
+    $scope.IssueUOMCHange = function (index) {
+        var getRow = $filter("filter")($scope.uOMList, { "MaterialMasterId": $scope.materialStockList[index].MaterialMasterId, "Value": $scope.materialStockList[index].IssueTransactionUoMId });
+        $scope.materialStockList[index].TempBaseUoMFactor = getRow[0].BaseUOMFactor;
+        $scope.materialStockList[index].TrasactopmUomQty = 0;
+        $scope.materialStockList[index].TrasactopmUomQty = $scope.materialStockList[index].TempTrasactopmUomQty / getRow[0].BaseUOMFactor
+    }
+
     $scope.product = {
         Id: null
         , ComapnyGroupId: null
@@ -638,7 +660,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
 
     $scope.calculateBaseQty = function (data) {
         //var BaseIssueQtynew = parseFloat(data.BaseUoMFactor * data.RequisitionQty).toFixed(4);
-        if (data.RequisitionQty > data.BalanceStock) {
+        if (data.RequisitionQty > (data.BalanceStock / data.TempBaseUoMFactor)) {
             ShowResult('Issue Qty can not grater than Balance Qty', 'failure', 'stockboqPopUp');
             data.RequisitionQty = 0;
             data.Flag = 0;
@@ -1771,9 +1793,11 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
         }), function (response) {
             ShowResult(response.data.Message, 'failure');
         };
-
-
     };
+
+   
+
+
     var getString = function (data, column) {
         var kk = "";
         var collection = [];
@@ -1869,7 +1893,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                 else {
                     var getRowDr = $filter("filter")($scope.detailList, {
                         "MaterialMasterId": BOqList[L].MaterialMasterId, "ArticleId": BOqList[L].ArticleId, "FirstCharacteristicsValueId": BOqList[L].FirstCharacteristicsValueId
-                        , "SecondCharacteristicsValueId": BOqList[L].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": BOqList[L].ThirdCharacteristicsValueId });
+                        , "SecondCharacteristicsValueId": BOqList[L].SecondCharacteristicsValueId, "ThirdCharacteristicsValueId": BOqList[L].ThirdCharacteristicsValueId, "IssueTransactionUoMId": BOqList[L].IssueTransactionUoMId });
                     if (getRowDr.length == 1) {
                         for (var j = 0; j < $scope.detailList.length; j++) {
                             if ($scope.detailList[j].MaterialMasterId === getRowDr[0].MaterialMasterId &&
@@ -1877,7 +1901,7 @@ function inventoryIssueBOQController($window, cboService, commonMessage, $scope,
                                 $scope.detailList[j].FirstCharacteristicsValueId === getRowDr[0].FirstCharacteristicsValueId &&
                                     $scope.detailList[j].SecondCharacteristicsValueId === getRowDr[0].SecondCharacteristicsValueId &&
                                 $scope.detailList[j].ThirdCharacteristicsValueId === getRowDr[0].ThirdCharacteristicsValueId
-                                && $scope.detailList[j].Flag === getRowDr[0].Flag
+                                && $scope.detailList[j].IssueTransactionUoMId === getRowDr[0].IssueTransactionUoMId && $scope.detailList[j].Flag === getRowDr[0].Flag
                             ) {
                                 var trnqty = parseFloat($scope.detailList[j].RequisitionQty.toFixed(4)) + parseFloat(BOqList[L].RequisitionQty.toFixed(4));
                                 $scope.detailList[j].RequisitionQty = parseFloat(trnqty.toFixed(4));

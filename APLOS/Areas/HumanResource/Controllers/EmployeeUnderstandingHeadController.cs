@@ -385,7 +385,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from ActivityDocuments where DocumentName='" + data.DocumentName + "'  AND  Id<>'" + data.Id + "'", out dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Document already exists!!!");
+                    //throw new Exception("Document already exists!!!");
                 con.OpenDataSetThroughAdapter("select * from ActivityDocuments where Id='" + data.Id + "'", out dsMaster, false, "1");
 
                 string _Id = "";
@@ -463,7 +463,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-
+                throw ex;
             }
         }
 

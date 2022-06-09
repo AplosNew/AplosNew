@@ -66,7 +66,7 @@ namespace Aplos.Areas.Commercial.Controllers
 isnull(C.ContractNo,'')ContractNo, C.TotalQty, C.SOQty, C.Amount, C.Description, isnull(C.UDNo,'')UDNo, C.UDDate, C.ContractDate, C.IsPrint,C. IsMarketingCommisssionApplicable, 
 C.MarketingCommisssionId, C.IsBusinessDevelopmentChargesApplicable, C.BusinessDevelopmentCharge, C.BusinessDevelopmentChargeValue, 
 C.InvoicingPartyPlantId, C.DeliveryPartyPlantId, C.InvoicingByAddress, C.DeliveryByAddress, C.MarketingCommisssionCharge, 
-C.MarketingCommisssionValue,  isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo
+C.MarketingCommisssionValue,  isnull(C.Remarks,'')Remarks, C.PlantId, isnull(P.UserName,'') CustomerName,PM.UserName MarketingCommisssion,LC.LCRef MasterLCNo,FORMAT(C.AddedDate,'dd-MMM-yyyy') CreationDate
 ,[Buyer]=isnull(STUFF((select distinct ','+B.UserName from 
 TRN.MasterOrder XMOI
 INNER JOIN TRN.MasterOrderItem I ON I.MasterOrderId=XMOI.Id
@@ -79,7 +79,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
                             JOIN [HKP].[Party] AS P ON C.CustomerId=P.Id 
 							LEFT JOIN dbo.MasterLC LC ON LC.Id = C.MasterLCId
 							LEFT JOIN [HKP].[Party] AS PM ON C.MarketingCommisssionId=PM.Id 
-                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.CustomerId DESC";
+                            WHERE C.PlantId='" + identity.PlantId + "' ORDER BY C.AddedDate desc";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -335,7 +335,7 @@ where I.ContractId=C.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1,
 							LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=S.MasterOrderItemId
 							GROUP BY MOI.Id
 							) SO ON SO.Id=I.Id
-                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId IS NULL  ORDER BY P.Id and order by date DESC";
+                            WHERE A.CompanyId='" + identity.CompanyId + "'  AND A.PlantId='" + identity.PlantId + "' AND I.ContractId IS NULL  ORDER BY P.Id";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)

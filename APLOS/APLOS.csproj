@@ -492,6 +492,7 @@
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeGLController.cs" />
     <Compile Include="Areas\Commercial\Controllers\OverHeadTypeController.cs" />
     <Compile Include="Areas\Commercial\Controllers\ProformaInvoiceController.cs" />
+    <Compile Include="Areas\Costings\Controllers\BOQStatusReportController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQPurchaseOrderController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQController.cs" />
     <Compile Include="Areas\Costings\Controllers\BOQCostingApprovalSettingController.cs" />
@@ -1107,6 +1108,7 @@
     <Compile Include="Areas\SalesManagements\Controllers\SalesInvoiceController.cs" />
     <Compile Include="Areas\SalesManagements\Controllers\SalesController.cs" />
     <Compile Include="Areas\SalesManagements\SalesManagementsAreaRegistration.cs" />
+    <Compile Include="Areas\Securities\Controllers\LICController.cs" />
     <Compile Include="Areas\Securities\Controllers\SyncURLController.cs" />
     <Compile Include="Areas\Securities\Controllers\MenuUserCodeController.cs" />
     <Compile Include="Areas\Securities\Controllers\UserEntityController.cs" />
@@ -1871,6 +1873,7 @@
     <Content Include="Areas\Commercial\Scripts\contractFundUtilizationController.js" />
     <Content Include="Areas\Commercial\Scripts\ProformaInvoiceController.js" />
     <Content Include="Areas\Commercial\Scripts\invoiceToAcceptancePostController.js" />
+    <Content Include="Areas\Costings\Scripts\BOQStatusReportController.js" />
     <Content Include="Areas\Costings\Scripts\BOQCostingApprovalSettingController.js" />
     <Content Include="Areas\Costings\Scripts\BOQApprovalController.js" />
     <Content Include="Areas\Costings\Scripts\BOQPurchaseOrderController.js" />
@@ -2565,6 +2568,7 @@
     <Content Include="Areas\SalesManagements\Scripts\salesInvoicePendingController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesManagementService.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesManagementConfig.js" />
+    <Content Include="Areas\Securities\Scripts\LICController.js" />
     <Content Include="Areas\Securities\Scripts\menuUserCodeController.js" />
     <Content Include="Areas\Securities\Scripts\syncURLController.js" />
     <Content Include="Areas\Securities\Scripts\employeeMobileAppsAuthorizationNewController.js" />
@@ -4170,6 +4174,8 @@
     <Content Include="Areas\HumanResource\Views\Fuguai\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiTransaction\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ZoneMaster\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQStatusReport\Aplos.cshtml" />
+    <Content Include="Areas\Costings\Views\BOQStatusReport\Approval.cshtml" />
     <Content Include="Areas\HumanResource\Views\_ViewStart.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
@@ -4227,6 +4233,7 @@
     <Content Include="Areas\Products\Views\PurchaseOrder\POBOQ.cshtml" />
     <Content Include="Areas\SalesManagements\Views\_SalesOrderItemPopUp.cshtml" />
     <Content Include="Areas\Products\Views\InventorySalesReportMarketing\Aplos.cshtml" />
+    <Content Include="Areas\Securities\Views\LIC\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

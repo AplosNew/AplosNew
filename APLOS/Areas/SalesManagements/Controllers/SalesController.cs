@@ -307,6 +307,16 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult LocalTaxInvoiceWithoutSUI(string salesId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            _salesReportService.LocalTaxInvoiceWithoutSUIService(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.UserId, salesId);
+
+            return View();
+        }
+
+        [Authorize, HttpGet]
         public ActionResult CommercialInvoice(string salesId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
