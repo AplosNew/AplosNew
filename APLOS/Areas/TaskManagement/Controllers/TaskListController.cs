@@ -604,11 +604,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
             string fromDate = DateTime.Now.ToString("dd-MMM-yyyy");
             string ToDate = DateTime.Now.ToString("dd-MMM-yyyy");
-            sql = @"SELECT tmm.*,'' AS BuyerName,isnull(tsc.UserName,'') AS TaskCategory ,TSSC.UserName AS TaskSubCategory,'' AS SearchDataTemp
+            sql = @"SELECT distinct ta.Id TaskAuditId, tmm.*,'' AS BuyerName,isnull(tsc.UserName,'') AS TaskCategory ,TSSC.UserName AS TaskSubCategory,'' AS SearchDataTemp
                                 ,Tasto.EmpPicPath,NULL AS Auth,Tasto.DepartmentId,d.UserName AS Department,
                                 
                                 Tasto.EmployeeName AS AssignTo,Tasto.SystemId AS AssignToId,
-                                AasBy.EmpPicPath AS EmpPicPathAssignBy,AasBy.EmployeeName AS CreatedBy,AasBy.SystemId AS CreatedById,ta.Id AS TaskAuditId
+                                AasBy.EmpPicPath AS EmpPicPathAssignBy,AasBy.EmployeeName AS CreatedBy,AasBy.SystemId AS CreatedById
                                 ,isnull(tmm.TaskPriority,0)TaskPriority,FORMAT(ta.AddedDate,'dd-MMM-yyyy hh:mm tt') AS TaskAddedDate,
                                 FORMAT( ISNULL(tTo.RevisedCommitmentDate,tTo.CommitmentDate),'dd-MMM-yyyy') AS CommitmentDate,
                                 FORMAT( ISNULL(tTo.RevisedCommitmentDate,tTo.CommitmentDate),'dd-MMM-yyyy') AS CommitmentDateFilter,
@@ -658,7 +658,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 default:
                     if (authorizationType == AuthorizationTypeEnum.AssignTo.ToString())
                         sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
-							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'";
                     else
                     {
                         List<string> TaskTypes = new List<string>();
@@ -668,7 +668,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                         if (TaskTypes.Contains(authorizationType))
                         {
                             sql += @" AND  isnull(ta.isDone,0)=0 AND tmm.TaskType='" + authorizationType + @"'
-							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + AuthorizationTypeEnum.AssignTo.ToString() + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + AuthorizationTypeEnum.AssignTo.ToString() + "";
 
                         }
                         else
@@ -676,19 +676,75 @@ namespace Aplos.Areas.TaskManagement.Controllers
                             if (authorizationType == AuthorizationTypeEnum.CreatedBy.ToString())
                             {
                                 sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
-							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'";
 
                             }
                             else
                             {
                                 sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType='" + authorizationType + @"'
-							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + authorizationType + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + authorizationType + "'";
                             }
                         }
                     }
 
                     break;
             }
+            //     switch (flag)
+            //     {
+            //         case "Today":
+            //             sql += @" WHERE isnull(ta.isDone,0)=0 AND tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND CONVERT(DATE, ta.DueDate)='" + DateTime.Now.ToString("dd-MMM-yyyy") + "' AND ta.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy + "' order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //             break;
+            //         case "ThisWeek":
+            //             sql += @" WHERE  isnull(ta.isDone,0)=0 AND tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  CONVERT(DATE, ta.DueDate) Between '" + DateTime.Now.AddDays(1).ToString("dd-MMM-yyyy")
+            //                 + @"' AND '" + DateTime.Now.AddDays(8).ToString("dd-MMM-yyyy") + "' AND ta.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy + "' order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //             break;
+            //         case "OverDue":
+            //             sql += @" WHERE  isnull(ta.isDone,0)=0 AND tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  CONVERT(DATE, ta.DueDate) < '" + DateTime.Now.ToString("dd-MMM-yyyy")
+            //                 + @"' AND ta.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy + "' order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //             break;
+            //         case "MyTasks":
+            //             sql += @" WHERE  isnull(ta.isDone,0)=0 AND tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND tmm.TaskType IN ('ToDo','TNA','Issue')"
+            //                 + @" AND tTo.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType='" + AuthorizationTypeEnum.AssignTo + "' order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //             break;
+            //         case "HighPriorityTasks":
+            //             sql += @" where  isnull(ta.isDone,0)=0 AND  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  isnull(tmm.TaskPriority,0)>= " + StdHighestTaskPriority.ToString()
+            //                 + @" AND ta.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy
+            //                 + @"' ORDER BY CONVERT(DATETIME,ta.DueDate) ASC,isnull(tmm.TaskPriority,0) DESC ";
+            //             break;
+            //         default:
+            //             if (authorizationType == AuthorizationTypeEnum.AssignTo.ToString())
+            //                 sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType<>'" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
+            //WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //             else
+            //             {
+            //                 List<string> TaskTypes = new List<string>();
+            //                 foreach (TaskTypeEnum str in Enum.GetValues(typeof(TaskTypeEnum)))
+            //                     TaskTypes.Add(str.ToString());
+
+            //                 if (TaskTypes.Contains(authorizationType))
+            //                 {
+            //                     sql += @" AND  isnull(ta.isDone,0)=0 AND tmm.TaskType='" + authorizationType + @"'
+            //WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + AuthorizationTypeEnum.AssignTo.ToString() + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+
+            //                 }
+            //                 else
+            //                 {
+            //                     if (authorizationType == AuthorizationTypeEnum.CreatedBy.ToString())
+            //                     {
+            //                         sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
+            //WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+
+            //                     }
+            //                     else
+            //                     {
+            //                         sql += @" AND  isnull(ta.isDone,0)=0 AND ta.AuthorizationType='" + authorizationType + @"'
+            //WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + authorizationType + "'  order by CONVERT(DATETIME,ta.DueDate) ASC ";
+            //                     }
+            //                 }
+            //             }
+
+            //             break;
+            //     }
 
             List<Dictionary<string, object>> data = _sqlRepository.GetDataCollection(sql);
 
@@ -2274,20 +2330,15 @@ namespace Aplos.Areas.TaskManagement.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string s = @"SELECT convert(bit, CASE WHEN ISNULL(r.Id,'')= '' THEN 0 ELSE 1 END) AS hasRemarks,tc.*,ei.EmployeeName,ei.EmpPicPath,ta.AuthorizationType
+            string s = @"SELECT convert(bit, CASE WHEN ISNULL(r.Id,'')= '' THEN 0 ELSE 1 END) AS hasRemarks,tc.*,ei.EmployeeName,ei.EmpPicPath--,ta.AuthorizationType
   FROM TaskManagerSubTasks AS tc
 LEFT OUTER JOIN TaskManagerSubTaskRemarks AS R ON r.TaskManagerSubTasksId = tc.Id
                         AND r.Id = (SELECT TOP 1 Id FROM TaskManagerSubTaskRemarks WHERE TaskManagerSubTasksId = tc.Id)
 LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=tc.ResponsiblePersonId
-LEFT OUTER JOIN TaskAudit AS ta ON tc.TaskManagerMasterId=ta.TaskManagerMasterId and ta.ResponsiblePersonId='" + identity.EmployeeId
-+ @"' AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
-
-
+--LEFT OUTER JOIN TaskAudit AS ta ON tc.TaskManagerMasterId=ta.TaskManagerMasterId and ta.ResponsiblePersonId='" + identity.EmployeeId+ @"' AND ta.AuthorizationType='" + AuthorizationTypeEnum.CreatedBy.ToString() + @"'
                     WHERE  tc.TaskManagerMasterId='" + todoId + "' order by convert(datetime, TC.AddedDate) ASC";
 
-
-
-            return s;
+ return s;
         }
 
         [HttpPost, Authorize]
