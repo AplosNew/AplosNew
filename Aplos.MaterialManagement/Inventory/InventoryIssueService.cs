@@ -1602,7 +1602,8 @@ namespace Library.MaterialManagement.Inventory
                                         }
                                         else
                                         {
-                                            detailtrnAmount += Math.Round(Convert.ToDecimal(item.RequisitionQty * item.TrnCurrencyBaseRate), 4);
+                                            
+                                            detailtrnAmount += Math.Round(Convert.ToDecimal((item.RequisitionQty*item.BaseUoMFactor) * item.TrnCurrencyBaseRate), 4);
                                         }
                                         var newgrn = new InventoryIssueHistory
                                         {
