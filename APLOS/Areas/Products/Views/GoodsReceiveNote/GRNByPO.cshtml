@@ -2865,7 +2865,7 @@
                 <div class="col-xs-3 col-sm-3 col-md-3">
                     <div class="form-group">
                         <label class="col-sm-6 control-label">Unit Rate<sup>*</sup></label>
-                        <label class="col-sm-6 control-label">{{detailModel.TransactionRate| number| setDecimal:currencyPrecision}} {{detailModel.CurrencyName}}</label>
+                        <label class="col-sm-6 control-label">{{detailModel.TransactionRate| number:5}} {{detailModel.CurrencyName}}</label>
                     </div>
                 </div>
                 <div class="col-xs-4 col-sm-4 col-md-4">
@@ -2873,7 +2873,7 @@
                         <label class="col-sm-5 control-label" data-placement="top" title="Cost and Manufacture">Total Amount<sup>*</sup></label>
                         <div class="col-sm-7 show-message">
                             <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Amount" n-decimals="{{currencyPrecision}}" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
+                                <input type="text" name="Amount" n-decimals="2" ng-model="detailModel.TransactionAmount" class="form-control text-right" placeholder="0.00"
                                        ng-keyup="calculateTaxCategory();manualValidationAddRemove('div_tamnt', 'detailModel','TransactionAmount');" />
                             </div>
                             <div class="col-sm-4" style="padding-left:0px;padding-right:0px;">
