@@ -57,41 +57,23 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         //summary Report Downloard
-        [HttpGet, Authorize]
-        public ActionResult PartyPaymentStatusReport(string[] MasterLCList)
+        [HttpPost, Authorize]
+        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList)
         {
 
             try
             {
-                //if (string.IsNullOrEmpty(MasterLCList))
-                //    throw new Exception("Please select at least one Invoice");
-
-                string masterLCList = "";
-
-                foreach (var item in MasterLCList)
-                {
-                    if (string.IsNullOrEmpty(masterLCList))
-                    {
-                        masterLCList += "''," + item;
-                    }
-                    else
-                    {
-                        masterLCList += "," + item;
-                    }
-
-                }
-
-                //if (string.IsNullOrEmpty(masterLCList))
-                //   throw new Exception("Please select at least one Invoice");
-
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(excelEngine, masterLCList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                var workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(/*excelEngine,*/ MasterLCList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "PayableSummary.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
@@ -100,7 +82,6 @@ namespace Aplos.Areas.Accounts.Controllers
             }
 
 
-            return null;
         }
 
         //PartyPaymentStatusAgingReport
@@ -116,6 +97,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 string fileName = "";
                 fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {

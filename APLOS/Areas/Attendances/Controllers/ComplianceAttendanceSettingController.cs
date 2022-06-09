@@ -95,7 +95,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
 
                 DataSet dsDefaultValidation;
-                string sql1 = "select * From ComplianceAttendanceSetting where PlantId='"+identity.PlantId+@"' and Id <> '"+ComplianceAttendance.Id+@"' ";
+                string sql1 = "select * From ComplianceAttendanceSetting where PlantId='" + identity.PlantId + @"' and Id <> '" + ComplianceAttendance.Id + @"' ";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(sql1, out dsDefaultValidation, false, "1");
                 if (dsDefaultValidation.Tables[0].Rows.Count > 0)
@@ -203,7 +203,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
         #region Compliance Job Card Report-----------------
 
-        [HttpPost,Authorize]
+        [HttpPost, Authorize]
         public ActionResult GetEmployeeInformation(string fromDate, string toDate, string criteria)
         {
             try
@@ -282,7 +282,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 throw;
             }
         }
-        
+
         private void GetEmpJobCardInfoWithInDateTimes(string EmpIdLoop, string FromDate, string ToDate, string plantId, out DataSet dsRef)
         {
 
@@ -1177,7 +1177,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[3, 10].Text = "Leave Days / LWP";
                                     sheet1.Range[3, 10, 3, 10 + 1].Merge();
 
-                                    sheet1.Range[3, 10 + 2].Text = (Convert.ToDouble(totalLeaveDays) + (Convert.ToDouble(totalHalfDaysLeave) * 0.5) + (Convert.ToDouble(totalAbsentLeaveDays) * 0.5)).ToString() +" / "+ toTotalLWP;
+                                    sheet1.Range[3, 10 + 2].Text = (Convert.ToDouble(totalLeaveDays) + (Convert.ToDouble(totalHalfDaysLeave) * 0.5) + (Convert.ToDouble(totalAbsentLeaveDays) * 0.5)).ToString() + " / " + toTotalLWP;
                                     sheet1.Range[3, 10].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                                     sheet1.Range[3, 10 + 2].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[3, 10, 3, 10 + 2].CellStyle.Font.Bold = true;
@@ -1421,9 +1421,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 }
                                 else if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == true)
                                 {
-                                    sheet1.Range[xlsRow, iInTime].Text = "";
-                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                    
 
                                     //sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["OriginalDayType"].ToString().Trim();
                                     sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -1551,7 +1550,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         //check night shift
                                         string _sOUTtime = TakeDate + " " + ot;
                                         string _sINtime = TakeDate + " " + Convert.ToDateTime(dvBioDvAC[i]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
-                                        if(Convert.ToDateTime(_sOUTtime) <Convert.ToDateTime(_sINtime))
+                                        if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
                                         {
                                             TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
                                         }
@@ -1597,6 +1596,74 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     }
                                 }
 
+
+                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH")
+                                {
+                                    sheet1.Range[xlsRow, iInTime].Text = "";
+                                    sheet1.Range[xlsRow, iOutTime].Text = "";
+
+                                }
+                                else
+                                {
+                                    sheet1.Range[xlsRow, iInTime].NumberFormat = "hh:mm AM/PM";
+                                    sheet1.Range[xlsRow, iInTime].DateTime = Convert.ToDateTime(dvBioDvAC[i]["InTimeShow"].ToString());
+
+                                    if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
+                                    {
+
+                                        DateTime NewRealOutTime;
+                                        string TakeDate = Convert.ToDateTime(dvBioDvAC[i]["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                        string ot = Convert.ToDateTime(dvBioDvAC[i]["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                        //check night shift
+                                        string _sOUTtime = TakeDate + " " + ot;
+                                        string _sINtime = TakeDate + " " + Convert.ToDateTime(dvBioDvAC[i]["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                        if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                        {
+                                            TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                        }
+
+                                        string TateandTime = TakeDate + " " + ot;
+                                        int minutesadd = Convert.ToInt32(dvBioDvAC[i]["MaxOTPerDay"].ToString().Trim());
+                                        DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                        DateTime RealOutTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString().Trim());
+
+                                        if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime))
+                                        {
+                                            //long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(dvBioDvAC[i]["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                            //int EmployeeSystemId = (int)Convert.ToInt64(dvBioDvAC[i]["SystemId"].ToString());
+
+                                            long WorkDateTickCount = Convert.ToInt64(Convert.ToDateTime(dvBioDvAC[i]["WDate"].ToString()).ToString("yyMMddHHmmss"));
+                                            int EmployeeSystemId = (int)Convert.ToInt64(dvBioDvAC[i]["EmployeeCodeNumeric"].ToString());
+
+                                            WorkDateTickCount += EmployeeSystemId;
+
+                                            Random rnd = new Random((int)(WorkDateTickCount));
+                                            int RandomMinutes = rnd.Next(0, 15);
+                                            NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                        }
+
+                                        else
+                                        {
+                                            NewRealOutTime = Convert.ToDateTime(dvBioDvAC[i]["OutTimeShow"].ToString().Trim());
+                                        }
+                                        DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                        DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                        TimeSpan span = RandomTime - ShiftTime;
+                                        double totalMinutes = span.TotalMinutes;
+
+                                        sheet1.Range[xlsRow, iOutTime].NumberFormat = "hh:mm AM/PM";
+                                        sheet1.Range[xlsRow, iOutTime].DateTime = NewRealOutTime;
+                                        sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    }
+
+                                }
+                                sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                 var Date = dvBioDvAC[i]["PDate"].ToString().Trim();
                                 var EmpCode = dvBioDvAC[i]["EmployeeCode"].ToString().Trim();
@@ -1739,7 +1806,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         {
                                             if (dvBioDvAC[i]["DayCategory"].ToString() == "Present" || dvBioDvAC[i]["DayCategory"].ToString() == "Late")
                                             {
-                                                
+
                                                 if (dvBioDvAC[i]["OutTimeShow"].ToString() != "")
                                                 {
                                                     DateTime NewRealOutTime;
@@ -1865,34 +1932,34 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == false)
                                     {
                                         overstay = "";
-                                      
+
 
                                     }
                                     else if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == true)
                                     {
                                         overstay = "";
-                                       
+
 
 
                                     }
                                     else if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == false)
                                     {
                                         overstay = "";
-                                        
+
 
 
                                     }
                                     else if (dvBioDvAC[i]["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(dvBioDvAC[i]["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(dvBioDvAC[i]["IsOTEntitled"].ToString().Trim()) == true)
                                     {
                                         overstay = "";
-                                       
+
 
                                     }
 
                                     else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
                                     {
                                         overstay = "";
-                                        
+
                                     }
 
 

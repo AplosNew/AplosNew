@@ -1,8 +1,10 @@
 ﻿#region Using
 
 using Aplos.Controllers;
+using Aplos.MaterialManagement.MaterialQuery;
 using Aplos.Properties;
 using Library.Core;
+using Library.Data.Sql;
 using Library.Model.Setups;
 using Library.Service.Setups;
 using System.Web.Mvc;
@@ -17,11 +19,13 @@ namespace Aplos.Areas.Setups.Controllers
 
         /// <summary>   The unitOfMeasurementService service. </summary>
         private readonly IUnitOfMeasurementService _unitOfMeasurementService;
+        private readonly ISqlRepository _sqlRepository;
 
-        public UnitOfMeasurementController(IUnitOfMeasurementService unitOfMeasurementService
+        public UnitOfMeasurementController(IUnitOfMeasurementService unitOfMeasurementService, ISqlRepository sqlRepository
             )
         {
             this._unitOfMeasurementService = unitOfMeasurementService;
+            _sqlRepository = sqlRepository;
         }
 
         #endregion Constructor
@@ -90,6 +94,12 @@ namespace Aplos.Areas.Setups.Controllers
             return Json(new { Sequence = _unitOfMeasurementService.GetAutoSequence(unitOfMeasurement.UOMDId), Message = AplosMessage.Deleted });
         }
 
+        [HttpGet]
+        public JsonResult GetALLUOMCbo()
+        {
+            MaterialCommonService materialCommonService = new MaterialCommonService(_sqlRepository);
+            return Json(materialCommonService.GetALLUOMCbo(), JsonRequestBehavior.AllowGet);
+        }
         #endregion -- Operations
     }
 }
