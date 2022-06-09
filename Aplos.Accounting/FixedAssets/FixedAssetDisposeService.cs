@@ -1143,8 +1143,8 @@ namespace Library.Accounting.FixedAssets
 									,isnull(FR.FABaseAmount,0)FABaseAmount
 									,ISNULL(SAR.subAssetBaseAmount,0) SubAssetBaseAmount
 									,isnull(FR.FABaseAmount,0) + ISNULL(SAR.subAssetBaseAmount,0) PurchaseBaseAmount
-									,isnull( FR.ADBaseAmount,0)ADBaseAmount
-                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0) NetBaseBookValue 
+									,isnull( FR.ADBaseAmount,0)+ ISNULL(FADP.FixedAssetDepreciationAmount,0) ADBaseAmount
+                                    , isnull(FR.FABaseAmount,0)+ISNULL(SAR.subAssetBaseAmount,0)-ISNULL(FR.ADBaseAmount,0)- ISNULL(FADP.FixedAssetDepreciationAmount,0)  NetBaseBookValue 
 									,FARD.BaseNagotiationValue, FARD.NegotiationValue
 
                                     , MMA.StandardName Article, FR.IsFinancial,IsOpeningBalance=case when FR.IsOpeningBalance=0 then 'No' Else 'Yes' End
@@ -1184,6 +1184,7 @@ namespace Library.Accounting.FixedAssets
 								   LEFT JOIN ( SELECT FixedAssetRegisterId,ISNULL(Sum(Amount),0) subAssetAmount,ISNULL(Sum(BaseAmount),0) subAssetBaseAmount FROM
 								   TRN.SubFixedAssetRegister 
 								   group by FixedAssetRegisterId) SAR ON SAR.FixedAssetRegisterId=FR.Id
+                                    LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
                                     LEFT JOIN TRN.FixedAssetRegisterDisposedDetail FARD ON FARD.FixedAssetRegisterId=FR.Id
 
                                     LEFT JOIN TRN.FixedAssetRegisterDisposed FAD ON FAD.Id=FARD.FixedAssetRegisterDisposedId
