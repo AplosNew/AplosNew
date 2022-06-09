@@ -1042,6 +1042,7 @@ upanelApp.controller("ManpowerControlReportsController", ManpowerControlReportsC
 upanelApp.controller("SalesOrderStatusReportController", SalesOrderStatusReportController);
 upanelApp.controller("ZoneMasterController", ZoneMasterController);
 //upanelApp.controller("FuguaiTransactionController", FuguaiTransactionController);
+upanelApp.controller("FuguaiReportController", FuguaiReportController);
 
 
 
