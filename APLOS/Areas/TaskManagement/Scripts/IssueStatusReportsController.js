@@ -150,10 +150,10 @@ function IssueStatusReportsController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
-    $scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportJsonWithHeader';
     $scope.ExportToExcel = function () {
         var gridObj = $("#GridEdit").ejGrid("instance");
-        var data = gridObj.model.dataSource();
+        var data = gridObj.getFilteredRecords();
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
@@ -168,12 +168,38 @@ function IssueStatusReportsController(cboService, commonMessage, $scope, $rootSc
             }
         });
     }
+
     $scope.reportFormat = "Excel";
     $scope.PrintExcel = function () {
+        var dataList = [];
+        var g = $("#GridEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].IssueId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].IssueId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.ModelList[i].IssueId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.ModelList[i].IssueId + "'";
+                }
+            }
+        }
+
         $http({
             method: 'POST',
             url: $scope.path + 'GetTNAStatusReports',
-            data: { reportFormat: $scope.reportFormat, filterString: $scope.filterString },
+            data: { reportFormat: $scope.reportFormat, filterString: $scope.filterString, issueIds: ids },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -188,23 +214,6 @@ function IssueStatusReportsController(cboService, commonMessage, $scope, $rootSc
 
 
     }
-
-    //$scope.ReportFormat = 'Excel';
-    //$scope.PrintExcel = function () {
-    //    try {       
-
-    //        if ($scope.ReportFormat === 'Excel') {
-
-
-    //            var   url='TaskManagement/TNAStatusReports/GetTNAStatusReports?ReportFormat=' + $scope.ReportFormat + '&filterString=' + $scope.filterString;
-    //            $rootScope.report(url);
-    //        }
-    //    } catch (e) {
-    //        ShowResult(e, 'failure');
-
-    //    }
-    //};
-
-
+       
 
 }
