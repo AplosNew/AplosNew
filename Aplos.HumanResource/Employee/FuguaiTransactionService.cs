@@ -37,7 +37,8 @@ namespace Library.HumanResource.Employee
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 user = identity.UserId;
-                var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
+                //var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
+                var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

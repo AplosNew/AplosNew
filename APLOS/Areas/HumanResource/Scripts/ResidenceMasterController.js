@@ -171,7 +171,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         Vacancy: null,
         AssetName: null,
         Remarks: null,
-        isActive: false,
+        isActive: true,
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
@@ -238,6 +238,7 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             AssetName: null,
             Remarks: null,
             isActive: null,
+            Rent:null,
         };
 
         $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
