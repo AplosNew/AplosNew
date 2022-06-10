@@ -128,6 +128,7 @@ function TNAStatusReportsController(cboService, commonMessage, $scope, $rootScop
 
                     }
                     $scope.ModelList = response.data;
+                    console.log($scope.ModelList);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -156,10 +157,36 @@ function TNAStatusReportsController(cboService, commonMessage, $scope, $rootScop
     }
     $scope.reportFormat = "Excel";
     $scope.PrintExcel = function () {
+        var dataList = [];
+        var g = $("#GridEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].TaskMasterId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].TaskMasterId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.ModelList[i].TaskMasterId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.ModelList[i].TaskMasterId + "'";
+                }
+            }
+        }
+
+
         $http({
             method: 'POST',
             url: 'TaskManagement/TNAStatusReports/GetTNAStatusReports',
-            data: { reportFormat: $scope.reportFormat, filterString: $scope.filterString },
+            data: { reportFormat: $scope.reportFormat, filterString: $scope.filterString, issueIds: ids },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

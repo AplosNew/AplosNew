@@ -817,6 +817,487 @@ UNION
             }
 
         }
+
+        private string GetReportSql(Dictionary<string, string> filterString, string issueIds)
+        {
+            string FilterString = "";
+
+            string FromDate = filterString["FromDate"];
+            string ToDate = filterString["ToDate"];
+            string ActiveStatus = filterString["ActiveStatus"];
+            string status = filterString["Status"];
+            string Today = DateTime.Now.ToString("dd-MMM-yyyy");
+            string FirstDayOfEndNextWeek = DateTime.Now.AddDays(8).ToString();
+
+            string wc = "";
+
+            if (issueIds == "")
+            {
+                wc = "";
+            }
+            else
+            {
+                wc = "AND K.TaskMasterId IN(" + issueIds + ")";
+            }
+
+            FilterString = "WHERE 1=1 "+ wc + "";
+            if (ActiveStatus == "Active")
+            {
+                FilterString += " AND isnull(CurrentStatus,'')<>'Closed'";
+                FilterString += " AND Convert(date,DueDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "')";
+
+            }
+            else if (ActiveStatus == "Closed")
+            {
+                FilterString += " AND isnull(CurrentStatus,'')='Closed'";
+                FilterString += " AND Convert(date,ClosingDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "')";
+
+            }
+            else
+            {
+                FilterString += " AND ( (Convert(date,DueDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "') AND isnull(CurrentStatus,'')<>'Closed')";
+                FilterString += " OR (Convert(date,ClosingDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "') AND isnull(CurrentStatus,'')='Closed'))";
+
+            }
+
+
+
+
+            if (status == "ToDo")
+            {
+                return @"select * from (SELECT TMM.Id AS TaskMasterId, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, TMM.TaskType,
+TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat,
+format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),
+ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  NULL MasterOrderNo,
+                            
+                            Buyer=null
+                            ,StyleNo= NULL
+                            ,SONo=NULL
+                            ,PRNo=NULL
+                            ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=NULL,Division=NULL
+                            FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+                            
+                            LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo'
+                            LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                            LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                            LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                            where  TMM.TaskTypeGroup = 'ToDo' and isnull(TMM.isOwnTask,0)=0) AS K " + FilterString + " order by DueDate";
+            }
+            else if (status == "Issue")
+            {
+                return @"SELECT * FROM (SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus,TSC.UserName as SubCategory,TC.UserName as Category,TMM.TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  NULL MasterOrderNo,
+                            
+                            Buyer=STUFF((select distinct ',' + XB.UserName from IssueTransaction AS XIT 
+                            INNER JOIN IssueBuyer AS XIB ON XIB.IssueTransactionId = XIT.Id
+                            LEFT OUTER JOIN [HKP].[Buyer] AS XB ON XB.Id = XIB.BuyerId
+                            where XIT.Id=IT.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,StyleNo= NULL
+                            ,SONo=NULL
+                            ,PRNo=NULL
+                            ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=NULL,Division=NULL
+                            FROM TaskManagerMaster AS TMM
+                         left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+                           
+                            LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                            LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                            INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
+                            LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                            LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId) AS K " + FilterString + " order by DueDate";
+            }
+            else if (status == "TNA")
+            {
+                return @" SELECT * FROM(SELECT TMMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMMM.CurrentStatus,TSC.UserName as SubCategory,TC.UserName as Category, concat(TMMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo,
+                             B.UserName AS Buyer
+                            
+                            ,StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                            trn.MasterOrderItem XMOI 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            SONo=STUFF((select distinct ','+so.Id from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,datediff(day,tato.duedate,TMMM.closingDate) AS EarlyOrLateBy,FORMAT(TMMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMMM.ID ORDER BY T.CreatedTime DESC)
+
+                            LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                            LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                            LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMMM.TaskSubCategoryId
+                            LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMMM.TaskCategoryId
+                            INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMMM.TNATasksId 
+                            LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            inner JOIN [TRN].[MasterOrder] AS MO ON MO.Id = TM.MasterOrderId
+                            LEFT OUTER JOIN IssueTransaction AS IT ON IT.Id = TMMM.IssueTransactionId
+                            LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    						
+                            UNION
+
+                            SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, concat(TMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo, B.UserName AS Buyer
+                            ,StyleNo= MOI.BuyerReferenceNo,
+                            SONo=STUFF((select distinct ','+so.Id from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                            PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                            trn.MasterOrderItem XMOI 
+                            INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                            INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                            where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                            LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                            LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                            LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                            LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                            LEFT OUTER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                            inner JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            inner JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = TM.MasterOrderItemId
+                            LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                            LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId 
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+
+						
+                            UNION 
+
+                            SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, concat(TMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate
+                            , ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo, B.UserName AS Buyer
+                            ,StyleNo= MOI.BuyerReferenceNo
+                            ,SONo=so.Id
+
+                            ,PRNo=STUFF((select distinct ','+xpod.ProductionOrderId from  trn.ProductionOrderDetail AS xpod
+                            where xpod.SalesOrderId = so.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                            ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                            FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                            LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                            LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId
+                            INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                            LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                            LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                            inner JOIN [TRN].[SalesOrder] AS SO ON SO.Id =  TM.SalesOrderId
+                            LEFT OUTER JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = SO.MasterOrderItemId
+                            LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                            LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+                            UNION 
+
+                            --SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category,  concat(TMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo,format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo, B.UserName AS Buyer
+                            --,StyleNo= MOI.BuyerReferenceNo
+                            --,SONo=so.Id
+                            --,PRNo=POD.Id
+                            --,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            --,Department=bd.UserName,Division=bd2.UserName
+                            --FROM TaskManagerMaster AS TMM
+                            --LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                            --LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                            --LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                            --LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                            --inner JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                            --LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                            --inner join [TRN].[ProductionOrderDetail] AS POD ON POD.ProductionOrderId = TM.ProductionOrderId 
+							--and pod.Id=(select top 1 Id from  [TRN].[ProductionOrderDetail] XD where  XD.ProductionOrderId=TM.ProductionOrderId)
+                            --LEFT OUTER JOIN [TRN].[SalesOrder] AS SO ON so.Id=pod.SalesOrderId
+                            --LEFT OUTER JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = SO.MasterOrderItemId
+                            --LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                            --LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            --LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                            --LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                            --LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+                            
+
+
+ SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category,
+   concat(TMM.TaskTypeGroup,'/',T.TNAAppliedOn) as TaskType,
+    TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo,
+    format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, 
+    ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  , 
+    pr.MasterOrderId,pr.Buyer,pr.StyleNo, pr.SONo, pr.ProductionOrderId,
+    datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+    ,Department=bd.UserName,Division=bd2.UserName
+				
+                                 FROM TaskManagerMaster AS tmm
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                                INNER JOIN TNATasks AS TT ON TT.Id=tmm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId  AND isnull(t.ProductionOrderId,'')<>''
+                                 LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+								LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+								LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+								LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId
+                                 INNER JOIN trn.ProductionOrder AS po ON PO.Id=t.ProductionOrderId
+                                INNER JOIN
+                                (
+                                			SELECT distinct po.Id AS ProductionOrderId,mo.BuyerDepartmentId,mo.BuyerDivisionId,
+                                			b.Id AS BuyerId,b.UserName AS Buyer,
+                                			
+                                			 MasterOrderId=STUFF((select distinct ', '+XMOI.MasterOrderId from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											 
+											 ,StyleNo=STUFF((select distinct ', '+XMOI.BuyerReferenceNo from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                	
+                                			  ,SONo=STUFF((select distinct ', '+sox.Id from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				                                
+														 FROM trn.ProductionOrder PO
+										INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=po.Id AND pod.Id=(SELECT TOP 1 Id FROM trn.ProductionOrderDetail AS px WHERE px.ProductionOrderId=po.Id)
+                                		INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+                                		inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+										INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+										LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                ) AS PR ON pr.ProductionOrderId=po.Id
+                                
+                                LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+								LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+								LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=PR.BuyerDepartmentId   
+								LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=PR.BuyerDivisionId  
+
+                        ) AS K " + FilterString + " order by DueDate";
+            }
+            else
+            {
+                return @"SELECT * FROM (
+                        (SELECT TMMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, concat(TMMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo, 
+                         B.UserName AS Buyer
+                        ,StyleNo=STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+                        trn.MasterOrderItem XMOI 
+                        where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                        SONo=STUFF((select distinct ','+so.Id from 
+                        trn.MasterOrderItem XMOI 
+                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                        where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                        PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                        trn.MasterOrderItem XMOI 
+                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                        INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                        where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,datediff(day,tato.duedate,TMMM.closingDate) AS EarlyOrLateBy,FORMAT(TMMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                        FROM TaskManagerMaster AS TMMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMMM.ID ORDER BY T.CreatedTime DESC)
+
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMMM.TaskSubCategoryId
+                        LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMMM.TaskCategoryId
+                        INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMMM.TNATasksId 
+                        LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                        inner JOIN [TRN].[MasterOrder] AS MO ON MO.Id = TM.MasterOrderId
+                        LEFT OUTER JOIN IssueTransaction AS IT ON IT.Id = TMMM.IssueTransactionId
+                        LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                        LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId     
+
+)
+                                              
+
+                        UNION 
+
+                        (SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, concat(TMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo, B.UserName AS Buyer
+                        ,StyleNo= MOI.BuyerReferenceNo,
+                        SONo=STUFF((select distinct ','+so.Id from 
+                        trn.MasterOrderItem XMOI 
+                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                        where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+
+                        PRNo=STUFF((select distinct ','+pod.ProductionOrderId from 
+                        trn.MasterOrderItem XMOI 
+                        INNER JOIN trn.SalesOrder AS so ON so.MasterOrderItemId=xmoi.Id 
+                        INNER JOIN trn.ProductionOrderDetail AS pod ON pod.SalesOrderId=so.Id 
+                        where MO.Id=XMOI.MasterOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                        FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                        LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                        LEFT OUTER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                        inner JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                        inner JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = TM.MasterOrderItemId
+                        LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                        LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+                       )
+UNION 
+
+                        (SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, concat(TMM.TaskTypeGroup,'/',TM.TNAAppliedOn) as TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate
+                        , ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  MO.MasterOrderNo,
+                        B.UserName AS Buyer
+                        ,StyleNo= MOI.BuyerReferenceNo
+                        ,SONo=so.Id
+
+                        ,PRNo=STUFF((select distinct ','+xpod.ProductionOrderId from  trn.ProductionOrderDetail AS xpod
+                        where xpod.SalesOrderId = so.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=bd.UserName,Division=bd2.UserName
+                        FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId 
+                        LEFT OUTER JOIN TNAMaster AS TM ON TM.Id = TT.TNAMasterId
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                        LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                        inner JOIN [TRN].[SalesOrder] AS SO ON SO.Id =  TM.SalesOrderId
+                        LEFT OUTER JOIN [TRN].[MasterOrderItem] AS MOI ON MOI.Id = SO.MasterOrderItemId
+                        LEFT OUTER JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+                        LEFT OUTER JOIN [HKP].[Buyer] AS B ON B.Id = MO.BuyerId
+                            LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=mo.BuyerDepartmentId    LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=mo.BuyerDivisionId    
+                       
+                        )
+                        UNION 
+
+                        
+             SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category,
+               concat(TMM.TaskTypeGroup,'/',T.TNAAppliedOn) as TaskType,
+                TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo,
+                format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, 
+                ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  , 
+                pr.MasterOrderId,pr.Buyer,pr.StyleNo, pr.SONo, pr.ProductionOrderId,
+                datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                ,Department=bd.UserName,Division=bd2.UserName
+				
+                                 FROM TaskManagerMaster AS tmm
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                                INNER JOIN TNATasks AS TT ON TT.Id=tmm.TNATasksId
+                                INNER JOIN TNAMaster AS T ON t.Id=tt.TNAMasterId  AND isnull(t.ProductionOrderId,'')<>''
+                                 LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+								LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+								LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+								LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId
+                                 INNER JOIN trn.ProductionOrder AS po ON PO.Id=t.ProductionOrderId
+                                INNER JOIN
+                                (
+                                			SELECT distinct po.Id AS ProductionOrderId,mo.BuyerDepartmentId,mo.BuyerDivisionId,
+                                			b.Id AS BuyerId,b.UserName AS Buyer,
+                                			
+                                			 MasterOrderId=STUFF((select distinct ', '+XMOI.MasterOrderId from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+											 
+											 ,StyleNo=STUFF((select distinct ', '+XMOI.BuyerReferenceNo from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                	
+                                			  ,SONo=STUFF((select distinct ', '+sox.Id from 
+														 trn.MasterOrderItem XMOI 	 
+														 INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=xmoi.Id  
+														 INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+														where podx.ProductionOrderId=po.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+				                                
+														 FROM trn.ProductionOrder PO
+										INNER JOIN trn.ProductionOrderDetail AS pod ON pod.ProductionOrderId=po.Id AND pod.Id=(SELECT TOP 1 Id FROM trn.ProductionOrderDetail AS px WHERE px.ProductionOrderId=po.Id)
+                                		INNER JOIN trn.SalesOrder AS so ON so.Id=pod.SalesOrderId
+                                		inner join trn.MasterOrderItem MOI on MOI.Id=so.MasterOrderItemId
+										INNER JOIN trn.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+										LEFT OUTER JOIN hkp.Buyer AS b ON b.Id=mo.BuyerId
+                                ) AS PR ON pr.ProductionOrderId=po.Id
+                                
+                                LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+								LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+								LEFT OUTER JOIN hkp.BuyerDepartment AS bd ON bd.Id=PR.BuyerDepartmentId   
+								LEFT OUTER JOIN hkp.BuyerDivision AS bd2 ON bd2.Id=PR.BuyerDivisionId  
+                        union
+
+                        (SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, TMM.TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  NULL MasterOrderNo,
+                        Buyer=null
+                        ,StyleNo= NULL
+                        ,SONo=NULL
+                        ,PRNo=NULL
+                        ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=NULL,Division=NULL
+                        FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo'
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                        LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+                        where  TMM.TaskTypeGroup = 'ToDo'  and isnull(TMM.isOwnTask,0)=0)
+
+                        union 
+
+                        (SELECT TMM.Id AS TaskMasterId,FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus, TSC.UserName as SubCategory,TC.UserName as Category, TMM.TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  NULL MasterOrderNo,
+                        Buyer=STUFF((select distinct ',' + XB.UserName from IssueTransaction AS XIT 
+                        INNER JOIN IssueBuyer AS XIB ON XIB.IssueTransactionId = XIT.Id
+                        LEFT OUTER JOIN [HKP].[Buyer] AS XB ON XB.Id = XIB.BuyerId
+                        where XIT.Id=IT.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                        ,StyleNo= NULL
+                        ,SONo=NULL
+                        ,PRNo=NULL
+                        ,datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                            ,Department=NULL,Division=NULL
+                        FROM TaskManagerMaster AS TMM
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                        LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId
+
+                        INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId) 
+                        ) AS K " + FilterString + " order by DueDate";
+            }
+
+        }
+
         private Dictionary<string, List<DataRow>> GetSqlTaskComments(Dictionary<string, string> filterString)
         {
             string FilterString = "";
@@ -893,9 +1374,9 @@ UNION
             return dicComments;
         }
 
-        private void GetTNAStatusReportsData(out DataTable dtTna, Dictionary<string, string> filterString)
+        private void GetTNAStatusReportsData(out DataTable dtTna, Dictionary<string, string> filterString, string issueIds)
         {
-            string sql = GetSql(filterString);
+            string sql = GetReportSql(filterString, issueIds);
             dtTna = _sqlRepository.GetDataTable(sql);
             dtTna.Columns.Add("EarlyBy", typeof(int));
             dtTna.Columns.Add("LateBy", typeof(int));
@@ -913,7 +1394,7 @@ UNION
                 }
             }
         }
-        public IWorkbook GetTNAStatusReport(string CompanyGroupId, string CompanyId, string PlantId, string PlantName, string EmployeeId, string UserName, Dictionary<string, string> filterString)
+        public IWorkbook GetTNAStatusReport(string CompanyGroupId, string CompanyId, string PlantId, string PlantName, string EmployeeId, string UserName, Dictionary<string, string> filterString, string issueIds)
         {
             #region declare
             clsReport objRpt = null;
@@ -941,7 +1422,7 @@ UNION
                 var workbook = oru.GetWorkbook(ref excelEngine, 1);
 
                 #region Get Data Query
-                GetTNAStatusReportsData(out dtTNA, filterString);
+                GetTNAStatusReportsData(out dtTNA, filterString, issueIds);
                 if (dtTNA.Rows.Count == 0)
                     throw new Exception("No data found");
 
@@ -1353,12 +1834,12 @@ UNION
 
         #region Worker Late Status
         [HttpPost, Authorize]
-        public ActionResult GetTNAStatusReports(ReportFormat reportFormat, Dictionary<string, string> filterString)
+        public ActionResult GetTNAStatusReports(ReportFormat reportFormat, Dictionary<string, string> filterString, string issueIds)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = GetTNAStatusReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, identity.Name, filterString);
+                IWorkbook workbook = GetTNAStatusReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, identity.Name, filterString, issueIds);
 
                 workbook.Version = ExcelVersion.Excel2013;
                 var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "Task Status Reports.xlsx";

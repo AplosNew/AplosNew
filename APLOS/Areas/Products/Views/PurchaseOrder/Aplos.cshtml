@@ -1206,7 +1206,7 @@
                         @*<label class="col-sm-6 control-label">{{detailModel.TransactionRate| number:2}} {{detailModel.CurrencyName}}</label>*@
                         <div class="col-sm-7 show-message">
                             <div class="col-sm-8" style="padding-left:0px;padding-right:0px;">
-                                <input type="text" name="Rate" n-decimals="4" ng-model="detailModel.TransactionRate" class="form-control text-right" autocomplete="off" placeholder="0.00"
+                                <input type="text" name="Rate" n-decimals="5" ng-model="detailModel.TransactionRate" class="form-control text-right" autocomplete="off" placeholder="0.00"
                                        ng-keyup="calculateTaxCategoryRate();manualValidationAddRemove('div_Rt', 'detailModel','TransactionRate'); " />
                             </div>
                         </div>
