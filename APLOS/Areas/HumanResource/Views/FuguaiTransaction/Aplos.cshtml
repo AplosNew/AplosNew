@@ -125,7 +125,7 @@
                 <label class="col-sm-4 control-label">Tag<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="Tag" ng-model="ModelNew.ZoneMasterId" required name="Tag"
+                        <select class="form-control" id="Tag" ng-change="getSubCategory()" ng-model="ModelNew.ZoneMasterId" required name="Tag"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in TagList" value="{{option.Value}}">{{option.Text}}</option>
@@ -176,20 +176,15 @@
                 <label class="col-sm-4 control-label">Story Points<sup>*</sup></label>
                 <div class="col-sm-3 show-message">
                     <input type="number" name="Story Points" ng-model="ModelNew.StoryPoint" class="form-control" required tabindex="5" maxlength="50">
+                
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Machine Ref<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Machine No<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <div class="select-style">
-                        <select class="form-control" id="MachineRefId" ng-model="ModelNew.MachineRef" required name="MachineRef"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option ng-repeat="option in MachineRefList" value="{{option.Value}}">{{option.Text}}</option>
+                    <input type="number" name="Machine Number" ng-model="ModelNew.MachineNo" class="form-control" required tabindex="5" maxlength="10">
 
-                        </select>
-                    </div>
                 </div>
             </div>
             

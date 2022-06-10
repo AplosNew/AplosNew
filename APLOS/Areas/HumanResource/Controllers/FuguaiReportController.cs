@@ -126,17 +126,17 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         
         [HttpGet, Authorize]
-        public ActionResult GetEmployeeServiceFixedReport(string FromDate, string ToDate)
+        public ActionResult GetFuguaiReport(string FromDate, string ToDate, string FinalStatus)
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var reportFileName = "Fuguai Report";
-            var workbook = GetReportWorkSheet(FromDate, ToDate);
+            var workbook = GetReportWorkSheet(FromDate, ToDate, FinalStatus);
             return RenderReportAsExcel(workbook, reportFileName);
         }
 
 
-        private IWorkbook GetReportWorkSheet(string FromDate, string ToDate)
+        private IWorkbook GetReportWorkSheet(string FromDate, string ToDate, string FinalStatus)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var excelEngine = new ExcelEngine();
@@ -159,15 +159,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             int COL = 1;
 
 
-            DataTable data = GetData(FromDate, ToDate);
+            DataTable data = GetData(FromDate, ToDate, FinalStatus);
 
             #region Headers
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignLeft);
-            int ColEmpId = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Date", 12, ExcelHAlign.HAlignLeft);
+            int ColDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 25, ExcelHAlign.HAlignLeft);
-            int ColEmpName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Time", 25, ExcelHAlign.HAlignLeft);
+            int ColTime = COL;
             COL++;
 
 
@@ -175,79 +175,76 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmpEntity = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Depertment", 15, ExcelHAlign.HAlignLeft);
-            int ColEmpDepertment = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Observed By", 15, ExcelHAlign.HAlignLeft);
+            int ColObservedBy = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 15, ExcelHAlign.HAlignLeft);
-            int ColDesignation = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Category", 15, ExcelHAlign.HAlignLeft);
+            int ColCategory = COL;
             COL++;
 
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Service Name", 15, ExcelHAlign.HAlignLeft);
-            int ColServiceName = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Tag", 15, ExcelHAlign.HAlignLeft);
+            int ColTag = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Service Category", 15, ExcelHAlign.HAlignLeft);
-            int ColServiceCategory = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Detail", 15, ExcelHAlign.HAlignLeft);
+            int ColDetail = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "UOM", 15, ExcelHAlign.HAlignLeft);
-            int ColUOM = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Priority Level", 15, ExcelHAlign.HAlignLeft);
+            int ColPriorityLevel = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "From", 15, ExcelHAlign.HAlignRight);
-            int ColFrom = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Department", 15, ExcelHAlign.HAlignRight);
+            int ColResponsibleDepartment = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "To", 15, ExcelHAlign.HAlignRight);
-            int ColTo = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 15, ExcelHAlign.HAlignRight);
+            int ColResponsiblePerson = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 15, ExcelHAlign.HAlignRight);
-            int ColQty = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Currency", 15, ExcelHAlign.HAlignLeft);
-            int ColCurrency = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Rate", 15, ExcelHAlign.HAlignRight);
-            int ColRate = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Amount", 15, ExcelHAlign.HAlignRight);
-            int ColAmount = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Final Amount", 15, ExcelHAlign.HAlignRight);
-            int ColFinalAmount = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Chargable", 15, ExcelHAlign.HAlignLeft);
-            int ColChargable = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "NonChargable", 15, ExcelHAlign.HAlignLeft);
-            int ColNonChargable = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Target Date", 15, ExcelHAlign.HAlignRight);
+            int ColTargetDate = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 15, ExcelHAlign.HAlignLeft);
             int ColRemarks = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Added By", 15, ExcelHAlign.HAlignLeft);
-            int ColAddedBy = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Current Status", 15, ExcelHAlign.HAlignRight);
+            int ColCurrentStatus = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Time", 15, ExcelHAlign.HAlignLeft);
-            int ColAddedDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 15, ExcelHAlign.HAlignRight);
+            int ColProcess = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Date", 15, ExcelHAlign.HAlignLeft);
-            int ColActualDate = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine", 15, ExcelHAlign.HAlignRight);
+            int ColMachine = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Machine Ref No", 15, ExcelHAlign.HAlignLeft);
+            int ColMachineNo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Final Status", 15, ExcelHAlign.HAlignLeft);
+            int ColFinalStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "CloseDate", 15, ExcelHAlign.HAlignLeft);
+            int ColCloseDate = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Tag Color", 15, ExcelHAlign.HAlignLeft);
+            int ColTagColor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Story Point", 15, ExcelHAlign.HAlignLeft);
+            int ColStoryPoint = COL;
+            COL++;
+
+           
             sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
             sheet.Range[ROW, 1, ROW, COL].BorderAround(ExcelLineStyle.Hair);
             sheet.Range[ROW, 1, ROW, COL].BorderInside(ExcelLineStyle.Hair);
@@ -263,27 +260,27 @@ namespace Aplos.Areas.HumanResource.Controllers
             ROW++;
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColEmpId].Text = data.Rows[i]["EmpId"].ToString();
-                sheet[ROW, ColEmpName].Text = data.Rows[i]["EmpName"].ToString();
-                sheet[ROW, ColEmpEntity].Text = data.Rows[i]["EmpEntity"].ToString();
-                sheet[ROW, ColEmpDepertment].Text = data.Rows[i]["EmpDepertment"].ToString();
-                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
-                sheet[ROW, ColServiceName].Text = data.Rows[i]["ServiceName"].ToString();
-                sheet[ROW, ColUOM].Text = data.Rows[i]["UOM"].ToString();
-                sheet[ROW, ColFinalAmount].Number = Convert.ToDouble(data.Rows[i]["FinalAmount"].ToString());
-                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-                sheet[ROW, ColServiceCategory].Text = data.Rows[i]["ServiceCategory"].ToString();
-                sheet[ROW, ColFrom].Number = Convert.ToDouble(data.Rows[i]["From"].ToString());
-                sheet[ROW, ColTo].Number = Convert.ToDouble(data.Rows[i]["To"].ToString());
-                sheet[ROW, ColQty].Number = Convert.ToDouble(data.Rows[i]["Qty"].ToString());
-                sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
-                sheet[ROW, ColAmount].Number = Convert.ToDouble(data.Rows[i]["Amount"].ToString());
-                sheet[ROW, ColChargable].Text = data.Rows[i]["Chargable"].ToString();
-                sheet[ROW, ColNonChargable].Text = data.Rows[i]["NonChargable"].ToString();
+                sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
+                sheet[ROW, ColTime].Text = data.Rows[i]["Time"].ToString();
+                sheet[ROW, ColEmpEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColObservedBy].Text = data.Rows[i]["ObservedBy"].ToString();
+                sheet[ROW, ColCategory].Text = data.Rows[i]["Category"].ToString();
+                sheet[ROW, ColTag].Text = data.Rows[i]["Tag"].ToString();
+                sheet[ROW, ColDetail].Text = data.Rows[i]["Detail"].ToString();
+                sheet[ROW, ColPriorityLevel].Text = data.Rows[i]["PriorityLevel"].ToString();
+                sheet[ROW, ColResponsibleDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["ResponsiblePerson"].ToString();
+                sheet[ROW, ColTargetDate].Number = Convert.ToDouble(data.Rows[i]["TargetDate"].ToString());
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
-                sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
-                sheet[ROW, ColAddedDate].Text = data.Rows[i]["Time"].ToString();
-                sheet[ROW, ColActualDate].Text = data.Rows[i]["Date"].ToString();
+                sheet[ROW, ColCurrentStatus].Text = data.Rows[i]["CurrentStatus"].ToString();
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString(); ;
+                sheet[ROW, ColMachine].Text = data.Rows[i]["Machine"].ToString(); ;
+                sheet[ROW, ColMachineNo].Text = data.Rows[i]["MachineNo"].ToString();
+                sheet[ROW, ColFinalStatus].Text = data.Rows[i]["FinalStatus"].ToString();
+                sheet[ROW, ColCloseDate].Text = data.Rows[i]["CloseDate"].ToString();
+                sheet[ROW, ColTagColor].Text = data.Rows[i]["TagColor"].ToString();
+                sheet[ROW, ColStoryPoint].Text = data.Rows[i]["StoryPoint"].ToString();
+                
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 ROW++;
@@ -377,7 +374,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.Range[ROW, 3, ROW, endCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
             ROW += 1;
-            sheet.Range[ROW, 3].Text = "Employee Service Variable: " + FromDate + " To " + ToDate;
+            sheet.Range[ROW, 3].Text = "Fuguai Report: " + FromDate + " To " + ToDate;
             sheet.Range[ROW, 3, ROW, endCol].Merge();
             sheet.Range[ROW, 3].CellStyle.Font.Size = 10;
             sheet.Range[ROW, 3, ROW, endCol].RowHeight = 20;
@@ -426,12 +423,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             return workbook;
         }
 
-        private DataTable GetData(string FromDate, string ToDate)
+        private DataTable GetData(string FromDate, string ToDate, string FinalStatus)
         {
             try
             {
-                
-                string sql = @"";
+               
+                string sql = @"select ft.Id, cast(ft.Date as Date) as Date, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+                        z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
+                        from TRN.FuguaiTransaction ft
+                        left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
+                        left join SEC.[user] s on s.Id = ft.ObservedById
+                        left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
+                        left join org.Entity et on et.Id = ft.EntityId
+                        left join org.Department d on d.Id = ft.ResponsibleDepartmentId
+                        left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
+                        left join hkp.Process p on p.Id = ft.ProcessId
+                        where e.SystemId = '" + FromDate + "' and s.Id = '" + ToDate + "' and ft.FinalStatus = '"+ FinalStatus + "'";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
