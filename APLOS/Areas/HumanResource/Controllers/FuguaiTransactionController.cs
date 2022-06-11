@@ -84,11 +84,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getSubCategory()
+        public ActionResult getSubCategory(string categoryText, string FuguaiId)
         {
             try
             {
-                return Json(ft.getSubCategory(), JsonRequestBehavior.AllowGet);
+                return Json(ft.getSubCategory(categoryText, FuguaiId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

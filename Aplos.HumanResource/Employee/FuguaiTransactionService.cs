@@ -37,7 +37,8 @@ namespace Library.HumanResource.Employee
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 user = identity.UserId;
-                var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
+                //var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
+                var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -86,11 +87,12 @@ namespace Library.HumanResource.Employee
             }
         }
 
-        public IEnumerable<object> getSubCategory()
+        public IEnumerable<object> getSubCategory(string categoryText, string FuguaiId)
         {
             try
             {
-                var sql = @"select distinct z.SubCategory as Text from hkp.ZoneMaster z";
+                var sql = @"select distinct z.SubCategory as Text from hkp.ZoneMaster z 
+                where z.Category = '"+ categoryText + "' and z.Id = '"+ FuguaiId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -279,7 +281,8 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getByWhom()
         {
-            var sql = @"Select ObservedById as Text from TRN.FuguaiTransaction ft ";
+            var sql = @"Select s.FullName as Text from TRN.FuguaiTransaction ft 
+                        left join SEC.[user] s on s.Id = ft.ObservedById";
             //var sql = @"Select ObservedById as Text from TRN.FuguaiTransaction ft where where ft.Date between '"+ From + "' and '"+To+"'";
             return _sqlRepository.GetDataCollection(sql);
         }

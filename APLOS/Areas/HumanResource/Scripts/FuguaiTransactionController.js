@@ -162,13 +162,16 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
     $scope.getSubCategory = function () {
         $http({
             method: 'POST',
-           
+            data: {
+                'categoryText': $scope.ModelNew.ZoneCategory,
+                'FuguaiId': $scope.ModelNew.ZoneMasterId,
+            },
             url: $scope.path + 'getSubCategory',
         }).then(function success(response) {
             $scope.subcategoryList = response.data;
         });
     }
-    $scope.getSubCategory();
+    //$scope.getSubCategory();
    
     $scope.getDepartment = function () {
         $http({
@@ -296,14 +299,14 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         ResponsiblePersonId: null,
         TargetDate: null,
         CommitmentDate: null,
-        StoryPoint: null,
+        StoryPoint: 2.00,
         Remarks: null,
         CurrentStatus: null,
         ProcessId: null,
         PersonId: null,
         IsMachineApplicable: null,
         MachineMasterId: null,
-        MachineRef: null,
+        MachineNo: null,
         FinalStatus: null,
         CloseDate: null,
         TagColor: null,

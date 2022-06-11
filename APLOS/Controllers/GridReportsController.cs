@@ -1,4 +1,6 @@
 ﻿using Aplos.Helpers;
+using Library.Crosscutting.Security;
+using OTSBD;
 using Syncfusion.Pdf.Parsing;
 using Syncfusion.Presentation;
 using Syncfusion.XlsIO;
@@ -10,6 +12,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Web.Hosting;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
@@ -300,6 +303,8 @@ namespace Aplos.Controllers
                     sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
                     sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Bold = true;
 
+
+
                     workbook.SaveAs(fullPath);
 
                 }
@@ -315,5 +320,206 @@ namespace Aplos.Controllers
             }
             return fileName;
         }
+
+
+
+        [HttpPost, Authorize]
+        public JsonResult ExcelExportJsonWithHeader(object obj, string ReportHeader = "")
+        {
+            //Json
+            try
+            {
+                DataTable dt = new DataTable("APIDATA");
+                var json = new JavaScriptSerializer().Serialize(obj);
+
+                if (json != "[]")
+                {
+                    json = json.Replace("\\", "");
+
+                    dt = CustomJsonResult.ToDataTable(json);
+                }
+
+                StringCollection strCol = new StringCollection();
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    if (dt.Columns[i].ColumnName.ToUpper().Contains("ID") || dt.Columns[i].ColumnName.ToUpper().Contains("PK") || dt.Columns[i].ColumnName.ToUpper().Contains("EJVALUE"))
+                    {
+                        strCol.Add(dt.Columns[i].ColumnName);
+                    }
+                }
+                foreach (string item in strCol)
+                {
+                    dt.Columns.Remove(item);
+                }
+
+                string filename = GridToExcelReportWithHeader(dt, ReportHeader);
+
+
+                return Json(new { FileName = filename, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Message = ex.Message, Error = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            //return View();
+        }
+        private string GridToExcelReportWithHeader(DataTable data, string ReportHeader)
+        {
+            string fileName = "GRID" + System.DateTime.Now.Ticks.ToString() + ".xlsx";
+            clsReport objRpt = null;
+            DataSet dsCmp = null;
+            DataSet dsFactory = null;
+            string FactoryName = "";
+            string CmpName = "";
+            string FactoryAddress = string.Empty;
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                objRpt = new clsReport();
+                objRpt.SelectedPlantWiseCompany(identity.PlantId, out dsCmp);
+
+                objRpt.SelectedPlant(identity.PlantId, out dsFactory);
+                //save the file to server temp folder
+                string fullPath = Path.Combine(HostingEnvironment.MapPath("~/") + fileName);
+
+                using (ExcelEngine excelEngine = new ExcelEngine())
+                {
+                    IApplication application = excelEngine.Excel;
+                    application.DefaultVersion = ExcelVersion.Excel2013;
+                    IWorkbook workbook = application.Workbooks.Create(1);
+                    IWorksheet sheet = workbook.Worksheets[0];
+
+                    int ROW = 1;
+                    sheet[ROW, 1].Text = ReportHeader;
+                    sheet[ROW, 1].CellStyle.Font.Bold = true;
+
+                    ROW++;
+                    sheet.ImportDataTable(data, true, ROW, 1);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
+                    sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.Font.Bold = true;
+
+                    #region ******************Report Header******************
+                   int xlsRow=1, xlsCol = 1;
+                    int endXlsCol = data.Columns.Count;
+                    FactoryName = string.Empty;
+
+                    if (dsCmp.Tables[0].Rows.Count > 0)
+                    {
+                        CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                    }
+                    else
+                    {
+                        CmpName = "";
+                    }
+                    sheet.Range[xlsRow, xlsCol].Text = CmpName;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryName = dsFactory.Tables[0].Rows[0]["UserName"].ToString();
+                    }
+                    else
+                    {
+                        FactoryName = "";
+                    }
+                    sheet.Range[xlsRow, xlsCol].Text = FactoryName;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    if (dsFactory.Tables[0].Rows.Count > 0)
+                    {
+                        FactoryAddress = dsFactory.Tables[0].Rows[0]["Address1"].ToString();
+                    }
+                    else
+                    {
+                        FactoryAddress = "";
+                    }
+                    sheet.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 22;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    xlsRow += 1;
+                    sheet.Range[xlsRow, xlsCol].Text = "Issue List ";
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                    sheet.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                    sheet.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                    sheet.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                    #endregion ******************Report Header******************
+
+                    #region Freeze Panes
+
+                    sheet.IsDisplayZeros = false;
+                    sheet.UsedRange["A7"].FreezePanes();
+                    sheet.FirstVisibleColumn = 1;
+                    sheet.FirstVisibleRow = 6;
+
+                    #endregion Freeze Panes
+
+                    #region UsedRange Alignment
+                    sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                    sheet.IsDisplayZeros = false;
+                    sheet.UsedRange.WrapText = true;
+                    sheet.Range["A1"].CellStyle.Font.Size = 14;
+                    sheet.Range["A2"].CellStyle.Font.Size = 10;
+                    sheet.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                    #endregion UsedRange Alignment
+
+                    #region Page Setup
+                    sheet.PageSetup.TopMargin = 0.5;
+                    sheet.PageSetup.BottomMargin = 0.7;
+                    sheet.PageSetup.PrintTitleRows = "$1:$5";
+                    sheet.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                    sheet.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + identity.Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                    sheet.PageSetup.LeftMargin = 0.5;
+                    sheet.PageSetup.RightMargin = 0.2;
+                    sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                    sheet.PageSetup.FitToPagesTall = 0;
+                    sheet.PageSetup.FitToPagesWide = 1;
+                    sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                    sheet.IsDisplayZeros = false;
+                    sheet.Name = "Task List";
+                    #endregion Page Setup
+
+                    workbook.SaveAs(fullPath);
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw (ex);
+            }
+            finally
+            {
+
+            }
+            return fileName;
+        }
+
     }
 }
