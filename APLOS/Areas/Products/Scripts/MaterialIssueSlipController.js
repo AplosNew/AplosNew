@@ -427,7 +427,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
             }
             else if (issueStatus == 'Checked') {
                 $scope.IssueSlipCheckedList = response.data;
-               console.log($scope.IssueSlipCheckedList);
             }
             else if (issueStatus == 'HoldReject') {
                 $scope.IssueSlipHoldRejectList = response.data;
