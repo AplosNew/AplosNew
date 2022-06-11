@@ -67,6 +67,22 @@ namespace OTSBD
                 return "";
             }
         }
+
+        public static string GetDateTaxFormate(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return "";
+
+            try
+            {
+                //return Convert.ToDateTime(s).ToString("dd/MMM/yyyy");
+                return Convert.ToDateTime(s).ToString("dd/MM/yyyy");
+            }
+            catch (Exception)
+            {
+                return "";
+            }
+        }
         public static string GetDateTime(string s)
         {
             if (string.IsNullOrEmpty(s))
