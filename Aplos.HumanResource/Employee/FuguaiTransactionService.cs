@@ -284,7 +284,7 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getByWhom()
         {
-            var sql = @"Select s.FullName as Text from TRN.FuguaiTransaction ft 
+            var sql = @"Select distinct s.FullName as Text from TRN.FuguaiTransaction ft 
                         left join SEC.[user] s on s.Id = ft.ObservedById";
             //var sql = @"Select ObservedById as Text from TRN.FuguaiTransaction ft where where ft.Date between '"+ From + "' and '"+To+"'";
             return _sqlRepository.GetDataCollection(sql);
@@ -292,7 +292,7 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getResponsiblePerson()
         {
-            var sql = @"select e.SystemId as Value, e.EmployeeName as Text from trn.FuguaiTransaction ft
+            var sql = @"select e.EmployeeName as Text from trn.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId";
            
             return _sqlRepository.GetDataCollection(sql);
@@ -306,7 +306,7 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getFuguai(string categoryText)
         {
-            var sql = @"select z.Id as Valaue, z.UserName as Text from hkp.ZoneMaster z  
+            var sql = @"select distinct z.UserName as Text from hkp.ZoneMaster z  
                         left join trn.FuguaiTransaction ft on ft.ZoneMasterId = z.Id
                         where ft.ZoneCategory = '"+ categoryText + "'";
             return _sqlRepository.GetDataCollection(sql);
@@ -314,7 +314,7 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getFinalStatus(string categoryText)
         {
-            var sql = @"select ft.id as Value, ft.FinalStatus as Text from trn.FuguaiTransaction ft 
+            var sql = @"select distinct ft.FinalStatus as Text from trn.FuguaiTransaction ft 
                         left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
                         where z.Category = '" + categoryText + "'";
             return _sqlRepository.GetDataCollection(sql);
@@ -322,7 +322,7 @@ namespace Library.HumanResource.Employee
 
         public IEnumerable<object> getFuguaiTransaction(string SystemId, string ObservedById)
         {
-            var sql = @"select ft.Id, cast(ft.Date as Date) as Date, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+            var sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
                         cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
@@ -334,8 +334,93 @@ namespace Library.HumanResource.Employee
                         left join org.Department d on d.Id = ft.ResponsibleDepartmentId
                         left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
                         left join hkp.Process p on p.Id = ft.ProcessId
-                        where e.SystemId = '" + SystemId + "' and s.Id = '"+ ObservedById + "'";
+                        where e.EmployeeName = '" + SystemId + "' and s.FullName = '" + ObservedById + "'";
             return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> viewByDate(string FromDate, string ToDate, string FinalStatus)
+        {
+            if (FinalStatus == null)
+            {
+                string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+                        z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
+                        from TRN.FuguaiTransaction ft
+                        left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
+                        left join SEC.[user] s on s.Id = ft.ObservedById
+                        left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
+                        left join org.Entity et on et.Id = ft.EntityId
+                        left join org.Department d on d.Id = ft.ResponsibleDepartmentId
+                        left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
+                        left join hkp.Process p on p.Id = ft.ProcessId
+                        where ft.Date between'" + FromDate + "' and '" + ToDate + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            else
+            {
+                string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+                        z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
+                        from TRN.FuguaiTransaction ft
+                        left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
+                        left join SEC.[user] s on s.Id = ft.ObservedById
+                        left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
+                        left join org.Entity et on et.Id = ft.EntityId
+                        left join org.Department d on d.Id = ft.ResponsibleDepartmentId
+                        left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
+                        left join hkp.Process p on p.Id = ft.ProcessId
+                        where ft.Date between'" + FromDate + "' and '" + ToDate + "' and ft.FinalStatus = '" + FinalStatus + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+        }
+
+        public DataTable GetReport(string FromDate, string ToDate, string FinalStatus)
+        {
+            try
+            {
+                if (FinalStatus == null)
+                {
+                    string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+                        z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
+                        from TRN.FuguaiTransaction ft
+                        left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
+                        left join SEC.[user] s on s.Id = ft.ObservedById
+                        left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
+                        left join org.Entity et on et.Id = ft.EntityId
+                        left join org.Department d on d.Id = ft.ResponsibleDepartmentId
+                        left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
+                        left join hkp.Process p on p.Id = ft.ProcessId
+                        where ft.Date >= '" + FromDate + "' and ft.Date <= '" + ToDate + "'";
+                    return _sqlRepository.GetDataTable(sql);
+                }
+                else
+                {
+
+
+                    string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
+                        z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
+                        from TRN.FuguaiTransaction ft
+                        left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
+                        left join SEC.[user] s on s.Id = ft.ObservedById
+                        left join hkp.ZoneMaster z on z.Id = ft.ZoneMasterId
+                        left join org.Entity et on et.Id = ft.EntityId
+                        left join org.Department d on d.Id = ft.ResponsibleDepartmentId
+                        left join MST.MachineMaster mm on mm.Id = ft.MachineMasterId
+                        left join hkp.Process p on p.Id = ft.ProcessId
+                        where ft.Date between'" + FromDate + "' and '" + ToDate + "' and ft.FinalStatus = '" + FinalStatus + "'";
+                    return _sqlRepository.GetDataTable(sql);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
     #endregion FuguaiReportService

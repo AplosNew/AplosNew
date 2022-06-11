@@ -8,7 +8,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">From</label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" id="CommitmentDate" ng-model="ModelNew.FromtDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                    <input type="text" id="CommitmentDate" ng-model="FromDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
                 </div>
             </div>
             <div class="form-group">
@@ -59,7 +59,7 @@
             <div class="form-group" show-errors>
                 <label class="col-sm-4 control-label">To</label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                    <input type="text" ng-model="ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
                 </div>
             </div>
             <div class="form-group">
@@ -69,7 +69,7 @@
                         <select class="form-control" id="ObservedBy" ng-model="ModelNew.ResponsiblePersonId" required name="Tag"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in ResponsibleList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in ResponsibleList" value="{{option.Text}}">{{option.Text}}</option>
 
                         </select>
                     </div>
@@ -92,8 +92,9 @@
         <div class="common-btn">
             <ul class="list-inline text-right">
                 <li> <button ng-click="getFuguaiTransaction();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>View</button></li>
-                <li><button ng-click="GetReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
-                     
+                <li> <button ng-click="viewByDate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>View By Date</button></li>
+                <li><button ng-click="downloadReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+
             </ul>
         </div>
     </div>
