@@ -106,4 +106,14 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
         });
 
     }
+
+    $scope.GetReport = function () {
+        var reportFormat = "Excel";
+        try {
+            var file_src = 'HumanResource/FuguaiReport/GetFuguaiReport?FromDate=' + $scope.ModelNew.FromDate + '&ToDate=' + $scope.ModelNew.ToDate + '&FinalStatus=' + $scope.ModelNew.FinalStatus;
+            $rootScope.report(file_src);
+        } catch (e) {
+
+        }
+    };
 }

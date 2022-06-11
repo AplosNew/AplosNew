@@ -162,12 +162,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public JsonResult Save(Dictionary<string, object> datas)
+        public JsonResult Save(Dictionary<string, object> datas, string ObservedById, string ResponsiblePersonId)
 
         {
             try
             {
-                var data = ft.Save(datas);
+                var data = ft.Save(datas, ObservedById, ResponsiblePersonId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated});
 
             }

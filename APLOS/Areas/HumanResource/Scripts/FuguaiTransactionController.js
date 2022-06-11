@@ -7,59 +7,39 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
     $scope.path = 'HumanResource/FuguaiTransaction/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
-    $scope.deleteUrl = $scope.path + 'delete/';
-   
+    $scope.deleteUrl = $scope.path + 'delete/';  
     baseService.init($scope.getListUrl);
 
-
-    /*
-    // ALL POP UPs
-
-     // Observed By
+    //----------------------------------------------------------------------------------------//
+     // ALL POP UPs
     $scope.OpenEmployeePopUp = function () {
 
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
 
-    
+
     $scope.closeEmpPopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
     }
 
-    // Entity Master
-    $scope.OpenEntityPopUp = function () {
+    $scope.openObservedBy = function () {
 
-        angular.element(document.querySelector('#EntityPop')).modal('show');
+        angular.element(document.querySelector('#ObservedByPopup')).modal('show');
+        $scope.getObservedBy();
     }
+    $scope.closeObservedBy = function () {
 
+        angular.element(document.querySelector('#ObservedByPopup')).modal('hide');
+    }
+     //------------------------------------------------------------------------------------//
    
-    $scope.closeEntityPopUp = function () {
-        angular.element(document.querySelector('#EntityPop')).modal('hide');
-    }
 
-   // Fuguai Master
-    $scope.OpenFuguaiPopUp = function () {
-
-        angular.element(document.querySelector('#FuguaiPop')).modal('show');
-    }
-
-
-    $scope.closeFuguaiPopUp = function () {
-        angular.element(document.querySelector('#FuguaiPop')).modal('hide');
-    }
-    */
-
-    // POP OPEN
     $scope.selectEmployee = function () {
 
         angular.element(document.querySelector('#EmployeePop')).modal('show');
     }
 
-    // POP CLOSED
-    $scope.closeEmpPopUp = function () {
-        angular.element(document.querySelector('#EmployeePop')).modal('hide');
-    }
-
+   
     // All List
 
     $scope.EntityList = [];
@@ -127,13 +107,12 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
            
             url: $scope.path + 'getObservedBy',
         }).then(function success(response) {
-            $scope.ObservedByList = response.data;
-           // document.getElementById("ObservedBy").value = $scope.ObservedByList;
             
+            $scope.ObservedByList = response.data;
         });
         
     }
-    $scope.getObservedBy();
+    //$scope.getObservedBy();
 
     $scope.getCategory = function () {
         $http({
@@ -242,6 +221,25 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         });
     }
 
+    // Select Observe  By
+    
+    $scope.ObserveByName = null;
+    $scope.ObserveById = null;
+    $scope.selectObservedBy = function (e) {
+        $scope.ObserveByName = e.data.UserName;
+        $scope.ObserveById = e.data.Id;
+        $scope.closeObservedBy();
+        
+    }
+
+    $scope.ResponsiblePerson = null;
+    $scope.ResponsiblePersonId = null;
+    $scope.selectResponsible = function (e) {
+        $scope.ResponsiblePerson = e.data.EmployeeName;
+        $scope.ResponsiblePersonId = e.data.SystemId;
+        $scope.closeEmpPopUp();
+    }
+    // Select Observe  By End
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
 
@@ -250,7 +248,8 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
                 url: $scope.saveUrl,
                 data: {
                     'datas': $scope.ModelNew,
-                    
+                    'ObservedById': $scope.ObserveById,
+                    'ResponsiblePerson':$scope.ResponsiblePersonId,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -280,6 +279,7 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
 
     };
 
+    // clear Data
     $scope.Clear = function () {
         ClearFields($scope.GetSequence());
         return true;
@@ -314,23 +314,6 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
-    // Commitment Date
-    $scope.getCommitmentDate = function () {
-        var today = new Date();
-        var dd = String(today.getDate()).padStart(2, '0');
-        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        var yyyy = today.getFullYear();
-
-        today = mm + '/' + dd + '/' + yyyy;
-        //$scope.ModelNew.CommitmentDate = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        $scope.ModelNew.CommitmentDate = today;
-        document.getElementById("CommitmentDate").value = $scope.ModelNew.CommitmentDate;
-    }
-   // $scope.getCommitmentDate();
-
-    $scope.EvalEscalationDays = function () {
-        var commitDate = new Date($scope.CommitmentDate);
-        appointment.setDate(commitDate.getDate() + 2);
-    }
+   
         
 }

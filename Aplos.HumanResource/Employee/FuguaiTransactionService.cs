@@ -38,7 +38,7 @@ namespace Library.HumanResource.Employee
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 user = identity.UserId;
                 //var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
-                var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s";
+                var sql = @"select s.Id, s.UserId, s.FullName as UserName,s.Email  from SEC.[user] s where Active = '1'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -105,9 +105,9 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select e.SystemId as Value, e.EmployeeName as Text from dbo.EmployeeInformation e
+                var sql = @"select e.SystemId, e.EmployeeName, e.DOJ, e.EmployeeCode from dbo.EmployeeInformation e
                             left join org.Department d on d.Id = e.DepartmentId
-                            where d.Id = '" + DepartmentId + "'";
+                            where d.Id = '" + DepartmentId + "' and e.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -162,7 +162,7 @@ namespace Library.HumanResource.Employee
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data)
+        public Dictionary<string, object> Save(Dictionary<string, object> data, string ObservedById, string ResponsiblePersonId)
         {
             try
             {
@@ -192,7 +192,8 @@ namespace Library.HumanResource.Employee
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "FT" + _Id;
-                   
+                    data["ObservedById"] = ObservedById;
+                    data["ResponsiblePersonId"] = ResponsiblePersonId;
                     data["Date"] = DateTime.Now.ToString();
                     data["Time"] = DateTime.Now.ToString("h:mm:ss");
                     //data["ObservedById"] = identity.FullName;
@@ -202,6 +203,8 @@ namespace Library.HumanResource.Employee
                 else
                 {
                     _Id = data["Id"].ToString();
+                    data["ObservedById"] = ObservedById;
+                    data["ResponsiblePersonId"] = ResponsiblePersonId;
                     data["Date"] = DateTime.Now.ToString();
                     data["Time"] = DateTime.Now.ToString("h:mm:ss");
 
