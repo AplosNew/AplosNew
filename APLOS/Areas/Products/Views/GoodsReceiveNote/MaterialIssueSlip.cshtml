@@ -590,115 +590,9 @@
 @*//Master Table Data*@
 
 <div class="aplos-grid-toggle">
-    @*<fieldset class="scheduler-border">
-            <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-            <div>
-
-                <div class="content-container-fluid" style="color:black;">
-                    <div style="color:black;" id="GriddataMaster1" ej-grid e-datasource="GriddataMaster"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                         e-allowselection="true" e-recorddoubleclick="recorddoubleclickFromMasterGrid" e-filtersettings-filterType="excel" e-enabletouch="true">
-                        <div e-columns>
-
-
-                            <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
-                            <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
-                            <div e-column e-field="Id" e-headertext="GRN No" e-width="80"></div>
-                            <div e-column e-field="GRNDate1" e-headertext="GRN Date" e-width="80"></div>
-                            <div e-column e-field="POID" e-headertext="PONo" e-width="80"></div>
-                            <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>
-                            <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="80"></div>
-                            <div e-column e-field="InvoiceDate" e-headertext="Invoice date" e-width="80"></div>
-                            <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="50"></div>
-                            <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="80"></div>
-                            <div e-column e-field="BaseAmount" e-headertext="Total Amount" e-width="80"></div>
-
-                            <div e-column e-headertext="ExportTOWord" e-commands="commandWord" e-isunbound=true e-textalign="left" e-width="50"></div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-        </fieldset>
-        <div class="row text-right" hidden="hidden">
-            <div class="col-xs-12 col-sm-12 col-sm-12">
-                <div class="search-form">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-3 col-md-3">
-                            <div class="select-style">
-                                <select ng-model="$root.parameters.searchBy">
-                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-7 col-md-7">
-                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData();">
-                        </div>
-                        <div class="col-xs-12 col-sm-2 col-md-2">
-                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="table-responsive modal-table" hidden="hidden">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-
-                        <th>Vendor</th>
-                        <th>Account Group</th>
-                        <th>GRN No</th>
-                        <th>GRN Date</th>
-                        <th>PO No</th>
-                        <th>Vendor DocNo</th>
-                        <th>Invoice No</th>
-                        <th>Invoice Date</th>
-                        <th>Qty</th>
-                        <th>Amount (TRN)</th>
-                        <th>Amount (BC)</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr dir-paginate="x in products |itemsPerPage:$root.pageSize" total-items="$root.total_count" pagination-id="metaData.name + 'products'" ng-dblclick="Get($index,POID);">
-
-                        <td>{{x.PartyCode}} - {{x.PartyName}}</td>
-                        <td>{{x.PartyAccountGroupName}}</td>
-                        <td>{{x.Id}}</td>
-                        <td>{{x.GRNDate | dateFiltering}}</td>
-                        <td>{{x.POID}}</td>
-                        <td>{{x.DocRefNo}}</td>
-                        <td>{{x.InvoiceNo}}</td>
-                        <td>{{x.InvoiceDate}}</td>
-                        <td class="text-right">{{x.TransactionQty}}  {{x.TransactionUoM}}</td>
-                        <td class="text-right">{{x.TransactionAmount|number:2}} {{x.CurrencyCode}}</td>
-                        <td class="text-right">{{x.BaseAmount|number:2}}</td>
-                        <td class="text-right">
-                            <ul class="list-inline action-list">
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Pdf');" href="" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="inventoryReceiveReport(x.Id, 'Excel');" href="" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                                <li><a class="btn btn-action" ng-click="GRNReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a></li>
-                            </ul>
-                        </td>
-
-                    </tr>
-                </tbody>
-            </table>
-
-            <dir-pagination-controls max-size="10" pagination-id="metaData.name + 'products'" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
-        </div>*@
-
-
-
-
+    <div class="row">
 
     <div class="tab-design" id="tab_show">
-        <input type="text" class="input ejinputtext form-control" ng-hide="true" style="background-color:white;font-weight:bold;color:black;text-align:right;" @*ng-model="Status='InventorySlip'"*@ width="150" />
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSetIndex(1) }"><a ng-click="setTabIndex(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Issue Slip List</a></li>
@@ -716,7 +610,7 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid1" ej-grid e-datasource="IssueSlipList"
+                            <div style="color:black;" id="GridIssueSlip" ej-grid e-datasource="IssueSlipList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
                                  e-allowselection="true"
@@ -730,9 +624,9 @@
                                     @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                     <div e-column e-field="Id" e-headertext="Id" e-width="40"></div>
                                     @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                        <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                        <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
                                     <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
                                     @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
                                     <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
@@ -752,16 +646,16 @@
                             </div>
 
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">Inventory Issue Slip Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
+                        @*<script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">Inventory Issue Slip Details</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
                             </div>
-                        </script>
+                        </div>
+                    </script>*@
                     </div>
                 </fieldset>
 
@@ -777,7 +671,7 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid2" ej-grid e-datasource="IssueSlipHoldRejectList"
+                            <div style="color:black;" id="GridHoldReject" ej-grid e-datasource="IssueSlipHoldRejectList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
                                  e-allowselection="true"
@@ -787,9 +681,9 @@
                                     @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                     <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
                                     @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                        <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                        <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
                                     <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
                                     @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
                                     <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
@@ -809,16 +703,16 @@
                             </div>
 
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
+                        @*<script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
                             </div>
-                        </script>
+                        </div>
+                    </script>*@
                     </div>
                 </fieldset>
 
@@ -830,60 +724,35 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSetIssueChecked(3), active: isSetIssueChecked(3) }">
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
-                    <div>
+                    <div style="color:black;" id="GridChecked" ej-grid e-datasource="IssueSlipCheckedList" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-allowselection="true" e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                         e-detailstemplate="detailTemp" e-detailsdatabound="detailgrid" e-allowscrolling="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                            <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
+                            @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
+                            <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
+                            <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
+                            <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
+                            <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
+                            <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
+                            <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
 
-                        <div class="content-container-fluid" style="color:black;">
-
-                            <div style="color:black;" id="Grid3" ej-grid e-datasource="IssueSlipCheckedList"
-                                e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                e-allowselection="true"
-                                e-detailstemplate="detailTemp"
-                                e-detailsdatabound="detailgrid"
-                                >
-                            @*<div style="color:black;" id="Grid3" ej-grid e-datasource="IssueSlipCheckedList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel"
-                                 e-enabletouch="true" e-allowselection="true"  e-detailstemplate="detailTemp"
-                                e-detailsdatabound="detailgrid"
-                                 e-scrollsettings="scroll">*@
-                                <div e-columns>
-                                    @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
-                                    <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                    @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                        <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                        <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
-                                    <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
-                                    @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
-                                    <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
-                                    <div e-column e-field="PreparedBy" e-headertext="Prepared By" e-width="80"></div>
-                                    <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="80"></div>
-                                    <div e-column e-field="CheckedByStatus" e-headertext="CheckedByStatus" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedBy" e-headertext="Approved By" e-width="80"></div>
-                                    <div e-column e-field="AuthorizedByStatus" e-headertext="Approved Status" e-width="80"></div>
-                                    @*  <div e-column e-headertext="Print" e-commands="IssueRequestReport" e-isunbound=true e-textalign="center" e-width="50"></div>*@
-
-                                    <div e-column e-headertext="Actions" e-width="20">
-                                        <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
-                                    </div>
-
-                                </div>
-
+                            <div e-column e-headertext="Actions" e-width="20">
+                                <button style="color: #f3f3ec;background-color: #1c1f32;height: 30px;" class="btn"><i class="glyphicon glyphicon-print" title="Print" ng-click="$parent.AllTabPrint('Grid3');" style="margin: -6px;"></i></button>
                             </div>
-
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
-                            </div>
-                        </script>
                     </div>
+                    @*<script id="tabGridContents" type="text/x-jsrender">
+            <div class="tabcontrol" id="Test">
+                <ul>
+                    <li><a href="#gridTab{{:Id}}">GRN Details</a></li>
+                </ul>
+                <div id="gridTab{{:Id}}">
+                    <div id="detailGrid"></div>
+                </div>
+            </div>
+        </script>*@
                 </fieldset>
 
             </div>
@@ -897,7 +766,7 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid5" ej-grid e-datasource="ApprovedIssueSlipGList"
+                            <div style="color:black;" id="GridApprovedIssueSlip" ej-grid e-datasource="ApprovedIssueSlipGList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
                                  e-allowselection="true"
@@ -907,9 +776,9 @@
                                     @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                     <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
                                     @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                        <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                        <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
                                     <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
                                     @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
                                     <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
@@ -926,16 +795,16 @@
                             </div>
 
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">PO Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
+                        @*<script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
                             </div>
-                        </script>
+                        </div>
+                    </script>*@
                     </div>
                 </fieldset>
             </div>
@@ -949,7 +818,7 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid6" ej-grid e-datasource="ApprovedIssueSlipGList"
+                            <div style="color:black;" id="Grid6Slip" ej-grid e-datasource="ApprovedIssueSlipGList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
                                  e-allowselection="true"
@@ -959,9 +828,9 @@
                                     @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                     <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
                                     @*<div e-column e-field="CostCenterName" e-headertext="Cost Center Name" e-width="80"></div>
-                                        <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
-                                        <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
-                                        <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
+                                <div e-column e-field="ActivityName" e-headertext="ActivityName" e-width="80"></div>
+                                <div e-column e-field="RequisitionDetailId" e-headertext="RequisitionDetailId" e-width="80"></div>
+                                <div e-column e-field="RequisitionId" e-headertext="RequisitionId" e-width="80"></div>*@
                                     <div e-column e-field="RequestedQty" e-headertext="ValidQty" e-width="50"></div>
                                     @*<div e-column e-field="RejectedQty" e-headertext="RejectedQty" e-width="80"></div>*@
                                     <div e-column e-field="AddedDate" e-headertext="Entry Date" e-width="80"></div>
@@ -980,22 +849,33 @@
                             </div>
 
                         </div>
-                        <script id="tabGridContents" type="text/x-jsrender">
-                            <div class="tabcontrol" id="Test">
-                                <ul>
-                                    <li><a href="#gridTab{{:Id}}">PO Details</a></li>
-                                </ul>
-                                <div id="gridTab{{:Id}}">
-                                    <div id="detailGrid"></div>
-                                </div>
+                        @*<script id="tabGridContents" type="text/x-jsrender">
+                        <div class="tabcontrol" id="Test">
+                            <ul>
+                                <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                            </ul>
+                            <div id="gridTab{{:Id}}">
+                                <div id="detailGrid"></div>
                             </div>
-                        </script>
+                        </div>
+                    </script>*@
                     </div>
                 </fieldset>
             </div>
-
+            <script id="tabGridContents" type="text/x-jsrender">
+                <div class="tabcontrol" id="Test">
+                    <ul>
+                        <li><a href="#gridTab{{:Id}}">PO Details</a></li>
+                    </ul>
+                    <div id="gridTab{{:Id}}">
+                        <div id="detailGrid"></div>
+                    </div>
+                </div>
+            </script>
         </div>
     </div>
+    </div>
+
 
 
 
