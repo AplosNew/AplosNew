@@ -758,5 +758,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/FuguaiTransaction/Aplos',
             controller: 'FuguaiTransactionController'
         })
+        .when('/fuguai-report', {
+            templateUrl: 'humanResource/FuguaiReport/Aplos',
+            controller: 'FuguaiReportController'
+        })
         ;
 }

@@ -43,11 +43,13 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getObservedBy(string EntityId)
+        public ActionResult getObservedBy(string user)
         {
             try
             {
-                return Json(ft.getObservedBy(EntityId), JsonRequestBehavior.AllowGet);
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                user = identity.UserId;
+                return Json(ft.getObservedBy(user), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -69,6 +71,32 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
+        public ActionResult getTag(string categoryText)
+        {
+            try
+            {
+                return Json(ft.getTag(categoryText), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getSubCategory(string categoryText, string FuguaiId)
+        {
+            try
+            {
+                return Json(ft.getSubCategory(categoryText, FuguaiId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
         public ActionResult getDepartment()
         {
             try
@@ -82,11 +110,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getResponsiblePerson()
+        public ActionResult getResponsiblePerson(string DepartmentId)
         {
             try
             {
-                return Json(ft.getResponsiblePerson(), JsonRequestBehavior.AllowGet);
+                return Json(ft.getResponsiblePerson(DepartmentId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -95,11 +123,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getProcess()
+        public ActionResult getProcess(string EntityId)
         {
             try
             {
-                return Json(ft.getProcess(), JsonRequestBehavior.AllowGet);
+                return Json(ft.getProcess(EntityId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -121,15 +149,33 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult getMachineRef()
+        public ActionResult getMachineRef(string mmId)
         {
             try
             {
-                return Json(ft.getMachineRef(), JsonRequestBehavior.AllowGet);
+                return Json(ft.getMachineRef(mmId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Save(Dictionary<string, object> datas, string ObservedById, string ResponsiblePersonId)
+
+        {
+            try
+            {
+                var data = ft.Save(datas, ObservedById, ResponsiblePersonId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated});
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
             }
         }
     }

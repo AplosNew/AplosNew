@@ -21,6 +21,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.Action1 = 'Save';
     $scope.loadstatus = false;
     $scope.lstIssueDetailData = [];
+    $scope.partyList = [];
     //$scope.path1 = 'OrderManagements/ProductionOrder/';
     $scope.getListUrl = $scope.path + 'GetProductionList';
 
@@ -408,35 +409,31 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
     $scope.IssueSlipList = [];
-
+    $scope.IssueSlipHoldRejectList=[]
+    $scope.IssueSlipCheckedList=[]
     $scope.IssueStatus = 'ForChecked';
-    // $scope.Status = $scope.IssueTypeStatus;
-    //alert($scope.Status)
-    $scope.Griddata = function () {
-        //debugger;
+    
+    $scope.Griddata = function (issueStatus) {
+        $scope.IssueSlipList = [];
+        $scope.IssueSlipHoldRejectList = []
+        $scope.IssueSlipCheckedList = []
         $scope.Status = 'InventorySlip';
-        //if ($scope.Status === 'InventorySlip')
-        //{
-        //    $scope.Status = 'InventorySlip';
-        //}
-        //$scope.Status = $scope.IssueTypeStatus;
-        $scope.IssueSlipType = 'InventorySlip';
-        if ($scope.IssueStatus === 'ForChecked') {
-            $scope.IssueStatus = 'ForChecked';
-        }
-
-        else {
-
-        }
-
         $http({
             method: 'GET',
-            url: 'Products/GoodsReceiveNote/IssueListData?IssueStatus=' + $scope.IssueStatus + '&IssueSlipType=' + $scope.Status
+            url: 'Products/GoodsReceiveNote/IssueListData?IssueStatus=' + issueStatus + '&IssueSlipType=' + $scope.Status
         }).then(function successCallback(response) {
-            $scope.IssueSlipList = response.data;
+            if (issueStatus == 'ForChecked') {
+                $scope.IssueSlipList = response.data;
+            }
+            else if (issueStatus == 'Checked') {
+                $scope.IssueSlipCheckedList = response.data;
+            }
+            else if (issueStatus == 'HoldReject') {
+                $scope.IssueSlipHoldRejectList = response.data;
+            }
         });
     }
-    $scope.Griddata();
+    $scope.Griddata('ForChecked');
 
 
 
@@ -1903,25 +1900,6 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
 
 
     $scope.IssueSlipListPopup = [];
-    // #region Material Wise Issue Slip
-    //$scope.GetIssueSlipFilterData = function () {
-    //    //debugger;
-    //    //tarek
-    //    $.ajax({
-    //        type: "GET",
-    //        contentType: "application/json; charset=utf-8",
-    //        url: 'Products/GoodsReceiveNote/GetIssueSlipFilterData',
-    //        data: {},
-    //        async: false,
-    //        dataType: "json",
-    //        success: function (data) {
-    //            $scope.IssueSlipListPopup = data;
-
-    //        }
-
-    //    });
-    //}
-
 
     $scope.searchBySlipMaterial = "MaterialMasterName"; $scope.searchSlip = "";
     $scope.searchBySlipList = [{ value: 'MaterialMasterGroupName', name: "MaterialMasterGroupName" }, { value: 'MaterialType', name: "MaterialType" },{ value: 'MaterialMasterName', name: "Material Master" }, { value: 'StandardName', name: "Article" }
@@ -1958,9 +1936,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.setTabIndex = function (newTab) {
         $scope.tab1 = newTab;
         $scope.Status = 'InventorySlip';
-        $scope.IssueSlipType = 'InventorySlip';
-        $scope.IssueStatus = 'ForChecked';
-        $scope.Griddata();
+        $scope.Griddata('ForChecked');
     };
     $scope.isSetIndex = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -1969,7 +1945,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.setTabIssueCHR = function (newTab) {
         $scope.tab1 = newTab;
         $scope.IssueStatus = 'HoldReject';
-        $scope.Griddata();
+        $scope.Griddata('HoldReject');
     };
     $scope.isSetIssueCHR = function (tabNum) {
         return $scope.tab1 === tabNum;
@@ -1979,7 +1955,7 @@ function MaterialIssueSlipController(addressService, $window, cboService, common
     $scope.setTabIssueChecked = function (newTab) {
         $scope.tab1 = newTab;
         $scope.IssueStatus = 'Checked';
-        $scope.Griddata();
+        $scope.Griddata('Checked');
     };
     $scope.isSetIssueChecked = function (tabNum) {
         return $scope.tab1 === tabNum;

@@ -110,9 +110,83 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         }
 
-        private void GetTNAStatusReportsData(out DataTable dtTna, Dictionary<string, string> filterString)
+        private string GetIssueSql(Dictionary<string, string> filterString, string issueIds)
         {
-            string sql = GetSql(filterString);
+            string FilterString = "";
+
+            string FromDate = filterString["FromDate"];
+            string ToDate = filterString["ToDate"];
+            string ActiveStatus = filterString["ActiveStatus"];
+            string status = filterString["Status"];
+            string Today = DateTime.Now.ToString("dd-MMM-yyyy");
+            string FirstDayOfEndNextWeek = DateTime.Now.AddDays(8).ToString();
+
+            string wc = "";
+
+            if (issueIds=="")
+            {
+                wc = "";
+            }
+            else
+            {
+                wc = "WHERE it.Id IN(" + issueIds + ")";
+            }
+            FilterString = "WHERE 1=1 ";
+            if (ActiveStatus == "Active")
+            {
+                FilterString += " AND isnull(CurrentStatus,'')<>'Closed'";
+                FilterString += " AND Convert(date,DueDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "')";
+
+            }
+            else if (ActiveStatus == "Closed")
+            {
+                FilterString += " AND isnull(CurrentStatus,'')='Closed'";
+                FilterString += " AND Convert(date,ClosingDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "')";
+
+            }
+            else
+            {
+                FilterString += " AND ( (Convert(date,DueDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "') AND isnull(CurrentStatus,'')<>'Closed')";
+                FilterString += " OR (Convert(date,ClosingDate) Between Convert(date,'" + FromDate + "') AND Convert(date, '" + ToDate + "') AND isnull(CurrentStatus,'')='Closed'))";
+
+            }
+
+
+
+            return @"SELECT * FROM (SELECT TMM.Id AS TaskMasterId,it.Id AS IssueId,
+                     FORMAT(it.IssueDate,'dd-MMM-yyyy') AS IssueCreationDate, FORMAT(it.RequiredDate,'dd-MMM-yyyy') AS IssueRequiredDate,
+                      FORMAT(it.CloseDate,'dd-MMM-yyyy') AS IssueCloseDate,
+                     FORMAT(TSK.CreatedTime,'dd-MMM-yyyy hh:mm:ss tt') AS LastChat, TMM.CurrentStatus,TSC.UserName as SubCategory,TC.UserName as Category,TMM.TaskType, TMM.TaskDescription AS Task, EBy.EmployeeName as AssignBy,ETo.EmployeeName as AssignTo, format(TATo.DueDate,'dd-MMM-yyyy') as DueDate, ISNULL(format(TATo.RevisedCommitmentDate,'dd-MMM-yyyy'),ISNULL(format(TATo.CommitmentDate,'dd-MMM-yyyy'),format(TATo.DueDate,'dd-MMM-yyyy'))) as CommitmentDate  ,  NULL MasterOrderNo,
+                           
+                        Buyer=STUFF((select distinct ', ' + XB.UserName from IssueTransaction AS XIT 
+                        INNER JOIN IssueBuyer AS XIB ON XIB.IssueTransactionId = XIT.Id
+                        LEFT OUTER JOIN [HKP].[Buyer] AS XB ON XB.Id = XIB.BuyerId
+                        where XIT.Id=IT.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),
+                        isnull(ii.UserName,'') AS IssueImportance,isnull(eim.EmployeeName,'') AS Mentor,isnull(ig.Name,'') AS IssueGroupName,
+                        datediff(day,tato.duedate,TMM.closingDate) AS EarlyOrLateBy,FORMAT(TMM.ClosingDate,'dd-MMM-yyyy') AS ClosingDate
+                        ,Department=NULL,Division=NULL
+                        FROM TaskManagerMaster AS TMM
+                            
+                        LEFT OUTER JOIN TaskAudit AS TATo on TATo.TaskManagerMasterId = TMM.Id AND TATo.AuthorizationType = 'AssignTo' 
+                        LEFT OUTER JOIN TaskAudit AS TABy on TABy.TaskManagerMasterId = TMM.Id AND TABy.AuthorizationType = 'CreatedBy' 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS ETo ON ETo.SystemId = TATo.ResponsiblePersonId 
+                        LEFT OUTER JOIN [dbo].[EmployeeInformation] AS EBy ON EBy.SystemId = TABy.ResponsiblePersonId 
+                        INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
+                        left outer join TaskComments TSK on TSK.TaskManagerMasterId=TMM.Id AND TSK.ID=(SELECT TOP 1 ID FROM TaskComments T WHERE T.TaskManagerMasterId=TMM.ID ORDER BY T.CreatedTime DESC)
+                               
+                        LEFT OUTER JOIN IssueImportance AS ii ON ii.Id=it.IssueImportanceId
+                        LEFT OUTER JOIN EmployeeInformation AS eiM ON eim.SystemID=it.MentorId
+                        LEFT OUTER JOIN IssueGroup AS ig ON ig.Id=it.IssueGroupId
+
+                        LEFT OUTER JOIN [HKP].[TaskSubCategory] AS TSC ON TSC.Id = TMM.TaskSubCategoryId
+                                                    LEFT OUTER JOIN HKP.TaskCategory AS TC ON TC.Id = TMM.TaskCategoryId "+ wc + ") AS K " + FilterString + " order by IssueGroupName,DueDate";
+
+
+        }
+
+        private void GetTNAStatusReportsData(out DataTable dtTna, Dictionary<string, string> filterString, string issueIds)
+        {
+            string sql = GetIssueSql(filterString,issueIds);
             dtTna = _sqlRepository.GetDataTable(sql);
             dtTna.Columns.Add("EarlyBy", typeof(int));
             dtTna.Columns.Add("LateBy", typeof(int));
@@ -208,7 +282,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
             return dicComments;
         }
 
-        public IWorkbook GetTNAStatusReport(string CompanyGroupId, string CompanyId, string PlantId, string PlantName, string EmployeeId, string UserName, Dictionary<string, string> filterString)
+        public IWorkbook GetTNAStatusReport(string CompanyGroupId, string CompanyId, string PlantId, string PlantName, string EmployeeId, string UserName, Dictionary<string, string> filterString, string issueIds)
         {
             #region declare
             clsReport objRpt = null;
@@ -236,7 +310,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 var workbook = oru.GetWorkbook(ref excelEngine, 1);
 
                 #region Get Data Query
-                GetTNAStatusReportsData(out dtTNA, filterString);
+                GetTNAStatusReportsData(out dtTNA, filterString, issueIds);
                 if (dtTNA.Rows.Count == 0)
                     throw new Exception("No data found");
 
@@ -656,12 +730,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         #region Worker Late Status
         [HttpPost, Authorize]
-        public ActionResult GetTNAStatusReports(ReportFormat reportFormat, Dictionary<string, string> filterString)
+        public ActionResult GetTNAStatusReports(ReportFormat reportFormat, Dictionary<string, string> filterString, string issueIds)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                IWorkbook workbook = GetTNAStatusReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, identity.Name, filterString);
+                IWorkbook workbook = GetTNAStatusReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, identity.EmployeeId, identity.Name, filterString, issueIds);
 
                 workbook.Version = ExcelVersion.Excel2013;
                 var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "Issue Status Reports.xlsx";

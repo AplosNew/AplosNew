@@ -87,7 +87,7 @@ namespace Library.HumanResource.Employee
             try
             {
                 //Master Table - PMSMaster
-                string TableName = "HKP.ZoneMaster";
+                string TableName = "hkp.ZoneMaster";
                 DataSet dsMaster;
 
                /* if (Employee == null)
@@ -129,6 +129,7 @@ namespace Library.HumanResource.Employee
                 throw ex;
             }
         }
+        
         public void Delete(string id)
         {
             try
@@ -195,6 +196,7 @@ namespace Library.HumanResource.Employee
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
+       
         public double GetSequence()
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.ZoneMaster");

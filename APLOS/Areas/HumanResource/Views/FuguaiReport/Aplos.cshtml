@@ -1,0 +1,134 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">From</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" id="CommitmentDate" ng-model="ModelNew.FromtDate" name="From Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Obesrved By</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="ObservedBy" ng-model="ModelNew.ObservedById" required name="Observed By"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ObservedByList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                   
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Category</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="Category" ng-change="getFuguai()" ng-model="ModelNew.ZoneCategory" required name="Category Id"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in CategoryList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Final Status<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="PriorityLevel"  ng-model="ModelNew.FinalStatus" required name="Final Status"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in FinalStatusList" value="{{option.Text}}">{{option.Text}}</option>
+
+
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">To</label>
+                <div class="col-sm-6 show-message">
+                    <input type="text" ng-model="ModelNew.ToDate" name="To Date" datepicker class="form-control" maxlength="50" tabindex="3" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible Person</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="ObservedBy" ng-model="ModelNew.ResponsiblePersonId" required name="Tag"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ResponsibleList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Tag</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="Tag" ng-change="getFinalStatus()" ng-model="ModelNew.ZoneMasterId" required name="Tag"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in TagList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="getFuguaiTransaction();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>View</button></li>
+                <li><button ng-click="GetReport();" class="btn"> <i class="glyphicon glyphicon-download"></i> Download</button></li>
+                     
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
+        <div id="GridEdit" ej-grid e-datasource="FuguaiTransactionList"  e-load="loadGridEdit"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+            <div e-columns>
+                <div e-column e-field="Id" e-headertext="Id" e-width="60"></div>              
+                <div e-column e-field="Date" e-headertext="Date" e-width="100"></div>
+                
+                <div e-column e-field="Entity" e-headertext="Entity Type" e-width="100"></div>
+                <div e-column e-field="ObservedBy" e-headertext="Observed By" e-width="100"></div>
+                <div e-column e-field="Category" e-headertext="Category" e-width="100"></div>
+                <div e-column e-field="Tag" e-headertext="Tag" e-width="80"></div>
+                <div e-column e-field="Detail" e-headertext="Detail" e-width="150"></div>
+                <div e-column e-field="PriorityLevel" e-headertext="Priority Level" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Responsible Department" e-width="100"></div>
+                <div e-column e-field="ResponsiblePerson" e-headertext="Responsible Person" e-width="100"></div>
+                <div e-column e-field="TargetDate" e-headertext="Target Date" e-width="80"></div>
+                <div e-column e-field="Date" e-headertext="Date" e-width="80"></div>
+                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="120"></div>
+                <div e-column e-field="CurrentStatus" e-headertext="Current Status" e-width="100"></div>
+                <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                <div e-column e-field="Machine" e-headertext="Machine" e-width="100"></div>
+                <div e-column e-field="MachineReference" e-headertext="Machine Ref No." e-width="80"></div>
+                <div e-column e-field="FinalStatus" e-headertext="Final Status" e-width="80"></div>
+                <div e-column e-field="CloseDate" e-headertext="Close Date" e-width="80"></div>
+                <div e-column e-field="TagColor" e-headertext="Tag Color" e-width="80"></div>
+                <div e-column e-field="StoryPoint" e-headertext="Story Point" e-width="80"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
