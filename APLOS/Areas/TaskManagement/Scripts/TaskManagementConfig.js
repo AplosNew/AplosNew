@@ -63,6 +63,11 @@ function TaskManagementConfig($routeProvider, $locationProvider) {
             controller: 'IssueStatusReportsController'
 
         })
+        .when('/task-management-report', {
+            templateUrl: 'TaskManagement/TaskManagementReport/aplos',
+            controller: 'TaskManagementReportController'
+
+        })
 
         ;
 }

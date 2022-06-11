@@ -8,7 +8,7 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
-
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     baseService.init($scope.getListUrl);
 
 
@@ -105,5 +105,45 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
             $scope.FuguaiTransactionList = response.data;
         });
 
+    }
+    $scope.viewByDate = function () {
+        $http({
+            method: 'POST',
+            data: {
+                'FromDate': $scope.FromDate,
+                'ToDate': $scope.ToDate,
+                'FinalStatus': $scope.ModelNew.FinalStatus,
+            },
+            url: $scope.path + 'viewByDate',
+        }).then(function success(response) {
+            $scope.FuguaiTransactionList = response.data;
+        });
+
+    }
+
+    $scope.FromDate = null;
+    $scope.ToDate = null;
+   
+    $scope.downloadReport = function () {
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "getReport",
+            data: {
+                'FromDate': $scope.FromDate,
+                'ToDate': $scope.ToDate,
+                'FinalStatus' : $scope.ModelNew.FinalStatus,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
 }
