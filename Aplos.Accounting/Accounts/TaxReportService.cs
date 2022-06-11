@@ -428,7 +428,7 @@ and (Year(TYP.StartDate) between Year('" + fromDate.ToDbDate() + "') and Year('"
 
                         }
 
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iTaxPercentage].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["ValueOfFixed"].ToString());
                         sheet1.Range[xlsRow, iTaxPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
@@ -1750,7 +1750,7 @@ select 'InventorySales' SourceType
 
                         }
 
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMReceiviable.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMReceiviable.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iTaxPercentage].Number = clsStaticInfo.dbl(dtRCMReceiviable.Rows[i]["TaxPercentage"].ToString());
                         sheet1.Range[xlsRow, iTaxPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
@@ -3136,7 +3136,7 @@ UNION ALL
                         sheet1.Range[xlsRow, iTaxPercentage].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtRCMPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iVoucherDate].Text = dtRCMPayable.Rows[i]["VoucherDate"].ToString();
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtRCMPayable.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iDocDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
                         sheet1.Range[xlsRow, iGRNNo].Text = dtRCMPayable.Rows[i]["GRNNo"].ToString();
 
@@ -3499,37 +3499,7 @@ UNION ALL
                 int iTaxPercentage = xlsCol; // Party
                 sheet1.Range[xlsRow, xlsCol].Text = "Percentage";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                //xlsCol++; 
-                //int iParticulars = xlsCol; // Party
-                //sheet1.Range[xlsRow, xlsCol].Text = "Particulars";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
-
-
-
-                //xlsCol++;
-                //int iVoucherDate = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "Entry Date";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
-                //xlsCol++;
-                //int iPostingDate = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "Posting Date";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
-                //xlsCol++;
-                //int iDocDate = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "Doc Date";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
-                //xlsCol++;
-                //int iDocRefNo = xlsCol; // Doc Ref
-                //sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
-                //xlsCol++;
-                //int iGRNNo = xlsCol;
-                //sheet1.Range[xlsRow, xlsCol].Text = "GRN No";
-                //sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                
 
                 xlsCol++;
                 int iTaxableAmount = xlsCol;
@@ -4160,7 +4130,7 @@ UNION ALL
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString();
 
                         sheet1.Range[xlsRow, iEntryDate].Text = dtGStReceivableF3.Rows[i]["EntryDate"].ToString();
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtGStReceivableF3.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtGStReceivableF3.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
                         sheet1.Range[xlsRow, iGRNNo].Text = dtGStReceivableF3.Rows[i]["GRNNo"].ToString();
@@ -4691,7 +4661,9 @@ UNION ALL
                         sheet1.Range[xlsRow, iTaxPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtGSTPayable.Rows[i]["VoucherNo"].ToString();
                         sheet1.Range[xlsRow, iVoucherDate].Text = dtGSTPayable.Rows[i]["VoucherDate"].ToString();
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtGSTPayable.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text =clsStaticInfo.GetDateTaxFormate(dtGSTPayable.Rows[i]["PostingDate"].ToString());
+                        //sheet1.Range[xlsRow, iPostingDate].DateTime = "dd/MMM/yyyy";
+
                         sheet1.Range[xlsRow, iDocDate].Text = dtGSTPayable.Rows[i]["DocDate"].ToString();
                         sheet1.Range[xlsRow, iSalesNO].Text = dtGSTPayable.Rows[i]["GRNNo"].ToString();
 
@@ -6059,7 +6031,7 @@ UNION ALL
                         sheet1.Range[xlsRow, iVoucherNo].Text = dtGStReceivableF3.Rows[i]["VoucherNo"].ToString();
 
                         sheet1.Range[xlsRow, iEntryDate].Text = dtGStReceivableF3.Rows[i]["EntryDate"].ToString();
-                        sheet1.Range[xlsRow, iPostingDate].Text = dtGStReceivableF3.Rows[i]["PostingDate"].ToString();
+                        sheet1.Range[xlsRow, iPostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtGStReceivableF3.Rows[i]["PostingDate"].ToString());
                         sheet1.Range[xlsRow, iDocRefNo].Text = dtGStReceivableF3.Rows[i]["DocRefNo"].ToString();
                         sheet1.Range[xlsRow, iDocDate].Text = dtGStReceivableF3.Rows[i]["DocDate"].ToString();
                         sheet1.Range[xlsRow, iGRNNo].Text = dtGStReceivableF3.Rows[i]["GRNNo"].ToString();
@@ -7231,7 +7203,7 @@ UNION ALL
                         sheet1.Range[xlsRow, iParticulars].Text = dtRCMPayable.Rows[i]["Particular"].ToString();//Description of Goods
                         sheet1.Range[xlsRow, iHSNCode].Text = dtRCMPayable.Rows[i]["HSNCode"].ToString();
                         sheet1.Range[xlsRow, iInvoiceDetailsNo].Text = dtRCMPayable.Rows[i]["DocRefNo"].ToString();
-                        sheet1.Range[xlsRow, iInvoiceDetailsDate].Text = dtRCMPayable.Rows[i]["DocDate"].ToString();
+                        sheet1.Range[xlsRow, iInvoiceDetailsDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["DocDate"].ToString());
 
                         sheet1.Range[xlsRow, iInputGoods].Text = dtRCMPayable.Rows[i]["IsNonCreditable"].ToString();
                         sheet1.Range[xlsRow, iNameOfState].Text = dtRCMPayable.Rows[i]["StateName"].ToString();
@@ -8021,7 +7993,7 @@ UNION ALL
                         sheet1.Range[xlsRow, PartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
 
                         sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
-                        sheet1.Range[xlsRow, iInvoicePostingDate].Text = dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString();
+                        sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
                         sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
