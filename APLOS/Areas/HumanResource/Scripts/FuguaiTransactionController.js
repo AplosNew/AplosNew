@@ -59,8 +59,8 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         Id: null,
         Date: null,
         Time:null,
-        EntityId: null,
-        ObservedById: null,
+       
+        
         ZoneMasterId: null,
         ZoneCategory: null,               
         Detail: null,
@@ -68,12 +68,12 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         ResponsibleDepartmentId: null,
         ResponsiblePersonId: null,
         TargetDate: null,
-        CommitmentDate: null,
+        
         StoryPoint: null,
         Remarks: null,
         CurrentStatus: null,
         ProcessId: null,
-        PersonId: null,
+        
         IsMachineApplicable: null,
         MachineMasterId: null,
         MachineRef: null,
@@ -249,7 +249,7 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
                 data: {
                     'datas': $scope.ModelNew,
                     'ObservedById': $scope.ObserveById,
-                    'ResponsiblePerson':$scope.ResponsiblePersonId,
+                    'ResponsiblePersonId':$scope.ResponsiblePersonId,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -258,7 +258,7 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
 
                 }
@@ -284,36 +284,38 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         ClearFields($scope.GetSequence());
         return true;
     };
+    function ClearFields() {
+         $scope.ObserveByName = null,
+         $scope.ResponsiblePerson = null,
+        $scope.ModelTemp = {
+            Id: null,
+            Date: null,
+            Time: null,
+            EntityId: null,
+            ObservedById: null,
+            ZoneMasterId: null,
+            Tag: null,
+            Detail: null,
+            PriorityLevel: null,
+            ResponsibleDepartmentId: null,
+            ResponsiblePersonId: null,
+            TargetDate: null,
+            CommitmentDate: null,
+            StoryPoint: 2.00,
+            Remarks: null,
+            CurrentStatus: null,
+            ProcessId: null,
+            PersonId: null,
+            IsMachineApplicable: null,
+            MachineMasterId: null,
+            MachineNo: null,
+            FinalStatus: null,
+            CloseDate: null,
+            TagColor: null,
 
-    $scope.ModelTemp = {
-        Id: null,
-        Date: null,
-        Time: null,
-        EntityId: null,
-        ObservedById: null,
-        ZoneMasterId: null,
-        Tag: null,
-        Detail: null,
-        PriorityLevel: null,
-        ResponsibleDepartmentId: null,
-        ResponsiblePersonId: null,
-        TargetDate: null,
-        CommitmentDate: null,
-        StoryPoint: 2.00,
-        Remarks: null,
-        CurrentStatus: null,
-        ProcessId: null,
-        PersonId: null,
-        IsMachineApplicable: null,
-        MachineMasterId: null,
-        MachineNo: null,
-        FinalStatus: null,
-        CloseDate: null,
-        TagColor: null,
-
-    };
-    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
-
+        };
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    }
    
         
 }
