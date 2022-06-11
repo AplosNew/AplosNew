@@ -458,10 +458,10 @@
                         <td class="text-right">{{x.RequisitionQty}}</td>
 
                         @*<td ng-show="productNew.OrderSpecific==='No'">
-            <div class="select-style">
-                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in gridUoMList" ng-change="OnUOMChange(x)"></select>
-            </div>
-        </td>*@
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in gridUoMList" ng-change="OnUOMChange(x)"></select>
+                                </div>
+                            </td>*@
 
                         <td>
                             <div class="select-style">
@@ -470,12 +470,12 @@
                                 </select>
                             </div>
                         </td>
-                        	
+
                         @*<td ng-show="productNew.OrderSpecific==='Yes'">
-            <div class="select-style">
-                <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="OnUOMChange(x)"></select>
-            </div>
-        </td>*@
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="x.TransactionUoMId" ng-options="item.Value as item.Text for item in x.uoMList" ng-change="OnUOMChange(x)"></select>
+                                </div>
+                            </td>*@
                         <td class="text-right">
                             <input type="text" n-decimals="2" class="form-control text-right" width="500" ng-model="x.RequestedQty" ng-disabled="false">
                         </td>
@@ -486,8 +486,8 @@
                         <td>{{x.consumptionUoM}}</td>
                         @*<td>{{x.TransactionUoMName}}</td>*@
                         @*<td class="text-right">
-            <ul class="list-inline action-list"></ul>
-        </td>*@
+                                <ul class="list-inline action-list"></ul>
+                            </td>*@
 
                         @*<td>{{x.POUoMName}}</td>*@
                         <td>{{x.Consumption}}</td>
@@ -777,7 +777,7 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid2" ej-grid e-datasource="IssueSlipList"
+                            <div style="color:black;" id="Grid2" ej-grid e-datasource="IssueSlipHoldRejectList"
                                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                                  e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
                                  e-allowselection="true"
@@ -834,12 +834,19 @@
 
                         <div class="content-container-fluid" style="color:black;">
 
-                            <div style="color:black;" id="Grid3" ej-grid e-datasource="IssueSlipList"
-                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
-                                 e-allowselection="true"
-                                 e-detailstemplate="detailTemp"
-                                 e-detailsdatabound="detailgrid">
+                            <div style="color:black;" id="Grid3" ej-grid e-datasource="IssueSlipCheckedList"
+                                e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel" e-enabletouch="true"
+                                e-allowselection="true"
+                                e-detailstemplate="detailTemp"
+                                e-detailsdatabound="detailgrid"
+                                >
+                            @*<div style="color:black;" id="Grid3" ej-grid e-datasource="IssueSlipCheckedList"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
+                                 e-recorddoubleclick="recorddoubleclickIssueSlip" e-filtersettings-filterType="excel"
+                                 e-enabletouch="true" e-allowselection="true"  e-detailstemplate="detailTemp"
+                                e-detailsdatabound="detailgrid"
+                                 e-scrollsettings="scroll">*@
                                 <div e-columns>
                                     @*<div e-column e-field="SiNo" e-headertext="SI" e-width="30" e-filter="false"></div>*@
                                     <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
@@ -1160,7 +1167,7 @@
             </div>
             <i>**Showing top 500   order by Stock Qty</i>
         </div>
-        
+
     </div>
 
 
