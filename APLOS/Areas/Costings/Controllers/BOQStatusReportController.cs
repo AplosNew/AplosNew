@@ -51,324 +51,378 @@ namespace Aplos.Areas.Costings.Controllers
             return View();
         }
 
-        //Current Fund Position start//
-
-        [HttpGet]
-        public ActionResult getCurrentFundPositionlist(DateTime PostingDate)
+        [HttpGet, Authorize]
+        public ActionResult getFilters()
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
-                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,PDCOverDue,PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
-						 ,0 Surplus_Short_AsOnDate,0 Short_SurplusInNext_7_Days
-						FROM (
-                        SELECT  'Bank' Category,BM.AccountTitle,BM.AccountNumber,CU.Code Currency,BM.LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
-                        , CC.CompanyCurrencyId
-                         ,PDCOverDue=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<0 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
-                         ,PDCInNext_7_Days=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)>=0 AND DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<7 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
-						 
-                        FROM [TRN].[Voucher] AS V
-                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
-						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
-						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
-                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
-	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
-                        ) AS CC ON CC.VoucherDetailId=VD.Id
-                        
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'
-						AND V.PostingDate <= '" + PostingDate + @"' and VD.BankMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount,PDC.PostingDate,VD.BankMasterId,PDC.Amount
-
-						UNION
-						SELECT 'Cash' Category,CM.UserName AccountTitle, '' AccountNumber,CU.Code Currency,0 LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
-                        , CC.CompanyCurrencyId
-                         ,0 PDCOverDue,0PDCInNext_7_Days
-                        FROM [TRN].[Voucher] AS V
-                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-						LEFT JOIN MST.CashMaster CM ON CM.Id=VD.CashMasterId
-						LEFT JOIN SCS.Currency CU ON CU.Id=CM.CurrencyId
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.CashMasterId=VD.CashMasterId
-                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
-	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
-                        ) AS CC ON CC.VoucherDetailId=VD.Id
-                        
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' 
-						AND V.PostingDate <= '" + PostingDate + @"' and VD.CashMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,CM.UserName,CU.Code
-						  ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber,x.PDCOverDue,X.PDCInNext_7_Days";
-
-            var data = _sqlRepository.GetDataCollection(sql);
-            return Json(data, JsonRequestBehavior.AllowGet);
+            try
+            {
+                var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+                             FROM BOQ  boq
+							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+							  left join HKP.Party PC on PC.Id=BOM.CustomerId
+                             left  join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+                             left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id
+							 left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+                              where BOM.CustomerId <>''";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
+
 
         [HttpPost, Authorize]
-        public ActionResult GetCurrentFundPositionReport(DateTime PostingDate)
+        public ActionResult GetBOQStatusReport(Dictionary<string, string> parameters)
         {
+
             try
             {
-                //AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
-                string fileName = "";
-                fileName = CurrentFundPositionReport(PostingDate, "Post Date Cheque Report");
-                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+                var workbook = GetBOQStatusReportForm(parameters);
+
+                var strFileName = "BOQ Status Report.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
+
                 throw ex;
             }
-
         }
-        public string CurrentFundPositionReport(DateTime PostingDate, string SheetName)
+
+        private IWorkbook GetBOQStatusReportForm(Dictionary<string, string> parameters)
         {
-            ExcelEngine excelEngine = null;
-            IApplication application = null;
-            IWorkbook workbook = null;
-            IWorksheet sheet = null;
-            var filePath = "";
-            try
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+
+            var data = getBOQStatusReportSql(parameters);
+
+            var sheet = workbook.Worksheets[0];
+
+
+
+            int ROW = 6; int COL = 1;
+
+            #region columns
+            sheet[ROW, COL].Text = "Row Id";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColRowId = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Sequence";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColSequence = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Item Ref No";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColItemRefNo = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Costing Item";
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColCostingItem = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "BOQ Criteria";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int ColBOQCriteria = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Currency";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColCurrency = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Vendor";
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColVendor = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Material";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColMaterial = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Article";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColArticle = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "SKU1";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int ColSKU1 = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "SKU2";
+            sheet[ROW, COL].ColumnWidth = 10;
+            int ColSKU2 = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "SKU Description";
+            sheet[ROW, COL].ColumnWidth = 20;
+            int ColSKUDescription = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "PO Criteria";
+            sheet[ROW, COL].ColumnWidth = 12;
+            int ColPOCriteria = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Consumption";
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColConsumption = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "BOM Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBOMQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "BOQ UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColBOQUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "BOM Qty Base";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBOMQtyBase = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Required Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColRequiredQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO BOQ Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColPOBOQQty = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColPOUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "PO Trn BO QQty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColPOTrnBOQQty = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "PO Amount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColPOAmount = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance BOQ";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBalanceBOQ = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "GRN Base Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColGRNBaseQty = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "GRN Amount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColGRNAmount = COL;
+            COL++;
+            sheet[ROW, COL].Text = "GRN UOM";
+            sheet[ROW, COL].ColumnWidth = 8;
+            int ColGRNUOM = COL;
+            COL++;
+            sheet[ROW, COL].Text = "Balance PO Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBalancePOQty = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Issue Base Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColIssueBaseQty = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Issue Amount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColIssueAmount = COL;
+            COL++;
+
+            sheet[ROW, COL].Text = "Balance GRN Qty";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBalanceGRNQty = COL;
+
+
+            #endregion columns
+
+            int endCol = COL;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
+            //sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
+            sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
+            sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+            ROW++;
+
+            int startRow = ROW;
+
+            for (int i = 0; i < data.Rows.Count; i++)
             {
+                sheet[ROW, ColRowId].Text = data.Rows[i]["RowId"].ToString();
+                sheet[ROW, ColSequence].Text = data.Rows[i]["Sequence"].ToString();
+                sheet[ROW, ColItemRefNo].Text = data.Rows[i]["ItemRefNo"].ToString();
+                sheet[ROW, ColCostingItem].Text = data.Rows[i]["CostingItem"].ToString();
+                sheet[ROW, ColBOQCriteria].Text = data.Rows[i]["BOQCriteria"].ToString();
+                sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+                sheet[ROW, ColVendor].Text = data.Rows[i]["Vendor"].ToString();
+                sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
+                sheet[ROW, ColArticle].Text = data.Rows[i]["Article"].ToString();
+                sheet[ROW, ColSKU1].Text = data.Rows[i]["SKU1"].ToString();
+                sheet[ROW, ColSKU2].Text = data.Rows[i]["SKU2"].ToString();
+                sheet[ROW, ColSKUDescription].Text = data.Rows[i]["SKUDesc"].ToString();
+                sheet[ROW, ColPOCriteria].Text = data.Rows[i]["POCriteria"].ToString();
+                sheet[ROW, ColConsumption].Text = data.Rows[i]["Consumption"].ToString();
+                sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQty"].ToString());
+                sheet[ROW, ColBOQUOM].Text = data.Rows[i]["BOQUOM"].ToString();
+                sheet[ROW, ColBOMQtyBase].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQtyBase"].ToString());
+                sheet[ROW, ColRequiredQty].Number = clsStaticInfo.dbl(data.Rows[i]["RequiredQty"].ToString());
+                sheet[ROW, ColPOBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POBOQQty"].ToString());
+                sheet[ROW, ColPOUOM].Text = data.Rows[i]["POUOM"].ToString();
+                sheet[ROW, ColPOTrnBOQQty].Number = clsStaticInfo.dbl(data.Rows[i]["POTrnBOQQty"].ToString());
+                sheet[ROW, ColPOAmount].Number = clsStaticInfo.dbl(data.Rows[i]["POAmount"].ToString());
+                sheet[ROW, ColBalanceBOQ].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceBOQ"].ToString());
+                sheet[ROW, ColGRNBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["GRNBaseQty"].ToString());
+                sheet[ROW, ColGRNAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GRNAmount"].ToString());
+                sheet[ROW, ColGRNUOM].Text = data.Rows[i]["GRNUOM"].ToString();
+                sheet[ROW, ColBalancePOQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalancePOQty"].ToString());
+                sheet[ROW, ColIssueBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueBaseQty"].ToString());
 
+                sheet[ROW, ColIssueAmount].Number = clsStaticInfo.dbl(data.Rows[i]["IssueAmount"].ToString());
+                sheet[ROW, ColBalanceGRNQty].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceGRNQty"].ToString());
 
-                excelEngine = new ExcelEngine();
-                application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(1);
-                workbook.Worksheets[0].Name = "CurrentFundPositionReport";
-                sheet = workbook.Worksheets[0];
-                DataTable data;
-                CurrentFundPositionSQL(PostingDate, out data);
-
-                int ROW = 6; int COL = 1;
-
-                #region columns
-                sheet[ROW, COL].Text = "SL No";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColSLNo = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Category";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColCategory = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Bank CashName";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColBank_CashName = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Account Number";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColAccountNumber = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColCurrency = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Amount";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Limit Amount";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColLimitAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "Total Available Amount";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColTotalAvailableAmount = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PDC Over Due";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPDCOverDue = COL;
-                COL++;
-
-                sheet[ROW, COL].Text = "PDC In Next 7 Days";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColPDCInNext_7_Days = COL;
-                COL++;
-
-                //sheet[ROW, COL].Text = "Payment Over Due";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColPaymentOverdue = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Payment Over Due In Next 7 Days";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColPaymentOverdueInNext_7_Days = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Surplus Short As On Date";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColSurplus_Short_AsOnDate = COL;
-                //COL++;
-
-                //sheet[ROW, COL].Text = "Short Surplus In Next 7 Days";
-                //sheet[ROW, COL].ColumnWidth = 16;
-                //int ColShort_SurplusInNext_7_Days = COL;
-                //COL++;
-
-                sheet[ROW, COL].Text = "Remarks";
-                sheet[ROW, COL].ColumnWidth = 16;
-                int ColRemarks = COL;
-
-                #endregion columns
-
-                int endCol = COL;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Black;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Color = ExcelKnownColors.White;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
-                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 9f;
-                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-
+                sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 ROW++;
 
-                int startRow = ROW;
+            }
+            //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
+            //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+            sheet["A" + startRow.ToString()].FreezePanes();
 
-                for (int i = 0; i < data.Rows.Count; i++)
-                {
-                    sheet[ROW, ColSLNo].Text = data.Rows[i]["SLNo"].ToString();
-                    sheet[ROW, ColCategory].Text = data.Rows[i]["Category"].ToString();
-                    sheet[ROW, ColBank_CashName].Text = data.Rows[i]["Bank_CashName"].ToString();
-                    sheet[ROW, ColAccountNumber].Text = data.Rows[i]["AccountNumber"].ToString();
-                    sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
-                    sheet[ROW, ColAmount].Number = clsStaticInfo.dbl(data.Rows[i]["Amount"].ToString());
-                    sheet[ROW, ColLimitAmount].Number = clsStaticInfo.dbl(data.Rows[i]["LimitAmount"].ToString());
-                    sheet[ROW, ColTotalAvailableAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalAvailableAmount"].ToString());
-                    sheet[ROW, ColPDCOverDue].Number = clsStaticInfo.dbl(data.Rows[i]["PDCOverDue"].ToString());
-                    sheet[ROW, ColPDCInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PDCInNext_7_Days"].ToString());
-                    //sheet[ROW, ColPaymentOverdue].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdue"].ToString());
-                    //sheet[ROW, ColPaymentOverdueInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["PaymentOverdueInNext_7_Days"].ToString());
-                    //sheet[ROW, ColSurplus_Short_AsOnDate].Number = clsStaticInfo.dbl(data.Rows[i]["Surplus_Short_AsOnDate"].ToString());
-                    //sheet[ROW, ColShort_SurplusInNext_7_Days].Number = clsStaticInfo.dbl(data.Rows[i]["Short_SurplusInNext_7_Days"].ToString());
-                    sheet[ROW, ColRemarks].Text = data.Rows[i]["Remark"].ToString();
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.PlantHeader(ref sheet, endCol, "BOQ Status Report", identity.PlantId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            //sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            //sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.IsGridLinesVisible = false;
 
-                    sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                    sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                    ROW++;
-
-                }
-                //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
-                //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
-                sheet["A" + startRow.ToString()].FreezePanes();
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, "Current Fund Position Report", identity.PlantId);
-                reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
-                sheet.UsedRange.WrapText = true;
-                sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.IsGridLinesVisible = false;
-
-                //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
+            //sheet.Range[startRow, 1, ROW, endCol].NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
 
 
-                //#endregion ******************Report Header******************
+            //#endregion ******************Report Header******************
 
-                sheet.PageSetup.TopMargin = 0.2;
-                sheet.PageSetup.BottomMargin = 0.8;
-                //sheet.PageSetup.PrintTitleRows = "$1:$6";
-                sheet.PageSetup.LeftMargin = 0.2;
-                sheet.PageSetup.RightMargin = 0.2;
-                sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
-                sheet.PageSetup.FitToPagesTall = 0;
-                sheet.PageSetup.FitToPagesWide = 1;
-                sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
-                sheet.PageSetup.CenterHorizontally = true;
+            sheet.PageSetup.TopMargin = 0.2;
+            sheet.PageSetup.BottomMargin = 0.8;
+            //sheet.PageSetup.PrintTitleRows = "$1:$6";
+            sheet.PageSetup.LeftMargin = 0.2;
+            sheet.PageSetup.RightMargin = 0.2;
+            sheet.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+            sheet.PageSetup.FitToPagesTall = 0;
+            sheet.PageSetup.FitToPagesWide = 1;
+            sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+            sheet.PageSetup.CenterHorizontally = true;
+
+            return workbook;
+        }
+
+        public DataTable getBOQStatusReportSql(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article
+										,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
+										,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
+										,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+										, grnboq.GRNBaseQty
+										, grnboq.GRNAmount
+										, grnboq.GRNUOM
+										, BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
+										, issueboq.IssueBaseQty
+										, issueboq.IssueAmount
+										, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
+										,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,SO.MasterOrderItemId LineItemId
+										FROM BOQ  boq
+										LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
+										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+										LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+										LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+										LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+										LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+									    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+										left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+										left join HKP.Party PC on PC.Id=BOM.CustomerId
+										left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+										left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id
+									    left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+										--left join TRN.MasterOrder MO on MO.Id=SO.MasterOrderItemId
+										left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
+													FROM  trn.POBOQMAP pomap 
+													JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
+													LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=pod.TransactionUoMId
+													GROUP BY pomap.BOQDetailId,UOM.UserName
+													) poboq ON poboq.BOQDetailId=boq.Id
+
+										left join (SELECT gpa.BOQDetailId,sum(gpa.TransactionQty) GRNBaseQty,UOM.UserName GRNUOM,sum(IRD.TotalMaterialTranAmount ) GRNAmount
+														FROM trn.GRNPORequisitionAllocation gpa 
+														JOIN trn.InventoryReceiveDetail IRD ON gpa.InventoryReceiveDetailId=IRD.Id
+														LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=IRD.TransactionUoMId
+														GROUP BY gpa.BOQDetailId,UOM.UserName
+													) grnboq ON grnboq.BOQDetailId=poboq.BOQDetailId
+
+										left join (SELECT iihb.BOQDetailId,sum(iihb.Qty) IssueBaseQty ,sum(iihb.Qty*iih.Rate) IssueAmount
+													FROM trn.InventoryIssueHistoryBOQ iihb 
+													join TRN.InventoryIssueHistory iih on iihb.InventoryIssueHistoryId=iih.Id
+													GROUP BY iihb.BOQDetailId
+
+										) issueboq ON issueboq.BOQDetailId=poboq.BOQDetailId
 
 
+                                        where PC.Id in(" + parameters["PartyId"] + @")
+                                        AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
+                                        AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
+                                        AND MO.Id in(" + parameters["MasterOrderId"] + @")
+                                        AND SO.MasterOrderItemId in(" + parameters["LineItemId"] + @")";
 
-
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-                workbook.SaveAs(filePath);
-                workbook.Close();
-                excelEngine.Dispose();
-                return filePath;
-
+                return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-
-        public void CurrentFundPositionSQL(DateTime PostingDate, out DataTable data)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string strSQL = @"SELECT ROW_NUMBER() OVER (ORDER BY  AccountTitle) AS SLNo,Category,AccountTitle Bank_CashName,AccountNumber,Currency,SUM(DrAmount) - SUM(CrAmount) AS Amount
-                         ,LimitAmount,0 TotalAvailableAmount,'' Remark,PDCOverDue,PDCInNext_7_Days,0 PaymentOverdue,0 PaymentOverdueInNext_7_Days
-						 ,0 Surplus_Short_AsOnDate,0 Short_SurplusInNext_7_Days
-						FROM (
-                        SELECT  'Bank' Category,BM.AccountTitle,BM.AccountNumber,CU.Code Currency,BM.LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
-                        , CC.CompanyCurrencyId
-                         ,PDCOverDue=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<0 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
-                         ,PDCInNext_7_Days=  SUM(CASE WHEN DATEDIFF(DAY, GETDATE(),PDC.PostingDate)>=0 AND DATEDIFF(DAY, GETDATE(),PDC.PostingDate)<7 THEN PDC.Amount else 0 end) OVER (partition by VD.BankMasterId) 
-						 
-                        FROM [TRN].[Voucher] AS V
-                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-						LEFT JOIN MST.BankMaster BM ON BM.Id=VD.BankMasterId
-						LEFT JOIN TRN.PostDepositCheque PDC ON PDC.BankMasterId=BM.Id
-						LEFT JOIN SCS.Currency CU ON CU.Id=BM.CurrencyId
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.BankMasterId=VD.BankMasterId
-                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
-	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
-                        ) AS CC ON CC.VoucherDetailId=VD.Id
-                        
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"'
-						--AND VD.BankMasterId='20199' 
-						AND V.PostingDate <= '" + PostingDate + @"' and VD.BankMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,BM.AccountTitle,BM.AccountNumber,CU.Code,BM.LimitAmount,PDC.PostingDate,VD.BankMasterId,PDC.Amount
-
-						UNION
-						SELECT 'Cash' Category,CM.UserName AccountTitle, '' AccountNumber,CU.Code Currency,0 LimitAmount,SUM(GLTD.DrAmount) AS DrAmount, SUM(GLTD.CrAmount) AS CrAmount
-                        , CC.CompanyCurrencyId
-                         ,0 PDCOverDue,0PDCInNext_7_Days
-                        FROM [TRN].[Voucher] AS V
-                        LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.VoucherId=V.Id
-						LEFT JOIN MST.CashMaster CM ON CM.Id=VD.CashMasterId
-						LEFT JOIN SCS.Currency CU ON CU.Id=CM.CurrencyId
-                        LEFT JOIN [TRN].[GLTransactionDetail] AS GLTD ON GLTD.VoucherDetailId=VD.Id AND GLTD.CashMasterId=VD.CashMasterId
-                        LEFT JOIN (SELECT VDC.VoucherDetailId, VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.DrAmount AS CompanyCurrencyDrAmount, VDC.CrAmount AS CompanyCurrencyCrAmount
-	                        FROM [TRN].[VoucherDetailCurrency] AS VDC
-	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
-	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + identity.CompanyId + @"'
-                        ) AS CC ON CC.VoucherDetailId=VD.Id
-                        
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' 
-						--AND VD.BankMasterId='20199' 
-						AND V.PostingDate <= '" + PostingDate + @"' and VD.CashMasterId<>''
-                        GROUP BY CC.CompanyCurrencyId ,CM.UserName,CU.Code
-						  ) AS X GROUP BY X.CompanyCurrencyId,X.AccountTitle,x.Currency,x.LimitAmount,x.Category,x.AccountNumber,x.PDCOverDue,X.PDCInNext_7_Days";
-
-                data = _sqlRepository.GetDataTable(strSQL);
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-
-        }
-
-        //Current Fund Position end//
-
     }
 
 }

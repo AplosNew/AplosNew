@@ -668,7 +668,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                         if (TaskTypes.Contains(authorizationType))
                         {
                             sql += @" AND  isnull(ta.isDone,0)=0 AND tmm.TaskType='" + authorizationType + @"'
-							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + AuthorizationTypeEnum.AssignTo.ToString() + "";
+							WHERE  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  ta.ResponsiblePersonId ='" + logedInUser + "' AND ta.AuthorizationType = '" + AuthorizationTypeEnum.AssignTo.ToString() + "'";
 
                         }
                         else
