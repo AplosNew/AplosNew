@@ -1,6 +1,6 @@
 ﻿'use strict';
-TaskManagementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', 'cboService'];
-function TaskManagementReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+TaskManagementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter'];
+function TaskManagementReportController(commonMessage,  $scope, $rootScope, baseService,  $http, $filter) {
     $scope.title = 'Task Management Report';
     $scope.UtilityTransactionList = [];
     $scope.path = 'TaskManagement/TaskManagementReport/';
@@ -11,97 +11,82 @@ function TaskManagementReportController(cboService, commonMessage, $scope, $root
     $scope.ToDate = null;
     $scope.FromDate = null;
 
-    $scope.getUtilityTransactionData = function () {
+    $scope.Today = new Date();
+    $scope.PreviousMonth = new Date().setDate(new Date().getDate() - 31);
+    $scope.NextMonth = new Date().setDate(new Date().getDate() + 31);
+    $scope.FromDate = $filter("dateFiltering")($scope.PreviousMonth);
+    $scope.ToDate = $filter("dateFiltering")($scope.NextMonth);
 
-        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
-            ShowResult("Please Select the Date Range!", 'failure');
-            throw ('Invalid Request!!');
-        }
 
+    $scope.filters = [];
+    $scope.getFiltersData = function () {
         $http({
-            method: 'POST',
-            url: $scope.path + 'getUtilityTransactionData',
-            data: { 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate },
+            method: 'GET',
+            url: 'TaskManagement/TaskManagementReport/getFiltersData?fromDate=' + $scope.FromDate + '&todate=' + $scope.ToDate,
             dataType: 'JSON'
-        }).then(function succ(resp) {
-            $scope.UtilityTransactionList = resp.data;
+        }).then(function successCallback(response) {
+            $scope.filters = response.data;
+            var columnList = [
+                { field: 'DesignationGroup', width: 20, headerText: "Designation Group", type: "string" },
+                { field: 'TYPE', width: 20, headerText: "Type", type: "string" },
+                { field: 'Department', width: 20, headerText: "Department", type: "string" },
+                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+                { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" },
+
+            ];
+            $("#filters").ejGrid({
+                dataSource: $scope.filters,
+                minWidth: 450, minHeight: 400,
+                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+                filterSettings: { filterType: "excel" },
+                columns: columnList
+            });
+
+            var gridObj = $("#filters").data("ejGrid");
+            gridObj.refreshContent(true);
+            gridObj.refreshTemplate();
+            $("#filters").children('.e-pager.e-js.e-pager').hide();
+            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#filters").children('.e-gridcontent').hide();
         });
-
     }
-    //$scope.getData();
 
-    ////The Filters 
-    //$scope.filters = [];
-    //$scope.UtilityTransactionloadfilters = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: $scope.path + 'getFilters',
-    //        dataType: 'JSON'
-    //    }).then(function successCallback(response) {
-    //        $scope.filters = response.data;
-    //        var columnList = [
-    //            { field: 'Group', width: 20, headerText: "Group", type: "string" },
-    //            { field: 'SubGroup', width: 20, headerText: "Sub Group", type: "string" },
-    //            { field: 'Category', width: 20, headerText: "Category", type: "string" },
-    //            { field: 'SubCategory', width: 20, headerText: "Sub Category", type: "string" },
-    //            { field: 'AddedDate', width: 20, headerText: "Added Date", type: "string" },
-    //            { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
-    //        ];
-    //        $("#filters").ejGrid({
-    //            dataSource: $scope.filters,
-    //            minWidth: 450, minHeight: 400,
-    //            allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-    //            filterSettings: { filterType: "excel" },
-    //            columns: columnList
-    //        });
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
 
-    //        var gridObj = $("#filters").data("ejGrid");
-    //        //gridObj.refreshContent(true);
-    //        //gridObj.refreshTemplate();
-    //        $("#filters").children('.e-pager.e-js.e-pager').hide();
-    //        $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-    //        $("#filters").children('.e-gridcontent').hide();
-    //    });
-    //}
-    //$scope.UtilityTransactionloadfilters();
-
-    //$scope.parameters = [];
-    //$scope.filterComplete = function () {
-
-    //    var g = $("#filters").data("ejGrid");
-    //    var fl = g.getFilteredRecords();
-    //    if (fl.length == 0) {
-    //        fl = $scope.filters;
-    //    }
-
-
-    //    var parameters = [];
-    //    parameters.push({ "Key": "Id", "Value": getString(fl, "Id") });
-
-    //    $scope.parameters = parameters;
-    //}
-
-    //var getString = function (data, column) {
-    //    var string = "''";
-    //    var collection = [];
-
-    //    for (var i = 0; i < data.length; i++) {
-    //        if (collection.includes(data[i][column]) == false) {
-    //            string += ",'" + data[i][column] + "'";
-    //            collection.push(data[i][column]);
-    //        }
-    //    }
-    //    return string;
-    //}
-
-
-    $scope.UtilityTransactionReport = function () {
-        if (angular.isUndefinedOrNull($scope.FromDate) || angular.isUndefinedOrNull($scope.ToDate)) {
-            ShowResult("Please Select the Date Range!", 'failure');
-            throw ('Invalid Request!!');
+        var g = $("#filters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.filters;
         }
 
-        //$scope.filterComplete();
+
+        var parameters = [];
+        parameters.push({ "Key": "DesignationGroupId", "Value": getString(fl, "DesignationGroupId") });
+        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
+        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
+        parameters.push({ "Key": "TYPE", "Value": getString(fl, "TYPE") });
+        parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
+
+        $scope.parameters = parameters;
+    }
+
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
+
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
+
+
+    $scope.GetTaskReport = function () {
+        $scope.filterComplete();
         $scope.fileName = "UtilityTransactionReport.xlsx";
 
         $http({
@@ -114,7 +99,6 @@ function TaskManagementReportController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                 $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
