@@ -648,7 +648,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     break;
                 case "MyTasks":
                     sql += @" WHERE  isnull(ta.isDone,0)=0 AND tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND tmm.TaskType IN ('ToDo','TNA','Issue')"
-                        + @" AND tTo.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType='" + AuthorizationTypeEnum.AssignTo + "' order by CONVERT(DATETIME,ta.DueDate) ASC ";
+                        + @" AND tTo.ResponsiblePersonId='" + logedInUser + "' AND ta.AuthorizationType='" + AuthorizationTypeEnum.AssignTo + "' ";
                     break;
                 case "HighPriorityTasks":
                     sql += @" where  isnull(ta.isDone,0)=0 AND  tmm.currentstatus<>'" + CurrentStatusEnum.Closed.ToString() + "' AND  isnull(tmm.TaskPriority,0)>= " + StdHighestTaskPriority.ToString()
