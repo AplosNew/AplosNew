@@ -12108,7 +12108,7 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetSalesRegisterSql(string fromDate, string toDate, string Type)
+        public IEnumerable<object> GetSalesRegisterSql(string FromDate, string ToDate, string Type)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -12157,11 +12157,11 @@ namespace Library.MaterialManagement.Inventory
 								,'' BudgetCode
 								,'' Budget
 								,'' Activity
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
+								--,'' GLCode
+								--,'' GL
+								--,'' BudgetCode
+								--,'' Budget
+								--,'' Activity
 								,'' POREfference
 								,'' IssueQty
 								,'' BaseIssueQty
@@ -12360,7 +12360,7 @@ namespace Library.MaterialManagement.Inventory
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
 
 									UNION ALL
 
@@ -12408,11 +12408,11 @@ namespace Library.MaterialManagement.Inventory
 								,'' BudgetCode
 								,'' Budget
 								,'' Activity
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
+								--,'' GLCode
+								--,'' GL
+								--,'' BudgetCode
+								--,'' Budget
+								--,'' Activity
 								,'' POREfference
 								,'' IssueQty
 								,'' BaseIssueQty
@@ -12587,7 +12587,7 @@ namespace Library.MaterialManagement.Inventory
 									WHERE B.Code='TCS'
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
 								union ALL
 
 								SELECT 
@@ -12634,11 +12634,11 @@ namespace Library.MaterialManagement.Inventory
 								,'' BudgetCode
 								,'' Budget
 								,'' Activity
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
+								--,'' GLCode
+								--,'' GL
+								--,'' BudgetCode
+								--,'' Budget
+								--,'' Activity
 								,'' POREfference
 								,'' IssueQty
 								,'' BaseIssueQty
@@ -12817,7 +12817,7 @@ namespace Library.MaterialManagement.Inventory
 									Group by A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' 
+						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
 					
 
 								UNION ALL
@@ -12866,11 +12866,11 @@ namespace Library.MaterialManagement.Inventory
 								,'' BudgetCode
 								,'' Budget
 								,'' Activity
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
+								--,'' GLCode
+								--,'' GL
+								--,'' BudgetCode
+								--,'' Budget
+								--,'' Activity
 								,'' POREfference
 								,'' IssueQty
 								,'' BaseIssueQty
@@ -13026,7 +13026,7 @@ namespace Library.MaterialManagement.Inventory
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' ";
+								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' ";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
