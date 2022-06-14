@@ -428,6 +428,7 @@ namespace Library.Accounting.Accounts
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
                                         , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
+                                        ,0 isSelected,NULL ExchangeType,0 BaseDrAmount,0 BaseCrAmount
                                         FROM [TRN].[FinancingDetail] AS ID
                                         LEFT JOIN [TRN].[Financing] AS I ON I.Id=ID.FinancingId
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
@@ -485,6 +486,7 @@ namespace Library.Accounting.Accounts
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
                                         , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
+                                         , 0 isSelected,NULL ExchangeType,0 BaseDrAmount,0 BaseCrAmount
                                         FROM [TRN].[FinancingDetail] AS ID
                                         LEFT JOIN [TRN].[Financing] AS I ON I.Id=ID.FinancingId
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId

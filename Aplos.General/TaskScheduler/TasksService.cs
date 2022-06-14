@@ -1524,20 +1524,9 @@ namespace Library.General.TaskScheduler
 
         }
 
-        public DataTable GetTaskManagementData(string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters)
+        public DataTable GetTaskManagementData(string fromDate, string todate,string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters)
         {
-            string vendorIdLoop = "''";
-
-
-            for (int i = parameters.Count - 1; i >= 0; i--)
-            {
-                var item = parameters.ElementAt(i);
-                var itemKey = item.Key;
-                var itemValue = item.Value;
-                vendorIdLoop += ",'" + itemValue + "'";
-
-            }
-
+            
             string strSql = "";
             strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,ISNULL(TSP.TotalStoryPoint,0) TotalStoryPoint, ISNULL(CSP.ColsedStoryPoint,0)ColsedStoryPoint
   FROM TaskAudit TA
@@ -1549,14 +1538,14 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
-LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'12-May-2022') AND Convert(date, '13-Jul-2022')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'"+ fromDate + @"') AND Convert(date, '"+todate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN(SELECT COUNT(Id)OnTimeTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'12-May-2022') AND Convert(date, '13-Jul-2022'))
+WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'"+ fromDate + @"') AND Convert(date, '" + todate + @"'))
 GROUP BY ResponsiblePersonId) TOD ON TOD.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN(SELECT COUNT(Id)LateTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'12-May-2022') AND Convert(date, '13-Jul-2022'))
+WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 GROUP BY ResponsiblePersonId) TOL ON TOL.ResponsiblePersonId=TA.ResponsiblePersonId
-LEFT JOIN(SELECT COUNT(Id)PeriviousPeriodOverdueTask,ResponsiblePersonId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'12-May-2022')) GROUP BY ResponsiblePersonId) PPODT ON PPODT.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)PeriviousPeriodOverdueTask,ResponsiblePersonId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) GROUP BY ResponsiblePersonId) PPODT ON PPODT.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN(SELECT SUM(TMM.StoryPoint)TotalStoryPoint,T.ResponsiblePersonId FROM TaskManagerMaster TMM
 LEFT JOIN TaskAudit T ON T.TaskManagerMasterId=TMM.Id
 GROUP BY T.ResponsiblePersonId) TSP ON TSP.ResponsiblePersonId=TA.ResponsiblePersonId
@@ -1564,7 +1553,7 @@ LEFT JOIN(SELECT SUM(TMM.StoryPoint)ColsedStoryPoint,TS.ResponsiblePersonId  FRO
 LEFT JOIN TaskAudit TS ON TS.TaskManagerMasterId=TMM.Id
 WHERE TMM.CurrentStatus='Colsed'
 GROUP BY TS.ResponsiblePersonId) CSP ON CSP.ResponsiblePersonId=TA.ResponsiblePersonId
-WHERE ei.EmployeeStatus='Active' AND  DG.id IN(21,28) AND e.Id IN(112)
+WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")
 GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint,CSP.ColsedStoryPoint) X";
 
             return _sqlRepository.GetDataTable(strSql);

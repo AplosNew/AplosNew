@@ -1,10 +1,12 @@
 ﻿'use strict';
-TaskManagementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter'];
-function TaskManagementReportController(commonMessage,  $scope, $rootScope, baseService,  $http, $filter) {
+TaskManagementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter','$window'];
+function TaskManagementReportController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
     $scope.title = 'Task Management Report';
     $scope.UtilityTransactionList = [];
     $scope.path = 'TaskManagement/TaskManagementReport/';
-    $scope.downloadgriddataUrlPath = 'Materials/UtilityTransactionReport/DownloadUsingFullPath';
+   // $scope.downloadgriddataUrlPath = 'Materials/UtilityTransactionReport/DownloadUsingFullPath';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+
     //baseService.init($scope.getListUrl);
 
 
@@ -85,14 +87,14 @@ function TaskManagementReportController(commonMessage,  $scope, $rootScope, base
     }
 
 
-    $scope.GetTaskReport = function () {
+    $scope.GetTaskManagementReport = function () {
         $scope.filterComplete();
-        $scope.fileName = "UtilityTransactionReport.xlsx";
+        $scope.fileName = "TaskManagementReport.xlsx";
 
         $http({
             method: 'POST',
-            url: $scope.path + "GetUtilityTransactionReport",
-            data: { 'ToDate': $scope.ToDate, 'FromDate': $scope.FromDate },
+            url: $scope.path + "GetTaskManagementReport",
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate,'todate': $scope.ToDate },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {

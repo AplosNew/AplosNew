@@ -2069,7 +2069,7 @@ GROUP BY A.UserName,A.StandardValue,A.Sequence,A.FundUtilization,A.Id,A.Remarks,
                 strSQL = @"select  moi.Id MasterOrderItemID,c.Id as ContractId
                                 ,so.Rate,So.UpCharge
 								,so.Qty
-								,(so.Rate+So.UpCharge)*so.Qty as Amount
+								,(so.Rate*so.Qty) as Amount
 ,mm.UserName MaterialDescription,mma.StandardName as Article,h.Code as HSNCode
                                 ,c.description as Reference,
                                 pc.UserName as CustomerName,u.UserName as UoM,
