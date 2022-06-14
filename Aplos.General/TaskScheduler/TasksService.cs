@@ -1524,7 +1524,7 @@ namespace Library.General.TaskScheduler
 
         }
 
-        public DataTable GetTaskManagementData(string fromDate, string todate,string CompanyGroupId, string CompanyId, string PlantId, Dictionary<string, string> parameters)
+        public DataTable GetTaskManagementData(string fromDate, string todate, Dictionary<string, string> parameters)
         {
             
             string strSql = "";
@@ -1537,8 +1537,9 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
-LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'"+ fromDate + @"') AND Convert(date, '"+todate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
 LEFT JOIN(SELECT COUNT(Id)OnTimeTask,ResponsiblePersonId FROM TaskAudit 
 WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'"+ fromDate + @"') AND Convert(date, '" + todate + @"'))
 GROUP BY ResponsiblePersonId) TOD ON TOD.ResponsiblePersonId=TA.ResponsiblePersonId
@@ -1553,7 +1554,7 @@ LEFT JOIN(SELECT SUM(TMM.StoryPoint)ColsedStoryPoint,TS.ResponsiblePersonId  FRO
 LEFT JOIN TaskAudit TS ON TS.TaskManagerMasterId=TMM.Id
 WHERE TMM.CurrentStatus='Colsed'
 GROUP BY TS.ResponsiblePersonId) CSP ON CSP.ResponsiblePersonId=TA.ResponsiblePersonId
-WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @")
+WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint,CSP.ColsedStoryPoint) X";
 
             return _sqlRepository.GetDataTable(strSql);
