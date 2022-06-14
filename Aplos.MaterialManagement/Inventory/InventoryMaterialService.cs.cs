@@ -958,6 +958,9 @@ namespace Library.MaterialManagement.Inventory
                            ,null AS [check] ,IRD.Description MaterialDetail,'null' PurchaseDocAcceptanceDetailId,0 POClosStatus,C.UserName CountryName,C.Id CountryId ,MM.IsAsset,IRD.TotalTaxAmount,0 GrossAmount,0 DiscountAmount,'' QualityStatus
 						,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
                          FROM TRN.PurchaseOrderDetail AS IRD
+                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty FROM  TRN.InventoryReceiveDetail gd 
+								JOIN trn.InventoryReceive ir on ir.Id=gd.InventoryReceiveId 
+								WHERE (isnull(ir.AuthorizedByStatus,'') NOT IN ('Reject','Hold'))  GROUP BY PODetailsId ) AS GRND ON GRND.PODetailsId=IRD.Id
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
                          left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
