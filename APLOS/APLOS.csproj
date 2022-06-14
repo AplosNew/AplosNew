@@ -4178,7 +4178,6 @@
     <Content Include="Areas\HumanResource\Views\ZoneMaster\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\BOQStatusReport\Aplos.cshtml" />
     <Content Include="Areas\Costings\Views\BOQStatusReport\Approval.cshtml" />
-    <Content Include="Areas\HumanResource\Views\_ViewStart.cshtml" />
     <Content Include="Areas\HumanResource\Views\FuguaiReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\Loan\_MultiLoanListPopUp.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
