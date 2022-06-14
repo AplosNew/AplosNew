@@ -1042,7 +1042,6 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
                         left join scs.country C On C.Id=IRD.CountryId	
-						
                         WHERE IRD.QtyStatus=0 and IRD.InventoryMaterialId is null AND " + paramter + @"";
 				}
 				else
@@ -1096,10 +1095,8 @@ namespace Library.MaterialManagement.Inventory
 							, IR.ToCurrencyRate 
 					       ,IRD.TransactionAmount
                             ,0 AS TrnAmount  
-                            
                             ,0 AS TaxAmount
 	                        , 0 AS ChargesAmount
-                            
 	                        , IRD.CountryId
                             ,'True' enableid
                             ,null POMaterialTaxList                            
