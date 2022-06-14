@@ -266,6 +266,50 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
         }
 
+
+        [HttpPost]
+        public JsonResult InsertMultiLoanPayment(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> loanRepaymentlist)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            voucherVM.CompanyGroupId = identity.CompanyGroupId;
+            voucherVM.CompanyId = identity.CompanyId;
+            voucherVM.PlantId = identity.PlantId;
+            voucherVM.IsPark = true;
+            voucherVM.SourceType = SourceType.LoanPayment.ToString();
+            //if (voucherVM.CurrencyId == null)
+            //    throw new CustomException("Please Select Currency !");
+            //if (voucherVM.Amount < 0 || voucherVM.Amount == 0)
+            //    throw new CustomException("Please Input Total Amount !");
+            //if (voucherVM.Amount > voucherVM.Balance)
+            //    throw new CustomException("Payment Amount can't more than Loan Balance Amount");
+
+            //if (voucherVM.CompanyCurrencyRate < 0 || voucherVM.CompanyCurrencyRate == 0)
+            //    throw new CustomException("Rate can not Empty!");
+            //if (voucherVM.TransactionType == null)
+            //    throw new CustomException("Please Select Loan Type !");
+            //if (voucherVM.PartyType == PartyType.Bank.ToString() && voucherVM.OtherBankMasterId == null)
+            //    throw new CustomException("Please Select Other Bank !");
+            //if (voucherVM.PartyType == PartyType.Customer.ToString() && voucherVM.PartyId == null)
+            //    throw new CustomException("Please Select Customer!");
+            //if (voucherVM.PartyType == PartyType.Vendor.ToString() && voucherVM.PartyId == null)
+            //    throw new CustomException("Please Select Vendor!");
+            //if (voucherVM.PartyType == PartyType.Director.ToString() && voucherVM.PartyId == null)
+            //    throw new CustomException("Please Select Director!");
+            //if (voucherVM.IsSchedule)
+            //{
+            //    if (voucherVM.RepaymentStartDate == null)
+            //        throw new CustomException("Please Input  Repayment Date!");
+            //    if (voucherVM.ProfitRate == 0)
+            //        throw new CustomException("Please Input  Profit Rate!");
+            //    if (voucherVM.LifeOfYear == 0)
+            //        throw new CustomException("Please Input  Life Of Year!");
+            //    if (voucherVM.NoOfInstallmentPerYear == 0)
+            //        throw new CustomException("Please Input  No Of Installment!");
+            //}
+
+            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertMultiLoanWriteOff(voucherVM, loanRepaymentlist)) });
+        }
+
         [HttpPost]
         public JsonResult UpdateLoanPayment(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
@@ -336,11 +380,30 @@ namespace Aplos.Areas.Accounts.Controllers
                     return RenderReportAsExcel(workbook, reportFileName);
             }
         }
+
+        [HttpGet, Authorize]
+        public ActionResult MultiloanPaymentReport(ReportFormat reportFormat, string loanWriteOffGroupNo)
+        {
+            AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _accInvoiceReportService.GetCustomerInvoiceReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, loanWriteOffGroupNo, SourceType.LoanPayment.ToString());
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+        }
         #endregion
 
         #region Loan Interest Payable
 
-       
+
         public ActionResult LoanInterestPayable()
         {
             return View("~/Areas/Accounts/Views/Loan/LoanInterestPayable.cshtml");

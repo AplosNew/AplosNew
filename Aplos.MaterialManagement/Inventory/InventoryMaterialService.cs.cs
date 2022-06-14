@@ -932,11 +932,9 @@ namespace Library.MaterialManagement.Inventory
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
                             , IRD.TransactionQty AS POQty
-                            --, ISNULL(IRD.GRNRcvQty,0) AS GRNRcvQty 
-							 , ISNULL(aa.TransactionQty,0) AS GRNRcvQty        
-                            --,(IRD.TransactionQty - ISNULL(IRD.GRNRcvQty,0)) AS TransactionQty
-                              ,'' AS TransactionQty
-                             ,(IRD.TransactionQty-ISNULL(aa.TransactionQty,0)) As Balance
+                            , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
+                            , '' AS TransactionQty
+                            , (IRD.TransactionQty-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -998,10 +996,9 @@ namespace Library.MaterialManagement.Inventory
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
                             , IRD.TransactionQty AS POQty
-                            , ISNULL(IRD.GRNRcvQty,0) AS GRNRcvQty                           
-                            --,(IRD.TransactionQty - ISNULL(IRD.GRNRcvQty,0)) AS TransactionQty
-                              ,'' AS TransactionQty
-                             ,(IRD.TransactionQty-IRD.GRNRcvQty) As Balance
+                            , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
+                            , '' AS TransactionQty
+                            , (IRD.TransactionQty-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -1026,6 +1023,9 @@ namespace Library.MaterialManagement.Inventory
 							,IRD.TransactionUoMId POUoMId,IRD.Tolerance,IRD.RefferenceNo
 					    
                          FROM TRN.PurchaseOrderDetail AS IRD
+                        LEFT JOIN(SELECT gd.PODetailsId,isnull(sum(gd.TransactionQty),0) GRNRcvQty FROM  TRN.InventoryReceiveDetail gd 
+								JOIN trn.InventoryReceive ir on ir.Id=gd.InventoryReceiveId 
+								WHERE (isnull(ir.AuthorizedByStatus,'') NOT IN ('Reject','Hold'))  GROUP BY PODetailsId ) AS GRND ON GRND.PODetailsId=IRD.Id
 						--LEFT JOIN TRN.PurchaseOrderDetail AS IRD ON IRD.InventoryMaterialId=PM.Id
                          left JOIN MST.MaterialMaster AS MM ON IRD.InventoryMaterialId=MM.Id
                         LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id

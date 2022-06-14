@@ -369,7 +369,7 @@ namespace Library.Accounting.Accounts
             return workbook;
         }
 
-        private Dictionary<string, object> GetCustomerBanksReceiptHeader(string companyGroupId, string companyId, string plantId, string invoiceWriteOffGroupNo, SourceType sourceType)
+        private Dictionary<string, object> GetCustomerBanksReceiptHeader(string companyGroupId, string companyId, string plantId, string invoiceWriteOffGroupNo, string sourceType)
         {
             var cmdText = @"SELECT AW.InvoiceWriteOffGroupNo, REPLACE(CONVERT(VARCHAR(11), AW.VoucherDate, 106), ' ', '-') AS VoucherDate
                             , P.Code AS PartyCode, P.UserName AS Customer, REPLACE(CONVERT(VARCHAR(11), AW.PostingDate, 106), ' ', '-') AS PostingDate 
@@ -459,7 +459,7 @@ namespace Library.Accounting.Accounts
             var sheet = workbook.Worksheets[0];
             sheet.Name = "Voucher";
 
-            var header = GetCustomerBanksReceiptHeader(companyGroupId, companyId, plantId, invoiceWriteOffGroupNo, SourceType.CustomerBanksReceipt);
+            var header = GetCustomerBanksReceiptHeader(companyGroupId, companyId, plantId, invoiceWriteOffGroupNo, sourceType);
 
             reportFileName = Convert.ToDateTime(header["PostingDate"]).ToString("yyMMdd") + " " + header["VoucherNo"];
 
