@@ -334,9 +334,13 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/InventoryIssue/InventorySalesRnd',
             controller: 'inventorySalesController'
         })
-      .when('/inventory-sales-Report', {
-            templateUrl: 'Products/InventoryIssue/InventorySalesReport',
-          controller: 'inventorySalesRegisterController'
+          .when('/inventory-sales-Report', {
+                templateUrl: 'Products/InventoryIssue/InventorySalesReport',
+              controller: 'inventorySalesRegisterController'
+          })
+        .when('/sales-register', {
+            templateUrl: 'Products/SalesRegister/SalesRegister',
+            controller: 'salesRegisterController'
         })
         .when('/inventory-scrap', {
             templateUrl: 'Products/InventoryIssue/InventoryScrap',
