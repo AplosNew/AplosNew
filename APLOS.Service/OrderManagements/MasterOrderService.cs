@@ -486,7 +486,7 @@ namespace Library.Service.OrderManagements
 	                         , MOI.OrderWastagePercentage, MOI.ExtraOrderPercentage, MOI.ProductionGrouping, MM.HSNCodeId
 							 , ISNULL(HART.HasAttribute,CAST(0 AS BIT)) AS HasAttribute
                              , ISNULL((select sum(SO.Qty) from TRN.SalesOrder SO where So.MasterOrderItemId = MOI.Id),0) as SOQty,MOI.Type,MOI.IsRepeat, PM.UserName AS ProductMaster
-                             ,CNT.ContractNo,MLC.LCRef,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
+                             ,MOI.ContractId,CNT.ContractNo,MLC.LCRef,MOI.BuyerItemDescription,MOI.MainRawMaterialDescription,MOI.PartyId,MOI.EntityIdWithinGroup,MOI.EntityIdWithinCompany,MOI.JobWorkType
                              , EntityOrVendorName= CASE WHEN MOI.EntityIdWithinCompany<>'' THEN EWCC.UserName +' - '+EWC.UserName 
 					                        WHEN MOI.EntityIdWithinGroup<>'' THEN EWGC.UserName+' - '+EWG.UserName
 					                        WHEN MOI.PartyId<>'' THEN PRT.UserName
