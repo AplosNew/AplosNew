@@ -2016,7 +2016,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 ShowResult(response.data.Message, 'success', 'soPoUp');
                 getSalesOrderTaxCategoryList(response.data.Id);
                 getSalesOrderList();
-                clearSO();
                 $scope.ShowCostingSORatePopup();
                 $scope.getMasterItemList();
             }
