@@ -56,6 +56,22 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         CompanyCurrencyRate:1
     };
 
+
+    $scope.LoanSetOffType = 'Single';
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+        if ($scope.tab == 1) {
+            $scope.LoanSetOffType = 'Single';
+        } else {
+            $scope.LoanSetOffType = 'Multi';
+
+        }
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.searchByList = [
         {
             "name": "VoucherNo",
@@ -88,6 +104,11 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         {
             "name": "Currency",
             "value": "Currency"
+        }
+        ,
+        {
+            "name": "LoanSetOffGroupNo",
+            "value": "LoanSetOffGroupNo"
         }
     ];
 
@@ -300,10 +321,17 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     $scope.closeBankPopUp = function () {
         if ($scope.bankIndex !== -1) {
             var bank = $scope.bankList[$scope.bankIndex];
-
-            $scope.voucher.SourceBankAccountTitle = bank.AccountTitle;
-            $scope.voucher.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
-            $scope.voucher.BankMasterId = bank.BankMasterId;
+            if ($scope.LoanSetOffType == 'Single') {
+                $scope.voucher.SourceBankAccountTitle = bank.AccountTitle;
+                $scope.voucher.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                $scope.voucher.BankMasterId = bank.BankMasterId;
+            }
+            else if ($scope.LoanSetOffType == 'Multi'){
+                $scope.voucherML.SourceBankAccountTitle = bank.AccountTitle;
+                $scope.voucherML.BankName = bank.BankCode + " - " + bank.BankName + " - " + bank.AccountTitle + " - " + bank.AccountNumber;
+                $scope.voucherML.BankMasterId = bank.BankMasterId;
+            }
+           
         }
         $scope.hideBankPopUp();
     };
@@ -831,4 +859,411 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
     };
 
+
+
+    //******Multiple Loan SetOff*******
+    $scope.voucherML = {
+        Id: null,
+        EntityId: null,
+        PartyId: null,
+        PartyName: null,
+        PartyType: "Customer",
+        CurrencyId: null,
+        VoucherNo: null,
+        VoucherDate: $filter("dateFiltering")(Date.now()),
+        PostingDate: null,
+        DocDate: null,
+        DocRefNo: null,
+        Amount: "",
+        Narration: null,
+        BankName: null,
+        BankMasterId: null,
+        OtherBankMasterId: null,
+        CashName: null,
+        CashMasterId: null,
+        BankCurrencyId: null,
+        BankAmount: null,
+        BankAccountNumber: null,
+        PaymentSource: "Bank",
+        FinancingTypeId: null,
+        RepaymentStartDate: null,
+        LifeOfYear: "",
+        NoOfInstallmentPerYear: "",
+        TotalNoOfInstallment: "",
+        ProfitRate: "",
+        ProfitAmount: "",
+        TransactionType: "LoanTaken",
+        IsSchedule: false,
+        CompanyCurrencyRate: 1
+    };
+
+    $scope.getCboVoucherTypeLoanListML = function () {
+        accountService.getCboVoucherTypeLoanPaymentList(function (result) {
+            $scope.voucherTypeList = result;
+            if ($scope.voucherTypeList.length === 1) {
+                $scope.voucherML.VoucherTypeId = $scope.voucherTypeList[0].Value;
+                $scope.voucherML.PostingDate = $filter("dateFiltering")($scope.voucherTypeList[0].LastPostingDate);
+                $scope.voucherML.DocDate = $scope.voucherML.PostingDate;
+            }
+        });
+    }
+    $scope.getPartyPlantListML = function (partyId, isUpdateMode) {
+        $scope.partyPlantList = [];
+        $http.get("Parties/party/GetPartyPlantCbo?partyId=" + partyId)
+            .then(function (response) {
+                angular.forEach(response.data, function (item, i) {
+                    $scope.partyPlantList.push(item);
+                    if (item.IsDefault && !isUpdateMode) {
+                        $scope.voucherML.PartyPlantId = item.Value;
+                    }
+                });
+            });
+    };
+
+    $scope.closeCustomerPopUpML = function () {
+        if ($scope.customerIndex !== -1) {
+            var party = $scope.customerList[$scope.customerIndex];
+            $scope.voucherML.PartyName = party.Code + " - " + party.UserName;
+            $scope.voucherML.PartyId = party.Id;
+            $scope.voucherML.PartyType = $scope.partyType;
+            $scope.getPartyPlantListML(party.Id);
+        }
+        angular.element(document.querySelector("#customerListPopUp")).modal("hide");
+        $scope.customerIndex = -1;
+        $scope.selectedCustomer = null;
+    };
+    $scope.changeSourceToML = function (to) {
+        $scope.voucherML.DrBankMasterId = null;
+        $scope.voucherML.PartyName = null;
+        $scope.voucherML.DirectorName = null;
+        $scope.partyType = to;
+    };
+    $scope.changeSourceFromML = function (from) {
+        $scope.voucherML.CrGLId = null;
+        $scope.voucherML.CrGLName = null;
+        $scope.voucherML.CrBudgetId = null;
+        $scope.voucherML.CrActivityId = null;
+        $scope.voucherML.BankName = null;
+        $scope.voucherML.CashName = null;
+        $scope.voucherML.BankMasterId = null;
+        $scope.voucherML.CashMasterId = null;
+        $scope.isBankAmount = false;
+        $scope.voucherML.BankCurrencyId = null;
+    };
+    $scope.validation = function () {
+        for (var i = 0; i < $scope.ExistingLoanList.length; i++) {
+            if (new Date($scope.voucher.PostingDate) < new Date($scope.ExistingLoanList[i].LoanPostingDate)) {
+                ShowResult("Posting date must be below or equal to Loan PostingDate!", "failure");;
+                return true;
+                break;
+            }
+            if ($scope.ExistingLoanList[i].Balance < $scope.ExistingLoanList[i].Amount) {
+                ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
+                return true;
+                break;
+            }
+            return false;
+        }
+    };
+
+    $scope.SaveML = function () {
+        $scope.$broadcast("show-errors-check-validity");
+        $scope.checkDocDateML();
+        $scope.checkPostingDateML();
+        //$scope.passBankCashAmount();
+        if ($scope.form1.$valid && !$scope.invalidDocDateML && !$scope.invalidPostingDateML && !$scope.validation()) {
+            if ($scope.Action === "Save") {
+                $http({
+                    method: "POST",
+                    url: "Accounts/Loan/InsertMultiLoanPayment",
+                    data: {
+                        "voucherVM": $scope.voucherML,
+                        "loanRepaymentlist": $scope.ExistingLoanList
+                    },
+                    dataType: "JSON"
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, "failure");
+                    }
+                    else {
+                        ShowResult(response.data.Message, "success");
+                        $scope.getData();
+                        $scope.ClearML();
+                        $scope.isReadOnly = false;
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.status.Message, "failure");
+                });
+                return true;
+            }
+            return true;
+        }
+    };
+
+    $scope.invalidDocDateML = false;
+    $scope.checkDocDateML = function () {
+        var msg = "";
+        if (new Date($scope.voucherML.DocDate) > new Date()) {
+            $scope.invalidDocDate = true;
+            msg = "Doc date must be below or equal to current Date!";
+        }
+        else if (new Date($scope.voucherML.PostingDate) < new Date($scope.voucherML.DocDate)) {
+            msg = "Doc date must be below or equal to Posting Date!";
+            $scope.invalidDocDateML = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucherML.DocDate)) {
+            msg = "Doc Date is required.";
+            $scope.invalidDocDateML = true;
+        }
+        else $scope.invalidDocDateML = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDateML, msg);
+    };
+
+    $scope.invalidPostingDateML = false;
+    $scope.checkPostingDateML = function () {
+        var msg = "";
+        if (new Date($scope.voucherML.PostingDate) > new Date()) {
+            msg = "Posting date must be below or equal to current Date!";
+            $scope.currencyExchangeRate = [];
+            $scope.invalidPostingDate = true;
+        }
+        else if (baseService.isUndefinedOrNull($scope.voucherML.PostingDate)) {
+            msg = "Posting Date is required.";
+            $scope.invalidPostingDateML = true;
+        }
+        else {
+            $scope.invalidPostingDateML = false;
+        }
+        for (var i = 0; i < $scope.voucherDetailList.length; i++) {
+            if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.voucherML.PostingDate)) {
+                msg = "Posting date must be above or equal to receivable of " + $scope.voucherDetailList[i].DocRefNo;
+                $scope.invalidPostingDateML = true;
+                break;
+            }
+            else {
+                $scope.invalidPostingDateML = false;
+            }
+        }
+        return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
+    };
+
+    $scope.closePartyPopUpML = function () {
+        if (baseService.isUndefinedOrNull($scope.voucherML.CurrencyId)) {
+            ShowResult("Please select Currency!", "failure", "partyPopUp");
+            return true;
+        }
+        if ($scope.partyIndex !== -1) {
+            var party = $scope.partyList[$scope.partyIndex];
+            if (baseService.isUndefinedOrNull(party.ReconciliationGLId)) {
+                ShowResult($scope.partyType + " GL not found!", "failure", "partyPopUp");
+                return;
+            }
+            else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.ReconciliationBudgetId)) {
+                ShowResult($scope.partyType + " Budget not found!", "failure", "partyPopUp");
+                return;
+            }
+            else {
+                $scope.voucherML.PartyName = party.Code + " - " + party.UserName;
+                $scope.voucherML.PartyId = party.Id;
+                $scope.voucherML.PartyType = $scope.partyType;
+                $scope.totalAdvanceAmount(party.Id, party.UserName);
+            }
+        }
+        $scope.hidePartyPopUp();
+    };
+
+
+    $scope.ClearML = function () {
+        $scope.Action = "Save";
+        $scope.voucherML = {};
+        $scope.voucherML.Active = true;
+        $scope.voucherML.Amount = "";
+        $scope.voucherML.CurrencyId = null;
+        $scope.voucherML.IsSchedule = false;
+        $scope.voucherML.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
+        $scope.voucherML.PaymentSource = "Bank";
+        $scope.voucherML.PartyType = "Customer";
+        $scope.voucherML.TransactionType = "LoanTaken";
+        $scope.ExistingLoanList = [];
+        $scope.currencyExchangeRate = [];
+        $scope.getCboVoucherTypeLoanList();
+        $scope.loanRepaymentSchedulelist = [];
+        $("#loanDetails").children().remove();
+        $scope.isReadOnly = false;
+    };
+
+    $scope.clearSchedule = function () {
+        $("#loanDetails").children().remove();
+        $scope.voucherML.RepaymentStartDate = null;
+        $scope.voucherML.LifeOfYear = null;
+        $scope.voucherML.ProfitRate = null;
+        $scope.voucherML.NoOfInstallmentPerYear = null;
+        $scope.voucherML.TotalNoOfInstallment = null;
+    }
+    $scope.report = function (voucherId) {
+        location.href = "accounts/Loan/LoanReport?voucherId=" + voucherId;
+    };
+
+
+    $scope.financingId = null;
+    $scope.confirmPost = function (voucherId) {
+        $scope.voucherId = voucherId;
+        $scope.message_confirmation = 'Are you sure to Post?';
+        angular.element(document.querySelector('#confirmPostPopUp')).modal('show');
+    };
+
+    $scope.post = function (voucherId) {
+        $http({
+            method: "POST",
+            url: $scope.postUrl,
+            data: {
+                "voucherId": voucherId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.Clear();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+
+
+
+    $scope.currencyExchangeRateML = [];
+    $scope.GetCurrencyExchangeRateListML = function () {
+        if (!baseService.isUndefinedOrNull($scope.voucherML.PostingDate) && !baseService.isUndefinedOrNull($scope.voucherML.CurrencyId)) {
+            $http({
+                method: "GET",
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.voucherML.PostingDate + "&currencyId=" + $scope.voucherML.CurrencyId
+            }).then(function successCallback(response) {
+                $scope.currencyExchangeRateML = response.data;
+                $scope.voucherML.CompanyCurrencyRate = $scope.currencyExchangeRateML.ToCurrencyRate;
+                $scope.voucherML.ToCurrencyRate = $scope.currencyExchangeRateML.ToCurrencyRate;
+            });
+        }
+        else {
+            $scope.currencyExchangeRateML = null;
+        }
+    };
+    $scope.distributedTotalAmount = function (amount) {
+        if ($scope.voucherML.InterestBalance == 0) {
+            $scope.voucherML.Amount = amount;
+        }
+        else if ($scope.voucherML.InterestBalance > amount || $scope.voucherML.InterestBalance == amount) {
+            $scope.voucherML.InterestPaymentAmount = amount;
+            $scope.voucherML.Amount = 0;
+        }
+        else if ($scope.voucherML.InterestBalance < amount) {
+            $scope.voucherML.InterestPaymentAmount = $scope.voucherML.InterestBalance;
+            if ($scope.voucherML.Balance > (amount - $scope.voucherML.InterestBalance))
+                $scope.voucherML.Amount = amount - $scope.voucherML.InterestBalance;
+            else
+                $scope.voucherML.Amount = $scope.voucherML.Balance;
+        }
+    }
+    $scope.InterestPaymentAmountValidation = function (amount) {
+        if ($scope.voucherML.InterestBalance < amount) {
+            $scope.voucherML.InterestPaymentAmount = $scope.voucherML.InterestBalance;
+            ShowResult("Interest Payment Amount should not exceed Interest Balance Amount.", "failure");
+        }
+    }
+    $scope.loanDataListML = [];
+    $scope.getPopUpDataML = function () {        $http({            method: 'GET',            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + $scope.voucherML.TransactionType        }).then(function successCallback(response) {            $scope.loanDataListML = response.data;            for (var i = 0; i < $scope.loanDataListML.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataListML[i].PostingDateNew);                response.data[i].DocDate = new Date($scope.loanDataListML[i].DocDate);
+            }        });    };
+    $scope.showmultiloanPopUp = function () {
+        $scope.getPopUpDataML();
+        angular.element(document.querySelector('#multiloanPopUp')).modal('show');
+    };
+    $scope.closemultiloanPopUp = function () {
+        angular.element(document.querySelector("#multiloanPopUp")).modal("hide");
+    };
+
+    $scope.ExistingLoanList = [];
+    $scope.closemultiloanPopUpSelected = function () {
+        $scope.ExistingLoanList = [];
+        $scope.existingLoan = {};
+        for (var i = 0; i < $scope.loanDataListML.length; i++) {
+            if ($scope.loanDataListML[i].isSelected == true) {
+                if ($scope.ExistingLoanList, $scope.loanDataListML[i].FinancingId) {
+                    $scope.existingLoan.FinancingId = $scope.loanDataListML[i].FinancingId;
+                    $scope.existingLoan.FinancingDetailId = $scope.loanDataListML[i].FinancingDetailId;
+                    $scope.existingLoan.VoucherNo = $scope.loanDataListML[i].VoucherNo;
+                    $scope.existingLoan.PartyName = $scope.loanDataListML[i].Particulars;
+                    $scope.existingLoan.PartyId = $scope.loanDataListML[i].PartyId;
+                    $scope.existingLoan.OtherBankMasterId = $scope.loanDataListML[i].OtherBankMasterId;
+                    $scope.existingLoan.PartyType = $scope.loanDataListML[i].PartyType;
+                    $scope.existingLoan.PartyPlantName = $scope.loanDataListML[i].PartyPlantName;
+                    $scope.existingLoan.CurrencyId = $scope.loanDataListML[i].CurrencyId;
+                    $scope.existingLoan.CurrencyCode = $scope.loanDataListML[i].CurrencyCode;
+                    $scope.existingLoan.EntityId = $scope.loanDataListML[i].EntityId;
+                    $scope.existingLoan.FinancingTypeId = $scope.loanDataListML[i].FinancingTypeId;
+                    $scope.existingLoan.CompanyId = $scope.loanDataListML[i].CompanyId;
+                    $scope.existingLoan.PlantId = $scope.loanDataListML[i].PlantId;
+                    $scope.existingLoan.LoanAmount = $scope.loanDataListML[i].LoanAmount - $scope.loanDataListML[i].AdditionalLoanAmount;
+                    $scope.existingLoan.LoanSetOff = $scope.loanDataListML[i].LoanPayment;
+                    $scope.existingLoan.Balance = $scope.loanDataListML[i].Balance;
+                    $scope.existingLoan.LoanDocRefNo = $scope.loanDataListML[i].DocRefNo;
+                    $scope.existingLoan.InitialSactionAmount = $scope.loanDataListML[i].InitialSactionAmount;
+                    $scope.existingLoan.AdditionalLoanAmount = $scope.loanDataListML[i].AdditionalLoanAmount;
+                    $scope.existingLoan.LoanPostingDate = $scope.loanDataListML[i].PostingDate;
+                    $scope.existingLoan.LoanDocDate = $scope.loanDataListML[i].DocDateNew;
+                    $scope.existingLoan.InterestWriteOff = $scope.loanDataListML[i].InterestWriteOff;
+                    $scope.existingLoan.InterestBalance = $scope.loanDataListML[i].InterestBalance;
+                    $scope.existingLoan.InterestCashPayment = $scope.loanDataListML[i].InterestCashPayment;
+                    $scope.existingLoan.InterestAmount = $scope.loanDataListML[i].InterestAmount - $scope.loanDataListML[i].OtherExpensesPayable;
+                    $scope.existingLoan.OtherExpensesPayable = $scope.loanDataListML[i].OtherExpensesPayable;
+                    $scope.existingLoan.TotalLoanLiability = $scope.loanDataListML[i].LoanAmount + $scope.existingLoan.InterestAmount + $scope.existingLoan.OtherExpensesPayable
+                    $scope.existingLoan.TotalInterestPayableAmount = $scope.loanDataListML[i].InterestAmount;
+                    $scope.existingLoan.ToCurrencyRate = $scope.loanDataListML[i].CompanyCurrencyRate;
+                    $scope.getPartyPlantList($scope.loanDataListML[i].PartyId);
+                    $scope.existingLoan.PartyPlantId = $scope.loanDataListML[i].PartyPlantId;
+                    $scope.ExistingLoanList.push($scope.existingLoan);
+                    $scope.existingLoan = {};
+                }
+            }
+        }
+        angular.element(document.querySelector("#multiloanPopUp")).modal("hide");
+    };
+
+    $scope.exchangeGainLossAmountML = function (data) {
+        if ($scope.voucherML.TransactionType == 'LoanTaken') {
+            var balance = parseFloat(data.Balance), dramount = parseFloat(data.Amount);
+            if (dramount > balance) {
+                data.LoanSetOffAmount = data.Balance;
+                ShowResult("Invoice Amount should not exceed Balance Amount.", "failure");
+            }
+            else {
+                CloseShowResult();
+            }
+            if (data.ToCurrencyRate < $scope.voucherML.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.round((data.Amount * ($scope.voucherML.CompanyCurrencyRate - data.ToCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+                data.ExchangeType = "ExchangeLoss";
+                data.BaseDrAmount = Math.round((data.Amount * data.ToCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+
+            }
+            else if (data.ToCurrencyRate > $scope.voucherML.CompanyCurrencyRate) {
+                data.ExchangeAmount = Math.round((data.Amount * (data.ToCurrencyRate - $scope.voucherML.ToCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+                data.ExchangeType = "ExchangeGain";
+                data.BaseDrAmount = Math.round((data.Amount * data.ToCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+            }
+            else {
+                data.ExchangeAmount = 0;
+                data.BaseDrAmount = Math.round((data.Amount * data.ToCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                data.ExchangeType = null;
+            }
+        }
+    };
+    $scope.removeRowML = function (index) {
+        $scope.ExistingLoanList.splice(index, 1);
+    }
 }

@@ -1296,6 +1296,455 @@ namespace Library.Service.Finances
                     _unitOfWork.Rollback();
             }
         }
+        private string GetLoanSetOffGroupNoPK()
+        {
+            return _pkGeneratorService.GetAutoNumber("LoanSetOffGroupNo", PKGeneratorEnum.Auto, null, DateTime.Now);
+        }
+        public string InsertMultiLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> loanRepaymentlist)
+        {
+            var flag = false;
+            try
+            {
+                AccountCommonExtensionService _accountsCommonService = new AccountCommonExtensionService();
+                _accountsCommonService.GetParallelCurrency(voucherVM.CompanyId, out string companyCurrencyId, out string companyCurrencyCode);
+                _accountsCommonService.CheckingFiscalYearPeriod(voucherVM);
+                _accountsCommonService.CheckingTaxYearPeriod(voucherVM);
+
+                _unitOfWork.BeginTransaction();
+                flag = true;
+
+                var totalAmountDr = 0.0M;
+                var totalCurrencyAmountDr = 0.0M;
+                var totalAmountCr = 0.0M;
+                var totalCurrencyAmountCr = 0.0M;
+                string _loanSetOffGroupNo = GetLoanSetOffGroupNoPK();
+                foreach (var item in loanRepaymentlist)
+                {
+                    var financinWriteOff = new FinancingWriteOff
+                    {
+                        CompanyGroupId = voucherVM.CompanyGroupId,
+                        CompanyId = voucherVM.CompanyId,
+                        PlantId = voucherVM.PlantId,
+                        EntityId = voucherVM.EntityId,
+                        BankMasterId = voucherVM.BankMasterId,
+                        CashMasterId = voucherVM.CashMasterId,
+                        VoucherTypeId = voucherVM.VoucherTypeId,
+                        FinancingId = item.FinancingId,
+                        FinancingTypeId = item.FinancingTypeId,
+                        PartyId = item.PartyId,
+                        PartyPlantId = item.PartyPlantId,
+                        PartyType = item.PartyType,
+                        CurrencyId = voucherVM.CurrencyId,
+                        Amount = item.Amount,
+                        VoucherDate = voucherVM.VoucherDate,
+                        PostingDate = voucherVM.PostingDate,
+                        DocDate = voucherVM.DocDate,
+                        DocRefNo = voucherVM.DocRefNo,
+                        Narration = voucherVM.Narration,
+                        SourceType = voucherVM.SourceType.ToString(),
+                        FiscalYearId = voucherVM.FiscalYearId,
+                        FiscalYearPeriodId = voucherVM.FiscalYearPeriodId,
+                        TaxYearId = voucherVM.TaxYearId,
+                        TaxYearPeriodId = voucherVM.TaxYearPeriodId,
+                        IsPark = voucherVM.IsPark,
+                        TransactionType = voucherVM.TransactionType,
+                        LoanSetOffGroupNo= _loanSetOffGroupNo
+                    };
+                    var financing = _financingService.FindFinancing(item.FinancingId);
+                    if (item.Amount > 0)
+                    {
+                        _financingService.InsertFinancingWriteOff(financinWriteOff);
+                        // INSERT INTO Financing TABLE
+                        financing.WrittenOffAmount += item.Amount;
+                        _financingService.UpdateFinancing(financing);
+
+                    }
+                    var voucher = _voucherService.InsertVoucher(voucherVM);
+                    financinWriteOff.FinancingNo = voucher.VoucherNo;
+                    financinWriteOff.VoucherId = voucher.Id;
+
+
+                    var financingDetailWriteOff = new FinancingDetailWriteOff
+                    {
+                        Amount = item.Amount,
+                        FinancingWriteOffId = financinWriteOff.Id,
+                        FinancingId = financinWriteOff.FinancingId,
+                        FinancingDetailId = item.FinancingDetailId,
+                        WrittenOffAmount = item.Amount,
+                        BankMasterId = item.OtherBankMasterId,
+                        CashMasterId = item.OtherCashMasterId
+                    };
+                    // Investment from side Voucher detail row.
+                    var voucherDetailFrom = new VoucherDetail
+                    {
+                        PartyType = financing.PartyType,
+                        PaymentSource = financing.PaymentSource
+                    };
+
+                    // Investment to side Voucher detail row.
+                    var voucherDetailTo = new VoucherDetail
+                    {
+                        PartyType = item.PartyType
+                    };
+
+                   
+
+                    var exchangeloss = new VoucherDetail
+                    {
+                        PartyType = voucherVM.PartyType
+                    };
+                    var voucherDetailLoanInterestPayable = new VoucherDetail
+                    {
+                        PaymentSource = financing.PaymentSource
+                    };
+                    var voucherDetailLoanInterestCashExp = new VoucherDetail
+                    {
+                        PaymentSource = financing.PaymentSource
+                    };
+                    var exchangeGain = new VoucherDetail
+                    {
+                        PartyType = voucherVM.PartyType
+                    };
+                    var gl = _financingTypeGLService.GetInvestmentGL(financing.CompanyId, financing.FinancingTypeId);
+                    //Update Financing Detail
+                    var financingDetail = _financingService.FindFinancingDetail(item.FinancingDetailId);
+                    financingDetail.WrittenOffAmount += item.Amount;
+
+                    if (item.Amount > 0)
+                    {
+                        _financingService.UpdateFinancingDetail(financingDetail);
+                    }
+
+                    if (financing.TransactionType == TransactionType.LoanTaken.ToString())
+                    {
+                        #region From
+
+                        if (item.PartyType == PartyType.Vendor.ToString())
+                        {
+                            if (string.IsNullOrEmpty(item.PartyId))
+                                throw new CustomException("Vendor Id not found!");
+
+                            voucherDetailFrom.DrAmount = item.Amount;
+                            voucherDetailFrom.PartyId = financing.PartyId;
+                            voucherDetailFrom.PartyPlantId = financing.PartyPlantId;
+                            voucherDetailFrom.TrnNature = TransactionNature.Vendor.ToString();
+                        }
+                        if (item.PartyType == PartyType.Party.ToString())
+                        {
+                            if (string.IsNullOrEmpty(item.PartyId))
+                                throw new CustomException("Vendor Id not found!");
+
+                            voucherDetailFrom.DrAmount = item.Amount;
+                            voucherDetailFrom.PartyId = financing.PartyId;
+                            voucherDetailFrom.PartyPlantId = financing.PartyPlantId;
+                            voucherDetailFrom.TrnNature = "Party";
+                        }
+                        if (item.PartyType == PartyType.Customer.ToString())
+                        {
+                            if (string.IsNullOrEmpty(financing.PartyId))
+                                throw new CustomException("Customer Id not found!");
+
+                            voucherDetailFrom.DrAmount = item.Amount;
+                            voucherDetailFrom.PartyId = financing.PartyId;
+                            voucherDetailFrom.PartyPlantId = financing.PartyPlantId;
+                            voucherDetailFrom.TrnNature = TransactionNature.Customer.ToString();
+                        }
+                        else if (item.PartyType == PartyType.Director.ToString())
+                        {
+                            if (string.IsNullOrEmpty(financing.PartyId))
+                                throw new CustomException("Director Id not found!");
+
+                            voucherDetailFrom.DrAmount = item.Amount;
+                            voucherDetailFrom.PartyId = financing.PartyId;
+                            voucherDetailFrom.PartyPlantId = financing.PartyPlantId;
+                            voucherDetailFrom.TrnNature = TransactionNature.Director.ToString();
+                        }
+                        else if (item.PartyType == PartyType.Bank.ToString())
+                        {
+                            if (string.IsNullOrEmpty(item.OtherBankMasterId))
+                                throw new CustomException("Other Bank Id not found!");
+                            voucherDetailFrom.BankMasterId = item.OtherBankMasterId;
+                            voucherDetailFrom.DrAmount = item.Amount;
+                        }
+
+
+                        if (string.IsNullOrEmpty(gl.LiabilityGLId))
+                            throw new CustomException("This Transaction Type GL not Found!");
+
+                        financingDetailWriteOff.GLGeneralInfoId = gl.LiabilityGLId;
+                        financingDetailWriteOff.BudgetMasterId = gl.LiabilityBudgetMasterId;
+                        financingDetailWriteOff.ActivityId = gl.LiabilityActivityId;
+
+                        voucherDetailFrom.GLGeneralInfoId = financingDetail.GLGeneralInfoId;
+                        voucherDetailFrom.BudgetMasterId = financingDetail.BudgetMasterId;
+                        voucherDetailFrom.ActivityId = financingDetail.ActivityId;
+                        if (item.Amount > 0)
+                        {
+                            _financingService.InsertFinancingWriteOffDetail(financinWriteOff, financingDetailWriteOff, 1);
+                            voucherDetailFrom.FinancingDetailWriteOffId = financingDetailWriteOff.Id;
+                        }
+                        #endregion From
+
+                        #region To
+
+                        if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
+                        {
+                            if (string.IsNullOrEmpty(voucherVM.BankMasterId))
+                                throw new CustomException("Bank Id not found!");
+                            var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
+
+                            voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
+                            voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
+                            voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
+                            voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
+
+                            voucherDetailTo.TrnNature = TransactionNature.ToBank.ToString();
+                        }
+                        else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
+                        {
+                            if (string.IsNullOrEmpty(voucherVM.CashMasterId))
+                                throw new CustomException("Cash Id not found!");
+                            var cashMaster = _accountsCommonService.GetCashMaster(item.CashMasterId);
+
+                            voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
+                            voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
+                            voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
+                            voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
+
+                            voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
+                            voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
+                        }
+                        voucherDetailTo.CrAmount = item.Amount + item.ExpenseAmount + item.InterestPaymentAmount + item.InterestCashAmount;
+                        //voucherDetailTo.FinancingDetailWriteOffId = financingDetailWriteOff.Id;
+
+                        #endregion To
+                    }
+                    var currentVoucherDetailId = 1;
+                    if (financing.TransactionType == TransactionType.LoanTaken.ToString())
+                    {
+                        //********************VoucherDetail From******************************
+                        if (item.Amount > 0)
+                        {
+                            _voucherService.InsertVoucherDetail(voucher, voucherDetailFrom, currentVoucherDetailId);
+                            totalAmountDr += voucherDetailFrom.DrAmount;
+                        }
+                        //********************VoucherDetail To******************************
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailTo, currentVoucherDetailId);
+                        totalAmountCr += voucherDetailTo.CrAmount;
+
+
+                        var financingSubsequentTransaction = new FinancingSubsequentTransaction
+                        {
+                            CompanyGroupId = voucherVM.CompanyGroupId,
+                            CompanyId = voucherVM.CompanyId,
+                            PlantId = voucherVM.PlantId,
+                            EntityId = voucherVM.EntityId,
+                            VoucherTypeId = voucherVM.VoucherTypeId,
+                            FinancingId = item.FinancingId,
+                            SetOffFinancingId = item.FinancingId,
+                            PartyId = item.PartyId,
+                            PartyPlantId = item.PartyPlantId,
+                            PartyType = item.PartyType,
+                            CurrencyId = voucherVM.CurrencyId,
+                            Amount = item.Amount,
+                            VoucherDate = voucherVM.VoucherDate,
+                            PostingDate = voucherVM.PostingDate,
+                            DocDate = voucherVM.DocDate,
+                            DocRefNo = voucherVM.DocRefNo,
+                            TransactionType = LoanTransactionType.LoanPayment.ToString(),
+                            Narration = voucherVM.Narration,
+                            SourceType = voucherVM.SourceType.ToString(),
+                            IsPark = voucherVM.IsPark,
+                            Id = "SL" + GetLoanInterestPayablePK()
+
+                        };
+                        AuditService.AddedLog(financingSubsequentTransaction);
+                        _loanInterestPayableRepository.Insert(financingSubsequentTransaction);
+
+                        financingSubsequentTransaction.VoucherDetailId = voucherDetailFrom.Id;
+                        financingSubsequentTransaction.VoucherId = voucher.Id;
+
+
+                    }
+
+
+                    if (financing.TransactionType == TransactionType.LoanTaken.ToString())
+                    {
+                        if (item.Amount > 0)
+                        {
+                            _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailFrom, new VoucherDetailCurrency
+                            {
+                                ParallelCurrencyId = companyCurrencyId,
+                                FromCurrencyId = voucherDetailFrom.CurrencyId,
+                                ToCurrencyId = companyCurrencyId,
+                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailFrom.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                                DrAmount = voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount
+                            });
+                            totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount;
+                        }
+
+                        _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTo, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailTo.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount
+                        });
+                        totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount;
+                       
+
+                    }
+
+                    //***********************Exchange Loss*************************************
+                    if (!string.IsNullOrEmpty(item.ExchangeType) && item.ExchangeType == "ExchangeLoss" && item.ExchangeAmount > 0)
+                    {
+                        var lossGL = _accountsCommonService.GetExchangeLossGL(FinancingTypeEnum.Payable);
+
+                        exchangeloss.GLGeneralInfoId = lossGL["CompanyCurrencyGLId"].ToString();
+                        exchangeloss.BudgetMasterId = lossGL["CompanyCurrencyBudgetMasterId"].ToString();
+                        exchangeloss.ActivityId = lossGL["CompanyCurrencyActivityId"].ToString();
+                        exchangeloss.CurrencyId = voucher.CurrencyId;
+                        exchangeloss.DocDate = voucher.DocDate;
+                        exchangeloss.DocRefNo = voucher.DocRefNo;
+                        exchangeloss.Narration = voucher.Narration;
+                        exchangeloss.PartyType = item.ExchangeType;
+                        exchangeloss.DrAmount = 0;
+                        exchangeloss.CrAmount = 0;
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, exchangeloss, currentVoucherDetailId);
+                        _voucherService.InsertVoucherDetailCompanyCurrency(exchangeloss, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = exchangeloss.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeloss.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            DrAmount = voucherVM.ExchangeAmount,
+                        });
+                        totalCurrencyAmountDr += voucherVM.ExchangeAmount;
+
+                    }
+                    //***********************Exchange Gain*************************************
+                    if (!string.IsNullOrEmpty(item.ExchangeType) && item.ExchangeType == "ExchangeGain" && item.ExchangeAmount > 0)
+                    {
+                        var gainGL = _accountsCommonService.GetExchangeGainGL(FinancingTypeEnum.Payable);
+                        exchangeGain.GLGeneralInfoId = gainGL["CompanyCurrencyGLId"].ToString();
+                        exchangeGain.BudgetMasterId = gainGL["CompanyCurrencyBudgetMasterId"].ToString();
+                        exchangeGain.ActivityId = gainGL["CompanyCurrencyActivityId"].ToString();
+                        exchangeGain.CurrencyId = voucher.CurrencyId;
+                        exchangeGain.DocDate = voucher.DocDate;
+                        exchangeGain.DocRefNo = voucher.DocRefNo;
+                        exchangeGain.Narration = voucher.Narration;
+                        exchangeGain.DrAmount = 0;
+                        exchangeGain.CrAmount = 0;
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, exchangeGain, currentVoucherDetailId);
+                        _voucherService.InsertVoucherDetailCompanyCurrency(exchangeGain, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = exchangeGain.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = voucherVM.ExchangeAmount
+                        });
+                        totalCurrencyAmountCr += voucherVM.ExchangeAmount;
+                    }
+
+                    //*********************GLGeneralInfo Dr**********************************
+                    if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId) || !string.IsNullOrEmpty(voucherDetailFrom.CashMasterId))
+                    {
+                        if (voucherVM.Amount > 0)
+                        {
+                            if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId))
+                            {
+                                var bankMasterFrom = _accountsCommonService.GetBankMaster(voucherDetailFrom.BankMasterId);
+                                _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
+                                {
+                                    BankMasterId = voucherDetailFrom.BankMasterId,
+                                    CashMasterId = voucherDetailFrom.CashMasterId,
+                                    DrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                    SourceType = voucherDetailFrom.PaymentSource
+                                });
+                            }
+                            else
+                            {
+                                _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
+                                {
+                                    BankMasterId = voucherDetailFrom.BankMasterId,
+                                    CashMasterId = voucherDetailFrom.CashMasterId,
+                                    DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                    SourceType = voucherDetailFrom.PaymentSource
+                                });
+                            }
+
+                        }
+                    }
+                    //*********************GLGeneralInfo Cr**********************************
+                    if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
+                    {
+                        if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
+                        {
+                            var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
+
+                            _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
+                            {
+                                BankMasterId = voucherDetailTo.BankMasterId,
+                                CashMasterId = voucherDetailTo.CashMasterId,
+                                CrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                                SourceType = voucherDetailTo.PaymentSource
+                            });
+                        }
+                        else
+                        {
+                            _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
+                            {
+                                BankMasterId = voucherDetailTo.BankMasterId,
+                                CashMasterId = voucherDetailTo.CashMasterId,
+                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                                SourceType = voucherDetailTo.PaymentSource
+                            });
+                        }
+
+                    }
+                    //***********************Loan Schedule***********************************
+
+                }
+
+
+                if (totalAmountDr != totalAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+
+                if (totalCurrencyAmountDr != totalCurrencyAmountCr)
+                    throw new CustomException("Dr and Cr amount is not equal.");
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+                return "Hello";
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
         private string GetLoanInterestPayablePK()
         {
             return _pkGeneratorService.GetAutoNumber("FinancingSubsequentTransaction", PKGeneratorEnum.Auto, null, DateTime.Now);

@@ -25,6 +25,7 @@ using System.Threading;
 using Library.Model.Currencies;
 using Library.Model.Invoices;
 using Library.Model.Parties;
+using Library.Service.Core;
 
 namespace Library.Accounting.FixedAssets
 {
@@ -103,9 +104,11 @@ namespace Library.Accounting.FixedAssets
             financingSchedule.Id = financingSchedule.Id;
             financingSchedule.RequisitionId = requisitionId;
             financingSchedule.EmployeeSalaryAdvanceId = voucherVM.Id;
-            financingSchedule.AddedBy = voucherVM.AddedBy;
-            financingSchedule.AddedDate = voucherVM.AddedDate;
-            financingSchedule.AddedFromIP = voucherVM.AddedFromIP;
+            if (string.IsNullOrEmpty(financingSchedule.AddedBy))
+                AuditService.AddedLog(financingSchedule);
+            //financingSchedule.AddedBy = voucherVM.AddedBy;
+            //financingSchedule.AddedDate = voucherVM.AddedDate;
+            //financingSchedule.AddedFromIP = voucherVM.AddedFromIP;
             if (advRewSchedule == null || advRewSchedule.Tables.Count == 0)
             {
                 ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();

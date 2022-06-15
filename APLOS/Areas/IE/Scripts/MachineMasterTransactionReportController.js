@@ -1,7 +1,7 @@
 ﻿'use strict';
 MachineMasterTransactionReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
 function MachineMasterTransactionReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = 'Machine Master Transaction Report';
+    $scope.title = 'Machine Master Transaction Report';
     $scope.ModelList = [];
     $scope.path = 'IE/MachineMasterTransactionReport/';
     $scope.downloadgriddataUrlPath = 'IE/MachineMasterTransactionReport/DownloadUsingFullPath';

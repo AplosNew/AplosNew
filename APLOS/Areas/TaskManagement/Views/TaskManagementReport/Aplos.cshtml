@@ -1,0 +1,85 @@
+﻿<style>
+    .e-filterset:before {
+        color: white;
+    }
+
+    .e-gridheader .e-headercell { /* grid header color and grid row select color*/
+        /*background-color: #1c1f32;*/
+        background-color: #1c1f32;
+        color: White;
+        min-height: 100%;
+        border-bottom-color: #8B4513;
+    }
+
+    element.style {
+        height: 20px;
+        width: 50px;
+    }
+</style>
+<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
+
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-sm-12 ">
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="Form Date" ng-model="FromDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-7 show-message">
+                        <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div id="filters">
+            </div>
+            <div class="common-btn">
+                <ul class="list-inline text-left">
+                    <li> <button ng-click="GetTaskManagementData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    <li> <button ng-click="GetTaskManagementReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xs-12" ng-show="TaskManagementDataList.length>0">
+            <div id="GridEmp" ng-init="chkinit()" ej-grid e-datasource="TaskManagementDataList"
+                 e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                <div e-columns>
+                    <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="140"></div>
+                    <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="140"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="140"></div>
+                    <div e-column e-textalign="right" e-field="CreatedTask" e-headertext="Created Task" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="OfTotalTask" e-headertext="% Of Total Task" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="UnRead" e-headertext="Task Unread" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="TaskDue" e-headertext="Task Due" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="PerTaskDue" e-headertext="% Of Due Task" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="OnTimeTask" e-headertext="Task Completed On Time" e-width="140"></div>
+                    <div e-column e-textalign="right" e-field="LateTask" e-headertext="Task Completed Late" e-width="140"></div>
+                    <div e-column e-textalign="right" e-field="OverdueTask" e-headertext="Overdue Task" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="PeriviousPeriodOverdueTask" e-headertext="Perivious Period Overdue Task" e-width="140"></div>
+                    <div e-column e-textalign="right" e-field="Performance" e-headertext="Performance" e-width="120"></div>
+                    <div e-column e-textalign="right" e-field="TotalStoryPoint" e-headertext="TotalStoryPoint" e-width="140"></div>
+                    <div e-column e-textalign="right" e-field="ColsedStoryPoint" e-headertext="CompletedStoryPoints" e-width="140"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using OTSBD;
+using Syncfusion.XlsIO;
+using System.IO;
 
 namespace Library.General.TaskScheduler
 {
@@ -1257,7 +1259,7 @@ namespace Library.General.TaskScheduler
 
         }
 
-        
+
         public IEnumerable<object> GetEmpDetails(string Name)
         {
             try
@@ -1372,7 +1374,7 @@ namespace Library.General.TaskScheduler
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster, dsAuthorization);
-                
+
                 return "true";
 
             }
@@ -1521,6 +1523,44 @@ namespace Library.General.TaskScheduler
 
 
         }
+
+        public DataTable GetTaskManagementData(string fromDate, string todate, Dictionary<string, string> parameters)
+        {
+            
+            string strSql = "";
+            strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, ISNULL(CSP.ColsedStoryPoint,0)*2 ColsedStoryPoint
+  FROM TaskAudit TA
+LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN HKP.Designation AS ld ON ld.Id=ei.GivenDesignationId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
+LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+todate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)OnTimeTask,ResponsiblePersonId FROM TaskAudit 
+WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'"+ fromDate + @"') AND Convert(date, '" + todate + @"'))
+GROUP BY ResponsiblePersonId) TOD ON TOD.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)LateTask,ResponsiblePersonId FROM TaskAudit 
+WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+GROUP BY ResponsiblePersonId) TOL ON TOL.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT COUNT(Id)PeriviousPeriodOverdueTask,ResponsiblePersonId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) GROUP BY ResponsiblePersonId) PPODT ON PPODT.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT SUM(TMM.StoryPoint)TotalStoryPoint,T.ResponsiblePersonId FROM TaskManagerMaster TMM
+LEFT JOIN TaskAudit T ON T.TaskManagerMasterId=TMM.Id
+GROUP BY T.ResponsiblePersonId) TSP ON TSP.ResponsiblePersonId=TA.ResponsiblePersonId
+LEFT JOIN(SELECT SUM(TMM.StoryPoint)ColsedStoryPoint,TS.ResponsiblePersonId  FROM TaskManagerMaster TMM
+LEFT JOIN TaskAudit TS ON TS.TaskManagerMasterId=TMM.Id
+WHERE TMM.CurrentStatus='Colsed'
+GROUP BY TS.ResponsiblePersonId) CSP ON CSP.ResponsiblePersonId=TA.ResponsiblePersonId
+WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint,CSP.ColsedStoryPoint) X";
+
+            return _sqlRepository.GetDataTable(strSql);
+
+        }
+
     }
 }
 
@@ -1535,126 +1575,126 @@ public class TaskModelData
 
 }
 public class TaskMasterData
-    {
-        #region Scalar Properties
-        public string Id { get; set; }
-        public string ClosedBy{get;set;}
-        public string TaskDescription { get; set; }
-        public string TaskType { get; set; }
-        public string CurrentStatus { get; set; }
-        public decimal TaskPriority { get; set; }
-        public string TaskCategoryId { get; set; }
-        public string TaskDetailDescription { get; set; }
-        public string TaskSubCategoryId { get; set; }        
-        public string TaskSchedulerMasterId { get; set; }
-        public string  IssueTransactionId { get; set; }
-        public string LastExecutionDate { get; set; }
-        public string NextExecutionDate { get; set; }
-        public decimal NoOfOccurences { get; set; }
-        public string IsExpiredSchedule { get; set; }
-        public string ParentTaskManagerMasterId { get; set; }
-        public string TaskTypeGroup { get; set; }
-        public string ClosingDate { get; set; }
-        public string TNATasksId { get; set; }
-        public string TakenForNotification { get; set; }
-        public decimal StoryPoint { get; set; }
-        public string isOwnTask { get; set; }
-      
-        #endregion Scalar Properties
+{
+    #region Scalar Properties
+    public string Id { get; set; }
+    public string ClosedBy { get; set; }
+    public string TaskDescription { get; set; }
+    public string TaskType { get; set; }
+    public string CurrentStatus { get; set; }
+    public decimal TaskPriority { get; set; }
+    public string TaskCategoryId { get; set; }
+    public string TaskDetailDescription { get; set; }
+    public string TaskSubCategoryId { get; set; }
+    public string TaskSchedulerMasterId { get; set; }
+    public string IssueTransactionId { get; set; }
+    public string LastExecutionDate { get; set; }
+    public string NextExecutionDate { get; set; }
+    public decimal NoOfOccurences { get; set; }
+    public string IsExpiredSchedule { get; set; }
+    public string ParentTaskManagerMasterId { get; set; }
+    public string TaskTypeGroup { get; set; }
+    public string ClosingDate { get; set; }
+    public string TNATasksId { get; set; }
+    public string TakenForNotification { get; set; }
+    public decimal StoryPoint { get; set; }
+    public string isOwnTask { get; set; }
 
-        #region Audit Properties
+    #endregion Scalar Properties
 
-        public string AddedBy { get; set; }
-        public DateTime? AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string UpdatedFromIP { get; set; }
-        public string AddedFromIP { get; set; }
+    #region Audit Properties
 
-        #endregion Audit Properties
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public string AddedFromIP { get; set; }
 
-    }
+    #endregion Audit Properties
 
-    public class TaskCommentsData
-    {
-        #region Audit Properties
+}
 
-        public string AddedBy { get; set; }
-        public DateTime? AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string UpdatedFromIP { get; set; }
-        public string AddedFromIP { get; set; }
+public class TaskCommentsData
+{
+    #region Audit Properties
 
-        #endregion Audit Properties
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public string AddedFromIP { get; set; }
 
-        #region Scalar Properties
+    #endregion Audit Properties
 
-        public string Id { get; set; }
-        public string TaskManagerMasterId { get; set; }
-        public string CreatedById { get; set; }
-        public DateTime? CreatedTime { get; set; }
-        public string CommentText { get; set; }
-        public string TaskAthorizationType { get; set; }
-    
-        #endregion Scalar Properties
-    }
+    #region Scalar Properties
 
-    public class TaskSubTasksData
-    {
-        #region Audit Properties
+    public string Id { get; set; }
+    public string TaskManagerMasterId { get; set; }
+    public string CreatedById { get; set; }
+    public DateTime? CreatedTime { get; set; }
+    public string CommentText { get; set; }
+    public string TaskAthorizationType { get; set; }
 
-        public string AddedBy { get; set; }
-        public DateTime? AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string UpdatedFromIP { get; set; }
-        public string AddedFromIP { get; set; }
+    #endregion Scalar Properties
+}
 
-        #endregion Audit Properties
+public class TaskSubTasksData
+{
+    #region Audit Properties
 
-        #region Scalar Properties
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public string AddedFromIP { get; set; }
 
-        public string Id { get; set; }
-        public string TaskManagerMasterId { get; set; }
-        public string ResponsiblePersonId { get; set; }     
-        public string TaskDetail { get; set; }
-        public string IsDone { get; set; }
-        public string Remarks { get; set; }
+    #endregion Audit Properties
 
-        #endregion Scalar Properties
-    }
+    #region Scalar Properties
 
-    public class TaskAuditData
-    {
-        #region Audit Properties
+    public string Id { get; set; }
+    public string TaskManagerMasterId { get; set; }
+    public string ResponsiblePersonId { get; set; }
+    public string TaskDetail { get; set; }
+    public string IsDone { get; set; }
+    public string Remarks { get; set; }
 
-        public string AddedBy { get; set; }
-        public DateTime? AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string UpdatedFromIP { get; set; }
-        public string AddedFromIP { get; set; }
+    #endregion Scalar Properties
+}
 
-        #endregion Audit Properties
+public class TaskAuditData
+{
+    #region Audit Properties
 
-        #region Scalar Properties
+    public string AddedBy { get; set; }
+    public DateTime? AddedDate { get; set; }
+    public string UpdatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string UpdatedFromIP { get; set; }
+    public string AddedFromIP { get; set; }
 
-        public string Id { get; set; }
-        public string TaskManagerMasterId { get; set; }
-        public string AuthorizationType { get; set; }
-        public DateTime? CommitmentDate { get; set; }
-        public DateTime? RevisedCommitmentDate { get; set; }
-        public DateTime? DueDate { get; set; }
-        public string ResponsiblePersonId { get; set; }
-        public string Remarks { get; set; }
-        public string isDone { get; set; }
-        public string isRead { get; set; }
-        public string isReadComment { get; set; }
-        public string TakenForNotification { get; set; }
+    #endregion Audit Properties
 
-        #endregion Scalar Properties
-    }
+    #region Scalar Properties
+
+    public string Id { get; set; }
+    public string TaskManagerMasterId { get; set; }
+    public string AuthorizationType { get; set; }
+    public DateTime? CommitmentDate { get; set; }
+    public DateTime? RevisedCommitmentDate { get; set; }
+    public DateTime? DueDate { get; set; }
+    public string ResponsiblePersonId { get; set; }
+    public string Remarks { get; set; }
+    public string isDone { get; set; }
+    public string isRead { get; set; }
+    public string isReadComment { get; set; }
+    public string TakenForNotification { get; set; }
+
+    #endregion Scalar Properties
+}
 
 
 

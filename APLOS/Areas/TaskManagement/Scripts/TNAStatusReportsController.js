@@ -128,7 +128,6 @@ function TNAStatusReportsController(cboService, commonMessage, $scope, $rootScop
 
                     }
                     $scope.ModelList = response.data;
-                    console.log($scope.ModelList);
                 }
             }, function errorCallback(response) {
                 ShowResult(response.data.Message, 'failure');
