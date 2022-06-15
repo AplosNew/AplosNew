@@ -932,8 +932,10 @@ namespace Library.Accounting.Accounts
                             , VDC.FromCurrencyId, VDC.ToCurrencyId
 							 , VDC.ToCurrencyRate, SUM(VD.DrAmount) AS DrAmount, SUM(VD.CrAmount) AS CrAmount, SUM(VDC.DrAmount) AS CompanyCurrencyDrAmount, SUM(VDC.CrAmount) AS CompanyCurrencyCrAmount
 							, [DRCR]=CASE WHEN SUM(VDC.DrAmount)>0 THEN '1' ELSE '2' END
-                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode, P.UserName AS Customer, PP.UserName AS CustomerPlant, VD.Narration AS DetailNarration, BUD.UserName AS Budget
-                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END,VD.PartyType
+                            , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
+                            --, P.UserName AS Customer, PP.UserName AS CustomerPlant
+                            , VD.Narration AS DetailNarration, BUD.UserName AS Budget
+                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END--,VD.PartyType
                             FROM 
 							[TRN].[FinancingWriteOff] AS IV  
                             LEFT JOIN [TRN].[Voucher] AS V  ON IV.VoucherId=V.Id
@@ -959,8 +961,10 @@ namespace Library.Accounting.Accounts
                             , V.CurrencyId, IV.VoucherDate, CU1.Code , V.AddedBy, V.PostedBy, VDC.ParallelCurrencyId, CU.Code 
                             , VDC.FromCurrencyId, VDC.ToCurrencyId
 							, VDC.ToCurrencyRate--, VD.DrAmount, VD.CrAmount, VDC.DrAmount, VDC.CrAmount
-                            , VD.GLGeneralInfoId, GL.UserName, GL.AccountCode, P.UserName, PP.UserName , VD.Narration, BUD.UserName
-                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle ,VD.PartyType
+                            , VD.GLGeneralInfoId, GL.UserName, GL.AccountCode
+                            --, P.UserName, PP.UserName 
+                            , VD.Narration, BUD.UserName
+                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle --,VD.PartyType
 							ORDER BY SUM(VD.DrAmount) DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
