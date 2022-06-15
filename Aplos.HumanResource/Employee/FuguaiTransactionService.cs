@@ -194,7 +194,7 @@ namespace Library.HumanResource.Employee
                     data["Id"] = "FT" + _Id;
                     data["ObservedById"] = ObservedById;
                     data["ResponsiblePersonId"] = ResponsiblePersonId;
-                    data["Date"] = DateTime.Now.ToString();
+                    data["Date"] = DateTime.Now.ToString("dd-MMM-yyyy");
                     data["Time"] = DateTime.Now.ToString("h:mm:ss");
                     //data["ObservedById"] = identity.FullName;
 
@@ -205,7 +205,7 @@ namespace Library.HumanResource.Employee
                     _Id = data["Id"].ToString();
                     data["ObservedById"] = ObservedById;
                     data["ResponsiblePersonId"] = ResponsiblePersonId;
-                    data["Date"] = DateTime.Now.ToString();
+                    data["Date"] = DateTime.Now.ToString("dd-MMM-yyyy");
                     data["Time"] = DateTime.Now.ToString("h:mm:ss");
 
                     EditRow(dsMaster.Tables[0].Rows[0], data);
