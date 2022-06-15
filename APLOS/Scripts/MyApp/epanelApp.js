@@ -51,6 +51,8 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("MeetingPointsController", MeetingPointsController)
     .controller("MeetingReportsController", MeetingReportsController)
     .controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController)
+    .controller("FuguaiTransactionController", FuguaiTransactionController)
+    .controller("FuguaiReportController", FuguaiReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
