@@ -1528,7 +1528,7 @@ namespace Library.General.TaskScheduler
         {
             
             string strSql = "";
-            strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,ISNULL(TSP.TotalStoryPoint,0) TotalStoryPoint, ISNULL(CSP.ColsedStoryPoint,0)ColsedStoryPoint
+            strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, ISNULL(CSP.ColsedStoryPoint,0)*2 ColsedStoryPoint
   FROM TaskAudit TA
 LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
