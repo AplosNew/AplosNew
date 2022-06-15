@@ -96,6 +96,7 @@ function ServicePOCheckController( $location, $window, cboService, commonMessage
     //#endregion
     //#region Update Checked and Aproved
     $scope.onClickChecked = function (z) {
+        $scope.ChkedAppDataInfo = {};
         //debugger; 
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
@@ -159,6 +160,9 @@ function ServicePOCheckController( $location, $window, cboService, commonMessage
                     else {
                         ShowResult("Information Updated Successfully", 'success');
                         $scope.GetGetCheckedApprovedList();
+                        $scope.CheckedStatusList();
+                        $scope.GetToBeApprovedByByList();
+                        $scope.ChkedAppDataInfo = {};
                     }
                 }, function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -175,8 +179,9 @@ function ServicePOCheckController( $location, $window, cboService, commonMessage
    
     //#endregion   
     //#region Checked And Approval Status
-
+    $scope.checkedstatusList = [];
     $scope.CheckedStatusList = function () {
+        $scope.checkedstatusList = [];
         cboService.getEnumCbo("enum/GetPOApprovalStatusCbo", function (result) {
             $scope.checkedstatusList = result;
         });
@@ -188,7 +193,7 @@ function ServicePOCheckController( $location, $window, cboService, commonMessage
 
     $scope.ApprovedByList = [];
     $scope.GetToBeApprovedByByList = function () {
-        //debugger;
+        $scope.ApprovedByList = [];
         $http({
             method: 'GET',
             url: 'Products/PurchaseOrder/ServicePOApproveBy'

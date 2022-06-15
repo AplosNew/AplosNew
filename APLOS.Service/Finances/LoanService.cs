@@ -1578,11 +1578,11 @@ namespace Library.Service.Finances
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = voucherDetailFrom.CurrencyId,
                                 ToCurrencyId = companyCurrencyId,
-                                ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                                ToCurrencyRate = item.ToCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailFrom.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount
+                                DrAmount = item.ToCurrencyRate * voucherDetailFrom.DrAmount
                             });
-                            totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount;
+                            totalCurrencyAmountDr += item.ToCurrencyRate * voucherDetailFrom.DrAmount;
                         }
 
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTo, new VoucherDetailCurrency
@@ -1624,9 +1624,9 @@ namespace Library.Service.Finances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeloss.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = voucherVM.ExchangeAmount,
+                            DrAmount = item.ExchangeAmount,
                         });
-                        totalCurrencyAmountDr += voucherVM.ExchangeAmount;
+                        totalCurrencyAmountDr += item.ExchangeAmount;
 
                     }
                     //***********************Exchange Gain*************************************
@@ -1652,9 +1652,9 @@ namespace Library.Service.Finances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(exchangeGain.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            CrAmount = voucherVM.ExchangeAmount
+                            CrAmount = item.ExchangeAmount
                         });
-                        totalCurrencyAmountCr += voucherVM.ExchangeAmount;
+                        totalCurrencyAmountCr += item.ExchangeAmount;
                     }
 
                     //*********************GLGeneralInfo Dr**********************************

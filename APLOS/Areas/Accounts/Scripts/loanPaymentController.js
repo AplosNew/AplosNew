@@ -105,6 +105,11 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             "name": "Currency",
             "value": "Currency"
         }
+        ,
+        {
+            "name": "LoanSetOffGroupNo",
+            "value": "LoanSetOffGroupNo"
+        }
     ];
 
     baseService.init("accounts/Loan/GetLoanPaymentList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
@@ -945,13 +950,28 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.isBankAmount = false;
         $scope.voucherML.BankCurrencyId = null;
     };
+    $scope.validation = function () {
+        for (var i = 0; i < $scope.ExistingLoanList.length; i++) {
+            if (new Date($scope.voucher.PostingDate) < new Date($scope.ExistingLoanList[i].LoanPostingDate)) {
+                ShowResult("Posting date must be below or equal to Loan PostingDate!", "failure");;
+                return true;
+                break;
+            }
+            if ($scope.ExistingLoanList[i].Balance < $scope.ExistingLoanList[i].Amount) {
+                ShowResult("Payment Amount can't more than Loan Balance Amount", "failure");;
+                return true;
+                break;
+            }
+            return false;
+        }
+    };
 
     $scope.SaveML = function () {
         $scope.$broadcast("show-errors-check-validity");
         $scope.checkDocDateML();
         $scope.checkPostingDateML();
         //$scope.passBankCashAmount();
-        if ($scope.form1.$valid /*&& !$scope.invalidDocDate && !$scope.invalidPostingDate && !$scope.validation()*/) {
+        if ($scope.form1.$valid && !$scope.invalidDocDateML && !$scope.invalidPostingDateML && !$scope.validation()) {
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
@@ -968,7 +988,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                     else {
                         ShowResult(response.data.Message, "success");
                         $scope.getData();
-                        $scope.Clear();
+                        $scope.ClearML();
                         $scope.isReadOnly = false;
                     }
                 }, function errorCallback(response) {
@@ -980,7 +1000,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
     };
 
-    $scope.invalidDocDate = false;
+    $scope.invalidDocDateML = false;
     $scope.checkDocDateML = function () {
         var msg = "";
         if (new Date($scope.voucherML.DocDate) > new Date()) {
@@ -989,17 +1009,17 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
         else if (new Date($scope.voucherML.PostingDate) < new Date($scope.voucherML.DocDate)) {
             msg = "Doc date must be below or equal to Posting Date!";
-            $scope.invalidDocDate = true;
+            $scope.invalidDocDateML = true;
         }
         else if (baseService.isUndefinedOrNull($scope.voucherML.DocDate)) {
             msg = "Doc Date is required.";
-            $scope.invalidDocDate = true;
+            $scope.invalidDocDateML = true;
         }
-        else $scope.invalidDocDate = false;
-        return manualValidation("div_DocDate", $scope.invalidDocDate, msg);
+        else $scope.invalidDocDateML = false;
+        return manualValidation("div_DocDate", $scope.invalidDocDateML, msg);
     };
 
-    $scope.invalidPostingDate = false;
+    $scope.invalidPostingDateML = false;
     $scope.checkPostingDateML = function () {
         var msg = "";
         if (new Date($scope.voucherML.PostingDate) > new Date()) {
@@ -1009,19 +1029,19 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
         else if (baseService.isUndefinedOrNull($scope.voucherML.PostingDate)) {
             msg = "Posting Date is required.";
-            $scope.invalidPostingDate = true;
+            $scope.invalidPostingDateML = true;
         }
         else {
-            $scope.invalidPostingDate = false;
+            $scope.invalidPostingDateML = false;
         }
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if (new Date($scope.voucherDetailList[i].PostingDate) > new Date($scope.voucherML.PostingDate)) {
                 msg = "Posting date must be above or equal to receivable of " + $scope.voucherDetailList[i].DocRefNo;
-                $scope.invalidPostingDate = true;
+                $scope.invalidPostingDateML = true;
                 break;
             }
             else {
-                $scope.invalidPostingDate = false;
+                $scope.invalidPostingDateML = false;
             }
         }
         return manualValidation("div_PostingDate", $scope.invalidPostingDate, msg);
@@ -1053,7 +1073,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     };
 
 
-    $scope.Clear = function () {
+    $scope.ClearML = function () {
         $scope.Action = "Save";
         $scope.voucherML = {};
         $scope.voucherML.Active = true;
@@ -1064,6 +1084,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.voucherML.PaymentSource = "Bank";
         $scope.voucherML.PartyType = "Customer";
         $scope.voucherML.TransactionType = "LoanTaken";
+        $scope.ExistingLoanList = [];
         $scope.currencyExchangeRate = [];
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];

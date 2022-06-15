@@ -175,9 +175,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Time", 25, ExcelHAlign.HAlignLeft);
-            int ColTime = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Time", 25, ExcelHAlign.HAlignLeft);
+            //int ColTime = COL;
+            //COL++;
 
 
             report.SetHeaderText(ref sheet, ROW, COL, "Entity", 15, ExcelHAlign.HAlignLeft);
@@ -267,7 +267,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             for (int i = 0; i < data.Rows.Count; i++)
             {
                 sheet[ROW, ColDate].Text = data.Rows[i]["Date"].ToString();
-                sheet[ROW, ColTime].Text = data.Rows[i]["Time"].ToString();
+                //sheet[ROW, ColTime].Text = data.Rows[i]["Time"].ToString();
                 sheet[ROW, ColEmpEntity].Text = data.Rows[i]["Entity"].ToString();
                 sheet[ROW, ColObservedBy].Text = data.Rows[i]["ObservedBy"].ToString();
                 sheet[ROW, ColCategory].Text = data.Rows[i]["Category"].ToString();

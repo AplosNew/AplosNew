@@ -307,7 +307,7 @@ namespace Aplos.Areas.Accounts.Controllers
             //        throw new CustomException("Please Input  No Of Installment!");
             //}
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertMultiLoanWriteOff(voucherVM, loanRepaymentlist)) });
+            return Json(new { Message = string.Format(AplosMessage.Insert, _loanService.InsertMultiLoanWriteOff(voucherVM, loanRepaymentlist)) });
         }
 
         [HttpPost]
@@ -384,9 +384,9 @@ namespace Aplos.Areas.Accounts.Controllers
         [HttpGet, Authorize]
         public ActionResult MultiloanPaymentReport(ReportFormat reportFormat, string loanWriteOffGroupNo)
         {
-            AccountsInvoiceReportService _accInvoiceReportService = new AccountsInvoiceReportService(_sqlRepository);
+            AccountsLoanService _accLoanService = new AccountsLoanService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var workbook = _accInvoiceReportService.GetCustomerInvoiceReceiptBanksReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, loanWriteOffGroupNo, SourceType.LoanPayment.ToString());
+            var workbook = _accLoanService.MultiloanPaymentReport(out string reportFileName, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, loanWriteOffGroupNo, SourceType.LoanPayment.ToString());
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

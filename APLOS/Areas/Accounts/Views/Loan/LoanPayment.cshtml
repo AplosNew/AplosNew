@@ -529,6 +529,7 @@
                 <th>Currency</th>
                 <th>Amount</th>
                 <th>Status</th>
+                @*<th>Group SetOff No</th>*@
                 <th>Action</th>
             </tr>
         </thead>
@@ -542,13 +543,14 @@
                 <td>{{x.CurrencyCode}}</td>
                 <td class="text-right">{{x.Amount | number:2}}</td>
                 <td>{{x.IsPark?'Parked':'Posted'}}</td>
+                @*<td>{{x.LoanSetOffGroupNo}}</td>*@
                 <td class="text-right">
                     <ul class="list-inline action-list">
                         <li ng-show="x.IsPark"><a ng-click="confirmPost(x.VoucherId);" href="" class="btn btn-action tooltip-here">Post</a></li>
                         <li ng-show="x.IsPark"><a ng-click="confirmDelete(x.Id,x.VoucherId);" href="" class="btn btn-action tooltip-here">Delete</a></li>
-                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
-                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
-                        <li><a class="btn btn-action" href="Accounts/Loan/MultiloanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&loanWriteOffGroupNo={{x.InvoiceWriteOffGroupNo}}" target="_blank"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Pdf"><i class="fa fa-file-pdf-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/Loan/LoanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank" title="Excel"><i class="fa fa-file-excel-o"></i></a></li>
+                        <li><a class="btn btn-action" href="Accounts/Loan/MultiloanPaymentReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&loanWriteOffGroupNo={{x.LoanSetOffGroupNo}}" target="_blank" ng-show="x.LoanSetOffGroupNo" title="GroupExcel"><i class="fa fa-file-excel-o"></i></a></li>
 
                     </ul>
                 </td>

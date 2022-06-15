@@ -18,8 +18,18 @@
 </style>
 <h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span>&nbsp;{{title}}</h3>
 
-<div class="row">
-    <div class="form-elements form-horizontal" ng-form="modelForm">
+<div class="form-elements form-horizontal" ng-form="modelForm">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="col-sm-10" style="margin-left:0px">
+                <input type="radio" ng-model="model.State" value="EmployeeWise" ng-click="ChangeState();">
+                <span>Employee Wise</span>
+                <input type="radio" ng-model="model.State" value="DepartmentWise" ng-click="ChangeState();">
+                <span>Department Wise</span>
+                <input type="radio" ng-model="model.State" value="DesgGpWise" ng-click="ChangeState();">
+                <span>Desg Gp Wise</span>
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-sm-12 ">
             <div class="col-md-4">
                 <div class="form-group" show-errors id="div_FromDate">
@@ -40,41 +50,98 @@
             <div class="col-md-3">
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> View </button></li>
+                        <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
                     </ul>
                 </div>
             </div>
-            @*<div id="filters">
-                </div>*@
-
-
         </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                <div id="filters">
+        <div class="col-xs-12">
+            <div id="filters">
+            </div>
+            <div class="common-btn" ng-show="filters.length>0">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="GetTaskManagementData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+                    <li> <button ng-click="GetTaskManagementReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+                </ul>
+            </div>
+        </div>
+        <div ng-show="model.State==='EmployeeWise'">
+            <div class="col-xs-12" ng-show="TaskManagementDataList.length>0">
+                <div id="GridEmp" ng-init="chkinit()" ej-grid e-datasource="TaskManagementDataList"
+                     e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="120"></div>
+                        <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="140"></div>
+                        <div e-column e-field="Designation" e-headertext="Designation" e-width="140"></div>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="CreatedTask" e-headertext="Created Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OfTotalTask" e-headertext="% Of Total Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="UnRead" e-headertext="Task Unread" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TaskDue" e-headertext="Task Due" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PerTaskDue" e-headertext="% Of Due Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OnTimeTask" e-headertext="Task Completed On Time" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="LateTask" e-headertext="Task Completed Late" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="OverdueTask" e-headertext="Overdue Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PeriviousPeriodOverdueTask" e-headertext="Perivious Period Overdue Task" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="Performance" e-headertext="Performance" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TotalStoryPoint" e-headertext="TotalStoryPoint" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="ColsedStoryPoint" e-headertext="CompletedStoryPoints" e-width="140"></div>
+                    </div>
                 </div>
-                <div class="col-md-1 text-right" style="margin-top:20px;">
-                    <button type="button" class="btn single-btn" ng-click="GetTaskManagementReport()" style="margin-top:10px;"><i class="glyphicon glyphicon-arrow-down"></i>Export to Excel</button>
+            </div>
+        </div>
+        <div ng-show="model.State==='DepartmentWise'">
+            <div class="col-xs-12" ng-show="TaskManagementDataList.length>0">
+                <div id="GridDepartment" ng-init="chkinit()" ej-grid e-datasource="TaskManagementDataList"
+                     e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="Department" e-headertext="Department" e-width="140"></div>
+                        <div e-column e-field="NoOfEmp" e-headertext="No Of Employee" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="CreatedTask" e-headertext="Created Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OfTotalTask" e-headertext="% Of Total Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="UnRead" e-headertext="Task Unread" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TaskDue" e-headertext="Task Due" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PerTaskDue" e-headertext="% Of Due Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OnTimeTask" e-headertext="Task Completed On Time" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="LateTask" e-headertext="Task Completed Late" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="OverdueTask" e-headertext="Overdue Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PeriviousPeriodOverdueTask" e-headertext="Perivious Period Overdue Task" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="Performance" e-headertext="Performance" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TotalStoryPoint" e-headertext="TotalStoryPoint" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="AvgStorypoints" e-headertext="AvgStorypoints" e-width="140"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-show="model.State==='DesgGpWise'">
+            <div class="col-xs-12" ng-show="TaskManagementDataList.length>0">
+                <div id="GridDepartment" ng-init="chkinit()" ej-grid e-datasource="TaskManagementDataList"
+                     e-allowscrolling="true" e-minwidth="450" e-minheight="400"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div e-columns>
+                        <div e-column e-field="DesignationGroup" e-headertext="Designation Group" e-width="140"></div>
+                        <div e-column e-field="NoOfEmp" e-headertext="No Of Employee" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="CreatedTask" e-headertext="Created Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OfTotalTask" e-headertext="% Of Total Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="UnRead" e-headertext="Task Unread" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TaskDue" e-headertext="Task Due" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PerTaskDue" e-headertext="% Of Due Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="OnTimeTask" e-headertext="Task Completed On Time" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="LateTask" e-headertext="Task Completed Late" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="OverdueTask" e-headertext="Overdue Task" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="PeriviousPeriodOverdueTask" e-headertext="Perivious Period Overdue Task" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="Performance" e-headertext="Performance" e-width="120"></div>
+                        <div e-column e-textalign="right" e-field="TotalStoryPoint" e-headertext="TotalStoryPoint" e-width="140"></div>
+                        <div e-column e-textalign="right" e-field="AvgStorypoints" e-headertext="AvgStorypoints" e-width="140"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@*<div class="row" style="margin:10px; margin-left:15px;">
-        <div class="row">
-            <div class="table-responsive">
-                <div id="GridEdit" ej-grid e-datasource="UtilityTransactionList"
-                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                     e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-                    <div e-columns>
-                        <div e-column e-field="DesginationGroup" e-headertext="Desgination Group" e-width="2"></div>
-                        <div e-column e-field="Type" e-headertext="Type" e-width="2"></div>
-                        <div e-column e-field="Department" e-headertext="Department" e-width="3"></div>
-                        <div e-column e-field="Entity" e-headertext="Entity" e-width="3"></div>
-                        <div e-column e-field="UserReportGroup" e-headertext="User Group-2" e-width="3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
 

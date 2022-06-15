@@ -351,6 +351,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 int idc = 0;
                 decimal upcharge = 0;
                 List<SOCostModelNew> soList = new List<SOCostModelNew>();
+
+                while (dsMaster.Tables[0].DefaultView.Count > 0)
+                    dsMaster.Tables[0].DefaultView[0].Delete();
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -369,6 +372,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         else
                         {
                             DataRow drmo = dv[0].Row;
+                            item["SalesOrderId"] = lineId;
                             EditRow(drmo, item);
                         }
                         if (soList.Count==0)

@@ -1845,8 +1845,8 @@ namespace Library.Accounting.FixedAssets
 				,ISNULL(SAR.SubAssetAmount,0) SubAssetBaseAmount
 
 				,isnull (FR.FABaseAmount,0) + (ISNULL(SAR.SubAssetAmount,0)) TotalBaseAmount
-				,ISNULL(FR.ADBaseAmount,0) ADBaseAmount
-				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0) NetFixedAssetsBaseAmount
+				,ISNULL(FR.ADBaseAmount,0)+ISNULL(FADP.FixedAssetDepreciationAmount,0) ADBaseAmount
+				,ISNULL(FR.FABaseAmount,0) + isnull(SAR.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0) NetFixedAssetsBaseAmount
 
                 ,OpeningBalance = case when fr.IsOpeningBalance = 1 then 'YES' else 'NO' end
                 ,format( fr.CapitalizationDate, 'dd-MMM-yyyy') CapitalizationDate
@@ -1860,7 +1860,7 @@ namespace Library.Accounting.FixedAssets
 				,CASE WHEN fard.IsPark=0 THEN 'Posted' ELSE 'Non Posted' END PostingStatus
 				,Customer.UserName CustomerName,CU.Code Currency,CAST(fard.ToCurrencyRate AS decimal(18,4))ToCurrencyRate,rdd.NegotiationValue
 				 ,rdd.BaseNagotiationValue
-				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)) )LossOrGain
+				 ,(rdd.BaseNagotiationValue-( ISNULL(FR.FABaseAmount,0) + isnull(sar.SubAssetAmount,0) - ISNULL(FR.ADBaseAmount,0)-ISNULL(FADP.FixedAssetDepreciationAmount,0)) )LossOrGain
 				 ,isnull(GP.Id,GPS.Id) GatePassNo,CASE WHEN GP.GatePassEntryDate IS NOT NULL THEN format( GP.GatePassEntryDate,'dd-MMM-yyyy') 
 				 ELSE format( GPS.GatePassEntryDate,'dd-MMM-yyyy') END GatePassDate
                 , ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
@@ -1900,7 +1900,7 @@ namespace Library.Accounting.FixedAssets
 
                left join ORG.Entity E on E.Id= FR.EntityId
 			   left join ORG.Department D on D.Id = FR.DepartmentId
-
+			   LEFT JOIN (select SUM(CurrentDepreciationAmount)FixedAssetDepreciationAmount,FixedAssetRegisterId from [TRN].[FixedAssetDepreciationProcess] GROUP BY  FixedAssetRegisterId) FADP ON FADP.FixedAssetRegisterId=FR.Id
 
 		        WHERE FR.CompanyGroupId='" + companyGroupId + "' AND FR.CompanyId='" + companyId + "' AND FR.PlantId='" + plantId + @"'  AND FR.Status is not null
 				AND FR.Status in (" + DisposeStatus + @") 

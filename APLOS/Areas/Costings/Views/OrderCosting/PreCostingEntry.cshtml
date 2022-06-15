@@ -10,45 +10,41 @@
             <tr>
                 <th style="width: 150px !important">Costing Item</th>
                 <th style="width: 60px !important">Sub Material</th>
-                <th style="width: 40px !important">Seq.No.</th>
+                <th style="width: 15px !important">Seq.No.</th>
                 <th style="width: 150px !important;text-align:center!important;">Particulars</th>
                 <th>UoM</th>
                 <th class="text-right">Consumption</th>
                 <th class="text-right">Value Loss (%)</th>
 
-                <th class="text-right">Min. Qty</th>
+
                 <th class="text-right">Rate</th>
                 <th class="text-right">Gross Consumption</th>
                 <th class="text-right">Gross Amount</th>
 
+                <th>BOQ Criteria</th>
+                <th>Sourcing Type</th>
+
+                <th>IsMandatory</th>
+                <th>Predefined Material</th>
+                <th>Material</th>
+                <th>Article</th>
+                <th>PO Criteria</th>
+                <th>Vendor</th>
+                <th class="text-right">Min. Qty</th>
                 <th>Procurement Level</th>
                 <th>BOQ Days</th>
                 <th>Dependent Date</th>
-                <th>BOQ Criteria</th>
 
-                <th>Sourcing Type</th>
-                <th>Res. Person</th>
-                <th>IsMandatory</th>
-                <th>Predefined Material</th>
 
-                <th>Material</th>
-                <th>Article</th>
                 <th>Usage</th>
-                <th>PO Criteria</th>
-                <th>Vendor</th>
-
+                <th>Res. Person</th>
                 <th>Remarks</th>
                 <th>Pur. Grp</th>
-
 
                 <th style="text-align:center!important;">Lead Days</th>
 
                 <th>IsUDApplicable</th>
                 <th>Attachment</th>
-
-
-
-
             </tr>
         </thead>
         <tbody>
@@ -61,7 +57,7 @@
                     </span>
                 </td>
                 <td class="text-right">
-                    <input type="number" style="min-width:80px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
+                    <input type="number" style="min-width:15px;background-color:{{x.Sequence<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.Sequence>0?x.Sequence:x.Sequence=''" ng-model="x.Sequence" ng-change="CalculateFinalCosting(x);" class="form-control">
                 </td>
 
                 <td style="width:150px!important;">
@@ -78,9 +74,7 @@
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.ValueLoss<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.ValueLoss>0?x.ValueLoss:x.ValueLoss=''" ng-model="x.ValueLoss" ng-change="CalculateFinalCosting(x);" class="form-control">
                 </td>
-                <td class="text-right">
-                    <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
-                </td>
+
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.Rate<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-model="x.Rate" ng-click="x.Rate>0?x.Rate:x.Rate=''" ng-change="CalculateFinalCosting(x);" class="form-control">
                 </td>
@@ -93,27 +87,8 @@
                     <span style="min-width:80px!important;">  {{x.GrossAmount  | number:4}}</span>
                 </td>
 
-                <td>
-                    <div class="select-style">
-                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
-                            <option value=""></option>
-                            <option value="SO">Sales Order</option>
-                            <option value="SKU">SKU</option>
-                        </select>
-                    </div>
-                </td>
-                <td class="text-right">
-                    <input type="number" style="min-width:40px;" min="0" ng-model="x.BOQDays" class="form-control">
-                </td>
-                <td>
-                    <div class="select-style">
-                        <select style="width: 90px;margin-left: 0px;" name="DependentDate" ng-model="x.DependentDate">
-                            <option value=""></option>
-                            <option value="SOCreationDate">Sales Order Creation Date</option>
-                            <option value="SODeliveryDate">Sales Order Delivery Date</option>
-                        </select>
-                    </div>
-                </td>
+
+
                 <td>
                     <div class="select-style">
                         <select name="Entity" ng-model="x.BOQCriteria" style="width: 90px;margin-left: 0px;"
@@ -130,14 +105,7 @@
                         </select>
                     </div>
                 </td>
-                <td style="width:180px;">
-                    <div class="input-group">
-                        <input type="text" name="ResponsiblePerson" ng-model="x.ResponsiblePerson" style="width:120px;" class="form-control" readonly>
-                        <span class="input-group-btn">
-                            <button name="submit" ng-click="getPopUpData($index,'PRE')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
-                        </span>
-                    </div>
-                </td>
+
                 <td>
                     <div class="text-center">
                         <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsMandatory" e-checked="x.IsMandatory" />
@@ -171,17 +139,7 @@
                     </div>
 
                 </td>
-                <td>
 
-                    <div class="select-style">
-                        <select style="width:90px;margin-left: 0px;" name="Usage" id="Usage" ng-model="x.Usage">
-                            <option value="BeforeProduction">Before Production</option>
-                            <option value="DurringProduction">Durring Production</option>
-                            <option value="AfterProduction">After Production</option>
-                        </select>
-                    </div>
-
-                </td>
                 <td>
                     <div class="select-style">
                         <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
@@ -198,6 +156,55 @@
                         </span>
                     </div>
                 </td>
+                <td class="text-right">
+                    <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
+                </td>
+
+                <td>
+                    <div class="select-style">
+                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
+                            <option value=""></option>
+                            <option value="SO">Sales Order</option>
+                            <option value="SKU">SKU</option>
+                        </select>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <input type="number" style="min-width:40px;" min="0" ng-model="x.BOQDays" class="form-control">
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select style="width: 90px;margin-left: 0px;" name="DependentDate" ng-model="x.DependentDate">
+                            <option value=""></option>
+                            <option value="SOCreationDate">Sales Order Creation Date</option>
+                            <option value="SODeliveryDate">Sales Order Delivery Date</option>
+                        </select>
+                    </div>
+                </td>
+
+                <td>
+
+                    <div class="select-style">
+                        <select style="width:90px;margin-left: 0px;" name="Usage" id="Usage" ng-model="x.Usage">
+                            <option value="BeforeProduction">Before Production</option>
+                            <option value="DurringProduction">Durring Production</option>
+                            <option value="AfterProduction">After Production</option>
+                        </select>
+                    </div>
+
+                </td>
+
+                <td style="width:180px;">
+                    <div class="input-group">
+                        <input type="text" name="ResponsiblePerson" ng-model="x.ResponsiblePerson" style="width:120px;" class="form-control" readonly>
+                        <span class="input-group-btn">
+                            <button name="submit" ng-click="getPopUpData($index,'PRE')" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+
+
+
                 <td>
                     <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
                 </td>
@@ -235,7 +242,7 @@
             </tr>
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
-                <td style="color:blue" class="text-right" colspan="9">@*{{toatalItemGrossConsumption | number:4}}*@</td>
+                <td style="color:blue" class="text-right" colspan="8">@*{{toatalItemGrossConsumption | number:4}}*@</td>
                 <td style="color:blue" class="text-right">{{TotalSegmentedValueByComponent | number:4}}</td>
                 <td style="color:blue" colspan="10"></td>
             </tr>

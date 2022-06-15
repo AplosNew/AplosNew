@@ -54,7 +54,10 @@ function TaxCategoryController(addressService, cboService, commonMessage, $scope
     addressService.getCountryCbo(function (result) {
         $scope.CountryList = result;
     });
-
+    $scope.taxCategoryCodeList = [];
+    cboService.getEnumCbo("enum/GetTaxCategoryCodeEnumCbo", function (result) {
+        $scope.taxCategoryCodeList = result;
+    });
     cboService.getEnumCbo("enum/GetTaxCircleEnumCbo", function (result) {
         $scope.taxCircleList = result;
     });
