@@ -196,6 +196,33 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
+    $scope.InventorySalesReportExcels = function (reportFormat) {
+        var Type = null;
+        if ($scope.productNew.AsOnDate === 'AsOnDate') {
+
+            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+            Type = 'AsOnDate';
+        }
+        else {
+
+            if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+                ShowResult('Select From Date', 'failure');
+                return false;
+            }
+            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+            Type = 'ForThePeriod';
+        }
+
+        //var reportFormat = "Excel";
+        $scope.productNew.Summary = 'Details';
+        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+    };
 
 
 

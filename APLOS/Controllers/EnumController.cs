@@ -696,6 +696,12 @@ namespace Aplos.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetTaxCategoryCodeEnumCbo()
+        {
+            return Json(new SelectList(EnumService.GetEnumCbo<TaxCategoryCodeEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetTaxCategoryLevelEnumCbo()
         {
             return Json(new SelectList(EnumService.GetEnumCbo<TaxCategoryLevelEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
