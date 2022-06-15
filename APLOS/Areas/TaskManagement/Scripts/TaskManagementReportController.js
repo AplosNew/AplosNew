@@ -4,14 +4,15 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
     $scope.title = 'Task Management Report';
     $scope.TaskManagementDataList = [];
     $scope.path = 'TaskManagement/TaskManagementReport/';
-    // $scope.downloadgriddataUrlPath = 'Materials/UtilityTransactionReport/DownloadUsingFullPath';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-
-    //baseService.init($scope.getListUrl);
-
 
     $scope.ToDate = null;
     $scope.FromDate = null;
+    $scope.model = { State: 'EmployeeWise' };
+
+    $scope.ChangeState = function () {
+        $scope.TaskManagementDataList = [];
+    }
 
     $scope.Today = new Date();
     $scope.PreviousMonth = new Date().setDate(new Date().getDate() - 31);
@@ -92,7 +93,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetTaskManagementReport",
-            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate },
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'state': $scope.model.State },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -113,7 +114,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetTaskManagementData",
-            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate },
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'state': $scope.model.State },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -124,10 +125,9 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                 var totalTask = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "CreatedTask");
                 var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
                 for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
-                    $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask)*100);
-                    $scope.TaskManagementDataList[i].PerTaskDue = Math.ceil(($scope.TaskManagementDataList[i].TaskDue / totalTaskDue)*100);
+                    $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
+                    $scope.TaskManagementDataList[i].PerTaskDue = Math.ceil(($scope.TaskManagementDataList[i].TaskDue / totalTaskDue) * 100);
                     $scope.TaskManagementDataList[i].OverdueTask = $scope.TaskManagementDataList[i].TaskDue - $scope.TaskManagementDataList[i].OnTimeTask - $scope.TaskManagementDataList[i].LateTask;
-
                     $scope.TaskManagementDataList[i].Performance = ((($scope.TaskManagementDataList[i].OnTimeTask * 2) + $scope.TaskManagementDataList[i].LateTask * 1) * $scope.TaskManagementDataList[i].PerTaskDue) - $scope.TaskManagementDataList[i].UnRead;//formula
                 }
             }

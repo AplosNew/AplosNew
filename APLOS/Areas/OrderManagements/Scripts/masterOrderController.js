@@ -2017,6 +2017,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 getSalesOrderTaxCategoryList(response.data.Id);
                 getSalesOrderList();
                 clearSO();
+                $scope.ShowCostingSORatePopup();
                 $scope.getMasterItemList();
             }
         }), function errorCallBack(response) {

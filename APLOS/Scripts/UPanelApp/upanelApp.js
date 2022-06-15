@@ -1040,7 +1040,7 @@ upanelApp.controller("postDateChequeController", postDateChequeController);
 upanelApp.controller("vendorPaymentApprovalController", vendorPaymentApprovalController);
 upanelApp.controller("ManpowerControlReportsController", ManpowerControlReportsController);
 upanelApp.controller("SalesOrderStatusReportController", SalesOrderStatusReportController);
-upanelApp.controller("ZoneMasterController", ZoneMasterController);
+
 upanelApp.controller("BOQStatusReportController", BOQStatusReportController);
 upanelApp.controller("FuguaiTransactionController", FuguaiTransactionController);
 upanelApp.controller("FuguaiReportController", FuguaiReportController);

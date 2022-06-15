@@ -21,13 +21,13 @@ using Library.HumanResource.Employee;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class ZoneMasterController : Controller
+    public class FuguaiZoneMasterController : Controller
     {
         ZoneMasterService f = new ZoneMasterService();
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public ZoneMasterController(ISqlRepository R)
+        public FuguaiZoneMasterController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
