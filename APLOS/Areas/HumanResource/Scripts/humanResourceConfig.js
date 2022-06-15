@@ -1,4 +1,5 @@
-﻿HumanResourceConfig.$inject = ['$routeProvider', '$locationProvider'];
+﻿/// <reference path="../../../scripts/angular-cbo-factory.js" />
+HumanResourceConfig.$inject = ['$routeProvider', '$locationProvider'];
 function HumanResourceConfig($routeProvider, $locationProvider) {
     $routeProvider
         .when('/legal-salary-grade', {
@@ -750,9 +751,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'ManpowerControlReportsController'
         })
 
-        .when('/zone-master', {
-            templateUrl: 'humanResource/ZoneMaster/Aplos',
-            controller: 'ZoneMasterController'
+        .when('/fuguai-zone-master', {
+            templateUrl: 'humanResource/FuguaiZoneMaster/Aplos',
+            controller: 'FuguaiZoneMasterController'
         })
         .when('/fuguai-transaction', {
             templateUrl: 'humanResource/FuguaiTransaction/Aplos',
