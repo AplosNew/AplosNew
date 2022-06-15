@@ -33,14 +33,7 @@ function ServicePOApprovedController(accountService, addressService, $location, 
     $scope.isSetServicePOHold = function (tabNum) {
         return $scope.tab === tabNum;
     };
-    $scope.setTabServicePOChecked = function (newTab) {
-        $scope.tab = newTab;
-        $scope.tabType = 'CheckedList';
-        $scope.GetGetCheckedApprovedList();
-    };
-    $scope.isSetServicePOChecked = function (tabNum) {
-        return $scope.tab === tabNum;
-    };
+
 
     $scope.setTabServicePOUnApproved = function (newTab) {
         $scope.tab = newTab;
@@ -90,7 +83,7 @@ function ServicePOApprovedController(accountService, addressService, $location, 
     $scope.GetGetCheckedApprovedList();
 
     $scope.onClickApproved = function (z) {
-        //debugger;
+        $scope.ChkedAppDataInfo = {};
         var x = "#" + z;
         var gridObj = $(x).data("ejGrid");
         $scope.ChkedAppDataInfo = gridObj.getSelectedRecords()[0];
@@ -140,6 +133,8 @@ function ServicePOApprovedController(accountService, addressService, $location, 
                 else {
                     ShowResult("Information Updated Successfully", 'success');
                     $scope.GetGetCheckedApprovedList();
+                    $scope.LoadapprovalStatus();
+                    $scope.ChkedAppDataInfo = {};
                 }
             }, function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -151,8 +146,9 @@ function ServicePOApprovedController(accountService, addressService, $location, 
         }
     }
 
-
+    $scope.approvalStatusList = [];
     $scope.LoadapprovalStatus = function () {
+        $scope.approvalStatusList = [];
         cboService.getEnumCbo("enum/GetCheckedStatusCbo", function (result) {
             $scope.approvalStatusList = result;
         });
