@@ -307,7 +307,7 @@ namespace Aplos.Areas.Accounts.Controllers
             //        throw new CustomException("Please Input  No Of Installment!");
             //}
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertMultiLoanWriteOff(voucherVM, loanRepaymentlist)) });
+            return Json(new { Message = string.Format(AplosMessage.Insert, _loanService.InsertMultiLoanWriteOff(voucherVM, loanRepaymentlist)) });
         }
 
         [HttpPost]
