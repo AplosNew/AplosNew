@@ -303,6 +303,16 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
                 controller: 'EmployeeGoalSettingController'
             })
+
+            .when('/fuguai-transaction', {
+                templateUrl: 'humanResource/FuguaiTransaction/Aplos',
+                controller: 'FuguaiTransactionController'
+            })
+
+            .when('/fuguai-report', {
+                templateUrl: 'humanResource/FuguaiReport/Aplos',
+                controller: 'FuguaiReportController'
+            })
             //#endregion
 
             .when('/logout', {
