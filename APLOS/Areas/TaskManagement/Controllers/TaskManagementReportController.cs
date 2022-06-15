@@ -93,7 +93,26 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters)
+        public ActionResult GetTaskManagementData(Dictionary<string, string> parameters, string fromDate, string todate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                DataTable dtTask = null;
+                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters);
+                var jsondata = Json(CustomJsonResultService.DataTableToJson(dtTask), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters, string fromDate, string todate)
         {
 
             try
@@ -101,7 +120,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string fileName = "";
-                fileName = GetTaskManagementReportXL(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task");
+                fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
             }
@@ -114,7 +133,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
 
         }
 
-        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
+        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -133,6 +152,14 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 workbook.Worksheets[0].Name = SheetName;
                 sheet = workbook.Worksheets[0];
                 DataTable data;
+
+
+                //Add rich-text Excel comment
+                IFont fontCaption = workbook.CreateFont();
+                fontCaption.Size = 8f;
+                IFont fontRegular = workbook.CreateFont();
+                fontRegular.Italic = true;
+                fontRegular.Size = 6f;
 
                 // ExcelEngine excelEngine = null;
 
@@ -158,7 +185,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 objRptSR = new clsReport(_sqlRepository);
 
                 DataTable dtTask = null;
-                dtTask = tasksService.GetTaskManagementData(CompanyGroupId, CompanyId, PlantId, parameters);
+                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters);
                 if (dtTask.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -207,66 +234,97 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 int iTaskCreated = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Created";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iPerTotalTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Total Task";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                IRange range = sheet1[xlsRow, xlsCol];
+                ICommentShape shape = range.AddComment();
+                shape.RichText.Append("Emp Task Created FP / Total Task Created  FP", fontCaption);
+                shape.IsTextLocked = false;
+                shape.AutoSize = false;
 
                 xlsCol++;
                 int iTaskUnread = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Unread";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 xlsCol++;
 
                 int iTaskDue = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Due";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 xlsCol++;
 
                 int iPerOfDueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Due Task";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                IRange range1 = sheet1[xlsRow, xlsCol];
+                ICommentShape shape1 = range1.AddComment();
+                shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
+                shape1.IsTextLocked = false;
+                shape1.AutoSize = false;
                 xlsCol++;
 
                 int iTaskCompletedOnTime = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "Task Completed-On Time";
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 13;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 20;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
                 xlsCol++;
                 int iTaskCompletedLate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Completed-Late";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 10;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
                 xlsCol++;
 
                 int iOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                IRange rangeODT = sheet1[xlsRow, xlsCol];
+                ICommentShape shapeODT = rangeODT.AddComment();
+                shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
+                shapeODT.IsTextLocked = false;
+                shapeODT.AutoSize = false;
 
                 xlsCol++;
                 int iPeriviousPeriodOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Perivious Period Overdue Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
                 xlsCol++;
                 int iPerformance = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                IRange range2 = sheet1[xlsRow, xlsCol];
+                ICommentShape shape2 = range2.AddComment();
+                shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
+                shape2.IsTextLocked = false;
+                shape2.AutoSize = false;
 
                 xlsCol++;
                 int iTotalStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Total Story Points";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 endXlsCol = xlsCol;
 
@@ -289,59 +347,47 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 xlsRow++;
                 startRow = xlsRow;
                 perStartRow = xlsRow;
-                bool isFirst = true;
+
+                double TotalCreatedTask = clsStaticInfo.dbl(dtTask.Compute("SUM(CreatedTask)", null));
+                double TotalTaskDue = clsStaticInfo.dbl(dtTask.Compute("SUM(TaskDue)", null));
 
                 for (int i = 0; i < dtTask.Rows.Count; i++)
                 {
-                    if (voucherNo != dtTask.Rows[i]["VoucherNo"].ToString())
-                    {
+                    sheet1[xlsRow, colSLNO].Number = (i + 1);
+                    sheet1.Range[xlsRow, iEmployeeCode].Text = dtTask.Rows[i]["EmployeeCode"].ToString();
+                    sheet1.Range[xlsRow, iEmployeeName].Text = dtTask.Rows[i]["EmployeeName"].ToString();
+                    sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["Designation"].ToString();
+                    sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["Department"].ToString();
+                    sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
+                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
+                    sheet1.Range[xlsRow, iPerTotalTask].Number = PerTotalTask;//formula 
+                    sheet1.Range[xlsRow, iPerTotalTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                        if (isFirst == false)
-                        {
+                    sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
+                    sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
+                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100);
+                    sheet1.Range[xlsRow, iPerOfDueTask].Number = PerTaskDue;//formula 
+                    sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                        }
+                    sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString());
+                    sheet1.Range[xlsRow, iTaskCompletedLate].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
 
-                        sheet1[xlsRow, colSLNO].Number = (i + 1);
+                    sheet1[xlsRow, iOverdueTask].Number = Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString());//formula
 
-                        sheet1.Range[xlsRow, iTaskUnread].Text = dtTask.Rows[i]["PostingDate"].ToString();
+                    sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
-                        //sheet1.Range[xlsRow, iBaseNoOfDays].Text = dtRCMPayable.Rows[i]["Days"].ToString();
-                        sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = System.Math.Abs(clsStaticInfo.dbl(dtTask.Rows[i]["Days"].ToString()));
-                        // System.Math.Abs(-30);
-                        sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["VoucherNo"].ToString();
+                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
-                        //sheet1.Range[xlsRow, iGSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
-                        sheet1.Range[xlsRow, iEmployeeName].Text = dtTask.Rows[i]["PartyName"].ToString();
-                        sheet1.Range[xlsRow, iEmployeeCode].Text = dtTask.Rows[i]["PartyCode"].ToString();
-                        sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["PartyPlantName"].ToString();
-                        sheet1.Range[xlsRow, iTaskCompletedLate].Text = dtTask.Rows[i]["CurrencyCode"].ToString();
-                        sheet1.Range[xlsRow, iTaskDue].Text = dtTask.Rows[i]["BaseOnDueDate"].ToString();
-                        sheet1.Range[xlsRow, iPerOfDueTask].Text = dtTask.Rows[i]["ActualDueDate"].ToString();
-                        sheet1.Range[xlsRow, iPerTotalTask].Text = dtTask.Rows[i]["DocDate"].ToString();
-                       // sheet1.Range[xlsRow, iInvoiceNo].Text = dtTask.Rows[i]["InvoiceNo"].ToString();
+                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
 
-
-                        sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Gross"].ToString());
-                        sheet1[xlsRow, iOverdueTask].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                        sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["DebitNoteAmount"].ToString());
-                        sheet1[xlsRow, iPeriviousPeriodOverdueTask].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                        sheet1[xlsRow, iPerformance].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaxAmount"].ToString());
-                        sheet1[xlsRow, iPerformance].NumberFormat = "#,##0.00;(#,##0.00)";
-                        sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["SetOff"].ToString());
-                        sheet1[xlsRow, iTotalStoryPoints].NumberFormat = "#,##0.00;(#,##0.00)";
-
-                        sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["Balance"].ToString());
-                        sheet1[xlsRow, iCompletedStoryPoints].NumberFormat = "#,##0.00;(#,##0.00)";
-
-
-                      
-                        xlsRow++;
-                    }
+                    xlsRow++;
                 }
+                sheet1.Range[xlsRow, 5].Text = "TOTAL";
+                sheet1.Range[xlsRow, 5].CellStyle.Font.Bold = true;
+
                 sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, colDepartment, xlsRow - 1, colDepartment].BorderAround(ExcelLineStyle.Hair);
@@ -353,31 +399,57 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                //sheet1[perStartRow, iInvoiceNo, xlsRow - 1, iInvoiceNo].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
 
-             
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCreated) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCreated) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCreated, xlsRow, iTaskCreated].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCreated, xlsRow, iTaskCreated].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iPerTotalTask) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iPerTotalTask) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iPerTotalTask, xlsRow, iPerTotalTask].Formula = formula;
+                sheet1.Range[xlsRow, iPerTotalTask, xlsRow, iPerTotalTask].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskUnread) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskUnread) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskUnread, xlsRow, iTaskUnread].Formula = formula;
+                sheet1.Range[xlsRow, iTaskUnread, xlsRow, iTaskUnread].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskDue) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskDue) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskDue, xlsRow, iTaskDue].Formula = formula;
+                sheet1.Range[xlsRow, iTaskDue, xlsRow, iTaskDue].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iPerOfDueTask) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iPerOfDueTask) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iPerOfDueTask, xlsRow, iPerOfDueTask].Formula = formula;
+                sheet1.Range[xlsRow, iPerOfDueTask, xlsRow, iPerOfDueTask].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedOnTime) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedOnTime) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCompletedOnTime, xlsRow, iTaskCompletedOnTime].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCompletedOnTime, xlsRow, iTaskCompletedOnTime].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedLate) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedLate) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCompletedLate, xlsRow, iTaskCompletedLate].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCompletedLate, xlsRow, iTaskCompletedLate].CellStyle.Font.Bold = true;
+
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iOverdueTask) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iOverdueTask) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iOverdueTask, xlsRow, iOverdueTask].Formula = formula;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-
+                sheet1.Range[xlsRow, iOverdueTask, xlsRow, iOverdueTask].CellStyle.Font.Bold = true;
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iPeriviousPeriodOverdueTask) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iPeriviousPeriodOverdueTask) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iPeriviousPeriodOverdueTask, xlsRow, iPeriviousPeriodOverdueTask].Formula = formula;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, iPeriviousPeriodOverdueTask, xlsRow, iPeriviousPeriodOverdueTask].CellStyle.Font.Bold = true;
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iPerformance) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iPerformance) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iPerformance, xlsRow, iPerformance].Formula = formula;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, iPerformance, xlsRow, iPerformance].CellStyle.Font.Bold = true;
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTotalStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTotalStoryPoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iTotalStoryPoints, xlsRow, iTotalStoryPoints].Formula = formula;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, iTotalStoryPoints, xlsRow, iTotalStoryPoints].CellStyle.Font.Bold = true;
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
                 xlsRow++;
                 xlsRow++;
@@ -387,26 +459,26 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
 
                 xlsRow = 1;
                 xlsCol = 3;
-                //try
-                //{
-                //    if (companyLogo != null)
-                //    {
+                try
+                {
+                    if (companyLogo != null)
+                    {
 
-                //        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(iGSTIN);
-                //        int totalWidthPixel = (int)(totalWidth * 7.5);
-                //        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
+                        double totalWidth = sheet1.GetColumnWidth(1) + sheet1.GetColumnWidth(endXlsCol);
+                        int totalWidthPixel = (int)(totalWidth * 7.5);
+                        int totalheight = (int)((sheet1.GetRowHeight(1) + sheet1.GetRowHeight(2) + sheet1.GetRowHeight(3) + sheet1.GetRowHeight(3)) * 1.50);
 
-                //        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
-                //        IPictureShape pic = null;
+                        companyLogo = ReportUtility.FixedSize(companyLogo, totalWidthPixel, totalheight);
+                        IPictureShape pic = null;
 
-                //        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
-                //        //pic.Height = 80;
-                //        //pic.Width = 220;
-                //    }
-                //}
-                //catch (Exception ex)
-                //{
-                //}
+                        pic = sheet1.Pictures.AddPicture(1, 1, companyLogo);
+                        //pic.Height = 80;
+                        //pic.Width = 220;
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
 
                 FactoryName = string.Empty;
 
@@ -467,7 +539,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
 
                 xlsRow += 1;
                 //sheet1.Range[xlsRow, 3].Text = "Aging Report From " + fromDate + " To " + toDate;
-                sheet1.Range[xlsRow, 3].Text = "Aging Report";
+                sheet1.Range[xlsRow, 3].Text = "Task Management Report";
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 3, xlsRow, endXlsCol].RowHeight = 20;
@@ -514,7 +586,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 #endregion Page Setup
 
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReport.xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
