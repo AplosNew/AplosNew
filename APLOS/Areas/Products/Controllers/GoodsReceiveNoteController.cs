@@ -1742,7 +1742,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
         #region Purchase Return Code Start Here
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetListPurchaseReturnData(string plantId, string tabType)
         {
 

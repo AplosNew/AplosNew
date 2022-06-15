@@ -1,10 +1,10 @@
 ﻿'use strict';
-ZoneMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ZoneMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Zone Master';
+FuguaiZoneMasterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function FuguaiZoneMasterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+    $rootScope.title = 'Fuguai Zone Master';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/ZoneMaster/';
+    $scope.path = 'HumanResource/FuguaiZoneMaster/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.saveUrl = $scope.path + 'Save';
