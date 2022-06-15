@@ -68,6 +68,7 @@ function TaskManagementConfig($routeProvider, $locationProvider) {
             controller: 'TaskManagementReportController'
 
         })
+       
 
         ;
 }
