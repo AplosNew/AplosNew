@@ -19,7 +19,7 @@ using Library.Service.Helpers;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class FuguaiReportController : Controller
+    public class FuguaiReportController : BaseController
     {
         FuguaiReportService fr = new FuguaiReportService();
         private readonly ISqlRepository _sqlRepository;
@@ -28,6 +28,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             _sqlRepository = R;
         }
         #region Page
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();
