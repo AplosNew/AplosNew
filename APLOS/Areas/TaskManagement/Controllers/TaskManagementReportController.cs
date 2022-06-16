@@ -550,7 +550,7 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report";
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report From Date: " + fromDate + " To Date: " + todate;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
