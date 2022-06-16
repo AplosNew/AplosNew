@@ -196,7 +196,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
-    $scope.InventorySalesReportExcels = function (reportFormat) {
+    $scope.InventorySalesReportExcels = function (reportType) {
         var Type = null;
         if ($scope.productNew.AsOnDate === 'AsOnDate') {
 
@@ -220,8 +220,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }
 
         //var reportFormat = "Excel";
-        $scope.productNew.Summary = 'Details';
-        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + 'Excel' + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + reportType + '&WithTax=' + true + '&Type=' + Type);
     };
 
 

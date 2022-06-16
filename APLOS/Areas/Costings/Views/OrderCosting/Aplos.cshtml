@@ -1550,12 +1550,28 @@
                             <div e-column e-type="string" e-field="StandardName" e-headertext="Standard Name" e-width="150"></div>
                             <div e-column e-type="string" e-field="UserName" e-headertext="User Name" e-width="150"></div>
                             <div e-column e-type="string" e-field="ProductMaster" e-headertext="Product" e-width="150"></div>
-                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="100"></div>
-                            <div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="60"></div>
+                            <div e-column e-type="numeric" e-field="Version" e-headertext="Version" e-width="60"></div>
 
                             <div e-column e-field="Active" e-headertext="Active" e-width="100"></div>
+                            <div e-column e-headertext="Report" e-template="#ReportTemplate" e-width="100"></div>
+
                         </div>
                     </div>
+                    <script id="ReportTemplate" type="text/template">
+                        <div class="common-btn">
+                            <ul class="common-btn list-inline text-center">
+                                <li>
+                                    <button ng-click="$parent.PreOrderCostingReport(data);" class="btn small tooltip-here" ng-show="data.MOIId" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Pre-Costing">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                    <button ng-click="$parent.ProOrderCostingReport(data);" class="btn small tooltip-here" ng-show="data.MOIId" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Procurement-Costing">
+                                        <i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </script>
                 </div>
             </div>
         </div>
