@@ -11,7 +11,7 @@ function GroupBalanceReportController($scope, $rootScope, $filter, accountServic
         FromDate: $filter("dateFiltering")(Date.now()),
         ToDate: $filter("dateFiltering")(Date.now()),
         Active: true,
-        IsGroupBy:false
+        IsActivity:false
     };
     $(".searchableDDL").select2();
 
@@ -55,7 +55,7 @@ function GroupBalanceReportController($scope, $rootScope, $filter, accountServic
         }
         else {
             var url = "";
-            url = "Accounts/GroupBalanceReport/GetGroupBalanceReport?reportFormat=" + $scope.report.ReportFormat + "&glId=" + $scope.report.GLGeneralInfoId + '&budgetMasterId=' + $scope.report.BudgetMasterId + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate;
+            url = "Accounts/GroupBalanceReport/GetGroupBalanceReport?reportFormat=" + $scope.report.ReportFormat + "&glId=" + $scope.report.GLGeneralInfoId + '&budgetMasterId=' + $scope.report.BudgetMasterId + "&fromDate=" + $scope.report.FromDate + "&toDate=" + $scope.report.ToDate + "&isActivity=" + $scope.report.IsActivity;
          
             $window.open(url, "_blank");
         }

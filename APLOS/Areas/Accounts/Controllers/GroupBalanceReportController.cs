@@ -55,13 +55,16 @@ namespace Aplos.Areas.Accounts.Controllers
         //private readonly AccountVoucherReportService _accountVoucherReportService;
         //private readonly IRepositoryAsync<EmployeeSalaryAdvance> _employeeSalaryAdvanceRepository;
         private readonly GroupBalanceReportService _groupBalanceReportService;
+        private readonly AccountVoucherReportService _accountVoucherReportService;
 
-       
 
         public GroupBalanceReportController(
-            GroupBalanceReportService groupBalanceReportService)
+            GroupBalanceReportService groupBalanceReportService
+            ,AccountVoucherReportService accountVoucherReportService
+            )
         {
            _groupBalanceReportService = groupBalanceReportService;
+           _accountVoucherReportService = accountVoucherReportService;
         }
 
 
@@ -72,19 +75,25 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //General ledger report
         [HttpGet, Authorize]
-        public ActionResult GetGroupBalanceReport(ReportFormat reportFormat, string glId, string budgetMasterId, string fromDate, string toDate)
+        public ActionResult GetGroupBalanceReport(ReportFormat reportFormat, string glId, string budgetMasterId, string fromDate, string toDate, bool isActivity)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             IWorkbook workbook = null;
-            //workbook = GroupBalanceReportService.GetGeneralLedgerReport(glId, budgetMasterId, fromDate, toDate);
-            //identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate
-            if(budgetMasterId=="")
+            string activityId = null;
+            if (budgetMasterId=="")
             {
-                budgetMasterId = "null";
+                budgetMasterId = null;
             }
-            workbook = _groupBalanceReportService.GetGeneralLedgerGroupReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
-           // workbook = _groupBalanceReportService.GetGeneralLedgerReport();
 
+            if (isActivity == true && budgetMasterId == null)
+            {
+                workbook = _accountVoucherReportService.GetGeneralLedgerGroupReportWithBudgetActivity(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate);
+            }
+            else  
+            {
+                workbook = _groupBalanceReportService.GetGeneralLedgerGroupReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
+            }
+            
             var reportFileName = DateTime.Now.ToString("yyMMdd") + " Group Ledger Report";
             switch (reportFormat)
             {
