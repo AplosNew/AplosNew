@@ -787,12 +787,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 	                                ,D.UserName Department
 	                                ,S.UserName Section
 	                                ,ISNULL(E.UserName,'') Entity
-	                                ,ISNULL(L.UserName,0) BudgetedLine
+	                                ,ISNULL(L.UserName,'') BudgetedLine
 	                                ,L.Id BudgetedLineId
 	                                ,SC.UserName SkillCategory
 	                                ,ISNULL(MMA.StandardName,'') Machine
 	                                ,ECA.UserName EmployeeCategory
-	                                ,ISNULL(O.Code,0) OperationCode
+	                                ,ISNULL(O.Code,'') OperationCode
 	                                ,Process=ISNULL(STUFF((SELECT DISTINCT ',' + P.UserName FROM [MST].[OperationProcess] AS OPMT
 					                                                    LEFT JOIN HKP.[Process] AS P ON OPMT.ProcessId=P.Id
 					                                                    WHERE OPMT.OperationId=O.Id
@@ -809,12 +809,13 @@ namespace Aplos.Areas.HumanResource.Controllers
                                 LEFT JOIN MST.Operation O ON O.Id = OV.OperationId
                                 LEFT JOIN HKP.Skill Sk ON Sk.Id = O.SkillId
                                 LEFT JOIN HKP.SkillCategory SC ON SC.Id = Sk.SkillCategoryId
-                                left join MST.MaterialMasterArticle MMA on MMA.Id=OV.ArticleId
+                                LEFT JOIN MST.MaterialMasterArticle MMA on MMA.Id=OV.ArticleId
                                 LEFT JOIN (select EC.UserName,DM.DesignationId from MST.DesignationMaster DM 
-                                left join HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
+                                LEFT JOIN HKP.EmployeeCategory EC ON EC.Id = DM.EmployeeCategoryId
                                 ) ECA  on ECA.DesignationId=EI.GivenDesignationId
 
-                                WHERE EI.EmployeeStatus = 'Active'";
+                                WHERE EI.EmployeeStatus = 'Active'
+								ORDER BY L.UserName";
 
                 data = _sqlRepository.GetDataTable(strSQL);
             }
