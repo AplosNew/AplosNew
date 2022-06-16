@@ -1407,7 +1407,8 @@ namespace Library.Service.HumanResources
                     dicGroup.Add("SubSectionName", new Combination { GroupKey = strGroupSubSectionName, Row = xlsRow });
 
 
-                    DataRow dr = dtManPBSummary.NewRow(); dtManPBSummary.Rows.Add(dr);
+                    DataRow dr = dtManPBSummary.NewRow(); 
+                    dtManPBSummary.Rows.Add(dr);
                     for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
                     {
                         var catLRow = xlsRow;
