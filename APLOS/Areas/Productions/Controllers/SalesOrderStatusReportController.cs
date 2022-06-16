@@ -107,7 +107,7 @@ namespace Aplos.Areas.Productions.Controllers
             report.SetHeaderText(ref sheet, ROW, COL, "Customer", 12, ExcelHAlign.HAlignCenter);
             int ColCus = COL;
             COL++;
-            
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Master Order No", 12, ExcelHAlign.HAlignCenter);
             int ColMO = COL;
@@ -208,9 +208,16 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColCus].Text = data.Rows[i]["Customer"].ToString();
                 sheet[ROW, ColCusG].Text = data.Rows[i]["CustomerGroup"].ToString();
                 sheet[ROW, ColMO].Number = clsStaticInfo.dbl(data.Rows[i]["MasterOrderNo"].ToString());
-                sheet[ROW, ColMOD].DateTime =Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
-                sheet[ROW, ColCd].DateTime =Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
-                sheet[ROW, ColDel].DateTime =Convert.ToDateTime(data.Rows[i]["DeliveryDate"].ToString());
+                sheet[ROW, ColMOD].DateTime = Convert.ToDateTime(data.Rows[i]["MasterOrderDate"].ToString());
+                sheet[ROW, ColCd].DateTime = Convert.ToDateTime(data.Rows[i]["CreatedDate"].ToString());
+                if (data.Rows[i]["DeliveryDate"].ToString() == "")
+                {
+                    sheet[ROW, ColDel].Text = string.Empty;
+                }
+                else
+                {
+                    sheet[ROW, ColDel].DateTime = Convert.ToDateTime(clsStaticInfo.GetDate(data.Rows[i]["DeliveryDate"].ToString()));
+                }
                 sheet[ROW, ColOwn].Text = data.Rows[i]["OwnReferenceNo"].ToString();
                 sheet[ROW, ColBuy].Text = data.Rows[i]["BuyerOrderNo"].ToString();
                 sheet[ROW, ColArt].Text = data.Rows[i]["Article"].ToString();
@@ -220,8 +227,8 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColProdC].Text = data.Rows[i]["ProductCode"].ToString();
                 sheet[ROW, ColPR].Text = data.Rows[i]["ProductionOrderId"].ToString();
                 sheet[ROW, ColQty].Text = data.Rows[i]["SOQty"].ToString();
-                sheet[ROW, ColEFD].Text = data.Rows[i]["ExFactoryDate"].ToString();
-                sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
+                sheet[ROW, ColEFD].Text = clsStaticInfo.GetDate(data.Rows[i]["ExFactoryDate"].ToString());
+                sheet[ROW, ColComm].Text = clsStaticInfo.GetDate(data.Rows[i]["CommitmentDate"].ToString());
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
@@ -256,9 +263,9 @@ namespace Aplos.Areas.Productions.Controllers
             try
             {
                 string ent = "";
-                if(EntityList.Count > 0 && EntityList[0]!="")
+                if (EntityList.Count > 0 && EntityList[0] != "")
                 {
-                    ent =  "AND mo.EntityId IN (''";
+                    ent = "AND mo.EntityId IN (''";
                     foreach (string e in EntityList)
                     {
                         ent += ",'" + e + "'";
@@ -303,7 +310,7 @@ namespace Aplos.Areas.Productions.Controllers
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
 							 left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                            where os.Id not in ('Closed' , 'Cancelled') " + ent+ @"
+                            where os.Id not in ('Closed' , 'Cancelled') " + ent + @"
                             order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
                             ";
 
@@ -318,4 +325,4 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
     }
 }
-    
+

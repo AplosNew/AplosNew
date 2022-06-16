@@ -21,9 +21,16 @@ using Library.HumanResource.Employee;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class FuguaiTransactionController : Controller
+    public class FuguaiTransactionController : BaseController
     {
+        private readonly ISqlRepository _sqlRepository;
         FuguaiTransactionService ft = new FuguaiTransactionService();
+        public FuguaiTransactionController(ISqlRepository R)
+        {
+            _sqlRepository = R;
+        }
+       
+        [Authorize]
         public ActionResult Aplos()
         {
             return View();

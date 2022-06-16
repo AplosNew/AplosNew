@@ -366,15 +366,15 @@ namespace Aplos.Areas.Products.Controllers
 
        
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate)
+        public ActionResult SalesOrderCustomerWiseReport(string PlantId, string ToDate, string FromDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
+                var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
 
-                var strFileName = "Purchase Report Register Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
+                var strFileName = "Sales Register Report Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
