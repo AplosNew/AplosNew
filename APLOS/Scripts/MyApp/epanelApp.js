@@ -51,6 +51,8 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
     .controller("MeetingPointsController", MeetingPointsController)
     .controller("MeetingReportsController", MeetingReportsController)
     .controller("EmployeeUnderstandingHeadController", EmployeeUnderstandingHeadController)
+    .controller("FuguaiTransactionController", FuguaiTransactionController)
+    .controller("FuguaiReportController", FuguaiReportController)
     //#endregion
 
     .config(['$routeProvider', '$locationProvider', '$httpProvider', function ($routeProvider, $locationProvider, $httpProvider) {
@@ -302,6 +304,16 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
             .when('/employee-goal-setting', {
                 templateUrl: 'humanResource/EmployeeGoalSetting/Aplos',
                 controller: 'EmployeeGoalSettingController'
+            })
+
+            .when('/fuguai-transaction', {
+                templateUrl: 'humanResource/FuguaiTransaction/Aplos',
+                controller: 'FuguaiTransactionController'
+            })
+
+            .when('/fuguai-report', {
+                templateUrl: 'humanResource/FuguaiReport/Aplos',
+                controller: 'FuguaiReportController'
             })
             //#endregion
 

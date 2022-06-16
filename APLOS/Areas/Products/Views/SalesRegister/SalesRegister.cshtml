@@ -132,7 +132,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <fieldset class="scheduler-border">
-                        <legend class="scheduler-border">Filter By GRN Date</legend>
+                        <legend class="scheduler-border">Filter By Sales Date</legend>
                        
                         <div class="clearfix"></div>
                         <div class="form-group" show-errors id="div_FromDate">
@@ -158,41 +158,7 @@
                     </fieldset>
                 </div>
 
-                <div class="col-xs-6 col-sm-6 col-md-6">
-                    <fieldset class="scheduler-border">
-                        <legend class="scheduler-border">Pending GRN List</legend>
-
-                        <div class="table-responsive modal-table">
-                            <table class="table table-striped">
-                                <thead>
-
-                                    <tr>
-                                        <th>Date delay</th>
-                                        <th>No of Get Entry</th>
-                                    </tr>
-
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="x in GetGRNPendingList" ng-dblclick="PendingGRNList(x)">
-
-                                        @*<td>{{x.From}}-{{x.To}}</td>*@
-                                        <td>{{x.Description}}</td>
-                                        <td class="text-right">{{x.Count}}</td>
-
-
-                                    </tr>
-                                    <tr>
-
-                                        <td class="text-left"><strong>Total : </strong></td>
-                                        <td class="text-right"><strong>{{GetGRNPendingList | sumByKey : 'Count' }}</strong></td>
-
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </fieldset>
-
-                </div>
+       
             </div>
         </div>
         
@@ -200,19 +166,19 @@
             <ul class="list-inline text-left">
                                 
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="GRN Wise" ng-click="InventorySalesReportExcels('Summary');" e-width="width">
-                        <button class="btn"><i class="glyphicon glyphicon-file"></i>GRN Wise</button>
+                    <div ej-tooltip e-showshadow="true" e-content="Sales Wise" ng-click="SalesOrderGRNWiseReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Sales Wise</button>
                     </div>
                 </li>
 
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Party Wise" ng-click="PurchaseOrderPartyWiseReportExcel('Excel');" e-width="width">
-                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Party Wise</button>
+                    <div ej-tooltip e-showshadow="true" e-content="Customer Wise" ng-click="SalesOrderCustomerWiseReportExcel('Excel');" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-file"></i>Customer Wise</button>
                     </div>
                 </li>
 
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="InventorySalesReportExcels('Details');" e-width="width">
+                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="SalesOrderItemWiseReportExcels('Excel');" e-width="width">
                         <button class="btn"><i class="glyphicon glyphicon-file"></i>Item Wise</button>
                     </div>
                 </li>

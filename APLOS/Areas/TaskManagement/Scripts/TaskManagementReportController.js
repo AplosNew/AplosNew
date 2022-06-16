@@ -30,10 +30,11 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
             $scope.filters = response.data;
             var columnList = [
                 { field: 'DesignationGroup', width: 20, headerText: "Designation Group", type: "string" },
+                { field: 'TaskCreatedBy', width: 20, headerText: "Task CreatedBy", type: "string" },
                 { field: 'TYPE', width: 20, headerText: "Type", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" },
+                { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" }
 
             ];
             $("#filters").ejGrid({

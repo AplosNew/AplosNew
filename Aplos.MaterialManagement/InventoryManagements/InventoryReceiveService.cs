@@ -5069,6 +5069,424 @@ namespace Library.MaterialManagement.InventoryManagements
                 throw e;
             }
         }
+
+        public IWorkbook CreateSalesOrderCustomerWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 1);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = getSalesOrderCustomerWiseReportSql(CompanyId, PlantId, FromDate, ToDate);
+
+            var sheet = workbook.Worksheets[0];
+
+            #region sheet1
+            sheet.Name = "Sales Order Register Report  Customer Wise";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+            //sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+            //sheet.Range[ROW, COL].ColumnWidth = 13;
+            //sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+            //sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+            //sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //ROW += 2;
+
+            #region Grid Headers
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Code", 13, ExcelHAlign.HAlignLeft);
+            int ColCustomerCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Name", 13, ExcelHAlign.HAlignLeft);
+            int ColCustomerName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Bill To", 13, ExcelHAlign.HAlignLeft);
+            int ColBillTo = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 13, ExcelHAlign.HAlignLeft);
+            int ColTransactionAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Service Charge", 13, ExcelHAlign.HAlignLeft);
+            int ColServiceCharge = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "ServiceTax", 13, ExcelHAlign.HAlignLeft);
+            int ColServiceTax = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "CGST", 13, ExcelHAlign.HAlignLeft);
+            int ColCGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "SGST", 13, ExcelHAlign.HAlignLeft);
+            int ColSGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "IGST", 13, ExcelHAlign.HAlignLeft);
+            int ColIGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "TDS", 13, ExcelHAlign.HAlignLeft);
+            int ColTDS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "TCS", 13, ExcelHAlign.HAlignLeft);
+            int ColTCS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books CGST", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksCGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books SGST", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksSGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books IGST", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksIGST = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books TCS", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksTCS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Total Taxable Amount", 13, ExcelHAlign.HAlignLeft);
+            int ColTotalTaxableAmt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Transaction Amount", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksCurrencyTransactionAmount = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Service Books Currency Tran Amount", 13, ExcelHAlign.HAlignLeft);
+            int ColServiceBooksCurrencyTranAmt = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Service Charge", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksServiceCharge = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Books Total Taxable Amount", 13, ExcelHAlign.HAlignLeft);
+            int ColBooksTotalTaxableAmt = COL;
+
+            endCol = COL;
+            #endregion Headers
+
+
+            sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+            ROW++;
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                sheet[ROW, ColCustomerCode].Text = data.Rows[i]["Code"].ToString();
+                sheet[ROW, ColCustomerName].Text = data.Rows[i]["PartyName"].ToString();
+                sheet[ROW, ColBillTo].Text = data.Rows[i]["BillTo"].ToString();
+                sheet[ROW, ColTransactionAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionAmount"].ToString());
+                sheet[ROW, ColServiceCharge].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceCharge"].ToString());
+                sheet[ROW, ColServiceTax].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceTax"].ToString());
+                sheet[ROW, ColCGST].Number = clsStaticInfo.dbl(data.Rows[i]["CGST"].ToString());
+                sheet[ROW, ColSGST].Number = clsStaticInfo.dbl(data.Rows[i]["SGST"].ToString());
+                sheet[ROW, ColIGST].Number = clsStaticInfo.dbl(data.Rows[i]["IGST"].ToString());
+                sheet[ROW, ColTDS].Number = clsStaticInfo.dbl(data.Rows[i]["TDS"].ToString());
+                sheet[ROW, ColTCS].Number = clsStaticInfo.dbl(data.Rows[i]["TCS"].ToString());
+                sheet[ROW, ColBooksCGST].Number = clsStaticInfo.dbl(data.Rows[i]["BooksCGST"].ToString());
+                sheet[ROW, ColBooksSGST].Number = clsStaticInfo.dbl(data.Rows[i]["BooksSGST"].ToString());
+                sheet[ROW, ColBooksIGST].Number = clsStaticInfo.dbl(data.Rows[i]["BooksIGST"].ToString());
+                sheet[ROW, ColBooksTCS].Number = clsStaticInfo.dbl(data.Rows[i]["BooksTCS"].ToString());
+                sheet[ROW, ColTotalTaxableAmt].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxableAmt"].ToString());
+                sheet[ROW, ColBooksCurrencyTransactionAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
+                sheet[ROW, ColServiceBooksCurrencyTranAmt].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceBooksCurrencyTranAmt"].ToString());
+                sheet[ROW, ColBooksServiceCharge].Number = clsStaticInfo.dbl(data.Rows[i]["BooksServiceCharge"].ToString());
+                sheet[ROW, ColBooksTotalTaxableAmt].Number = clsStaticInfo.dbl(data.Rows[i]["BooksTotalTaxableAmt"].ToString());
+
+                sheet.Range[ROW, ColCustomerCode, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColCustomerCode, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                ROW++;
+            }
+
+            //ROW++;
+
+            if (FromDate != "" && ToDate != "")
+            {
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksCGST) - 1, "Total");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCGST) - 1].CellStyle.Font.Bold = true;
+                //sheet.Range[1, ROW, Convert.ToInt32(ColTotalMaterialTranAmount) - 1, ROW].Merge();
+                object sumObject;
+
+                sumObject = data.Compute("Sum(BooksCGST)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCGST)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksCGST), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCGST)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCGST)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksSGST)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksSGST)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksSGST), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksSGST)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksSGST)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksIGST)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksIGST)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksIGST), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksIGST)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksIGST)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksTCS)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTCS)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksTCS), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTCS)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTCS)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(TotalTaxableAmt)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColTotalTaxableAmt)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalTaxableAmt), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColTotalTaxableAmt)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColTotalTaxableAmt)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksCurrencyTransactionAmount)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCurrencyTransactionAmount)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksCurrencyTransactionAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCurrencyTransactionAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksCurrencyTransactionAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(ServiceBooksCurrencyTranAmt)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColServiceBooksCurrencyTranAmt)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColServiceBooksCurrencyTranAmt), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColServiceBooksCurrencyTranAmt)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColServiceBooksCurrencyTranAmt)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksServiceCharge)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksServiceCharge)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksServiceCharge), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksServiceCharge)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksServiceCharge)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+                sumObject = data.Compute("Sum(BooksTotalTaxableAmt)", "");
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTotalTaxableAmt)].CellStyle.Font.Bold = true;
+                report.SetText(ref sheet, ROW, Convert.ToInt32(ColBooksTotalTaxableAmt), Convert.ToDouble(sumObject).ToString("0.##"));
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTotalTaxableAmt)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[ROW, Convert.ToInt32(ColBooksTotalTaxableAmt)].VerticalAlignment = ExcelVAlign.VAlignTop;
+            }
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+
+            #endregion sheet
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "Sales Order Register Report Customer Wise", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+        public DataTable getSalesOrderCustomerWiseReportSql(string CompanyId, string PlantId, string FromDate, string ToDate)
+        {
+            try
+            {
+                var str = @"SELECT  p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo	
+									,Sum(SMD.TransactionAmount) TransactionAmount
+									--,CU.Code AS Currency
+									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
+									,sum(round(isnull(ServiceData.ServiceTax,0),2)) ServiceTax
+									,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST			
+									,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
+									,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
+									,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
+									,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+									,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS
+
+									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmt
+									,Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) BooksCurrencyTransactionAmount
+									,sum(ISNULL(ServiceData.BooksCurrencyTransactionAmount,0)) ServiceBooksCurrencyTranAmt
+
+									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+									,(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+
+									FROM TRN.Sales AS SA
+									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
+									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='CGST' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo	ON TAxInfo.salesMaterialId=SMD.Id
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='IGST' --and A.SalesServiceId IS NULL	
+												Group by A.salesMaterialId
+												) TAxInfo1	ON TAxInfo1.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='SGST' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo2	ON TAxInfo2.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='TDS' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo3	ON TAxInfo3.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='VAT' --and A.SalesServiceId IS NULL		
+												Group by A.salesMaterialId
+									) TAxInfo4 ON TAxInfo4.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
+												Group by A.salesMaterialId
+									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
+									LEFT JOIN (SELECT A.SalesId,A.BooksCurrencyTaxAmount BooksTaxAmount,TaxAmount TaxAmount
+												FROM trn.SalesAdditionalTax A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
+												WHERE B.Code='TCS'  
+												--Group BY A.SalesId				
+									) TAxInfo6 ON TAxInfo6.SalesId=SA.Id 
+									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+											from trn.SalesService AS ISS
+											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+											group by ISS.SalesId
+											)ServiceData on ServiceData.SalesId=SA.Id
+									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
+									Group By p.Code	 ,PPI.UserName , P.UserName 
+								UNION ALL
+
+								SELECT  p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
+								
+								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
+								,sum(SCr.ServiceAmount) ServiceCharge
+								,sum(SCr.TotalTaxAmount) ServiceTax
+								
+								,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST				
+								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
+								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
+								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
+								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+								,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS			
+								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
+								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
+								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+								 
+								FROM[TRN].[InventorySales] AS II
+								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
+								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
+								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+								left Join hkp.Party P On p.id=II.CustomerId
+								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
+
+								LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
+								LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='CGST' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId 
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='IGST' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='SGST' --and A.InventorySalesServiceId IS NULL 
+											GROUP BY A.InventorySalesId
+											) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='TDS' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.Code='VAT' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+
+								) TAxInfo4 ON TAxInfo4.InventorySalesId=IID.Id 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+										FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.TaxCategoryType='AIT' --and A.InventorySalesServiceId IS NULL 
+											GROUP BY A.InventorySalesId
+
+								) TAxInfo5 ON TAxInfo5.InventorySalesId=IID.InventorySalesId 
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksTaxAmount
+											FROM [TRN].InventorySalesAdditionalTax A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.Code='TCS'
+											GROUP BY A.InventorySalesId
+								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
+								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
+								GROUP BY p.Code	 ,PPI.UserName   , P.UserName ";
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
         private string GRNDAddiTaxId()
             {
                 string sID = string.Empty;
