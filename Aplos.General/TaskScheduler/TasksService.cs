@@ -1577,13 +1577,13 @@ GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.U
 FROM (
 SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
   FROM dbo.EmployeeInformation AS ei 
-LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
+LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+--LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
@@ -1679,7 +1679,8 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
---AND tmm.TaskType IN(" + parameters["TYPE"] + @")GROUP BY DP.Id,DP.UserName
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
 UNION
 SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 TotalStoryPoint
@@ -1742,13 +1743,13 @@ GROUP BY DP.Id,DP.UserName,TSP.TotalStoryPoint
 FROM (
 SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
   FROM dbo.EmployeeInformation AS ei 
-LEFT JOIN(SELECT distinct ResponsiblePersonId,TaskManagerMasterId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
+LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+--LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 

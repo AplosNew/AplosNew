@@ -243,7 +243,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 string FactoryName = "";
                 string CmpName = "";
                 xlsRow = 6;
-
+                int StartRow = xlsRow;
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
@@ -491,10 +491,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                xlsRow++;
-                xlsRow++;
-
-
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #region ******************Report Header******************
 
                 xlsRow = 1;
@@ -600,7 +597,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 #endregion Page Setup
 
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReport.xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReportEmployeeWise.xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -683,7 +680,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 string FactoryName = "";
                 string CmpName = "";
                 xlsRow = 6;
-
+                int StartRow = xlsRow;
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
@@ -699,7 +696,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 int colNoOfEmp = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "No Of Employee";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                //xlsCol++;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iTaskCreated = xlsCol;
@@ -826,7 +823,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 {
                     sheet1[xlsRow, colSLNO].Number = (i + 1);
                     sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["Department"].ToString();
-                    sheet1.Range[xlsRow, colNoOfEmp].Text = dtTask.Rows[i]["NoOfEmp"].ToString();
+                    sheet1.Range[xlsRow, colNoOfEmp].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoOfEmp"].ToString());
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
                     double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
@@ -918,9 +915,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                xlsRow++;
-                xlsRow++;
-
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 
                 #region ******************Report Header******************
 
@@ -981,7 +976,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report";
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report From Date: " + fromDate + " To Date: " + todate;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
@@ -1027,7 +1022,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 #endregion Page Setup
 
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReport.xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReportDepartmentWise .xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -1110,7 +1105,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 string FactoryName = "";
                 string CmpName = "";
                 xlsRow = 6;
-
+                int StartRow = xlsRow;
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
@@ -1126,7 +1121,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 int colNoOfEmp = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "No Of Employee";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                //xlsCol++;
+                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iTaskCreated = xlsCol;
@@ -1253,7 +1248,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 {
                     sheet1[xlsRow, colSLNO].Number = (i + 1);
                     sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["DesignationGroup"].ToString();
-                    sheet1.Range[xlsRow, colNoOfEmp].Text = dtTask.Rows[i]["NoOfEmp"].ToString();
+                    sheet1.Range[xlsRow, colNoOfEmp].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoOfEmp"].ToString());
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
                     double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
@@ -1345,9 +1340,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                xlsRow++;
-                xlsRow++;
-
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 
                 #region ******************Report Header******************
 
@@ -1408,7 +1401,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                 xlsRow += 1;
-                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report";
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Management Report From Date: " + fromDate + " To Date: " + todate;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
                 sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
@@ -1454,7 +1447,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 #endregion Page Setup
 
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReport.xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TaskManagementReportDesignationGroupWise.xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();

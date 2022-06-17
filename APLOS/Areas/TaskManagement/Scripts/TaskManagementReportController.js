@@ -90,7 +90,15 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
     $scope.GetTaskManagementReport = function () {
         $scope.filterComplete();
         $scope.fileName = "TaskManagementReport.xlsx";
-
+        if ($scope.model.State =="EmployeeWise") {
+            $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
+        }
+        else if ($scope.model.State == "DepartmentWise") {
+            $scope.fileName = "TaskManagementReportDepartmentWise.xlsx";
+        }
+        else {
+            $scope.fileName = "TaskManagementReportDesignationGroupWise.xlsx";
+        }
         $http({
             method: 'POST',
             url: $scope.path + "GetTaskManagementReport",
