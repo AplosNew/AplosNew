@@ -759,13 +759,13 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/FuguaiTransaction/Aplos',
             controller: 'FuguaiTransactionController'
         })
-        //.when('/fuguai-report', {
-        //    templateUrl: 'humanResource/FuguaiReport/Aplos',
-        //    controller: 'FuguaiReportController'
-        //})
-        //.when('/employee-skill-matrix', {
-        //    templateUrl: 'humanResource/EmployeeSkillMatrix/Aplos',
-        //    controller: 'EmployeeSkillMatrixController'
-        //})
+        .when('/fuguai-report', {
+            templateUrl: 'humanResource/FuguaiReport/Aplos',
+            controller: 'FuguaiReportController'
+        })
+        .when('/employee-skill-matrix', {
+            templateUrl: 'humanResource/EmployeeSkillMatrix/Aplos',
+            controller: 'EmployeeSkillMatrixController'
+        })
         ;
 }

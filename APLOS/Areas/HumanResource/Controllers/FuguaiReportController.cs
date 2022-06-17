@@ -127,7 +127,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         #endregion All Get
 
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public ActionResult getReport(string FromDate, string ToDate, string FinalStatus)
         {
 
@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
+        [Authorize, HttpPost]
         private IWorkbook getReportForm(string FromDate, string ToDate, string FinalStatus)
         {
             var excelEngine = new ExcelEngine();
@@ -280,8 +280,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColTargetDate].Text =data.Rows[i]["TargetDate"].ToString();
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColCurrentStatus].Text = data.Rows[i]["CurrentStatus"].ToString();
-                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString(); ;
-                sheet[ROW, ColMachine].Text = data.Rows[i]["Machine"].ToString(); ;
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                sheet[ROW, ColMachine].Text = data.Rows[i]["Machine"].ToString(); 
                 sheet[ROW, ColMachineNo].Text = data.Rows[i]["MachineReference"].ToString();
                 sheet[ROW, ColFinalStatus].Text = data.Rows[i]["FinalStatus"].ToString();
                 //sheet[ROW, ColCloseDate].Text = data.Rows[i]["CloseDate"].ToString();
