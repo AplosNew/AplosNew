@@ -55,45 +55,49 @@ namespace Aplos.Areas.TaskManagement.Controllers
             try
             {
                 var sql = @"SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='Issue'
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+ FROM EmployeeInformation ei
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId 
-WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
 UNION
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='TNA'
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
+FROM EmployeeInformation ei
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId 
-WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
 UNION
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='To Do'
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
+   FROM EmployeeInformation ei
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId 
-WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
 UNION
 SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='ALL'
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
- FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+ FROM EmployeeInformation ei
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId 
-WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
+
 ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
@@ -396,14 +400,14 @@ WHERE ei.EmployeeStatus='Active' AND (Convert(date,TA.DueDate) Between Convert(d
                     sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["Department"].ToString();
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
-                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
+                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100,2);
                     sheet1.Range[xlsRow, iPerTotalTask].Number = PerTotalTask;//formula 
                     sheet1.Range[xlsRow, iPerTotalTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
                     sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
-                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100);
+                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100,2);
                     sheet1.Range[xlsRow, iPerOfDueTask].Number = PerTaskDue;//formula 
                     sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
