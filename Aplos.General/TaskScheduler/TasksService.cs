@@ -1529,13 +1529,13 @@ namespace Library.General.TaskScheduler
             
             string strSql = "";
             strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, ISNULL(CSP.ColsedStoryPoint,0)*2 ColsedStoryPoint
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+  FROM EmployeeInformation AS ei 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN HKP.Designation AS ld ON ld.Id=ei.GivenDesignationId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
@@ -1559,7 +1559,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint,CSP.ColsedStoryPoint) X";
 
             return _sqlRepository.GetDataTable(strSql);
@@ -1589,7 +1589,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1607,7 +1607,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1625,7 +1625,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1643,7 +1643,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1661,7 +1661,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1679,7 +1679,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")GROUP BY DP.Id,DP.UserName
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")GROUP BY DP.Id,DP.UserName
 
 UNION
 SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 TotalStoryPoint
@@ -1696,7 +1696,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName
 
 UNION
@@ -1718,7 +1718,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DP.Id,DP.UserName,TSP.TotalStoryPoint
 )X GROUP BY X.Department";
 
@@ -1754,7 +1754,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1772,7 +1772,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1790,7 +1790,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1808,7 +1808,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1826,7 +1826,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1844,7 +1844,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1862,7 +1862,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName
 
 UNION
@@ -1884,7 +1884,7 @@ AND DG.Id IN(" + parameters["DesignationGroupId"] + @")
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
-AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY DG.Id,DG.UserName,TSP.TotalStoryPoint
 )X GROUP BY X.DesignationGroup";
 
