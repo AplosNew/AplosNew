@@ -218,8 +218,9 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
+							 ,moi.Id MOIId
 							from OrderCostingMasterTemplate qcm 
-							
+							left join (select  * from  trn.MasterOrderItem )moi on moi.OrderCostingMasterTemplateId=qcm.Id
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
                             left join scs.Currency CUR on CUR.Id=qcm.CurrencyId
                             left join [MST].[ProductMaster] pm ON pm.Id = qcm.ProductMasterId

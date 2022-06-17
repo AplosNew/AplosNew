@@ -5142,5 +5142,24 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
             ShowResult(e, "failure");
         }
     };
+
+    $scope.PreOrderCostingReport = function (x) {
+        try {
+            var data = x;
+            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&preCosting=' + 1 + '&MOIId=' + data.MOIId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+        }
+    }
+    $scope.ProOrderCostingReport = function (x) {
+        try {
+            var data = x;
+            var file_src = 'Costings/OrderCosting/GetOrderCostingReport?OrderCostingId=' + data.Id + '&procurementCosting=' + 1 + '&MOIId=' + data.MOIId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+        }
+    }
     //#endregion
 }

@@ -72,53 +72,6 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     }
 
 
-    //$scope.PrintPurchaseRegister1 = function () {
-
-    //	//var gridObj11 = $("#PivotGrid1").data("ejGrid");
-    //	var gridObj111 = $('#PivotGrid1').data("ejPivotGrid");
-    //	var data111 = gridObj111.model.dataSource.data;
-
-    //	$http({
-
-    //		method: "POST",
-    //		url: $scope.exportgriddataUrl,
-    //		data: JSON.stringify(data111)
-
-    //	}).then(function successCallback(response) {
-    //		if (response.data.Error == true) {
-    //			// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
-    //		}
-    //		else {
-
-    //			location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
-    //		}
-    //	});
-
-    //}
-
-    //$scope.model = {
-    //    Id: null,
-    //    CompanyGroupId: null,
-    //    Sequence: null,
-    //    Code: null,
-    //    ShortName: null,
-    //    StandardName: null,
-    //    UserName: null,
-    //    OperationActivityId: null,
-    //    OperationTypeId: null,
-    //    OperationCategoryId: null,
-    //    SkillId: null,
-    //    Type: null,
-    //    MachineMasterId: null,
-    //    SkillGroupId: null,
-    //    LegalDesignationId: null,
-    //    ProcessId: null,
-    //    ProposedSalary: null,
-    //    Remarks: null,
-    //    Active: null
-    //};
-    //$scope.modelNew = Object.assign({}, $scope.model);
     $scope.productNew = {
         Type: null,
         WithStock: true,
@@ -196,7 +149,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
-    $scope.InventorySalesReportExcels = function (reportFormat) {
+    $scope.InventorySalesReportExcels = function (reportType) {
         var Type = null;
         if ($scope.productNew.AsOnDate === 'AsOnDate') {
 
@@ -220,8 +173,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }
 
         //var reportFormat = "Excel";
-        $scope.productNew.Summary = 'Details';
-        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + 'Excel' + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + reportType + '&WithTax=' + true + '&Type=' + Type);
     };
 
 
@@ -687,7 +639,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     //    }
     //}
 
-    $scope.PurchaseOrderPartyWiseReportExcel = function () {
+    $scope.SalesOrderCustomerWiseReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -698,7 +650,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }
         $http({
             method: 'POST',
-            url: $scope.path + "PurchaseRegisterPartyWiseReport",
+            url: $scope.path + "SalesOrderCustomerWiseReport",
             data: {
                 'ToDate': $scope.report.ToDate,
                 'FromDate': $scope.report.FromDate
@@ -717,24 +669,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         });
     }
 
-    //$scope.PurchaseOrderPartyWiseReportExcel = function (reportFormat) {
-    //    if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-    //        ShowResult('Select From Date', 'failure');
-    //        return false;
-    //    }
-    //    if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-    //        ShowResult('Select To Date', 'failure');
-    //        return false;
-    //    }
-    //    try {
-    //        var Excel;
-    //        var file_src = 'Materials/MaterialLedger/PurchaseRegisterPartyWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-    //        $rootScope.report(file_src);
-
-    //    } catch (e) {
-
-    //    }
-    //}
+   
     $scope.SalesOrderItemReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
