@@ -767,5 +767,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/EmployeeSkillMatrix/Aplos',
             controller: 'EmployeeSkillMatrixController'
         })
+        .when('/ot-control-limit', {
+            templateUrl: 'humanResource/OTControlLimit/Aplos',
+            controller: 'OTControlLimitController'
+        })
         ;
 }
