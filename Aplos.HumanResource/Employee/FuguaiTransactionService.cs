@@ -405,7 +405,7 @@ namespace Library.HumanResource.Employee
 
                     string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, s.FullName as AddedBy,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, ft.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
