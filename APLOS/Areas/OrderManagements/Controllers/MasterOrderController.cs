@@ -440,9 +440,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         {
                             drso["SalesExpense"] = so.SOValue;
                         }
-                        if (so.SOItemName == "DirectCost")
+                        if (so.SOItemName == "DirectMaterialCost")
                         {
-                            drso["DirectCost"] = so.SOValue;
+                            drso["DirectMaterialCost"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "DirectProcessCost")
+                        {
+                            drso["DirectProcessCost"] = so.SOValue;
                         }
                         if (so.SOItemName == "ValueLoss")
                         {

@@ -37,9 +37,10 @@ namespace Library.Model.OrderManagements
         public string ProductionBookingLevel { get; set; }
         public decimal ProductionBookedQty { get; set; }
         public decimal SalesExpense { get; set; }
-        public decimal DirectCost { get; set; }
+        public decimal DirectMaterialCost { get; set; }
         public decimal ValueLoss { get; set; }
         public decimal Other { get; set; }
+        public decimal DirectProcessCost { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties
