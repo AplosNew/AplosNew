@@ -2363,8 +2363,8 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
 
-                sheet.Range[StartRow + 5, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Thin);
-                sheet.Range[StartRow + 5, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Thin);
+                //sheet.Range[StartRow + 5, 1, row - 1, colLast].BorderInside(ExcelLineStyle.Thin);
+                //sheet.Range[StartRow + 5, 1, row - 1, colLast].BorderAround(ExcelLineStyle.Thin);
 
 
                 //sheet.UsedRange.CellStyle.Font.Size = 9;
@@ -2377,9 +2377,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.PageSetup4(ref sheet, 5, ExcelPageOrientation.Portrait);
                 return workbook;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw ex;
             }
         }
         public IWorkbook GetGeneralLedgerGSTReportWithDocRef(string companyGroupId, string companyId, string plantId, string plantName, string glId, string budgetMasterId, string activityId, string fromDate, string toDate, bool active)

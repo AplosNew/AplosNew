@@ -420,7 +420,16 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
 
                     sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
-                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
+                    //sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
+                    if (Convert.ToInt32(dtTask.Rows[i]["CreatedTask"].ToString()) == 0)
+                    {
+                        sheet1[xlsRow, iTotalStoryPoints].Number = 0;
+                    }
+                    else
+                    {
+                        sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
+                    }
+
                     sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
 
                     xlsRow++;
@@ -441,7 +450,6 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
-
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCreated) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCreated) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iTaskCreated, xlsRow, iTaskCreated].Formula = formula;
@@ -791,6 +799,12 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iAvgStorypoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "AvgStorypoints";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -847,12 +861,13 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                     sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
+                    sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
                 }
-                sheet1.Range[xlsRow, 5].Text = "TOTAL";
-                sheet1.Range[xlsRow, 5].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 2].Text = "TOTAL";
+                sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
                 sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
@@ -863,6 +878,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iAvgStorypoints, xlsRow - 1, iAvgStorypoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
 
@@ -914,6 +930,10 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
+                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 
@@ -1216,6 +1236,12 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iAvgStorypoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "AvgStorypoints";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -1272,12 +1298,13 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                     sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
+                    sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
                 }
-                sheet1.Range[xlsRow, 5].Text = "TOTAL";
-                sheet1.Range[xlsRow, 5].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 2].Text = "TOTAL";
+                sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
                 sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
@@ -1288,14 +1315,18 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
+                sheet1[perStartRow, iAvgStorypoints, xlsRow - 1, iAvgStorypoints].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
                 sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
 
 
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(colNoOfEmp) + perStartRow + ":" + clsStaticInfo.GetxlsCol(colNoOfEmp) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, colNoOfEmp, xlsRow, colNoOfEmp].Formula = formula;
+                sheet1.Range[xlsRow, colNoOfEmp, xlsRow, colNoOfEmp].CellStyle.Font.Bold = true;
+
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCreated) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCreated) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iTaskCreated, xlsRow, iTaskCreated].Formula = formula;
                 sheet1.Range[xlsRow, iTaskCreated, xlsRow, iTaskCreated].CellStyle.Font.Bold = true;
-
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iPerTotalTask) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iPerTotalTask) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iPerTotalTask, xlsRow, iPerTotalTask].Formula = formula;
                 sheet1.Range[xlsRow, iPerTotalTask, xlsRow, iPerTotalTask].CellStyle.Font.Bold = true;
@@ -1339,6 +1370,10 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iAvgStorypoints].Formula = formula;
+                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 

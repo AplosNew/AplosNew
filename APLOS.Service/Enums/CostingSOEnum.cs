@@ -2,15 +2,16 @@
 {
     public enum CostingSO
     {
-         Rate
+        Rate
         , SalesExpense
         , Discount
         //, UpCharge
         , CM
-        , DirectCost
+        , DirectMaterialCost
+        , DirectProcessCost
         , Commission
-            ,ValueLoss
-            ,Other
+        , ValueLoss
+        , Other
 
     }
 

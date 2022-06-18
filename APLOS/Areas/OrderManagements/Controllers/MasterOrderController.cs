@@ -352,8 +352,8 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 decimal upcharge = 0;
                 List<SOCostModelNew> soList = new List<SOCostModelNew>();
 
-                while (dsMaster.Tables[0].DefaultView.Count > 0)
-                    dsMaster.Tables[0].DefaultView[0].Delete();
+                //while (dsMaster.Tables[0].DefaultView.Count > 0)
+                //    dsMaster.Tables[0].DefaultView[0].Delete();
                 if (data != null)
                 {
                     foreach (var item in data)
@@ -440,9 +440,13 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         {
                             drso["SalesExpense"] = so.SOValue;
                         }
-                        if (so.SOItemName == "DirectCost")
+                        if (so.SOItemName == "DirectMaterialCost")
                         {
-                            drso["DirectCost"] = so.SOValue;
+                            drso["DirectMaterialCost"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "DirectProcessCost")
+                        {
+                            drso["DirectProcessCost"] = so.SOValue;
                         }
                         if (so.SOItemName == "ValueLoss")
                         {
