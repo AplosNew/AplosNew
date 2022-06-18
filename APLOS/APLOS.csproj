@@ -579,6 +579,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
@@ -1996,6 +1997,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
@@ -4185,6 +4187,7 @@
     <Content Include="Areas\HumanResource\Views\FuguaiReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\Loan\_MultiLoanListPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeSkillMatrix\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTControlLimit\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
