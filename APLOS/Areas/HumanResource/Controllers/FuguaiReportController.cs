@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpGet]
+        //[Authorize, HttpGet]
         private IWorkbook getReportForm(string FromDate, string ToDate, string FinalStatus)
         {
             var excelEngine = new ExcelEngine();
