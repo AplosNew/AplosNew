@@ -69,7 +69,7 @@ function FuguaiTransactionController(cboService, commonMessage, $scope, $rootSco
         ResponsiblePersonId: null,
         TargetDate: null,
         
-        StoryPoint: null,
+        StoryPoint: 2.00,
         Remarks: null,
         CurrentStatus: null,
         ProcessId: null,
