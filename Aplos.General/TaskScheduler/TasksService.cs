@@ -1529,13 +1529,13 @@ namespace Library.General.TaskScheduler
             
             string strSql = "";
             strSql = @"SELECT X.* FROM (SELECT COUNT(TA.Id) CreatedTask,TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName Designation,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, ISNULL(CSP.ColsedStoryPoint,0)*2 ColsedStoryPoint
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+  FROM EmployeeInformation AS ei 
+LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
 LEFT JOIN HKP.Designation AS ld ON ld.Id=ei.GivenDesignationId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
 LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
@@ -1554,7 +1554,12 @@ LEFT JOIN(SELECT SUM(TMM.StoryPoint)ColsedStoryPoint,TS.ResponsiblePersonId  FRO
 LEFT JOIN TaskAudit TS ON TS.TaskManagerMasterId=TMM.Id
 WHERE TMM.CurrentStatus='Colsed'
 GROUP BY TS.ResponsiblePersonId) CSP ON CSP.ResponsiblePersonId=TA.ResponsiblePersonId
-WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
 GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint,CSP.ColsedStoryPoint) X";
 
             return _sqlRepository.GetDataTable(strSql);
@@ -1566,40 +1571,157 @@ GROUP BY TA.ResponsiblePersonId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,DP.U
             try
             {
                 string strSql = "";
-                strSql = @"SELECT X.Department,SUM(X.CreatedTask)CreatedTask,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead) UnRead, SUM(X.TaskDue)TaskDue,SUM(X.OnTimeTask)OnTimeTask,SUM(X.LateTask)LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,SUM(X.TotalStoryPoint)TotalStoryPoint,SUM(X.AvgStorypoints)AvgStorypoints 
-FROM (SELECT COUNT(TA.Id) CreatedTask,COUNT(TA.ResponsiblePersonId)NoOfEmp,DP.UserName Department,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask
-,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, AvgStorypoints=ROUND((CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END)/(COUNT(TA.ResponsiblePersonId)),0)
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+
+                strSql = @"SELECT X.Department,SUM(X.NoOfEmp)NoOfEmp,SUM(X.CreatedTask)CreatedTask,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,SUM(X.TotalStoryPoint)TotalStoryPoint
+,ColsedStoryPoint=(SUM(X.OnTimeTask)+SUM(X.LateTask)*ISNULL(SUM(X.TotalStoryPoint),2)),AvgStorypoints=ROUND((ISNULL(SUM(X.TotalStoryPoint),0))/(NULLIF(SUM(X.CreatedTask),0)),0)
+FROM (
+SELECT DP.UserName Department,COUNT(ei.SystemId) NoOfEmp,0 CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN HKP.Designation AS ld ON ld.Id=ei.GivenDesignationId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+--LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,ISNULL(COUNT(CT.Id),0) CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit) CT ON CT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = CT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate+ @"') AND Convert(date, '"+toDate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isRead,0)=0) UR ON UR.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT COUNT(Id)OnTimeTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+toDate+@"'))
-GROUP BY ResponsiblePersonId) TOD ON TOD.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) TD ON TD.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT COUNT(Id)LateTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+toDate+@"'))
-GROUP BY ResponsiblePersonId) TOL ON TOL.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) OTT ON OTT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT COUNT(Id)PeriviousPeriodOverdueTask,ResponsiblePersonId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) GROUP BY ResponsiblePersonId) PPODT ON PPODT.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) LT ON LT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
 
-LEFT JOIN(SELECT SUM(TMM.StoryPoint)TotalStoryPoint,T.ResponsiblePersonId FROM TaskManagerMaster TMM
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"'))) PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName
+
+UNION
+SELECT DP.UserName Department,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,SUM(TSP.TotalStoryPoint)TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(
+	SELECT ISNULL(TMM.StoryPoint,0)TotalStoryPoint,T.ResponsiblePersonId,T.TaskManagerMasterId FROM TaskManagerMaster TMM
 LEFT JOIN TaskAudit T ON T.TaskManagerMasterId=TMM.Id
-GROUP BY T.ResponsiblePersonId) TSP ON TSP.ResponsiblePersonId=TA.ResponsiblePersonId
+) TSP ON TSP.ResponsiblePersonId=ei.SystemId
 
-WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") AND tmm.TaskType IN(" + parameters["TYPE"] + @")
-GROUP BY DP.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint) X 
-GROUP BY X.Department";
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TSP.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DP.Id,DP.UserName,TSP.TotalStoryPoint
+)X GROUP BY X.Department";
 
                 return _sqlRepository.GetDataTable(strSql);
             }
@@ -1614,40 +1736,158 @@ GROUP BY X.Department";
             try
             {
                 string strSql = "";
-                strSql = @"SELECT X.DesignationGroup,SUM(X.CreatedTask)CreatedTask,SUM(X.NoOfEmp)NoOfEmp,SUM(X.UnRead) UnRead, SUM(X.TaskDue)TaskDue,SUM(X.OnTimeTask)OnTimeTask,SUM(X.LateTask)LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,SUM(X.TotalStoryPoint)TotalStoryPoint,SUM(X.AvgStorypoints)AvgStorypoints 
-FROM (SELECT COUNT(TA.Id) CreatedTask,COUNT(TA.ResponsiblePersonId)NoOfEmp,DG.UserName DesignationGroup,ISNULL(UR.UnRead,0)UnRead,ISNULL(TD.TaskDue,0)TaskDue,ISNULL(TOD.OnTimeTask,0)OnTimeTask
-,ISNULL(TOL.LateTask,0)LateTask,ISNULL(PPODT.PeriviousPeriodOverdueTask,0)PeriviousPeriodOverdueTask,TotalStoryPoint=CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END, AvgStorypoints=ROUND((CASE WHEN (TSP.TotalStoryPoint IS NULL OR TSP.TotalStoryPoint=0) THEN 2 ELSE TSP.TotalStoryPoint END)/(COUNT(TA.ResponsiblePersonId)),0)
-  FROM TaskAudit TA
-LEFT JOIN EmployeeInformation AS ei ON ei.SystemId=TA.ResponsiblePersonId
+               
+
+                strSql = @"SELECT X.DesignationGroup,SUM(X.NoOfEmp)NoOfEmp,SUM(X.CreatedTask)CreatedTask,SUM(X.UnRead)UnRead,SUM(X.TaskDue) TaskDue,SUM(X.OnTimeTask) OnTimeTask,SUM(X.LateTask) LateTask,SUM(X.PeriviousPeriodOverdueTask)PeriviousPeriodOverdueTask,SUM(X.TotalStoryPoint)TotalStoryPoint
+,ColsedStoryPoint=(SUM(X.OnTimeTask)+SUM(X.LateTask)*ISNULL(SUM(X.TotalStoryPoint),2)),AvgStorypoints=ROUND((ISNULL(SUM(X.TotalStoryPoint),0))/(NULLIF(SUM(X.CreatedTask),0)),0)
+FROM (
+SELECT DG.UserName DesignationGroup,COUNT(ei.SystemId) NoOfEmp,0 CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT distinct ResponsiblePersonId from TaskAudit) TA ON TA.ResponsiblePersonId= ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
 LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN HKP.Designation AS ld ON ld.Id=ei.GivenDesignationId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=mb.PositionId
-LEFT JOIN ORG.Department AS DP ON DP.Id=P.DepartmentId
-LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+--LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TA.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT COUNT(Id)UnRead,ResponsiblePersonId FROM TaskAudit WHERE ISNULL(isRead,0)=0 GROUP BY ResponsiblePersonId) UR ON UR.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,ISNULL(COUNT(CT.Id),0) CreatedTask,0 UnRead, 0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit) CT ON CT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = CT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT COUNT(Id)TaskDue,ResponsiblePersonId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+toDate+@"')) GROUP BY ResponsiblePersonId) TD ON TD.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,ISNULL(COUNT(UR.Id),0) UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE ISNULL(isRead,0)=0) UR ON UR.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = UR.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT COUNT(Id)OnTimeTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+toDate+@"'))
-GROUP BY ResponsiblePersonId) TOD ON TOD.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,0 UnRead,ISNULL(COUNT(TD.Id),0) TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) TD ON TD.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TD.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT COUNT(Id)LateTask,ResponsiblePersonId FROM TaskAudit 
-WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '"+toDate+@"'))
-GROUP BY ResponsiblePersonId) TOL ON TOL.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,ISNULL(COUNT(OTT.Id),0) OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) =Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) OTT ON OTT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT COUNT(Id)PeriviousPeriodOverdueTask,ResponsiblePersonId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"')) GROUP BY ResponsiblePersonId) PPODT ON PPODT.ResponsiblePersonId=TA.ResponsiblePersonId
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,ISNULL(COUNT(LT.Id),0) LateTask,0 PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE (Convert(date,DueDate) <Convert(date,UpdatedDate)) AND isDone=1 AND (Convert(date,DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + toDate + @"'))) LT ON LT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
 
-LEFT JOIN(SELECT SUM(TMM.StoryPoint)TotalStoryPoint,T.ResponsiblePersonId FROM TaskManagerMaster TMM
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,ISNULL(COUNT(PPDT.Id),0) PeriviousPeriodOverdueTask,0 TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(SELECT DISTINCT ResponsiblePersonId,Id,TaskManagerMasterId FROM TaskAudit WHERE isDone=0 AND (Convert(date,DueDate) < Convert(date,'" + fromDate + @"'))) PPDT ON PPDT.ResponsiblePersonId=ei.SystemId
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = PPDT.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName
+
+UNION
+SELECT DG.UserName DesignationGroup,0 NoOfEmp,0 CreatedTask,0 UnRead,0 TaskDue,0 OnTimeTask,0 LateTask,0 PeriviousPeriodOverdueTask,SUM(TSP.TotalStoryPoint)TotalStoryPoint
+  FROM dbo.EmployeeInformation AS ei 
+LEFT JOIN(
+	SELECT ISNULL(TMM.StoryPoint,0)TotalStoryPoint,T.ResponsiblePersonId,T.TaskManagerMasterId FROM TaskManagerMaster TMM
 LEFT JOIN TaskAudit T ON T.TaskManagerMasterId=TMM.Id
-GROUP BY T.ResponsiblePersonId) TSP ON TSP.ResponsiblePersonId=TA.ResponsiblePersonId
+) TSP ON TSP.ResponsiblePersonId=ei.SystemId
 
-WHERE ei.EmployeeStatus='Active' AND DG.Id IN(" + parameters["DesignationGroupId"] + @") AND e.Id IN(" + parameters["EntityId"] + @") AND DP.Id IN(" + parameters["DepartmentId"] + @") AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") AND tmm.TaskType IN(" + parameters["TYPE"] + @")
-GROUP BY DG.UserName,UR.UnRead,TD.TaskDue,TOD.OnTimeTask,TOL.LateTask,PPODT.PeriviousPeriodOverdueTask,TSP.TotalStoryPoint) X 
-GROUP BY X.DesignationGroup";
+LEFT JOIN ORG.Position p ON p.Id=ei.PositionId
+LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
+LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = TSP.TaskManagerMasterId
+WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
+AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
+AND e.Id IN(" + parameters["EntityId"] + @") 
+AND DP.Id IN(" + parameters["DepartmentId"] + @") 
+AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
+--AND tmm.TaskType IN(" + parameters["TYPE"] + @")
+GROUP BY DG.Id,DG.UserName,TSP.TotalStoryPoint
+)X GROUP BY X.DesignationGroup";
 
                 return _sqlRepository.GetDataTable(strSql);
             }
