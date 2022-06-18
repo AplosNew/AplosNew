@@ -586,7 +586,7 @@ union
                 sheet.Range[reportUtility.GetColumnNameForXls(COL) + ROW + ":" + reportUtility.GetColumnNameForXls(COL + 1) + ROW].Merge();
                 int colGL = COL;
 
-                if (budgetMasterId != "null")
+                if (budgetMasterId != null)
                 {
                     COL += 2;
                     sheet[ROW, COL].Text = "Budget :";
@@ -603,7 +603,7 @@ union
                 #endregion
                 int colActivity = 0;
                 int colBudget = 0;
-                if (budgetMasterId != "null")
+                if (budgetMasterId != null)
                 {
                     sheet[ROW, COL].Text = "Activity";
                     sheet[ROW, COL].ColumnWidth = 20;
@@ -650,7 +650,7 @@ union
                 ROW++;
 
                 int StartRow = ROW; //row 20
-                if (budgetMasterId!="null")
+                if (budgetMasterId!=null)
                 {
                     for (int i = 0; i < dtGroupBalanceBudget.Rows.Count; i++)
                     {
