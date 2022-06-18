@@ -1,6 +1,6 @@
 ﻿'use strict';
-FuguaiReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+FuguaiReportController.$inject = ['cboService', 'commonMessage', '$window','$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function FuguaiReportController(cboService, commonMessage,$window, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Fuguai Report';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -8,7 +8,8 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+    //$scope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
     baseService.init($scope.getListUrl);
 
 
@@ -125,7 +126,7 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ToDate = null;
    
     $scope.downloadReport = function () {
-
+        $scope.fileName = "FuguaiReport.xlsx";
         $http({
             method: 'POST',
             url: $scope.path + "getReport",
@@ -140,7 +141,7 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
