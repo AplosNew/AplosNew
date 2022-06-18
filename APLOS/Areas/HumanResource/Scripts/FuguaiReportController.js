@@ -8,8 +8,7 @@ function FuguaiReportController(cboService, commonMessage,$window, $scope, $root
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
-    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
-    //$scope.downloadgriddataUrlPath = 'MeetingManagement/MeetingReports/DownloadUsingFullPath';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
     baseService.init($scope.getListUrl);
 
 
@@ -126,7 +125,7 @@ function FuguaiReportController(cboService, commonMessage,$window, $scope, $root
     $scope.ToDate = null;
    
     $scope.downloadReport = function () {
-        $scope.fileName = "FuguaiReport.xlsx";
+        $scope.FileName = "FuguaiReport.xlsx";
         $http({
             method: 'POST',
             url: $scope.path + "getReport",
@@ -141,7 +140,8 @@ function FuguaiReportController(cboService, commonMessage,$window, $scope, $root
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
