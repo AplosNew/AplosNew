@@ -59,5 +59,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
                                     WHERE mu.MaterialMasterId IS NOT NULL  ";
              return _sqlRepository.GetDataCollection(sql);
         }
+        public Dictionary<string, object> GetCompanyParty(string companyId, string plantId, string partyId, string partyType)
+        {
+            var sql = @"select TOP(1) * from hkp.CompanyParty where CompanyId='" + companyId + "'  and PartyId='" + partyId + "' and PartyType='" + partyType + @"'";
+            var partyPlantTemp = _sqlRepository.GetData(sql);
+
+            if (null == sql || partyPlantTemp.Count == 0)
+                throw new CustomException("Plant party mapping not found.");
+            return partyPlantTemp;
+        }
     }
 }
