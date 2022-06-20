@@ -185,6 +185,8 @@
     <Compile Include="JobWork\OSReceiptValueAddedService.cs" />
     <Compile Include="JobWork\JobWorkRegisterService.cs" />
     <Compile Include="JobWork\MaterialReconcilationReportService.cs" />
+    <Compile Include="MaterialQuery\InventoryIssueQueryService.cs" />
+    <Compile Include="MaterialQuery\SalesQueryService.cs" />
     <Compile Include="MaterialQuery\MaterialCommonService.cs" />
     <Compile Include="MaterialQuery\BOQQueryService.cs" />
     <Compile Include="MaterialQuery\InventoryReceiveQueryService.cs" />
