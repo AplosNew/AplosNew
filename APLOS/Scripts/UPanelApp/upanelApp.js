@@ -1049,6 +1049,7 @@ upanelApp.controller("salesRegisterController",salesRegisterController);
 upanelApp.controller("EmployeeSkillMatrixController", EmployeeSkillMatrixController);
 upanelApp.controller("OTControlLimitController", OTControlLimitController);
 upanelApp.controller("BuyerjobCardcomplianceReportController", BuyerjobCardcomplianceReportController);
+upanelApp.controller("EOTSheetController", EOTSheetController);
 
 
 
