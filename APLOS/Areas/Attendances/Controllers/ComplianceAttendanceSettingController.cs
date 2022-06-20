@@ -58,7 +58,6 @@ namespace Aplos.Areas.Attendances.Controllers
             return View();
         }
 
-        //[Authorize]
         public ActionResult BuyerJobCardCompliance()
         {
             return View();
