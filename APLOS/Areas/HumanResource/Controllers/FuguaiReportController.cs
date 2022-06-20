@@ -127,7 +127,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         #endregion All Get
 
-        [HttpPost, Authorize]
+        [Authorize, HttpPost]
         public ActionResult getReport(string FromDate, string ToDate, string FinalStatus)
         {
 
@@ -135,7 +135,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             {
                 var workbook = getReportForm(FromDate, ToDate, FinalStatus);
 
-                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "FuguaiReport.xlsx";
+                var strFileName = /*DateTime.Now.ToString("yy-MM-dd") + " " + */"FuguaiReport.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
                 workbook.SaveAs(fullPath);
 
@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-
+        //[Authorize, HttpGet]
         private IWorkbook getReportForm(string FromDate, string ToDate, string FinalStatus)
         {
             var excelEngine = new ExcelEngine();
@@ -254,6 +254,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColStoryPoint = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Added By", 80, ExcelHAlign.HAlignLeft);
+            int ColAddedBy = COL;
+            COL++;
+
             ROW++;
             endCol = COL;
             #endregion Headers
@@ -280,10 +284,11 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColTargetDate].Text =data.Rows[i]["TargetDate"].ToString();
                 sheet[ROW, ColRemarks].Text = data.Rows[i]["Remarks"].ToString();
                 sheet[ROW, ColCurrentStatus].Text = data.Rows[i]["CurrentStatus"].ToString();
-                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString(); ;
-                sheet[ROW, ColMachine].Text = data.Rows[i]["Machine"].ToString(); ;
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                sheet[ROW, ColMachine].Text = data.Rows[i]["Machine"].ToString(); 
                 sheet[ROW, ColMachineNo].Text = data.Rows[i]["MachineReference"].ToString();
                 sheet[ROW, ColFinalStatus].Text = data.Rows[i]["FinalStatus"].ToString();
+                sheet[ROW, ColAddedBy].Text = data.Rows[i]["AddedBy"].ToString();
                 //sheet[ROW, ColCloseDate].Text = data.Rows[i]["CloseDate"].ToString();
                 sheet[ROW, ColTagColor].Text = data.Rows[i]["TagColor"].ToString();
                 sheet[ROW, ColStoryPoint].Number = Convert.ToDouble(data.Rows[i]["StoryPoint"].ToString());
@@ -294,16 +299,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             }
 
-
-
-
-
             endRow = ROW - 1;
             endRow = ROW - 1;
             #endregion sheet1
-
-
-
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;

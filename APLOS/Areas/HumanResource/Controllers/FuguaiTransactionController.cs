@@ -36,7 +36,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getEntity()
         {
             try
@@ -49,7 +49,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getObservedBy(string user)
         {
             try
@@ -64,7 +64,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getCategory()
         {
             try
@@ -77,7 +77,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getTag(string categoryText)
         {
             try
@@ -90,7 +90,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getSubCategory(string categoryText, string FuguaiId)
         {
             try
@@ -103,7 +103,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getDepartment()
         {
             try
@@ -116,7 +116,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getResponsiblePerson(string DepartmentId)
         {
             try
@@ -129,7 +129,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getProcess(string EntityId)
         {
             try
@@ -142,7 +142,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getMachine()
         {
             try
@@ -155,7 +155,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getMachineRef(string mmId)
         {
             try
@@ -168,7 +168,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult Save(Dictionary<string, object> datas, string ObservedById, string ResponsiblePersonId)
 
         {

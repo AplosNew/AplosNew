@@ -1,6 +1,6 @@
 ﻿'use strict';
-FuguaiReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+FuguaiReportController.$inject = ['cboService', 'commonMessage', '$window','$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function FuguaiReportController(cboService, commonMessage,$window, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Fuguai Report';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -125,7 +125,7 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
     $scope.ToDate = null;
    
     $scope.downloadReport = function () {
-
+        $scope.FileName = "FuguaiReport.xlsx";
         $http({
             method: 'POST',
             url: $scope.path + "getReport",
@@ -140,7 +140,8 @@ function FuguaiReportController(cboService, commonMessage, $scope, $rootScope, b
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

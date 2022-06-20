@@ -22,7 +22,7 @@ namespace Library.HumanResource.Employee
         {
             try 
             {
-                var sql = @"select e.Id as Value, e.UserName as Text from ORG.Entity e";
+                var sql = @"select e.Id as Value, e.UserName as Text from ORG.Entity e ORDER BY Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -38,7 +38,7 @@ namespace Library.HumanResource.Employee
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 user = identity.UserId;
                 //var sql = @"select s.Id as Value, s.FullName as Text  from SEC.[user] s where s.Id = '"+ user + "'";
-                var sql = @"select s.Id, s.UserId, s.FullName as UserName,s.Email  from SEC.[user] s where Active = '1'";
+                var sql = @"select s.Id, s.UserId, s.FullName as UserName,s.Email  from SEC.[user] s where Active = '1' ORDER BY UserName ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select distinct z.Category as Text from hkp.ZoneMaster z";
+                var sql = @"select distinct z.Category as Text from hkp.ZoneMaster z ORDER BY Text ASC";
                
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -65,7 +65,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select z.Id as Value, z.UserName as Text from hkp.ZoneMaster z where z.Category = '"+ categoryText + "'";
+                var sql = @"select z.Id as Value, z.UserName as Text from hkp.ZoneMaster z where z.Category = '"+ categoryText + "' ORDER BY Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -78,7 +78,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select d.Id as Value, d.UserName as Text from org.Department d";
+                var sql = @"select d.Id as Value, d.UserName as Text from org.Department d ORDER BY Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace Library.HumanResource.Employee
             try
             {
                 var sql = @"select distinct z.SubCategory as Text from hkp.ZoneMaster z 
-                where z.Category = '"+ categoryText + "' and z.Id = '"+ FuguaiId + "'";
+                where z.Category = '"+ categoryText + "' and z.Id = '"+ FuguaiId + "' ORDER BY Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace Library.HumanResource.Employee
             {
                 var sql = @"select e.SystemId, e.EmployeeName, e.DOJ, e.EmployeeCode from dbo.EmployeeInformation e
                             left join org.Department d on d.Id = e.DepartmentId
-                            where d.Id = '" + DepartmentId + "' and e.EmployeeStatus = 'Active'";
+                            where d.Id = '" + DepartmentId + "' and e.EmployeeStatus = 'Active' ORDER BY  e.EmployeeName ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -123,7 +123,7 @@ namespace Library.HumanResource.Employee
                 var sql = @"select p.Id as Value, p.UserName as Text from hkp.Process p
                             left join hkp.EntityProcessTag ept  on ept.ProcessId = p.Id
                             left join org.Entity e on e.Id = ept.EntityId
-                            where e.Id = '"+ EntityId + "'";
+                            where e.Id = '"+ EntityId + "' ORDER BY  Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -140,7 +140,7 @@ namespace Library.HumanResource.Employee
                             left join MST.MachineMaster mm on mm.Id = msp.MachineMasterId
                             left join hkp.Process p on p.Id = msp.ProcessId
                             where p.Id = '"+ processId + "'";*/
-                var sql = @"select mm.Id as Value, mm.UserName as Text from MST.MachineMaster mm";
+                var sql = @"select mm.Id as Value, mm.UserName as Text from MST.MachineMaster mm ORDER BY  Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select mm.Id as Value, mm.ProductionMachineQty as Text from MST.MachineMaster mm where mm.Id = '" + mmId + "'";
+                var sql = @"select mm.Id as Value, mm.ProductionMachineQty as Text from MST.MachineMaster mm where mm.Id = '" + mmId + "' ORDER BY  Text ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -184,11 +184,13 @@ namespace Library.HumanResource.Employee
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
+                
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
                 #region data Master update
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    bplib.clsGenID genid = new bplib.clsGenID();
+                    
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "FT" + _Id;
@@ -238,7 +240,7 @@ namespace Library.HumanResource.Employee
                 {
                 }
             }
-            dr["AddedBy"] = identity.Name;
+            dr["AddedBy"] = identity.FullName;
             dr["AddedDate"] = DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
@@ -324,7 +326,7 @@ namespace Library.HumanResource.Employee
         {
             var sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, s.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
@@ -344,7 +346,7 @@ namespace Library.HumanResource.Employee
             {
                 string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, ft.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
@@ -361,7 +363,7 @@ namespace Library.HumanResource.Employee
             {
                 string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, ft.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
@@ -384,7 +386,7 @@ namespace Library.HumanResource.Employee
                 {
                     string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, ft.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId
@@ -403,7 +405,7 @@ namespace Library.HumanResource.Employee
 
                     string sql = @"select ft.Id, cast(ft.Date as Date) as Date, CONVERT(varchar(5),ft.[Date],108) Time, et.UserName as Entity, e.EmployeeName as ResponsiblePerson, s.FullName as ObservedBy, ft.ZoneCategory as Category,
                         z.UserName as Tag, ft.Detail, ft.PriorityLevel, z.SubCategory, d.UserName as Department, p.UserName as Process,
-                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus,
+                        cast(ft.TargetDate as Date) as TargetDate, ft.StoryPoint, ft.Remarks, ft.CurrentStatus, ft.AddedBy,
                         mm.UserName as Machine, mm.ProductionMachineQty as MachineReference, ft.FinalStatus, ft.TagColor
                         from TRN.FuguaiTransaction ft
                         left join dbo.EmployeeInformation e on e.SystemId = ft.ResponsiblePersonId

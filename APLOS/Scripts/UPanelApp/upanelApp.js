@@ -1047,6 +1047,8 @@ upanelApp.controller("FuguaiReportController", FuguaiReportController);
 upanelApp.controller("TaskManagementReportController", TaskManagementReportController);
 upanelApp.controller("salesRegisterController",salesRegisterController);
 upanelApp.controller("EmployeeSkillMatrixController", EmployeeSkillMatrixController);
+upanelApp.controller("OTControlLimitController", OTControlLimitController);
+upanelApp.controller("BuyerjobCardcomplianceReportController", BuyerjobCardcomplianceReportController);
 
 
 

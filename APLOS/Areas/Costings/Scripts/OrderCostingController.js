@@ -2610,12 +2610,12 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         var flag = false;
         if ($scope.OperationList.length > 0) {
 
-            for (var i = 0; i < $scope.OperationList.length; i++) {
-                if ($scope.OperationList[i].Value == 0 || baseService.isUndefinedOrNull($scope.OperationList[i].Value) || $scope.OperationList[i].Value == 'NaN') {
-                    ShowResult("Value is required for '" + $scope.OperationList[i].UserName + "'.", 'failure');
-                    return false;
-                }
-            }
+            //for (var i = 0; i < $scope.OperationList.length; i++) {
+            //    if ($scope.OperationList[i].Value == 0 || baseService.isUndefinedOrNull($scope.OperationList[i].Value) || $scope.OperationList[i].Value == 'NaN') {
+            //        ShowResult("Value is required for '" + $scope.OperationList[i].UserName + "'.", 'failure');
+            //        return false;
+            //    }
+            //}
 
             if (flag == false) {
                 $scope.hideOperationPopUp();

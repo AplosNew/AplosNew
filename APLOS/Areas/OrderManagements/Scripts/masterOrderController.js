@@ -3491,10 +3491,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#MOSORatePopup')).modal('hide');
     }
     $scope.ProductLibraryList = [];
-    $scope.lieneId = null;
+    $scope.lineId = null;
     $scope.GetMOSORatePopup = function (index, data) {
         $scope.itemIndex = index;
-        $scope.lieneId = data.Id;
+        $scope.lineId = data.Id;
 
         $http({
             method: 'GET',
@@ -3528,7 +3528,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http({
             method: 'POST',
             url: 'OrderManagements/MasterOrder/CreateMasterOrderItemCostingRate',
-            data: { 'data': $scope.costingSOFormulaList, 'lineId': $scope.lieneId },
+            data: { 'data': $scope.costingSOFormulaList, 'lineId': $scope.lineId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -3547,7 +3547,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.costingSOConfirmList = [];
     $scope.GetCostingSORatePopup = function (index, data) {
         $scope.itemIndex = index;
-        $scope.lieneId = data.MasterOrderItemId;
+        $scope.lineId = data.MasterOrderItemId;
         $scope.soId = data.Id;
 
         $http({
