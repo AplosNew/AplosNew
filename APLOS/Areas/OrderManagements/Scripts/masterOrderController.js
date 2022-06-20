@@ -3560,6 +3560,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     };
     $scope.CloseSOCostPopup = function () {
         angular.element(document.querySelector('#SOCostingRatePopup')).modal('hide');
+        $scope.soId = null;
     }
 
     $scope.CalculateSOCost = function () {
@@ -3570,7 +3571,8 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 data: { 'OpenHeadNew': $scope.costingSOConfirmList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.costingSOConfirmList = [];
+                //$scope.costingSOConfirmList = [];
+
                 $scope.costingSOConfirmList = response.data.NewData;
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");

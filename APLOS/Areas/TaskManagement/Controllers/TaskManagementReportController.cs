@@ -54,7 +54,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='Issue'
+                var sql = @"SELECT A.* FROM (
+SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
  FROM EmployeeInformation ei
 LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
@@ -63,9 +64,9 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='TNA'
+SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
 FROM EmployeeInformation ei
 LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
@@ -74,9 +75,9 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='To Do'
+SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
    FROM EmployeeInformation ei
 LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
@@ -85,9 +86,9 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
 UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup, TYPE='ALL'
+SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
 ,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
  FROM EmployeeInformation ei
 LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
@@ -96,7 +97,8 @@ LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'16-May-2022') AND Convert(date, '17-Jul-2022'))
+WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
+) A WHERE A.DesignationGroup<>'Unclassified'
 
 ";
 
@@ -109,23 +111,23 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaskManagementData(Dictionary<string, string> parameters, string fromDate, string todate, string state)
+        public ActionResult GetTaskManagementData(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataTable dtTask = null;
-                if (state == "EmployeeWise")
+                if (model["State"] == "EmployeeWise")
                 {
-                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters); 
+                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model); 
                 }
-                else if (state == "DepartmentWise")
+                else if (model["State"] == "DepartmentWise")
                 {
-                    dtTask = tasksService.GetTaskManagementDepartmentData(fromDate, todate, parameters);
+                    dtTask = tasksService.GetTaskManagementDepartmentData(fromDate, todate, parameters, model);
                 }
                 else
                 {
-                    dtTask = tasksService.GetTaskManagementDesignatinGroupData(fromDate, todate, parameters);
+                    dtTask = tasksService.GetTaskManagementDesignatinGroupData(fromDate, todate, parameters, model);
                 }
                 var jsondata = Json(CustomJsonResultService.DataTableToJson(dtTask), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
@@ -139,7 +141,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters, string fromDate, string todate, string state)
+        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model)
         {
 
             try
@@ -148,17 +150,17 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string fileName = "";
 
-                if (state== "EmployeeWise")
+                if (model["State"] == "EmployeeWise")
                 {
-                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task"); 
+                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model); 
                 }
-                else if (state == "DepartmentWise")
+                else if (model["State"] == "DepartmentWise")
                 {
-                    fileName = GetTaskManagementDeptReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task");
+                    fileName = GetTaskManagementDeptReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model);
                 }
                 else
                 {
-                    fileName = GetTaskManagementDesignationGroupReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task");
+                    fileName = GetTaskManagementDesignationGroupReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model);
                 }
 
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
@@ -173,7 +175,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
 
         }
 
-        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
+        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName, Dictionary<string, string> model)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -225,7 +227,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 objRptSR = new clsReport(_sqlRepository);
 
                 DataTable dtTask = null;
-                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters);
+                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model);
                 if (dtTask.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -618,7 +620,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             }
         }
 
-        public string GetTaskManagementDeptReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
+        public string GetTaskManagementDeptReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName, Dictionary<string, string> model)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -670,7 +672,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 objRptSR = new clsReport(_sqlRepository);
 
                 DataTable dtTask = null;
-                dtTask = tasksService.GetTaskManagementDepartmentData(fromDate, todate, parameters);
+                dtTask = tasksService.GetTaskManagementDepartmentData(fromDate, todate, parameters, model);
                 if (dtTask.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -1055,7 +1057,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             }
         }
 
-        public string GetTaskManagementDesignationGroupReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName)
+        public string GetTaskManagementDesignationGroupReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName, Dictionary<string, string> model)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -1107,7 +1109,7 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
                 objRptSR = new clsReport(_sqlRepository);
 
                 DataTable dtTask = null;
-                dtTask = tasksService.GetTaskManagementDesignatinGroupData(fromDate, todate, parameters);
+                dtTask = tasksService.GetTaskManagementDesignatinGroupData(fromDate, todate, parameters, model);
                 if (dtTask.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");

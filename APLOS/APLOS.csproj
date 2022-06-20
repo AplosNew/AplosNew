@@ -721,6 +721,7 @@
     <Compile Include="Areas\JobWork\Controllers\JWIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
+    <Compile Include="Areas\Leave\Controllers\EOTSheetController.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\AnnualLeaveProcessController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
@@ -1745,6 +1746,7 @@
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
+    <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
@@ -2103,6 +2105,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkTransformationPOController.js" />
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
+    <Content Include="Areas\Leave\Scripts\EOTSheetController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
     <Content Include="Areas\Leave\Scripts\AnnualLeaveProcessController.js" />
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
@@ -4190,6 +4193,8 @@
     <Content Include="Areas\Accounts\Views\Loan\_MultiLoanListPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeSkillMatrix\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTControlLimit\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\ComplianceAttendanceSetting\BuyerJobCardCompliance.cshtml" />
+    <Content Include="Areas\Leave\Views\EOTSheet\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />

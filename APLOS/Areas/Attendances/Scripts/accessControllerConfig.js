@@ -197,6 +197,10 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/ComplianceAttendanceSetting/JobCardCompliance',
             controller: 'jobCardcomplianceReportController'
         })
+        .when('/nnce-job-card', {
+            templateUrl: 'Attendances/ComplianceAttendanceSetting/BuyerJobCardCompliance',
+            controller: 'BuyerjobCardcomplianceReportController'
+        })
         .when('/salary-head-wise-amount', {
             templateUrl: 'Attendances/SalaryHeadWiseAmountSetting/Aplos',
             controller: 'salaryHeadWiseAmountSettingController'
