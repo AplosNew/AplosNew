@@ -25,9 +25,7 @@ namespace Aplos.Areas.Leave.Controllers
     {
         #region Constructor
 
-
         private readonly Library.HumanResource.Report.OT.MHourlyOT _mHourlyOT;
-        
 
         public EOTSheetController()
         {
