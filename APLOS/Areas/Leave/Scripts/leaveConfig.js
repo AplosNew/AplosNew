@@ -91,7 +91,10 @@ function leaveConfig($routeProvider) {
             templateUrl: 'Leave/CHourlyOTReport/Aplos',
             controller: "chourlyOTReportController"
         })
-
+        .when('/e-ot-report', {
+            templateUrl: 'Leave/EOTSheet/Aplos',
+            controller: "EOTSheetController"
+        })
         .when("/first-auth-employee-leave-approval", {
             templateUrl: "Employees/FirstAuthEmpLeaveApproval",
             controller: "firstAuthEmpLeaveApprovalController"
