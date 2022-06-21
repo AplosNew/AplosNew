@@ -81,7 +81,8 @@ function ServiceRequisitionController(accountService, addressService, $window, c
 
     }
 
-//#endregion
+//#endregion
+
 
     ////#region  Req Detail
     $scope.lst = [];
@@ -282,7 +283,7 @@ function ServiceRequisitionController(accountService, addressService, $window, c
 
         $http({
             method: 'GET',
-            url: 'Products/Requisition/GetFiscalYear?formattedDate=' + data.RequisitionDate1,
+            url: 'Products/Requisition/GetFiscalYear?formattedDate=' + data.RequisitionDate,
         }).then(function successCallback(response) {
             $scope.startDate = response.data[0].StartDate;
             $scope.endDate = response.data[0].EndDate;
@@ -841,7 +842,8 @@ function ServiceRequisitionController(accountService, addressService, $window, c
         });
     };
 
-    //#endregion    // #region Service
+    //#endregion
+    // #region Service
     $scope.serviceChargePopUp = function () {
         $scope.serviceReqDetailModel.Rate = 0;
         $scope.serviceReqDetailModel.Qty = 0;
