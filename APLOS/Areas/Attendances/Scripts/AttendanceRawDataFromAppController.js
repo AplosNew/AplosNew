@@ -239,7 +239,15 @@ function AttendanceRawDataFromAppController($window, cboService, commonMessage, 
             DataToBeSaved[i].WorkDate = $scope.FromDateSingleDate;
         }
 
-        var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDateApp", "InTimeApp", "OutDateApp", "OutTimeApp"]));
+      //  var sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDateApp", "InTimeApp", "OutDateApp", "OutTimeApp"]));
+
+        
+        var filtered = $("#GridChangeAttendanceBySingleDates").data("ejGrid");
+        var sorteddata = filtered.getFilteredRecords();
+        if (baseService.arrayLength(sorteddata) == 0) {
+            sorteddata = ej.DataManager(DataToBeSaved).executeLocal(ej.Query().select(["Id", "WorkDate", "InDateApp", "InTimeApp", "OutDateApp", "OutTimeApp"]));
+        }
+
 
         $http({
             method: "POST",
