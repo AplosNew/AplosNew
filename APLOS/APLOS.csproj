@@ -728,6 +728,7 @@
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\StorageBinMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
@@ -2112,6 +2113,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\StorageBinMasterController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
@@ -4193,6 +4195,7 @@
     <Content Include="Areas\HumanResource\Views\OTControlLimit\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ComplianceAttendanceSetting\BuyerJobCardCompliance.cshtml" />
     <Content Include="Areas\Leave\Views\EOTSheet\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

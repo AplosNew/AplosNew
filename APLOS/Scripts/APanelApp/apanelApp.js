@@ -505,6 +505,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('ResidenceStatusLocationController', ResidenceStatusLocationController)
     .controller('TrainingMasterController', TrainingMasterController)    
     .controller("FuguaiZoneMasterController", FuguaiZoneMasterController)
+    .controller("StorageBinMasterController", StorageBinMasterController)
     
 
     .config(accountConfig)
