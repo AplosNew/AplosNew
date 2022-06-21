@@ -73,5 +73,84 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
         $scope.selectedEmployee = null;
     };
 
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
+    $scope.MaterialGridTempList = [];
+    $scope.GetSampleFile = function () {
+        try {
+            $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' + "Fabric Roll Management Template.xlsx";
+
+            $scope.MaterialGridTempList = [];
+
+            var ReportFormat = 'Excel';
+            $http({
+                method: 'POST',
+                url: 'HumanResource/OTControlLimit/GetSampleFile',
+                data: {
+                    'reportFormat': ReportFormat, 'GridTempList': $scope.MaterialGridTempList, 'fabricRollMaster': $scope.fabricRollMaster
+                },
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
+                }
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.picdata = null;
+    $scope.ShowSaveBtn = false;
+    $("#uploadImage").change(function () {
+        $scope.picdata = this.files[0];
+    });
+    $scope.grnDetailList = [];
+    $scope.ImportData = function () {
+        try {
+            $scope.msg = "";
+
+            var picData = new FormData();
+            if (!baseService.isUndefinedOrNull($scope.picdata)) {
+                $scope.ModelNew.FileName = $scope.picdata.name;
+            }
+
+
+            $http({
+                method: 'POST',
+                url: 'Materials/FabricRoll/ImportData',
+                headers: { 'Content-Type': undefined },
+                transformRequest: function (data) {
+                    picData.append("modelNew", angular.toJson(data.modelNew));
+                    if (baseService.isUndefinedOrNull($scope.picdata) === false) {
+                        picData.append('file', data.file);
+                    }
+                    return picData;
+                },
+                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+
+                }
+                else {
+                    $scope.grnDetailList = [];
+                    var x = GetShortList(response.data);
+                    $scope.grnDetailList = x;
+                    $scope.ShowSaveBtn = true;
+                }
+            }, function errorCallback(response) {
+
+            });
+            return true;
+
+
+        } catch (e) {
+
+            ShowResult(e, "failure");
+        }
+    };
 
 }
