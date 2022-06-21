@@ -52,7 +52,6 @@ function EOTSheetController(commonMessage, $scope, $rootScope, baseService, $rou
         }
     };
 
-
     $scope.GetIndividualDailyOTReport = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.IndividualDailyOT.OTDuration)) {
