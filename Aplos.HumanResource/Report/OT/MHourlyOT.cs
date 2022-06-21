@@ -1094,7 +1094,7 @@ namespace Library.HumanResource.Report.OT
                 application = excelEngine.Excel;
                 excelEngine.Excel.DefaultVersion = ExcelVersion.Excel2013;
 
-                IWorkbook workbook = application.Workbooks.Create(4);
+                IWorkbook workbook = application.Workbooks.Create(1);
 
                 #region Logo
                 string strPath = "";
