@@ -36,6 +36,23 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12">
+            <div class="col-md-10">
+                <div class="inputBtnSection common-btn">
+                    <label class="fileUpload col-sm-4 ">
+                        <input id="uploadImage" ng-file-select="onFileSelect($files)" class="form-control" type="file" name="uploadFile" accept=".xls,.xlsx" />
+                    </label>
+                    <input type="button" value="Import Data" class="btn btn-success" ng-click="ImportData()" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="GetSampleFile();" class="btn"><i class="glyphicon glyphicon-file"></i> Sample File</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
     
 </div>

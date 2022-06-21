@@ -79,15 +79,15 @@ namespace Aplos.Areas.Accounts.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             IWorkbook workbook = null;
-            string activityId = null;
-            if (budgetMasterId=="")
+            //string activityId = null;
+            if (budgetMasterId=="" || budgetMasterId == "null")
             {
                 budgetMasterId = null;
             }
 
             if (isActivity == true && budgetMasterId == null)
             {
-                workbook = _accountVoucherReportService.GetGeneralLedgerGroupReportWithBudgetActivity(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, activityId, fromDate, toDate);
+                workbook = _groupBalanceReportService.GetGeneralLedgerGroupWithBudgetActivityReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, glId, budgetMasterId, fromDate, toDate);
             }
             else  
             {
