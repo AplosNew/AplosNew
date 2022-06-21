@@ -8,7 +8,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
 
     $scope.ToDate = null;
     $scope.FromDate = null;
-    $scope.model = { State: 'EmployeeWise' };
+    $scope.model = { State: 'EmployeeWise', Status: 'All', Task: 'WithTask' };
 
     $scope.ChangeState = function () {
         $scope.TaskManagementDataList = [];
@@ -31,7 +31,6 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
             var columnList = [
                 { field: 'DesignationGroup', width: 20, headerText: "Designation Group", type: "string" },
                 { field: 'TaskCreatedBy', width: 20, headerText: "Task CreatedBy", type: "string" },
-                { field: 'TYPE', width: 20, headerText: "Type", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
                 { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" }
@@ -68,7 +67,6 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         parameters.push({ "Key": "DesignationGroupId", "Value": getString(fl, "DesignationGroupId") });
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "TYPE", "Value": getString(fl, "TYPE") });
         parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
 
         $scope.parameters = parameters;
@@ -90,7 +88,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
     $scope.GetTaskManagementReport = function () {
         $scope.filterComplete();
         $scope.fileName = "TaskManagementReport.xlsx";
-        if ($scope.model.State =="EmployeeWise") {
+        if ($scope.model.State == "EmployeeWise") {
             $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
         }
         else if ($scope.model.State == "DepartmentWise") {
@@ -102,7 +100,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetTaskManagementReport",
-            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'state': $scope.model.State },
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -123,7 +121,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         $http({
             method: 'POST',
             url: $scope.path + "GetTaskManagementData",
-            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'state': $scope.model.State },
+            data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error == true) {
@@ -134,12 +132,21 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                 var totalTask = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "CreatedTask");
                 var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
                 for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
-                    if ($scope.TaskManagementDataList[i].CreatedTask==0) {
+                    if ($scope.TaskManagementDataList[i].CreatedTask == 0) {
                         $scope.TaskManagementDataList[i].TotalStoryPoint = 0;
                     }
                     $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
+                    if (isNaN($scope.TaskManagementDataList[i].OfTotalTask)) {
+                        $scope.TaskManagementDataList[i].OfTotalTask = 0;
+                    }
                     $scope.TaskManagementDataList[i].PerTaskDue = Math.ceil(($scope.TaskManagementDataList[i].TaskDue / totalTaskDue) * 100);
                     $scope.TaskManagementDataList[i].OverdueTask = $scope.TaskManagementDataList[i].TaskDue - $scope.TaskManagementDataList[i].OnTimeTask - $scope.TaskManagementDataList[i].LateTask;
+                    if (isNaN($scope.TaskManagementDataList[i].OverdueTask)) {
+                        $scope.TaskManagementDataList[i].OverdueTask = 0;
+                    }
+                    if (isNaN($scope.TaskManagementDataList[i].PerTaskDue)) {
+                        $scope.TaskManagementDataList[i].PerTaskDue = 0;
+                    }
                     $scope.TaskManagementDataList[i].Performance = ((($scope.TaskManagementDataList[i].OnTimeTask * 2) + $scope.TaskManagementDataList[i].LateTask * 1) * $scope.TaskManagementDataList[i].PerTaskDue) - $scope.TaskManagementDataList[i].UnRead;//formula
                 }
             }

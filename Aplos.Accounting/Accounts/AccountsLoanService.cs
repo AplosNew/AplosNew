@@ -94,7 +94,7 @@ namespace Library.Accounting.Accounts
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
-                                        , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
+                                        , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew,I.TransactionType
                                         FROM [TRN].[FinancingDetail] AS ID
                                         LEFT JOIN [TRN].[Financing] AS I ON I.Id=ID.FinancingId
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
@@ -151,7 +151,7 @@ namespace Library.Accounting.Accounts
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
 										, ISNULL(LPE.OtherExpensesPayable,0)- ISNULL(CPR.ChargesPayableReverse,0) OtherExpensesPayable
-                                        , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew
+                                        , Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDateNew,I.TransactionType
                                         FROM [TRN].[FinancingDetail] AS ID
                                         LEFT JOIN [TRN].[Financing] AS I ON I.Id=ID.FinancingId
                                         LEFT JOIN [HKP].[Party] AS P ON P.Id=I.PartyId
@@ -470,7 +470,7 @@ namespace Library.Accounting.Accounts
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId IS NULL AND I.TransactionType='" + transactionType + @"'
-                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"'
+                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + @"' AND I.IsWrittenOff=0
                                     union 
 									SELECT I.CompanyId, I.PlantId, VD.EntityId, EN.UserName AS EntityName, I.PartyType, I.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, I.PartyPlantId, PP.UserName AS PartyPlantName, I.Id AS FinancingId
                                         , ID.Id AS FinancingDetailId, I.FinancingTypeId, I.VoucherId, V.VoucherNo, I.FinancingNo, VD.Id AS VoucherDetailId, I.CurrencyId, C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId
@@ -528,7 +528,7 @@ namespace Library.Accounting.Accounts
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
                                     WHERE I.Archive=0 AND I.IsPark=0  AND I.OpeningBalanceId<>'' AND I.VoucherId<>'' AND  I.TransactionType='" + transactionType + @"'
-                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "'";
+                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.IsWrittenOff=0";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

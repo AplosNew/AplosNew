@@ -579,6 +579,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AttendanceBonusMasterController.cs" />
@@ -720,12 +721,14 @@
     <Compile Include="Areas\JobWork\Controllers\JWIssueReturnController.cs" />
     <Compile Include="Areas\JobWork\Controllers\JWReceiptController.cs" />
     <Compile Include="Areas\JobWork\JobWorkRegistration.cs" />
+    <Compile Include="Areas\Leave\Controllers\EOTSheetController.cs" />
     <Compile Include="Areas\Leave\Controllers\HourlyOTNewController.cs" />
     <Compile Include="Areas\Leave\Controllers\AnnualLeaveProcessController.cs" />
     <Compile Include="Areas\Leave\Controllers\NewEarnLeaveReportController.cs" />
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\StorageBinMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
@@ -1743,6 +1746,7 @@
     <Content Include="Areas\Administration\Scripts\VisitorListReportController.js" />
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
+    <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
@@ -1996,6 +2000,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
@@ -2100,6 +2105,7 @@
     <Content Include="Areas\JobWork\Scripts\JobWorkTransformationPOController.js" />
     <Content Include="Areas\JobWork\Scripts\JWIssueReturnController.js" />
     <Content Include="Areas\JobWork\Scripts\JWReceiptController.js" />
+    <Content Include="Areas\Leave\Scripts\EOTSheetController.js" />
     <Content Include="Areas\Leave\Scripts\hourlyOTNewController.js" />
     <Content Include="Areas\Leave\Scripts\AnnualLeaveProcessController.js" />
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
@@ -2107,6 +2113,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\StorageBinMasterController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityMasterController.js" />
@@ -4185,6 +4192,10 @@
     <Content Include="Areas\HumanResource\Views\FuguaiReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\Loan\_MultiLoanListPopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\EmployeeSkillMatrix\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTControlLimit\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\ComplianceAttendanceSetting\BuyerJobCardCompliance.cshtml" />
+    <Content Include="Areas\Leave\Views\EOTSheet\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
