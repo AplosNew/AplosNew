@@ -77,7 +77,7 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
     $scope.MaterialGridTempList = [];
     $scope.GetSampleFile = function () {
         try {
-            $scope.fileName = $scope.fabricRollMaster.GRNNo + '-' + "Fabric Roll Management Template.xlsx";
+            $scope.fileName = "OTControlLimitTemplate.xlsx";
 
             $scope.MaterialGridTempList = [];
 
@@ -86,7 +86,7 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
                 method: 'POST',
                 url: 'HumanResource/OTControlLimit/GetSampleFile',
                 data: {
-                    'reportFormat': ReportFormat, 'GridTempList': $scope.MaterialGridTempList, 'fabricRollMaster': $scope.fabricRollMaster
+                    'reportFormat': ReportFormat
                 },
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -108,19 +108,20 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
         $scope.picdata = this.files[0];
     });
     $scope.grnDetailList = [];
+    $scope.ModelsNew = { FileName : null };
     $scope.ImportData = function () {
         try {
             $scope.msg = "";
 
             var picData = new FormData();
             if (!baseService.isUndefinedOrNull($scope.picdata)) {
-                $scope.ModelNew.FileName = $scope.picdata.name;
+                $scope.ModelsNew.FileName = $scope.picdata.name;
             }
 
 
             $http({
                 method: 'POST',
-                url: 'Materials/FabricRoll/ImportData',
+                url: 'HumanResource/OTControlLimit/ImportData',
                 headers: { 'Content-Type': undefined },
                 transformRequest: function (data) {
                     picData.append("modelNew", angular.toJson(data.modelNew));
@@ -129,7 +130,7 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
                     }
                     return picData;
                 },
-                data: { 'modelNew': $scope.ModelNew, 'file': $scope.picdata }
+                data: { 'modelNew': $scope.ModelsNew, 'file': $scope.picdata }
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, "failure");
@@ -153,4 +154,67 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
         }
     };
 
+    function GetShortList(list) {
+        var list2 = [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === null || list[i].Id === '' || list[i].Id === 'undefined') {
+
+            }
+            else {
+                list2.push(list[i]);
+            }
+        }
+        return list2;
+    }
+
+    //$scope.modeldata = {
+    //    Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    //}
+
+    //$scope.Action = "Save";
+    //$scope.SaveRollData = function () {
+    //    try {
+    //        if (baseService.isUndefinedOrNull($scope.fabricRollMaster.GRNNo)) {
+    //            throw "Please select GRN No.";
+    //        }
+
+    //        $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo;
+    //        $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
+    //        $scope.modeldata.PreparedById = $scope.fabricRollMaster.PreparedById;
+    //        $scope.modeldata.CheckedById = $scope.fabricRollMaster.CheckedById;
+    //        $scope.modeldata.Remarks = $scope.fabricRollMaster.Remarks;
+    //        $scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
+
+    //        if (baseService.arrayLength($scope.grnDetailList) == 0) {
+    //            throw "Detail list is requird.";
+    //        }
+    //        else {
+    //            for (var i = 0; i < $scope.grnDetailList.length; i++) {
+    //                $scope.grnDetailList[i].Id = null;
+    //            }
+    //        }
+
+    //        $http({
+    //            method: "POST",
+    //            url: 'HumanResource/OTControlLimit/Create',
+    //            data: {
+    //                "data": $scope.modeldata
+    //                , "grnDetailList": $scope.grnDetailList
+    //            },
+    //            dataType: "JSON"
+    //        }).then(function successCallback(response) {
+    //            if (response.data.Error === true) {
+    //                ShowResult(response.data.Message, "failure");
+    //            }
+    //            else {
+    //                ShowResult(response.data.Message, "success");
+    //            }
+    //        }, function errorCallback(response) {
+    //            ShowResult(response.status.Message, "failure");
+    //        });
+    //        return true;
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 }
