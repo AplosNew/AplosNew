@@ -206,19 +206,45 @@
                         <div e-columns>
 
                             @*<div e-column e-field="[S.N]" e-headertext="SI" e-width="50" e-filter="false"></div>*@
-                            <div e-column e-field="Id" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
-                            <div e-column e-field="InvoicingPartyPlant" e-headertext="Invoicing Party Plant" e-width="130" textAlign='Center'></div>
-                            <div e-column e-field="DeliveryPartyPlant" e-headertext="Delivery Party Plant" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="GSTINNo" e-headertext="GSTIN No" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="Employee" e-headertext="Employee" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="GateEntryNo" e-headertext="Gate Entry No" e-width="100"></div>
-                            <div e-column e-field="GateName" e-headertext="Gate Name" e-width="100"></div>
-                            <div e-column e-field="GrnDocDateDifference" e-headertext="Grn Doc Date Difference" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                            <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="100"></div>
-                            <div e-column e-field="HSNNo" e-headertext="HSN No" e-width="100"></div>
-                            <div e-column e-field="InvoiceDate" e-headertext="InvoiceDate" e-width="100"></div>
-                            <div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100"></div>
-                            <div e-column e-field="QualityStatus" e-headertext="Quality Status" e-width="200"></div>
+                            <div e-column e-field="SalesId" e-headertext="Sales Id" e-width="100" textAlign='Left'></div>
+                            <div e-column e-field="SalesDate" e-headertext="Entry Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>                            
+                            <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="BillTo" e-headertext="Bill To" e-width="180" textAlign='Left'></div>
+                            <div e-column e-field="ShipTo" e-headertext="Ship To" e-width="180" textAlign='Left'></div>
+                            <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="100"></div>
+                            <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="100" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
+                            <div e-column e-field="PartyName" e-headertext="Customer Name" e-width="100"></div>
+                            <div e-column e-field="Code" e-headertext="Customer Code" e-width="100"></div>
+                            <div e-column e-field="PONumber" e-headertext="Customer PO Number" e-width="100"></div>
+                            <div e-column e-field="MasterOrder" e-headertext="Master Order Number" e-width="100"></div>
+                            <div e-column e-field="SONumber" e-headertext="Sales Order Number" e-width="100"></div>
+                            <div e-column e-field="BooksCurrencyTransactionAmount" e-headertext="Books Material Amount" e-width="100"></div>
+                            <div e-column e-field="BooksServiceCharge" e-headertext="Books Service Amount" e-width="100"></div>
+                            <div e-column e-field="BooksTotalTaxableAmt" e-headertext="BooksBooks Total Taxable Amount" e-width="100"></div>
+                            <div e-column e-field="BooksCGST" e-headertext="Books CGST" e-width="100"></div>
+                            <div e-column e-field="BooksSGST" e-headertext="Books SGST" e-width="100"></div>
+                            <div e-column e-field="BooksIGST" e-headertext="Books IGST" e-width="100"></div>
+                            <div e-column e-field="BooksTCS" e-headertext="Books TCS" e-width="100"></div>
+                            <div e-column e-field="TotalReceivable" e-headertext="Total Receivable" e-width="100"></div>
+                            <div e-column e-field="Receipt" e-headertext="Total Receipt" e-width="100"></div>
+                            <div e-column e-field="Balance" e-headertext="Balance" e-width="100"></div>
+                            <div e-column e-field="PendingAdvance" e-headertext="Pending Advance" e-width="100"></div>
+                            <div e-column e-field="MaturityDate" e-headertext="Maturatrity Date" e-width="100"></div>
+
+                            <div e-column e-field="ToCurrencyRate" e-headertext="To Currency Rate" e-width="130" textAlign='Left'></div>
+                            <div e-column e-field="TransactionAmount" e-headertext="Transaction Amount" e-width="100"></div>
+                            <div e-column e-field="VoucherId" e-headertext="Voucher Id" e-width="100"></div>
+                            <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
+                            <div e-column e-field="SOType" e-headertext="SO Type" e-width="100"></div>
+                            <div e-column e-field="ServiceCharge" e-headertext="Service Charge" e-width="200"></div>
+                            <div e-column e-field="ServiceTax" e-headertext="Service Tax" e-width="200"></div>
+                            <div e-column e-field="Entity" e-headertext="Entity" e-width="200"></div>
+                            <div e-column e-field="CheckedByName" e-headertext="Checked By Name" e-width="200"></div>
+                            <div e-column e-field="CheckedBy" e-headertext="Checked By" e-width="200"></div>
+                            <div e-column e-field="ApprovedByName" e-headertext="Approved By Name" e-width="200"></div>
+                            <div e-column e-field="ApprovedBy" e-headertext="ApprovedBy" e-width="200"></div>
+                            <div e-column e-field="Posted" e-headertext="Posted" e-width="130" textAlign='Right'></div>
+
                             <div e-column e-field="GrossAmount" e-headertext="Gross Amount" e-width="180"></div>
                             <div e-column e-field="DiscountAmount" e-headertext="Discount Amount" e-width="180"></div>
                             <div e-column e-field="TotalMaterialBooksCurrencyAmount" e-headertext="Total Material Books Currency Amount" e-width="180"></div>
@@ -282,7 +308,6 @@
                             <div e-column e-field="BaseUoM" e-headertext="Base UoM" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="TransactionUoM" e-headertext="Transaction UoM" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="Currency" e-headertext="Currency" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="Posted" e-headertext="Posted" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="CGST" e-headertext="CGST" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="CGSTTaxPercentage" e-headertext="CGST Tax Percentage" e-width="130" textAlign='Right'></div>
                             <div e-column e-field="SGST" e-headertext="SGST" e-width="130" textAlign='Right'></div>

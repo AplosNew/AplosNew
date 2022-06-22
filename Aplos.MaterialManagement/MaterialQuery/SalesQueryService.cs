@@ -2051,6 +2051,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				}
 				else
 				{
+					int colCGST = 0;
+					int colSGST = 0;
+					int colIGST = 0;
+					int colTCS = 0;
+					int colBooksCGST = 0;
+					int colBooksSGST = 0;
+					int colBooksIGST = 0;
+					int colBooksTCS = 0;
+
+
 					worksheet[ROW, COL].Text = "SL";
 					int colSL = COL;
 					worksheet[ROW, COL].ColumnWidth = 5;
@@ -2154,85 +2164,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Tran. Currency";
-					int colCurrency = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Exchange Rate";
-					int colToCurrencyRate = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Mat.Amt";
-					int colMatAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Serv. Amt";
-					int colServAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					worksheet[ROW, COL].Text = "Ttl. Taxable Amt.";
-					int colTransactionAmount = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-					int colCGST = 0;
-					int colSGST = 0;
-					int colIGST = 0;
-					int colTCS = 0;
-					int colBooksCGST = 0;
-					int colBooksSGST = 0;
-					int colBooksIGST = 0;
-					int colBooksTCS = 0;
-
-
-
-					if (WithTax == true)
-					{
-						worksheet[ROW, COL].Text = "CGST";
-						colCGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
-						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-						COL++;
-
-						worksheet[ROW, COL].Text = "SGST";
-						colSGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
-						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-						COL++;
-						worksheet[ROW, COL].Text = "IGST";
-						colIGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
-						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-						COL++;
-						worksheet[ROW, COL].Text = "TCS";
-						colTCS = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
-						worksheet[ROW, COL].CellStyle.Font.Bold = true;
-						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-						COL++;
-					}
-
+					
 					worksheet[ROW, COL].Text = "Books Mat.Amt";
 					int colBooksMatAmt = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
@@ -2288,6 +2220,150 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 						worksheet[ROW, COL].Text = "Books TCS";
 						colBooksTCS = COL;
+						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].CellStyle.Font.Bold = true;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						COL++;
+					}
+
+					worksheet[ROW, COL].Text = "Total Receivable";
+					int colTotalReceivable = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Total Receipt";
+					int colTotalReceipt = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Balance";
+					int colBalance2 = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Pending Advance";
+					int colPendingAdvance = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+
+					worksheet[ROW, COL].Text = "Maturatrity Date";
+					int colMaturatrityDate = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Over Due";
+					int colOverDue = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Today";
+					int colToday = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Future";
+					int colFuture = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Days";
+					int colDays = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Tran. Currency";
+					int colCurrency = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Exchange Rate";
+					int colToCurrencyRate = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Mat.Amt";
+					int colMatAmt = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Serv. Amt";
+					int colServAmt = COL;
+					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+					worksheet[ROW, COL].Text = "Ttl. Taxable Amt.";
+					int colTransactionAmount = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+
+					if (WithTax == true)
+					{
+						worksheet[ROW, COL].Text = "CGST";
+						colCGST = COL;
+						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].CellStyle.Font.Bold = true;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						COL++;
+
+						worksheet[ROW, COL].Text = "SGST";
+						colSGST = COL;
+						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].CellStyle.Font.Bold = true;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						COL++;
+						worksheet[ROW, COL].Text = "IGST";
+						colIGST = COL;
+						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].CellStyle.Font.Bold = true;
+						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+						COL++;
+						worksheet[ROW, COL].Text = "TCS";
+						colTCS = COL;
 						worksheet[ROW, COL].ColumnWidth = 20;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
 						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -2560,6 +2636,25 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									worksheet[ROW, colBooksTCS].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksTCS"].ToString());
 									worksheet.Range[ROW, colBooksTCS].NumberFormat = NumberFormatTwoDecimal;
 								}
+
+								worksheet[ROW, colTotalReceivable].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["TotalReceivable"].ToString());
+								worksheet.Range[ROW, colTotalReceivable].NumberFormat = NumberFormatTwoDecimal;
+
+								worksheet[ROW, colTotalReceipt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["Receipt"].ToString());
+								worksheet.Range[ROW, colTotalReceipt].NumberFormat = NumberFormatTwoDecimal;
+
+								worksheet[ROW, colBalance2].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["Balance"].ToString());
+								worksheet.Range[ROW, colBalance2].NumberFormat = NumberFormatTwoDecimal;
+
+								worksheet[ROW, colPendingAdvance].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["PendingAdvance"].ToString());
+								worksheet.Range[ROW, colPendingAdvance].NumberFormat = NumberFormatTwoDecimal;
+								worksheet[ROW, colMaturatrityDate].Text = dtInventorySalesReportList.Rows[i]["MaturityDate"].ToString();
+
+								worksheet[ROW, colOverDue].Text = dtInventorySalesReportList.Rows[i]["OverDue"].ToString();
+								worksheet[ROW, colToday].Text = dtInventorySalesReportList.Rows[i]["Today"].ToString();
+								worksheet[ROW, colFuture].Text = dtInventorySalesReportList.Rows[i]["FutureDue"].ToString();
+								worksheet[ROW, colDays].Text = dtInventorySalesReportList.Rows[i]["Days"].ToString();
+
 								worksheet[ROW, colBooksMatAmt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksCurrencyTransactionAmount"].ToString());
 								worksheet.Range[ROW, colBooksMatAmt].NumberFormat = NumberFormatTwoDecimal;
 								worksheet[ROW, colBooksServAmt].Number = clsStaticInfo.dbl(dtInventorySalesReportList.Rows[i]["BooksServiceCharge"].ToString());
@@ -2615,6 +2710,437 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			catch (Exception ex)
 			{
 
+				throw ex;
+			}
+		}
+
+		public IEnumerable<object> GetSalesRegisterSql(string FromDate, string ToDate, string Type)
+		{
+			var sql = "";
+			try
+			{
+				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+				string temp = "";
+				if (Type == "ForThePeriod")
+				{
+					temp = "BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"'";
+
+				}
+				else
+				{
+					temp = "<= '" + ToDate + @"'";
+
+				}
+
+				sql = @"SELECT 
+									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
+									,SA.Id SalesId
+									,SA.SourceType
+									,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
+									,PPI.UserName AS BillTo
+									,PPD.UserName AS ShipTo
+									, SA.ToCurrencyRate
+									, SA.DocRefNo
+									,'' DocDate
+									, P.UserName AS PartyName,p.Code	
+									,Sum(SMD.TransactionAmount) TransactionAmount
+									,v.VoucherNo VoucherId
+									,CU.Code AS Currency
+									,''SOType
+									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
+									,sum(round(isnull(ServiceData.ServiceTax,0),2)) ServiceTax
+									,'' Entity
+									,'' CheckedByName
+									,'' CheckedBy
+									,'' ApprovedByName
+									,'' ApprovedBy
+									,Posted=CASE WHEN v.VoucherNo IS NULL THEN 'No' ELSE 'YES'  END
+									,'' 'NoteForAccounts'
+
+									,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST			
+									,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
+									,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
+									,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
+									,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
+
+									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+									,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS
+
+									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmt
+									,Sum(SMD.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+									,sum(ServiceData.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
+
+									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+									,(Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+									,Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
+									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
+									,(Sum(SMD.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
+									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
+									,OverDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then 'Yes' else 'No' end
+									,Today=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then  'Yes' else 'No' end 
+									,FutureDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then 'Yes' else 'No' end 
+									,[Days]=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then DATEDIFF(DAY,IV.ActualDueDate, GETDATE()) 
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
+									,ISNULL(Adv.PendingAdvance,0) PendingAdvance
+									,SONumber=STUFF((select distinct ','+XSO.Id 
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId                                     
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									, PONumber=STUFF((select distinct ','+CPO.PONumber
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									, MasterOrder=STUFF((select distinct ','+MO.MasterOrderNo
+		                                         from trn.SalesMaterial SMX									 
+												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+									FROM TRN.Sales AS SA
+									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
+									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+									LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+									LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
+									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount ,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='CGST' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo	ON TAxInfo.salesMaterialId=SMD.Id
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='IGST' --and A.SalesServiceId IS NULL	
+												Group by A.salesMaterialId
+												) TAxInfo1	ON TAxInfo1.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='SGST' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo2	ON TAxInfo2.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='TDS' --and A.SalesServiceId IS NULL
+												Group by A.salesMaterialId
+												) TAxInfo3	ON TAxInfo3.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='VAT' --and A.SalesServiceId IS NULL		
+												Group by A.salesMaterialId
+									) TAxInfo4 ON TAxInfo4.salesMaterialId=SMD.Id 
+
+									LEFT JOIN (SELECT A.salesMaterialId, sum(A.Amount) TaxAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+												FROM [TRN].[SalesTax] A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+												left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
+												Group by A.salesMaterialId
+									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
+									LEFT JOIN (SELECT A.SalesId,A.BooksCurrencyTaxAmount BooksTaxAmount,TaxAmount TaxAmount
+												FROM trn.SalesAdditionalTax A
+												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
+												WHERE B.Code='TCS'  
+												--Group BY A.SalesId				
+									) TAxInfo6 ON TAxInfo6.SalesId=SA.Id 
+									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+											from trn.SalesService AS ISS
+											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+											left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+											group by ISS.SalesId
+											)ServiceData on ServiceData.SalesId=SA.Id
+									LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
+									LEFT JOIN trn.Invoice IV On IV.VoucherId=SA.VoucherId
+									LEFT JOIN (select PartyId,sum(Amount-WrittenOffAmount) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=SA.PartyId
+									WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) " + temp + @"
+									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,IV.ActualDueDate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate
+								UNION ALL
+								SELECT 
+
+								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
+								,II.Id SalesId
+								,'InventorySales' SourceType
+								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								
+								,PPI.UserName AS BillTo
+								,PPI1.UserName ShipTo
+								,II.ToCurrencyRate
+								, II.DocRefNo
+								,II.DocDate
+								, P.UserName AS PartyName,p.Code
+								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
+								,v.VoucherNo VoucherId
+								,'' AS Currency
+								,'' SOType
+								,sum(SCr.ServiceAmount) ServiceCharge
+								,sum(SCr.TotalTaxAmount) ServiceTax
+								,E.UserName AS Entity 
+								,EI2.EmployeeName CheckedByName
+								,II.CheckedBy
+								,EI1.EmployeeName ApprovedByName
+								,II.ApprovedBy
+								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
+								,'' 'NoteForAccounts'
+
+								,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST				
+								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
+								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
+								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
+								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+								,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS			
+								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
+								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
+								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
+								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+								,Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
+									,IV.WrittenOffAmount*IV.CompanyCurrencyRate Receipt
+									,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
+									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
+									,OverDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then 'Yes' else 'No' end
+									,Today=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then  'Yes' else 'No' end 
+									,FutureDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then 'Yes' else 'No' end 
+									,[Days]=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then DATEDIFF(DAY,IV.ActualDueDate, GETDATE()) 
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
+									,ISNULL(Adv.PendingAdvance,0) PendingAdvance
+
+								,'' SONumber
+								,'' PONumber
+								,'' MasterOrder
+								FROM[TRN].[InventorySales] AS II
+								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
+								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
+								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
+								Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
+								Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
+								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
+								Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
+								Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
+
+								LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
+								LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='CGST' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId 
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='IGST' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+											WHERE B.Code='SGST' --and A.InventorySalesServiceId IS NULL 
+											GROUP BY A.InventorySalesId
+											) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='TDS' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+											) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.Code='VAT' --and A.InventorySalesServiceId IS NULL
+											GROUP BY A.InventorySalesId
+
+								) TAxInfo4 ON TAxInfo4.InventorySalesId=IID.Id 
+
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksCurrencyTransactionAmount
+										FROM [TRN].[InventorySalesTax] A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.TaxCategoryType='AIT' --and A.InventorySalesServiceId IS NULL 
+											GROUP BY A.InventorySalesId
+
+								) TAxInfo5 ON TAxInfo5.InventorySalesId=IID.InventorySalesId 
+								LEFT JOIN (SELECT A.InventorySalesId,Sum(A.TaxAmount) TaxAmount,Sum(A.BooksCurrencyTaxAmount) BooksTaxAmount
+											FROM [TRN].InventorySalesAdditionalTax A
+											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+											WHERE B.Code='TCS'
+											GROUP BY A.InventorySalesId
+								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
+								LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
+								LEFT JOIN trn.Invoice IV On IV.VoucherId=II.VoucherId
+								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.CustomerId
+								WHERE II.PlantId='" + identity.PlantId + @"' AND II.CustomerId<>'' AND convert(Date,II.SalesDate) " + temp + @"
+								GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,IV.ActualDueDate,IV.WrittenOffAmount,IV.CompanyCurrencyRate,Adv.PendingAdvance
+                                UNION ALL
+                                SELECT 
+								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
+								,II.Id SalesId
+								,'Sales GL' SourceType
+								,FORMAT(II.PostingDate, 'dd-MMM-yyyy') SalesDate,'' InvoiceDate
+								,PPI.UserName AS BillTo
+								,PPI.UserName ShipTo
+								,II.CompanyCurrencyRate ToCurrencyRate
+								, II.DocRefNo
+								,II.DocDate
+								, P.UserName AS PartyName,p.Code
+								,Sum(IID.TransactionAmount) TransactionAmount
+								,v.VoucherNo VoucherId
+								,CU.Code AS Currency
+								
+								,'' SOType
+								,sum(SCr.ServiceAmount) ServiceCharge
+								,sum(SCr.TotalTaxAmount) ServiceTax
+
+								,E.UserName AS Entity 
+								,'' CheckedByName
+								,'' CheckedBy
+								,'' ApprovedByName
+								,V.PostedBy ApprovedBy
+								,Posted=CASE WHEN II.IsPark=0 then 'Yes' else 'No'  END
+								,ii.Narration 'NoteForAccounts'
+
+								,sum(round(isnull(TAxInfo.TaxAmount,0),2)) CGST				
+								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
+								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
+								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
+								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
+								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
+								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
+								,sum(round(isnull(TAxInfo6.BooksCurrencyTransactionAmount,0),2)) BooksTCS			
+								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
+								,Sum(IID.TransactionAmount) BooksCurrencyTransactionAmount
+								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
+								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
+								,(Sum(IId.TransactionAmount*II.CompanyCurrencyRate)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
+,Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) TotalReceivable
+									,(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Receipt
+									,(Sum(SCr.BooksCurrencyTransactionAmount)+sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2))+sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)))-(IV.WrittenOffAmount*IV.CompanyCurrencyRate) Balance
+									,FORMAT(IV.ActualDueDate, 'dd-MMM-yyyy') MaturityDate
+									,OverDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then 'Yes' else 'No' end
+									,Today=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then  'Yes' else 'No' end 
+									,FutureDue=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then 'Yes' else 'No' end 
+									,[Days]=case when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)<1 then DATEDIFF(DAY,IV.ActualDueDate, GETDATE()) 
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)>1 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)
+												when DATEDIFF(DAY, GETDATE(),IV.ActualDueDate)=0 then DATEDIFF(DAY, GETDATE(),IV.ActualDueDate) end
+												,ISNULL(Adv.PendingAdvance,0) PendingAdvance
+
+								,'' SONumber
+								,'' PONumber
+								,'' MasterOrder
+								FROM [TRN].[Invoice] AS II
+								left JOIN (select  InvoiceId,sum(isnull(Amount,0)) TransactionAmount FROM  TRN.InvoiceDetail group by InvoiceId) AS IID ON IID.InvoiceId= II.Id 
+								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+								LEFT JOIN [HKP].[Party] AS P  ON P.Id=II.PartyId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.PartyPlantId
+								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
+								Left Join [SCS].[Currency] CU On CU.Id=II.CurrencyId
+								Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
+								Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
+
+								LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
+								LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId,sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
+
+								LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='CGST'
+											GROUP BY A.InvoiceId
+											) TAxInfo	ON TAxInfo.InvoiceId=IID.InvoiceId
+							   LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='IGST'
+											GROUP BY A.InvoiceId
+											) TAxInfo1	ON TAxInfo1.InvoiceId=IID.InvoiceId
+								
+								 LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='SGST'
+											GROUP BY A.InvoiceId
+											) TAxInfo2	ON TAxInfo2.InvoiceId=IID.InvoiceId
+								
+								
+								LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='TDS'
+											GROUP BY A.InvoiceId
+											) TAxInfo3	ON TAxInfo3.InvoiceId=IID.InvoiceId
+								
+								
+								LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='VAT'
+											GROUP BY A.InvoiceId
+											) TAxInfo4	ON TAxInfo4.InvoiceId=IID.InvoiceId
+								
+								LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='AIT'
+											GROUP BY A.InvoiceId
+											) TAxInfo5	ON TAxInfo5.InvoiceId=IID.InvoiceId
+								
+								LEFT JOIN (SELECT A.InvoiceId,Sum(A.TaxAmount) TaxAmount,Sum(A.TaxAmount) BooksCurrencyTransactionAmount
+											FROM [TRN].[InvoiceTax] A
+											LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+											WHERE B.Code='TCS'
+											GROUP BY A.InvoiceId
+											) TAxInfo6	ON TAxInfo6.InvoiceId=IID.InvoiceId
+								
+								LEFT JOIN trn.Voucher V On V.Id=II.VoucherId
+								LEFT JOIN trn.Invoice IV On IV.VoucherId=II.VoucherId
+								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.PartyId
+								WHERE II.PlantId='" + identity.PlantId + @"'   AND convert(Date,II.PostingDate) " + temp + @" and II.SourceType ='CustomerInvoice'
+								GROUP BY  II.Id ,PPI.UserName,P.UserName ,P.Code,CU.Code,II.IsPark,II.Narration  , II.DocRefNo,II.DocDate  ,v.VoucherNo,V.PostedBy,E.UserName ,II.PostingDate ,II.CompanyCurrencyRate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate,IV.ActualDueDate";
+				
+				return _sqlRepository.GetDataCollection(sql);
+
+
+			}
+
+			catch (Exception ex)
+			{
 				throw ex;
 			}
 		}
