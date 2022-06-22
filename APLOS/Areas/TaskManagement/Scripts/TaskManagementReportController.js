@@ -16,7 +16,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
 
     $scope.Today = new Date();
     $scope.PreviousMonth = new Date().setDate(new Date().getDate() - 31);
-    $scope.NextMonth = new Date().setDate(new Date().getDate() + 31);
+    $scope.NextMonth = new Date().setDate(new Date().getDate()-1);
     $scope.FromDate = $filter("dateFiltering")($scope.PreviousMonth);
     $scope.ToDate = $filter("dateFiltering")($scope.NextMonth);
 

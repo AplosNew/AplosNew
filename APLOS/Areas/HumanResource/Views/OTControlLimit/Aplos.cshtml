@@ -53,6 +53,45 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-sm-12" ng-show="grnDetailList.length>0">
+            <div id="GridWorkCenterProduct"
+                 ng-init="chkinit()"
+                 ej-grid e-datasource="grnDetailList"
+                 e-allowfiltering="true"
+                 e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                 e-pagesettings-pagesize="25"
+                 e-filtersettings-filterType="excel">
+                <div e-columns>
+                    <div e-column e-field="BudgetCodeId" e-headertext="BudgetCodeId" e-width="30" e-primarykey="true"></div>
+                    <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="80"></div>
+                    <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
+                    <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                    <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                    <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
+                    <div e-column e-field="Activity" e-headertext="Activity" e-width="80"></div>
+                    <div e-column e-field="ShiftDefinationName" e-headertext="Shift" e-width="80"></div>
+                    <div e-column e-field="DailyOTLimit" e-headertext="DailyOTLimit" e-width="80"></div>
+                    <div e-column e-field="WeeklyOTLimit" e-headertext="WeeklyOTLimit" e-width="80"></div>
+                    <div e-column e-field="WeekOffOTLimit" e-headertext="WeekOffOTLimit" e-width="80"></div>
+                    <div e-column e-field="MonthlyOTLimit" e-headertext="MonthlyOTLimit" e-width="80"></div>
+                    <div e-column e-field="Remarks" e-headertext="Remarks" e-width="80"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+                </ul>
+                <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
+                    <li>    <i>{{msg}}</i> </li>
+                </ul>
+            </div>
+        </div>
     </div>
     
 </div>
