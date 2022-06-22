@@ -664,6 +664,18 @@ namespace Library.OrderManagement.Costing
                 int colGrossAmount = COL;
                 COL++;
 
+                sheet[ROW, COL].Text = "Order Size";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colOrderSize = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Total Material Requirement";
+                sheet[ROW, COL].ColumnWidth = 15;
+                sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colTotalMaterialRequirement = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Total Order Cost";
                 sheet[ROW, COL].ColumnWidth = 15;
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
@@ -701,6 +713,8 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colValueLoss].Number = Convert.ToDouble(dtComponentRelatedItems.DefaultView[M]["ValueLoss"].ToString());
                     sheet[ROW, colGrossConsumption].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossConsumption"].ToString());
                     sheet[ROW, colGrossAmount].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString());
+                    sheet[ROW, colOrderSize].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalQty"].ToString());
+                    sheet[ROW, colTotalMaterialRequirement].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["TotalMaterialRequirement"].ToString());
                     sheet[ROW, colTotalOrderCost].Number = clsStaticInfo.dbl(dtComponentRelatedItems.DefaultView[M]["GrossAmount"].ToString()) * clsStaticInfo.dbl(OrderQTY);
                     sheet[ROW, colCurrency2].Text = dtComponentRelatedItems.DefaultView[M]["Currency"].ToString();
 
@@ -1516,23 +1530,24 @@ namespace Library.OrderManagement.Costing
 
             return @"SELECT pc.Id,I.Id as CostingId,pc.Sequence,UOM.Code as UOM,pc.Particulars,I.UserName as CostingItem,I.CostingComponentId
 					,CC.CostingSegment,cc.UserName as CostingComponentName,ISNULL(pc.Consumption,0) AS Consumption,ISNULL(pc.Rate,0) AS Rate
-					,ISNULL(pc.ValueLoss,0) AS ValueLoss
+					,ISNULL(pc.ValueLoss,0) AS ValueLoss,pc.MinimumOfQuantity
 					,ISNULL(pc.GrossConsumption,0) AS GrossConsumption,ISNULL(pc.GrossAmount,0) AS GrossAmount
 					,C.Code as Currency,OCMT.Id as OrderCostingMasterTemplateId
 					,EI.EmployeeName as ResponsiblePerson,pc.SourcingType,MM.UserName as Material,MMA.StandardName as Article,pc.VendorId
-					,pc.MinimumOfQuantity
+					,ISNULL(MOI.TotalQty,0) TotalQty
+					,TotalMaterialRequirement=(ISNULL(MOI.TotalQty,0) * ISNULL(pc.GrossConsumption,0))
 
 					FROM " + TableName + @" AS pc  
 					LEFT JOIN HKP.CostingItem I on i.Id=PC.CostingItemId
 					LEFT JOIN HKP.CostingComponent CC on CC.Id=I.CostingComponentId
                     LEFT JOIN SCS.UnitOfMeasurement as UOM on UOM.Id=I.UnitOfMeasurementId
 					LEFT JOIN OrderCostingMasterTemplate OCMT on OCMT.Id=PC.OrderCostingMasterTemplateId
+					LEFT JOIN TRN.MasterOrderItem MOI on MOI.OrderCostingMasterTemplateId=OCMT.Id
 					LEFT JOIN SCS.Currency C on C.Id=OCMT.CurrencyId
 					LEFT JOIN EmployeeInformation EI on EI.SystemId=pc.ResponsiblePersonId
 					LEFT JOIN MST.MaterialMasterArticle MMA on MMA.Id=pc.ArticleId
 					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
 					LEFT JOIN HKP.Party P on P.Id=pc.VendorId
-
 					
 					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' 
 					order by pc.Sequence";

@@ -218,7 +218,7 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
 							,pc.UserName as ProductCategory,CUR.Code AS Currency,ct.UserName AS CostingTypeName
 							,psc.UserName as ProductSubCategory
                              ,pm.CostingType,qcm.CostingStage AS CurrentCostStage
-							 ,moi.Id MOIId
+							 ,moi.Id MOIId,moi.BuyerReferenceNo,moi.OwnReferenceNo,isnull(moi.TotalQty,0) TotalQty
 							from OrderCostingMasterTemplate qcm 
 							left join (select  * from  trn.MasterOrderItem )moi on moi.OrderCostingMasterTemplateId=qcm.Id
                             left join [HKP].[Party] p ON p.Id = qcm.CustomerId
@@ -475,17 +475,16 @@ LCRef=STUFF((select distinct ','+mlx.LCRef from  trn.MasterOrderItem XMOI
         {
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"
-                                SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId ,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS PartyId,pm.UserName AS Product, p.UserName AS Customer,
-                                    pm.Id
-                                  FROM trn.MasterOrder AS mo
+            string sql = @"SELECT convert(bit,0) AS isChecked,MOI.Id AS MasterOrderItemId ,mm.UserName AS Material,mma.StandardName AS Article, moi.MasterOrderId,p.Id AS                                      PartyId,pm.UserName AS Product, p.UserName AS Customer, pm.Id
+                                 ,ISNULL(moi.TotalQty,0) TotalQty,moi.BuyerReferenceNo,moi.OwnReferenceNo
+									
+                                 FROM trn.MasterOrder AS mo
                                 INNER JOIN trn.MasterOrderItem AS moi ON moi.MasterOrderId=mo.Id
                                 left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                 LEFT OUTER JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId
                                 left outer join trn.ProductDefinition AS pd ON pd.MaterialMasterId=mm.Id
                                 left outer join [MST].[ProductMaster] PM on pm.id=pd.ProductMasterId
                                 left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
-
                                 left outer join hkp.Party AS p ON p.Id=mo.PartyId
 
                                 WHERE isnull(moi.OrderCostingMasterTemplateId,'')='" + TemplateId + @"'
