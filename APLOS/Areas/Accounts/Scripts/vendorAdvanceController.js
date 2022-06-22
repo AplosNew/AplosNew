@@ -400,6 +400,10 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
                 ShowResult("Please select Cash or Bank!", "failure");
                 return false;
             }
+            if ($scope.advance.ResponsiblePerson === null || $scope.advance.ResponsiblePerson === "") {
+                ShowResult("Please select Responsible Person!", "failure");
+                return false;
+            }
         }
         else if ($scope.partyType === "Employee") {
             if ($scope.advance.EmployeeId === null) {
