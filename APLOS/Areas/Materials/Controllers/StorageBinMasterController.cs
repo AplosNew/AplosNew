@@ -33,8 +33,21 @@ namespace Aplos.Areas.Materials.Controllers
             return View();
         }
         #endregion Page
-        [Authorize, HttpPost]
 
+        [HttpPost]
+        public ActionResult GetList()
+        {
+            try
+            {
+                return Json(sb.GetList(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
         public ActionResult getResponsiblePerson()
         {
             try
@@ -47,7 +60,6 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
         [Authorize, HttpPost]
-
         public ActionResult getStorageLocation()
         {
             try
@@ -59,13 +71,40 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
         [Authorize, HttpPost]
-        public JsonResult Save(Dictionary<string, object> datas, string ResponsiblePersonId)
+        public ActionResult getResponsiblePersonId(string ResponsiblePersonId)
+        {
+            try
+            {
+                return Json(sb.getResponsiblePersonId(ResponsiblePersonId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getStorageLocationId(string StorageLocation)
+        {
+            try
+            {
+                return Json(sb.getStorageLocationId(StorageLocation), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult Save(Dictionary<string, object> datas, string ResponsiblePersonId, string StorageLocation)
 
         {
             try
             {
-                var data = sb.Save(datas, ResponsiblePersonId);
+                var data = sb.Save(datas, ResponsiblePersonId, StorageLocation);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }

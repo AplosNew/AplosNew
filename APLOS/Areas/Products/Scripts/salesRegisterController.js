@@ -151,16 +151,6 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     $scope.InventorySalesReportExcels = function (reportType) {
         var Type = null;
-        if ($scope.productNew.AsOnDate === 'AsOnDate') {
-
-            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-                ShowResult('Select To Date', 'failure');
-                return false;
-            }
-            Type = 'AsOnDate';
-        }
-        else {
-
             if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
                 ShowResult('Select From Date', 'failure');
                 return false;
@@ -170,7 +160,6 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
                 return false;
             }
             Type = 'ForThePeriod';
-        }
 
         //var reportFormat = "Excel";
         $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + 'Excel' + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + reportType + '&WithTax=' + true + '&Type=' + Type);

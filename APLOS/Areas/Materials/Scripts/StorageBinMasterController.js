@@ -14,7 +14,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
     $scope.OpenEmployeePopUp = function () {
 
         angular.element(document.querySelector('#EmployeePop')).modal('show');
-        $scope.getResponsiblePerson();
+        
     }
 
 
@@ -32,9 +32,22 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
         angular.element(document.querySelector('#StorageLocationPop')).modal('hide');
     }
 
+    $scope.getData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "GetList",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+            ClearFields(response.data.Sequence);
+            
+        });
+    }
+    $scope.getData();
+
     $scope.ModelTemp = {
-        Id: null,
-        StorageLocationId: null,
+        Id: null,      
         StorageSubLocation: null,
         AreaRackCode: null,
         ColumnNo: null,
@@ -46,8 +59,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
         AccessType: null,
         UserLocationType: null,
         Remarks: null,
-        Active: true,
-
+        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -59,6 +71,13 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
         $scope.closeEmpPopUp();
     }
 
+    $scope.StorageLocation = null;
+    $scope.selectStorageLocation = function (e) {
+        $scope.StorageLocation = e.data.UserName;
+        $scope.StorageLocationId = e.data.Id;
+        $scope.closeStorageLocation();
+    }
+
     $scope.ResponsiblePersonList = [];
     $scope.getResponsiblePerson = function () {
         $http({
@@ -67,6 +86,29 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             url: $scope.path + 'getResponsiblePerson',
         }).then(function success(response) {
             $scope.ResponsiblePersonList = response.data;
+        });
+    }
+    $scope.getResponsiblePerson();
+
+    $scope.getResponsiblePersonId = function () {
+        $http({
+            method: 'POST',
+            data: { 'ResponsiblePersonId': $scope.ResponsiblePersonId,},
+            url: $scope.path + 'getResponsiblePersonId',
+        }).then(function success(response) {
+            $scope.ResponsiblePerson = JSON.stringify(response.data[0].ResponsiblePerson);
+
+        });
+    }
+
+    $scope.getStorageLocationId = function () {
+        $http({
+            method: 'POST',
+            data: { 'StorageLocation': $scope.StorageLocationId, },
+            url: $scope.path + 'getStorageLocationId',
+        }).then(function success(response) {
+            $scope.StorageLocation = JSON.stringify(response.data[0].StorageLocation);
+
         });
     }
 
@@ -85,9 +127,13 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
     $scope.Get = function (args) {
 
         $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ResponsiblePersonId = args.data.ResponsiblePersonId;
+        $scope.StorageLocationId = args.data.StorageLocationId;
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
+            $scope.getResponsiblePersonId();
+            $scope.getStorageLocationId();
         }
     };
 
@@ -96,10 +142,10 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
 
         $http({
             method: 'POST',
-            url: $scope.saveUrl,
+            url: $scope.path+'Save',
             data: {
                 'datas': $scope.ModelNew,
-                
+                'StorageLocation': $scope.StorageLocationId,
                 'ResponsiblePersonId': $scope.ResponsiblePersonId,
             },
             dataType: 'JSON'
@@ -110,7 +156,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             else {
                 ShowResult(response.data.Message, 'success');
                 ClearFields();
-                //$scope.getData();
+                $scope.getData();
 
             }
         }), function errorCallBack(response) {
@@ -132,7 +178,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    ClearFields(response.data.Sequence);
+                    ClearFields();
                     $scope.getData();
                 }
                 function errorCallBack(response) {
@@ -144,11 +190,12 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
 
     // clear Data
     $scope.Clear = function () {
-        ClearFields($scope.GetSequence());
+        ClearFields();
         return true;
     };
     function ClearFields() {
-        $scope.ObserveByName = null,
+        $scope.Action = 'Save';
+       
             $scope.ResponsiblePerson = null,
             $scope.ModelTemp = {
             Id: null,
@@ -164,9 +211,10 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             AccessType: null,
             UserLocationType: null,
             Remarks: null,
-            Active: true,
+          
 
             };
+        $scope.StorageLocation = null;
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     }
 }

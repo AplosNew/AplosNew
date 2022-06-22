@@ -16,6 +16,25 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
         }
 
+        public IEnumerable<object> GetList()
+        {
+            try
+            {
+                string sql = @"SELECT sb.Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                            sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
+                            sb.AccessType, sb.UserLocationType, sb.Remarks
+                            FROM MST.StorageBinMaster sb
+                            left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
+                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public IEnumerable<object> getResponsiblePerson()
         {
             try
@@ -53,8 +72,13 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                var sql = @"select ms.Id as Value, ms.UserName as Text from HKP.MaterialStorage ms 
-                            where ms.Active = '1' ORDER BY Text ASC";
+                //var sql = @"select ms.Id as Value, ms.UserName as Text from HKP.MaterialStorage ms 
+                //            where ms.Active = '1' ORDER BY Text ASC";
+                var sql = @"select m.Id, m.UserName, p.UserName as Plant, c.UserName as Company, cg.UserName as CompanyGroup from hkp.MaterialStorage m
+                            left join org.Plant p on p.Id = m.PlantId
+                            left join org.Company c on c.Id = p.CompanyId
+                            left join org.CompanyGroup cg on cg.Id = c.CompanyGroupId
+                            where m.Active = '1' ORDER BY m.UserName ASC";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -63,7 +87,39 @@ namespace Library.HumanResource.Employee
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> datas, string ResponsiblePersonId)
+        public IEnumerable<object> getResponsiblePersonId(string ResponsiblePersonId)
+        {
+            try
+            {
+                
+                var sql = @"select e.EmployeeName as ResponsiblePerson from MST.StorageBinMaster sb
+                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
+                            where sb.ResponsiblePersonId = '"+ ResponsiblePersonId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getStorageLocationId(string StorageLocation)
+        {
+            try
+            {
+
+                var sql = @"select distinct m.UserName as StorageLocation from MST.StorageBinMaster sb
+                            left join hkp.MaterialStorage m on m.Id = sb.StorageLocation
+                            where sb.StorageLocation = '" + StorageLocation + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, object> Save(Dictionary<string, object> datas, string ResponsiblePersonId, string StorageLocation)
         {
             try
             {
@@ -108,12 +164,14 @@ namespace Library.HumanResource.Employee
                     datas["Id"] = "SB" + _Id;
                    // datas["StorageLocation"] = StorageLocationId;
                     datas["ResponsiblePersonId"] = ResponsiblePersonId;
+                    datas["StorageLocation"] = StorageLocation;
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
                     _Id = datas["Id"].ToString();
-                    datas["ResponsiblePerson"] = ResponsiblePersonId;
+                    datas["ResponsiblePersonId"] = ResponsiblePersonId;
+                    datas["StorageLocation"] = StorageLocation;
 
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
@@ -134,7 +192,7 @@ namespace Library.HumanResource.Employee
         {
             try
             {
-                string TableName = "HKP.zoneMaster";
+                string TableName = "MST.StorageBinMaster";
 
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
