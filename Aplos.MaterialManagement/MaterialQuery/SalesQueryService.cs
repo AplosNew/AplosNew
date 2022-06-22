@@ -2371,7 +2371,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						COL++;
 					}
 
-					worksheet[ROW, COL].Text = "VoucherNo";
+					worksheet[ROW, COL].Text = "Voucher No";
 					int colVoucherDetailId = COL;
 					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -2562,15 +2562,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Balance";
-					int colBalance = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
 					//COL++;
 
 					int endCol = COL;
@@ -2745,7 +2736,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,'' DocDate
 									, P.UserName AS PartyName,p.Code	
 									,Sum(SMD.TransactionAmount) TransactionAmount
-									,v.VoucherNo VoucherId
+									,ISNULL(v.VoucherNo,'') VoucherId
 									,CU.Code AS Currency
 									,''SOType
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
