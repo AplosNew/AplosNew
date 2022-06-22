@@ -158,5 +158,13 @@ namespace Library.HumanResource.NewOTProcess
             dr.EndEdit();
         }
 
+
+        public IEnumerable<object> GetList()
+        {
+            string sql = @"SELECT OTL.*,ei.EmployeeName ApproveByName,eiw.EmployeeName ByWhomName FROM [dbo].[OTControlLimit] OTL
+LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId = OTL.ApproveBy
+LEFT JOIN dbo.EmployeeInformation AS eiw ON eiw.SystemId = OTL.ByWhom";
+            return _sqlRepository.GetDataCollection(sql,null);
+        }
     }
 }

@@ -1,4 +1,18 @@
-﻿<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> OT Control Limit</h3>
+﻿<togglable name="OT Control Limit"></togglable>
+<div class="table-responsive modal-table aplos-grid-toggle">
+    <div class="aplos-grid-toggle">
+        <div style="color:black;" id="Grid2" ej-grid e-datasource="dataList"
+             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+            <div e-columns>
+                <div e-column e-type="string" e-field="Id" e-headertext="Id" e-width="50"></div>
+                <div e-column e-format="{0:dd-MMM-yyyy}" e-type="date" e-field="EffectiveDate" e-headertext="Effective Date" e-width="100"></div>
+                <div e-column e-type="string" e-field="ByWhomName" e-headertext="ByWhom" e-width="100"></div>
+                <div e-column e-type="string" e-field="ApproveByName" e-headertext="ApproveBy" e-width="100"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="form-elements form-horizontal" ng-form="modelForm">
     <div class="row">
         <div class="col-md-12 col-sm-6 col-md-6">
@@ -54,10 +68,10 @@
             </div>
         </div>
 
-        <div class="col-sm-12" ng-show="grnDetailList.length>0">
+        <div class="col-sm-12" ng-show="OTDetailList.length>0">
             <div id="GridWorkCenterProduct"
                  ng-init="chkinit()"
-                 ej-grid e-datasource="grnDetailList"
+                 ej-grid e-datasource="OTDetailList"
                  e-allowfiltering="true"
                  e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-pagesettings-pagesize="25"
@@ -83,17 +97,14 @@
         <div class="col-xs-12 col-sm-12 col-md-12 ">
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="SaveRollData();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
+                    <li> <button ng-click="Save();" class="btn"><i class="glyphicon glyphicon-check"></i> Save</button></li>
                     <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-                </ul>
-                <ul class="list-inline text-left bold" style="color:green;font-size:larger;font-weight:bolder;">
-                    <li>    <i>{{msg}}</i> </li>
                 </ul>
             </div>
         </div>
     </div>
-    
+
 </div>
 
 <div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">

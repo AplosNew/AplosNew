@@ -107,7 +107,7 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
     $("#uploadImage").change(function () {
         $scope.picdata = this.files[0];
     });
-    $scope.grnDetailList = [];
+    $scope.OTDetailList = [];
     $scope.ModelsNew = { FileName : null };
     $scope.ImportData = function () {
         try {
@@ -137,9 +137,8 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
 
                 }
                 else {
-                    $scope.grnDetailList = [];
-                    var x = GetShortList(response.data);
-                    $scope.grnDetailList = x;
+                    $scope.OTDetailList = [];
+                    $scope.OTDetailList = response.data;
                     $scope.ShowSaveBtn = true;
                 }
             }, function errorCallback(response) {
@@ -154,67 +153,76 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
         }
     };
 
-    function GetShortList(list) {
-        var list2 = [];
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].Id === null || list[i].Id === '' || list[i].Id === 'undefined') {
+    $scope.Action = "Save";
+    $scope.Save = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.modelNew.EffectiveDate)) {
+                throw "Effective Date is required";
+            }
+            if (baseService.isUndefinedOrNull($scope.modelNew.ByWhom)) {
+                throw "ByWhom is required";
+            }
 
+            if (baseService.isUndefinedOrNull($scope.modelNew.ApproveBy)) {
+                throw "ApproveBy is required";
+            }
+
+            if (baseService.arrayLength($scope.OTDetailList) == 0) {
+                throw "Detail list is requird.";
             }
             else {
-                list2.push(list[i]);
+                for (var i = 0; i < $scope.OTDetailList.length; i++) {
+                    $scope.OTDetailList[i].Id = null;
+                }
             }
+
+            $http({
+                method: "POST",
+                url: 'HumanResource/OTControlLimit/Create',
+                data: {
+                    "data": $scope.modelNew
+                    , "detailList": $scope.OTDetailList
+                },
+                dataType: "JSON"
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, "failure");
+                }
+                else {
+                    ShowResult(response.data.Message, "success");
+                    $scope.Clear();
+                    $scope.getData();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, "failure");
+            });
+            return true;
+        } catch (e) {
+            ShowResult(e, "failure");
         }
-        return list2;
+    };
+
+    $scope.Clear = function () {
+        $scope.model = {
+            Id: null, EffectiveDate: null, ByWhom: null, ApproveBy: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        }
+        $scope.modelNew = Object.assign({}, $scope.model);
+        $scope.OTDetailList = [];
+        $scope.picdata = null;
     }
 
-    //$scope.modeldata = {
-    //    Id: null, PlantId: null, GRNId: $scope.fabricRollMaster.GRNNo, GRNDate: $scope.fabricRollMaster.GRNDate, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
-    //}
+    $scope.dataList = [];
+    $scope.getData = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/OTControlLimit/GetList'
+        }).then(function successCallback(response) {
+            $scope.dataList = response.data;
+            for (var i = 0; i < $scope.dataList.length; i++) {
+                $scope.dataList[i].EffectiveDate = $filter('dateFiltering')($scope.dataList[i].EffectiveDate, 'dd-M-yyyy');
+            }
+        });
+    };
+    $scope.getData();
 
-    //$scope.Action = "Save";
-    //$scope.SaveRollData = function () {
-    //    try {
-    //        if (baseService.isUndefinedOrNull($scope.fabricRollMaster.GRNNo)) {
-    //            throw "Please select GRN No.";
-    //        }
-
-    //        $scope.modeldata.GRNId = $scope.fabricRollMaster.GRNNo;
-    //        $scope.modeldata.GRNDate = $scope.fabricRollMaster.GRNDate;
-    //        $scope.modeldata.PreparedById = $scope.fabricRollMaster.PreparedById;
-    //        $scope.modeldata.CheckedById = $scope.fabricRollMaster.CheckedById;
-    //        $scope.modeldata.Remarks = $scope.fabricRollMaster.Remarks;
-    //        $scope.modeldata.Comment = $scope.fabricRollMaster.Comment;
-
-    //        if (baseService.arrayLength($scope.grnDetailList) == 0) {
-    //            throw "Detail list is requird.";
-    //        }
-    //        else {
-    //            for (var i = 0; i < $scope.grnDetailList.length; i++) {
-    //                $scope.grnDetailList[i].Id = null;
-    //            }
-    //        }
-
-    //        $http({
-    //            method: "POST",
-    //            url: 'HumanResource/OTControlLimit/Create',
-    //            data: {
-    //                "data": $scope.modeldata
-    //                , "grnDetailList": $scope.grnDetailList
-    //            },
-    //            dataType: "JSON"
-    //        }).then(function successCallback(response) {
-    //            if (response.data.Error === true) {
-    //                ShowResult(response.data.Message, "failure");
-    //            }
-    //            else {
-    //                ShowResult(response.data.Message, "success");
-    //            }
-    //        }, function errorCallback(response) {
-    //            ShowResult(response.status.Message, "failure");
-    //        });
-    //        return true;
-    //    } catch (e) {
-    //        ShowResult(e, "failure");
-    //    }
-    //};
 }
