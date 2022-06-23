@@ -9,10 +9,7 @@ function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
-    baseService.init($scope.getListUrl);
-
     
-   
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
             $scope.ModelTemp.Sequence = data;
@@ -46,6 +43,7 @@ function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseS
         Remarks: null,
         Category: null,
         SubCategory: null,
+        Description:null,
        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -125,7 +123,8 @@ function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseS
             Active: true,
             Remarks: null,
             Category: null,
-            SubCategory: null
+            SubCategory: null,
+            Description: null,
         };
       
     }
