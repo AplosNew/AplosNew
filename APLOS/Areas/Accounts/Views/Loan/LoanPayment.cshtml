@@ -285,10 +285,10 @@
                                         <input type="radio" name="Transaction Type ML" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanTaken.ToString()')" ng-model="voucherML.TransactionType" value="@Library.Model.Enums.TransactionType.LoanTaken.ToString()">
                                         <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Taken
                                     </label>
-                                    <label>
+                                    @*<label>
                                         <input type="radio" name="Transaction Type ML" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="voucherML.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
                                         <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
-                                    </label>
+                                    </label>*@
 
                                 </div>
                             </div>
@@ -304,6 +304,38 @@
                                 </div>
                                 <div class="col-sm-3 show-message" style="padding-left:0px;">
                                     <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucherML.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucherML.CurrencyId">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Party Type<sup>*</sup></label>
+                                <div class="radio">
+                                    <label>
+                                        <input ng-click="changePartyTypeFrom('Bank')" type="radio" name="loanpartyType" ng-model="voucherML.PartyType" value="Bank">
+                                        <span class="cr" tabindex="22"><i class="cr-icon"></i></span>Bank
+                                    </label>
+                                    <label>
+                                        <input ng-click="changePartyTypeFrom('Director')" type="radio" name="loanpartyType" ng-model="voucherML.PartyType" value="Director">
+                                        <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Director
+                                    </label>
+                                    <label>
+                                        <input ng-click="changePartyTypeFrom('Party')" type="radio" name="loanpartyType" ng-model="voucherML.PartyType" value="Party">
+                                        <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Party
+                                    </label>
+                                    <label>
+                                        <input ng-click="changePartyTypeFrom('Vendor')" type="radio" name="loanpartyType" ng-model="voucherML.PartyType" value="Vendor">
+                                        <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Vendor
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group" show-errors ng-show="voucherML.PartyType=='Bank'">
+                                <label class="col-sm-4 control-label">Bank<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="select-style">
+                                        <select id="bankId" class="form-control" name="Bank" ng-model="voucherML.BankId"  tabindex="5">
+                                            <option value="">--Select--</option>
+                                            <option ng-repeat="option in loanBankList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group">
