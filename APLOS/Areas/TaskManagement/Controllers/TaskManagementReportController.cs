@@ -54,55 +54,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         {
             try
             {
-                var sql = @"SELECT A.* FROM (
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
- FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END 
-FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
-   FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-UNION
-SELECT distinct TA.ResponsiblePersonId,DG.Id DesignationGroupId,DG.UserName DesignationGroup,DP.Id DepartmentId,DP.UserName Department,E.Id EntityId,E.UserName Entity,p.UserReportGroup
-,TaskCreatedBy=CASE WHEN TA.AuthorizationType IN('CreatedBy','AssignTo') THEN 'Self' ELSE 'Other' END
- FROM EmployeeInformation ei
-LEFT JOIN TaskAudit TA ON ei.SystemId=TA.ResponsiblePersonId
-LEFT JOIN HKP.DesignationGroup AS DG ON DG.Id=ei.DesignationGroupId
-LEFT JOIN ORG.Department AS DP ON DP.Id=ei.DepartmentId
-LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
-LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
-LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
-WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-) A WHERE A.DesignationGroup<>'Unclassified'
-
-";
-
-                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+                return Json(tasksService.getFiltersData(fromDate, todate), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {
