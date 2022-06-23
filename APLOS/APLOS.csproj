@@ -587,6 +587,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FuguaiZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FuguaiTransactionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
@@ -728,6 +729,7 @@
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\StorageBinAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
@@ -2001,6 +2003,7 @@
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTRegionController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGradeMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceGroupController.js" />
@@ -2113,6 +2116,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\StorageBinAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\StorageBinMasterController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionController.js" />
@@ -4196,6 +4200,8 @@
     <Content Include="Areas\Attendances\Views\ComplianceAttendanceSetting\BuyerJobCardCompliance.cshtml" />
     <Content Include="Areas\Leave\Views\EOTSheet\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\StorageBinAllocation\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTRegion\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -272,4 +272,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/StorageBinMaster/Aplos',
             controller: 'StorageBinMasterController'
         })
+        .when('/storage-bin-allocation', {
+            templateUrl: 'materials/StorageBinAllocation/Aplos',
+            controller: 'StorageBinAllocationController'
+        })
 };
