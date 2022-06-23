@@ -40,7 +40,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            ClearFields(response.data.Sequence);
+            ClearFields();
             
         });
     }

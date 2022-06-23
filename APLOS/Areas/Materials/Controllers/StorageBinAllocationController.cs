@@ -4,30 +4,30 @@ using Aplos.Properties;
 using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
-using Library.HumanResource.Employee;
+using Library.MaterialManagement.Material;
 #endregion Using
 
 
 namespace Aplos.Areas.Materials.Controllers
 {
-    public class StorageBinMasterController : BaseController
+    public class StorageBinAllocationController : BaseController
     {
-        StorageBinMasterService sb = new StorageBinMasterService();
+        StorageBinAllocationService sba = new StorageBinAllocationService();
 
-        public StorageBinMasterController() { }
-        #region Page
+        public StorageBinAllocationController() { }
+
+      
         public ActionResult Aplos()
         {
             return View();
         }
-        #endregion Page
 
-        [HttpPost]
-        public ActionResult GetList()
+        [Authorize, HttpPost]
+        public ActionResult getStorageLevel()
         {
             try
             {
-                return Json(sb.GetList(), JsonRequestBehavior.AllowGet);
+                return Json(sba.getStorageLevel(),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -36,23 +36,50 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getResponsiblePerson()
+        public ActionResult getMaterialType()
         {
             try
             {
-                return Json(sb.getResponsiblePerson(), JsonRequestBehavior.AllowGet);
+                return Json(sba.getMaterialType(),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [Authorize, HttpPost]
+        public ActionResult getMaterialGroup()
+        {
+            try
+            {
+                return Json(sba.getMaterialGroup(),JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getMaterial()
+        {
+            try
+            {
+                return Json(sba.getMaterial(),JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [Authorize, HttpPost]
         public ActionResult getStorageLocation()
         {
             try
             {
-                return Json(sb.getStorageLocation(), JsonRequestBehavior.AllowGet);
+                return Json(sba.getStorageLocation(),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -61,66 +88,31 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getResponsiblePersonId(string ResponsiblePersonId)
+        public ActionResult getMaterialArticle()
         {
             try
             {
-                return Json(sb.getResponsiblePersonId(ResponsiblePersonId), JsonRequestBehavior.AllowGet);
+                return Json(sba.getMaterialArticle(),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        
 
         [Authorize, HttpPost]
-        public ActionResult getStorageLocationId(string StorageLocation)
+        public ActionResult getAccessType()
         {
             try
             {
-                return Json(sb.getStorageLocationId(StorageLocation), JsonRequestBehavior.AllowGet);
+                return Json(sba.getAccessType(),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
-        [Authorize, HttpPost]
-        public JsonResult Save(Dictionary<string, object> datas, string ResponsiblePersonId, string StorageLocation)
-
-        {
-            try
-            {
-                var data = sb.Save(datas, ResponsiblePersonId, StorageLocation);
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message });
-
-            }
-        }
-
-        public ActionResult Delete(string id)
-        {
-            try
-            {
-                sb.Delete(id);
-
-                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
-
-            }
-            catch (Exception ex)
-            {
-
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-
-            }
-
-        }
-
     }
 }
