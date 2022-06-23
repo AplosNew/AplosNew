@@ -583,7 +583,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                 }
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 IWorkbook workbook = GetComplianceJobCardReport(identity.Name, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, EmpIdLoop, fromDate, toDate, chkAdditionInfo);
-                var reportFileName = DateTime.Now.ToString("yyMMdd") + "Job Card Report";
+                var reportFileName = DateTime.Now.ToString("yyMMdd") + " Job Card Report";
                 switch (reportFormat)
                 {
                     case ReportFormat.Pdf:
