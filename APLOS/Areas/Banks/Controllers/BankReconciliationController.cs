@@ -86,7 +86,6 @@ namespace Aplos.Areas.Banks.Controllers
             var jsondata = Json(new { DATA = accountsBankReconcilliationService.GetBankCrReconListSyncfusion(identity.CompanyGroupId, identity.CompanyId, bankMasterId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
-            
         }
 
         [HttpPost, Authorize]
