@@ -771,5 +771,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/OTControlLimit/Aplos',
             controller: 'OTControlLimitController'
         })
+
+        .when('/ot-region', {
+            templateUrl: 'humanResource/OTRegion/Aplos',
+            controller: 'OTRegionController'
+        })
         ;
 }

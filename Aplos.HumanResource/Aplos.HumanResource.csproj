@@ -243,6 +243,7 @@
     <Compile Include="NewOTProcess\HourlyOTReportService.cs" />
     <Compile Include="NewOTProcess\OTConfirmationProcessService.cs" />
     <Compile Include="NewOTProcess\OTControlLimitService.cs" />
+    <Compile Include="NewOTProcess\OTRegionService.cs" />
     <Compile Include="Payroll\Allowance\clsDiscreteAllowanceReport.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseAmountTransaction.cs" />
     <Compile Include="Payroll\Allowance\SalaryHeadWiseDailyService.cs" />
