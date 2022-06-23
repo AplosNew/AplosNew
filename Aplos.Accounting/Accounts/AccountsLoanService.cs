@@ -424,7 +424,7 @@ namespace Library.Accounting.Accounts
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
-                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo
+                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
@@ -446,6 +446,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=I.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=I.OtherBankMasterId
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
+                                        LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
@@ -482,7 +483,7 @@ namespace Library.Accounting.Accounts
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
-                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo
+                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
@@ -504,6 +505,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=I.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=I.OtherBankMasterId
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
+                                        LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
@@ -544,7 +546,7 @@ namespace Library.Accounting.Accounts
 
             if (partyType == "Bank")
             {
-                filter = " AND I.PartyType='Bank' AND I.BankMasterId IN (SELECT Id FROM mst.BankMaster WHERE BankId='" + bankId + @"')";
+                filter = " AND I.PartyType='Bank' AND I.OtherBankMasterId IN (SELECT Id FROM mst.BankMaster WHERE BankId='" + bankId + @"')";
             }
             else
             {
@@ -562,7 +564,7 @@ namespace Library.Accounting.Accounts
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
-                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo
+                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
@@ -584,6 +586,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=I.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=I.OtherBankMasterId
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
+                                        LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
@@ -620,7 +623,7 @@ namespace Library.Accounting.Accounts
 										, (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0)) AS LoanPayment
 										, (ISNULL(ID.Amount+ID.AdditionalLoanAmount,0)+(ISNULL(LIP.InterestAmount,0) - (ISNULL(LPR.InterestReverseAmount,0)+ISNULL(CPR.ChargesPayableReverse,0)))- (ISNULL(LPY.LoanPayment,0)+ISNULL(SLPY.LoanPayment,0)+ISNULL(ASLPY.InterestCashPayment,0))) AS Balance
 										,ISNULL(LPR.InterestReverseAmount,0) InterestReverseAmount
-                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo
+                                        , CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate, CC.CompanyCurrencyConversion, V.TransactionRefNo,bk.UserName BankName
 										,[Particulars]=CASE WHEN P.UserName<>'' THEN P.UserName  WHEN I.OtherBankMasterId<>'' THEN OBKM.AccountTitle WHEN I.CashMasterId<>'' THEN CM.UserName ELSE ''	END
                                         , I.OtherBankMasterId ,I.PostingDate PostingDateNew
 										,ISNULL(ID.Amount,0) InitialSactionAmount  , ISNULL(ID.AdditionalLoanAmount,0) AdditionalLoanAmount
@@ -642,6 +645,7 @@ namespace Library.Accounting.Accounts
 										LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=I.BankMasterId
 										LEFT JOIN [MST].BankMaster AS OBKM ON OBKM.Id=I.OtherBankMasterId
 										LEFT JOIN [MST].CashMaster AS CM ON CM.Id=I.CashMasterId
+                                        LEFT JOIN HKP.Bank AS bk ON bk.Id=OBKM.BankId
 										LEFT JOIN(SELECT LP.FinancingId,SUM(LP.Amount) InterestAmount
 											FROM TRN.FinancingSubsequentTransaction LP where lp.TransactionType in ('InterestPayable','OtherExpensesPayable') group by LP.FinancingId) LIP ON LIP.FinancingId=I.Id
 											LEFT JOIN(SELECT LP.SetOffFinancingId,SUM(LP.Amount) LoanPayment
