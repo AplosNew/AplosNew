@@ -46,6 +46,7 @@ function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseS
         Remarks: null,
         Category: null,
         SubCategory: null,
+        Description:null,
        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
@@ -125,7 +126,8 @@ function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseS
             Active: true,
             Remarks: null,
             Category: null,
-            SubCategory: null
+            SubCategory: null,
+            Description: null,
         };
       
     }
