@@ -24,6 +24,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement.MaterialQuery;
 
 
 
@@ -188,7 +189,8 @@ namespace Aplos.Areas.Products.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var jsondata = Json(_inventoryReceiveService.GetSalesRegisterSql(FromDate, ToDate, Type), JsonRequestBehavior.AllowGet);
+            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
+            var jsondata = Json(salesQueryService.GetSalesRegisterSql(FromDate, ToDate, Type), JsonRequestBehavior.AllowGet);
             jsondata.MaxJsonLength = int.MaxValue;
             return jsondata;
         }

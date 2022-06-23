@@ -5280,70 +5280,82 @@ namespace Library.MaterialManagement.InventoryManagements
                 throw ex;
             }
         }
+
+
         public void PORollBackUnApproved(string MasterId, Dictionary<string, object> UserSendData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                string sql = "select * from TRN.PurchaseOrder where Id='" + MasterId + "'";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
-
-                string sqllog = "select * from [TRN].[PurchaseOrderApprovalLog] where 1=2";
-                con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
-
-                //for (int i = 0; i < UserSendData.Count; i++)
-                //{
-                dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
-                if (dsDetail.Tables[0].DefaultView.Count == 0)
+                var isgrn =  _sqlRepository.GetDataCollection(@" SELECT POId AS CheckingColumn FROM TRN.InventoryReceiveDetail    WHERE POId = '" + MasterId + @"'");
+                if (isgrn.Count==0)
                 {
-                    //DataRow dr = dsDetail.Tables[0].NewRow();
-                    //dr["Id"] = GRNDAddiTaxId();
-                    //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                    //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                    //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                    //dr["AddedBy"] = identity.Name;
-                    //dr["AddedDate"] = System.DateTime.Now.ToString();
-                    //dr["AddedFromIP"] = identity.IPAddress;
-                    ////dr["UpdatedBy"] = "";
-                    ////dr["UpdatedDate"] = "";
-                    ////dr["UpdatedFromIP"] = "";
-                    //dr["InventoryReceiveId"] = MasterId.ToString();
-                    //dsDetail.Tables[0].Rows.Add(dr);
+                    string sql = "select * from TRN.PurchaseOrder where Id='" + MasterId + "'";
+                    
+                    con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+
+                    string sqllog = "select * from [TRN].[PurchaseOrderApprovalLog] where 1=2";
+                    con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
+
+                    //for (int i = 0; i < UserSendData.Count; i++)
+                    //{
+                    dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
+                    if (dsDetail.Tables[0].DefaultView.Count == 0)
+                    {
+                        //DataRow dr = dsDetail.Tables[0].NewRow();
+                        //dr["Id"] = GRNDAddiTaxId();
+                        //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+                        //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+                        //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+                        //dr["AddedBy"] = identity.Name;
+                        //dr["AddedDate"] = System.DateTime.Now.ToString();
+                        //dr["AddedFromIP"] = identity.IPAddress;
+                        ////dr["UpdatedBy"] = "";
+                        ////dr["UpdatedDate"] = "";
+                        ////dr["UpdatedFromIP"] = "";
+                        //dr["InventoryReceiveId"] = MasterId.ToString();
+                        //dsDetail.Tables[0].Rows.Add(dr);
+                    }
+                    else
+                    {
+                        DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
+                        dr.BeginEdit();
+                        dr["CheckedByStatus"] = "Pending";
+                        dr["AuthorizedBy"] = null;
+                        dr["AuthorizedByStatus"] = null;
+                        dr["IsApproved"] = 0;
+                        dr["IsClosed"] = 0;
+                        dr.EndEdit();
+                        DataRow drlog = dsDetailLog.Tables[0].NewRow();
+                        drlog["Id"] = MasterId.ToString() + '-' + PurchaseOrderApprovalLogId();
+                        drlog["CompanyGroupId"] = identity.CompanyGroupId;
+                        drlog["CompanyId"] = identity.CompanyId;
+                        drlog["PlantId"] = identity.PlantId;
+                        drlog["ApprovedBy"] = identity.EmployeeId;
+                        drlog["Date"] = System.DateTime.Now.ToString();
+                        drlog["POValue"] = UserSendData["TransactionQty"];
+                        drlog["Status"] = "UnApproved";
+                        drlog["AddedBy"] = identity.Name;
+                        drlog["AddedDate"] = System.DateTime.Now.ToString();
+                        drlog["AddedFromIP"] = identity.IPAddress;
+                        drlog["UpdatedBy"] = identity.Name; ;
+                        drlog["UpdatedDate"] = DateTime.Now;
+                        drlog["UpdatedFromIP"] = identity.IPAddress;
+                        drlog["POID"] = MasterId.ToString();
+                        dsDetailLog.Tables[0].Rows.Add(drlog);
+                    }
+                    //}
+
+
+                    clsStaticInfo info = new clsStaticInfo();
+                    info.SaveDataSets(dsDetail, dsDetailLog);
                 }
                 else
                 {
-                    DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
-                    dr.BeginEdit();
-                    dr["CheckedByStatus"] = "Pending";
-                    dr["AuthorizedBy"] = null;
-                    dr["AuthorizedByStatus"] = null;
-                    dr["IsApproved"] = 0;
-                    dr["IsClosed"] = 0;
-                    dr.EndEdit();
-                    DataRow drlog = dsDetailLog.Tables[0].NewRow();
-                    drlog["Id"] = MasterId.ToString() + '-' + PurchaseOrderApprovalLogId();
-                    drlog["CompanyGroupId"] = identity.CompanyGroupId;
-                    drlog["CompanyId"] = identity.CompanyId;
-                    drlog["PlantId"] = identity.PlantId;
-                    drlog["ApprovedBy"] = identity.EmployeeId;
-                    drlog["Date"] = System.DateTime.Now.ToString();
-                    drlog["POValue"] = UserSendData["TransactionQty"];
-                    drlog["Status"] = "UnApproved";
-                    drlog["AddedBy"] = identity.Name;
-                    drlog["AddedDate"] = System.DateTime.Now.ToString();
-                    drlog["AddedFromIP"] = identity.IPAddress;
-                    drlog["UpdatedBy"] = identity.Name; ;
-                    drlog["UpdatedDate"] = DateTime.Now;
-                    drlog["UpdatedFromIP"] = identity.IPAddress;
-                    drlog["POID"] = MasterId.ToString();
-                    dsDetailLog.Tables[0].Rows.Add(drlog);
+                    throw new CustomException("PO no "+ MasterId + " already have used in GRN. Rollback should not allow in this case!");
                 }
-                //}
-
-
-                clsStaticInfo info = new clsStaticInfo();
-                info.SaveDataSets(dsDetail, dsDetailLog);
+                
             }
             catch (Exception ex)
             {

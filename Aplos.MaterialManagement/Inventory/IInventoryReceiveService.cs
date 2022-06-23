@@ -47,7 +47,6 @@ namespace Library.MaterialManagement.Inventory
         IEnumerable<object> GetReceiveTaxListPO(string receiveDetailId);
         IEnumerable<object> GetMaterialLedger(string fromDate, string toDate);
 		IEnumerable<object> GetPurchaseRegister(string fromDate, string toDate, string Type);
-		IEnumerable<object> GetSalesRegisterSql(string fromDate, string toDate, string Type);
 
         IEnumerable<object> GetPurchaseReturnRegister(string fromDate, string toDate, string Type);
 
