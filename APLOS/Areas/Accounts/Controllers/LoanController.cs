@@ -206,6 +206,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsLoanService.GetLoanList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
+        public JsonResult GetLoanPopUpListML(string transactionType, string partyType, string bankId)
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsLoanService.GetLoanListMultipleSetoff(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, transactionType, partyType, bankId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
         public JsonResult GetLoanPopUpListForSalesRealization(string transactionType)
         {
             AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
@@ -1131,5 +1139,11 @@ namespace Aplos.Areas.Accounts.Controllers
             }
         }
         #endregion
+        [HttpGet, Authorize]
+        public JsonResult getloanBankListcbo()
+        {
+            AccountsLoanService _accountsLoanService = new AccountsLoanService(_sqlRepository);
+            return Json(_accountsLoanService.GetloanBankListcbo(), JsonRequestBehavior.AllowGet);
+        }
     }
 }

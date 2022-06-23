@@ -115,9 +115,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation"); colDeg = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity"); colAct = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift"); colShift = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Daily OTLimit"); colDailyOTLimit = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Weekly OTLimit"); colWeeklyOTLimit = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeekOff OTLimit"); colWeekOffOTLimit = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DailyOTLimit"); colDailyOTLimit = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeeklyOTLimit"); colWeeklyOTLimit = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeekOffOTLimit"); colWeekOffOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthlyOTLimit"); colMonthlyOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;
 
@@ -163,7 +163,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, colDailyOTLimit, xlsRow, colMonthlyOTLimit].DataValidation.ErrorStyle = ExcelErrorStyle.Stop;
                     sheet1.Range[xlsRow, colDailyOTLimit, xlsRow, colMonthlyOTLimit].DataValidation.ErrorBoxText = "Only positive decimal/numbers are allowed for Length";
                     sheet1.Range[xlsRow, colDailyOTLimit, xlsRow, colMonthlyOTLimit].DataValidation.ErrorBoxTitle = "Number Error";
-                    sheet1.Range[xlsRow, colDailyOTLimit, xlsRow, colMonthlyOTLimit].CellStyle.Locked = false;
+                    sheet1.Range[xlsRow, colDailyOTLimit, xlsRow, colRemarks].CellStyle.Locked = false;
 
                     xlsRow++;
                 }
@@ -347,8 +347,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(6, 1, 5000, 18, ExcelExportDataTableOptions.ColumnNames);
-                dt.DefaultView.RowFilter = "isnull(Sequence,'')<>''";
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(1, 1, 5000, 14, ExcelExportDataTableOptions.ColumnNames);
+                dt.DefaultView.RowFilter = "isnull(BudgetCodeId,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 dsExcel = new DataSet();
                 dsExcel.Tables.Add(dt);
@@ -376,17 +376,26 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(new { Data = data, Message = AplosMessage.Insert });
         }
 
-
+        [HttpGet, Authorize]
+        public ActionResult GetList()
+        {
+            return Json(oTControlLimitService.GetList(), JsonRequestBehavior.AllowGet);
+        }
         #endregion -- Operations
     }
 
     public class OTControlLimitDetail
     {
 
-        public string Id { get; set; }
-        public string OTControlLimitId { get; set; }
         public string BudgetCode { get; set; }
         public string BudgetCodeId { get; set; }
+        public string Entity { get; set; }
+        public string Department { get; set; }    
+        public string Section { get; set; }
+        public string SubSection { get; set; }
+        public string Designation { get; set; }
+        public string Activity { get; set; }
+        public string Shift{ get; set; }
         public string DailyOTLimit { get; set; }
         public string WeeklyOTLimit { get; set; }
         public string WeekOffOTLimit { get; set; }
