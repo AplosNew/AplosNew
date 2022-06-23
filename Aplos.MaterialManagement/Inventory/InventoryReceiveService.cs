@@ -12108,935 +12108,935 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public IEnumerable<object> GetSalesRegisterSql(string FromDate, string ToDate, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            try
-            {
-                var sql = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
-								,SM.Id
-								,'' GRNNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,PPI.GSTIN as GSTINNo
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
+//        public IEnumerable<object> GetSalesRegisterSql(string FromDate, string ToDate, string Type)
+//        {
+//            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+//            try
+//            {
+//                var sql = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
+//								,SM.Id
+//								,'' GRNNo
+//								--,'' GRNDate
+//								,'' InvoicingPartyPlant
+//								,'' DeliveryPartyPlant
+//								,PPI.GSTIN as GSTINNo
+//								,'' Employee
+//								,'' GateEntryNo
+//								,'' GateName
+//								,'' GrnDocDateDifference
+//								,'' MaterialType
+//								,'' HSNNo
+//								,'' BaseQty
+//								,'' QualityStatus
+//								,'' GrossAmount
+//								,'' DiscountAmount
+//								,'' TotalMaterialBooksCurrencyAmount
+//								,'' CredtibleStatus
+//								,'' RCM
+//								,'' TrnCurrencyBaseRate
+//								,'' BooksCurrencyBaseRate
+//								,'' MMIsAsset
+//								,'' GRNIsAsset
+//								,'' POId
+//								,'' StorageLocation
+//								,'' ShortageQty
+//								,'' ShortageRatePercent
+//								,'' ShortageValuet
+//								,'' RejectionQty
+//								,'' RejectRatePer
+//								,'' RejectionValue
+//								,'' RejectionClam
+//								,'' ApprovedQty
+//								,'' GRNRowID
+//								,'' PreparedBy
+//								,'' Status
+//								,'' ApprovingName
+//								,'' PostingDate
+//								,'' GLCode
+//								,'' GL
+//								,'' BudgetCode
+//								,'' Budget
+//								,'' Activity
+//								--,'' GLCode
+//								--,'' GL
+//								--,'' BudgetCode
+//								--,'' Budget
+//								--,'' Activity
+//								,'' POREfference
+//								,'' IssueQty
+//								,'' BaseIssueQty
+//								,'' PurchaseReturnQty
+//								,'' IssueReturnQty
+//								,'' ReductionByAdjustmentQty
+//								,'' InventorySalesQty
+//								,'' InventoryScrapQty
+//								,'' InventoryTransferQty
 
-								,MGM.UserName AS MaterialGroup
-								,MM.UserName Material
-								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
-								--	WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
-								--	ELSE  SA.SourceType END SourceType
-								,SM.SalesId SalesNo
-								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
-								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
-								--,SM.SalesOrderId
-								--,MO.Id MasterOrderId
-								--,SO.Id SONo
-								--,po.PONumber CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as  BillToAddress
-								--,ST.UserName as  BillToState
-								--,PPD.UserName AS ShipTo
-								--,AMD.Address1 as ShipToAddress
-								--,STD.UserName as ShipToState
-		                        --,PPD.GSTIN as ShipToGSTNo
-								--, SA.ToCurrencyRate ExchangeRate
-								, SA.DocRefNo
-								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,ART.StandardName AS Article
-								,FCV.UserName FirstCharacteristicsValue
-								,SCV.UserName SecondCharacteristicsValue
-								,TCV.UserName ThirdCharacteristicsValue
-								--,'' HSNCode
-								--,SM.BaseRate
-								--,SM.BaseUoMFactor
-								,SM.TransactionRate
-								,SM.TransactionQty
-								--,SM.TransactionAmount
-								,SM.TaxAmount
-								--,SM.NetAmount
-								--,SM.NetAmount * SA.ToCurrencyRate BooksVal
-								--,v.VoucherNo
-								,BUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
-								--,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
-								--,DT.UserName DestinationName
-								--,SO.SOType
-								--,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
-								--,ISNULL(SA.Narration,'') NoteForAccounts
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+//								,MGM.UserName AS MaterialGroup
+//								,MM.UserName Material
+//								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
+//								--	WHEN SA.SourceType='Packing' THEN 'PackingwiseSales'
+//								--	ELSE  SA.SourceType END SourceType
+//								,SM.SalesId SalesNo
+//								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
+//								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
+//								--,SM.SalesOrderId
+//								--,MO.Id MasterOrderId
+//								--,SO.Id SONo
+//								--,po.PONumber CustomerPONo
+//								--,PPI.UserName AS BillTo
+//								--,AM.Address1 as  BillToAddress
+//								--,ST.UserName as  BillToState
+//								--,PPD.UserName AS ShipTo
+//								--,AMD.Address1 as ShipToAddress
+//								--,STD.UserName as ShipToState
+//		                        --,PPD.GSTIN as ShipToGSTNo
+//								--, SA.ToCurrencyRate ExchangeRate
+//								, SA.DocRefNo
+//								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
+//								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+//								,ART.StandardName AS Article
+//								,FCV.UserName FirstCharacteristicsValue
+//								,SCV.UserName SecondCharacteristicsValue
+//								,TCV.UserName ThirdCharacteristicsValue
+//								--,'' HSNCode
+//								--,SM.BaseRate
+//								--,SM.BaseUoMFactor
+//								,SM.TransactionRate
+//								,SM.TransactionQty
+//								--,SM.TransactionAmount
+//								,SM.TaxAmount
+//								--,SM.NetAmount
+//								--,SM.NetAmount * SA.ToCurrencyRate BooksVal
+//								--,v.VoucherNo
+//								,BUoM.UserName AS BaseUoM
+//								,TUoM.UserName AS TransactionUoM
+//								,CU.Code AS Currency
+//								--,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
+//								--,DT.UserName DestinationName
+//								--,SO.SOType
+//								--,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+//								--,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
+//								--,E.UserName Entity
+//								--,'' CheckedByName
+//								--,'' CheckedBy
+//								--,'' ApprovedByName
+//								--,'' ApprovedBy
+//								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
+//								--,ISNULL(SA.Narration,'') NoteForAccounts
+//								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+//								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+//								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+//								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
 
-		                        --,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
-								--,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as CNFAgent
-								,''AgentCommission
-								,'' Insurance
-								,PSI.CargoGrossWt GrossWeight,''LoTNo
-								,CON.ContractNo
-								,ML.LCRef
-								,SA.ComercialInvoiceNo
-								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
-								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
-								,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
-								,SA.BaseNoOfDays NoOfDays
-							    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
-								,PL.Amount LCAmount
-								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
-								--,TA.UserName TransportAgent	
+//		                        --,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
+//								--,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as CNFAgent
+//								,''AgentCommission
+//								,'' Insurance
+//								,PSI.CargoGrossWt GrossWeight,''LoTNo
+//								,CON.ContractNo
+//								,ML.LCRef
+//								,SA.ComercialInvoiceNo
+//								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+//								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+//								,PTM.UserName PaymentTerm,FORMAT(SA.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+//								,SA.BaseNoOfDays NoOfDays
+//							    ,FORMAT(SA.MatureDate,'dd-MMM-yyyy') MatureDate
+//								,PL.Amount LCAmount
+//								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+//								--,TA.UserName TransportAgent	
 
-								--,CNfA.UserName CNFAgent
-								,PSI.CNFContainerNo
-								,PSI.CNFVesselTrackingNo
-								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-													, RealizeAmount=isnull(I.WrittenOffAmount,0)
+//								--,CNfA.UserName CNFAgent
+//								,PSI.CNFContainerNo
+//								,PSI.CNFVesselTrackingNo
+//								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+//		                                         from trn.SalesMaterial SMX									 
+//												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+//												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+//												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+//									                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+//													, RealizeAmount=isnull(I.WrittenOffAmount,0)
 
-									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
-		                                         from trn.InvoiceWriteOffDetail IWD									 
-												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+//									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+//		                                         from trn.InvoiceWriteOffDetail IWD									 
+//												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+//												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+//								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
-
-
-								FROM TRN.SalesMaterial AS SM 
-								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
-
-									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
-									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
-									left outer join PurchaseLC PL on PL.ContractId=CON.Id
-									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
-									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
-									left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
-
-									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
-									left outer join HKP.Party TA on TA.Id=SA.PartyId
+//									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 
 
-						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
-						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
-						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
-						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
-						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
-						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
-						LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id
-						LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH2 ON SC.CharacteristicsId=CH2.Id
-						LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
-						LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
-						LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
-						LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
-						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
-						LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
-						LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
-						LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
-						LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
-						LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
-						LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
-						LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
-						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
-						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
-						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
-						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
-										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST' and A.SalesServiceId IS NULL
-									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								   ) TAxInfo	ON TAxInfo.SalesMaterialId=SM.Id 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST' and A.SalesServiceId IS NULL	
-									) TAxInfo1	ON TAxInfo1.SalesMaterialId=SM.Id 
+//								FROM TRN.SalesMaterial AS SM 
+//								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
+
+//									left outer join TRN.SalesOrder So on SO.Id=SM.SalesOrderId
+//									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+//									left outer join [Contract] CON on CON.Id=MOI.ContractId
+//									left outer join PurchaseLC PL on PL.ContractId=CON.Id
+//									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+//									left outer join PostSalesInvoice PSI on PSI.SalesId=SA.Id
+//									left outer join MST.PaymentTerm PTM on PTM.Id=SA.PaymentTermId
+
+//									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
+//									left outer join HKP.Party TA on TA.Id=SA.PartyId
+
+
+//						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
+//						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
+//						LEFT JOIN [TRN].[MasterOrder] AS MO ON MO.Id = MOI.MasterOrderId
+//						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
+//						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
+//						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+//						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+//						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
+//						LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
+//						LEFT JOIN HKP.CharacteristicsValue AS FCV ON FCV.Id=SM.FirstCharacteristicsValueId
+//						LEFT JOIN [HKP].[Characteristics] AS CH ON FC.CharacteristicsId=CH.Id
+//						LEFT JOIN TRN.SecondCharacteristics AS SC ON SC.Id=SM.SecondCharacteristicsId AND SM.SalesOrderId=SC.SalesOrderId
+//						LEFT JOIN HKP.CharacteristicsValue AS SCV ON SCV.Id=SM.SecondCharacteristicsValueId
+//						LEFT JOIN [HKP].[Characteristics] AS CH2 ON SC.CharacteristicsId=CH2.Id
+//						LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
+//						LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
+//						LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
+//						LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+//						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
+//						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
+//						LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+//						LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
+//						LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+//						LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+//						LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=SA.DeliveryPartyPlantId
+//						LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+//						LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+//						LEFT JOIN [SCS].[Currency] AS C ON C.Id=SA.CurrencyId
+//						LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=SA.PlantId
+//						Left JOIN [ORG].[Entity] E On E.id= SA.EntityId
+//						LEFT JOIN (SELECT SUM(Amount) Amount,SUM(WrittenOffAmount) WrittenOffAmount,VoucherId 
+//										FROM TRN.Invoice GROUP BY VoucherId) I ON I.VoucherId=SA.VoucherId
+//						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
+//								   FROM [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='CGST' and A.SalesServiceId IS NULL
+//									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+//								   ) TAxInfo	ON TAxInfo.SalesMaterialId=SM.Id 
+//						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
+//								   FROM [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='IGST' and A.SalesServiceId IS NULL	
+//									) TAxInfo1	ON TAxInfo1.SalesMaterialId=SM.Id 
 							  		 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST' and A.SalesServiceId IS NULL	
-									) TAxInfo2	ON TAxInfo2.SalesMaterialId=SM.Id 
+//						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
+//								   FROM [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='SGST' and A.SalesServiceId IS NULL	
+//									) TAxInfo2	ON TAxInfo2.SalesMaterialId=SM.Id 
 
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS' and A.SalesServiceId IS NULL									
-									) TAxInfo3	ON TAxInfo3.SalesMaterialId=SM.Id 
+//						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
+//								   FROM [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TDS' and A.SalesServiceId IS NULL									
+//									) TAxInfo3	ON TAxInfo3.SalesMaterialId=SM.Id 
 
 
 							
 					
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS' and A.SalesServiceId IS NULL		 
+//						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
+//								   FROM [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TCS' and A.SalesServiceId IS NULL		 
 								
-						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
-						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
-                        --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
-						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
+//						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
+//						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
+//                        --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
+//						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
 
-								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+//								WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
 
-									UNION ALL
+//									UNION ALL
 
-														Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
+//														Select                  
+//								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
+//								,ISs.Id
+//								,'' SalesNo
+//								--,'' GRNDate
+//								,'' InvoicingPartyPlant
+//								,'' DeliveryPartyPlant
+//								,'' Employee
+//								,'' GateEntryNo
+//								,'' GateName
+//								,'' GrnDocDateDifference
+//								,'' MaterialType
+//								,'' HSNNo
+//								,'' BaseQty
+//								,'' QualityStatus
+//								,'' GrossAmount
+//								,'' DiscountAmount
+//								,'' TotalMaterialBooksCurrencyAmount
+//								,'' CredtibleStatus
+//								,'' RCM
+//								,'' TrnCurrencyBaseRate
+//								,'' BooksCurrencyBaseRate
+//								,'' MMIsAsset
+//								,'' GRNIsAsset
+//								,'' POId
+//								,'' StorageLocation
+//								,'' ShortageQty
+//								,'' ShortageRatePercent
+//								,'' ShortageValuet
+//								,'' RejectionQty
+//								,'' RejectRatePer
+//								,'' RejectionValue
+//								,'' RejectionClam
+//								,'' ApprovedQty
+//								,'' GRNRowID
+//								,'' PreparedBy
+//								,'' Status
+//								,'' ApprovingName
+//								,'' PostingDate
+//								,'' GLCode
+//								,'' GL
+//								,'' BudgetCode
+//								,'' Budget
+//								,'' Activity
+//								--,'' GLCode
+//								--,'' GL
+//								--,'' BudgetCode
+//								--,'' Budget
+//								--,'' Activity
+//								,'' POREfference
+//								,'' IssueQty
+//								,'' BaseIssueQty
+//								,'' PurchaseReturnQty
+//								,'' IssueReturnQty
+//								,'' ReductionByAdjustmentQty
+//								,'' InventorySalesQty
+//								,'' InventoryScrapQty
+//								,'' InventoryTransferQty
 
-								--,IR.SourceType
-								,'' AS MaterialGroup
-								,SM.UserName Material
-								,IR.Id SalesId
-								--,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') EntryDate
-								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' as BillToAddress
-								--,'' as BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
-								, '' DocRefNo
-								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,'' AS Article
-								,''FirstCharacteristicsValue
-								,'' SecondCharacteristicsValue
-								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
-								--,0 BaseRate
-								--,0 BaseUoMFactor
-								,0 TransactionRate
-								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
-								,ISs.TaxAmount 
-								--,0 NetAmount
-								--,0 BooksVal
-								--,'' VoucherNo
-								,''  BaseUoM
-								,''  TransactionUoM
-								,''  Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--, 0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,'' Posted
-								--,'' 'NoteForAccounts'
+//								--,IR.SourceType
+//								,'' AS MaterialGroup
+//								,SM.UserName Material
+//								,IR.Id SalesId
+//								--,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') EntryDate
+//								,'' InvoiceDate
+//								--,'' SalesOrderId
+//								--,'' MasterOrderId
+//								--,'' SONo
+//								--,'' CustomerPONo
+//								--,'' AS BillTo
+//								--,'' as BillToAddress
+//								--,'' as BillToState
+//								,'' as BillToGSTNo
+//								--,'' AS ShipTo
+//								--,'' AS ShipToAddress
+//								--,'' AS ShipToState
+//								--,'' as ShipToGSTNo
+//								--, 0 ExchangeRate
+//								, '' DocRefNo
+//								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
+//								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+//								,'' AS Article
+//								,''FirstCharacteristicsValue
+//								,'' SecondCharacteristicsValue
+//								,'' ThirdCharacteristicsValue
+//								--, '' HSNCode
+//								--,0 BaseRate
+//								--,0 BaseUoMFactor
+//								,0 TransactionRate
+//								,0 TransactionQty
+//								--,ISs.Amount TransactionAmount
+//								,ISs.TaxAmount 
+//								--,0 NetAmount
+//								--,0 BooksVal
+//								--,'' VoucherNo
+//								,''  BaseUoM
+//								,''  TransactionUoM
+//								,''  Currency
+//								--,'' DeliveryDate
+//								--,'' DestinationName
+//								--,'' SOType
+//								--,0 ServiceCharge
+//								--, 0 ServiceTax
+//								--,E.UserName Entity
+//								--,'' CheckedByName
+//								--,'' CheckedBy
+//								--,'' ApprovedByName
+//								--,'' ApprovedBy
+//								,'' Posted
+//								--,'' 'NoteForAccounts'
 
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+//								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+//								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+//								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+//								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								--,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''CNFAgent
-								,''AgentCommission
-								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,CON.ContractNo
-								,ML.LCRef 
-								,IR.ComercialInvoiceNo
-								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
-								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
-								,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
-								,IR.BaseNoOfDays NoOfDays
-							    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
-								,PL.Amount LCAmount
-								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
-								--,TA.UserName TransportAgent	
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
+//								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+//								--,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''CNFAgent
+//								,''AgentCommission
+//								,'' Insurance
+//		,''GrossWeight,''LoTNo
+//		,CON.ContractNo
+//								,ML.LCRef 
+//								,IR.ComercialInvoiceNo
+//								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
+//								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
+//								,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
+//								,IR.BaseNoOfDays NoOfDays
+//							    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
+//								,PL.Amount LCAmount
+//								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
+//								--,TA.UserName TransportAgent	
 
-								--,CNfA.UserName CNFAgent
-								,PSI.CNFContainerNo
-								,PSI.CNFVesselTrackingNo
-								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
-		                                         from trn.SalesMaterial SMX									 
-												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
-												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
-												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
-									                where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-													, RealizeAmount=isnull(I.WrittenOffAmount,0)
+//								--,CNfA.UserName CNFAgent
+//								,PSI.CNFContainerNo
+//								,PSI.CNFVesselTrackingNo
+//								, OwnReferenceNo=STUFF((select distinct ','+MO.OwnReferenceNo
+//		                                         from trn.SalesMaterial SMX									 
+//												 join  trn.SalesOrder XSO 	 ON XSO.Id=SMX.SalesOrderId   
+//												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
+//												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
+//									                where smx.SalesId=IR.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+//													, RealizeAmount=isnull(I.WrittenOffAmount,0)
 
-									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
-		                                         from trn.InvoiceWriteOffDetail IWD									 
-												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
-												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
-								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+//									, RealizeDate=STUFF((select distinct ','+FORMAT(IW.PostingDate,'dd-MMM-yyyy')
+//		                                         from trn.InvoiceWriteOffDetail IWD									 
+//												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
+//												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
+//								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
-									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
+//									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
 
-								from trn.SalesService AS ISs
-								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-								left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
-									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
-									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
-									left outer join PurchaseLC PL on PL.ContractId=CON.Id
-									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
-									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
-									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
+//								from trn.SalesService AS ISs
+//								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+//								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+//								left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
+//									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
+//									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
+//									left outer join [Contract] CON on CON.Id=MOI.ContractId
+//									left outer join PurchaseLC PL on PL.ContractId=CON.Id
+//									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
+//									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
+//									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
 
-									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
-									left outer join HKP.Party TA on TA.Id=IR.PartyId
+//									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
+//									left outer join HKP.Party TA on TA.Id=IR.PartyId
 
-						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
-						left join trn.Voucher V on V.Id=I.VoucherId
-						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-						left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST'  
+//						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+//						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+//						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+//						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
+//						left join trn.Voucher V on V.Id=I.VoucherId
+//						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+//						left join trn.Voucher V1 on V1.Id=ep.VoucherId
+//						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
+//						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+//									,A.Amount TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='CGST'  
 									
-									) TAxInfo	ON TAxInfo.SalesServiceId=ISs.Id AND TAxInfo.SalesServiceId IS NOT NULL
+//									) TAxInfo	ON TAxInfo.SalesServiceId=ISs.Id AND TAxInfo.SalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST'  
-									) TAxInfo1	ON TAxInfo1.SalesServiceId=ISs.Id AND TAxInfo1.SalesServiceId IS NOT NULL 
+//						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+//									,A.Amount TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='IGST'  
+//									) TAxInfo1	ON TAxInfo1.SalesServiceId=ISs.Id AND TAxInfo1.SalesServiceId IS NOT NULL 
 							  		 
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST'  
+//						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+//									,A.Amount TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='SGST'  
 
-											) TAxInfo2	ON TAxInfo2.SalesServiceId=ISs.Id AND TAxInfo2.SalesServiceId IS NOT NULL
+//											) TAxInfo2	ON TAxInfo2.SalesServiceId=ISs.Id AND TAxInfo2.SalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS'  
-									) TAxInfo3	ON TAxInfo3.SalesServiceId=ISs.Id AND TAxInfo3.SalesServiceId IS NOT NULL
+//						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+//									,A.Amount TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TDS'  
+//									) TAxInfo3	ON TAxInfo3.SalesServiceId=ISs.Id AND TAxInfo3.SalesServiceId IS NOT NULL
 
 
 						
-						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
-									,A.Amount TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[SalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS'
-						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
+//						LEFT JOIN (SELECT A.SalesServiceId,A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+//									,A.Amount TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[SalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TCS'
+//						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-								union ALL
+//								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+//								union ALL
 
-								SELECT 
-								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,IID.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
+//								SELECT 
+//								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
+//								,IID.Id
+//								,'' SalesNo
+//								--,'' GRNDate
+//								,'' InvoicingPartyPlant
+//								,'' DeliveryPartyPlant
+//								,'' Employee
+//								,'' GateEntryNo
+//								,'' GateName
+//								,'' GrnDocDateDifference
+//								,'' MaterialType
+//								,'' HSNNo
+//								,'' BaseQty
+//								,'' QualityStatus
+//								,'' GrossAmount
+//								,'' DiscountAmount
+//								,'' TotalMaterialBooksCurrencyAmount
+//								,'' CredtibleStatus
+//								,'' RCM
+//								,'' TrnCurrencyBaseRate
+//								,'' BooksCurrencyBaseRate
+//								,'' MMIsAsset
+//								,'' GRNIsAsset
+//								,'' POId
+//								,'' StorageLocation
+//								,'' ShortageQty
+//								,'' ShortageRatePercent
+//								,'' ShortageValuet
+//								,'' RejectionQty
+//								,'' RejectRatePer
+//								,'' RejectionValue
+//								,'' RejectionClam
+//								,'' ApprovedQty
+//								,'' GRNRowID
+//								,'' PreparedBy
+//								,'' Status
+//								,'' ApprovingName
+//								,'' PostingDate
+//								,'' GLCode
+//								,'' GL
+//								,'' BudgetCode
+//								,'' Budget
+//								,'' Activity
+//								--,'' GLCode
+//								--,'' GL
+//								--,'' BudgetCode
+//								--,'' Budget
+//								--,'' Activity
+//								,'' POREfference
+//								,'' IssueQty
+//								,'' BaseIssueQty
+//								,'' PurchaseReturnQty
+//								,'' IssueReturnQty
+//								,'' ReductionByAdjustmentQty
+//								,'' InventorySalesQty
+//								,'' InventoryScrapQty
+//								,'' InventoryTransferQty
 
-								--,'InventorySales' SourceType
-								,MGM.UserName AS MaterialGroup
-								,MM.UserName Material
-								,II.Id SalesInvoiceNo
-								--,FORMAT(II.SalesDate, 'dd-MMM-yyyy') EntryDate
-								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as BillToAddress
-								--,ST.UserName as BillToState				
-								,PPI.GSTIN as BillToGSTNo
-								--,PPI1.UserName ShipTo
-								--,AM1.Address1 ShipToAddress
-								--,ST1.UserName ShipToState
-								--,PPI1.GSTIN ShipToGSTNo
-								--,II.ToCurrencyRate ExchangeRate
-								, II.DocRefNo
-								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,ART.StandardName AS Article
-								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
-								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
-								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-								--, ISNULL(TAxInfo.HSCode,'') HSNCode
+//								--,'InventorySales' SourceType
+//								,MGM.UserName AS MaterialGroup
+//								,MM.UserName Material
+//								,II.Id SalesInvoiceNo
+//								--,FORMAT(II.SalesDate, 'dd-MMM-yyyy') EntryDate
+//								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
+//								--,'' SalesOrderId
+//								--,'' MasterOrderId
+//								--,'' SONo
+//								--,'' CustomerPONo
+//								--,PPI.UserName AS BillTo
+//								--,AM.Address1 as BillToAddress
+//								--,ST.UserName as BillToState				
+//								,PPI.GSTIN as BillToGSTNo
+//								--,PPI1.UserName ShipTo
+//								--,AM1.Address1 ShipToAddress
+//								--,ST1.UserName ShipToState
+//								--,PPI1.GSTIN ShipToGSTNo
+//								--,II.ToCurrencyRate ExchangeRate
+//								, II.DocRefNo
+//								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocRefDate
+//								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+//								,ART.StandardName AS Article
+//								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
+//								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
+//								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+//								--, ISNULL(TAxInfo.HSCode,'') HSNCode
 
-								--,IID.SalesRate BaseRate
-								--,IRD.BaseUoMFactor 
-								,IID.SalesRate TransactionRate
-								,IID.TransactionQty 
-								--,IID.TransactionQty *IID.SalesRate TransactionAmount
-								,SCr1.TaxAmount TaxAmount
-								--,IID.[TotalSalesAmount] NetAmount
-								--,IID.[BooksCurrencyTransactionAmount] BooksVal
-								--,II.VoucherId VoucherNo
-								,TUoM.UserName AS BaseUoM
-								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,SCr.Amount ServiceCharge
-								--,SCr.TotalTaxAmount ServiceTax
+//								--,IID.SalesRate BaseRate
+//								--,IRD.BaseUoMFactor 
+//								,IID.SalesRate TransactionRate
+//								,IID.TransactionQty 
+//								--,IID.TransactionQty *IID.SalesRate TransactionAmount
+//								,SCr1.TaxAmount TaxAmount
+//								--,IID.[TotalSalesAmount] NetAmount
+//								--,IID.[BooksCurrencyTransactionAmount] BooksVal
+//								--,II.VoucherId VoucherNo
+//								,TUoM.UserName AS BaseUoM
+//								,TUoM.UserName AS TransactionUoM
+//								,CU.Code AS Currency
+//								--,'' DeliveryDate
+//								--,'' DestinationName
+//								--,'' SOType
+//								--,SCr.Amount ServiceCharge
+//								--,SCr.TotalTaxAmount ServiceTax
 
-								--,E.UserName AS Entity 
-								--,EI2.EmployeeName CheckedByName
-								--,II.CheckedBy
-								--,EI1.EmployeeName ApprovedByName
-								--,II.ApprovedBy
-								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
-								--,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
+//								--,E.UserName AS Entity 
+//								--,EI2.EmployeeName CheckedByName
+//								--,II.CheckedBy
+//								--,EI1.EmployeeName ApprovedByName
+//								--,II.ApprovedBy
+//								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
+//								--,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
 
-								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+//								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+//								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+//								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+//								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								--,''TransportDocDate,''CNFAgent
-								,''AgentCommission
-								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
-								,''LCRef
-								,''ComercialInvoiceNo
-								,''ExpiryDate
-								,''BLAWBNo,''BLAWBDate
-								,''PaymentTerm,''BaseOnDueDate
-								,0NoOfDays
-							    ,''MatureDate
-								,0LCAmount
-								,''ExFactoryDate
-								--,''TransportAgent	
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
+//								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
+//								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+//								--,''TransportDocDate,''CNFAgent
+//								,''AgentCommission
+//								,'' Insurance
+//		,''GrossWeight,''LoTNo
+//		,''ContractNo
+//								,''LCRef
+//								,''ComercialInvoiceNo
+//								,''ExpiryDate
+//								,''BLAWBNo,''BLAWBDate
+//								,''PaymentTerm,''BaseOnDueDate
+//								,0NoOfDays
+//							    ,''MatureDate
+//								,0LCAmount
+//								,''ExFactoryDate
+//								--,''TransportAgent	
 
-								--,''CNFAgent
-								,''CNFContainerNo
-								,''CNFVesselTrackingNo
-								,''OwnReferenceNo
-													,0 RealizeAmount
+//								--,''CNFAgent
+//								,''CNFContainerNo
+//								,''CNFVesselTrackingNo
+//								,''OwnReferenceNo
+//													,0 RealizeAmount
 
-									,''RealizeDate
+//									,''RealizeDate
 
-									--,0BalanceAmount
+//									--,0BalanceAmount
 
-								FROM[TRN].[InventorySalesDetail] AS IID
-								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
-								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
-								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
-								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
-								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
-								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
-								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
-								LEFT JOIN SCS.Currency AS CU ON CU.Id=II.CurrencyId
-								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
-								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
-								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
+//								FROM[TRN].[InventorySalesDetail] AS IID
+//								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
+//								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
+//								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
+//								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
+//								left JOIN [HKP].[MaterialStorage] AS MS ON II.MaterialStorageId= MS.Id
+//								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
+//								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
+//								LEFT JOIN SCS.Currency AS CU ON CU.Id=II.CurrencyId
+//								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
+//								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+//								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
 
-						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
-						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
-						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
-						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
-						Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
-						Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
-						Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
-						Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
-						--Left Join [HKP].[Party] Par As Par.Id=II.P
-						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
-						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					--	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
-						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
-						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
-						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
-			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
+//						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
+//						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
+//						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
+//						Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
+//						Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
+//						Left Join [ORG].[Company] Com  ON Com.Id=II.CompanyId
+//						Left Join [ORG].[CompanyGroup] ComG  ON ComG.Id=II.CompanyGroupId
+//						--Left Join [HKP].[Party] Par As Par.Id=II.P
+//						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
+//						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+//					--	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+//						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+//						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
+//						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+//						LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+//						LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+//						LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+//						LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+//						LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+//						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+//						LEFT JOIN(Select sum(Amount) Amount, sum(TotalTaxAmount) TotalTaxAmount, InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
+//						LEFT JOIN(Select distinct sum(TaxAmount) TaxAmount, InventorySalesId from trn.InventorySalesTax group by InventorySalesId)SCr1 ON SCr1.InventorySalesId=II.Id
+//			LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+//									FROM [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId								
-								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId and TAxInfo.InventorySalesDetailId=IID.Id
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='CGST' and A.InventorySalesServiceId IS NULL	
+//									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId								
+//								   ) TAxInfo	ON TAxInfo.InventorySalesId=IID.InventorySalesId and TAxInfo.InventorySalesDetailId=IID.Id
+//						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+//									FROM [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId									
-									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId and TAxInfo1.InventorySalesDetailId=IID.Id 
+//									WHERE B.Code='IGST' and A.InventorySalesServiceId IS NULL	
+//									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId									
+//									) TAxInfo1	ON TAxInfo1.InventorySalesId=IID.InventorySalesId and TAxInfo1.InventorySalesDetailId=IID.Id 
 							  		 
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+//									FROM [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId										
-									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId and TAxInfo2.InventorySalesDetailId=IID.Id 
+//									WHERE B.Code='SGST' and A.InventorySalesServiceId IS NULL	
+//									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId										
+//									) TAxInfo2	ON TAxInfo2.InventorySalesId=IID.InventorySalesId and TAxInfo2.InventorySalesDetailId=IID.Id 
 
-						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
-									FROM [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//						LEFT JOIN (SELECT A.InventorySalesDetailId, A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount--,hs.Code HSCode 
+//									FROM [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 
-									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL	
-									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId						
-									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId and TAxInfo3.InventorySalesDetailId=IID.Id 							
+//									WHERE B.Code='TDS' and A.InventorySalesServiceId IS NULL	
+//									group by A.InventorySalesId, B.UserName ,B.Code,A.InventorySalesDetailId						
+//									) TAxInfo3	ON TAxInfo3.InventorySalesId=IID.InventorySalesId and TAxInfo3.InventorySalesDetailId=IID.Id 							
 					
-						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount FROM 
-									[TRN].InventorySalesAdditionalTax A
-									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-									WHERE B.Code='TCS' 	
-									Group by A.InventorySalesId, B.UserName ,B.Code 
-						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
+//						LEFT JOIN (SELECT A.InventorySalesId, B.UserName TaxCategoryName,B.Code ,sum(A.Percentage) Percentage,sum(A.TaxAmount) TaxAmount FROM 
+//									[TRN].InventorySalesAdditionalTax A
+//									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+//									WHERE B.Code='TCS' 	
+//									Group by A.InventorySalesId, B.UserName ,B.Code 
+//						) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 						
-						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+//						WHERE II.PlantId='" + identity.PlantId + "' AND convert(Date,II.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
 					
 
-								UNION ALL
+//								UNION ALL
 
-								Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
-								--,'' GRNDate
-								,'' InvoicingPartyPlant
-								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
+//								Select                  
+//								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
+//								,ISs.Id
+//								,'' SalesNo
+//								--,'' GRNDate
+//								,'' InvoicingPartyPlant
+//								,'' DeliveryPartyPlant
+//								,'' Employee
+//								,'' GateEntryNo
+//								,'' GateName
+//								,'' GrnDocDateDifference
+//								,'' MaterialType
+//								,'' HSNNo
+//								,'' BaseQty
+//								,'' QualityStatus
+//								,'' GrossAmount
+//								,'' DiscountAmount
+//								,'' TotalMaterialBooksCurrencyAmount
+//								,'' CredtibleStatus
+//								,'' RCM
+//								,'' TrnCurrencyBaseRate
+//								,'' BooksCurrencyBaseRate
+//								,'' MMIsAsset
+//								,'' GRNIsAsset
+//								,'' POId
+//								,'' StorageLocation
+//								,'' ShortageQty
+//								,'' ShortageRatePercent
+//								,'' ShortageValuet
+//								,'' RejectionQty
+//								,'' RejectRatePer
+//								,'' RejectionValue
+//								,'' RejectionClam
+//								,'' ApprovedQty
+//								,'' GRNRowID
+//								,'' PreparedBy
+//								,'' Status
+//								,'' ApprovingName
+//								,'' PostingDate
+//								,'' GLCode
+//								,'' GL
+//								,'' BudgetCode
+//								,'' Budget
+//								,'' Activity
+//								--,'' GLCode
+//								--,'' GL
+//								--,'' BudgetCode
+//								--,'' Budget
+//								--,'' Activity
+//								,'' POREfference
+//								,'' IssueQty
+//								,'' BaseIssueQty
+//								,'' PurchaseReturnQty
+//								,'' IssueReturnQty
+//								,'' ReductionByAdjustmentQty
+//								,'' InventorySalesQty
+//								,'' InventoryScrapQty
+//								,'' InventoryTransferQty
 
-								,IR.Id SalesInvoiceNo
-								,'' AS MaterialGroup
-								,SM.UserName MaterialM
-								--,'InventorySales' SourceType
-								--,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') EntryDate
-								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' AS BillToAddress
-								--,'' AS BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState	
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
-								, '' DocRefNo
-								,FORMAT(IR.DocDate,'') DocRefDate
-								, P.UserName AS Party,p.Code PartyCode,p.PartyType
-								,'' AS Article
-								,''FirstCharacteristicsValue
-								,'' SecondCharacteristicsValue
-								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
+//								,IR.Id SalesInvoiceNo
+//								,'' AS MaterialGroup
+//								,SM.UserName MaterialM
+//								--,'InventorySales' SourceType
+//								--,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') EntryDate
+//								,'' InvoiceDate
+//								--,'' SalesOrderId
+//								--,'' MasterOrderId
+//								--,'' SONo
+//								--,'' CustomerPONo
+//								--,'' AS BillTo
+//								--,'' AS BillToAddress
+//								--,'' AS BillToState
+//								,'' as BillToGSTNo
+//								--,'' AS ShipTo
+//								--,'' AS ShipToAddress
+//								--,'' AS ShipToState	
+//								--,'' as ShipToGSTNo
+//								--, 0 ExchangeRate
+//								, '' DocRefNo
+//								,FORMAT(IR.DocDate,'') DocRefDate
+//								, P.UserName AS Party,p.Code PartyCode,p.PartyType
+//								,'' AS Article
+//								,''FirstCharacteristicsValue
+//								,'' SecondCharacteristicsValue
+//								,'' ThirdCharacteristicsValue
+//								--, '' HSNCode
 
-								--,0 BaseRate
-								--,0 BaseUoMFactor
-								,0 TransactionRate
-								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
-								,0 TaxAmount
-								--,ISs.Amount NetAmount
-								--,ISs.Amount BooksVal
-								--,'' VoucherNo
-								,'' AS BaseUoM
-								,'' AS TransactionUoM
-								,'' AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--,0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,'' Posted
-								--,'' 'NoteForAccounts'
+//								--,0 BaseRate
+//								--,0 BaseUoMFactor
+//								,0 TransactionRate
+//								,0 TransactionQty
+//								--,ISs.Amount TransactionAmount
+//								,0 TaxAmount
+//								--,ISs.Amount NetAmount
+//								--,ISs.Amount BooksVal
+//								--,'' VoucherNo
+//								,'' AS BaseUoM
+//								,'' AS TransactionUoM
+//								,'' AS Currency
+//								--,'' DeliveryDate
+//								--,'' DestinationName
+//								--,'' SOType
+//								--,0 ServiceCharge
+//								--,0 ServiceTax
+//								--,E.UserName Entity
+//								--,'' CheckedByName
+//								--,'' CheckedBy
+//								--,'' ApprovedByName
+//								--,'' ApprovedBy
+//								,'' Posted
+//								--,'' 'NoteForAccounts'
 
-						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
-						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
-						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
-						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
+//						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+//						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+//						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+//						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+//						,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-						,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-						,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-						--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-						--,''TransportDocDate,''CNFAgent
-						,''AgentCommission
-						,'' Insurance
-,''GrossWeight,''LoTNo
-,''ContractNo
-						,''LCRef
-						,''ComercialInvoiceNo
-						,''ExpiryDate
-						,''BLAWBNo,''BLAWBDate
-						,''PaymentTerm,''BaseOnDueDate
-						,0 NoOfDays
-					    ,''MatureDate
-						,0 LCAmount
-						,''ExFactoryDate
-						--,''TransportAgent	
+//						,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
+//						,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
+//						,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
+//						--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
+//						--,''TransportDocDate,''CNFAgent
+//						,''AgentCommission
+//						,'' Insurance
+//,''GrossWeight,''LoTNo
+//,''ContractNo
+//						,''LCRef
+//						,''ComercialInvoiceNo
+//						,''ExpiryDate
+//						,''BLAWBNo,''BLAWBDate
+//						,''PaymentTerm,''BaseOnDueDate
+//						,0 NoOfDays
+//					    ,''MatureDate
+//						,0 LCAmount
+//						,''ExFactoryDate
+//						--,''TransportAgent	
 						
-						--,''CNFAgent
-						,''CNFContainerNo
-						,''CNFVesselTrackingNo
-						,''OwnReferenceNo
-						,0 RealizeAmount
-					    ,''RealizeDate
+//						--,''CNFAgent
+//						,''CNFContainerNo
+//						,''CNFVesselTrackingNo
+//						,''OwnReferenceNo
+//						,0 RealizeAmount
+//					    ,''RealizeDate
 
-							--,0BalanceAmount
-						from trn.InventoryService AS ISS
-						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
-						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
-						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
-						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
-						left join trn.Voucher V on V.Id=I.VoucherId
-						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-						left join trn.Voucher V1 on V1.Id=ep.VoucherId
-						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='CGST'  
-									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
-									) TAxInfo	ON TAxInfo.InventorySalesServiceId=ISs.Id AND TAxInfo.InventorySalesServiceId IS NOT NULL
+//							--,0BalanceAmount
+//						from trn.InventoryService AS ISS
+//						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+//						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
+//						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
+//						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+//						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+//						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
+//						left join trn.Voucher V on V.Id=I.VoucherId
+//						left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+//						left join trn.Voucher V1 on V1.Id=ep.VoucherId
+//						Left JOIN [ORG].[Entity] E On E.id= IR.EntityId
+//						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+//									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='CGST'  
+//									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
+//									--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+//									) TAxInfo	ON TAxInfo.InventorySalesServiceId=ISs.Id AND TAxInfo.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='IGST'  
-									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									) TAxInfo1	ON TAxInfo1.InventorySalesServiceId=ISs.Id AND TAxInfo1.InventorySalesServiceId IS NOT NULL 
+//						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+//									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='IGST'  
+//									Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
+//									) TAxInfo1	ON TAxInfo1.InventorySalesServiceId=ISs.Id AND TAxInfo1.InventorySalesServiceId IS NOT NULL 
 							  		 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='SGST'  
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-											) TAxInfo2	ON TAxInfo2.InventorySalesServiceId=ISs.Id AND TAxInfo2.InventorySalesServiceId IS NOT NULL
+//						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+//									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='SGST'  
+//                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
+//											) TAxInfo2	ON TAxInfo2.InventorySalesServiceId=ISs.Id AND TAxInfo2.InventorySalesServiceId IS NOT NULL
 
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TDS' 
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-									) TAxInfo3	ON TAxInfo3.InventorySalesServiceId=ISs.Id AND TAxInfo3.InventorySalesServiceId IS NOT NULL
+//						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,sum(A.Percentage) Percentage
+//									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TDS' 
+//                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
+//									) TAxInfo3	ON TAxInfo3.InventorySalesServiceId=ISs.Id AND TAxInfo3.InventorySalesServiceId IS NOT NULL
 							
 					
-						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,Sum(A.Percentage) Percentage
-									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
-									FROM  [TRN].[InventorySalesTax] A
-									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS' 
-                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
-						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
+//						LEFT JOIN (SELECT A.InventorySalesServiceId,A.InventorySalesId, B.UserName TaxCategoryName,B.Code  ,Sum(A.Percentage) Percentage
+//									,sum(A.TaxAmount) TaxAmount--,HS.Code HSCode 
+//									FROM  [TRN].[InventorySalesTax] A
+//									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+//									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+//									WHERE B.Code='TCS' 
+//                                    Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
+//						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' ";
+//								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' ";
 
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw new CustomException(ex.Message, ex,
-                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
-            }
-        }
+//                return _sqlRepository.GetDataCollection(sql);
+//            }
+//            catch (Exception ex)
+//            {
+//                throw new CustomException(ex.Message, ex,
+//                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+//                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+//            }
+//        }
         #endregion
 
 
