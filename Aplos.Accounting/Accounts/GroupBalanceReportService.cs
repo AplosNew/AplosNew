@@ -759,9 +759,13 @@ union
 
                 //Instantiate the Excel application object
                 DataTable dtGroupBalance = _sqlRepository.GetDataTable(sql);
-                DataTable dtGroupBalanceBudget = _sqlRepository.GetDataTable(Budgetsql);
+                DataTable dtGroupBalanceBudgets = _sqlRepository.GetDataTable(Budgetsql);
                 if (dtGroupBalance.Rows.Count == 0)
                     throw new Exception("No data found");
+
+                var dtGroupBalanceBudget = dtGroupBalanceBudgets.AsEnumerable()
+                        .OrderBy(r => r["ActivityName"])
+                        .CopyToDataTable();
 
                 ExcelEngine excelEngine = new ExcelEngine();
                 IApplication application = excelEngine.Excel;
@@ -1125,7 +1129,7 @@ sheet[ROW, colOpenningDRCR].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 {
                     var data = dtGroupBalanceBudget.AsEnumerable()
                         .Where(r => r.Field<string>("BudgetName") == dt.Rows[j]["BudgetName"].ToString())
-                        .OrderBy(r => r["BudgetName"])
+                        .OrderBy(r => r["ActivityName"])
                         .CopyToDataTable();
                     StartRow = ROW;
                     for (int i = 0; i < data.Rows.Count; i++)
