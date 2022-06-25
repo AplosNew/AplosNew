@@ -25,10 +25,10 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string sql = @"SELECT mb.Id BudgetCodeId,mb.Code BudgetCode,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
-                            ,0 DailyOTLimit,0 WeeklyOTLimit,0 WeekOffOTLimit,0 MonthlyOTLimit,'' Remarks,
-                            MB.ROBudgetCode,MB.PRBudgetCode,P.AttendanceGroupId,P.UserDefineGroup2,P.DirectManpowerCost
-                              FROM MST.ManpowerBudget AS mb
+                string sql = @"SELECT mb.Id BudgetCodeId,mb.Deployment,mb.Code BudgetCode,p.Code PositionCode,DGM.EmployeeCategory,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
+                            ,ei.EmployeeName ResponsiblePerson,0 DailyOTLimit,0 WeeklyOTLimit,0 WeekOffOTLimit,0 MonthlyOTLimit,'' Remarks,
+                            MB.ROBudgetCode,MB.PRBudgetCode,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END
+                            FROM MST.ManpowerBudget AS mb
                             LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
                             LEFT JOIN ORG.Position AS p ON P.Id=mb.PositionId
                             LEFT JOIN ORG.Department AS d ON d.Id=p.DepartmentId
@@ -36,8 +36,13 @@ namespace Library.HumanResource.NewOTProcess
                             LEFT JOIN ORG.SubSection AS SS ON SS.Id=p.SubSectionId
                             LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId 
                             LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID=mb.ShiftDefinationId
-                            LEFT JOIN (SELECT dm.DesignationId,dmc.IsOTEntitled FROM MST.DesignationMaster AS dm
-                            LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id) DGM ON DGM.DesignationId=DG.Id
+                            LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
+                            LEFT JOIN (SELECT dm.DesignationId,dmc.IsOTEntitled,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
+                            LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
+                            LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId                            
+                            ) DGM ON DGM.DesignationId=DG.Id
+                           -- LEFT JOIN MST.ManpowerBudgetDetail AS mbd ON mbd.ManpowerBudgetId=mb.Id
+                           LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=mb.ResponsiblePerson
                             WHERE mb.Active=1 AND DGM.IsOTEntitled=1";
 
                 return _sqlRepository.GetDataTable(sql);
