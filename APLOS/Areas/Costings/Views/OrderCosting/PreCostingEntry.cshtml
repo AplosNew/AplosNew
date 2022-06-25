@@ -22,6 +22,7 @@
                 <th class="text-right">Gross Amount</th>
 
                 <th>BOQ Criteria</th>
+                <th>Procurement Level</th>
                 <th>Sourcing Type</th>
 
                 <th>IsMandatory</th>
@@ -30,15 +31,15 @@
                 <th>Article</th>
                 <th>PO Criteria</th>
                 <th>Vendor</th>
+                <th>Remarks</th>
                 <th class="text-right">Min. Qty</th>
-                <th>Procurement Level</th>
+
                 <th>BOQ Days</th>
                 <th>Dependent Date</th>
 
 
                 <th>Usage</th>
                 <th>Res. Person</th>
-                <th>Remarks</th>
                 <th>Pur. Grp</th>
 
                 <th style="text-align:center!important;">Lead Days</th>
@@ -94,6 +95,15 @@
                         <select name="Entity" ng-model="x.BOQCriteria" style="width: 90px;margin-left: 0px;"
                                 ng-options="item.Criteria as item.UserName for item in BOQCriteriaList">
                             <option value=""></option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
+                            <option value=""></option>
+                            <option value="SO">Sales Order</option>
+                            <option value="SKU">SKU</option>
                         </select>
                     </div>
                 </td>
@@ -156,19 +166,14 @@
                         </span>
                     </div>
                 </td>
+                <td>
+                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
+                </td>
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
                 </td>
 
-                <td>
-                    <div class="select-style">
-                        <select style="width: 90px;margin-left: 0px;" name="ProcurementLevel" ng-model="x.ProcurementLevel">
-                            <option value=""></option>
-                            <option value="SO">Sales Order</option>
-                            <option value="SKU">SKU</option>
-                        </select>
-                    </div>
-                </td>
+
                 <td class="text-right">
                     <input type="number" style="min-width:40px;" min="0" ng-model="x.BOQDays" class="form-control">
                 </td>
@@ -202,14 +207,6 @@
                         </span>
                     </div>
                 </td>
-
-
-
-                <td>
-                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
-                </td>
-
-
 
                 <td>
                     <div class="select-style">

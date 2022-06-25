@@ -493,14 +493,34 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     };
     $scope.ResidenceData = Object.assign({}, $scope.selectedDataR);
 
-    $scope.save = function () {
+    //$scope.save = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'save',
+    //        data: {
+    //            'data': $scope.ResidenceData,
+    //            'EmployeeId': $scope.SelectedEmployeeId,
+    //            'ResidenceMasterId': $scope.selResidenceMasterId,
+    //        },
+    //        dataType: 'JSON',
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, 'success');
+    //        }
+    //    });
+    //}
+
+    $scope.ResidenceStatusSave = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'save',
+            url: $scope.path + 'residenceStatusSave',
             data: {
-                'data': $scope.ResidenceData,
-                'EmployeeId': $scope.SelectedEmployeeId,
-                'ResidenceMasterId': $scope.selResidenceMasterId,
+                'data': $scope.selectedData,
+                'EmployeeId': $scope.EmployeeList,
+                'ResidenceMasterId': $scope.ModelList.Id,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -512,6 +532,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             }
         });
     }
+
 
     $scope.ResidenceStatusLocationList = [];
     $scope.getResidenceStatusLocation = function () {

@@ -26,7 +26,8 @@ namespace Library.HumanResource.NewOTProcess
             try
             {
                 string sql = @"SELECT mb.Id BudgetCodeId,mb.Code BudgetCode,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
-                            ,0 DailyOTLimit,0 WeeklyOTLimit,0 WeekOffOTLimit,0 MonthlyOTLimit,'' Remarks
+                            ,0 DailyOTLimit,0 WeeklyOTLimit,0 WeekOffOTLimit,0 MonthlyOTLimit,'' Remarks,
+                            MB.ROBudgetCode,MB.PRBudgetCode,P.AttendanceGroupId,P.UserDefineGroup2,P.DirectManpowerCost
                               FROM MST.ManpowerBudget AS mb
                             LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
                             LEFT JOIN ORG.Position AS p ON P.Id=mb.PositionId

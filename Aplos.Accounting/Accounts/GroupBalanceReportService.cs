@@ -135,7 +135,7 @@ namespace Library.Accounting.Accounts
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
 
                         UNION
@@ -207,7 +207,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -279,7 +279,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -353,7 +353,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -423,7 +423,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -495,7 +495,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId='" + budgetMasterId + @"'  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -569,7 +569,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -639,7 +639,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId
@@ -711,7 +711,7 @@ union
 	                        JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 	                        WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId=@companyId
                         ) AS CC ON CC.VoucherDetailId=VD.Id
-                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate < '" + toDate + @"' AND V.SourceType!='OpeningBalance'
+                        WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND VD.GLGeneralInfoId='" + glId + @"' AND VD.BudgetMasterId=BGM.Id  AND VD.ActivityId=A.Id  AND V.PostingDate <= '" + toDate + @"' AND V.SourceType!='OpeningBalance'
                         GROUP BY CC.CompanyCurrencyId
                         UNION
                         SELECT SUM(CC.CompanyCurrencyDrAmount) AS CompanyCurrencyDrAmount, SUM(CC.CompanyCurrencyCrAmount) AS CompanyCurrencyCrAmount, CC.CompanyCurrencyId

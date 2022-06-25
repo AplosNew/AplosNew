@@ -145,12 +145,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult Save(Dictionary<string, object> data, string EmployeeId, string ResidenceMasterId)
+        public JsonResult residenceStatusSave(Dictionary<string, object> data, List<Dictionary<string, object>> EmployeeId, string ResidenceMasterId)
         {
 
             try
             {
-                return Json(new { Error = "No", Data = rsl.Save(data, EmployeeId, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = "No", Data = rsl.Save(data,  EmployeeId, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
             {

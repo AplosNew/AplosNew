@@ -268,7 +268,7 @@
                             <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
                             <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="80"></div>
                             @*<div e-column e-field="VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>*@
-                            <div e-column e-field="Occupie" e-headertext="Occupied" e-width="100"></div>
+                            <div e-column e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
                             <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
                             @*<div e-column e-headertext="Allocation" ng-click="openChildGrid()" e-headertemplateid="#headerTemplate" e-template="#AllocationTemplate" e-textalign="center" e-width="100"></div>*@
                             @*<div e-column e-field="Allocation" e-headertext="Allocation" e-width="100"></div>*@
@@ -288,6 +288,14 @@
                             </ul>
                         </div>
                     </script>
+                </div>
+
+                 <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="ResidenceStatusSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+
                 </div>
                 <div class="modal fade site-modal in" id="EmpPop" role="dialog" data-backdrop="static">
                     <div class="modal-dialog modal-lg modellgModify ">

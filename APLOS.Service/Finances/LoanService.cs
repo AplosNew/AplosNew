@@ -1378,32 +1378,39 @@ namespace Library.Service.Finances
                     var voucherDetailFrom = new VoucherDetail
                     {
                         PartyType = financing.PartyType,
-                        PaymentSource = financing.PaymentSource
+                        PaymentSource = financing.PaymentSource,
+                        LoanSetOffGroupNo= _loanSetOffGroupNo
                     };
 
                     // Investment to side Voucher detail row.
                     var voucherDetailTo = new VoucherDetail
                     {
-                        PartyType = item.PartyType
+                        PartyType = item.PartyType,
+                        LoanSetOffGroupNo = _loanSetOffGroupNo
+
                     };
 
                    
 
                     var exchangeloss = new VoucherDetail
                     {
-                        PartyType = voucherVM.PartyType
+                        PartyType = voucherVM.PartyType,
+                        LoanSetOffGroupNo = _loanSetOffGroupNo
                     };
                     var voucherDetailLoanInterestPayable = new VoucherDetail
                     {
-                        PaymentSource = financing.PaymentSource
+                        PaymentSource = financing.PaymentSource,
+                        LoanSetOffGroupNo = _loanSetOffGroupNo
                     };
                     var voucherDetailLoanInterestCashExp = new VoucherDetail
                     {
-                        PaymentSource = financing.PaymentSource
+                        PaymentSource = financing.PaymentSource,
+                        LoanSetOffGroupNo = _loanSetOffGroupNo
                     };
                     var exchangeGain = new VoucherDetail
                     {
-                        PartyType = voucherVM.PartyType
+                        PartyType = voucherVM.PartyType,
+                        LoanSetOffGroupNo = _loanSetOffGroupNo
                     };
                     var gl = _financingTypeGLService.GetInvestmentGL(financing.CompanyId, financing.FinancingTypeId);
                     //Update Financing Detail

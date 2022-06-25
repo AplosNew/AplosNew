@@ -1079,7 +1079,7 @@ namespace Library.Service.Invoices
                         voucherDetailCr.BankMasterId = bankMaster["Id"].ToString();
                         voucherDetailCr.PartyType = PartyType.Bank.ToString();
                         if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
-                            glTransactionDetail.CrAmount = voucherVM.BankAmount;
+                            glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
                         else
                             glTransactionDetail.CrAmount = voucherVM.BankAmount;
 

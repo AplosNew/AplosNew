@@ -1889,8 +1889,12 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                var _sql = @"select rm.*, '' as VacancyStatus from dbo.ResidenceMaster rm where rm.PlantId = '"+ PlantId + "'"  +
-                    "and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
+                var _sql = @"select rm.*, '' as VacancyStatus,RAE.isOccupied Occupied,Available=Vacancy-RAE.isOccupied
+                                        
+                                        from dbo.ResidenceMaster rm 
+                                        left join ResidenceAllocatedEmployees RAE on RAE.ResidenceId=rm.Id
+                                        where rm.PlantId = '" + PlantId + "'"  +
+                                        "and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
 
 
                 return _sqlRepository.GetDataCollection(_sql, null);
@@ -1934,7 +1938,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, string EmployeeId, string ResidenceMasterId)
+        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> EmployeeId, string ResidenceMasterId)
         {
 
             try
