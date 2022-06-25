@@ -275,6 +275,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
+                if (string.IsNullOrEmpty(lineId))
+                {
+                    throw new Exception("Select Line Item.");
+                }
                 #region FUND 
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster = null;
@@ -299,6 +303,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         else
                         {
                             DataRow drmo = dv[0].Row;
+                            item["MasterOrderItemId"] = lineId;
                             EditRow(drmo, item);
                         }
                     }
@@ -342,7 +347,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
             {
                 #region FUND 
 
-
+                if (string.IsNullOrEmpty(lineId))
+                {
+                    throw new Exception("Select SO Item.");
+                }
                 ConnectionManager.DAL.ConManager objCon;
                 DataSet dsMaster,dsSO = null;
                 objCon = new ConnectionManager.DAL.ConManager("1");
@@ -1911,13 +1919,17 @@ namespace Aplos.Areas.OrderManagements.Controllers
     {
 
         public string Id { get; set; }
+        public string MasterOrderItemId { get; set; }
         public string OrderLineCostingItemId { get; set; }
         public string SOItemName { get; set; }
         public string UserName { get; set; }
         public string Formula { get; set; }
         public string FormulaId { get; set; }
         public string CostingType { get; set; }
+        public string CostingComponent { get; set; }
         public decimal Value { get; set; }
+        public string EntryState { get; set; }
+        public string ValueIN { get; set; }
 
     }
 

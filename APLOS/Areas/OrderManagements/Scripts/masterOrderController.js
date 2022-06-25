@@ -3491,14 +3491,14 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         angular.element(document.querySelector('#MOSORatePopup')).modal('hide');
     }
     $scope.ProductLibraryList = [];
-    $scope.lineId = null;
+    $scope.masterItemId = null;
     $scope.GetMOSORatePopup = function (index, data) {
         $scope.itemIndex = index;
-        $scope.lineId = data.Id;
+        $scope.masterItemId = data.Id;
 
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData?masterOrderItemId=' + data.Id
+            url: 'OrderManagements/MasterOrder/GetCostingSOFormulaData?masterOrderItemId=' + $scope.masterItemId
         }).then(function successCallback(response) {
             $scope.costingSOFormulaList = response.data;
             angular.element(document.querySelector('#MOSORatePopup')).modal('show');
@@ -3528,7 +3528,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $http({
             method: 'POST',
             url: 'OrderManagements/MasterOrder/CreateMasterOrderItemCostingRate',
-            data: { 'data': $scope.costingSOFormulaList, 'lineId': $scope.lineId },
+            data: { 'data': $scope.costingSOFormulaList, 'lineId': $scope.masterItemId },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -3547,12 +3547,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.costingSOConfirmList = [];
     $scope.GetCostingSORatePopup = function (index, data) {
         $scope.itemIndex = index;
-        $scope.lineId = data.MasterOrderItemId;
+        $scope.masterItemId = data.MasterOrderItemId;
         $scope.soId = data.Id;
 
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id + '&lineId=' + data.MasterOrderItemId
+            url: 'OrderManagements/MasterOrder/GetCostingSORateData?SalesOrderId=' + data.Id + '&lineId=' + $scope.masterItemId
         }).then(function successCallback(response) {
             $scope.costingSOConfirmList = response.data;
             angular.element(document.querySelector('#SOCostingRatePopup')).modal('show');
