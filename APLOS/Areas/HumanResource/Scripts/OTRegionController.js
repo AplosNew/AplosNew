@@ -1,7 +1,7 @@
 ﻿'use strict';
 OTRegionController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function OTRegionController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'OT Region';
+    $rootScope.title = 'OT Reason';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/OTRegion/';

@@ -34,15 +34,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, mma.standardname as ArticleName
-                                from mst.MaterialGroupMaster mgm
-                                left join hkp.materialtype mt
-                                on mgm.materialtypeid = mt.id
-                                left join mst.MaterialMaster mm
-                                on mm.MaterialGroupMasterId = mgm.Id
-                                left join mst.MaterialMasterArticle mma
-                                on mma.materialmasterid = mm.id
-                                where mm.Active = '1'";
+                string sql = @"select Id as Value, UserName as Text from HKP.MaterialType where Active = '1' order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -52,19 +44,13 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getMaterialGroup()
+        public IEnumerable<object> getMaterialGroup(string MaterialTypeId)
         {
             try
             {
-                string sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, mma.standardname as ArticleName
-                                from mst.MaterialGroupMaster mgm
-                                left join hkp.materialtype mt
-                                on mgm.materialtypeid = mt.id
-                                left join mst.MaterialMaster mm
-                                on mm.MaterialGroupMasterId = mgm.Id
-                                left join mst.MaterialMasterArticle mma
-                                on mma.materialmasterid = mm.id
-                                where mm.Active = '1'";
+                string sql = @"select mgm.Id as Value, mgm.UserName as Text from mst.MaterialGroupMaster mgm
+                               left join hkp.MaterialType mt on mt.Id = mgm.MaterialTypeId
+                               where mt.Id = '"+ MaterialTypeId + "' and mt.Active = '1' order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -74,19 +60,13 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getMaterial()
+        public IEnumerable<object> getMaterial(string materialgroupid)
         {
             try
             {
-                string sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, mma.standardname as ArticleName
-                                from mst.MaterialGroupMaster mgm
-                                left join hkp.materialtype mt
-                                on mgm.materialtypeid = mt.id
-                                left join mst.MaterialMaster mm
-                                on mm.MaterialGroupMasterId = mgm.Id
-                                left join mst.MaterialMasterArticle mma
-                                on mma.materialmasterid = mm.id
-                                where mm.Active = '1'";
+                string sql = @"select mm.Id as Value, mm.UserName as Text from mst.MaterialMaster mm
+                               left join mst.MaterialGroupMaster mg on mg.Id = mm.MaterialGroupMasterId
+                               where  mg.Id = '"+ materialgroupid + "' and mm.Active = '1' ORDER BY Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -100,15 +80,8 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, mma.standardname as ArticleName
-                                from mst.MaterialGroupMaster mgm
-                                left join hkp.materialtype mt
-                                on mgm.materialtypeid = mt.id
-                                left join mst.MaterialMaster mm
-                                on mm.MaterialGroupMasterId = mgm.Id
-                                left join mst.MaterialMasterArticle mma
-                                on mma.materialmasterid = mm.id
-                                where mm.Active = '1'";
+                string sql = @"Select ms.Id as Value ms.UserName as Text from MST.StorageBinMaster sb
+                               left join HKP.MaterialStorage ms on ms.Id = sb.StorageLocation order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -118,11 +91,26 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getMaterialArticle()
+        public IEnumerable<object> getStorageSubLocation()
         {
             try
             {
-                string sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, mma.standardname as ArticleName
+                string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb";
+                               
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        public IEnumerable<object> getMaterialArticle(string materialmasterId)
+        {
+            try
+            {
+                string sql = @"select mma.Id as Value, mma.StandardName as Text
                                 from mst.MaterialGroupMaster mgm
                                 left join hkp.materialtype mt
                                 on mgm.materialtypeid = mt.id
@@ -130,7 +118,7 @@ namespace Library.MaterialManagement.Material
                                 on mm.MaterialGroupMasterId = mgm.Id
                                 left join mst.MaterialMasterArticle mma
                                 on mma.materialmasterid = mm.id
-                                where mm.Active = '1'";
+                                where mma.materialmasterid = '"+ materialmasterId + "' and mm.Active = '1' order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -144,13 +132,29 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"";
+                string sql = @"Select distinct sb.AccessType as Text from MST.StorageBinMaster sb";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public IEnumerable<object> Query(string materialMasterId)
+        {
+            try
+            {
+                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.RPM, MMA.MachineAllowance, MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster
+		                    FROM MST.MaterialMasterArticle MMA
+                           LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
+                            WHERE MaterialMasterId='" + materialMasterId + "'";
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

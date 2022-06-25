@@ -31,6 +31,7 @@
                 <th>Article</th>
                 <th>PO Criteria</th>
                 <th>Vendor</th>
+                <th>Remarks</th>
                 <th class="text-right">Min. Qty</th>
 
                 <th>BOQ Days</th>
@@ -39,7 +40,6 @@
 
                 <th>Usage</th>
                 <th>Res. Person</th>
-                <th>Remarks</th>
                 <th>Pur. Grp</th>
 
                 <th style="text-align:center!important;">Lead Days</th>
@@ -166,6 +166,9 @@
                         </span>
                     </div>
                 </td>
+                <td>
+                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
+                </td>
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
                 </td>
@@ -204,14 +207,6 @@
                         </span>
                     </div>
                 </td>
-
-
-
-                <td>
-                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
-                </td>
-
-
 
                 <td>
                     <div class="select-style">
