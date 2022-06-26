@@ -68,6 +68,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
         parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
         parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
+        parameters.push({ "Key": "TaskCreatedBy", "Value": getString(fl, "TaskCreatedBy") });
 
         $scope.parameters = parameters;
     }
