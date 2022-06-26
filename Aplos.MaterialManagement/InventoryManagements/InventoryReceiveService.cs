@@ -1747,34 +1747,21 @@ namespace Library.MaterialManagement.InventoryManagements
 							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
 									else '' end
 						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-						   --,p.Id
                             ,p.UserName AS PartyName
 						   ,EI.EmployeeName FirstName						   
 						   ,IRD.Id As GrnDetailId
 						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
-						   --,IR.InvoiceNo
-						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
 						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
 						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
 						  ,MT.UserName MaterialType
 						  ,MGM.UserName AS MaterialGroupMasterName
 						  ,IM.MaterialMasterId
 						  ,MM.UserName MaterialMasterName
-					   -- , IM.ArticleId
 						, ART.StandardName ArticleName
                         ,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
                         ,GRNAsset=CASE WHEN IRD.IsAsset =0 then 'No' else 'Yes' END 
-						--, IM.FirstCharacteristicsId
-						--, FC.UserName AS FirstCharacteristics
-						--, IM.FirstCharacteristicsValueId
 						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
-						--, IM.SecondCharacteristicsId
-						--, SC.UserName AS SecondCharacteristics
-						--, IM.SecondCharacteristicsValueId
 						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
-						--, IM.ThirdCharacteristicsId
-						--, TC.UserName AS ThirdCharacteristics
-						--, IM.ThirdCharacteristicsValueId
 						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 						,TUoM.UserName AS UOM
 						,IRD.TransactionQty
@@ -1804,12 +1791,6 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IRD.ChargesTranAmount ServiceCharge
 						,IRD.ChargesTaxTranAmount ServiceTax
 						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
-						--,ROUND(Isnull(IRD.TotalMaterialBaseAmount,0),2) TotalMaterialBaseAmount
-						--,Case When IR.IsNonCreditable = 1 
-							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2) + (SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id) + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount +((SELECT ISNULL(SUM(ISNULL(TaxAmount, 0)),0) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveId=IR.Id AND InventoryServiceId<>'')/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--when IR.IsNonCreditable = 0
-							--then ROUND(Isnull(IRD.MaterialTranAmount,0),2)  + ((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[InventoryService] WHERE InventoryReceiveId=IR.Id)/ISNULL(NULLIF((SELECT ISNULL(SUM(ISNULL(MaterialTranAmount, 0)),1) FROM [TRN].[InventoryReceiveDetail] WHERE InventoryReceiveId=IR.Id),0), 1))*IRD.MaterialTranAmount
-						--end TotalMaterialTranAmount
                        ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
                        ,CASE 
 					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
@@ -1838,7 +1819,6 @@ namespace Library.MaterialManagement.InventoryManagements
 						,B1.UserName AS CBUdget
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
-                      --,IRD.POId
 						 ,POId= STUFF((select distinct ','+PG.POId
 			                            FROM TRN.POGGRNMap PG 
                                         LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
@@ -1850,13 +1830,11 @@ namespace Library.MaterialManagement.InventoryManagements
 						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
 						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
-                        --,isnull(p.TINNO,'') GSTINNo
 						,isnull(PP.GSTIN,'') GSTINNo
 						,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
 						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
 						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
 						,ISNULL(PID.RefferenceNo,'') RefferenceNo
-						--,isnull(PO.POId,'') POId
 						,isnull(PO.PurchaseLCId,'') PurchaseLCId
 						,isnull(PO.ContractId,'') ContractId						
 						,ISNull(po.ContractNo,'') ContractNo
@@ -1870,7 +1848,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,IRD.ReductionByAdjustmentQty
 						,IRD.InventorySalesQty
 						,IRD.InventoryScrapQty						
-						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName
+						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName,IRD.[Description]
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -1956,11 +1934,6 @@ namespace Library.MaterialManagement.InventoryManagements
 									WHERE B.Code='AIT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
 							
 						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IRD.Id
-						--LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
-						--			LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
-						--			WHERE B.Code='TCS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
-								
-						--) TAxInfo6 ON TAxInfo6.InventoryReceiveDetailId=IRD.Id
 	                    LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
 						           FROM trn.InventoryReceiveAdditionalTax A
 									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
@@ -1989,8 +1962,6 @@ namespace Library.MaterialManagement.InventoryManagements
 						) TAxInfo9 ON TAxInfo9.InventoryReceiveDetailId=IRD.Id
 						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
-						--left join  trn.POGGRNMap POGGRNMap ON POGGRNMap.GRNId=IR.Id
-						--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
 						LEFT JOIN(
 							   SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
 								,ContractId=STUFF((select distinct ','+xpo.ContractId from
@@ -2068,21 +2039,11 @@ namespace Library.MaterialManagement.InventoryManagements
 						  ,NULL MaterialGroupMasterName
 						  ,NULL MaterialMasterId
 						    ,SM.UserName MaterialMasterName
-					   -- , IM.ArticleId
 						, SM.UserName ArticleName
                         ,'No' IsAsset
                         ,'No' GRNAsset
-						--, IM.FirstCharacteristicsId
-						--, FC.UserName AS FirstCharacteristics
-						--, IM.FirstCharacteristicsValueId
 						, NULL FirstCharacteristicsValue
-						--, IM.SecondCharacteristicsId
-						--, SC.UserName AS SecondCharacteristics
-						--, IM.SecondCharacteristicsValueId
 						, NULL SecondCharacteristicsValue
-						--, IM.ThirdCharacteristicsId
-						--, TC.UserName AS ThirdCharacteristics
-						--, IM.ThirdCharacteristicsValueId
 						, NULL ThirdCharacteristicsValue 
 						,NULL AS UOM
 						,0 TransactionQty
@@ -2171,7 +2132,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					,0 ReductionByAdjustmentQty
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
-					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName,NULL [Description]
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
