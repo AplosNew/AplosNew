@@ -1938,7 +1938,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> EmployeeId, string ResidenceMasterId)
+        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> EmployeeList, string ResidenceMasterId)
         {
 
             try
@@ -1960,7 +1960,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RSL" + _Id;
-                    data["EmployeeSystemId"] = EmployeeId;
+                    data["EmployeeSystemId"] = EmployeeList;
                     data["ResidenceId"] = ResidenceMasterId;
                     AddNewRow(dsMaster.Tables[0], data);
 
@@ -1971,7 +1971,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     _Id = data["Id"].ToString();
                    
                     EditRow(dsMaster.Tables[0].Rows[0], data);
-                    data["EmployeeSystemId"] = EmployeeId;
+                    data["EmployeeSystemId"] = EmployeeList;
                     data["ResidenceId"] = ResidenceMasterId;
                 }
                 #endregion data Master update
