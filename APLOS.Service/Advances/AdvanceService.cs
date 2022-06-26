@@ -234,7 +234,8 @@ namespace Library.Service.Advances
                 JournalType = voucherVM.JournalType,
                 SettlementType = voucherVM.SettlementType,
                 RequisitionId = voucherVM.RequisitionId,
-                CompanyCurrencyRate = voucherVM.CompanyCurrencyRate
+                CompanyCurrencyRate = voucherVM.CompanyCurrencyRate,
+                POId = voucherVM.POId
             });
         }
 
