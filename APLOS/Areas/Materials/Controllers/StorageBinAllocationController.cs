@@ -49,11 +49,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getMaterialGroup()
+        public ActionResult getMaterialGroup(string MaterialTypeId)
         {
             try
             {
-                return Json(sba.getMaterialGroup(),JsonRequestBehavior.AllowGet);
+                return Json(sba.getMaterialGroup(MaterialTypeId),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -62,11 +62,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getMaterial()
+        public ActionResult getMaterial(string materialgroupid)
         {
             try
             {
-                return Json(sba.getMaterial(),JsonRequestBehavior.AllowGet);
+                return Json(sba.getMaterial(materialgroupid),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -88,11 +88,24 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getMaterialArticle()
+        public ActionResult getStorageSubLocation()
         {
             try
             {
-                return Json(sba.getMaterialArticle(),JsonRequestBehavior.AllowGet);
+                return Json(sba.getStorageSubLocation(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getMaterialArticle(string materialmasterId)
+        {
+            try
+            {
+                return Json(sba.getMaterialArticle(materialmasterId),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -113,6 +126,12 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetList(string materialMasterId)
+        {
+            return Json(JsonRequestBehavior.AllowGet);
         }
     }
 }

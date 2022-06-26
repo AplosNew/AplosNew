@@ -3,7 +3,7 @@
 </h3>
 <div class="form-elements form-horizontal" ng-form name="ModelNewForm">
     <fieldset class="scheduler-border">
-        <legend class="scheduler-border">Bin Allocation</legend>
+        <legend class="scheduler-border">Bin Allocation Header</legend>
         <input type="hidden" ng-model="ModelNew.Id">
         <div class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -14,71 +14,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Material</label>
-                    <div class="col-sm-6 show-message">
-                        <div class="input-group">
-
-                            <input type="text" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button ng-click="OpenMaterialPopUp()" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <div class="input-group">
-
-                            <input type="text" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button ng-click="OpenMaterialTypePopUp()" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Material Article<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <div class="input-group">
-
-                            <input type="text" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button ng-click="OpenMaterialArticlePopUp()" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Access Type</label>
+                    <label class="col-sm-4 control-label">Storage Sub Location</label>
                     <div class="col-sm-6 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.AccessType" required name="Access Type"
+                            <select class="form-control" ng-model="ModelNew.StorageSubLocation" required name="Storage Location"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in StorageLocationList" value="{{option.Text}}">{{option.Text}}</option>
-
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!--
-             //** ----------------------------------------------------  **//
-            -->
-
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
-                    <div class="col-sm-6 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.StorageLocation" required name="Storage Location"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in StorageLocationList" value="{{option.Text}}">{{option.Text}}</option>
+                                <option ng-repeat="option in StorageSubLocationList" value="{{option.Text}}">{{option.Text}}</option>
 
                             </select>
                         </div>
@@ -87,23 +29,23 @@
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Material Group</label>
                     <div class="col-sm-6 show-message">
-                        <div class="input-group">
-
-                            <input type="text" class="form-control" readonly>
-                            <span class="input-group-btn">
-                                <button ng-click="OpenMaterialGroupPopUp()" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
-                            </span>
+                        <div class="select-style">
+                            <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroup" required name="Material Group"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in MaterialGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Storage Location</label>
+                    <label class="col-sm-4 control-label">Material Article<sup>*</sup></label>
                     <div class="col-sm-6 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.StorageLocation" required name="Storage Location"
+                            <select class="form-control" ng-model="ModelNew.MaterialArticle" required name="Access Type"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in StorageLocationList" value="{{option.Text}}">{{option.Text}}</option>
+                                <option ng-repeat="option in MaterialArticleList" value="{{option.Value}}">{{option.Text}}</option>
 
                             </select>
                         </div>
@@ -116,14 +58,136 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.StorageLevel" required name="Storage Location"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option value="Material">Material</option>
+                                <option value="Article">Article</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            <!--
+             //** ----------------------------------------------------  **//
+            -->
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Storage Location</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.StorageLocation" required name="Storage Location"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-change="getMaterialGroup()" ng-model="ModelNew.MaterialType" required name="Material Type"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in MaterialTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-change="getMaterialArticle();" ng-model="ModelNew.MaterialMaster" required name="Material"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in MaterialList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Access Type</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.AccessType" required name="Access Type"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in AccessTypeList" value="{{option.Text}}">{{option.Text}}</option>
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
                     <div class="col-sm-6">
                         <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" tabindex="7" maxlength="250"></textarea>
                     </div>
                 </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                        <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </fieldset>
+
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Material Allocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Bin Allocation</a></li>
+               
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }" ng-form="tabForm1">
+                <div class="table-responsive aplos-grid-toggle">
+                    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                        <div e-columns>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50" e-isprimarykey="true"></div>
+
+                           
+                            <div e-column e-field="StorageSubLocation" e-headertext="Material Type" e-width="120"></div>
+                            <div e-column e-field="AreaRackCode" e-headertext="Material Group" e-width="70"></div>
+
+                            <div e-column e-field="ColumnNo" e-headertext="Material" e-width="80"></div>
+                            <div e-column e-field="RowNo" e-headertext="Material Article" e-width="80"></div>
+                            <div e-column e-field="BinReference" e-headertext="User Name" e-width="100"></div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                <h1>Tab2</h1>
+            </div>
+
+           
+
+        </div>
+    </div>
 </div>
 
 <!--*************************************************************************************-->
@@ -138,14 +202,36 @@
         <div class="modal-content">
             <div class="modal-header"> Material <button type="button" class="close" ng-click="closePurchaseReturnPopUp();">&times;</button></div>
             <div class="modal-body form-elements form-horizontal">
+               
                 <div class="col-md-12">
                     <div class="content-container-fluid">
+                        <div class="row text-right aplos-grid-toggle">
+                            <div class="col-xs-12 col-sm-12 col-sm-12">
+                                <div class="search-form">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-3 col-md-3">
+                                            <div class="select-style">
+                                                <select>
+                                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-7 col-md-7">
+                                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 col-md-2">
+                                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialList" e-recorddoubleclick="selectDoubleClick"
+                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialList" e-recorddoubleclick="selectMaterial"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
@@ -174,11 +260,11 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid">
                         @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialGroupList" e-recorddoubleclick="selectDoubleClick"
+                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialGroupList" e-recorddoubleclick="selectMaterialGroup"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                               @* <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
@@ -207,12 +293,12 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid">
                         @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialTypeList" e-recorddoubleclick="selectDoubleClick"
+                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialTypeList" e-recorddoubleclick="selectMaterialType"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
+                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
+                                
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
                                 <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
@@ -229,7 +315,7 @@
         </div>
     </div>
 </div>
-@* MATERIAL GROUP POP UP Close *@
+@* MATERIAL Type POP UP Close *@
 
 @* MATERIAL ARTICLE POP UP start *@
 <div class="modal fade site-modal in" id="MaterialArticlepopUp" role="dialog" data-backdrop="static">
@@ -240,11 +326,11 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid">
                         @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialArticleList" e-recorddoubleclick="selectDoubleClick"
+                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialArticleList" e-recorddoubleclick="selectMaterialArticle"
                              e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                              e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
                             <div e-columns>
-                                <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>
+                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
                                 <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
