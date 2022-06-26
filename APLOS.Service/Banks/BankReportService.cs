@@ -1172,8 +1172,10 @@ namespace Library.Service.Banks
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["VoucherDetailId"].ToString()); col++;
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconcileDate"].ToString()); col++;
                             reportUtility.SetText(ref sheet, row, col, ledgerData.Rows[i]["ReconciliationStatus"].ToString());
-
+                            colLast = col;
                         }
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                         row++;
                     }
                 }
