@@ -151,7 +151,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
 
     }
 
-   // $controller('partyBaseController', { $scope: $scope, $http: $http });
+    // $controller('partyBaseController', { $scope: $scope, $http: $http });
     $scope.partyType = 'Vendor';
 
     //#region Customer info
@@ -185,8 +185,8 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         limit: 10
         , offset: 0
         , order: 'ASC'
-        , sort: 'PartyName, PartyAccountGroupName'
-        , searchBy: 'PartyName'
+        , sort: 'UserName'
+        , searchBy: 'UserName'
         , pageSize: 10
         , total_count: 0
         , search: null
@@ -239,9 +239,28 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
         }
     ];
 
+    $scope.SelectedMaterial = {
+        Article: null,
+        ArticleCode: null,
+        ArticleId: null,
+        BOMMaterialRefNo: null,
+        CostingItem: null,
+        CostingItemId: null,
+        Material: null,
+        MaterialCode: null,
+        MaterialMasterId: null,
+        Sequence: null,
+        Vendor: null,
+        VendorId: null
+    };
     $scope.showPartyPopUpNew = function (data) {
-       
-        $scope.SelectedMaterial = data;
+        $scope.searchByParty = "UserName";
+        if (baseService.isUndefinedOrNull(data)) {
+            $scope.SelectedMaterial = Object.assign({}, $scope.SelectedMaterial);
+
+        } else {
+            $scope.SelectedMaterial = Object.assign({}, data);
+        }
         $scope.partyList = [];
         if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
             $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListNew?partyType=' + $scope.partyType;
@@ -278,13 +297,13 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     };
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
-            
 
-            $scope.SelectedMaterial.Vendor = party.UserName;
-            $scope.SelectedMaterial.VendorId = party.Id;
-            angular.element(document.querySelector('#partyPopUp')).modal('hide');
-            UpdateGrid($scope.SelectedMaterial);
-        
+
+        $scope.SelectedMaterial.Vendor = party.UserName;
+        $scope.SelectedMaterial.VendorId = party.Id;
+        angular.element(document.querySelector('#partyPopUp')).modal('hide');
+        UpdateGrid($scope.SelectedMaterial);
+
 
     };
 

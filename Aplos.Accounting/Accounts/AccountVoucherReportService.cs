@@ -1570,9 +1570,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 18, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 18, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
                 col++;
 
                 reportUtility.SetHeaderText(ref sheet, row - 1, colTranCurrencyDebit, "Transaction", ExcelHAlign.HAlignCenter);
@@ -1582,11 +1582,11 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 18, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 18, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Activity Balance", 18, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Activity Balance", 20, ExcelHAlign.HAlignRight); colActivityBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 22, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -1884,9 +1884,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
 
                 col++;
 
@@ -1897,10 +1897,10 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 16, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -2166,9 +2166,9 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, col, "Particulars", 18); int colParticulars = col; col++;
                 reportUtility.SetHeaderText(ref sheet, row, col, "Currency", 5); int colCurrency = col; col++;
                 colTranCurrencyDebit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                 colTranCurrencyCredit = col;
-                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight);
+                reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight);
 
                 col++;
 
@@ -2179,10 +2179,10 @@ namespace Library.Accounting.Accounts
                 if (!string.IsNullOrEmpty(companyCurrencyId))
                 {
                     colBaseCurrencyDebit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 16, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Debit", 20, ExcelHAlign.HAlignRight); col++;
                     colBaseCurrencyCredit = col;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 16, ExcelHAlign.HAlignRight); col++;
-                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 16, ExcelHAlign.HAlignRight); colBalance = col; col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Credit", 20, ExcelHAlign.HAlignRight); col++;
+                    reportUtility.SetHeaderText(ref sheet, row, col, "Balance", 20, ExcelHAlign.HAlignRight); colBalance = col; col++;
                     sheet.Range[reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (row - 1) + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (row - 1)].Merge();
                     reportUtility.SetHeaderText(ref sheet, row - 1, colBaseCurrencyDebit, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                     sheet.Range[row - 1, colBaseCurrencyDebit, row - 1, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Thin);
@@ -2271,6 +2271,10 @@ namespace Library.Accounting.Accounts
 
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
                         sheet.Range[row, colLast].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+
                         row++;
                         col = 1;
                     }

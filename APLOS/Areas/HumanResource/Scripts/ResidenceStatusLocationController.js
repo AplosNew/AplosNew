@@ -519,7 +519,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             url: $scope.path + 'residenceStatusSave',
             data: {
                 'data': $scope.selectedData,
-                'EmployeeId': $scope.EmployeeList,
+                'EmployeeList': $scope.EmployeeList,
                 'ResidenceMasterId': $scope.ModelList.Id,
             },
             dataType: 'JSON',

@@ -504,15 +504,16 @@ namespace Library.Service.Advances
             sheet.Range[row, colVoucherDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
             row++;
 
+            
+
             int colPostingDate = colVoucherNo;
             reportUtility.SetMasterHeaderText(ref sheet, row, colPostingDate, "Posting Date");
             sheet.Range[row, colPostingDate].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-
-
             int colPostingDateValue = colVoucherNoValue;
             reportUtility.SetText(ref sheet, row, colPostingDateValue, header["PostingDate"].ToString());
             sheet.Range[row, colPostingDateValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+
 
             int colDocDate = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colDocDate, "DocDate");
@@ -568,8 +569,7 @@ namespace Library.Service.Advances
             sheet.Range[row, colNaration].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colNarationValue].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-
-
+            
 
             int colStatus = colVoucherDate;
             reportUtility.SetMasterHeaderText(ref sheet, row, colStatus, "Status");
@@ -577,8 +577,23 @@ namespace Library.Service.Advances
             reportUtility.SetText(ref sheet, row, colStatusValue, header["Status"].ToString());
             sheet.Range[row, colStatus].VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[row, colStatusValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
+            int colPONo = colVoucherDate;
+            reportUtility.SetMasterHeaderText(ref sheet, row, colPONo, "PO No");
+            sheet.Range[row, colPONo].VerticalAlignment = ExcelVAlign.VAlignTop;
+            int colPONoValue = colVoucherDateValue;
+            reportUtility.SetText(ref sheet, row, colPONoValue, header["PONo"].ToString());
+            sheet.Range[row, colPONoValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            row++;
 
+            //int colPONo = colVoucherNo;
+            //reportUtility.SetMasterHeaderText(ref sheet, row, colPONo, "PO No");
+            //sheet.Range[row, colPONo].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //int colPONoValue = colVoucherNoValue;
+            //reportUtility.SetText(ref sheet, row, colPONoValue, header["PONo"].ToString());
+            //sheet.Range[row, colPONoValue].VerticalAlignment = ExcelVAlign.VAlignTop;
+            //row++;
 
 
 
