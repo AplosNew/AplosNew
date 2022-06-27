@@ -5,7 +5,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getCboVoucherTypeLoanListML()" href="" aria-controls="general" role="tab" data-toggle="tab">Multiple SetOff</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);getCboVoucherTypeLoanListML();GetCurrencyParallel()" href="" aria-controls="general" role="tab" data-toggle="tab">Multiple SetOff</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -303,7 +303,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-3 show-message" style="padding-left:0px;">
-                                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucherML.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="baseCurrencyId==voucherML.CurrencyId">
+                                    <input type="text" maxlength="50" id="Rate" name="Rate" ng-model="voucherML.CompanyCurrencyRate" class="form-control text-right" autocomplete="off" required ng-disabled="voucherML.BaseCurrencyId==voucherML.CurrencyId">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -460,10 +460,10 @@
                                                     <th>Total Loan</th>
                                                     <th>Total SetOff</th>
                                                     <th>Balance</th>
-                                                    <th>SetOff</th>
+                                                    <th>SetOffAmount</th>
                                                     <th>Exchange Type</th>
                                                     <th>Exchange Amount</th>
-                                                    <th>Books Amount</th>
+                                                    <th>BooksAmount</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -492,7 +492,7 @@
                                                         <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" ng-disabled="x.ExchangeType==null" name="ExchangeAmount" ng-model="x.ExchangeAmount" ng-keyup="calBaseAmount()">
                                                     </td>
                                                     <td>
-                                                        <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right"   name="BaseDrAmount" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
+                                                        <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="BaseDrAmount" ng-model="x.BaseDrAmount" ng-keyup="calBaseAmount()">
                                                     </td>
                                                     <td class="text-right">
                                                         <button ng-click="removeRowML($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
@@ -501,6 +501,13 @@
                                                     </td>
                                                 </tr>
                                             </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td colspan="16" class="text-right">Total</td>
+                                                    <td class="text-right"><b>{{ (ExistingLoanList) | sumByKey:'BaseDrAmount' | number:2}}</b></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
                                         </table>
                                     </div>
 

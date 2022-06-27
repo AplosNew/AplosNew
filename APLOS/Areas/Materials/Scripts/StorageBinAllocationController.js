@@ -161,106 +161,78 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             $scope.MaterialArticleList = response.data;
         })
     }
-    //$scope.getMaterialArticle();
-    // ALL POP UPs
-    $scope.OpenMaterialPopUp = function () {
+    
+    // save op
+    $scope.Get = function (args) {
 
-        angular.element(document.querySelector('#MaterialpopUp')).modal('show');
-
-    }
-
-    $scope.closeMaterialPopUp = function () {
-        angular.element(document.querySelector('#MaterialpopUp')).modal('hide');
-    }
-    // -----------------------------MATERIAL GROUP POPUP------------------------------------------------
-    $scope.OpenMaterialGroupPopUp = function () {
-
-        angular.element(document.querySelector('#MaterialGrouppopUp')).modal('show');
-
-    }
-
-    $scope.closeMaterialGroupPopUp = function () {
-        angular.element(document.querySelector('#MaterialGrouppopUp')).modal('hide');
-    }
-
-    // -----------------------------MATERIAL TYPE POPUP------------------------------------------------
-    $scope.OpenMaterialTypePopUp = function () {
-
-        angular.element(document.querySelector('#MaterialTypepopUp')).modal('show');
-
-    }
-
-    $scope.closeMaterialTypePopUp = function () {
-        angular.element(document.querySelector('#MaterialTypepopUp')).modal('hide');
-    }
-
-    // -----------------------------MATERIAL ARTICLE POPUP------------------------------------------------
-    $scope.OpenMaterialArticlePopUp = function () {
-
-        angular.element(document.querySelector('#MaterialArticlepopUp')).modal('show');
-
-    }
-
-    $scope.closeMaterialArticlePopUp = function () {
-        angular.element(document.querySelector('#MaterialArticlepopUp')).modal('hide');
-
-    }
-
-    /*
-     *    SELECT OF VALUE ON DOUBLE CLICK     *
-     */
-
-    $scope.MaterialName = null;
-    $scope.MaterialGroupName = null;
-    $scope.MaterialTypeName = null;
-    $scope.MaterialArticleName = null;
-
-    $scope.MaterialId = null;
-    $scope.MaterialGroupId = null;
-    $scope.MaterialTypeId = null;
-    $scope.MaterialArticleId = null;
-
-    $scope.selectMaterial = function (e) {
-        $scope.MaterialName = e.data.MaterialMaster;
-        $scope.MaterialId = e.data.MaterialId;
-        $scope.closeMaterialPopUp();
-    }
-
-    $scope.selectMaterialGroup = function (e) {
-        $scope.MaterialGroupName = e.data.MaterialgroupName;
-        $scope.MaterialGroupId = e.data.MaterialGroupId;
-        $scope.closeMaterialGroupPopUp();
-       
-    }
-
-    //$scope.selectMaterialType = function (e) {
-    //    $scope.MaterialTypeName = e.data.MaterialType;
-    //    $scope.MaterialTypeId = e.data.value;
-    //    $scope.closeMaterialTypePopUp();
-    //}
-
-    $scope.selectMaterialArticle = function (e) {
-        $scope.MaterialArticleName = e.data.ArticleName;
-        $scope.MaterialArticleId = e.data.ArticleId;
-        $scope.closeMaterialArticlePopUp();
-    }
-
-    $scope.popUp = function () {
-        $scope.popUpUrl = 'Materials/StorageBinAllocation/getlist';
-        $scope.getPopUpData = function (pageno) {
-            baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
-                .then(function (result) {
-                    $scope.popUpDataList = result.Rows;
-                    $scope.popUpParameters.total_count = result.Total;
-                }, function () {
-                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
-                }).finally(function () {
-                });
-        };
-        angular.element(document.querySelector('#popUpId')).modal('show');
-        $scope.getPopUpData();
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.ResponsiblePersonId = args.data.ResponsiblePersonId;
+        $scope.StorageLocationId = args.data.StorageLocationId;
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+            $scope.getResponsiblePersonId();
+            $scope.getStorageLocationId();
+        }
     };
 
+    $scope.Save = function () {
+        $scope.$broadcast('show-errors-check-validity');
+
+        $http({
+            method: 'POST',
+            url: $scope.path + 'Save',
+            data: {
+                'datas': $scope.ModelNew,
+                
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                ClearFields();
+                $scope.getData();
+
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    };
+
+    // clear Data
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+    function ClearFields() {
+        $scope.Action = 'Save';
+
+        $scope.ResponsiblePerson = null,
+            $scope.ModelTemp = {
+            Id: null,
+            UserName: null,
+            StorageLocation: null,
+            StorageSubLocation: null,
+            MaterialType: null,
+            MaterialGroup: null,
+            MaterialMaster: null,
+            MaterialArticle: null,
+            AccessType: null,
+            NoOfBin: null,
+            Remarks: null,
+            StorageLevel: null,
+
+
+            };
+        $scope.StorageLocation = null;
+        $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    }
+
+    // TAB CHANGE
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;

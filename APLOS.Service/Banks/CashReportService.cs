@@ -1564,6 +1564,8 @@ namespace Library.Service.Banks
                             sheet.Range[row, 7].VerticalAlignment = ExcelVAlign.VAlignTop;
                         }
                         sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"  Dr\", \"  Cr\")";
+                        sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                        sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                         row++;
                     }
                 }
