@@ -1149,7 +1149,24 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         return true;
     };
 
-
+    $scope.GetCurrencyParallel = function () {
+        $http({
+            method: "GET",
+            url: "currencies/CompanyParallelCurrency/CurrencyParallel"
+        }).then(function successCallback(response) {
+            $scope.CurrencyParallel = response.data;
+            if ($scope.CurrencyParallel.length === 0) {
+                $scope.pop("error", "Company Parallel Currency is not set!");
+                $scope.showform = false;
+            }
+            else {
+                $scope.showform = true;
+            }
+            $scope.BaseCurrencyCode = $scope.CurrencyParallel[0].Code;
+            $scope.voucherML.BaseCurrencyId = $scope.CurrencyParallel[0].CurrencyId;
+        });
+    };
+    
 
 
     $scope.currencyExchangeRateML = [];
