@@ -24,7 +24,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-               var str = @"select * from HKP.PerformanceGroup";
+                var str = @"select * from HKP.PerformanceGroup";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -295,7 +295,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 throw e;
             }
         }
-        
+
         public IEnumerable<object> getEmployeetype()
         {
             try
@@ -320,7 +320,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Performance Year Name already exists!!!");
-                
+
                 TimeSpan ts = Convert.ToDateTime(Data["EndDate"]).Subtract(Convert.ToDateTime(Data["StartDate"]));
                 if (ts.Days >= 0)
                 {
@@ -344,7 +344,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     #endregion data update
 
                     clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsMaster);                    
+                    _info.SaveDataSets(dsMaster);
                 }
                 else
                 {
@@ -431,7 +431,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             _sqlRepository = new SqlRepository();
         }
-        
+
         public IEnumerable<object> GetCbo()
         {
             try
@@ -446,7 +446,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        
+
 
         public IEnumerable<object> Get(string Id)
         {
@@ -612,11 +612,11 @@ namespace Library.HumanResource.NewAttendanceProcess
     {
         ISqlRepository _sqlRepository;
         public PerformanceAttributeMasterService()
-        { 
-            _sqlRepository = new SqlRepository(); 
+        {
+            _sqlRepository = new SqlRepository();
         }
 
-        
+
         public IEnumerable<object> Get(string Id)
         {
             try
@@ -640,7 +640,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                     strkey = column + " like '%" + value + "%'";
 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey ;
+                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey;
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -656,7 +656,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string TableName = "dbo.PerformanceAttributeMaster";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
@@ -972,11 +972,11 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                
+
                 var str = @"select ei.EmployeeName from dbo.EmployeeInformation ei
                             left join org.Department dep on dep.Id = ei.DepartmentId
                             left join org.Section sec on sec.Id = ei.SectionId
-                            left join org.SubSection ss on ss.Id = ei.SubSectionId where SystemId =  '"+ SelectedEmployeeId + "'";
+                            left join org.SubSection ss on ss.Id = ei.SubSectionId where SystemId =  '" + SelectedEmployeeId + "'";
 
                 return _sqlRepository.GetDataCollection(str);
             }
@@ -1005,7 +1005,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         public IEnumerable<object> getPerformancePeriod()
         {
             try
-            {               
+            {
                 string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1049,8 +1049,8 @@ namespace Library.HumanResource.NewAttendanceProcess
         }
 
         #region
-      public IEnumerable<object> getPMSMaster(string SystemId)
-      {
+        public IEnumerable<object> getPMSMaster(string SystemId)
+        {
             var str = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
                         pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
                         left join PMSChild pc on pms.Id=pc.PMSMasterId
@@ -1058,7 +1058,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                         left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
                         left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
                         left join EmployeeInformation e on e.BudgetCode=mp.Id
-                        where e.SystemId = '"+ SystemId + "' ";
+                        where e.SystemId = '" + SystemId + "' ";
             return _sqlRepository.GetDataCollection(str);
         }
         #endregion
@@ -1151,15 +1151,15 @@ namespace Library.HumanResource.NewAttendanceProcess
                 bplib.clsGenID genid = new bplib.clsGenID();
                 if (dsMaster.Tables[0].Rows.Count == 0)
                 {
-                    
-                   
+
+
                     //bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
                     datas["SystemId"] = "EGS" + _Id;
                     datas["EmployeeId"] = SelectedEmployeeId;
                     AddNewRow(dsMaster.Tables[0], datas);
-                   
+
 
                 }
                 else
@@ -1190,17 +1190,17 @@ namespace Library.HumanResource.NewAttendanceProcess
                     genid.GenID(ChildTableName, out _Id);
 
                     datas["Id"] = "EGC" + _Id;
-                    datas["EGSettingId"] = datas["SystemId"].ToString(); 
+                    datas["EGSettingId"] = datas["SystemId"].ToString();
                     datas["PMSMasterId"] = PMSId;
                     AddNewRow(dsChild.Tables[0], datas);
                 }
-               else
+                else
                 {
                     _Id = datas["Id"].ToString();
                     EditRow(dsChild.Tables[0].Rows[0], datas);
                     datas["PMSMasterId"] = PMSId;
                     datas["EGSettingId"] = EGSetting;
-                    
+
                 }
                 #endregion data update
                 #endregion child
@@ -1216,7 +1216,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        
+
 
         public string Delete(string id)
         {
@@ -1252,7 +1252,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 string sql = @"select egc.* , eg.* from  EmployeeGoalSettingChild egc
                                left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId
-                               where eg.EmployeeId = '"+ SelectedEmployeeId + "' and eg.PerformanceYearId = '"+ PerformanceYearId + "' and eg.ConfirmationStatus = '"+1+"'";
+                               where eg.EmployeeId = '" + SelectedEmployeeId + "' and eg.PerformanceYearId = '" + PerformanceYearId + "' and eg.ConfirmationStatus = '" + 1 + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1264,7 +1264,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         #endregion GET FUNCTION
 
         #region Save EG Child
-       
+
         public string DeleteChild(string id)
         {
             try
@@ -1319,7 +1319,7 @@ namespace Library.HumanResource.NewAttendanceProcess
 
             dt.Rows.Add(dr);
         }
-       
+
         private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -1363,7 +1363,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string sql = @"select pp.* from dbo.PerformancePeriod pp";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -1398,7 +1398,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                 left join org.Unit u on u.Id=e.UnitId
                                 left join org.Section s on s.Id=e.SectionId
                                 left join org.SubSection ss on ss.Id=e.SubSectionId
-                                where mb.ROBudgetCode='"+ ROBudget + "' and p.Id='"+ PPId + "'";
+                                where mb.ROBudgetCode='" + ROBudget + "' and p.Id='" + PPId + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1412,7 +1412,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg where isApproved = '"+0+"'";
+                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg where isApproved = '" + 0 + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1495,7 +1495,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 string sql = @"select * from dbo.EmpServiceType";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -1550,10 +1550,10 @@ namespace Library.HumanResource.NewAttendanceProcess
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
                 #endregion data Master update
-               
-               
-               
-               
+
+
+
+
 
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaster);
@@ -1630,7 +1630,7 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 string sql = @"select p.Id as Value , rm.PlantId, p.UserName as Text from dbo.ResidenceMaster rm
-                               left join ORG.Plant p on p.Id = rm.PlantId where ResidenceGroupId = '"+ ResidenceGroupId + "'";
+                               left join ORG.Plant p on p.Id = rm.PlantId where ResidenceGroupId = '" + ResidenceGroupId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -1644,8 +1644,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             try
             {
                 string sql = @"select rm.Id as Value , rm.Location as Text from dbo.ResidenceMaster rm 
-                               where rm.PlantId = '"+ PlantId + "' and rm.ResidenceGroupId = '"+ ResidenceGroupId + "'";
-                               
+                               where rm.PlantId = '" + PlantId + "' and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)
@@ -1658,7 +1658,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select rg.Id as Value , rg.UserName as Text from dbo.ResidenceMaster rm
+                string sql = @"select rm.Id,rg.Id as Value , rg.UserName as Text from dbo.ResidenceMaster rm
                                left join dbo.ResidenceGroup rg on rg.Id = rm.ResidenceGroupId";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -1675,8 +1675,8 @@ namespace Library.HumanResource.NewAttendanceProcess
             {
                 string sql = @"select es.Id as Value , es.Service as Text from dbo.ResidenceMaster rm
                                 left join dbo.EmpServiceType es on es.Id = rm.EmpServiceTypeId 
-                              where PlantId = '" + PlantId + "' and ResidenceGroupId = '"+ ResidenceGroupId + "'";
-                               
+                              where PlantId = '" + PlantId + "' and ResidenceGroupId = '" + ResidenceGroupId + "'";
+
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -1863,7 +1863,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join SalaryRuleMaster SRM on srm.systemid = ei.salaryrulemastersystemid
                             left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
                             left join TransportGroup TG on TG.Id = ei.TransportGroupId          
-                            where x.Id = '"+ EmpCategoryId + "' and ei.EmployeeStatus = 'Active'";
+                            where x.Id = '" + EmpCategoryId + "' and ei.EmployeeStatus = 'Active'";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception ex)
@@ -1893,7 +1893,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                                         
                                         from dbo.ResidenceMaster rm 
                                         left join ResidenceAllocatedEmployees RAE on RAE.ResidenceId=rm.Id
-                                        where rm.PlantId = '" + PlantId + "'"  +
+                                        where rm.PlantId = '" + PlantId + "'" +
                                         "and rm.ResidenceGroupId = '" + ResidenceGroupId + "'";
 
 
@@ -1908,7 +1908,8 @@ namespace Library.HumanResource.NewAttendanceProcess
 
         public IEnumerable<object> PopupEmployeeView(string fromDate, string toDate, string EmployeeCategorySystemID)
         {
-            try {
+            try
+            {
                 var str = @"select ei.SystemId, LDSG.UserName as Designation, POS.Activity, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, x.UserName as category,
                             FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
                             LDSG.StandardName as Designation, SC.UserName as Section,
@@ -1929,16 +1930,16 @@ namespace Library.HumanResource.NewAttendanceProcess
                             left join SalaryRuleMaster SRM on srm.systemid = ei.salaryrulemastersystemid
                             left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
                             left join TransportGroup TG on TG.Id = ei.TransportGroupId          
-                            where ei.DOJ BETWEEN '" + fromDate + "' and '"+ toDate + "' and ei.EmployeeCategorySystemID = '"+ EmployeeCategorySystemID + "'";
+                            where ei.DOJ BETWEEN '" + fromDate + "' and '" + toDate + "' and ei.EmployeeCategorySystemID = '" + EmployeeCategorySystemID + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, List<Dictionary<string, object>> EmployeeList, string ResidenceMasterId)
+        public void Save(List<Dictionary<string, object>> EmployeeList, string ResidenceMasterId)
         {
 
             try
@@ -1948,42 +1949,43 @@ namespace Library.HumanResource.NewAttendanceProcess
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id =''", out dsMaster, false, "1");
 
                 string _Id = "";
 
                 #region data Master update
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID genid = new bplib.clsGenID();
-                if (dsMaster.Tables[0].Rows.Count == 0)
+                genid.GenID(TableName, out _Id);
+
+                int count = 0;
+                foreach (var item in EmployeeList)
                 {
-                    genid.GenID(TableName, out _Id);
+                    count++;
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
 
-                    data["Id"] = "RSL" + _Id;
-                    data["EmployeeSystemId"] = EmployeeList;
-                    data["ResidenceId"] = ResidenceMasterId;
-                    AddNewRow(dsMaster.Tables[0], data);
-
-
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                   
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                    data["EmployeeSystemId"] = EmployeeList;
-                    data["ResidenceId"] = ResidenceMasterId;
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = _Id + "-" + count;
+                        item["ResidenceId"] = ResidenceMasterId;
+                        item["EmployeeSystemId"] = item["SystemId"];
+                        item["isOccupied"] = true;
+                        item["Date"] = DateTime.Now;
+                        AddNewRow(dsMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
                 }
                 #endregion data Master update
 
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
 
-
-
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return data;
+                //return ;
             }
             catch (Exception ex)
             {
@@ -2060,7 +2062,7 @@ namespace Library.HumanResource.NewAttendanceProcess
                 var str = @"select ei.EmployeeName, ei.DOJ, ei.EmployeeStatus, ei.SystemId, rm.Id ,rm.AddedDate as AllocationDate from dbo.ResidenceMaster rm                           
                             left join HKP.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId
                             left join dbo.EmployeeInformation ei on ei.EmployeeCategorySystemID = eg.Id
-                            where rm.PlantId='"+PlantId+ "' and rm.ResidenceGroupId='"+ResidenceGroupId+ "'  and rm.EmployeeCategoryId = '" + EmployeeCategoryId + "' and ei.EmployeeStatus = 'Active'";
+                            where rm.PlantId='" + PlantId + "' and rm.ResidenceGroupId='" + ResidenceGroupId + "'  and rm.EmployeeCategoryId = '" + EmployeeCategoryId + "' and ei.EmployeeStatus = 'Active'";
 
                 ;
                 return _sqlRepository.GetDataCollection(str);
@@ -2071,16 +2073,18 @@ namespace Library.HumanResource.NewAttendanceProcess
             }
         }
 
-        public IEnumerable<object> getResidenceStatusLocation(string EmployeeId, string ResidenceMasterId) {
+        public IEnumerable<object> getResidenceStatusLocation(string EmployeeId, string ResidenceMasterId)
+        {
             try
             {
                 var str = @"select ei.EmployeeName, FORMAT (rae.AddedDate, 'dd-MMM-yyyy') as Date ,rm.AssetName from dbo.EmployeeInformation ei
                             left join dbo.ResidenceAllocatedEmployees rae on rae.EmployeeSystemId = ei.SystemId
                             left join dbo.ResidenceMaster rm on rm.Id = rae.ResidenceId
-                            where ei.SystemId='" + EmployeeId + "' and rm.Id = '"+ ResidenceMasterId + "'";
+                            where ei.SystemId='" + EmployeeId + "' and rm.Id = '" + ResidenceMasterId + "'";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
@@ -2089,7 +2093,7 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                
+
                 return EmpList;
             }
             catch (Exception e)
