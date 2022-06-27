@@ -1709,7 +1709,7 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 2);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
@@ -1717,33 +1717,33 @@ namespace Library.Accounting.Accounts
                 sheet.Range[row, colActivityBalance].Formula = "=" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1);
                 //sheet[row, colActivityBalance].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colActivityBalance) + (row - 1) + "+" + reportUtility.GetColumnNameForXls(colLast - 4) + row + "-" + reportUtility.GetColumnNameForXls(colLast - 3) + row + ")";
                 sheet.Range[row, colActivityBalance].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colActivityBalance].CellStyle.Font.Bold = true;
                 row++;
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
@@ -2001,35 +2001,35 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 1);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
@@ -2289,35 +2289,35 @@ namespace Library.Accounting.Accounts
                 {
                     sheet.Range[row, colLast - 1].Formula = "=" + reportUtility.GetColumnNameForXls(colLast - 1) + (row - 1);
                     sheet.Range[row, colLast - 1].NumberFormat = reportUtility.NumberFormatNegativeSignDelimeterDecimalTwo();
-                    sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colLast - 1].CellStyle.Font.Bold = true;
                 }
                 sheet.Range[row, colLast].Formula = "IF(" + reportUtility.GetColumnNameForXls(colLast - 1) + row + ">= 0, \"Dr\", \"Cr\")";
 
                 //General Ledger sum function
                 sheet.Range[row, colTranCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colTranCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colTranCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colTranCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colTranCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colTranCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colTranCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colTranCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyDebit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyDebit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyDebit].BorderAround(ExcelLineStyle.Hair);
 
                 sheet.Range[row, colBaseCurrencyCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + formulaStartRow + ":" + reportUtility.GetColumnNameForXls(colBaseCurrencyCredit) + (formulaEndRow) + ")";
                 sheet.Range[row, colBaseCurrencyCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
+                //sheet.Range[row, colBaseCurrencyCredit].CellStyle.Font.Bold = true;
                 sheet.Range[row, colBaseCurrencyCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                 sheet.Range[row, colBaseCurrencyCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet.Range[row, colBaseCurrencyCredit].BorderAround(ExcelLineStyle.Hair);
