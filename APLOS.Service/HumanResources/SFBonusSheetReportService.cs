@@ -1281,7 +1281,7 @@ namespace Library.Service.HumanResources
             {
                 string wc = @" where m.systemid in (select SystemID from BonusPaymentActualMaster where EffectiveDate='" + effectiveDate + "') ";
 
-                var cmdText = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT   dISTINCT   
+                var cmdText = @"SELECT [isSelect] = Convert(bit, 'True'),[isToBeSelect] = Convert(bit, 'False'),* FROM (  SELECT  DISTINCT   
                                      ISNULL(e.SystemId,'') EmpSystemId
 									,ISNULL(e.EmployeeId,'')  EmployeeId                                     
                                     ,ISNULL(e.EmployeeCode,'') EmployeeCode
@@ -1298,7 +1298,8 @@ namespace Library.Service.HumanResources
 									,ISNULL(Unit.UserName,'') Unit 
                                     ,ISNULL(eL.UserName,'') Line
                                     ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOJ, 106), ' ', '-'),'') DOJ
-                                    ,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    --,ISNULL(REPLACE(CONVERT(VARCHAR(11), e.DOS, 106), ' ', '-'),'') DOS
+                                    ,ISNULL(FORMAT(e.DOS,'dd-MMM-yyyy'),'') DOS
                                     , CASE WHEN MONTH(DOS) =  MONTH('" + effectiveDate + @"')  AND YEAR(DOS) = YEAR('" + effectiveDate + @"') then 'Separated' else 'Active' end CurrentMonthEmployeeStatus
                                     ,ISNULL(e.EmployeeStatus,'') EmployeeStatus
                                     

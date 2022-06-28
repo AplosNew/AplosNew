@@ -25,10 +25,10 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     //#region The Filters 
 
     $scope.filters = [];
-    $scope.MachineMasterTransactionloadfilters = function () {
+    $scope.getBOQStatusFilters = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'getFilters',
+            url: $scope.path + 'getBOQFilters',
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.filters = response.data;
@@ -56,7 +56,7 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
             $("#filters").children('.e-gridcontent').hide();
         });
     }
-    $scope.MachineMasterTransactionloadfilters();
+    $scope.getBOQStatusFilters();
 
     $scope.parameters = [];
     $scope.filterComplete = function () {
