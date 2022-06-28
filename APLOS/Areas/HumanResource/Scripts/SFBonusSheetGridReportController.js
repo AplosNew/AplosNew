@@ -249,6 +249,12 @@ function SFBonusSheetGridReportController(commonMessage, $scope, $rootScope, bas
                 $scope.EmployeeListDefault = response.data.filter(d => d.isSelect == true);
                 $scope.EmployeeList = $scope.EmployeeListDefault;
                 $scope.EmployeeListTemp = $scope.EmployeeListDefault;
+
+                //for (var i = 0; i < response.data.length; i++) {
+                //    response.data[i]["DOJ"] = new Date(response.data[i]["DOJ"]);
+                //    response.data[i]["DOS"] = new Date(response.data[i]["DOS"]);
+                //}
+
             }
             else {
                 $scope.empGrid = false;
