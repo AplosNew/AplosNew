@@ -1297,20 +1297,31 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iShiftOuttime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iShiftOuttime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    xlsCol += 1;
-                                    iInTime = xlsCol;
-                                    sheet1.Range[xlsRow, iInTime].Text = "InTime";
-                                    sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
-                                    sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "CW")
+                                    {
+                                        sheet1.Range[xlsRow, iInTime].Text = "";
+                                        sheet1.Range[xlsRow, iOutTime].Text = "";
 
-                                    xlsCol += 1;
-                                    iOutTime = xlsCol;
-                                    sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
-                                    sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
-                                    sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    }
 
+                                    else
+                                    {
+                                        xlsCol += 1;
+                                        iInTime = xlsCol;
+                                        sheet1.Range[xlsRow, iInTime].Text = "InTime";
+                                        sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
+                                        sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                                        xlsCol += 1;
+                                        iOutTime = xlsCol;
+                                        sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
+                                        sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
+                                        sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                        sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                    }
+                                   
+                                                                        
                                     xlsCol += 1;
                                     iDayStatus = xlsCol;
                                     sheet1.Range[xlsRow, iDayStatus].Text = "Day Status";

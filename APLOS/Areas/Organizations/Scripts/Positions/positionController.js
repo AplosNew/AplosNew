@@ -108,7 +108,7 @@ function positionController(commonMessage, $rootScope, $scope, baseService, $rou
         $scope.currencyList = result;
     });
 
-    cboService.getCboDesignationByCompanyGroup(null, function (result) {
+    cboService.getbyDesignationMasterCbo(function (result) {
         $scope.designationList = result;
     });
 
