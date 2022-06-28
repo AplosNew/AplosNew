@@ -410,13 +410,19 @@ function cboService($http, $window, $rootScope, baseService) {
         , getCbomeetingType: getCbomeetingType
         , getContractFundCbo: getContractFundCbo
         , getPerformanceGroupListCbo: getPerformanceGroupListCbo
+        , getbyDesignationMasterCbo: getbyDesignationMasterCbo
 
     };
 
 
+    function getbyDesignationMasterCbo(callback) {
+        base('Organizations/Designation/GetbyDesignationMasterCbo', callback);
+    }
+
     function getPerformanceGroupListCbo(callback) {
         base('HumanResource/PerformanceGroup/GetCbo', callback);
     }
+
     function getContractFundCbo(callback) {
         base('Commercial/ContractFundUtilization/GetCbo', callback);
     }

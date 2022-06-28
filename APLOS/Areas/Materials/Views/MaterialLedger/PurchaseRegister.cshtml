@@ -147,8 +147,8 @@
                             <div class="col-sm-9 show-message">
                                 <div class="select-style">
                                     <select name="ReportType" ng-model="report.ReportType" class="col-sm-3 form-control">
-                                        <option value="GRNWise">GRN Wise</option>
                                         <option value="PartyWise">Party Wise</option>
+                                        <option value="GRNWise">GRN Wise</option>
                                         <option value="ItemWise">Item Wise</option>
                                     </select>
                                 </div>
@@ -199,7 +199,7 @@
                 </div>
             </div>
         </div>
-        <div class="common-btn">
+        @*<div class="common-btn">
             <ul class="list-inline text-left">
                 <li>
                     <div ej-tooltip e-showshadow="true" e-content="GRN Wise" ng-click="PurchaseOrderGRNWiseReportExcel('Excel');" e-width="width">
@@ -219,7 +219,7 @@
                     </div>
                 </li>
             </ul>
-        </div>
+        </div>*@
         <div class="clearfix"></div>
         <fieldset class="scheduler-border" ng-show="report.ReportType=='GRNWise'">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">GRN Wise</span></legend>
@@ -572,6 +572,16 @@
                 </div>
             </div>
         </fieldset>
+        <div class="clearfix"></div>
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li>
+                    <div ej-tooltip e-showshadow="true" ng-disabled="report.ReportType==null" e-content="Export To Excel" ng-click="downloadReport();" e-width="width">
+                        <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
         <fieldset class="scheduler-border">
             <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
 

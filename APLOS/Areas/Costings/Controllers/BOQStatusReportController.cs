@@ -52,18 +52,17 @@ namespace Aplos.Areas.Costings.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult getFilters()
+        public ActionResult getBOQFilters()
         {
             try
             {
-                var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
-                             FROM BOQ  boq
-							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-							  left join HKP.Party PC on PC.Id=BOM.CustomerId
-                             left  join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
-                             left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id
-							 left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
-                              where BOM.CustomerId <>''";
+                var sql = @"SELECT MO.PartyId,P.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+  
+                                    FROM TRN.MasterOrderItem AS moi 
+                                    LEFT JOIN TRN.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
+                                    LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
+                                    WHERE ISNULL(moi.OrderCostingMasterTemplateId,'')<>'' AND MO.OrderStatusId='Active'";
+
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
             catch (Exception e)
