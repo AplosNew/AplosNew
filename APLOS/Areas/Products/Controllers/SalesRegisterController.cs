@@ -344,27 +344,7 @@ namespace Aplos.Areas.Products.Controllers
 
         #region PurchaseRegister
 
-        [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate)
-        {
-            try
-            {
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-                var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-
-                var strFileName = "Purchase Report Register GRN Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-        }
+       
 
        
         [HttpPost, Authorize]
@@ -411,27 +391,7 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        //[Authorize, HttpGet]
-        //public ActionResult SalesRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    plantId = identity.PlantId;
-        //    var reportFileName = "Sales Report Register Item Wise" + fromDate + "To" + toDate + "";
-        //    Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-        //    return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-        //    var workbook = obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //        default:
-        //            return View();
-        //    }
-        //}
-
+       
 
         [Authorize, HttpGet]
         public ActionResult GetStatusAllGRNPendingList(string CompanyId, string GRNPendingStatus)
