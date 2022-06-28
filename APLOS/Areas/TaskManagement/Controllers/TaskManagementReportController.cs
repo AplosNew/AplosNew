@@ -325,9 +325,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                // sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment= ExcelHAlign.HAlignCenter;
 
                 string voucherNo = "";
                 /// string Percentage = "";
@@ -350,7 +353,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, colSLNO].Number = (i + 1);
                     sheet1.Range[xlsRow, iEmployeeCode].Text = dtTask.Rows[i]["EmployeeCode"].ToString();
                     sheet1.Range[xlsRow, iEmployeeName].Text = dtTask.Rows[i]["EmployeeName"].ToString();
-                    sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["Designation"].ToString();
+                    sheet1.Range[xlsRow, iDesignation].Text = dtTask.Rows[i]["LegalDesignation"].ToString();
                     sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["Department"].ToString();
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
@@ -769,7 +772,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                // sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                 string voucherNo = "";
                 /// string Percentage = "";
@@ -1204,9 +1211,12 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
                 string voucherNo = "";
                 /// string Percentage = "";
