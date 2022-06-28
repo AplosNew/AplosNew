@@ -226,7 +226,8 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         Id: null,      
         PlantId: null,
         ResidedenceGroupId: null,
-        EmployeeCategoryId:null,
+        EmployeeCategoryId: null,
+        //Occupied: null,
         Location: null,
         AssetName:null,
         ResidenceSubCategory: null,
@@ -354,7 +355,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             VacancyStatus: null,
             isActive: 0,
         };
-       
+        $scope.ModelList = [];
     }
 
     $scope.EmployeeList = [];
@@ -518,9 +519,8 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             method: 'POST',
             url: $scope.path + 'residenceStatusSave',
             data: {
-                'data': $scope.selectedData,
-                'EmployeeId': $scope.EmployeeList,
-                'ResidenceMasterId': $scope.ModelList.Id,
+                'EmployeeList': $scope.EmployeeList,
+                'ResidenceMasterId': $scope.ResidenceGroupIdList[0].Id,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {

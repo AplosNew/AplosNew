@@ -133,5 +133,24 @@ namespace Aplos.Areas.Materials.Controllers
         {
             return Json(JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpPost]
+        public JsonResult Save(Dictionary<string, object> datas)
+
+        {
+            try
+            {
+                var data = sba.Save(datas);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
     }
 }
