@@ -24,6 +24,7 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using Aplos.MaterialManagement;
 
 
 
@@ -172,26 +173,7 @@ namespace Aplos.Areas.Materials.Controllers
 			jsondata.MaxJsonLength = int.MaxValue;
 			return jsondata;
 		}
-        [Authorize, HttpPost]
-		public JsonResult GetPurchaseRegister(string fromDate, string toDate, string Type) 
-		{
-			
-			DateTime fDate = DateTime.Parse(fromDate);
-			DateTime tDate = DateTime.Parse(toDate);
-			if (fromDate==null || fromDate == "")
-			{
-				throw new CustomException("Select From Date");
-			}
-			else if (toDate == null || toDate == "")
-			{
-				throw new CustomException("Select To Date");
-			}
-			
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var jsondata=Json(_inventoryReceiveService.GetPurchaseRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
-		}
+        
 
 
    
@@ -343,12 +325,28 @@ namespace Aplos.Areas.Materials.Controllers
         #region PurchaseRegister
 
         [HttpPost, Authorize]
+        public ActionResult PurchaseRegisterGRNWiseData(string PlantId, string ToDate, string FromDate)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterGRNWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate));
+                return Json(new { NewData, Message = AplosMessage.Success });
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
         public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
                 var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId,identity.PlantId, FromDate, ToDate);
 
                 var strFileName = "Purchase Report Register GRN Wise"+" " + FromDate + "To" + ToDate + " " + "Report.xlsx";
@@ -363,27 +361,26 @@ namespace Aplos.Areas.Materials.Controllers
                 throw ex;
             }
         }
+        [HttpPost, Authorize]
+        public JsonResult GetPurchaseRegisterPartyWiseData(string fromDate, string toDate, string Type)
+        {
 
-        //[Authorize, HttpGet]
-        //public ActionResult PurchaseRegisterGRNWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    plantId = identity.PlantId;
-        //    var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
-        //    Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-        //   // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-        //    var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
+            DateTime fDate = DateTime.Parse(fromDate);
+            DateTime tDate = DateTime.Parse(toDate);
+            if (fromDate == null || fromDate == "")
+            {
+                throw new CustomException("Select From Date");
+            }
+            else if (toDate == null || toDate == "")
+            {
+                throw new CustomException("Select To Date");
+            }
 
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //        default:
-        //            return View();
-        //    }
-        //}
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterPartyWiseData(identity.CompanyId, identity.PlantId, fromDate, toDate));
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
 
         [HttpPost, Authorize]
         public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate)
@@ -391,7 +388,7 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
                 var workbook = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
 
                 var strFileName = "Purchase Report Register Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
@@ -407,26 +404,26 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        //[Authorize, HttpGet]
-        //public ActionResult PurchaseRegisterPartyWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    plantId = identity.PlantId;
-        //    var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
-        //    Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-        //    // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-        //    var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
+        [Authorize, HttpPost]
+        public JsonResult PurchaseRegisterItemWiseData(string fromDate, string toDate, string Type)
+        {
 
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //        default:
-        //            return View();
-        //    }
-        //}
+            DateTime fDate = DateTime.Parse(fromDate);
+            DateTime tDate = DateTime.Parse(toDate);
+            if (fromDate == null || fromDate == "")
+            {
+                throw new CustomException("Select From Date");
+            }
+            else if (toDate == null || toDate == "")
+            {
+                throw new CustomException("Select To Date");
+            }
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterItemData(identity.CompanyId, identity.PlantId, fromDate, toDate));
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
 
         [Authorize, HttpGet]
         public ActionResult PurchaseRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
@@ -434,8 +431,7 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Purchase Report Register Item Wise" + fromDate + "To" + toDate + "";
-            Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
             var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
             switch (reportFormat)
             {
