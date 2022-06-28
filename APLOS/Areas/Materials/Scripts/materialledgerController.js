@@ -117,7 +117,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
     $scope.PurchaseRegisterLst = [];
     $scope.PurchaseRegisterItemWiseList = [];
     $scope.PurchaseRegisterPartyWiseList = [];
-	$scope.pivotTableFieldListID = [];
+    $scope.pivotTableFieldListID = [];
+
 	$scope.GetPurchaseRegister = function () {
 		debugger;
 		
