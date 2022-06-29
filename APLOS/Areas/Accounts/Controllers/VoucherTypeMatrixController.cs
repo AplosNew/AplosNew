@@ -45,10 +45,14 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetVoucherTypeMatrixList(GridParameter parameters)
+        public ActionResult GetVoucherTypeMatrixList(GridParameter parameters,string companyGroupId)
         {
+            if(companyGroupId==null|| companyGroupId == "")
+            {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_voucherTypeMatrixService.Query(parameters, identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+                companyGroupId = identity.CompanyGroupId;
+            }
+            return Json(_voucherTypeMatrixService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
