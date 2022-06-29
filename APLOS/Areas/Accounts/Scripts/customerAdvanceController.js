@@ -124,7 +124,10 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         FinancingTypeId: null,
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
-        IsInterTransaction: false
+        IsInterTransaction: false,
+        ContractId: null,
+        ContractNo: null,
+        MasterOrderId: null
     };
 
     $scope.advanceDetail = {
@@ -175,6 +178,53 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
             getByParams($routeParams.advanceId);
         }
     });
+
+    $scope.contractList = [];
+    $scope.IsTradingPO = true;
+    $scope.GetPopUpContract = function () {
+        $scope.contractList = [];
+        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.IsTradingPO)
+            .then(
+                function successCallback(response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.contractList = response.data;
+                    }
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+        angular.element(document.querySelector('#ContractPopUp')).modal('show');
+    };
+    $scope.SelectedContract = function (obj) {
+        $scope.advance.ContractId = obj.data.ContractId;
+        $scope.advance.ContractNo = obj.data.ContractNo;
+        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
+    }
+
+    $scope.CloseContractPopUp = function () {
+        angular.element(document.querySelector('#ContractPopUp')).modal('hide');
+    }
+    $scope.ShowResultMasterOrderPopUp = function () {
+        $scope.GetMasterOrderList();
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('show');
+    }
+    $scope.masterOrderList = [];
+    $scope.GetMasterOrderList = function () {
+        $scope.masterOrderList = [];
+        $http({
+            method: 'GET',
+            url: "accounts/CustomerInvoice/GetMasterOrderPopUp"
+        }).then(function (response) {
+            $scope.masterOrderList = response.data;
+        });
+    }
+    $scope.AddOrder = function (obj) {
+        $scope.advance.MasterOrderId = obj.data.MasterOrderId;
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('hide');
+    }
+    $scope.CloseMasterOrder = function () {
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('hide');
+    }
 
     function getByParams(advanceId) {
         $http.get('Accounts/Advance/GetAdvanceForJournal?advanceId=' + advanceId)
@@ -721,6 +771,9 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.advance.Amount = 0;
         $scope.advance.Narration = null;
         $scope.advance.IsInterTransaction = false;
+        $scope.advance.ContractId = null;
+        $scope.advance.ContractNo = null;
+        $scope.advance.MasterOrderId = null;
         $scope.advance.VoucherDate = $filter("date")(Date.now(), "dd-MMM-yyyy");
         $scope.getCboVoucherTypeAdvanceTakenList();
         $scope.currencyExchangeRate = [];
