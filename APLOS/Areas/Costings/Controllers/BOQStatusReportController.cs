@@ -56,12 +56,14 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"SELECT MO.PartyId,P.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
-  
-                                    FROM TRN.MasterOrderItem AS moi 
-                                    LEFT JOIN TRN.MasterOrder AS mo ON mo.Id=MOI.MasterOrderId
-                                    LEFT JOIN HKP.Party P ON P.Id=MO.PartyId
-                                    WHERE ISNULL(moi.OrderCostingMasterTemplateId,'')<>'' AND MO.OrderStatusId='Active'";
+                var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+                             FROM BOQ  boq
+							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+							  left join HKP.Party PC on PC.Id=BOM.CustomerId
+							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
+                             left  join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+                             left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
+                              where BOM.CustomerId <>''";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -371,7 +373,7 @@ namespace Aplos.Areas.Costings.Controllers
 										, issueboq.IssueBaseQty
 										, issueboq.IssueAmount
 										, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
-										,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,SO.MasterOrderItemId LineItemId
+										,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
 										FROM BOQ  boq
 										LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
 										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
@@ -383,10 +385,9 @@ namespace Aplos.Areas.Costings.Controllers
 									    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
 										left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
 										left join HKP.Party PC on PC.Id=BOM.CustomerId
-										left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
-										left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id
-									    left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
-										--left join TRN.MasterOrder MO on MO.Id=SO.MasterOrderItemId
+										--left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+									    left join TRN.MasterOrder MO on MO.PartyId=PC.Id
+										left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
 										left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
 													FROM  trn.POBOQMAP pomap 
 													JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
@@ -413,7 +414,7 @@ namespace Aplos.Areas.Costings.Controllers
                                         AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
                                         AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
                                         AND MO.Id in(" + parameters["MasterOrderId"] + @")
-                                        AND SO.MasterOrderItemId in(" + parameters["LineItemId"] + @")";
+                                        AND moi.Id in(" + parameters["LineItemId"] + @")";
 
                 return _sqlRepository.GetDataTable(sql);
             }
