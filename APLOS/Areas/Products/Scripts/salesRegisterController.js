@@ -115,10 +115,13 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
 
     $scope.SalesRegisterList = [];
+    $scope.SalesRegisterPartyList = [];
+    $scope.SalesRegisterItemList = [];
     $scope.pivotTableFieldListID = [];
-    $scope.GetSalesRegister = function () {
-        debugger;
 
+
+
+    $scope.GetSalesRegister = function () {
         if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -127,10 +130,25 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Select To Date', 'failure');
             return false;
         }
+        else if ($scope.report.ReportType === null || $scope.report.ReportType === "") {
+            ShowResult('Please select Report Type', 'failure');
+            return false;
+        }
+
+        if ($scope.report.ReportType == 'SaleWise') {
+            $scope.gridDataURL = 'Products/salesRegister/GetSalesRegister'
+        }
+        else if ($scope.report.ReportType == 'PartyWise') {
+            $scope.gridDataURL = 'Products/salesRegister/SalesRegisterCustomerWiseData'
+        }
+        else if ($scope.report.ReportType == 'ItemWise') {
+            $scope.gridDataURL = 'Products/salesRegister/GetSalesRegisterItemWiseData'
+        }
+        //'Materials/MaterialLedger/GetPurchaseRegister'
         $http({
             method: 'POST',
             //url: $scope.getSearchListUrl,
-            url: 'Products/salesRegister/GetSalesRegister',
+            url: $scope.gridDataURL,
             data: {
                 fromDate: $scope.report.FromDate,
                 toDate: $scope.report.ToDate,
@@ -138,16 +156,30 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.SalesRegisterList = response.data;
-
-            for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
-                response.data[i].GRNEntryDate = new Date($scope.SalesRegisterList[i].GRNEntryDate);
+            if ($scope.report.ReportType == 'SaleWise') {
+                $scope.SalesRegisterList = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterList[i].GRNEntryDate);
+                }
+            }
+            else if ($scope.report.ReportType == 'PartyWise') {
+                $scope.SalesRegisterPartyList = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterPartyList[i].GRNEntryDate);
+                }
+            }
+            else if ($scope.report.ReportType == 'ItemWise') {
+                $scope.SalesRegisterItemList = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterItemList[i].GRNEntryDate);
+                }
             }
 
             $scope.load();
         });
 
     };
+
 
     $scope.InventorySalesReportExcels = function (reportType) {
         var Type = null;
@@ -639,7 +671,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
         }
         $http({
             method: 'POST',
-            url: $scope.path + "SalesOrderCustomerWiseReport",
+            url: $scope.path + "SalesRegisterCustomerWiseReport",
             data: {
                 'ToDate': $scope.report.ToDate,
                 'FromDate': $scope.report.FromDate
