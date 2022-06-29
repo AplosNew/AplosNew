@@ -28,12 +28,22 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
         PartyType: 'Customer',
         ReportSize: 'ShortSize'
     };
+    // PG=Party Wise Grouping
+    $scope.reportPG = {
+        FromDate: $filter('dateFiltering')(Date.now()),
+        ToDate: $filter('dateFiltering')(Date.now()),
+        PartyCategoryId: null,
+        ReportFormat: 'Pdf',
+        PartyType: 'Customer'
+    };
 
-    //$scope.showSecondDiv = function () {
-    //    $scope.showFinanceDB = false;
-    //}
-
-    ///console.log($scope.report);
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];

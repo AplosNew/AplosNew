@@ -127,6 +127,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
                 $scope.MaterialAttachmentList[i].ArticleId = $scope.SelectedMaterial.ArticleId;
                 $scope.MaterialAttachmentList[i].Article = $scope.SelectedMaterial.Article;
                 $scope.MaterialAttachmentList[i].Vendor = $scope.SelectedMaterial.Vendor;
+                $scope.MaterialAttachmentList[i].VendorId = $scope.SelectedMaterial.VendorId;
                 break;
             }
         }
@@ -136,6 +137,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
                 $scope.MaterialQtyEditList[i].Material = $scope.SelectedMaterial.Material;
                 $scope.MaterialQtyEditList[i].Article = $scope.SelectedMaterial.Article;
                 $scope.MaterialQtyEditList[i].Vendor = $scope.SelectedMaterial.Vendor;
+                $scope.MaterialQtyEditList[i].VendorId = $scope.SelectedMaterial.VendorId;
                 $scope.MaterialQtyEditList[i]["WithSKU"] = $scope.SelectedMaterial.WithSKU;
             }
         }

@@ -1452,27 +1452,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
 
-        [Authorize, HttpGet]
-        public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Summary, bool WithTax, string Type)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
-            ExcelEngine excelEngine = new ExcelEngine();
-            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-            IWorkbook workbook = salesQueryService.InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
-
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
-        }
+       
 
 
         [HttpPost, Authorize]
