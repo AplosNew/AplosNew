@@ -39,7 +39,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region -- Pages
 
-        [Authorize]
+    
         public ActionResult Aplos()
         {
             return View();
@@ -103,14 +103,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #region ------------------Column Header------------------
 
                 int colBudgetCodeId = 0; int colBudgetCode = 0; int colEntity = 0; int colDpt = 0; int colSec = 0; int colSSec = 0; int colDeg = 0;
-                int colAct = 0; int colShift, colDeployment, colEmployeeCategory, colPositionCode, colResponsiblePerson = 0; int colDailyOTLimit = 0; int colWeeklyOTLimit = 0; int colWeekOffOTLimit, colONRoll = 0;
+                int colAct = 0; int colShift, colDeployment, colEmployeeCategory, colPositionCode, colResponsiblePerson = 0; int colDailyOTLimit = 0; int colWeeklyOTLimit = 0; int colWeekOffOTLimit, colONRoll, colLine, colBudgetedManPower = 0;
                 int colMonthlyOTLimit = 0; int colRemarks, colROBudgetCode, colPRBudgetCode, colAttendanceGroup, colUserGroup2, colDirect = 0;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCodeId"); colBudgetCodeId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Deployment"); colDeployment = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); colBudgetCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PositionCode"); colPositionCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCat"); colEmployeeCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); colEntity = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department"); colDpt = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section"); colSec = xlsCol; xlsCol += 1;
@@ -118,18 +113,25 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation"); colDeg = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity"); colAct = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift"); colShift = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ONRoll"); colONRoll = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line"); colLine = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePerson"); colResponsiblePerson = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct"); colDirect = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserGroup2"); colUserGroup2 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "AttendanceGroup"); colAttendanceGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCat"); colEmployeeCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PositionCode"); colPositionCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); colBudgetCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Deployment"); colDeployment = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetedManPower"); colBudgetedManPower = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ONRoll"); colONRoll = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ROBudgetCode"); colROBudgetCode = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PRBudgetCode"); colPRBudgetCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "AttendanceGroup"); colAttendanceGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserGroup2"); colUserGroup2 = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct"); colDirect = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCodeId"); colBudgetCodeId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DailyOTLimit"); colDailyOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeeklyOTLimit"); colWeeklyOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeekOffOTLimit"); colWeekOffOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthlyOTLimit"); colMonthlyOTLimit = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;                
 
                 endXlsCol = xlsCol;
 

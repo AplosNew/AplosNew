@@ -5608,7 +5608,7 @@ namespace Aplos.MaterialManagement
 			sheet.UsedRange.CellStyle.Font.Size = 8;
 
 			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 			return workbook;
 		}
