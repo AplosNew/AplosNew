@@ -530,6 +530,7 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
             else {
                 ShowResult(response.data.Message, 'success');
             }
+            $scope.Clear();
         });
     }
 
