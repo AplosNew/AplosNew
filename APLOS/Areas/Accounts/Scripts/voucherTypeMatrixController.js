@@ -4,7 +4,7 @@ function VoucherTypeMatrixController(cboService, commonMessage, $window, $scope,
     $scope.tableShow = false;
     $scope.Action = 'Save';
     $scope.path = 'accounts/VoucherTypeMatrix/';
-    $scope.getListUrl = $scope.path + 'GetVoucherTypeMatrixList';
+   
     $scope.saveUrl = $scope.path + 'CreateVoucherTypeMatrix/';
     $scope.updateUrl = $scope.path + 'EditVoucherTypeMatrix/';
     $scope.deleteUrl = $scope.path + 'DeleteVoucherTypeMatrix/';
@@ -16,18 +16,30 @@ function VoucherTypeMatrixController(cboService, commonMessage, $window, $scope,
         SourceType: null,
         AddedDate: new Date()
     };
+    $scope.voucherTypeMatrixList = [];
+  
 
-    baseService.init($scope.getListUrl, null, null, null, "VoucherTypeName", "VoucherTypeName");
-    $scope.getData = function (pageno) {
-        baseService.pagination(pageno)
-            .then(function (result) {
-                $scope.voucherTypeMatrixList = result.Rows;
-            }, function () {
-                ShowResult(commonMessage.NetworkError, 'failure');
-            }).finally(function () {
-            });
+    $scope.onCompanyGroupChange = function (item) {
+        $scope.paginationShow = true;
+        baseService.init('accounts/VoucherTypeMatrix/GetVoucherTypeMatrixList?companyGroupId=' + item, null, null, null, "VoucherTypeName", "VoucherTypeName");
+        $scope.getData = function (pageno) {
+            baseService.pagination(pageno)
+                .then(function (result) {
+                    $scope.voucherTypeMatrixList = result.Rows;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        $scope.getData();
     };
-    $scope.getData();
+
+
+
+    $scope.companyGroupList = [];
+    cboService.getCboCompanyGroup(function (result) {
+        $scope.companyGroupList = result;
+    });
 
     $scope.voucherTypeList = [];
     cboService.getCboVoucherType(function (result) {
