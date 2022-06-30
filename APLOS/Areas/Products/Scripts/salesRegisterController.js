@@ -180,9 +180,18 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
-
-    $scope.InventorySalesReportExcels = function (reportType) {
+    $scope.InventorySalesReportExcels = function () {
         var Type = null;
+        if ($scope.productNew.AsOnDate === 'AsOnDate') {
+
+            if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+                ShowResult('Select To Date', 'failure');
+                return false;
+            }
+            Type = 'AsOnDate';
+        }
+        else {
+
             if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
                 ShowResult('Select From Date', 'failure');
                 return false;
@@ -192,9 +201,47 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
                 return false;
             }
             Type = 'ForThePeriod';
+        }
 
-        //var reportFormat = "Excel";
-        $window.open('Products/InventoryIssue/InventorySalesReportExcel?reportFormat=' + 'Excel' + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Summary=' + reportType + '&WithTax=' + true + '&Type=' + Type);
+        var reportFormat = "Excel";
+        $scope.report.Summary = 'Summary';
+        $window.open('Products/SalesRegister/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.report.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+    };
+
+    $scope.downloadReport = function () {
+        if ($scope.report.ReportType == 'SaleWise') {
+            $scope.InventorySalesReportExcels();
+        }
+        else if ($scope.report.ReportType == 'PartyWise') {
+            $scope.SalesRegisterCustomerWiseData();
+        }
+        else if ($scope.report.ReportType == 'ItemWise') {
+            $scope.SalesRegisterItemWiseReport();
+        }
+    }
+
+    $scope.SalesRegisterItemWiseReport = function () {
+        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        $window.open('Products/SalesRegister/SalesRegisterItemWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
+    };
+
+    $scope.SalesRegisterItemWiseReport = function () {
+        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
+        $window.open('Products/SalesRegister/SalesRegisterCustomerWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
     };
 
 
@@ -659,67 +706,6 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     //    }
     //}
-
-    $scope.SalesOrderCustomerWiseReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "SalesRegisterCustomerWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
-
-   
-    $scope.SalesOrderItemReportExcel = function () {
-        if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-            ShowResult('Select From Date', 'failure');
-            return false;
-        }
-        if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-            ShowResult('Select To Date', 'failure');
-            return false;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.path + "SalesRegisterItemWiseReport",
-            data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error == true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
-    }
 
 
     $scope.productNew.AsOnDate = 'AsOnDate';

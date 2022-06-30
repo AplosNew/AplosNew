@@ -208,6 +208,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult(response.data.Message, 'failure');
         });
     }
+
     $scope.PurchaseOrderPartyWiseReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
