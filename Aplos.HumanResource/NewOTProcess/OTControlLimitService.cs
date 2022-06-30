@@ -28,16 +28,18 @@ namespace Library.HumanResource.NewOTProcess
                 string sql = @"SELECT distinct mb.Id BudgetCodeId,mb.Deployment,mb.Code BudgetCode,p.Code PositionCode,DGM.EmployeeCategory,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
         ,ei.EmployeeName ResponsiblePerson,OT.DailyOTLimit,OT.WeeklyOTLimit,OT.WeekOffOTLimit,OT.MonthlyOTLimit,'' Remarks
         ,mb.ROBudgetCode,mb.PRBudgetCode
-        ,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ISNULL(ONR.ONRoll,0)OnRoll
+        ,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ISNULL(ONR.ONRoll,0)OnRoll,l.UserName Line,mbd.TotalNumber
         FROM MST.ManpowerBudget AS mb
         LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
         LEFT JOIN ORG.Position AS p ON P.Id=mb.PositionId
         LEFT JOIN ORG.Department AS d ON d.Id=p.DepartmentId
         LEFT JOIN ORG.Section AS S ON S.Id=p.SectionId
         LEFT JOIN ORG.SubSection AS SS ON SS.Id=p.SubSectionId
+        LEFT JOIN ORG.Line AS L ON L.Id=mb.LineId
         LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId 
         LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID=mb.ShiftDefinationId
         LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
+        LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId=mb.Id
         LEFT JOIN (SELECT dm.DesignationId,dmc.IsOTEntitled,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
         LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
         LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId                            

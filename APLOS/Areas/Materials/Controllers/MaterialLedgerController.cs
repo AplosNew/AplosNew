@@ -426,13 +426,13 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult PurchaseRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        public ActionResult PurchaseRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Purchase Report Register Item Wise" + fromDate + "To" + toDate + "";
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-            var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
+            var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

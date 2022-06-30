@@ -121,7 +121,7 @@ from
         public string SalesOrderListForCostingBOQ(string CustomerId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,0 AS Selected
+            return @"SELECT ROW_NUMBER() OVER (ORDER BY SO.MasterOrderItemId) AS RN,0 AS Selected,CanSelect=CASE WHEN ISNULL(SO.CostingBOQMasterId,'')='' THEN 1 ELSE 0 END
 	                            , MOI.MasterOrderId, MO.MasterOrderNo, SO.MasterOrderItemId,MOI.OrderCostingMasterTemplateId
 	                            , SO.Id AS SalesOrderId, P.UserName AS Customer
 	                            , MOI.MaterialMasterId, MM.UserName AS MaterialMasterName

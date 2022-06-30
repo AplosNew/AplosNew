@@ -160,6 +160,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1[xlsRow, colSSec].Text = dtData.Rows[i]["SubSection"].ToString();
                     sheet1[xlsRow, colAct].Text = dtData.Rows[i]["Activity"].ToString();
                     sheet1[xlsRow, colShift].Text = dtData.Rows[i]["ShiftDefinationName"].ToString();
+                    sheet1[xlsRow, colLine].Text = dtData.Rows[i]["Line"].ToString();
+                    sheet1[xlsRow, colBudgetedManPower].Text = dtData.Rows[i]["TotalNumber"].ToString();
                     sheet1[xlsRow, colONRoll].Text = dtData.Rows[i]["ONRoll"].ToString();
                     sheet1[xlsRow, colDeployment].Text = dtData.Rows[i]["Deployment"].ToString();
                     sheet1[xlsRow, colPositionCode].Text = dtData.Rows[i]["PositionCode"].ToString();
@@ -364,7 +366,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(1, 1, 5000, 24, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(1, 1, 5000, 26, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(BudgetCodeId,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 dsExcel = new DataSet();
