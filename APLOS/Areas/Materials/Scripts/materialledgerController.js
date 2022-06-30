@@ -208,6 +208,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult(response.data.Message, 'failure');
         });
     }
+
     $scope.PurchaseOrderPartyWiseReportExcel = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
             ShowResult('Select From Date', 'failure');
@@ -248,8 +249,9 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         }
         try {
             var Excel;
-            var file_src = 'Materials/MaterialLedger/PurchaseRegisterItemWiseReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
-            $rootScope.report(file_src);
+            var file_src = 'Materials/MaterialLedger/PurchaseRegisterItemWiseReport?reportFormat=' + 'Excel' + '&plantId=' + null + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate;
+            //$rootScope.report(file_src);
+            $window.open(file_src);
 
         } catch (e) {
 

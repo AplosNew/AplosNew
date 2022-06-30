@@ -52,7 +52,7 @@ namespace Aplos.Areas.Accounts.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 companyGroupId = identity.CompanyGroupId;
             }
-            return Json(_voucherTypeMatrixService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet);
+            return Json(_voucherTypeMatrixService.Query(parameters, companyGroupId), JsonRequestBehavior.AllowGet); 
         }
 
         [Authorize, HttpGet]

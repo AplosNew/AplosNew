@@ -3586,7 +3586,7 @@ namespace Aplos.MaterialManagement
 						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
-			
+						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory
 
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
@@ -3595,6 +3595,9 @@ namespace Aplos.MaterialManagement
 					group by InventoryReceiveId ) AS IRD ON IR.Id=IRD.InventoryReceiveId 
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
@@ -3607,7 +3610,8 @@ namespace Aplos.MaterialManagement
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
 					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount
-					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType";
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType
+					,PC.UserName,PSC.UserName,PG.UserName";
 
 				return _sqlRepository.GetDataTable(str);
 			}
@@ -3705,6 +3709,21 @@ namespace Aplos.MaterialManagement
 			int ColBalance = COL;
 			COL++;
 
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignRight);
+			int ColPartyGroup = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
+			int ColPartyCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignRight);
+			int ColPartySubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignRight);
+			int ColPartyType = COL;
+
 			endCol = COL;
 			#endregion Headers
 
@@ -3733,6 +3752,10 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
 				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
 				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
 
 				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -3910,6 +3933,7 @@ namespace Aplos.MaterialManagement
 						,IRD.InventorySalesQty
 						,IRD.InventoryScrapQty						
 						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName,IRD.[Description]
+						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -3930,7 +3954,12 @@ namespace Aplos.MaterialManagement
 					left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
-					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					 
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
@@ -4194,11 +4223,17 @@ namespace Aplos.MaterialManagement
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
 					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName,NULL [Description]
+					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
-			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+			
+			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+			LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+			 
 			LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 			LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 			LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
@@ -4294,7 +4329,7 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
 			}
 		}
-		public IWorkbook CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
+		public IWorkbook CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate)
 		{
 			try
 			{
@@ -4304,7 +4339,7 @@ namespace Aplos.MaterialManagement
 				var workbook = report.GetWorkbook(ref excelEngine, 2);
 				var sheet1 = workbook.Worksheets[0];
 				var Head = "Purchase Register";// + " " + fromDate + " " + "To" + " " + toDate ;
-				CreatePurchaseRegisterItemReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+				CreatePurchaseRegisterItemReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate);
 				workbook.Version = ExcelVersion.Excel2016;
 				return workbook;
 			}
@@ -4314,7 +4349,7 @@ namespace Aplos.MaterialManagement
 			}
 		}
 
-		private void CreatePurchaseRegisterItemReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+		private void CreatePurchaseRegisterItemReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate)
 		{
 
 
@@ -5260,6 +5295,35 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Category";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party SubCategory";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Type";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
 
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -5380,6 +5444,10 @@ namespace Aplos.MaterialManagement
 				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
 				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
 				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
+				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 101, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 102, inventoryMaterialList.Rows[n]["PartyType"].ToString());
 
 				//}
 			}
@@ -5526,6 +5594,22 @@ namespace Aplos.MaterialManagement
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignLeft);
 			int ColBalance = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyGroup = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignLeft);
+			int ColPartySubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyType = COL;
 
 			endCol = COL;
 			#endregion Headers
@@ -5549,6 +5633,10 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalBaseAmount"].ToString());
 				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
 				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
 
 				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -5622,11 +5710,12 @@ namespace Aplos.MaterialManagement
                             ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
                             ,SUM(X.WrittenOffAmount) Payment
                             ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
+							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType
                             FROM 
                             (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
 						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Name Currency ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount
-						                            ,i.WrittenOffAmount
+						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount,i.WrittenOffAmount
+						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,i.PartyType
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 						                            JOIN SCS.Currency C ON C.Id=IR.CurrencyId
@@ -5634,12 +5723,16 @@ namespace Aplos.MaterialManagement
 						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						                            LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						                            LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+													LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+													LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+
 						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name
+						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name,PC.UserName,PSC.UserName,PG.UserName,i.PartyType
                             )X
-                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency";
+                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType";
 
 				return _sqlRepository.GetDataTable(str);
 			}

@@ -368,7 +368,7 @@ namespace Aplos.Areas.Products.Controllers
 
 
         [HttpPost, Authorize]
-        public ActionResult SalesRegisterCustomerWiseData(string PlantId, string ToDate, string FromDate)
+        public ActionResult SalesRegisterCustomerWiseData(string PlantId, string FromDate, string ToDate)
         {
             try
             {
@@ -383,20 +383,26 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult SalesRegisterCustomerWiseReport(string PlantId, string ToDate, string FromDate)
+        [Authorize, HttpGet]
+        public ActionResult SalesRegisterCustomerWiseReport(ReportFormat reportFormat, string PlantId, string FromDate, string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
+                var reportFileName = "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "";
                 var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
 
-                var strFileName = "Sales Register Report Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                    default:
+                        return View();
+                }
 
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -423,20 +429,26 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult SalesRegisterItemWiseReport(string PlantId, string ToDate, string FromDate)
+        [HttpGet, Authorize]
+        public ActionResult SalesRegisterItemWiseReport(ReportFormat reportFormat, string PlantId, string FromDate, string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
                 var workbook = obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
+                var reportFileName = "Sales Register.xls" + FromDate + "To" + ToDate + "";
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
 
-                var strFileName = "Sales Report Register Item Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
 
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                    default:
+                        return View();
+                }
             }
             catch (Exception ex)
             {
