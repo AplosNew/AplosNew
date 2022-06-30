@@ -112,10 +112,10 @@
                 </div>
             </div>
         </div>
-        <div class="form-group" id="div_ReviewDate">
-            <label class="col-sm-4 control-label">Review Date</label>
+        <div class="form-group" id="div_ReviewDate" show-errors>
+            <label class="col-sm-4 control-label">Review Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="7">
+                <input type="text" id="Review Date" name="Review Date" ng-model="advance.ReviewDate" datepicker="checkReviewDate();" class="form-control" tabindex="7" required>
             </div>
         </div>
         <div class="form-group">
@@ -189,7 +189,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person</label>
+            <label title="Responsible Person" class="col-sm-4 control-label">Res.Person<sup>*</sup></label>
             <div class="col-sm-8">
                 <div class="input-group">
                     <input type="text" name="Responsible Person" ng-model="advance.ResponsiblePerson" class="form-control" readonly>

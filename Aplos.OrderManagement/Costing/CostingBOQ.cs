@@ -883,11 +883,11 @@ namespace Library.OrderManagement.Costing
             }
 
 
-            CompactBOQData = CompactBOQWithCriteria(CostingBOQMasterId, dsExistingBOQ.Tables[0]);
+            CompactBOQData = CompactBOQWithCriteria(CostingBOQMasterId, dsExistingBOQ.Tables[0], SalesOrderIds, CostingItemIds);
 
         }
 
-        public DataSet CompactBOQWithCriteria(string CostingBOQMasterId, DataTable dtSourceBOQ)
+        public DataSet CompactBOQWithCriteria(string CostingBOQMasterId, DataTable dtSourceBOQ, string SalesOrderIds, string CostingItemIds)
         {
             //Id CostingBOQMasterId  SalesOrderId CostingItemId   DestinationId MaterialMasterId    ArticleId ,BOMCriteria,
             //OrderProcurementCostingDirectMaterialId ItemRefNo UoMId   UoMIdBase CurrencyId  CurrencyIdBase VendorId    
@@ -898,10 +898,17 @@ namespace Library.OrderManagement.Costing
 
 
             ConManager = new ConnectionManager.clsConnectionManager();
-            ConManager.getDataSet(@"SELECT distinct CB.CostingItemId,MM.GrossAmount
-                                   FROM CostingBOQItems AS cb  
-                                 JOIN OrderProcurementCostingDirectMaterial MM ON MM.Id=CB.OrderProcurementCostingDirectMaterialId
-                                WHERE cb.CostingBOQMasterId='" + CostingBOQMasterId + @"'", out DataSet dtRateFromCosting);
+            //ConManager.getDataSet(@"SELECT distinct CB.CostingItemId,MM.GrossAmount
+            //                       FROM CostingBOQItems AS cb  
+            //                     JOIN OrderProcurementCostingDirectMaterial MM ON MM.Id=CB.OrderProcurementCostingDirectMaterialId
+            //                    WHERE cb.CostingBOQMasterId='" + CostingBOQMasterId + @"'", out DataSet dtRateFromCosting);
+
+            ConManager.getDataSet(@"SELECT MM.CostingItemId,MM.GrossAmount,SO.Id
+                                FROM OrderProcurementCostingDirectMaterial MM 
+                                LEFT JOIN CostingBOQItems AS cb   ON MM.Id=CB.OrderProcurementCostingDirectMaterialId
+                                INNER JOIN trn.MasterOrderItem AS moi ON moi.OrderCostingMasterTemplateId=MM.OrderCostingMasterTemplateId
+                                INNER JOIN trn.SalesOrder AS so ON  so.MasterOrderItemId=moi.id
+                                WHERE MM.CostingItemId IN (" + CostingItemIds + ") AND SO.Id IN (" + SalesOrderIds + ")", out DataSet dtRateFromCosting);
 
             string _id = GetPK("BOMMasterAttachmentWithItem");
             int Index = 0;
