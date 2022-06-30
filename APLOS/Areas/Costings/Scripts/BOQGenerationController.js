@@ -57,30 +57,40 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
     $scope.SelectedSalesOrderList = [];
     $scope.ApplySelectSalesOrder = function () {
 
-        var _sel = ej.DataManager($scope.SalesOrderList).executeLocal(ej.Query().where("Selected", "equal", true));
-        if (_sel.length > 0) {
-            var _temp = _sel[0].OrderCostingMasterTemplateId;
+        try {
+            var _sel = ej.DataManager($scope.SalesOrderList).executeLocal(ej.Query().where("Selected", "equal", true));
             for (var i = 0; i < _sel.length; i++) {
-
-                if (_sel[i].OrderCostingMasterTemplateId!==null && _sel[i].Approved=="No") {
-                    ShowResult('Costing should be approved.', 'failure');
-                    return;
-                }
-
-                if (_sel[i].OrderCostingMasterTemplateId != _temp) {
-                    ShowResult('Sales order with different costing id not allowed', 'failure');
-                    return;
-                }
-
-                if (!_sel[i].OrderCostingMasterTemplateId) {
-                    ShowResult('Sales order#' + _sel[i].SalesOrderId + ' does not have costing', 'failure');
-                    return;
+                if (_sel[i].CanSelect == false) {
+                    throw "This SalesOrder "+_sel[i].SalesOrderId+" already used.";
                 }
             }
+
+            if (_sel.length > 0) {
+                var _temp = _sel[0].OrderCostingMasterTemplateId;
+                for (var i = 0; i < _sel.length; i++) {
+
+                    if (_sel[i].OrderCostingMasterTemplateId !== null && _sel[i].Approved == "No") {
+                        ShowResult('Costing should be approved.', 'failure');
+                        return;
+                    }
+
+                    if (_sel[i].OrderCostingMasterTemplateId != _temp) {
+                        ShowResult('Sales order with different costing id not allowed', 'failure');
+                        return;
+                    }
+
+                    if (!_sel[i].OrderCostingMasterTemplateId) {
+                        ShowResult('Sales order#' + _sel[i].SalesOrderId + ' does not have costing', 'failure');
+                        return;
+                    }
+                }
+            }
+            $scope.SelectedSalesOrderList = _sel;
+            $scope.Submit();
+            $rootScope.closePopup('dialogSalesOrderSearch');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
-        $scope.SelectedSalesOrderList = _sel;
-        $scope.Submit();
-        $rootScope.closePopup('dialogSalesOrderSearch');
     }
     $scope.SelectSalesOrder = function (args) {
         $scope.SelectedSalesOrder = args.data;
