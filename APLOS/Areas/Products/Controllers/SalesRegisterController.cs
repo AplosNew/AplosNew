@@ -383,20 +383,26 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [HttpPost, Authorize]
-        public ActionResult SalesRegisterCustomerWiseReport(ReportFormat reportFormat, string PlantId, string ToDate, string FromDate)
+        [Authorize, HttpGet]
+        public ActionResult SalesRegisterCustomerWiseReport(ReportFormat reportFormat, string PlantId, string FromDate, string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
+                var reportFileName = "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "";
                 var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
+                switch (reportFormat)
+                {
+                    case ReportFormat.Pdf:
+                        return RenderReportAsPdf(workbook, reportFileName);
 
-                var strFileName = "Sales Register Report Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
+                    case ReportFormat.Excel:
+                        return RenderReportAsExcel(workbook, reportFileName);
+                    default:
+                        return View();
+                }
 
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
