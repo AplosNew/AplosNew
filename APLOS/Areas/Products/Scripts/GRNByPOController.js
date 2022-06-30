@@ -1558,7 +1558,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetListOfPO?PoType=' + PoType + '&Status=' + $scope.status,
+            url: 'Products/GoodsReceiveNote/GetListOfPO?PoType=' + PoType + '&Status=' + $scope.status + '&vendorId=' + $scope.productNew.PartyId,
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
             $scope.productNew.GRNDate = $filter("dateFiltering")(Date.now());

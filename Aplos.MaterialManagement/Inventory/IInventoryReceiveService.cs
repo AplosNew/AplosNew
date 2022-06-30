@@ -19,8 +19,7 @@ namespace Library.MaterialManagement.Inventory
         GridModel QueryEmpGrn(GridParameter parameters, string plantId); 
 
 
-        IEnumerable<object> GetListForHold(string plantId,string PoType,string Status);
-        IEnumerable<object> GetPOListForAdvance(string plantId, string PoType, string Status, string vendorId);
+        IEnumerable<object> GetListForHold(string plantId,string PoType,string Status, string vendorId);
         IEnumerable<object> LoadAcceptanceDetails(string AcceptanceId);
         IEnumerable<object> LoadAcceptanceDetailsBOQ(string AcceptanceId);
 
