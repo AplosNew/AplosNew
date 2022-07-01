@@ -235,7 +235,9 @@ namespace Library.Service.Advances
                 SettlementType = voucherVM.SettlementType,
                 RequisitionId = voucherVM.RequisitionId,
                 CompanyCurrencyRate = voucherVM.CompanyCurrencyRate,
-                POId = voucherVM.POId
+                POId = voucherVM.POId,
+                ContractId= voucherVM.ContractId,
+                MasterOrderId = voucherVM.MasterOrderId
             });
         }
 
@@ -1051,6 +1053,8 @@ namespace Library.Service.Advances
                 advance.FiscalYearPeriodId = voucherVM.FiscalYearPeriodId;
                 advance.TaxYearId = voucherVM.TaxYearId;
                 advance.TaxYearPeriodId = voucherVM.TaxYearPeriodId;
+                advance.ContractId = voucherVM.ContractId;
+                advance.MasterOrderId = voucherVM.MasterOrderId;
                 base.UpdateGraph(advance);
 
                 // INSERT INTO Voucher

@@ -878,17 +878,17 @@ namespace Aplos.Areas.Products.Controllers
             return Json(inventoryReceiveQueryService.QueryGetListForGRNSaveData(identity.PlantId, GRNWithReqPOCheckStatus), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult GetListOfPO(string PoType, string Status)
+        public JsonResult GetListOfPO(string PoType, string Status,string vendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]
         public JsonResult GetPOListForAdvance(string PoType, string Status, string vendorId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetPOListForAdvance(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
+            return Json(_inventoryReveiveService.GetListForHold(identity.PlantId, PoType, Status, vendorId), JsonRequestBehavior.AllowGet);
         }
 
         [Authorize, HttpGet]

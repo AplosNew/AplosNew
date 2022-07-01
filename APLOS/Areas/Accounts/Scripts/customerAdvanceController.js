@@ -447,6 +447,10 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
                 ShowResult("Please select Cash or Bank!", "failure");
                 return true;
             }
+            if (baseService.isUndefinedOrNull($scope.advance.ResponsiblePerson)) {
+                ShowResult("Please select Responsible Person!", "failure");
+                return true;
+            }
         }
         else if ($scope.partyType === "Vendor") {
             if ($scope.advance.PartyId === null) {
