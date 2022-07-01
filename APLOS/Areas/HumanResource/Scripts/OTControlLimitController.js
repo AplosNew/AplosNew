@@ -7,6 +7,20 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
     }
     $scope.modelNew = Object.assign({}, $scope.model);
 
+    $scope.lastEffectiveDate = null;
+    $scope.GetLastEffectiveDate = function () {
+        $http({
+            method: 'GET',
+            url: 'HumanResource/OTControlLimit/GetLastEffectiveDate'
+        }).then(function successCallback(response) {
+
+            if (response.data.length > 0) {
+                $scope.lastEffectiveDate = response.data[0].EffectiveDate;
+            }
+        });
+    };
+    $scope.GetLastEffectiveDate();
+
     $scope.employeeParameters = {
         limit: 10,
         offset: 0,
@@ -159,6 +173,13 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
             if (baseService.isUndefinedOrNull($scope.modelNew.EffectiveDate)) {
                 throw "Effective Date is required";
             }
+
+            if (!baseService.isUndefinedOrNull($scope.lastEffectiveDate)) {
+                if (new Date($scope.lastEffectiveDate) > new Date($scope.modelNew.EffectiveDate)) {
+                    throw "Effective Date should greater or equal to Last Effective Date";
+                }
+            }
+
             if (baseService.isUndefinedOrNull($scope.modelNew.ByWhom)) {
                 throw "ByWhom is required";
             }
@@ -224,5 +245,8 @@ function OTControlLimitController(commonMessage, $scope, $rootScope, baseService
         });
     };
     $scope.getData();
+
+
+   
 
 }

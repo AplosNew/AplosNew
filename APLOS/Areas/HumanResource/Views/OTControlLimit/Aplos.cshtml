@@ -36,7 +36,10 @@
         </div>
         <div class="col-md-12 col-sm-6 col-md-6">
             <div class="form-group">
-                <label class="col-sm-12 control-label"></label>
+                <label class="col-sm-4 control-label">Last Effective Date</label>
+                <div class="col-sm-8">
+                    <input type="text" name="Last Effective Date" disabled ng-model="lastEffectiveDate" datepicker class="form-control">
+                </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">ApproveBy<sup>*</sup></label>
@@ -77,11 +80,6 @@
                  e-pagesettings-pagesize="25"
                  e-filtersettings-filterType="excel">
                 <div e-columns>
-                    <div e-column e-field="BudgetCodeId" e-headertext="BudgetCodeId" e-width="30" e-primarykey="true"></div>
-                    <div e-column e-field="Deployment" e-headertext="Deployment" e-width="80"></div>
-                    <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="80"></div>
-                    <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="80"></div>
-                    <div e-column e-field="EmployeeCat" e-headertext="Employee Category" e-width="80"></div>
                     <div e-column e-field="Entity" e-headertext="Entity" e-width="80"></div>
                     <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
                     <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
@@ -89,13 +87,20 @@
                     <div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>
                     <div e-column e-field="Activity" e-headertext="Activity" e-width="80"></div>
                     <div e-column e-field="ShiftDefinationName" e-headertext="Shift" e-width="80"></div>
-                    <div e-column e-field="ONRoll" e-headertext="ONRoll" e-width="80"></div>
+                    <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
                     <div e-column e-field="ResponsiblePerson" e-headertext="ResponsiblePerson" e-width="80"></div>
+                    <div e-column e-field="Direct" e-headertext="Direct" e-width="80"></div>
+                    <div e-column e-field="UserGroup2" e-headertext="UserGroup2" e-width="80"></div>
+                    <div e-column e-field="AttendanceGroup" e-headertext="AttendanceGroup" e-width="80"></div>
+                    <div e-column e-field="EmployeeCat" e-headertext="Employee Category" e-width="80"></div>
+                    <div e-column e-field="PositionCode" e-headertext="PositionCode" e-width="80"></div>
+                    <div e-column e-field="BudgetCode" e-headertext="BudgetCode" e-width="80"></div>
+                    <div e-column e-field="Deployment" e-headertext="Deployment" e-width="80"></div>
+                    <div e-column e-field="BudgetedManPower" e-headertext="TotalNumber" e-width="80"></div>
+                    <div e-column e-field="ONRoll" e-headertext="ONRoll" e-width="80"></div>
                     <div e-column e-field="ROBudgetCode" e-headertext="ROBudgetCode" e-width="80"></div>
                     <div e-column e-field="PRBudgetCode" e-headertext="PRBudgetCode" e-width="80"></div>
-                    <div e-column e-field="AttendanceGroup" e-headertext="AttendanceGroup" e-width="80"></div>
-                    <div e-column e-field="UserGroup2" e-headertext="UserGroup2" e-width="80"></div>
-                    <div e-column e-field="Direct" e-headertext="Direct" e-width="80"></div>
+                    <div e-column e-field="BudgetCodeId" e-headertext="BudgetCodeId" e-width="30"></div>
                     <div e-column e-field="DailyOTLimit" e-headertext="DailyOTLimit" e-width="80"></div>
                     <div e-column e-field="WeeklyOTLimit" e-headertext="WeeklyOTLimit" e-width="80"></div>
                     <div e-column e-field="WeekOffOTLimit" e-headertext="WeekOffOTLimit" e-width="80"></div>
