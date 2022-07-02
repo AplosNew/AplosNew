@@ -421,28 +421,22 @@ namespace Aplos.Areas.Materials.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterItemData(identity.CompanyId, identity.PlantId, fromDate, toDate));
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterItemData(identity.CompanyId, identity.PlantId, fromDate, toDate,null, false));
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
-        [Authorize, HttpGet]
-        public ActionResult PurchaseRegisterItemWiseReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate)
+        [Authorize, HttpPost]
+        public ActionResult PurchaseRegisterItemWiseReport(/*ReportFormat reportFormat, */string plantId, string fromDate, string toDate,string SLNo,string SheetName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
-            var reportFileName = "Purchase Report Register Item Wise" + fromDate + "To" + toDate + "";
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-            var workbook = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
 
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-                default:
-                    return View();
-            }
+            string fileName = "";
+            fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "PurchaseRegisterReportItemWise" + fromDate + "To" + toDate + "");
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+
         }
 
 

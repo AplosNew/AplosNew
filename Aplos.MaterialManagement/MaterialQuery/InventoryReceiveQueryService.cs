@@ -11,6 +11,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 
@@ -3818,12 +3819,12 @@ namespace Aplos.MaterialManagement
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
 			return workbook;
 		}
-		public DataTable GetPurchaseRegisterItemData(string companyId, string plantId, string fromDate, string toDate)
+		public DataTable GetPurchaseRegisterItemData(string companyId, string plantId, string fromDate, string toDate,string SLNo, bool isreport)
 		{
 			try
 			{
-				var sql = @"Select * from (SELECT   --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
-						   Distinct REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+				var sql = @"Select * from (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
+						   , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
 							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
 							,IR.Id As GRNId
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
@@ -4099,16 +4100,14 @@ namespace Aplos.MaterialManagement
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
 							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
 							)PO ON PO.GRNId = IR.Id
-						 --where  IR.PlantId='20181'  AND convert(Date,IR.GRNDate) BETWEEN  '01-OCT-2020' AND '31-OCT-2020' --ORDER BY IR.GRNDate ASC
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
-                         --and IR.Id='20211740'
 						--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
 							UNION ALL
 
-						SELECT 	--ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
-						   Distinct REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+						SELECT 	ROW_NUMBER() OVER(ORDER BY ISs.Id ASC) AS SLNo                           
+						   ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
 							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
 							,IR.Id As GRNId
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
@@ -4119,7 +4118,7 @@ namespace Aplos.MaterialManagement
 						   --,p.Id
                             ,p.UserName AS PartyName
 						   ,EI.EmployeeName FirstName						   
-						   ,Null As GrnDetailId
+						   ,ISs.Id As GrnDetailId
 						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
 						   --,IR.InvoiceNo
 						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
@@ -4318,9 +4317,21 @@ namespace Aplos.MaterialManagement
 			--AND IRT.InventoryServiceId is not null
 			--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
-			)x
-			Order By X.GRNEntryDate ASC"; 
-				return _sqlRepository.GetDataTable(sql);
+			)x ";
+
+                if (isreport)
+				{
+
+					var newsql = "select * from(" + sql + ") y where y.SLNo in ("+ SLNo + @") Order By y.GRNEntryDate ASC";
+					return _sqlRepository.GetDataTable(newsql);
+
+				}
+                else
+                {
+					sql += "Order By X.GRNEntryDate ASC";
+					return _sqlRepository.GetDataTable(sql);
+				}
+				
 			}
 			catch (Exception ex)
 			{
@@ -4329,32 +4340,41 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
 			}
 		}
-		public IWorkbook CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate)
+		//public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string SLNo,string SheetName)
+		//{
+		//	try
+		//	{
+
+		//		var excelEngine = new ExcelEngine();
+		//		var report = new ReportUtility();
+		//		var workbook = report.GetWorkbook(ref excelEngine, 2);
+		//		var sheet1 = workbook.Worksheets[0];
+		//		//var Head = "Purchase Register Item Wise" + " " + fromDate + " " + "To" + " " + toDate ;
+		//		var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+		//		CreatePurchaseRegisterItemReportSheets(ref sheet1, report, SheetName + ".xlsx", "Summary", companyId, plantId, fromDate, toDate, SLNo);
+		//		workbook.Version = ExcelVersion.Excel2016;
+		//		//return workbook;
+
+		//		workbook.SaveAs(filePath);
+		//		workbook.Close();
+		//		excelEngine.Dispose();
+		//		return filePath;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		throw;
+		//	}
+		//}
+
+		public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string SLNo, string SheetName)
 		{
-			try
-			{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 2);
+			var sheet1 = workbook.Worksheets[0];
 
-				var excelEngine = new ExcelEngine();
-				var report = new ReportUtility();
-				var workbook = report.GetWorkbook(ref excelEngine, 2);
-				var sheet1 = workbook.Worksheets[0];
-				var Head = "Purchase Register";// + " " + fromDate + " " + "To" + " " + toDate ;
-				CreatePurchaseRegisterItemReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate);
-				workbook.Version = ExcelVersion.Excel2016;
-				return workbook;
-			}
-			catch (Exception ex)
-			{
-				throw;
-			}
-		}
+			var inventoryMaterialList = GetPurchaseRegisterItemData(companyId, plantId, fromDate, toDate, SLNo, true);
 
-		private void CreatePurchaseRegisterItemReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate)
-		{
-
-
-
-			var inventoryMaterialList = GetPurchaseRegisterItemData(companyId, plantId, fromDate, toDate);
 			var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
 
 
@@ -5298,28 +5318,28 @@ namespace Aplos.MaterialManagement
 			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Group";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Category";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party SubCategory";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Type";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -5522,13 +5542,20 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
 			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
 
-			sheet1.Name = sheet1Name;
-			sheet1.UsedRange.WrapText = true;
-			//sheet1.UsedRange.CellStyle.Font.Size = 8;
-			sheet1.IsGridLinesVisible = false;
-			report.PlantHeader(ref sheet1, sheet1headreColIndex, sheet1Name, plantId);
-			report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+            sheet1.Name = SheetName;
+            sheet1.UsedRange.WrapText = true;
+            //sheet1.UsedRange.CellStyle.Font.Size = 8;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, SheetName, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
 
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
 
 		}
 
