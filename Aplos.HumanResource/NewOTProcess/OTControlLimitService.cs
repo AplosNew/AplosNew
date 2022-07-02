@@ -21,6 +21,19 @@ namespace Library.HumanResource.NewOTProcess
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
+        public IEnumerable<object> GetLastEffectiveDate()
+        {
+            try
+            {
+                string sql = @"SELECT TOP (1) FORMAT(EffectiveDate,'dd-MMM-yyyy')EffectiveDate FROM [dbo].[OTControlLimit] A ORDER BY EffectiveDate";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable GetBudgetDataToUpload()
         {
             try
@@ -28,16 +41,18 @@ namespace Library.HumanResource.NewOTProcess
                 string sql = @"SELECT distinct mb.Id BudgetCodeId,mb.Deployment,mb.Code BudgetCode,p.Code PositionCode,DGM.EmployeeCategory,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
         ,ei.EmployeeName ResponsiblePerson,OT.DailyOTLimit,OT.WeeklyOTLimit,OT.WeekOffOTLimit,OT.MonthlyOTLimit,'' Remarks
         ,mb.ROBudgetCode,mb.PRBudgetCode
-        ,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ISNULL(ONR.ONRoll,0)OnRoll
+        ,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ISNULL(ONR.ONRoll,0)OnRoll,l.UserName Line,mbd.TotalNumber
         FROM MST.ManpowerBudget AS mb
         LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
         LEFT JOIN ORG.Position AS p ON P.Id=mb.PositionId
         LEFT JOIN ORG.Department AS d ON d.Id=p.DepartmentId
         LEFT JOIN ORG.Section AS S ON S.Id=p.SectionId
         LEFT JOIN ORG.SubSection AS SS ON SS.Id=p.SubSectionId
+        LEFT JOIN ORG.Line AS L ON L.Id=mb.LineId
         LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId 
         LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID=mb.ShiftDefinationId
         LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
+        LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId=mb.Id
         LEFT JOIN (SELECT dm.DesignationId,dmc.IsOTEntitled,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
         LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
         LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId                            
@@ -69,7 +84,7 @@ namespace Library.HumanResource.NewOTProcess
             {
                 DataSet dsMaster, dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimit WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimit WHERE EffectiveDate='" + data["EffectiveDate"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
                 string masterId = "";
@@ -84,13 +99,18 @@ namespace Library.HumanResource.NewOTProcess
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["Id"] = masterId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId ='" + masterId + "'", out dsDetail, false, "1");
+                //con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId=(SELECT ID FROM [dbo].[OTControlLimit] Where EffectiveDate='"+ data["EffectiveDate"] + "')", out dsDetail, false, "1");
+
+                while (dsDetail.Tables[0].DefaultView.Count > 0)
+                    dsDetail.Tables[0].DefaultView[0].Delete();
 
                 int count = 0;
                 foreach (var item in detailList)
@@ -109,6 +129,7 @@ namespace Library.HumanResource.NewOTProcess
                     else
                     {
                         DataRow drmo = dv[0].Row;
+                        item["OTControlLimitId"] = masterId;
                         EditRow(drmo, item);
                     }
                 }
@@ -165,6 +186,9 @@ namespace Library.HumanResource.NewOTProcess
                 }
             }
 
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
