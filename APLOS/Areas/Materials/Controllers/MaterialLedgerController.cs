@@ -331,7 +331,7 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterGRNWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterGRNWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate, null,false));
                 return Json(new { NewData, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -341,23 +341,19 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate)
+        public ActionResult PurchaseRegisterGRNWiseReport(string PlantId, string ToDate, string FromDate, string GRNNo, string SheetName)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                var workbook = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId,identity.PlantId, FromDate, ToDate);
 
-                var strFileName = "Purchase Report Register GRN Wise"+" " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate,GRNNo, "PurchaseRegisterReportItemWise" + FromDate + "To" + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -378,24 +374,21 @@ namespace Aplos.Areas.Materials.Controllers
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterPartyWiseData(identity.CompanyId, identity.PlantId, fromDate, toDate));
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterPartyWiseData(identity.CompanyId, identity.PlantId, fromDate, toDate,null,false));
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
         [HttpPost, Authorize]
-        public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate)
+        public ActionResult PurchaseRegisterPartyWiseReport(string PlantId, string ToDate, string FromDate,string PartyId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
-                var workbook = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
 
-                var strFileName = "Purchase Report Register Party Wise" + " " + FromDate + "To" + ToDate + " " + "Report.xlsx";
-                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                workbook.SaveAs(fullPath);
-
-                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+                string fileName = "";
+                fileName = obj.CreatePurchaseRegisterPartyWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Purchase Report Register Party Wise" + FromDate + "To" + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -426,7 +419,7 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult PurchaseRegisterItemWiseReport(/*ReportFormat reportFormat, */string plantId, string fromDate, string toDate,string SLNo,string SheetName)
+        public ActionResult PurchaseRegisterItemWiseReport(string plantId, string fromDate, string toDate,string SLNo,string SheetName)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
