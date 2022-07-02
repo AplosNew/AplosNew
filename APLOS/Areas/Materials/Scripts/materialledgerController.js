@@ -247,15 +247,69 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        try {
-            var Excel;
-            var file_src = 'Materials/MaterialLedger/PurchaseRegisterItemWiseReport?reportFormat=' + 'Excel' + '&plantId=' + null + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate;
-            //$rootScope.report(file_src);
-            $window.open(file_src);
 
-        } catch (e) {
-
+        var dataList = [];
+        var g = $("#GridItemWise").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "")
+                {
+                    ids = "'','" + dataList[i].SLNo + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].SLNo + "'";
+                }
+            }
         }
+        else {
+            for (var i = 0; i < $scope.PurchaseRegisterItemWiseList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
+                }
+                else {
+                    ids += ",'" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
+                }
+            }
+        }
+
+        $scope.fileName = 'PurchaseRegisterItemWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: "Materials/MaterialLedger/PurchaseRegisterItemWiseReport",
+            data: {
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate,
+                'SLNo': ids,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+
+        //try {
+        //    var Excel;
+        //    var file_src = 'Materials/MaterialLedger/PurchaseRegisterItemWiseReport?reportFormat=' + 'Excel' + '&plantId=' + null + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&SLNo=' +ids;
+        //    //$rootScope.report(file_src);
+        //    $window.open(file_src);
+
+        //} catch (e) {
+
+        //}
     }
 
     $scope.downloadReport = function () {
