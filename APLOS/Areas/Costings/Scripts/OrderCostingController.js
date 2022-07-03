@@ -1103,7 +1103,7 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
         $scope.showPartyPopUp('Vendor');
     }
     $scope.showPartyPopUp = function (ptype) {
-        $scope.partyType = ptype;
+        $scope.partyType = ptype == null ? 'Vendor' : ptype;
         $scope.partyList = [];
         $scope.getPartyList = function () {
 
