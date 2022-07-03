@@ -189,10 +189,11 @@ namespace Aplos.Areas.Products.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-            var jsondata = Json(salesQueryService.GetSalesRegisterSql(FromDate, ToDate, Type), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+
+            SalesQueryService obj = new SalesQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetSalesRegisterSql(FromDate, ToDate, Type));
+            return Json(new { NewData, Message = AplosMessage.Success });
+
         }
 
         [Authorize, HttpGet]
