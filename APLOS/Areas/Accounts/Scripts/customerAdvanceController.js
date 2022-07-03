@@ -183,7 +183,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
     $scope.IsTradingPO = true;
     $scope.GetPopUpContract = function () {
         $scope.contractList = [];
-        $http.get("Products/PurchaseOrder/GetLCContractList?isProcurementOnBom=" + $scope.IsTradingPO)
+        $http.get("Products/PurchaseOrder/GetLCContractListByPartyId?isProcurementOnBom=" + $scope.IsTradingPO + "&partyId=" + $scope.advance.PartyId)
             .then(
                 function successCallback(response) {
                     if (baseService.arrayLength(response.data) > 0) {
@@ -213,7 +213,7 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         $scope.masterOrderList = [];
         $http({
             method: 'GET',
-            url: "accounts/CustomerInvoice/GetMasterOrderPopUp"
+            url: "accounts/CustomerInvoice/GetMasterOrderListByPartyId?partyId=" + $scope.advance.PartyId
         }).then(function (response) {
             $scope.masterOrderList = response.data;
         });

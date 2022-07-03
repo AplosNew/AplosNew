@@ -21,6 +21,19 @@ namespace Library.HumanResource.NewOTProcess
             ConManager = new ConnectionManager.clsConnectionManager();
         }
 
+        public IEnumerable<object> GetLastEffectiveDate()
+        {
+            try
+            {
+                string sql = @"SELECT TOP (1) FORMAT(EffectiveDate,'dd-MMM-yyyy')EffectiveDate FROM [dbo].[OTControlLimit] A ORDER BY EffectiveDate";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public DataTable GetBudgetDataToUpload()
         {
             try
@@ -71,7 +84,7 @@ namespace Library.HumanResource.NewOTProcess
             {
                 DataSet dsMaster, dsDetail;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimit WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimit WHERE EffectiveDate='" + data["EffectiveDate"] + "'", out dsMaster, false, "1");
 
                 string _Id = "";
                 string masterId = "";
@@ -86,13 +99,18 @@ namespace Library.HumanResource.NewOTProcess
                 }
                 else
                 {
-                    _Id = data["Id"].ToString();
+                    masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    data["Id"] = masterId;
                     EditRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
                 masterId = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
-                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId ='" + masterId + "'", out dsDetail, false, "1");
+                //con.OpenDataSetThroughAdapter("SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId ='" + masterId + "'", out dsDetail, false, "1");
+                con.OpenDataSetThroughAdapter(@"SELECT * FROM dbo.OTControlLimitDetail WHERE OTControlLimitId=(SELECT ID FROM [dbo].[OTControlLimit] Where EffectiveDate='"+ data["EffectiveDate"] + "')", out dsDetail, false, "1");
+
+                while (dsDetail.Tables[0].DefaultView.Count > 0)
+                    dsDetail.Tables[0].DefaultView[0].Delete();
 
                 int count = 0;
                 foreach (var item in detailList)
@@ -111,6 +129,7 @@ namespace Library.HumanResource.NewOTProcess
                     else
                     {
                         DataRow drmo = dv[0].Row;
+                        item["OTControlLimitId"] = masterId;
                         EditRow(drmo, item);
                     }
                 }
@@ -167,6 +186,9 @@ namespace Library.HumanResource.NewOTProcess
                 }
             }
 
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
             dr["UpdatedBy"] = identity.Name;
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;

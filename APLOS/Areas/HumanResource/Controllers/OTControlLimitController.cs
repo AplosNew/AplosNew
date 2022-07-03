@@ -232,7 +232,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 //return workbook;
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FabricRollManage" + ".xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OTControlLimit" + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -399,6 +399,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetList()
         {
             return Json(oTControlLimitService.GetList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetLastEffectiveDate()
+        {
+            return Json(oTControlLimitService.GetLastEffectiveDate(), JsonRequestBehavior.AllowGet);
         }
         #endregion -- Operations
     }

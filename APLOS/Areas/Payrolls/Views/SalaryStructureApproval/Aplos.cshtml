@@ -16,41 +16,42 @@
 
 
 
-<div id="maindiv" class="table-responsive modal-table aplos-grid-toggle">
+<div class="row">
+    <div id="maindiv" class="table-responsive modal-table">
+        <div id="Grid" ej-grid e-datasource="employees" e-recorddoubleclick="Get"
+             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true" e-templaterefresh="refreshTemplateemployee4"
+             e-allowselection="true" e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
+                <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
+                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
+                <div e-column e-field="BudgetedManPower" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Budgeted ManPower" e-width="100"></div>
+                <div e-column e-field="OnRollManPwr" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="OnRoll ManPower" e-width="100"></div>
+                <div e-column e-field="CurrentApprovalRequired" e-type="number" e-textalign="right" e-format="{0:N}" e-headertext="Current Approval Required" e-width="100"></div>
+                <div e-column e-field="BalanceRequired" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Balance Required" e-width="100"></div>
+                <div e-column e-field="LA" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Long Abesenteeism" e-width="100"></div>
+                <div e-column e-field="TBS" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Tobe Seperated" e-width="100"></div>
+                <div e-column e-field="NetShortage" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Net Shortage" e-width="100"></div>
 
-    <div id="Grid" ej-grid e-datasource="employees" e-recorddoubleclick="Get"
-         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="true" e-responsive="true" e-templaterefresh="refreshTemplateemployee4"
-         e-allowselection="true" e-filtersettings-filterType="excel">
-        <div e-columns>
-            <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="50"></div>
-            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-            <div e-column e-field="Code" e-headertext="Budget Code" e-width="50"></div>
-            <div e-column e-field="BudgetedManPower" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Budgeted ManPower" e-width="100"></div>
-            <div e-column e-field="OnRollManPwr" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="OnRoll ManPower" e-width="100"></div>
-            <div e-column e-field="CurrentApprovalRequired" e-type="number" e-textalign="right" e-format="{0:N}" e-headertext="Current Approval Required" e-width="100"></div>
-            <div e-column e-field="BalanceRequired" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Balance Required" e-width="100"></div>
-            <div e-column e-field="LA" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Long Abesenteeism" e-width="100"></div>
-            <div e-column e-field="TBS" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Tobe Seperated" e-width="100"></div>
-            <div e-column e-field="NetShortage" e-type="number" e-textalign="right" e-format="{0:N0}" e-headertext="Net Shortage" e-width="100"></div>
+                <div e-column e-field="DOJs" e-headertext="DOJ" e-width="70"></div>
+                <div e-column e-field="DOBs" e-headertext="DOB" e-width="70"></div>
 
-            <div e-column e-field="DOJs" e-headertext="DOJ" e-width="70"></div>
-            <div e-column e-field="DOBs" e-headertext="DOB" e-width="70"></div>
-
-            @*<div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>*@
-            <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
-            <div e-column e-field="DesignationGroupName" e-headertext="Designation Group" e-width="80"></div>
-            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-            <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
-            @*<div e-column e-field="CellPhnNo" e-headertext="Cell No" e-width="80"></div>*@
-            <div e-column e-field="PayRollGroupName" e-headertext="Payroll Group" e-width="80"></div>
-            @*<div e-column e-field="ApprovedStatus" e-headertext="Status" e-width="60"></div>*@
-            <div e-column e-field="IncrementType" e-headertext="Status" e-width="60"></div>
-            <div e-column e-headertext="Action" e-commands="commandApproval" e-isunbound=true e-textalign="center" e-width="100"></div>
+                @*<div e-column e-field="Designation" e-headertext="Designation" e-width="80"></div>*@
+                <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                <div e-column e-field="DesignationGroupName" e-headertext="Designation Group" e-width="80"></div>
+                <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+                <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+                <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="80"></div>
+                <div e-column e-field="DOSs" e-headertext="DOS" e-width="100"></div>
+                <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="80"></div>
+                <div e-column e-field="PayRollGroupName" e-headertext="Payroll Group" e-width="80"></div>
+                @*<div e-column e-field="ApprovedStatus" e-headertext="Status" e-width="60"></div>*@
+                <div e-column e-field="IncrementType" e-headertext="Status" e-width="60"></div>
+                <div e-column e-headertext="Action" e-commands="commandApproval" e-isunbound=true e-textalign="center" e-width="100"></div>
+            </div>
         </div>
     </div>
-   
 </div>
 <script type="text/x-jsrender" id="colTemplate">
     {{:IsPending===1 ? '<i class="glyphicon glyphicon-star-empty" ></i>' : FALSE }}
