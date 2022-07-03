@@ -6921,7 +6921,7 @@ where h.HeadCategory='GROSS'
                     throw (ex);
                 }
 
-                
+
                 ru = new ReportUtility();
                 objRpt = new clsReport(_sqlRepository);
                 objSalary = new clsSalaryUtility();
@@ -7652,7 +7652,7 @@ where h.HeadCategory='GROSS'
 
                         dvSummary.RowFilter = "EmpSystemID = '" + dtEmployees.Rows[i]["EmpSystemId"].ToString() + "'";
                         totalWeekOFFDays = dvSummary.ToTable().Compute(@"SUM(TotalWeekOff)", null);
-                       // totalWeekOFFDays = weekOffHoliday;
+                        // totalWeekOFFDays = weekOffHoliday;
                         totalHolidays = dvSummary.ToTable().Compute(@"SUM(TotalHoliDay)", null);
                         totalLeaveDays = dvSummary.ToTable().Compute(@"SUM(TotalLv)", null);
                         totalPresentDays = dvSummary.ToTable().Compute(@"Sum(TotalPresent)", null);
@@ -8206,38 +8206,98 @@ where h.HeadCategory='GROSS'
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 //sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
-                                                
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                }
+
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 //sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
-                                                
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                }
+
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 //sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                }
                                             }
                                             else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 //sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["OriginalDayType"].ToString().Trim();
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                }
                                             }
 
                                             else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W")
                                             {
                                                 sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
+                                                }
                                             }
+                                            //else if (item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP")
+                                            //{
+                                            //    sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                            //    sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                            //}
                                             else
                                             {
 
@@ -8284,14 +8344,38 @@ where h.HeadCategory='GROSS'
                                                     TimeSpan span = RandomTime - ShiftTime;
                                                     double totalMinutes = span.TotalMinutes;
 
-                                                    sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].NumberFormat = "hh:mm AM/PM";
-                                                    sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].DateTime = NewRealOutTime;
-                                                    sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["InTime"].ToString();
+                                                    if (item["DayStatus"].ToString().Trim() != "CWP" || item["DayStatus"].ToString().Trim() != "WP")
+                                                    {
+                                                        sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].NumberFormat = "hh:mm AM/PM";
+                                                        sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].DateTime = NewRealOutTime;
+                                                        sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["InTime"].ToString();
+                                                    }
+                                                    else
+                                                    {
+                                                        sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                        sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                    }
 
                                                     //sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                                     //sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                                 }
-                                                sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString();
+                                                if (item["DayStatus"].ToString().Trim() == "CWP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "CW";
+                                                    sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                    sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "WP")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                    sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                    sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
+                                                }
+                                                else
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString();
+
+                                                }
                                                 //if (bplib.clsWebLib.GetBoolData(item["IsManualOutTime"].ToString().Trim()))
                                                 //{
                                                 //    sheet1.Range[xlsRow, iOutTime].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
@@ -8375,7 +8459,7 @@ where h.HeadCategory='GROSS'
 
                                                                 }
 
-                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W")
+                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP")
                                                                 {
                                                                     OTOverstay1 += 0.00;
                                                                 }
@@ -8417,7 +8501,7 @@ where h.HeadCategory='GROSS'
 
                                                                 }
 
-                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W")
+                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP")
                                                                 {
                                                                     OTOverstay2 += 0.00;
                                                                 }
@@ -8463,7 +8547,7 @@ where h.HeadCategory='GROSS'
 
                                             }
 
-                                            else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W")
+                                            else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP")
                                             {
                                                 overstay = "";
 
