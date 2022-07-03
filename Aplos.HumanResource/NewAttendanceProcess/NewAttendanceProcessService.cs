@@ -2051,6 +2051,11 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             for (int i = 0; i < FlaggedIn.Tables[0].Rows.Count; i++)
                             {
                                 string EmpId = clsWebLib.RetValidLen(FlaggedIn.Tables[0].Rows[i][@"EmpId"]).ToString();
+                                if (EmpId == "2200009")
+                                {
+                                    // do nothing
+                                }
+
                                 string MinTimeRow = clsWebLib.RetValidLen(FlaggedIn.Tables[0].Rows[i][@"MinTime"]).ToString();
                                 string InPunchLimit = clsWebLib.RetValidLen(FlaggedIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
                                 string OutPunchLimit = clsWebLib.RetValidLen(FlaggedIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
@@ -2134,6 +2139,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                             for (int i = 0; i < FlagglessIn.Tables[0].Rows.Count; i++)
                             {
                                 string EmpId = clsWebLib.RetValidLen(FlagglessIn.Tables[0].Rows[i][@"EmpId"]).ToString();
+                                if (EmpId == "2200009")
+                                {
+                                    // do nothing
+                                }
                                 string MinTimeRow = clsWebLib.RetValidLen(FlagglessIn.Tables[0].Rows[i][@"MinTime"]).ToString();
                                 string InPunchLimit = clsWebLib.RetValidLen(FlagglessIn.Tables[0].Rows[i][@"InPunchLimit"]).ToString();
                                 string OutPunchLimit = clsWebLib.RetValidLen(FlagglessIn.Tables[0].Rows[i][@"OutPunchLimit"]).ToString();
@@ -2219,8 +2228,14 @@ namespace Library.HumanResource.NewAttendanceProcess {
 
                             for (int i = 0; i < InStatus.Tables[0].Rows.Count; i++)
                             {
+                                
                                 // Logic on the basis of Shift Early & Late Margin
                                 string EmpId = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                                if (EmpId == "2200009")
+                                {
+                                    // do nothing
+                                }
+
                                 string ProcessIntime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ProcessIntime"]).ToString();
                                 string ShiftInTime = clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftInTime"]).ToString();
                                 double ShiftEarlyInMargin = Convert.ToDouble(clsWebLib.RetValidLen(InStatus.Tables[0].Rows[i][@"ShiftEarlyInMargin"]).ToString());
@@ -3606,6 +3621,10 @@ namespace Library.HumanResource.NewAttendanceProcess {
                         {
 
                             string EmpId = clsWebLib.RetValidLen(SandwichSavingData.Tables[0].Rows[i][@"EmpSystemID"]).ToString();
+                            if (EmpId == "2200009")
+                            {
+                                // do nothing
+                            }
                             string PrevDaySandwich = clsWebLib.RetValidLen(SandwichSavingData.Tables[0].Rows[i][@"SandwichFlag"]).ToString();
 
                             // Updation in AttdnProcessData

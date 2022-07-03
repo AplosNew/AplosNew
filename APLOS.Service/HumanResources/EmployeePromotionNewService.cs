@@ -528,7 +528,7 @@ namespace Library.Service.HumanResources
         {
             try
             {
-                string sql = @"SELECT [CheckBoxSelect] = Convert(BIT, 'False') , EI.*,Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
+                string sql = @"SELECT [CheckBoxSelect] = Convert(BIT, 'False') , EI.*,Replace(CONVERT(VARCHAR(11), EI.DOB, 106), ' ', '-') DOBs,ISNULL(FORMAT(EI.DOS,'dd-MMM-yyyy'),'')DOSs,Replace(CONVERT(VARCHAR(11), EI.DOJ, 106), ' ', '-') DOJs
                                  ,LGD.userName LegalDesignation                                    
                                     ,se.UserName Section
                                     ,Sus.UserName SubSection
@@ -563,7 +563,7 @@ namespace Library.Service.HumanResources
 							   
                              
                               WHERE EI.PlantId='" + plantId + @"' AND  EI.GroupId='"+ companyGroupId + @"' AND (EI.SystemId IN (SELECT EmpInfoSystemID FROM SalaryInfoDefineMaster where  IsApproved=0) --or  EI.SystemId  IN (SELECT EmpSystemID FROM IncrementHistory Where IsApproved=0) 
-                                            )";
+                                            AND EI.DOJ<=GETDATE() AND (EI.DOS is null OR EI.DOS BETWEEN FORMAT(DATEADD(mm, DATEDIFF(mm, 0, GETDATE()) - 1, 0),'dd-MMM-yyyy') AND FORMAT(DATEADD (dd, -1, DATEADD(mm, DATEDIFF(mm, 0, GETDATE()) + 1, 0)),'dd-MMM-yyyy')))";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
