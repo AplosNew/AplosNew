@@ -82,6 +82,15 @@ namespace Aplos.Areas.Accounts.Controllers
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
+        [HttpGet, Authorize]
+        public ActionResult GetMasterOrderListByPartyId(string partyId)
+        {
+            AccountsInvoiceService _accountsInvoiceService = new AccountsInvoiceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(_accountsInvoiceService.GetMasterOrderListByPartyId(identity.CompanyId, identity.PlantId, partyId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
 
 
         [HttpGet, Authorize]

@@ -1297,29 +1297,20 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iShiftOuttime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iShiftOuttime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP")
-                                    //{
-                                    //    sheet1.Range[xlsRow, iInTime].Text = "";
-                                    //    sheet1.Range[xlsRow, iOutTime].Text = "";
+                                     xlsCol += 1;
+                                     iInTime = xlsCol;
+                                     sheet1.Range[xlsRow, iInTime].Text = "InTime";
+                                     sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
+                                     sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                     sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
-                                    //}
-
-                                    //else
-                                    //{
-                                        xlsCol += 1;
-                                        iInTime = xlsCol;
-                                        sheet1.Range[xlsRow, iInTime].Text = "InTime";
-                                        sheet1.Range[xlsRow, iInTime].ColumnWidth = 8;
-                                        sheet1.Range[xlsRow, iInTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                        sheet1.Range[xlsRow, iInTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                                        xlsCol += 1;
-                                        iOutTime = xlsCol;
-                                        sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
-                                        sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
-                                        sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                        sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    //}
+                                     xlsCol += 1;
+                                     iOutTime = xlsCol;
+                                     sheet1.Range[xlsRow, iOutTime].Text = "OutTime";
+                                     sheet1.Range[xlsRow, iOutTime].ColumnWidth = 8;
+                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                                 
                                    
                                                                         
                                     xlsCol += 1;
@@ -1435,6 +1426,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -1452,6 +1447,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                     }
                                     else
                                     {
@@ -1474,6 +1473,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -1495,6 +1498,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -1515,6 +1522,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW"; 
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                     }
                                     else
                                     {
@@ -1559,6 +1570,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                             {
                                                 sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                             }
+                                            else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                            {
+                                                sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                            }
                                             else
                                             {
                                                 sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -1585,6 +1600,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                     }
                                     else
                                     {
@@ -1621,7 +1640,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     sheet1.Range[xlsRow, iOutTime].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                 }
 
-                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
+                                else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
                                 {
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1688,7 +1707,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                 }
 
 
-                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP")
+                                if (dvBioDvAC[i]["DayStatus"].ToString() == "W" || dvBioDvAC[i]["DayStatus"].ToString() == "H" || dvBioDvAC[i]["DayStatus"].ToString() == "LV" || dvBioDvAC[i]["DayStatus"].ToString() == "CW" || dvBioDvAC[i]["DayStatus"].ToString() == "A" || dvBioDvAC[i]["DayStatus"].ToString() == "AH" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString() == "WP")
                                 {
                                     sheet1.Range[xlsRow, iInTime].Text = "";
                                     sheet1.Range[xlsRow, iOutTime].Text = "";
@@ -1959,7 +1978,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CW" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                                         {
                                                             OTOverstay1 += 0.00;
                                                         }
@@ -2001,7 +2020,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                                         {
                                                             OTOverstay2 += 0.00;
                                                         }
@@ -2047,7 +2066,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                     }
 
-                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         overstay = "";
 
@@ -2885,6 +2904,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -2903,6 +2926,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                     }
                                     else
                                     {
@@ -2925,6 +2952,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -2946,6 +2977,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
                                     }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
+                                    }
                                     else
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = dvBioDvAC[i]["DayStatus"].ToString().Trim();
@@ -2966,6 +3001,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                     {
                                         sheet1.Range[xlsRow, iDayStatus].Text = "CW";
+                                    }
+                                    else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                    {
+                                        sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                     }
                                     else
                                     {
@@ -2999,6 +3038,10 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         {
                                             sheet1.Range[xlsRow, iDayStatus].CellStyle.Font.Color = ExcelKnownColors.Dark_blue;
                                             sheet1.Range[xlsRow, iDayStatus].Text = "P";
+                                        }
+                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim() == "WP")
+                                        {
+                                            sheet1.Range[xlsRow, iDayStatus].Text = "W";
                                         }
                                         else
                                         {
@@ -3416,7 +3459,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                                         }
 
-                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W")
+                                                        else if (dvBioDvAC[i]["DayStatus"].ToString().Trim().Contains("LV") || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "W" || dvBioDvAC[i]["DayStatus"].ToString().Trim() == "CWP")
                                                         {
                                                             OTOverstay2 += 0.00;
                                                         }
