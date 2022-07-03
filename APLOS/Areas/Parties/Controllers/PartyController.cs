@@ -420,7 +420,7 @@ namespace Aplos.Areas.Parties.Controllers
                                     LEFT JOIN [HKP].[Activity] AS A ON A.Id=CPGL.ActivityId
                                     WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
-                                    JOIN (SELECT DISTINCT G.PartyId FROM TRN.GateEntry G   WHERE ISNULL(G.Id,'') NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive ) AND G.PartyId<>'') GE ON GE.PartyId=P.Id
+                                    JOIN (SELECT DISTINCT G.PartyId FROM TRN.GateEntry G   WHERE ISNULL(G.Id,'') NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive where ISNULL(PartyId,'')<>'' ) AND G.PartyId<>'') GE ON GE.PartyId=P.Id
                                     WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND CP.PartyType IN ('" + temp + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + @"'
                                     ) AS TEMP WHERE " + strkey + " order by Code ";
                 return _sqlRepository.GetDataCollection(sql);
