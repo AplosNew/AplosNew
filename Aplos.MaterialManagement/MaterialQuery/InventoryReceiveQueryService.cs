@@ -4,9 +4,14 @@ using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Parties;
 using Library.Service.Enums;
+using Library.Service.Extension;
+using Library.Service.Helpers;
 using Library.Service.Logs;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 
@@ -3565,6 +3570,2258 @@ namespace Aplos.MaterialManagement
 				throw new CustomException(ex.Message, ex,
 					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+			}
+		}
+
+		public DataTable GetPurchaseRegisterGRNWiseData(string CompanyId, string PlantId, string FromDate, string ToDate,string GRNNo, bool isreport)
+		{
+			try
+			{
+				var str = @"SELECT  Distinct IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
+							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
+						   ,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalTaxAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2) TotalMaterialBaseAmount
+						   ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
+						   ,( ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
+						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+
+					from [TRN].[InventoryReceive] AS IR
+					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
+						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount,SUM(TotalTaxAmount) TotalTaxAmount
+						FROM [TRN].[InventoryReceiveDetail]
+					group by InventoryReceiveId ) AS IRD ON IR.Id=IRD.InventoryReceiveId 
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId 
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V on V.Id=I.VoucherId
+                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V1 on V1.Id=ep.VoucherId
+						
+					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+                    AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+
+					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType
+					,PC.UserName,PSC.UserName,PG.UserName";
+
+				if (isreport)
+				{
+
+					var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
+					return _sqlRepository.GetDataTable(newsql);
+
+				}
+				else
+				{
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+				}
+
+				
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+		public string CreatePurchaseRegisterGRNWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string GRNNo, string SheetName)
+		{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+
+			var data = GetPurchaseRegisterGRNWiseData(CompanyId, PlantId, FromDate, ToDate, GRNNo, true );
+
+			var sheet = workbook.Worksheets[0];
+
+			#region sheet1
+			sheet.Name = "Purchase Report Register GRN Wise";
+
+			int ROW = 7;
+			int endCol = 1;
+			int COL = 1;
+
+			//sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+			//sheet.Range[ROW, COL].ColumnWidth = 13;
+			//sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+			//sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+			//sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//ROW += 2;
+
+			#region Grid Headers
+
+			report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 13, ExcelHAlign.HAlignLeft);
+			int ColGRNNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 13, ExcelHAlign.HAlignLeft);
+			int ColGRNEntryDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 13, ExcelHAlign.HAlignLeft);
+			int ColVoucherNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
+			int ColPostingDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
+			int ColDocRefNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
+			int ColGateEntryNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyName = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "GS TIN No", 13, ExcelHAlign.HAlignLeft);
+			int ColGSTINNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
+			int ColCurrency = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Tran Amount", 13, ExcelHAlign.HAlignRight);
+			//sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			int ColMaterialTranAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Tax Amount", 13, ExcelHAlign.HAlignRight);
+			int ColTotalTaxAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Material Base Amount", 13, ExcelHAlign.HAlignRight);
+			int ColTotalMaterialBaseAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignRight);
+			int ColPayment = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignRight);
+			int ColBalance = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignRight);
+			int ColPartyGroup = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
+			int ColPartyCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignRight);
+			int ColPartySubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignRight);
+			int ColPartyType = COL;
+
+			endCol = COL;
+			#endregion Headers
+
+
+			sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+			ROW++;
+			var startRow = 0;
+			var endRow = 0;
+			int RowIndex = ROW;
+			startRow = ROW;
+
+			for (int i = 0; i < data.Rows.Count; i++)
+			{
+				sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
+				sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
+				sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
+				sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+				sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
+				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
+				sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
+				sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
+				sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
+				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+
+				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				ROW++;
+			}
+
+			//ROW++;
+
+			if (FromDate != "" && ToDate != "")
+			{
+
+
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, "Total");
+				sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount) - 1].CellStyle.Font.Bold = true;
+				//sheet.Range[1, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, ROW].Merge();
+				object sumObject;
+
+				//sumObject = data.Compute("Sum(MaterialTranAmount)", "");
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].CellStyle.Font.Bold = true;
+				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(TotalMaterialBaseAmount)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalMaterialBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Payment)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Balance)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+			}
+
+			endRow = ROW - 1;
+			endRow = ROW - 1;
+
+			#endregion sheet
+
+
+
+			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.CellStyle.Font.Size = 8;
+
+
+
+			ReportUtility reportUtility = new ReportUtility();
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+
+		}
+		public DataTable GetPurchaseRegisterItemData(string companyId, string plantId, string fromDate, string toDate,string SLNo, bool isreport)
+		{
+			try
+			{
+				var sql = @"Select * from (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo                           
+						   , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+							,IR.Id As GRNId
+							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
+							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
+									else '' end
+						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+                            ,p.UserName AS PartyName
+						   ,EI.EmployeeName FirstName						   
+						   ,IRD.Id As GrnDetailId
+						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
+						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
+						  ,MT.UserName MaterialType
+						  ,MGM.UserName AS MaterialGroupMasterName
+						  ,IM.MaterialMasterId
+						  ,MM.UserName MaterialMasterName
+						, ART.StandardName ArticleName
+                        ,IsAsset=CASE WHEN MM.IsAsset=0 then 'No' else 'Yes' END
+                        ,GRNAsset=CASE WHEN IRD.IsAsset =0 then 'No' else 'Yes' END 
+						, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue
+						, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue
+						, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
+						,TUoM.UserName AS UOM
+						,IRD.TransactionQty
+						,IRD.ShortageQty
+						,IRD.ShortageRatePercent
+						,IRD.ShortageValue
+						,IRD.RejectionQty
+						,IRD.RejectRatePercent
+						,IRD.RejectValue
+						,IRD.RejectClamPercent
+						,IRD.ApprovedQty
+						,IR.IsNonCreditable
+						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+						,ROUND(Isnull(IRD.MaterialTranRate,0),2) MaterialTranRate
+						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
+						,ROUND(Isnull(IRD.TrnCurrencyBaseRate,0),2) TrnCurrencyBaseRate,ROUND(Isnull(IRD.BooksCurrencyBaseRate,0),2) BooksCurrencyBaseRate
+						,TaxAmount=(SELECT SUM(TaxAmount) FROM [TRN].[InventoryReceiveTax] WHERE InventoryReceiveDetailId=IRD.Id)
+
+						,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+						,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+						,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage
+                        ,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
+						,round(isnull(TAxInfo8.TaxAmount,0),2) MandiTax,TAxInfo8.Percentage MandiTaxPercentage
+						,round(isnull(TAxInfo9.TaxAmount,0),2) NirasritTax,TAxInfo9.Percentage NirasritTaxPercentage
+						,IRD.ChargesTranAmount ServiceCharge
+						,IRD.ChargesTaxTranAmount ServiceTax
+						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
+                       ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
+                       ,CASE 
+					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
+								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
+							
+
+								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
+								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
+                                WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
+								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
+								END GRNCheckStatus
+						,IGL.UserName AS GL
+						,IGL.AccountCode GLCode
+						,IA.Id ActivityId
+						,IA.UserName Activity
+						,IA.Code ActivityCode
+						,IBM.RefNo BudgetrefNo
+						,B.UserName AS Budget
+                        ,IGL1.UserName AS CGL
+						,IGL1.AccountCode CGLCode
+						,IA1.Id CActivityId
+						,IA1.UserName AS CActivity
+						,IA1.Code CActivityCode
+						,IBM1.RefNo CBudgetrefNo
+						,B1.UserName AS CBUdget
+                        ,EI1.EmployeeName CheckedBY
+						,EI2.EmployeeName AuthorizedBy
+						 ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,IRD.PODetailsId AS PORowId
+                        ,MS.UserName as StorageLocation--,V.VoucherNo
+
+						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
+						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
+						,isnull(PP.GSTIN,'') GSTINNo
+						,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
+						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+						,IRD.LotNo , IRD.QualityStatus , IRD.GrossAmount ,IRD.DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,ISNULL(PID.RefferenceNo,'') RefferenceNo
+						,isnull(PO.PurchaseLCId,'') PurchaseLCId
+						,isnull(PO.ContractId,'') ContractId						
+						,ISNull(po.ContractNo,'') ContractNo
+						,isnull(PO.LCANo,'') LCANo
+						,isnull(PO.LCDate,'') LCDate
+						,IRD.IssueQty
+						,IRD.BaseIssueQty
+						,IRD.PurchaseReturnQty
+						,IRD.IssueReturnQty
+						
+						,IRD.ReductionByAdjustmentQty
+						,IRD.InventorySalesQty
+						,IRD.InventoryScrapQty						
+						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName,IRD.[Description]
+						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
+					from TRN.InventoryMaterial AS IM
+					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
+					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
+					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
+					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
+					LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
+					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
+					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
+					left jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id --and ird.InventoryReceiveId='1987'
+					left join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveDetailId=IRD.Id
+				    --Left JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=IRT.HSNCodeId
+					left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
+					left JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
+					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id	
+					left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
+					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
+					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+
+					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					 
+					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+                    LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
+					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
+					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
+                    left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V on V.Id=I.VoucherId
+                    left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+					left join trn.Voucher V1 on V1.Id=ep.VoucherId
+                    LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IRD.PostDrGLGeneralInfoId 
+					LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IRD.PostDrBudgetMasterId
+					LEFT JOIN HKP.Activity IA ON IA.Id=IRD.PostDrActivityId
+					Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
+                    LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostCrGLGeneralInfoId 
+					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostCrBudgetMasterId
+					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostCrActivityId
+					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+	               LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode 
+				   FROM [TRN].[InventoryReceiveTax] A
+			LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+			left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+			WHERE B.Code='CGST' and A.InventoryServiceId IS NULL
+			--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+
+								
+			) TAxInfo	ON TAxInfo.InventoryReceiveDetailId=IRD.Id 
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									WHERE B.Code='IGST' and A.InventoryServiceId IS NULL
+									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+
+									) TAxInfo1	ON TAxInfo1.InventoryReceiveDetailId=IRD.Id 
+							  		 
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,hs.Code HSCode FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+									WHERE B.Code='SGST' and A.InventoryServiceId IS NULL 
+									--Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+
+									) TAxInfo2	ON TAxInfo2.InventoryReceiveDetailId=IRD.Id 
+
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+									WHERE B.Code='TDS' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+									) TAxInfo3	ON TAxInfo3.InventoryReceiveDetailId=IRD.Id 
+
+
+							
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='VAT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo4 ON TAxInfo4.InventoryReceiveDetailId=IRD.Id
+
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='AIT' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+							
+						) TAxInfo5 ON TAxInfo5.InventoryReceiveDetailId=IRD.Id
+	                    LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
+						           FROM trn.InventoryReceiveAdditionalTax A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='TCS' --and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo6 ON TAxInfo6.InventoryReceiveId=IR.Id
+
+                        LEFT JOIN (SELECT A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount 
+						           FROM trn.InventoryReceiveAdditionalTax A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='TCS' --and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo7 ON TAxInfo7.InventoryReceiveId=IR.Id
+
+
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NULL --Group By A.InventoryReceiveDetailId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo8 ON TAxInfo8.InventoryReceiveDetailId=IRD.Id
+
+
+						LEFT JOIN (SELECT A.InventoryReceiveDetailId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+									LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+									WHERE B.Code='Nirasrit T' and A.InventoryServiceId IS NULL 
+						) TAxInfo9 ON TAxInfo9.InventoryReceiveDetailId=IRD.Id
+						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
+						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
+						LEFT JOIN(
+							   SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
+								,ContractId=STUFF((select distinct ','+xpo.ContractId from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+							    ,UDNo=STUFF((select distinct ','+C.UDNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								,ContractNo=STUFF((select distinct ','+C.ContractNo from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,PurchaseLCId=STUFF((select distinct ','+PLC.Id from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+
+								,LCANo=STUFF((select distinct ','+PLC.LCRef from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								
+								,LCDate=STUFF((select distinct ','+REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106),' ','-') from
+								trn.PurchaseOrder xpo
+								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
+								LEFT JOIN dbo.[Contract] C ON C.Id=xpo.ContractId
+								left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+								where xPDAMAP.GRNId=PDAMAP.GRNId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+
+								from  trn.POGGRNMap PDAMAP 
+							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
+							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
+							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
+							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
+							)PO ON PO.GRNId = IR.Id
+						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+						--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
+						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+
+							UNION ALL
+
+						SELECT 	ROW_NUMBER() OVER(ORDER BY ISs.Id ASC) AS SLNo                           
+						   ,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate
+							,RCM= CASE When IR.IsTaxApplicable=0 Then 'No' Else 'Yes' END
+							,IR.Id As GRNId
+							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
+							when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
+							when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
+									else '' end --HSNC.Code HSNCode
+						   ,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
+						   --,p.Id
+                            ,p.UserName AS PartyName
+						   ,EI.EmployeeName FirstName						   
+						   ,ISs.Id As GrnDetailId
+						   ,IR.GateEntryNo,ISNULL(PWG.UserName,'') GateName
+						   --,IR.InvoiceNo
+						   --, REPLACE(CONVERT(CHAR(11), IR.InvoiceDate, 106),' ','-') AS InvoiceDate
+						   ,IR.DocRefNo,   REPLACE(CONVERT(CHAR(11), IR.DocDate, 106),' ','-') AS DocDate
+						   ,DATEDIFF(day, IR.DocDate,IR.GRNDate) AS 'GrnInvoiceDateDifference'
+						  ,NULL MaterialType
+						  ,NULL MaterialGroupMasterName
+						  ,NULL MaterialMasterId
+						    ,SM.UserName MaterialMasterName
+						, SM.UserName ArticleName
+                        ,'No' IsAsset
+                        ,'No' GRNAsset
+						, NULL FirstCharacteristicsValue
+						, NULL SecondCharacteristicsValue
+						, NULL ThirdCharacteristicsValue 
+						,NULL AS UOM
+						,0 TransactionQty
+						,0 ShortageQty
+						,0 ShortageRatePercent
+						,0 ShortageValue
+						,0 RejectionQty
+						,0 RejectRatePercent
+						,0 RejectValue
+						,0 RejectClamPercent
+						,0 ApprovedQty
+						,IsNULL(IR.IsNonCreditable,0) IsNonCreditable
+						,Case When IR.IsNonCreditable = 1 then 'NonCreditable' when IR.IsNonCreditable = 0 then 'Creditable' end CredtibleStatus
+						,0 MaterialTranRate
+						,ISs.Amount MaterialTranAmount
+						,0 TrnCurrencyBaseRate
+						,0 BooksCurrencyBaseRate
+						, 0 TaxAmount
+							,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
+							,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
+							,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
+							,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
+							,round(isnull(TAxInfo6.TaxAmount,0),2) MaterialTCS,TAxInfo6.Percentage MaterialTCSTaxPercentage					
+							,round(isnull(TAxInfo7.TaxAmount,0),2) GRNTCS,TAxInfo7.Percentage GRNTCSTaxPercentage
+							,round(isnull(TAxInfo8.TaxAmount,0),2) MandiTax,TAxInfo8.Percentage MandiTaxPercentage
+							,round(isnull(TAxInfo9.TaxAmount,0),2) NirasritTax,TAxInfo9.Percentage NirasritTaxPercentage
+						,0 ServiceCharge
+						,0 ServiceTax
+						,0 TotalMaterialTranAmount
+                       ,0 TotalMaterialBaseAmount ,IR.AddedBy
+                       ,CASE 
+					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
+								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
+								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
+							
+
+								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
+								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
+                                WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
+								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
+								END GRNCheckStatus
+						,Null AS GL
+						,Null GLCode
+						,Null ActivityId
+						,Null Activity
+						,Null ActivityCode
+						,Null BudgetrefNo
+						,Null AS Budget
+                        ,Null AS CGL
+						,Null CGLCode
+						,Null CActivityId
+						,Null AS CActivity
+						,Null CActivityCode
+						,Null CBudgetrefNo
+						,NULL AS CBUdget
+                        ,EI1.EmployeeName CheckedBY
+						,EI2.EmployeeName AuthorizedBy
+                        --,IR.POId
+						 ,POId= STUFF((select distinct ','+PG.POId
+			                            FROM TRN.POGGRNMap PG 
+                                        LEFT JOIN TRN.PurchaseOrder PO ON PO.Id=PG.POId	  
+			                            WHERE PG.GRNId=IR.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+						,NULL AS PORowId
+                        ,MS.UserName as StorageLocation--,V.VoucherNo
+
+						,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
+						,Posted=CASE WHEN IR.Status <>'' then 'Yes' else 'No' END						
+						,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
+						,PostedBy=CASE WHEN IR.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,IR.EmployeeId
+                       -- ,isnull(p.TINNO,'') GSTINNo
+					,isnull(PP.GSTIN,'') GSTINNo
+					,IR.PartyId ,P.Code,IR.InvoicingPartyPlantId,PP.UserName InvoicingPartyPlant
+						,IR.DeliveryPartyPlantId,PPD.UserName DeliveryPartyPlant
+						,Null LotNo , Null QualityStatus , Null GrossAmount ,Null DiscountAmount--,Isnull(C.ContractNo,'') ContractNo
+						,'' RefferenceNo
+					,'' PurchaseLCId
+					,'' ContractId						
+					,'' ContractNo
+					,'' LCANo
+					,'' LCDate
+					,0 IssueQty
+					,0 BaseIssueQty
+					,0 PurchaseReturnQty
+					,0 IssueReturnQty
+					
+					,0 ReductionByAdjustmentQty
+					,0 InventorySalesQty
+					,0 InventoryScrapQty						
+					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName,NULL [Description]
+					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
+			from trn.InventoryService AS ISs
+			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
+			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
+			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
+			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+			
+			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+			LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+			 
+			LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+			LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+			LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
+			LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
+			LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
+			LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
+			left JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
+			left join trn.Voucher V on V.Id=I.VoucherId
+			left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
+			left join trn.Voucher V1 on V1.Id=ep.VoucherId
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage
+						,A.TaxAmount TaxAmount,HS.Code HSCode 
+						FROM  [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='CGST'  
+						--Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+						) TAxInfo	ON TAxInfo.InventoryServiceId=ISs.Id AND TAxInfo.InventoryServiceId IS NOT NULL
+
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='IGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+
+						) TAxInfo1	ON TAxInfo1.InventoryServiceId=ISs.Id AND TAxInfo1.InventoryServiceId IS NOT NULL 
+							  		 
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount,HS.Code HSCode 
+			FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+						WHERE B.Code='SGST' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+								
+
+						) TAxInfo2	ON TAxInfo2.InventoryServiceId=ISs.Id AND TAxInfo2.InventoryServiceId IS NOT NULL
+
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+						WHERE B.Code='TDS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+								
+						) TAxInfo3	ON TAxInfo3.InventoryServiceId=ISs.Id AND TAxInfo3.InventoryServiceId IS NOT NULL
+
+
+							
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='VAT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+								
+			) TAxInfo4 ON TAxInfo4.InventoryServiceId=ISs.Id AND TAxInfo4.InventoryServiceId IS NOT NULL
+
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='AIT' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+							
+			) TAxInfo5 ON TAxInfo5.InventoryServiceId=ISs.Id AND TAxInfo5.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL --Group By A.InventoryReceiveId, B.UserName ,B.Code  ,A.Percentage 
+								
+			) TAxInfo6 ON TAxInfo6.InventoryServiceId=ISs.Id AND TAxInfo6.InventoryServiceId IS NOT NULL
+          
+            LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='TCS' and A.InventoryServiceId IS NOT NULL  
+								
+			) TAxInfo7 ON TAxInfo7.InventoryServiceId=ISs.Id AND TAxInfo7.InventoryServiceId IS NOT NULL
+			 LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='Mandi Tax' and A.InventoryServiceId IS NOT NULL  
+								
+			) TAxInfo8 ON TAxInfo8.InventoryServiceId=ISs.Id AND TAxInfo8.InventoryServiceId IS NOT NULL
+			LEFT JOIN (SELECT A.InventoryServiceId,A.InventoryReceiveId, B.UserName TaxCategoryName,B.Code ,A.Percentage Percentage,A.TaxAmount TaxAmount FROM [TRN].[InventoryReceiveTax] A
+						LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
+						WHERE B.Code='Nirasrit T' and A.InventoryServiceId IS NOT NULL 
+								
+			) TAxInfo9 ON TAxInfo9.InventoryServiceId=ISs.Id AND TAxInfo9.InventoryServiceId IS NOT NULL
+	               
+			LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
+			LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
+			--Left JOIN [dbo].[Contract] C On C.Id=IR.ContractId
+			where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'  --and IR.Id='20211740'
+			--AND IRT.InventoryServiceId is not null
+			--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
+						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+			)x ";
+
+                if (isreport)
+				{
+
+					var newsql = "select * from(" + sql + ") y where y.SLNo in ("+ SLNo + @") Order By y.GRNEntryDate ASC";
+					return _sqlRepository.GetDataTable(newsql);
+
+				}
+                else
+                {
+					sql += "Order By X.GRNEntryDate ASC";
+					return _sqlRepository.GetDataTable(sql);
+				}
+				
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
+			}
+		}
+		//public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string SLNo,string SheetName)
+		//{
+		//	try
+		//	{
+
+		//		var excelEngine = new ExcelEngine();
+		//		var report = new ReportUtility();
+		//		var workbook = report.GetWorkbook(ref excelEngine, 2);
+		//		var sheet1 = workbook.Worksheets[0];
+		//		//var Head = "Purchase Register Item Wise" + " " + fromDate + " " + "To" + " " + toDate ;
+		//		var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+		//		CreatePurchaseRegisterItemReportSheets(ref sheet1, report, SheetName + ".xlsx", "Summary", companyId, plantId, fromDate, toDate, SLNo);
+		//		workbook.Version = ExcelVersion.Excel2016;
+		//		//return workbook;
+
+		//		workbook.SaveAs(filePath);
+		//		workbook.Close();
+		//		excelEngine.Dispose();
+		//		return filePath;
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		throw;
+		//	}
+		//}
+
+		public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string SLNo, string SheetName)
+		{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 2);
+			var sheet1 = workbook.Worksheets[0];
+
+			var inventoryMaterialList = GetPurchaseRegisterItemData(companyId, plantId, fromDate, toDate, SLNo, true);
+
+			var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+
+
+			var colTransactionQtyTotal = 0.00;
+			var colTransactionAmountTotal = 0.00;
+			var colTaxAmountTotal = 0.00;
+			var colTrnCurrencyBaseRateTotal = 0.00;
+			var colBooksCurrencyBaseRateTotal = 0.00;
+			var colShortageQtyTotal = 0.00;
+			var colRejectionQtyTotal = 0.00;
+			var colApprovedQtyTotal = 0.00;
+
+			var colCGSTTotal = 0.00;
+			var colSGSTTotal = 0.00;
+			var colIGSTTotal = 0.00;
+			var colTDSTotal = 0.00;
+			var colTCSTotal = 0.00;
+
+			var colCGSTTotal1 = 0.00;
+			var colSGSTTotal1 = 0.00;
+			var colIGSTTotal1 = 0.00;
+			var colTDSTotal1 = 0.00;
+			var colTCSTotal1 = 0.00;
+
+
+			if (inventoryMaterialList.Rows.Count == 0)
+				throw new Exception("No Data Found !!!");
+
+			var _rowd = 4;
+
+			if (fromDate != "" && toDate != "")
+			{
+
+
+				sheet1[_rowd, 4].Text = fromDate + " " + "To" + " " + toDate;
+				sheet1[_rowd, 4].CellStyle.Font.Size = 8;
+				sheet1[_rowd, 4].CellStyle.Font.Bold = false;
+				sheet1.Range[_rowd, 3, _rowd, 4].Merge();
+				//sheet1.Range[_rowd, 3, _rowd , 3].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+			}
+
+			var _rows = 5;
+			sheet1[_rows, 5].Text = "Report Ref No: ";
+			sheet1[_rows, 5].CellStyle.Font.Size = 8;
+			sheet1[_rows, 5].CellStyle.Font.Bold = false;
+			sheet1.Range[_rows, 3, _rows, 6].Merge();
+
+			var _row = 6;
+
+			var _rowL = _row;
+			var row = _row + 1;
+			var sheet1headreColIndex = 1;
+
+			_rowL += 1;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Type";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Party");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PartyCode";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlant";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "DeliveryPartyPlant";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GSTIN No");
+			//sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GSTIN No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Employee");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Employee";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Gate Entry No");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Gate Entry No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Gate Name");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Gate Name";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Doc Ref No");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Doc Ref Date");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Grn Doc Date Difference");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Grn Doc Date Difference";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Group");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Article");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 30;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU1";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU2");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU2";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU3");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SKU3";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Description";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "HSN No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Qty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTransactionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
+			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TrnUoM";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//colTransactionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseUoM";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+			sheet1headreColIndex++;
+
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Lot No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quality Status";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Currency";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Gross Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Discount Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Amount");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Taxable Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTransactionAmountTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Total Material Tran Amount");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialTranAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//colTotalMaterialTranAmountTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialBooksCurrencyAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//colTotalMaterialBooksCurrencyAmountTotal = sheet1headreColIndex; 
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Credtible Status");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Credtible Status";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Tax Amount");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RCM";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTaxAmountTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGST";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colCGSTTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGST Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colCGSTTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SGST";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colSGSTTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "SGST Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colSGSTTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IGST";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colIGSTTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IGST Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colIGSTTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TDS";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTDSTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TDS Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTDSTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MaterialTCS";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MaterialTCS Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRNTCS";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRNTCS Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MandiTax";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MandiTax Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "NirasritTax";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "NirasritTax Tax (%)";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTCSTotal1 = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Currency Base Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTrnCurrencyBaseRateTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Books Currency Base Rate");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Currency Base Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colBooksCurrencyBaseRateTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MMIsAsset");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MMIsAsset";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNIsAsset");
+			//sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRNIsAsset";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "PO Id");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Id";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Storage Location");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Storage Location";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Shortage Qty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Shortage Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colShortageQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageRatePercent");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ShortageRatePercent";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageValuet");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ShortageValuet";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Rejection Qty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colRejectionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Reject Rate Per");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Reject Rate Per";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionValue");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RejectionValue";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionClam");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RejectionClam";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ApprovedQty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approved Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colApprovedQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Row ID");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Row ID";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Prepared By";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Status");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Status";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Checking Name");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Checking Name";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Approving Name");
+			//sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approving Name";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted By");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted By";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Voucher No");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Voucher No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posting Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
+			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "POREfference";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCRef";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ContractNo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			//----------------------------
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseIssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PurchaseReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReductionByAdjustmentQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventorySalesQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryScrapQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryTransferQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Category";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party SubCategory";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Type";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+
+			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
+			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].RowHeight = 22;
+			//sheet1headreColIndex++;
+
+			var Row_Total_Start = _rowL + 1;
+			//List<string> list = new List<string>();
+			for (int n = 0; n < inventoryMaterialList.Rows.Count; n++)
+			{
+				_rowL++;
+				
+				int COL = 1;
+				report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["GRNId"].ToString());
+				report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["GRNEntryDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["GRNType"].ToString());
+				report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["Code"].ToString());
+				report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["PartyName"].ToString());
+				report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["InvoicingPartyPlant"].ToString());
+				report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["DeliveryPartyPlant"].ToString());
+				report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["GSTINNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["FirstName"].ToString());
+				report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["GateName"].ToString());
+				report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["DocRefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["DocDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["GrnInvoiceDateDifference"].ToString());
+				report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+				report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+				report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+				report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+				report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+				report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+				report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["Description"].ToString());
+				report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["UOM"].ToString());
+				report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["BaseUoM"].ToString());
+				report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["LotNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["QualityStatus"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["POId"].ToString());
+				report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["CurrencyName"].ToString());
+				report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GrossAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["DiscountAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialTranAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialBaseAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CredtibleStatus"].ToString());
+				report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["RCM"].ToString());
+				report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
+
+				report.SetText(ref sheet1, _rowL, 41, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 42, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
+				report.SetText(ref sheet1, _rowL, 43, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 44, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
+				report.SetText(ref sheet1, _rowL, 45, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 46, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
+				report.SetText(ref sheet1, _rowL, 47, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 48, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCS"].ToString()));
+				report.SetText(ref sheet1, _rowL, 49, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 50, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCS"].ToString()));
+
+				report.SetText(ref sheet1, _rowL, 51, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 52, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTax"].ToString()));
+				report.SetText(ref sheet1, _rowL, 53, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 54, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTax"].ToString()));
+				report.SetText(ref sheet1, _rowL, 55, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 56, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnCurrencyBaseRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 57, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 58, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
+				report.SetText(ref sheet1, _rowL, 59, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
+				report.SetText(ref sheet1, _rowL, 60, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 61, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 69, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
+				report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
+				report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+				report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["Posted"].ToString());
+				report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["GL"].ToString());
+				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["Budget"].ToString());
+				report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["Activity"].ToString());
+				report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["CGL"].ToString());
+				report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 86, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+				report.SetText(ref sheet1, _rowL, 87, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+				report.SetText(ref sheet1, _rowL, 88, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 89, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+				report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+
+				report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
+				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 101, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 102, inventoryMaterialList.Rows[n]["PartyType"].ToString());
+
+				//}
+			}
+			_rowL++;
+
+			if (fromDate != "" && toDate != "")
+			{
+
+
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, "Total");
+				sheet1.Range[_rowL, Convert.ToInt32(colTransactionQtyTotal) - 1].CellStyle.Font.Bold = true;
+				//sheet1.Range[1, _rowL, Convert.ToInt32(colTransactionQtyTotal) - 1, _rowL].Merge();
+				object sumObject;
+				sumObject = inventoryMaterialList.Compute("Sum(MaterialTranAmount)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colTransactionAmountTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTransactionAmountTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colTransactionAmountTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colTransactionAmountTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+				sumObject = inventoryMaterialList.Compute("Sum(CGST)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colCGSTTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colCGSTTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colCGSTTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colCGSTTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+				sumObject = inventoryMaterialList.Compute("Sum(SGST)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colSGSTTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colSGSTTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colSGSTTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colSGSTTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+				sumObject = inventoryMaterialList.Compute("Sum(IGST)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colIGSTTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colIGSTTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colIGSTTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colIGSTTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = inventoryMaterialList.Compute("Sum(TDS)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colTDSTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTDSTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colTDSTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colTDSTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = inventoryMaterialList.Compute("Sum(MaterialTCS)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colTCSTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colTCSTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colTCSTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colTCSTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = inventoryMaterialList.Compute("Sum(ShortageQty)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colShortageQtyTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colShortageQtyTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colShortageQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colShortageQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = inventoryMaterialList.Compute("Sum(RejectionQty)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colRejectionQtyTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colRejectionQtyTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colRejectionQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colRejectionQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = inventoryMaterialList.Compute("Sum(ApprovedQty)", "");
+				sheet1.Range[_rowL, Convert.ToInt32(colApprovedQtyTotal)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet1, _rowL, Convert.ToInt32(colApprovedQtyTotal), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet1.Range[_rowL, Convert.ToInt32(colApprovedQtyTotal)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet1.Range[_rowL, Convert.ToInt32(colApprovedQtyTotal)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			}
+
+			sheet1.Range[(Row_Total_Start), 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 8;
+
+			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+			//_rowL++;
+
+			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderInside(ExcelLineStyle.Hair);
+			sheet1.Range[(row), 1, _rowL, sheet1headreColIndex].BorderAround(ExcelLineStyle.Hair);
+
+            sheet1.Name = SheetName;
+            sheet1.UsedRange.WrapText = true;
+            //sheet1.UsedRange.CellStyle.Font.Size = 8;
+            sheet1.IsGridLinesVisible = false;
+            report.PlantHeader(ref sheet1, sheet1headreColIndex, SheetName, plantId);
+            report.PageSetup(ref sheet1, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+
+		}
+
+		public string CreatePurchaseRegisterPartyWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId,string SheetName)
+		{
+			var excelEngine = new ExcelEngine();
+			var report = new ReportUtility();
+			var workbook = report.GetWorkbook(ref excelEngine, 1);
+			workbook.Version = ExcelVersion.Excel2016;
+
+			var data = GetPurchaseRegisterPartyWiseData(CompanyId, PlantId, FromDate, ToDate, PartyId, true);
+
+			var sheet = workbook.Worksheets[0];
+
+			#region sheet1
+			sheet.Name = "Purchase Report Register Party Wise";
+
+			int ROW = 7;
+			int endCol = 1;
+			int COL = 1;
+
+			//sheet.Range[ROW, COL].Text = "From - "+FromDate+" , To - "+ToDate;
+			//sheet.Range[ROW, COL].ColumnWidth = 13;
+			//sheet.Range[ROW, COL].CellStyle.Font.Size = 12;
+			//sheet.Range[ROW, COL].CellStyle.Font.Bold = true;
+			//sheet.Range[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet.Range[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//ROW += 2;
+
+			#region Grid Headers
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyName = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "GS TIN No", 13, ExcelHAlign.HAlignLeft);
+			int ColGSTINNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignLeft);
+			int ColBaseAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
+			int ColCurrency = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 13, ExcelHAlign.HAlignLeft);
+			int ColTaxAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 13, ExcelHAlign.HAlignLeft);
+			int ColTotalBaseAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignLeft);
+			int ColPayment = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignLeft);
+			int ColBalance = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyGroup = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignLeft);
+			int ColPartySubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyType = COL;
+
+			endCol = COL;
+			#endregion Headers
+
+
+			sheet.Range[ROW, 1, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+			ROW++;
+			var startRow = 0;
+			var endRow = 0;
+			int RowIndex = ROW;
+			startRow = ROW;
+
+			for (int i = 0; i < data.Rows.Count; i++)
+			{
+				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
+				sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+				sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
+				sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalBaseAmount"].ToString());
+				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
+				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				ROW++;
+			}
+
+			//ROW++;
+
+			if (FromDate != "" && ToDate != "")
+			{
+
+
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBaseAmount) - 1, "Total");
+				sheet.Range[ROW, Convert.ToInt32(ColBaseAmount) - 1].CellStyle.Font.Bold = true;
+				//sheet.Range[1, ROW, Convert.ToInt32(ColTotalMaterialTranAmount) - 1, ROW].Merge();
+				object sumObject;
+
+				sumObject = data.Compute("Sum(BaseAmount)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(TaxAmount)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColTaxAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(TotalBaseAmount)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Payment)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+				sumObject = data.Compute("Sum(Balance)", "");
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
+				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+				sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			}
+
+			endRow = ROW - 1;
+			endRow = ROW - 1;
+
+			#endregion sheet
+
+			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			//sheet.UsedRange.WrapText = true;
+			//sheet.UsedRange.CellStyle.Font.Size = 8;
+
+			//ReportUtility reportUtility = new ReportUtility();
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
+			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			//return workbook;
+
+			//ReportUtility reportUtility = new ReportUtility();
+			////reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+		}
+
+		public DataTable GetPurchaseRegisterPartyWiseData(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId,bool isreport)
+		{
+			try
+			{
+				var str = @"SELECT X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo
+                            ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,X.Currency,SUM(X.TotalTaxAmount) TaxAmount
+                            ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
+                            ,SUM(X.WrittenOffAmount) Payment
+                            ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
+							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType
+                            FROM 
+                            (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
+						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Name Currency ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount,i.WrittenOffAmount
+						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,i.PartyType
+						                            FROM [TRN].[InventoryReceiveDetail] IRD 
+						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
+						                            JOIN SCS.Currency C ON C.Id=IR.CurrencyId
+						                            left join TRN.Invoice i on i.InventoryReceiveId=ir.Id 
+						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+						                            LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
+						                            LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
+													LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+													LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+
+						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
+                                                AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
+
+						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name,PC.UserName,PSC.UserName,PG.UserName,i.PartyType
+                            )X
+                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType";
+
+                if (isreport)
+                {
+					var newsql = "select * from ("+ str +") y where y.PartyId in (" + PartyId + @")";
+					return _sqlRepository.GetDataTable(newsql);
+                }
+                else
+                {
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+				}
+			}
+			catch (Exception e)
+			{
+				throw e;
 			}
 		}
 

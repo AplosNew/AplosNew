@@ -1212,7 +1212,7 @@ namespace Library.Service.Parties
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Debit", 14, ExcelHAlign.HAlignRight); int colDebit = COL; COL++;//8
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Credit", 14, ExcelHAlign.HAlignRight); int colCredit = COL; COL++;//9
                 reportUtility.SetHeaderText(ref sheet, row, COL, "Balance", 12, ExcelHAlign.HAlignRight); int colBalance = COL; COL++;//10
-                reportUtility.SetHeaderText(ref sheet, row, COL, "Dr/Cr", 4, ExcelHAlign.HAlignRight); int colCrDr = COL; COL++;//11
+                reportUtility.SetHeaderText(ref sheet, row, COL, "Dr/Cr", 4, ExcelHAlign.HAlignRight); int colCrDr = COL; //COL++;//11
 
                 //reportUtility.SetHeaderText(ref sheet, row, 11, "Party Balance", 14, ExcelHAlign.HAlignRight);
                 //reportUtility.SetHeaderText(ref sheet, row, 12, "Dr/Cr", 4, ExcelHAlign.HAlignRight);
@@ -1330,6 +1330,8 @@ namespace Library.Service.Parties
                                 sheet.Range[row, colBalance2].VerticalAlignment = ExcelVAlign.VAlignTop;
                                 sheet.Range[row, colCrDr].Formula = "IF(" + reportUtility.GetColumnNameForXls(colCredit2) + row + ">= 0, \"  Dr\", \"  Cr\")";
                             }
+                            sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
+                            sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
                             row++;
                         }
 

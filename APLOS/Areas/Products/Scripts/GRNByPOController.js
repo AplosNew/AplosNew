@@ -311,7 +311,30 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
     ];
 
-
+    $scope.showPartyByGateEntryPopUp = function () {
+        baseService.setCurrentPage('partyList');
+        $scope.getPartyList = function (pageno) {
+            if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListByGateEntry?partyType=' + $scope.partyType;
+            }
+            else if ($scope.partyType === 'Party') {
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';
+            }
+            else if ($scope.partyType === 'Other') {
+                $scope.partyUrl = 'Parties/party/GetCompanyOtherDataList';
+            }
+            baseService.paginationBase($scope.partyUrl, pageno, $scope.partyParameters)
+                .then(function (result) {
+                    $scope.partyList = result.Rows;
+                    $scope.partyParameters.total_count = result.Total;
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#partyPopUp')).modal('show');
+        $scope.getPartyList();
+    };
 
 
     $scope.productNew = Object.assign({}, $scope.product);
@@ -1558,7 +1581,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $http({
             method: "GET",
             dataType: 'JSON',
-            url: 'Products/GoodsReceiveNote/GetListOfPO?PoType=' + PoType + '&Status=' + $scope.status,
+            url: 'Products/GoodsReceiveNote/GetListOfPO?PoType=' + PoType + '&Status=' + $scope.status + '&vendorId=' + $scope.productNew.PartyId,
         }).then(function successCallback(response) {
             $scope.Griddata = response.data;
             $scope.productNew.GRNDate = $filter("dateFiltering")(Date.now());

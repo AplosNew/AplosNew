@@ -39,7 +39,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region -- Pages
 
-        [Authorize]
+    
         public ActionResult Aplos()
         {
             return View();
@@ -103,14 +103,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #region ------------------Column Header------------------
 
                 int colBudgetCodeId = 0; int colBudgetCode = 0; int colEntity = 0; int colDpt = 0; int colSec = 0; int colSSec = 0; int colDeg = 0;
-                int colAct = 0; int colShift, colDeployment, colEmployeeCategory, colPositionCode, colResponsiblePerson = 0; int colDailyOTLimit = 0; int colWeeklyOTLimit = 0; int colWeekOffOTLimit = 0;
+                int colAct = 0; int colShift, colDeployment, colEmployeeCategory, colPositionCode, colResponsiblePerson = 0; int colDailyOTLimit = 0; int colWeeklyOTLimit = 0; int colWeekOffOTLimit, colONRoll, colLine, colBudgetedManPower = 0;
                 int colMonthlyOTLimit = 0; int colRemarks, colROBudgetCode, colPRBudgetCode, colAttendanceGroup, colUserGroup2, colDirect = 0;
 
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCodeId"); colBudgetCodeId = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Deployment"); colDeployment = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); colBudgetCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PositionCode"); colPositionCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCat"); colEmployeeCategory = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Entity"); colEntity = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department"); colDpt = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section"); colSec = xlsCol; xlsCol += 1;
@@ -118,17 +113,25 @@ namespace Aplos.Areas.HumanResource.Controllers
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation"); colDeg = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Activity"); colAct = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Shift"); colShift = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line"); colLine = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ResponsiblePerson"); colResponsiblePerson = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct"); colDirect = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserGroup2"); colUserGroup2 = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "AttendanceGroup"); colAttendanceGroup = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "EmployeeCat"); colEmployeeCategory = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PositionCode"); colPositionCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCode"); colBudgetCode = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Deployment"); colDeployment = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetedManPower"); colBudgetedManPower = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ONRoll"); colONRoll = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "ROBudgetCode"); colROBudgetCode = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "PRBudgetCode"); colPRBudgetCode = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "AttendanceGroup"); colAttendanceGroup = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "UserGroup2"); colUserGroup2 = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Direct"); colDirect = xlsCol; xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BudgetCodeId"); colBudgetCodeId = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DailyOTLimit"); colDailyOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeeklyOTLimit"); colWeeklyOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "WeekOffOTLimit"); colWeekOffOTLimit = xlsCol; xlsCol += 1;
                 ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "MonthlyOTLimit"); colMonthlyOTLimit = xlsCol; xlsCol += 1;
-                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); colRemarks = xlsCol;                
 
                 endXlsCol = xlsCol;
 
@@ -157,6 +160,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1[xlsRow, colSSec].Text = dtData.Rows[i]["SubSection"].ToString();
                     sheet1[xlsRow, colAct].Text = dtData.Rows[i]["Activity"].ToString();
                     sheet1[xlsRow, colShift].Text = dtData.Rows[i]["ShiftDefinationName"].ToString();
+                    sheet1[xlsRow, colLine].Text = dtData.Rows[i]["Line"].ToString();
+                    sheet1[xlsRow, colBudgetedManPower].Text = dtData.Rows[i]["TotalNumber"].ToString();
+                    sheet1[xlsRow, colONRoll].Text = dtData.Rows[i]["ONRoll"].ToString();
                     sheet1[xlsRow, colDeployment].Text = dtData.Rows[i]["Deployment"].ToString();
                     sheet1[xlsRow, colPositionCode].Text = dtData.Rows[i]["PositionCode"].ToString();
                     sheet1[xlsRow, colEmployeeCategory].Text = dtData.Rows[i]["EmployeeCategory"].ToString();
@@ -226,7 +232,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 //return workbook;
 
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "FabricRollManage" + ".xlsx");
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OTControlLimit" + ".xlsx");
                 workbook.SaveAs(filePath);
                 workbook.Close();
                 excelEngine.Dispose();
@@ -324,8 +330,6 @@ namespace Aplos.Areas.HumanResource.Controllers
 
                 if (dsExcel.Tables[0].Rows.Count > 0)
                 {
-                    if (false)
-                    {
                         for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
                         {
                             string strTempPDate = "";
@@ -337,8 +341,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                             strTempPType = dsExcel.Tables[0].Rows[i][3].ToString().Trim().ToUpper();
 
                         }//for
-
-                    }
 
                 }
                 else
@@ -364,7 +366,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
                 workbook = excelEngine.Excel.Workbooks.Open(path);
-                DataTable dt = workbook.Worksheets[0].ExportDataTable(1, 1, 5000, 14, ExcelExportDataTableOptions.ColumnNames);
+                DataTable dt = workbook.Worksheets[0].ExportDataTable(1, 1, 5000, 26, ExcelExportDataTableOptions.ColumnNames);
                 dt.DefaultView.RowFilter = "isnull(BudgetCodeId,'')<>''";
                 dt = dt.DefaultView.ToTable();
                 dsExcel = new DataSet();
@@ -398,6 +400,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return Json(oTControlLimitService.GetList(), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetLastEffectiveDate()
+        {
+            return Json(oTControlLimitService.GetLastEffectiveDate(), JsonRequestBehavior.AllowGet);
+        }
         #endregion -- Operations
     }
 
@@ -407,7 +415,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         public string BudgetCode { get; set; }
         public string Deployment { get; set; }
         public string PositionCode { get; set; }
-        public string EmployeeCategory { get; set; }
+        public string EmployeeCat{ get; set; }
         public string BudgetCodeId { get; set; }
         public string Entity { get; set; }
         public string Department { get; set; }
@@ -425,8 +433,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         public string PRBudgetCode { get; set; }
         public string AttendanceGroup { get; set; }
         public string ResponsiblePerson { get; set; }
-        public string UserDefineGroup2 { get; set; }
+        public string UserGroup2 { get; set; }
         public string Direct { get; set; }
+        public string ONRoll { get; set; }
 
     }
 }
