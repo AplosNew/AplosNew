@@ -189,32 +189,25 @@ namespace Aplos.Areas.Products.Controllers
             }
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-            var jsondata = Json(salesQueryService.GetSalesRegisterSql(FromDate, ToDate, Type), JsonRequestBehavior.AllowGet);
-            jsondata.MaxJsonLength = int.MaxValue;
-            return jsondata;
+
+            SalesQueryService obj = new SalesQueryService(_sqlRepository);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetSalesRegisterSql(FromDate, ToDate, Type));
+            return Json(new { NewData, Message = AplosMessage.Success });
+
         }
 
-        [Authorize, HttpGet]
-        public ActionResult InventorySalesReportExcel(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Qty, string Amount, string RcptIssue, string Asset, string Inventory, string Summary, bool WithTax, string Type)
+        [Authorize, HttpPost]
+        public ActionResult InventorySalesReportExcel(string FromDate, string ToDate, string Summary, string Type,bool WithTax)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
-            var reportFileName = "Sales Register.xls" + fromDate + "To" + toDate + "";
+            //plantId = identity.PlantId;
+            //var reportFileName = "Sales Register.xls" + FromDate + "To" + ToDate + "";
             ExcelEngine excelEngine = new ExcelEngine();
             SalesQueryService salesQueryService = new SalesQueryService(_sqlRepository);
-            IWorkbook workbook = salesQueryService.InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, WithTax, Type);
-            switch (reportFormat)
-            {
-                case ReportFormat.Pdf:
-                    return RenderReportAsPdf(workbook, reportFileName);
 
-                case ReportFormat.Excel:
-                    return RenderReportAsExcel(workbook, reportFileName);
-
-                default:
-                    return View();
-            }
+            string fileName = "";
+            fileName= salesQueryService.InventorySalesReportList(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, FromDate, ToDate, Summary, Type, WithTax, "Sales Register Sales Wise.xls" + FromDate + "To" + ToDate + "");
+            return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -374,7 +367,7 @@ namespace Aplos.Areas.Products.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.getSalesOrderCustomerWiseReportSql(identity.CompanyId, identity.PlantId, FromDate, ToDate));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.getSalesOrderCustomerWiseReportSql(identity.CompanyId, identity.PlantId, FromDate, ToDate,null,false));
                 return Json(new { NewData, Message = AplosMessage.Success });
             }
             catch (Exception ex)
@@ -383,26 +376,19 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [Authorize, HttpGet]
-        public ActionResult SalesRegisterCustomerWiseReport(ReportFormat reportFormat, string PlantId, string FromDate, string ToDate)
+        [Authorize, HttpPost]
+        public ActionResult SalesRegisterCustomerWiseReport(string PlantId, string FromDate, string ToDate,string PartyId)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
-                var reportFileName = "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "";
-                var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-                switch (reportFormat)
-                {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
+                //var reportFileName = "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "";
+                //var workbook = obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId);
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-                    default:
-                        return View();
-                }
-
+                string fileName = "";
+                fileName= obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -429,26 +415,17 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult SalesRegisterItemWiseReport(ReportFormat reportFormat, string PlantId, string FromDate, string ToDate)
+        [HttpPost, Authorize]
+        public ActionResult SalesRegisterItemWiseReport(string PlantId, string FromDate, string ToDate)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
-                var workbook = obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate);
-                var reportFileName = "Sales Register.xls" + FromDate + "To" + ToDate + "";
-                switch (reportFormat)
-                {
-                    case ReportFormat.Pdf:
-                        return RenderReportAsPdf(workbook, reportFileName);
 
-                    case ReportFormat.Excel:
-                        return RenderReportAsExcel(workbook, reportFileName);
-
-                    default:
-                        return View();
-                }
+                string fileName = "";
+                fileName= obj.CreateSalesRegisterItemWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, "Sales Register.xls" + FromDate + "To" + ToDate + "");
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

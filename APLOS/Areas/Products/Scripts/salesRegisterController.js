@@ -180,6 +180,18 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
     };
 
+    $scope.downloadReport = function () {
+        if ($scope.report.ReportType == 'SaleWise') {
+            $scope.InventorySalesReportExcels();
+        }
+        else if ($scope.report.ReportType == 'PartyWise') {
+            $scope.SalesPartyWiseReportExcel();
+        }
+        else if ($scope.report.ReportType == 'ItemWise') {
+            $scope.SalesRegisterItemWiseReport();
+        }
+    }
+
     $scope.InventorySalesReportExcels = function () {
         var Type = null;
         if ($scope.productNew.AsOnDate === 'AsOnDate') {
@@ -203,22 +215,62 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             Type = 'ForThePeriod';
         }
 
-        var reportFormat = "Excel";
         $scope.report.Summary = 'Summary';
-        $window.open('Products/SalesRegister/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.report.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+
+        var dataList = [];
+        var g = $("#GridSalesPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].SalesId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].SalesId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.SalesRegisterList[i].SalesId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.SalesRegisterList[i].SalesId + "'";
+                }
+            }
+        }
+        $scope.fileName = 'SalesRegisterSalesWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/InventorySalesReportExcel?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.report.RcptIssue + '&Summary=' + $scope.productNew.Summary + '&WithTax=' + true + '&Type=' + Type);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "InventorySalesReportExcel",
+            data: {
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate,
+                'SalesId': ids,
+                'Summary': $scope.report.Summary,
+                'Type': Type,
+                'WithTax': true
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else
+            {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
     };
 
-    $scope.downloadReport = function () {
-        if ($scope.report.ReportType == 'SaleWise') {
-            $scope.InventorySalesReportExcels();
-        }
-        else if ($scope.report.ReportType == 'PartyWise') {
-            $scope.SalesPartyWiseReportExcel();
-        }
-        else if ($scope.report.ReportType == 'ItemWise') {
-            $scope.SalesRegisterItemWiseReport();
-        }
-    }
 
     $scope.SalesRegisterItemWiseReport = function () {
         if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
@@ -229,7 +281,55 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        $window.open('Products/SalesRegister/SalesRegisterItemWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
+
+        var dataList = [];
+        var g = $("#GridItemPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].SalesMaterialId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].SalesMaterialId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.SalesRegisterItemList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.SalesRegisterItemList[i].SalesMaterialId + "'";
+                }
+            }
+        }
+        $scope.fileName = 'SalesRegisterItemWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/SalesRegisterItemWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "SalesRegisterItemWiseReport",
+            data: {
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate,
+                'SMId': ids,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
     $scope.SalesPartyWiseReportExcel = function () {
@@ -241,7 +341,56 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             ShowResult('Select To Date', 'failure');
             return false;
         }
-        $window.open('Products/SalesRegister/SalesRegisterCustomerWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
+
+        var dataList = [];
+        var g = $("#GridPartyPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "")
+                {
+                    ids = "'','" + dataList[i].PartyId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].PartyId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.SalesRegisterPartyList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.SalesRegisterPartyList[i].PartyId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.SalesRegisterPartyList[i].PartyId + "'";
+                }
+            }
+        }
+        $scope.fileName = 'SalesRegisterCustomerWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        //$window.open('Products/SalesRegister/SalesRegisterCustomerWiseReport?reportFormat=' + 'Excel' + '&PlantId=' + null + '&FromDate=' + $scope.report.FromDate + '&ToDate=' + $scope.report.ToDate);
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "SalesRegisterCustomerWiseReport",
+            data: {
+                'ToDate': $scope.report.ToDate,
+                'FromDate': $scope.report.FromDate,
+                'PartyId': ids,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     };
 
 }
