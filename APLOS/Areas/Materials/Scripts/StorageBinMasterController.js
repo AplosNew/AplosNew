@@ -9,6 +9,54 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.searchBy = "UserName"; $scope.search = "";
+
+    $scope.searchByList = [
+        {
+            value: 'Id',
+            name: "Id",
+        },
+        {
+            value: 'Code',
+            name: "Code",
+        },
+        {
+            value: 'ShortName',
+            name: "Short Name",
+        },
+        {
+            value: 'StandardName',
+            name: "Standard Name",
+        },
+        {
+            value: 'UserName',
+            name: "User Name"
+        },
+        {
+            value: 'Description',
+            name: "Description",
+        },
+        {
+            value: 'Remarks',
+            name: "Remarks",
+        },
+        {
+            value: 'ColumnNo',
+            name:"ColumnNo",
+        },
+        {
+            value: 'RowNo',
+            name: "RowNo",
+        },
+        {
+            value: 'UserLocationType',
+            name: "UserLocationType",
+        },
+        {
+            value: 'EmployeeName',
+            name: "EmployeeName",
+        },
+    ];
 
     // ALL POP UPs
     $scope.OpenEmployeePopUp = function () {
@@ -36,7 +84,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
         $http({
             method: 'POST',
             url: $scope.path + "GetList",
-
+            data: { column: $scope.searchBy, value: $scope.search },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
@@ -96,8 +144,9 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             data: { 'ResponsiblePersonId': $scope.ResponsiblePersonId,},
             url: $scope.path + 'getResponsiblePersonId',
         }).then(function success(response) {
-            $scope.ResponsiblePerson = JSON.stringify(response.data[0].ResponsiblePerson);
-
+            $scope.ResponsiblePerson = JSON.stringify(response.data[0].ResponsiblePerson.replace(/\"/g, ""));
+            $scope.ResponsiblePerson = $scope.ResponsiblePerson.replace(/\"/g, "");
+            
         });
     }
 
@@ -108,7 +157,7 @@ function StorageBinMasterController(cboService, commonMessage, $scope, $rootScop
             url: $scope.path + 'getStorageLocationId',
         }).then(function success(response) {
             $scope.StorageLocation = JSON.stringify(response.data[0].StorageLocation);
-
+            $scope.StorageLocation = $scope.StorageLocation.replace(/\"/g, "");
         });
     }
 

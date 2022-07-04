@@ -23,11 +23,11 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion Page
 
         [HttpPost]
-        public ActionResult GetList()
+        public ActionResult GetList(string column, string value)
         {
             try
             {
-                return Json(sb.GetList(), JsonRequestBehavior.AllowGet);
+                return Json(sb.GetList(column, value), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
