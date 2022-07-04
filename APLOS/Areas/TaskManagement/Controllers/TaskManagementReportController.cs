@@ -192,6 +192,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
+                #region Header
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
                 string FactoryName = "";
@@ -201,7 +202,6 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 int colSLNO = xlsCol;
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
                 int iEmployeeCode = xlsCol;
@@ -227,14 +227,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTaskCreated = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Created";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iPerTotalTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Total Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range = sheet1[xlsRow, xlsCol];
                 ICommentShape shape = range.AddComment();
                 shape.RichText.Append("Emp Task Created FP / Total Task Created  FP", fontCaption);
@@ -244,22 +240,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTaskUnread = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Unread";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iTaskDue = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Due";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iPerOfDueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Due Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range1 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape1 = range1.AddComment();
                 shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
@@ -269,46 +259,34 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 int iTaskCompletedOnTime = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "Task Completed-On Time";
-                sheet1[xlsRow, xlsCol].ColumnWidth = 20;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 xlsCol++;
                 int iTaskCompletedLate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Completed-Late";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
+                int iEarlyTask = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
 
+                xlsCol++;
                 int iOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange rangeODT = sheet1[xlsRow, xlsCol];
                 ICommentShape shapeODT = rangeODT.AddComment();
                 shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
                 shapeODT.IsTextLocked = false;
                 shapeODT.AutoSize = false;
 
-                xlsCol++;
-                int iEarlyTask = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
                 xlsCol++;
                 int iPeriviousPeriodOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Perivious Period Overdue Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
 
                 xlsCol++;
                 int iPerformance = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
                 shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
@@ -318,32 +296,23 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTotalStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Total Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-                xlsCol++;
-                int iEarlyCompletedStoryPoints = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Early Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 endXlsCol = xlsCol;
 
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                // sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, 6, xlsRow, endXlsCol].ColumnWidth = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 38;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
-                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
-                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment= ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick); 
+                #endregion
 
                 string voucherNo = "";
                 /// string Percentage = "";
@@ -402,28 +371,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     }
 
                     sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
-                    sheet1[xlsRow, iEarlyCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyColsedStoryPoint"].ToString());
 
                     xlsRow++;
                 }
                 sheet1.Range[xlsRow, 5].Text = "TOTAL";
+                sheet1.Range[xlsRow, 5].HorizontalAlignment= ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 5].CellStyle.Font.Bold = true;
 
-                sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, colDepartment, xlsRow - 1, colDepartment].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEmployeeName, xlsRow - 1, iEmployeeName].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEmployeeCode, xlsRow - 1, iEmployeeCode].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iDesignation, xlsRow - 1, iDesignation].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedLate, xlsRow - 1, iTaskCompletedLate].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerOfDueTask, xlsRow - 1, iPerOfDueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyCompletedStoryPoints, xlsRow - 1, iEarlyCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyTask, xlsRow - 1, iEarlyTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCreated) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCreated) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iTaskCreated, xlsRow, iTaskCreated].Formula = formula;
@@ -477,9 +432,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                formula = "SUM(" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + (xlsRow - 1) + ")";
-                sheet1[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].Formula = formula;
-                sheet1.Range[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].CellStyle.Font.Bold = true;
+             
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #region ******************Report Header******************
@@ -563,7 +516,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 #region UsedRange Alignment
 
-                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;
                 sheet1.Range["A1"].CellStyle.Font.Size = 14;
                 sheet1.Range["A2"].CellStyle.Font.Size = 10;
@@ -665,6 +618,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
+                #region Header
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
                 string FactoryName = "";
@@ -685,20 +639,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 int colNoOfEmp = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "No Of Employee";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iTaskCreated = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Created";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iPerTotalTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Total Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range = sheet1[xlsRow, xlsCol];
                 ICommentShape shape = range.AddComment();
                 shape.RichText.Append("Emp Task Created FP / Total Task Created  FP", fontCaption);
@@ -708,22 +656,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTaskUnread = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Unread";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iTaskDue = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Due";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iPerOfDueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Due Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range1 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape1 = range1.AddComment();
                 shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
@@ -733,22 +675,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 int iTaskCompletedOnTime = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "Task Completed-On Time";
-                sheet1[xlsRow, xlsCol].ColumnWidth = 20;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 xlsCol++;
                 int iTaskCompletedLate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Completed-Late";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange rangeODT = sheet1[xlsRow, xlsCol];
                 ICommentShape shapeODT = rangeODT.AddComment();
                 shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
@@ -758,21 +694,15 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iEarlyTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Eary Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iPeriviousPeriodOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Perivious Period Overdue Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 xlsCol++;
                 int iPerformance = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
                 shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
@@ -782,39 +712,27 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTotalStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Total Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                xlsCol++;
-                int iEarlyCompletedStoryPoints = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Early Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iAvgStorypoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "AvgStorypoints";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 endXlsCol = xlsCol;
 
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                // sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, colNoOfEmp, xlsRow, endXlsCol].ColumnWidth = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 38;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
-                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
+                #endregion
                 string voucherNo = "";
                 /// string Percentage = "";
                 int startRow = 0;
@@ -861,30 +779,17 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
                     sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
-                    sheet1[xlsRow, iEarlyCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyColsedStoryPoint"].ToString());
                     sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
                 }
                 sheet1.Range[xlsRow, 2].Text = "TOTAL";
+                sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
-                sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, colNoOfEmp, xlsRow - 1, colNoOfEmp].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iDesignation, xlsRow - 1, iDesignation].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedLate, xlsRow - 1, iTaskCompletedLate].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerOfDueTask, xlsRow - 1, iPerOfDueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyCompletedStoryPoints, xlsRow - 1, iEarlyCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iAvgStorypoints, xlsRow - 1, iAvgStorypoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyTask, xlsRow - 1, iEarlyTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPeriviousPeriodOverdueTask, xlsRow - 1, iPeriviousPeriodOverdueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
-
+                #region SUM
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(colNoOfEmp) + perStartRow + ":" + clsStaticInfo.GetxlsCol(colNoOfEmp) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, colNoOfEmp, xlsRow, colNoOfEmp].Formula = formula;
                 sheet1.Range[xlsRow, colNoOfEmp, xlsRow, colNoOfEmp].CellStyle.Font.Bold = true;
@@ -941,13 +846,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                formula = "SUM(" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + (xlsRow - 1) + ")";
-                sheet1[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].Formula = formula;
-                sheet1.Range[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].CellStyle.Font.Bold = true;
-
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
-                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true; 
+                #endregion
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 
@@ -1032,7 +934,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 #region UsedRange Alignment
 
-                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;
                 sheet1.Range["A1"].CellStyle.Font.Size = 14;
                 sheet1.Range["A2"].CellStyle.Font.Size = 10;
@@ -1134,6 +1036,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
 
+                #region Header
+
                 int xlsRow = 1, xlsCol = 1;
                 int endXlsCol = 1;
                 string FactoryName = "";
@@ -1145,7 +1049,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
-                             
+
 
                 int iDesignation = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Designation Group";
@@ -1154,20 +1058,14 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 int colNoOfEmp = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "No Of Employee";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iTaskCreated = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Created";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iPerTotalTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Total Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range = sheet1[xlsRow, xlsCol];
                 ICommentShape shape = range.AddComment();
                 shape.RichText.Append("Emp Task Created FP / Total Task Created  FP", fontCaption);
@@ -1177,22 +1075,16 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTaskUnread = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Unread";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iTaskDue = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Due";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
 
                 int iPerOfDueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "% Of Due Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range1 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape1 = range1.AddComment();
                 shape1.RichText.Append("Emp Due Task FP / Total Due Task FP", fontCaption);
@@ -1202,22 +1094,20 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 int iTaskCompletedOnTime = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "Task Completed-On Time";
-                sheet1[xlsRow, xlsCol].ColumnWidth = 20;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 xlsCol++;
                 int iTaskCompletedLate = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Completed-Late";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 16;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                xlsCol++;
+                int iEarlyTask = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
 
                 xlsCol++;
 
                 int iOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange rangeODT = sheet1[xlsRow, xlsCol];
                 ICommentShape shapeODT = rangeODT.AddComment();
                 shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
@@ -1225,25 +1115,17 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 shapeODT.AutoSize = false;
 
 
-                xlsCol++;
-                int iEarlyTask = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
 
 
                 xlsCol++;
                 int iPeriviousPeriodOverdueTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Perivious Period Overdue Task";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 24;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
 
                 xlsCol++;
                 int iPerformance = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
                 shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
@@ -1253,38 +1135,26 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 xlsCol++;
                 int iTotalStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Total Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-                sheet1.Range[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iCompletedStoryPoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
-
-
-                xlsCol++;
-                int iEarlyCompletedStoryPoints = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Early Completed Story Points";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 xlsCol++;
                 int iAvgStorypoints = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "AvgStorypoints";
-                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 18.5;
-                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 endXlsCol = xlsCol;
 
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
-                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
-                //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+                sheet1.Range[xlsRow, colNoOfEmp, xlsRow, endXlsCol].ColumnWidth = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 38;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
-                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+
+                #endregion
 
                 string voucherNo = "";
                 /// string Percentage = "";
@@ -1332,28 +1202,18 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
                     sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
-                    sheet1[xlsRow, iEarlyCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyColsedStoryPoint"].ToString());
                     sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
                 }
+
                 sheet1.Range[xlsRow, 2].Text = "TOTAL";
+                sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
-                sheet1[perStartRow, iTaskUnread, xlsRow - 1, iTaskUnread].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedOnTime, xlsRow - 1, iTaskCompletedOnTime].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, colNoOfEmp, xlsRow - 1, colNoOfEmp].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iDesignation, xlsRow - 1, iDesignation].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTaskCompletedLate, xlsRow - 1, iTaskCompletedLate].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerOfDueTask, xlsRow - 1, iPerOfDueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iOverdueTask, xlsRow - 1, iOverdueTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iTotalStoryPoints, xlsRow - 1, iTotalStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iCompletedStoryPoints, xlsRow - 1, iCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyCompletedStoryPoints, xlsRow - 1, iEarlyCompletedStoryPoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iAvgStorypoints, xlsRow - 1, iAvgStorypoints].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iEarlyTask, xlsRow - 1, iEarlyTask].BorderAround(ExcelLineStyle.Hair);
-                sheet1[perStartRow, iPerformance, xlsRow - 1, iPerformance].BorderAround(ExcelLineStyle.Hair);
+                sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
+                #region SUM
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(colNoOfEmp) + perStartRow + ":" + clsStaticInfo.GetxlsCol(colNoOfEmp) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, colNoOfEmp, xlsRow, colNoOfEmp].Formula = formula;
@@ -1411,14 +1271,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-                formula = "SUM(" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iEarlyCompletedStoryPoints) + (xlsRow - 1) + ")";
-                sheet1[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].Formula = formula;
-                sheet1.Range[xlsRow, iEarlyCompletedStoryPoints, xlsRow, iEarlyCompletedStoryPoints].CellStyle.Font.Bold = true;
-
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
                 sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
 
+                #endregion
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
 
                 #region ******************Report Header******************
@@ -1502,7 +1359,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 #region UsedRange Alignment
 
-                sheet1.UsedRange.WrapText = false;
+                sheet1.UsedRange.WrapText = true;
                 sheet1.UsedRange.CellStyle.Font.Size = 10;
                 sheet1.Range["A1"].CellStyle.Font.Size = 14;
                 sheet1.Range["A2"].CellStyle.Font.Size = 10;

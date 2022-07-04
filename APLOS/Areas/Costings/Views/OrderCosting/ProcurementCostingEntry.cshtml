@@ -25,6 +25,7 @@
                 <th class="text-right">Gross Amount</th>
 
                 <th>BOQ Criteria</th>
+                <th>PO Criteria</th>
                 <th>Procurement Level</th>
                 <th>Sourcing Type</th>
 
@@ -32,7 +33,6 @@
                 <th>Predefined Material</th>
                 <th>Material</th>
                 <th>Article</th>
-                <th>PO Criteria</th>
                 <th>Vendor</th>
                 <th>Remarks</th>
                 <th class="text-right">Min. Qty</th>
@@ -53,7 +53,8 @@
         </thead>
         <tbody>
 
-            <tr ng-repeat="x in DirectProcurementCostingMaterialList">
+            @*<tr ng-repeat="x in DirectProcurementCostingMaterialList">*@
+            <tr style="background-color:{{x.Error?'red':'white'}};" ng-repeat="x in DirectProcurementCostingMaterialList">
                 <td style="width:150px!important;color:blue!important;cursor:pointer!important;" ng-click="ShowToolTip('PROCUREMENT',x)">{{x.UserName}}</td>
                 <td style="min-width:60px;">
                     <span class="input-group-btn">
@@ -95,6 +96,14 @@
                     <div class="select-style">
                         <select name="Entity" ng-model="x.BOQCriteria" style="width: 90px;margin-left: 0px;"
                                 ng-options="item.Criteria as item.UserName for item in BOQCriteriaList">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </td>
+                <td>
+                    <div class="select-style">
+                        <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
+                                ng-options="item.Value as item.Text for item in POCriteriaList">
                             <option value=""></option>
                         </select>
                     </div>
@@ -151,14 +160,7 @@
 
                 </td>
 
-                <td>
-                    <div class="select-style">
-                        <select name="POCriteria" ng-model="x.POCriteria" style="width: 90px;margin-left: 0px;"
-                                ng-options="item.Value as item.Text for item in POCriteriaList">
-                            <option value=""></option>
-                        </select>
-                    </div>
-                </td>
+
                 <td style="width:180px;">
                     <div class="input-group">
                         <input type="text" name="ResponsiblePerson" ng-model="x.Vendor" style="width:120px;" class="form-control" readonly>
@@ -241,7 +243,8 @@
             <tr style="border:1px solid #dcdcdc !important">
                 <td>Total</td>
                 <td style="color:blue" class="text-right" colspan="8">@*{{toatalItemGrossConsumption | number:4}}*@</td>
-                <td style="color:blue" class="text-right">{{TotalSegmentedValueByComponent | number:4}}</td>
+                @*<td style="color:blue" class="text-right">{{TotalSegmentedValueByComponent | number:4}}</td>*@
+                <td class="text-right"><strong>{{DirectProcurementCostingMaterialList | sumByKey : 'GrossAmount'| number:4 }}</strong></td>
                 <td style="color:blue" colspan="10"></td>
             </tr>
         </tbody>

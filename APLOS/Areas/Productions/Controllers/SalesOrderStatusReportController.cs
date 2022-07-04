@@ -273,7 +273,7 @@ namespace Aplos.Areas.Productions.Controllers
                     ent += ")";
                 }
 
-                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,mo.OwnReferenceNo , mo.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
+                var str = @"Select  p.UserName as Customer, mo.MasterOrderNo , format(mo.AddedDate,'dd-MMM-yyyy') as MasterOrderDate ,moi.OwnReferenceNo , moi.BuyerReferenceNo as BuyerOrderNo , mma.StandardName as Article, moi.Id as ItemId , so.Id as SONo , so.Qty as SOQty , format(so.PlanExFactoryDate,'dd-MMM-yyyy') as ExFactoryDate , 
                             format(so.CommitmentDate , 'dd-MMM-yyyy') as CommitmentDate , format(so.DeliveryDate , 'dd-MMM-yyyy') as DeliveryDate , oc.UserName as SOCategory , so.Rate , so.CM , isnull(sm.DispatchQty,0) as DispatchQty , 
                             (so.Qty -  isnull(sm.DispatchQty,0)) as BalanceToDispatch , moi.ProductLibraryId, PAG.UserName as CustomerGroup,pl.Code as ProductCode, pod.ProductionOrderId,format(mo.AddedDate,'dd-MMM-yyyy') as CreatedDate,
 
@@ -284,13 +284,17 @@ namespace Aplos.Areas.Productions.Controllers
                                                         for XML PATH('')
                                                         ) , 1, 2, '')) as ProdDetails,
 
-                            (Select sum(NetWeight) 
+                             (Select sum(SC.NetWeight) 
                             from dbo.ItemScanChild sc
                             left join dbo.ItemScan s on s.Id = sc.MasterId 
                             left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
+                            LEFT JOIN MST.MaterialMasterArticle M ON M.Id = Pl.ArticleId
+                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = SC.LocMasterId
                             where pl.Id = moi.ProductLibraryId 
-                            and s.WorkDate <= GetDate()
-                            and sc.Booked = 0 and sc.IsDespatch = 0) as AllotedStock
+                            and s.WorkDate <= GetDate()  
+                            and sc.Booked = 0 and sc.IsDespatch = 0
+                            AND R.ToLocation NOT IN ('JOB WORK LOCATION','DyeHouse','PACKING','JW Sale-Dye')
+                            ) as AllotedStock
                             , mor.ExchangeRate * so.Rate as Rates
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
