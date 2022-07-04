@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-4 control-label">Capacity Value</label>
+                <label class="col-sm-4 control-label">Capacity Value (CFT)</label>
                 <div class="col-sm-6 show-message">
                     <input type="number" name="Capacity Value" ng-model="ModelNew.CapacityValue" class="form-control" tabindex="5" maxlength="4">
                 </div>
@@ -123,6 +123,28 @@
         </div>
     </div>
 </div>
+
+<div class="row text-right aplos-grid-toggle">
+    <div class="col-xs-12 col-sm-12 col-sm-12">
+        <div class="search-form">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3 col-md-3">
+                    <div class="select-style">
+                        <select ng-model="searchBy">
+                            <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-7 col-md-7">
+                    <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-enter="getData()">
+                </div>
+                <div class="col-xs-12 col-sm-2 col-md-2">
+                    <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="table-responsive aplos-grid-toggle">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -165,6 +187,7 @@
                                 <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
                                 <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
                                 <div e-column e-field="DOJ" e-headertext="DOJ" e-width="120"></div>
+                                <div e-column e-field="Department" e-headertext="Department" e-width="120"></div>
 
                             </div>
                         </div>
@@ -193,7 +216,7 @@
                 <div class="col-md-12">
                     <div class="content-container-fluid" style="color:black;overflow:scroll">
                         <p></p>
-                        <div style="color:black;" id="GridEmployee" ej-grid e-datasource="StorageLocationList"
+                        <div style="color:black;" ej-grid e-datasource="StorageLocationList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true" e-recorddoubleclick="selectStorageLocation"
                              e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-templaterefresh="refreshTemplatebudget" e-responsive="true">
                             <div e-columns>

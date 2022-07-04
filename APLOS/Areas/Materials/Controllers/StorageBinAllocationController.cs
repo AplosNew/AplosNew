@@ -88,11 +88,11 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getStorageSubLocation()
+        public ActionResult getStorageSubLocation(string storageLocationId)
         {
             try
             {
-                return Json(sba.getStorageSubLocation(), JsonRequestBehavior.AllowGet);
+                return Json(sba.getStorageSubLocation(storageLocationId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -134,6 +134,65 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult viewBinHead(string materialType, string materialGroup, string material, string materialArticle)
+        {
+            try
+            {
+                return Json(sba.viewBinHead(materialType, materialGroup, material, materialArticle), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult viewBinAllocation(string storagelocation, string storagesublocation)
+        {
+            try
+            {
+                return Json(sba.viewBinAllocation(storagelocation, storagesublocation), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult selectIDs(string materialType, string materialGroup, string material, string materialArticle) 
+        {
+            try
+            {
+                return Json(sba.selectIDs(materialType, materialGroup, material, materialArticle), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult selectBinIDs(string storagelocation, string storagesublocation)
+        {
+            try
+            {
+                return Json(sba.selectBinIDs(storagelocation, storagesublocation), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult getMaterialAllocation(string Id)
+        {
+            try
+            {
+                return Json(sba.getMaterialAllocation(Id), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
         [Authorize, HttpPost]
         public JsonResult Save(Dictionary<string, object> datas)
 
@@ -152,5 +211,40 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string EstimatedCapacity)
+
+        {
+            try
+            {
+                var data = sba.SaveMaterialAllocation(BinHead, HeaderId, EstimatedCapacity);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult SaveBinAllocation(List<Dictionary<string, object>> BinHead, string HeaderId)
+
+        {
+            try
+            {
+                var data = sba.SaveBinAllocation(BinHead, HeaderId);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
     }
 }

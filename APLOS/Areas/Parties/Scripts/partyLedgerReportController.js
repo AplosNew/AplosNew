@@ -34,7 +34,7 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
         ToDate: $filter('dateFiltering')(Date.now()),
         PartyCategoryId: null,
         ReportFormat: 'Pdf',
-        PartyType: 'Customer'
+        PartyType: 'Vendor'
     };
 
     $scope.tab = 1;
@@ -44,6 +44,17 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+    $scope.partyCategoryList = [];
+    $scope.GetPartyCategoryList = function () {
+        $scope.masterOrderList = [];
+        $http({
+            method: 'GET',
+            url: "Parties/PartyCategory/GetPartyCategoryCbo"
+        }).then(function (response) {
+            $scope.partyCategoryList = response.data;
+        });
+    }
+    $scope.GetPartyCategoryList();
 
     $scope.searchByParty = "UserName"; $scope.searchParty = "";
     $scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
@@ -218,6 +229,31 @@ function partyLedgerReportController(commonMessage, $scope, $rootScope, baseServ
                }
 
              }
+    };
+    $scope.getPGReport = function () {
+        if (baseService.isUndefinedOrNull($scope.reportPG.PartyType)) {
+            manualValidation('div_PartyTypePG', true, "Party Type is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.reportPG.PartyCategoryId)) {
+            manualValidation('div_PartyCategoryPG', true, "Party Category is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.reportPG.FromDate)) {
+            manualValidation('div_FromDatePG', true, "From Date is required.");
+        }
+        else if (baseService.isUndefinedOrNull($scope.reportPG.ToDate)) {
+            manualValidation('div_ToDatePG', true, "To Date is required.");
+        }
+        else if (new Date($scope.reportPG.FromDate) > new Date($scope.reportPG.ToDate)) {
+            manualValidation('div_FromDatePG', true, "From date must be below or equal to To Date");
+        }
+        else if (new Date($scope.reportPG.ToDate) < new Date($scope.reportPG.FromDate)) {
+            manualValidation('div_ToDatePG', true, "To date must be above or equal to From Date.");
+        }
+
+        else {
+            var url = 'Parties/PartyReport/GetPartyCategoryLedgerReport?reportFormat=' + $scope.reportPG.ReportFormat + '&partyType=' + $scope.reportPG.PartyType + '&partyCategoryId=' + $scope.reportPG.PartyCategoryId + '&fromDate=' + $scope.reportPG.FromDate + '&toDate=' + $scope.reportPG.ToDate;
+                $window.open(url, '_blank');    
+        }
     };
 
   
