@@ -330,7 +330,10 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             if ($scope.BinHeadList[i].isSelected == true) {
                 $scope.headerBinId.push($scope.BinHeadList[i].Id);
                 $scope.selHeaderBinList.push($scope.BinHeadList[i]);
-             }
+            }
+            else {
+                throw 'Your selection is empty please select atleast 1';
+            }
         }
         $scope.selectIDs();
        }

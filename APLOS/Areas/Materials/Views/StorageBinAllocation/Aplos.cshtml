@@ -143,8 +143,9 @@
 
                     <ul class="list-inline text-right">
 
-                       @* <li> <button ng-click="viewBinHead()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i>Material View</button></li>*@
-                        @*<li> <button ng-click="viewBinAllocation()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i>Bin View</button></li>*@
+                        @*<li> <button ng-click="viewBinHead()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i>Material View</button></li>
+                        <li> <button ng-click="viewBinAllocation()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i>Bin View</button></li>*@
+                    
                     </ul>
 
                 </div>
@@ -260,156 +261,9 @@
         width: 1300px;
     }
 </style>
-@* MATERIAL POP UP start *@
-<div class="modal fade site-modal in" id="MaterialpopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify1">
-        <div class="modal-content">
-            <div class="modal-header"> Material <button type="button" class="close" ng-click="closePurchaseReturnPopUp();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
 
-                <div class="col-md-12">
-                    <div class="content-container-fluid">
-                        <div class="row text-right aplos-grid-toggle">
-                            <div class="col-xs-12 col-sm-12 col-sm-12">
-                                <div class="search-form">
-                                    <div class="row">
-                                        <div class="col-xs-12 col-sm-3 col-md-3">
-                                            <div class="select-style">
-                                                <select>
-                                                    <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-7 col-md-7">
-                                            <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
-                                        </div>
-                                        <div class="col-xs-12 col-sm-2 col-md-2">
-                                            <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialList" e-recorddoubleclick="selectMaterial"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
-                            <div e-columns>
-                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                                <div e-column e-field="ArticleName" e-headertext="Article Name" e-width="80"></div>
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closeMaterialPopUp();" class="btn"> Close</button></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-@* MATERIAL POP UP Close *@
 
-@* MATERIAL GROUP POP UP start *@
-<div class="modal fade site-modal in" id="MaterialGrouppopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify1">
-        <div class="modal-content">
-            <div class="modal-header"> Material Group<button type="button" class="close" ng-click="closePurchaseReturnPopUp();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid">
-                        @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialGroupList" e-recorddoubleclick="selectMaterialGroup"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
-                            <div e-columns>
-                                @* <div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                                <div e-column e-field="ArticleName" e-headertext="Article Name" e-width="80"></div>
 
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closeMaterialGroupPopUp();" class="btn"> Close</button></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-@* MATERIAL GROUP POP UP Close *@
 
-@* MATERIAL TYPE POP UP start *@
-<div class="modal fade site-modal in" id="MaterialTypepopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify1">
-        <div class="modal-content">
-            <div class="modal-header"> Material Type<button type="button" class="close" ng-click="closePurchaseReturnPopUp();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid">
-                        @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialTypeList" e-recorddoubleclick="selectMaterialType"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
-                            <div e-columns>
-                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
 
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                                <div e-column e-field="ArticleName" e-headertext="Article Name" e-width="80"></div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closeMaterialTypePopUp();" class="btn"> Close</button></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-@* MATERIAL Type POP UP Close *@
-
-@* MATERIAL ARTICLE POP UP start *@
-<div class="modal fade site-modal in" id="MaterialArticlepopUp" role="dialog" data-backdrop="static">
-    <div class="modal-dialog modal-lg modellgModify1">
-        <div class="modal-content">
-            <div class="modal-header"> Material Article<button type="button" class="close" ng-click="closePurchaseReturnPopUp();">&times;</button></div>
-            <div class="modal-body form-elements form-horizontal">
-                <div class="col-md-12">
-                    <div class="content-container-fluid">
-                        @*style="color:black;overflow:scroll"*@
-                        <div style="color:black;overflow:scroll" id="GRNGrid" ej-grid e-datasource="MaterialArticleList" e-recorddoubleclick="selectMaterialArticle"
-                             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true" e-allowscrolling="true">
-                            <div e-columns>
-                                @*<div e-column e-field="Id" e-headertext="Id" e-width="80"></div>*@
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="80"></div>
-                                <div e-column e-field="MaterialgroupName" e-headertext="Material group Name" e-width="80"></div>
-                                <div e-column e-field="MaterialMaster" e-headertext="Material Master" e-width="80"></div>
-                                <div e-column e-field="ArticleName" e-headertext="Article Name" e-width="80"></div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <ul class="common-btn list-inline text-right">
-                    <li><button ng-click="closeMaterialArticlePopUp();" class="btn"> Close</button></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-@* MATERIAL ARTICLE POP UP Close *@

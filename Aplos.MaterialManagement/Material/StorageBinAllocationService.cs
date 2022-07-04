@@ -211,7 +211,7 @@ namespace Library.MaterialManagement.Material
                             on mm.MaterialGroupMasterId = mgm.Id
                             left join mst.MaterialMasterArticle mma
                             on mma.materialmasterid = mm.id
-                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and mma.Id = '" + materialArticle + "'";
+                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
