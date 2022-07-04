@@ -16,6 +16,7 @@ namespace Library.MaterialManagement.Material
             _sqlRepository = new SqlRepository();
         }
 
+        #region All Get and select function
         public IEnumerable<object> getStorageLevel()
         {
             try
@@ -80,7 +81,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"Select ms.Id as Value ms.UserName as Text from MST.StorageBinMaster sb
+                string sql = @"Select sb.Id as Value, sb.UserName as Text from MST.StorageBinMaster sb
                                left join HKP.MaterialStorage ms on ms.Id = sb.StorageLocation order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -91,11 +92,12 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getStorageSubLocation()
+        public IEnumerable<object> getStorageSubLocation(string storageLocationId)
         {
             try
             {
-                string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb";
+                string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb
+							   where sb.Id = '"+ storageLocationId + "'";
                                
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -158,12 +160,226 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> datas)
+        public IEnumerable<object> viewBinHead(string materialType, string materialGroup, string material, string materialArticle)
         {
             try
             {
+                var sql = "";
+                #region commented
+                /* if (materialArticle == null)
+                 {
+                     sql = @"select bah.Id, bah.UserName as BinHeader, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                             mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId
+                             from TRN.BinAllocationHead bah
+                             left join mst.MaterialGroupMaster mgm
+                             on mgm.Id = bah.MaterialGroupMasterId
+                             left join hkp.materialtype mt
+                             on mgm.materialtypeid = mt.id
+                             left join mst.MaterialMaster mm
+                             on mm.MaterialGroupMasterId = mgm.Id
+                             left join mst.MaterialMasterArticle mma
+                             on mma.materialmasterid = mm.id
+                             where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                     return _sqlRepository.GetDataCollection(sql);
+                 }
+                 else
+                 {
+                     sql = @"select bah.Id, bah.UserName as BinHeader, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                             mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId
+                             from TRN.BinAllocationHead bah
+                             left join mst.MaterialGroupMaster mgm
+                             on mgm.Id = bah.MaterialGroupMasterId
+                             left join hkp.materialtype mt
+                             on mgm.materialtypeid = mt.id
+                             left join mst.MaterialMaster mm
+                             on mm.MaterialGroupMasterId = mgm.Id
+                             left join mst.MaterialMasterArticle mma
+                             on mma.materialmasterid = mm.id
+                             where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and mma.Id = '" + materialArticle + "'";
+                     return _sqlRepository.GetDataCollection(sql);
+                 }*/
+                #endregion commented
+
+                sql = @"select bah.Id, bah.UserName as BinHeader, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                            mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId
+                            from TRN.BinAllocationHead bah
+							left join mst.MaterialGroupMaster mgm
+							on mgm.Id = bah.MaterialGroupMasterId
+                            left join hkp.materialtype mt
+                            on mgm.materialtypeid = mt.id
+                            left join mst.MaterialMaster mm
+                            on mm.MaterialGroupMasterId = mgm.Id
+                            left join mst.MaterialMasterArticle mma
+                            on mma.materialmasterid = mm.id
+                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and mma.Id = '" + materialArticle + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> viewBinAllocation(string storagelocation, string storagesublocation)
+        {
+            try
+            {
+                #region commented
+                /* var sql = @"SELECT sb.Id as Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                             sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
+                             sb.AccessType, sb.UserLocationType, sb.Remarks
+                             FROM MST.StorageBinMaster sb
+                             left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
+                             left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
+                             WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '"+ storagesublocation + "'";*/
+                #endregion commented
+                var sql = @"SELECT sb.Id as StorageBinMasterId, bah.Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                            sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
+                            sb.AccessType, sb.UserLocationType, sb.Remarks, mm.Id as MaterialmasterId
+                            FROM TRN.BinAllocationHead	bah	
+							left join MST.StorageBinMaster sb on sb.Id = bah.StorageBinMasterId
+                            left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
+                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
+							
+							left join mst.MaterialGroupMaster mgm on mgm.Id = bah.MaterialGroupMasterId
+							left join hkp.materialtype mt on mt.Id = mgm.MaterialTypeId
+							left join mst.MaterialMaster mm on mm.MaterialGroupMasterId = mgm.Id
+                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "'";
+               
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> selectIDs(string materialType, string materialGroup, string material, string materialArticle)
+        {
+            try
+            {
+                var sql = @"select bah.Id, mm.Id as MaterialMasterId, 
+                            mma.Id as MaterialMasterArticleId
+                            from TRN.BinAllocationHead bah
+							left join mst.MaterialGroupMaster mgm
+							on mgm.Id = bah.MaterialGroupMasterId
+                            left join hkp.materialtype mt
+                            on mgm.materialtypeid = mt.id
+                            left join mst.MaterialMaster mm
+                            on mm.MaterialGroupMasterId = mgm.Id
+                            left join mst.MaterialMasterArticle mma
+                            on mma.materialmasterid = mm.id
+                           
+						   where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and mma.Id = '" + materialArticle + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> selectBinIDs(string storagelocation, string storagesublocation)
+        {
+            try
+            {
+                var sql = @"SELECT sb.Id as StorageBinMasterId, bah.Id, mm.Id as MaterialmasterId
+                            FROM TRN.BinAllocationHead	bah	
+							left join MST.StorageBinMaster sb on sb.Id = bah.StorageBinMasterId
+                            left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
+                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
+							left join mst.MaterialGroupMaster mgm on mgm.Id = bah.MaterialGroupMasterId
+							left join hkp.materialtype mt on mt.Id = mgm.MaterialTypeId
+							left join mst.MaterialMaster mm on mm.MaterialGroupMasterId = mgm.Id
+                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getMaterialAllocation(string Id)
+        {
+            try
+            {
+                var sql = @"select ma.* from TRN.MaterialAlocation ma
+                            left join TRN.BinAllcationHead bah on bah.Id = ma.BinAllocationHeadId
+                            where bah.Id = '"+Id+"'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion All Get and select function 
+
+        #region save
+        /*
+         public Dictionary<string, object> Save(Dictionary<string, object> datas)
+         {
+
+             try
+             {
+                 //Master Table - PMSMaster
+                 string TableName = "TRN.BinAllocationHead";
+                 DataSet dsMaster;
+
+                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                 // Validate Unique User Name
+                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
+                 if (dsMaster.Tables[0].Rows.Count > 0)
+                 {
+                     throw new Exception("Same UserName is already there!!");
+                 }
+
+                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
+
+                 string _Id = "";
+
+                 #region data Master update
+                 if (dsMaster.Tables[0].Rows.Count == 0)
+                 {
+                     bplib.clsGenID genid = new bplib.clsGenID();
+                     genid.GenID(TableName, out _Id);
+
+                     datas["Id"] = "SBA" + _Id;
+
+                     AddNewRow(dsMaster.Tables[0], datas);
+                 }
+                 else
+                 {
+                     _Id = datas["Id"].ToString();
+
+
+                     EditRow(dsMaster.Tables[0].Rows[0], datas);
+                 }
+                 #endregion data update
+
+                 clsStaticInfo _info = new clsStaticInfo();
+                 _info.SaveDataSets(dsMaster);
+
+                 return datas;
+             }
+             catch (Exception ex)
+             {
+                 throw ex;
+             }
+         }*/
+
+        #endregion save
+
+        #region All Save Function
+        public Dictionary<string, object> Save(Dictionary<string, object> datas)
+        {
+
+            try
+            {
                 //Master Table - PMSMaster
-                string TableName = "MST.StorageBinMaster";
+                string TableName = "TRN.BinAllocationHead";
                 DataSet dsMaster;
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
@@ -186,13 +402,13 @@ namespace Library.MaterialManagement.Material
                     genid.GenID(TableName, out _Id);
 
                     datas["Id"] = "SBA" + _Id;
-                    
+
                     AddNewRow(dsMaster.Tables[0], datas);
                 }
                 else
                 {
                     _Id = datas["Id"].ToString();
-                    
+
 
                     EditRow(dsMaster.Tables[0].Rows[0], datas);
                 }
@@ -208,7 +424,112 @@ namespace Library.MaterialManagement.Material
                 throw ex;
             }
         }
+        #region Material Allocation
+        // MATERIAL ALLOCATION SAVE FUNCTION
+        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string headerId, string EstimatedCapacity)
+        {
+            try
+            {
+                //Master Table - PMSMaster
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TableName = "TRN.MaterialAlocation";
+                DataSet dsMaster;
 
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.MaterialAlocation WHERE BinAllocationHeaderId ='" + headerId + "'", out dsMaster, false, "1");
+
+
+                #region data Master update
+                int count = 0;
+               
+                    foreach (var item in BinHead)
+                    {
+                        count++;
+                        DataView dv = new DataView(dsMaster.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = headerId + "-" + count;
+                            item["BinAllocationHeaderId"] = headerId;
+
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                    clsStaticInfo _info = new clsStaticInfo();
+                    _info.SaveDataSets(dsMaster);
+               
+                #endregion data update
+
+                return BinHead;
+            }
+            catch (Exception ex) 
+            {
+                throw ex;
+            }
+        }
+        #endregion Material Allocation
+        // BIN ALLOCATION SAVE FUNCTION
+        #region Bin Allocation
+        public List<Dictionary<string, object>> SaveBinAllocation(List<Dictionary<string, object>> BinHead, string headerId)
+        {
+            try
+            {
+                //Master Table - PMSMaster
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string TableName = "TRN.BinAllocation";
+                DataSet dsMaster;
+
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("SELECT * FROM TRN.BinAllocation WHERE BinAllocationHeadId ='" + headerId + "'", out dsMaster, false, "1");
+
+
+                #region data Master update
+                int count = 0;
+
+                foreach (var item in BinHead)
+                {
+                    count++;
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = headerId + "-BA" + count;
+                        item["BinAllocationHeadId"] = headerId;
+
+                        AddNewRow(dsMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        EditRow(drmo, item);
+                    }
+                }
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+                #endregion data update
+
+                return BinHead;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion Bin Allocation
+        #endregion All Save Function
+
+        #region Add and set New Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -253,7 +574,6 @@ namespace Library.MaterialManagement.Material
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
         }
-
-
+        #endregion Add and set New Row
     }
 }

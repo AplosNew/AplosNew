@@ -114,7 +114,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 	};
 
 
-    $scope.PurchaseRegisterLst = [];
+    $scope.PurchaseRegisterList = [];
     $scope.PurchaseRegisterItemWiseList = [];
     $scope.PurchaseRegisterPartyWiseList = [];
     $scope.pivotTableFieldListID = [];
@@ -156,9 +156,9 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 			dataType: 'JSON'
         }).then(function successCallback(response) {
             if ($scope.report.ReportType == 'GRNWise') {
-                $scope.PurchaseRegisterLst = response.data.NewData;
-                for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
-                    response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterLst[i].GRNEntryDate);
+                $scope.PurchaseRegisterList = response.data.NewData;
+                for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
+                    response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterList[i].GRNEntryDate);
                 }
             }
             else if ($scope.report.ReportType == 'PartyWise') {
@@ -188,12 +188,41 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult('Select To Date', 'failure');
             return false;
         }
+
+        var dataList = [];
+        var g = $("#GridGRNWise").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].GRNNo + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].GRNNo + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.PurchaseRegisterList[i].GRNNo + "'";
+                }
+                else {
+                    ids += ",'" + $scope.PurchaseRegisterList[i].GRNNo + "'";
+                }
+            }
+        }
+        $scope.fileName = 'PurchaseRegisterGRNWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
         $http({
             method: 'POST',
             url: $scope.path + "PurchaseRegisterGRNWiseReport",
             data: {
                 'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
+                'FromDate': $scope.report.FromDate,
+                'GRNNo': ids,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -201,8 +230,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -218,12 +247,42 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             ShowResult('Select To Date', 'failure');
             return false;
         }
+
+        var dataList = [];
+        var g = $("#GridPartyWise").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].PartyId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].PartyId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.PurchaseRegisterPartyWiseList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.PurchaseRegisterPartyWiseList[i].PartyId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.PurchaseRegisterPartyWiseList[i].PartyId + "'";
+                }
+            }
+        }
+
+        $scope.fileName = 'PurchaseRegisterPartyWise.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
         $http({
             method: 'POST',
             url: $scope.path + "PurchaseRegisterPartyWiseReport",
             data: {
                 'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate
+                'FromDate': $scope.report.FromDate,
+                'PartyId': ids
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -231,8 +290,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                $window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');
@@ -291,8 +350,6 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                //$rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                 $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
 
             }
@@ -438,7 +495,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 			//beforeExport: Export,
 			enableContextMenu: true,
 			dataSource: {
-				data: $scope.PurchaseRegisterLst,
+				data: $scope.PurchaseRegisterList,
 				//rows: [{
 				//	fieldName: "Country",
 				//	fieldCaption: "Country"

@@ -16,17 +16,30 @@ namespace Library.HumanResource.Employee
             _sqlRepository = new SqlRepository();
         }
 
-        public IEnumerable<object> GetList()
+        public IEnumerable<object> GetList(string column, string value)
         {
             try
             {
-                string sql = @"SELECT sb.Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = "sb."+column + " like '%" + value + "%'";
+                    
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                //string sql = @"SELECT sb.Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                //            sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
+                //            sb.AccessType, sb.UserLocationType, sb.Remarks
+                //            FROM MST.StorageBinMaster sb
+                //            left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
+                //            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId";
+
+                string sql = @"SELECT sb.Id as Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
                             sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
                             sb.AccessType, sb.UserLocationType, sb.Remarks
                             FROM MST.StorageBinMaster sb
                             left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
-                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId";
-
+                            left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
+                            WHERE " + strkey + " order by sequence";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception e)

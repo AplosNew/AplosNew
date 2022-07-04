@@ -589,7 +589,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									WHERE convert(Date,II.IssueDate) <= '" + toDate + @"' AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId
 									) IFD On IFD.InventoryMaterialId=IM.Id
 
-						left join (select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+						left join (select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id
@@ -758,7 +758,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									WHERE convert(Date,II.IssueDate) <= '" + toDate + @"' AND II.PlantId='" + plantId + @"'  GROUP BY IID.InventoryMaterialId, II.MaterialStorageId
 									) IFD On IFD.InventoryMaterialId=IM.Id and IFD.MaterialStorageId=IRS.MaterialStorageId
 
-						left join (select IID.InventoryMaterialId, II.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
+						left join (select IID.InventoryMaterialId, II.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IH.TotalAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
 									LEFT JOIN TRN.InventoryIssue II ON IID.InventoryIssueId=II.Id	 
 									LEFT JOIN TRN.InventoryIssueHistory IH On IH.InventoryIssueDetailId=IID.Id

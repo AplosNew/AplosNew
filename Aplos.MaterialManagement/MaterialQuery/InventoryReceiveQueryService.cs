@@ -3573,7 +3573,7 @@ namespace Aplos.MaterialManagement
 			}
 		}
 
-		public DataTable GetPurchaseRegisterGRNWiseData(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public DataTable GetPurchaseRegisterGRNWiseData(string CompanyId, string PlantId, string FromDate, string ToDate,string GRNNo, bool isreport)
 		{
 			try
 			{
@@ -3614,21 +3614,34 @@ namespace Aplos.MaterialManagement
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType
 					,PC.UserName,PSC.UserName,PG.UserName";
 
-				return _sqlRepository.GetDataTable(str);
+				if (isreport)
+				{
+
+					var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
+					return _sqlRepository.GetDataTable(newsql);
+
+				}
+				else
+				{
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+				}
+
+				
 			}
 			catch (Exception e)
 			{
 				throw e;
 			}
 		}
-		public IWorkbook CreatePurchaseRegisterGRNWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public string CreatePurchaseRegisterGRNWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string GRNNo, string SheetName)
 		{
 			var excelEngine = new ExcelEngine();
 			var report = new ReportUtility();
 			var workbook = report.GetWorkbook(ref excelEngine, 1);
 			workbook.Version = ExcelVersion.Excel2016;
 
-			var data = GetPurchaseRegisterGRNWiseData(CompanyId, PlantId, FromDate, ToDate);
+			var data = GetPurchaseRegisterGRNWiseData(CompanyId, PlantId, FromDate, ToDate, GRNNo, true );
 
 			var sheet = workbook.Worksheets[0];
 
@@ -3815,9 +3828,24 @@ namespace Aplos.MaterialManagement
 
 
 			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			return workbook;
+			
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
+
 		}
 		public DataTable GetPurchaseRegisterItemData(string companyId, string plantId, string fromDate, string toDate,string SLNo, bool isreport)
 		{
@@ -5559,14 +5587,14 @@ namespace Aplos.MaterialManagement
 
 		}
 
-		public IWorkbook CreatePurchaseRegisterPartyWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public string CreatePurchaseRegisterPartyWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId,string SheetName)
 		{
 			var excelEngine = new ExcelEngine();
 			var report = new ReportUtility();
 			var workbook = report.GetWorkbook(ref excelEngine, 1);
 			workbook.Version = ExcelVersion.Excel2016;
 
-			var data = GetPurchaseRegisterPartyWiseData(CompanyId, PlantId, FromDate, ToDate);
+			var data = GetPurchaseRegisterPartyWiseData(CompanyId, PlantId, FromDate, ToDate, PartyId, true);
 
 			var sheet = workbook.Worksheets[0];
 
@@ -5718,17 +5746,36 @@ namespace Aplos.MaterialManagement
 
 			#endregion sheet
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			sheet.UsedRange.WrapText = true;
-			sheet.UsedRange.CellStyle.Font.Size = 8;
+			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			//sheet.UsedRange.WrapText = true;
+			//sheet.UsedRange.CellStyle.Font.Size = 8;
 
-			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
-			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			return workbook;
+			//ReportUtility reportUtility = new ReportUtility();
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
+			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			//return workbook;
+
+			//ReportUtility reportUtility = new ReportUtility();
+			////reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
+			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
 		}
 
-		public DataTable GetPurchaseRegisterPartyWiseData(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public DataTable GetPurchaseRegisterPartyWiseData(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId,bool isreport)
 		{
 			try
 			{
@@ -5761,7 +5808,16 @@ namespace Aplos.MaterialManagement
                             )X
                             GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType";
 
-				return _sqlRepository.GetDataTable(str);
+                if (isreport)
+                {
+					var newsql = "select * from ("+ str +") y where y.PartyId in (" + PartyId + @")";
+					return _sqlRepository.GetDataTable(newsql);
+                }
+                else
+                {
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+				}
 			}
 			catch (Exception e)
 			{

@@ -33,8 +33,8 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 	$scope.grossTotal = 0;
 	$scope.updateUrl1 = $scope.path + 'UpdareGRN';
 	$scope.updateUrlForSRValue = $scope.path + 'UpdateShortageRejectionValue';
-	$controller('employeeBaseController', { $scope: $scope, $http: $http });
 	$controller('partyBaseController', { $scope: $scope, $http: $http });
+	$controller('employeeBaseController', { $scope: $scope, $http: $http });
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	//, CAST(GRNDate AS DATE)
 	//#region notification setting
@@ -198,8 +198,32 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		});
 	}
 
+	$scope.searchByParty = "UserName"; $scope.searchParty = "";
+	$scope.searchByPartyList = [{ value: 'Code', name: "Code" }, { value: 'UserName', name: $scope.partyType }, { value: 'PartyAccountGroupName', name: "Account Group" }, { value: 'CurrencyCode', name: "Currency" }, { value: 'CountryName', name: "Country" }, { value: 'StateName', name: "State" }];
 
+	$scope.partyUrl = "";
+	$scope.showPartyByGateEntryPopUpNew = function () {
 
+		if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew?partyType=' + $scope.partyType;
+		}
+		else if ($scope.partyType === 'Party') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew';
+		}
+		else if ($scope.partyType === 'Other') {
+			$scope.partyUrl = 'Parties/party/GetCompanyPartyDataByGateEntryListNew';
+		}
+		$http({
+			method: 'POST',
+			url: $scope.partyUrl,
+			data: { column: $scope.searchByParty, value: $scope.searchParty },
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			$scope.partyList = response.data;
+		});
+		//}
+		angular.element(document.querySelector('#partyPopUp')).modal('show');
+	};
 
 
 
