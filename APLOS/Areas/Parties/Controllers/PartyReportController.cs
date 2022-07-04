@@ -122,8 +122,27 @@ namespace Aplos.Areas.Parties.Controllers
 
 
         }
+        [HttpGet, Authorize]
+        public ActionResult GetPartyCategoryLedgerReport(ReportFormat reportFormat, string partyType, string partyCategoryId, string fromDate, string toDate)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var workbook = _partyReportService.GetPartyCategoryLedgerReport(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.PlantName, partyType, partyCategoryId, fromDate, toDate);
+            var reportFileName = DateTime.Now.ToString("yyMMdd") + " Party Category Ledger";
 
-    
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcelx(workbook, reportFileName);
+            } 
+        }
+
+
 
 
         #region Inter Party Leadger

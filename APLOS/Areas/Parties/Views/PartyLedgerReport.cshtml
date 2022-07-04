@@ -4,7 +4,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">General</a></li>
-                @*<li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Group</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Group</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -151,13 +151,13 @@
 
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-6">
-                            <div class="form-group" id="div_FromDate">
+                            <div class="form-group" id="div_FromDatePG">
                                 <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-9 show-message">
                                     <input type="text" name="From Date" ng-model="reportPG.FromDate" datepicker class="form-control" required>
                                 </div>
                             </div>
-                            <div class="form-group" id="div_ToDate">
+                            <div class="form-group" id="div_ToDatePG">
                                 <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-9 show-message">
                                     <input type="text" name="To Date" ng-model="reportPG.ToDate" datepicker class="form-control" required>
