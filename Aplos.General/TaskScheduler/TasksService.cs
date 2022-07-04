@@ -1707,7 +1707,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'"+fromDate+@"') AND Convert(date, '"+todate+@"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -1726,7 +1726,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -1893,7 +1893,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -1914,7 +1914,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2083,7 +2083,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2103,7 +2103,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2269,7 +2269,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2288,7 +2288,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
             AND e.Id IN(" + parameters["EntityId"] + @") 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2485,7 +2485,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2503,7 +2503,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2659,7 +2659,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2676,7 +2676,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2839,7 +2839,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -2858,7 +2858,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3021,7 +3021,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3040,7 +3040,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3245,7 +3245,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3262,7 +3262,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3423,7 +3423,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3442,7 +3442,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3604,7 +3604,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3623,7 +3623,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3780,7 +3780,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = OTT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,OTT.DueDate) =Convert(date,OTT.UpdatedDate)) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
+AND(Convert(date,OTT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
@@ -3798,7 +3798,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = LT.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND ISNULL(LT.isDone,0)=1 " + tcb + @"
+AND (Convert(date,LT.DueDate) <Convert(date,LT.UpdatedDate)) AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))  AND(Convert(date,LT.UpdatedDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"')) AND ISNULL(OTT.isDone,0)=1 AND ISNULL(LT.isDone,0)=1 " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
