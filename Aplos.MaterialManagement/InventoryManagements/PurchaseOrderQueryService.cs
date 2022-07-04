@@ -35,6 +35,17 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+            var tempsql = "";
+            if (string.IsNullOrEmpty(ContractId))
+            {
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '') ) AND
+                                    (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')";
+            }
+            else
+            {
+                tempsql = @"(isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')";
+            }
             var sql = "";
             sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
                         ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
@@ -128,13 +139,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
-						where b.Id in (
-						select B.ID from boq B
-						join trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-						join trn.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
-						where (isnull(MOI.ContractId,'')='' OR isnull(MOI.ContractId,'')='" + ContractId + @"')
-						)
-						AND (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')
+						where "+ tempsql + @"
                         AND b.MaterialMasterId<>'' AND b.ArticleId<>''
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
             var Data = _sqlRepository.GetDataCollection(sql);

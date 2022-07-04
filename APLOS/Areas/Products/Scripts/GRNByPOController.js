@@ -11,7 +11,8 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.getListUrl2 = $scope.path + 'GetListForMasterData2';
 
     $scope.saveUrl = $scope.path + 'createGRNBYPO';
-    $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPO';
+    $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPOMaster';
+   // $scope.updateUrl1 = $scope.path + 'UpdateGRNBYPO';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'deleteGRNBYPO/';
     $scope.detailSaveUrl = $scope.path + 'detailcreate';
@@ -583,120 +584,121 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
 
                         }
-                        else if ($scope.Action === "Update") {
-                            if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.AcceptanceDate > $scope.productNew.GRNDate)) {
-                                ShowResult("Acceptance Date  can not grather than GRN Date", 'failure');
-                                return false;
-                            }
-                            else if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.GRNDate > new Date())) {
-                                ShowResult("GRN Date  can not grather than Today's Date", 'failure');
-                                return false;
-                            }
-                            else if ($scope.productNew.NoteForAccounts === '' || $scope.productNew.NoteForAccounts === null || $scope.productNew.NoteForAccounts === undefined) {
-                                ShowResult("Enter Note for accounts", 'failure');
-                                return false;
-                            }
-                            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
-                                ShowResult("Please select to be approved by", 'failure');
-                                return false;
-                            }
-                            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
-                                ShowResult("Please select to be checked by", 'failure');
-                                return false;
-                            }
-                            else if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) {
-                                return ShowResult('Invoicing by is required', 'failure');
-                                return false;
-                            }
-                            else if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) {
-                                return ShowResult('Delivery by is required', 'failure');
-                                return false;
-                            }
-                            //else if ($scope.productNew.CurrencyId != $scope.productNew.BaseCurrencyId) {
-                            //	$scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
-
-                            //}
-                            else if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate)) {
-                                return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
-                            }
-                            else if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.EntryDate)) {
-                                return manualValidation('div_grnDate', true, "GRN date can't be less than gate entry date");
-
-                            }
-                            else {
-                                manualValidation('div_grnDate', false);
-                                manualValidation('div_entryDate', false);
-                                manualValidation('div_rate', false);
-                                $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
-                                $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
-                                $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
-                                $scope.product = Object.assign({}, $scope.productNew);
-                                $scope.product.POId = $scope.POId;
-                                $scope.product.PurchaseDocumentAcceptanceId = $scope.AcceptanceId;
-                                for (var i3 = 0; i3 < $scope.inventoryMaterialList.length; i3++) {
-                                    if ($scope.inventoryMaterialList[i3].check == true) {
-                                        $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i3]);
-                                    }
-                                    else {
-
-                                    }
-                                }
-                                for (var i4 = 0; i4 < $scope.chargesList.length; i4++) {
-                                    if ($scope.chargesList[i4].check == true) {
-                                        $scope.chargesListPOnew.push($scope.chargesList[i4]);
-                                    }
-
-                                    else {
-
-                                    }
-                                }
-                                $http({
-                                    method: 'POST',
-                                    url: $scope.updateUrl1,
-                                    data:
-                                    {
-                                        'entity': $scope.product,
-                                        'entityMatAndImat': $scope.inventoryMaterialListPOnew,
-                                        'receiveTaxList': $scope.MaterialTaxList,
-                                        'chargesListPO': $scope.chargesListPOnew,
-                                        'POServiceTaxList': $scope.ServiceTaxList,
-                                        'GRNType': 'GRNBYPO',
-                                        'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
-                                        'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
-                                    },
-                                    dataType: 'JSON'
-                                }).then(function successCallback(response) {
-                                    if (response.data.Error === true) {
-                                        ShowResult(response.data.Message, 'failure');
-                                    }
-                                    else {
-                                        ShowResult(response.data.Message, 'success');
-                                        $scope.setTabGRNList(1);
-                                        $scope.getDataList();
-                                        $scope.GRNListDetails();
-
-                                        $scope.productId = response.data.entity.Id;
-                                        $scope.productNew.Id = response.data.entity.Id;
-                                        $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
-
-                                    }
-                                }, function errorCallBack(response) {
-                                    ShowResult(response.data.Message, 'failure');
-                                });
-
-
-
-
-                            }
-                        }
+                       
                     }
                 } catch (e) {
                     throw e;
                 }
             }
+           
+
+
+        }
+        else if ($scope.Action === "Update") {
+            if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.AcceptanceDate > $scope.productNew.GRNDate)) {
+                ShowResult("Acceptance Date  can not grather than GRN Date", 'failure');
+                return false;
+            }
+            else if (!baseService.isUndefinedOrNull($scope.AcceptanceId) && ($scope.productNew.GRNDate > new Date())) {
+                ShowResult("GRN Date  can not grather than Today's Date", 'failure');
+                return false;
+            }
+            else if ($scope.productNew.NoteForAccounts === '' || $scope.productNew.NoteForAccounts === null || $scope.productNew.NoteForAccounts === undefined) {
+                ShowResult("Enter Note for accounts", 'failure');
+                return false;
+            }
+            else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+                ShowResult("Please select to be approved by", 'failure');
+                return false;
+            }
+            else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && baseService.isUndefinedOrNull($scope.productNew.CheckedBy)) {
+                ShowResult("Please select to be checked by", 'failure');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.InvoicingPartyPlantId)) {
+                return ShowResult('Invoicing by is required', 'failure');
+                return false;
+            }
+            else if (baseService.isUndefinedOrNull($scope.productNew.DeliveryPartyPlantId)) {
+                return ShowResult('Delivery by is required', 'failure');
+                return false;
+            }
+            //else if ($scope.productNew.CurrencyId != $scope.productNew.BaseCurrencyId) {
+            //	$scope.manualValidationAddRemove('div_rate  ', 'productNew', 'ToCurrencyRate');
+
+            //}
+            else if (new Date($scope.productNew.EntryDate) < new Date($scope.productNew.DocDate)) {
+                return manualValidation('div_entryDate', true, "Gate entry date can't be less than Doc Date");
+            }
+            else if (new Date($scope.productNew.GRNDate) < new Date($scope.productNew.EntryDate)) {
+                return manualValidation('div_grnDate', true, "GRN date can't be less than gate entry date");
+
+            }
+            else {
+                manualValidation('div_grnDate', false);
+                manualValidation('div_entryDate', false);
+                manualValidation('div_rate', false);
+                $scope.modelValidation('div_docNo', 'productNew', 'DocRefNo');
+                $scope.modelValidation('div_docDate', 'productNew', 'DocDate');
+                $scope.productNew.BaseCurrencyId = $scope.baseCurrencyId;
+                $scope.product = Object.assign({}, $scope.productNew);
+                $scope.product.POId = $scope.POId;
+                $scope.product.PurchaseDocumentAcceptanceId = $scope.AcceptanceId;
+                for (var i3 = 0; i3 < $scope.inventoryMaterialList.length; i3++) {
+                    if ($scope.inventoryMaterialList[i3].check == true) {
+                        $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialList[i3]);
+                    }
+                    else {
+
+                    }
+                }
+                for (var i4 = 0; i4 < $scope.chargesList.length; i4++) {
+                    if ($scope.chargesList[i4].check == true) {
+                        $scope.chargesListPOnew.push($scope.chargesList[i4]);
+                    }
+
+                    else {
+
+                    }
+                }
+                $http({
+                    method: 'POST',
+                    url: $scope.updateUrl1,
+                    data:
+                    {
+                        'entity': $scope.product,
+                        'entityMatAndImat': $scope.inventoryMaterialListPOnew,
+                        'receiveTaxList': $scope.MaterialTaxList,
+                        'chargesListPO': $scope.chargesListPOnew,
+                        'POServiceTaxList': $scope.ServiceTaxList,
+                        'GRNType': 'GRNBYPO',
+                        'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
+                        'ApprovedByStatusForNoti': $scope.ApprovedByStatusForNoti
+                    },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.setTabGRNList(1);
+                        $scope.getDataList();
+                        $scope.GRNListDetails();
+
+                        $scope.productId = response.data.entity.Id;
+                        $scope.productNew.Id = response.data.entity.Id;
+                        $scope.productNew.msgForAllocationNeed = response.data.entity.msgForAllocationNeed;
+
+                    }
+                }, function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
 
 
 
+
+            }
         }
     };
 

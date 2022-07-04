@@ -710,6 +710,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
+        if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
+            ShowResult('Please Input DeliveryDate', 'failure');
+            return true;
+        }
 
         return false;
     }
@@ -728,7 +732,7 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
         if (!baseService.isUndefinedOrNull(!baseService.isUndefinedOrNull($scope.productNew.CurrencyId))) {
             $http({
                 method: "GET",
-                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $scope.productNew.DocDate + "&currencyId=" + $scope.productNew.CurrencyId
+                url: "currencies/ExchangeRate/GetCompanyCurrencyExchangeRate?fromdate=" + $filter('dateFiltering')($scope.productNew.DocDate) + "&currencyId=" + $scope.productNew.CurrencyId
             }).then(function successCallback(response) {
                 $scope.currencyExchangeRate = response.data;
                 $scope.productNew.ToCurrencyRate = $scope.currencyExchangeRate.ToCurrencyRate;
