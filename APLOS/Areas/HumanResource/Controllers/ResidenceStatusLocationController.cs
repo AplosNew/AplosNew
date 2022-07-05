@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using Aplos.Properties;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.NewAttendanceProcess;
@@ -24,6 +26,48 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+
+        [HttpGet, Authorize]
+        public ActionResult getResidenceFilters()
+        {
+            try
+            {
+                var sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
+									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
+									,VacancyStatus = 'Occupied'
+
+									from ResidenceMaster RM
+									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
+									left join ORG.Plant P on P.Id=RM.PlantId
+									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
+									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
+
+                union all
+                select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
+									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
+									,VacancyStatus = 'All'
+
+									from ResidenceMaster RM
+									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
+									left join ORG.Plant P on P.Id=RM.PlantId
+									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
+									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult getemployeeDelete()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(rsl.getemployeeDelete(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpPost, Authorize]
         public ActionResult getPlant(string ResidenceGroupId)
@@ -131,10 +175,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpGet, Authorize]
-        public ActionResult view(string PlantId, string ResidenceGroupId)
+        [HttpPost, Authorize]
+        public ActionResult view(Dictionary<string,string> parameters)
         {
-            return Json(rsl.view(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.view(parameters), JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost, Authorize]
