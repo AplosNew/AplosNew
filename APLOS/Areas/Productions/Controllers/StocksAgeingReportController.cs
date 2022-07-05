@@ -30,6 +30,7 @@ using System.Drawing;
 
 namespace Aplos.Areas.Productions.Controllers
 {
+
     public class StocksAgeingReportController : BaseController
     {
         StocksAgeingReportService sa = new StocksAgeingReportService();

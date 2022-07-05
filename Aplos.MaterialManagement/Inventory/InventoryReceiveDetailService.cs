@@ -625,7 +625,7 @@ namespace Library.MaterialManagement.Inventory
                                 receiveDetail.RejectClamPercent = (100 - receiveDetail.RejectRatePercent);
 
                                 AuditService.AddedLog(receiveDetail);
-                                
+
                                 itemDetail.TotalQty = ((Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty + itemDetail.IssueReturnQty)) - (Convert.ToDecimal(itemDetail.IssueQty) + Convert.ToDecimal(itemDetail.PurchaseReturnQty) + Convert.ToDecimal(itemDetail.ReductionByAdjustmentQty) + Convert.ToDecimal(itemDetail.InventorySalesQty) + Convert.ToDecimal(itemDetail.InventoryScrapQty) + Convert.ToDecimal(itemDetail.InventoryTransferQty)));
                                 itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
                                 itemDetail.ShortageQty = Convert.ToDecimal(receiveDetail.ShortageQty + ShortageQty);
@@ -1123,7 +1123,7 @@ namespace Library.MaterialManagement.Inventory
                                 receiveDetail.RejectClamPercent = (100 - receiveDetail.RejectRatePercent);
 
                                 AuditService.AddedLog(receiveDetail);
-                                
+
                                 itemDetail.TotalQty = ((Convert.ToDecimal(itemDetail.TotalQty + itemDetail.BaseQty + itemDetail.IssueReturnQty)) - (Convert.ToDecimal(itemDetail.IssueQty) + Convert.ToDecimal(itemDetail.PurchaseReturnQty) + Convert.ToDecimal(itemDetail.ReductionByAdjustmentQty) + Convert.ToDecimal(itemDetail.InventorySalesQty) + Convert.ToDecimal(itemDetail.InventoryScrapQty) + Convert.ToDecimal(itemDetail.InventoryTransferQty)));
                                 itemDetail.AvgRate = Convert.ToDecimal((totalAmount + receiveDetail.TotalMaterialTranAmount) / itemDetail.TotalQty);
                                 itemDetail.ShortageQty = Convert.ToDecimal(receiveDetail.ShortageQty + ShortageQty);
@@ -1133,7 +1133,7 @@ namespace Library.MaterialManagement.Inventory
                                 _inventoryMaterialMasterService.InsertOrUpdateFromReceive(itemDetail);
                                 receiveDetail.InventoryMaterialId = itemDetail.InventoryMaterialId;
                                 InsertGraph(receiveDetail);
-                                foreach (var boqallocat in BOQAllocationSave.Where(r=>r.PODetailsID== receiveDetail.PODetailsID))
+                                foreach (var boqallocat in BOQAllocationSave.Where(r => r.PODetailsID == receiveDetail.PODetailsID))
                                 {
                                     if (string.IsNullOrEmpty(boqallocat.Id))
                                     {
@@ -1377,7 +1377,7 @@ namespace Library.MaterialManagement.Inventory
                     //             }
                     //         }
 
-                    
+
 
                 }
                 _unitOfWork.SaveChanges();
@@ -1399,7 +1399,7 @@ namespace Library.MaterialManagement.Inventory
                 }
             }
         }
-        public void BOQInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType,List<InventoryMaterialViewModel> List)
+        public void BOQInsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, List<InventoryMaterialViewModel> List)
         {
             var flag = false;
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -1563,7 +1563,7 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
                         }
-                        
+
                         // Insert in receive detail
                         if (string.IsNullOrEmpty(itemDetail.Id))
                         {
@@ -2658,7 +2658,38 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-
+        public void UpdateGRNBYPOMaster(InventoryReceive entity , string GRNType)
+        {
+            var flag = false;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                flag = true;
+                entity.GRNType = GRNType;
+                AuditService.UpdatedLog(entity);
+                _inventoryReceiveService.Update(entity);
+                _unitOfWork.SaveChanges();
+                flag = false;
+                _unitOfWork.Commit();
+            }
+            catch (CustomException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                 ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                {
+                    _unitOfWork.Rollback();
+                }
+            }
+        }
         public void InsertFOCDetail(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<InventoryMaterialViewModel> List)
         {
             var flag = false;
@@ -3159,13 +3190,13 @@ namespace Library.MaterialManagement.Inventory
                     }
 
 
-                    foreach (var item in entityMat.Where(q=>q.MaterialMasterId==itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId ))
+                    foreach (var item in entityMat.Where(q => q.MaterialMasterId == itemDetail.MaterialMasterId && q.ArticleId == itemDetail.ArticleId && q.FirstCharacteristicsValueId == itemDetail.FirstCharacteristicsValueId && q.SecondCharacteristicsValueId == itemDetail.SecondCharacteristicsValueId))
                     {
                         var grnboqmap = new GRNBOQMAP
                         {
                             Id = base.GetAutoNumber(nameof(GRNBOQMAP), PKGeneratorEnum.Yearly, null, DateTime.Now),
                             InventoryReceiveDetailId = itemDetail.InventoryReceiveDetailId,
-                            BOQDetailId =item.BOQId,
+                            BOQDetailId = item.BOQId,
                             TransactionQty = item.TransactionQty,
                             BaseQty = item.BaseQty,
                             POBOQQty = item.POBOQQty,
@@ -4934,7 +4965,7 @@ namespace Library.MaterialManagement.Inventory
                     itemDetail.PlantId = identity.PlantId;
                     Temppodetailid = itemDetail.InventoryReceiveDetailId;
                     itemDetail.IsNonCreditable = entity.IsNonCreditable;
-                   
+
                     if (itemDetail.IsNotNull())
                     {
 
@@ -5046,7 +5077,7 @@ namespace Library.MaterialManagement.Inventory
                             itemDetail.BooksCurrencyBaseRate = itemDetail.TotalMaterialBooksCurrencyAmount / itemDetail.BaseQty;
 
                         }
-                        
+
                         var NewId = entity.Id + "-";
                         if (entity.GRNType == "Save")
                         {

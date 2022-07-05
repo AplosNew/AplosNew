@@ -2219,7 +2219,7 @@ namespace Library.Service.Parties
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
 							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType!='OpeningBalance' AND   V.PostingDate < '" + toDate + @"'
-							AND A.Id NOT IN(SELECT  VDO.ActivityId 
+							AND VD.PartyId NOT IN(SELECT  VDO.PartyId 
 							 FROM [TRN].[VoucherDetail] AS VDO
                             LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
                             LEFT join HKP.Party as PO on VDO.PartyId = PO.Id
@@ -2292,7 +2292,7 @@ union
                             LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
 							LEFT JOIN [dbo].[EmployeeInformation] AS EI ON EI.SystemId=VD.EmployeeId
                             WHERE V.Archive=0 AND V.IsPark=0 AND V.CompanyGroupId='" + identity.CompanyGroupId + @"' AND V.CompanyId='" + identity.CompanyId + @"' AND V.PlantId='" + identity.PlantId + @"' AND P.PartyCategoryId='" + partyCategoryId + @"'  AND VD.PartyType='" + partyType + @"' AND V.SourceType='OpeningBalance' 
-							AND A.Id NOT IN(SELECT  VDO.ActivityId 
+							AND VD.PartyId NOT IN(SELECT  VDO.PartyId 
 							 FROM [TRN].[VoucherDetail] AS VDO
                             LEFT JOIN [TRN].[Voucher] VO ON VO.Id=VDO.VoucherId
                             LEFT join HKP.Party as PO on VDO.PartyId = PO.Id
