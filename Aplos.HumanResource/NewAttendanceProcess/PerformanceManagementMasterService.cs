@@ -1444,7 +1444,10 @@ namespace Library.HumanResource.NewAttendanceProcess
         {
             try
             {
-                string sql = @"select * from dbo.ResidenceMaster";
+                string sql = @"select rm.*, p.UserName as Plant, eg.UserName as EmployeeCategory, rg.UserName as ResidenceGroup from dbo.ResidenceMaster rm
+left join ORG.Plant p on p.Id = rm.PlantId
+left join dbo.ResidenceGroup rg on rg.Id = rm.ResidenceGroupId
+left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
