@@ -382,6 +382,56 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [HttpPost]
+        public JsonResult UpdateGRNBYPOMaster(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        {
+            if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
+            {
+                CheckedByStatusForNoti = "False";
+                ApprovedByStatusForNoti = "False";
+            }
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            entity.CompanyGroupId = identity.CompanyGroupId;
+            entity.CompanyId = identity.CompanyId;
+            entity.PlantId = identity.PlantId;
+
+            if (identity.EmployeeId == entity.CheckedBy)
+            {
+                throw new CustomException("Please select another employee for Check by.");
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "True")
+            {
+
+                entity.AuthorizedBy = entity.CheckedBy;
+                entity.AuthorizedByStatus = "For Approval";
+                entity.CheckedBy = null;
+                entity.CheckedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+            else if (CheckedByStatusForNoti == "False" && ApprovedByStatusForNoti == "False")
+            {
+                entity.CheckedByStatus = null;
+                entity.AuthorizedByStatus = null;
+                entity.CheckedBy = null;
+                entity.AuthorizedBy = null;
+                entity.IsApproved = true;
+                entity.RequiredPosting = true;
+            }
+            else
+            {
+                entity.CheckedBy = entity.CheckedBy;
+                entity.CheckedByStatus = "ForChecked";
+                entity.AuthorizedBy = null;
+                entity.AuthorizedByStatus = null;
+                entity.IsApproved = false;
+                entity.RequiredPosting = true;
+            }
+           
+            _inventoryDetailService.UpdateGRNBYPOMaster(entity, GRNType);
+            return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
+        }
+
+        [HttpPost]
         public ActionResult DeleteGRNBYPO(string id)
         {
             if (!string.IsNullOrEmpty(id))

@@ -13,6 +13,7 @@ using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 
@@ -28,7 +29,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
         }
 
 		
-		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Qty, string Amount, string Summary, string Type)
+		public DataTable GetInventorySalesReportData(string CompanyGroupId, string CompanyId, string PlantId, string fromDate, string toDate, string Summary, string Type)
 		{
 			var sql = "";
 			try
@@ -1209,7 +1210,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 		public string NumberFormatTwoDecimal = "#,##0.00;(#,##0.00)";
 		public string NumberFormatFourDecimal = "#,####0.0000;(#,####0.0000)";
 
-		public IWorkbook InventorySalesReportList(string companyGroupId, string companyId, string plantId, string fromDate, string toDate, string Qty, string Amount, string Summary, bool WithTax, string Type)
+		public string InventorySalesReportList(string companyGroupId, string companyId, string plantId, string FromDate, string ToDate, string Summary, string Type,bool WithTax, string SheetName)
 		{
 
 			//Start EmployeeAdvanceDueList
@@ -1229,7 +1230,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 				//Get the first worksheet in the workbook into IWorksheet
 				IWorksheet worksheet = workbook.Worksheets[0];
-				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate, Qty, Amount, Summary, Type);
+				DataTable dtInventorySalesReportList = GetInventorySalesReportData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, FromDate, ToDate, Summary, Type);
 
 				if (dtInventorySalesReportList.Rows.Count == 0)
 					throw new Exception("No data found");
@@ -1240,10 +1241,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				worksheet.Name = Summary;
 
 				var _rowd = 4;
-				if (fromDate != "" && toDate != "")
+				if (FromDate != "" && ToDate != "")
 				{
 
-					worksheet.Range[_rowd, 3, _rowd, 6].Text = fromDate + " " + "To" + " " + toDate;
+					worksheet.Range[_rowd, 3, _rowd, 6].Text = FromDate + " " + "To" + " " + ToDate;
 					worksheet.Range[_rowd, 3, _rowd, 6].CellStyle.Font.Size = 8;
 					worksheet.Range[_rowd, 3, _rowd, 6].CellStyle.Font.Bold = false;
 					worksheet.Range[_rowd, 3, _rowd, 6].Merge();
@@ -1252,7 +1253,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				else
 				{
 
-					worksheet[_rowd, 4].Text = toDate;
+					worksheet[_rowd, 4].Text = ToDate;
 					worksheet[_rowd, 4].CellStyle.Font.Size = 8;
 					worksheet.Range[_rowd, 3, _rowd, 4].CellStyle.Font.Bold = false;
 					worksheet.Range[_rowd, 3, _rowd, 4].Merge();
@@ -2696,7 +2697,22 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				#endregion Freeze Panes
 
 
-				return workbook;
+				//return workbook;
+
+				//worksheet.Name = SheetName;
+				//worksheet.UsedRange.WrapText = true;
+				//worksheet.IsGridLinesVisible = false;
+				////ReportUtility reportUtility = new ReportUtility();
+				//reportUtility.PlantHeader(ref worksheet, ROW, SheetName, identity.PlantId);
+				//reportUtility.PageSetup(ref worksheet, 5, ExcelPageOrientation.Landscape);
+
+				var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+				workbook.Version = ExcelVersion.Excel2016;
+
+				workbook.SaveAs(filePath);
+				workbook.Close();
+				excelEngine.Dispose();
+				return filePath;
 			}
 			catch (Exception ex)
 			{
@@ -2737,6 +2753,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									, P.UserName AS PartyName,p.Code	
 									,Sum(SMD.TransactionAmount) TransactionAmount
 									,ISNULL(v.VoucherNo,'') VoucherId
+									,V.VoucherNo
 									,CU.Code AS Currency
 									,''SOType
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
@@ -2884,6 +2901,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								, P.UserName AS PartyName,p.Code
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 								,v.VoucherNo VoucherId
+								,V.VoucherNo
 								,'' AS Currency
 								,'' SOType
 								,sum(SCr.ServiceAmount) ServiceCharge
@@ -3012,6 +3030,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								, P.UserName AS PartyName,p.Code
 								,Sum(IID.TransactionAmount) TransactionAmount
 								,v.VoucherNo VoucherId
+								,V.VoucherNo
 								,CU.Code AS Currency
 								
 								,'' SOType
@@ -3136,14 +3155,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			}
 		}
 
-		public IWorkbook CreateSalesOrderCustomerWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public string CreateSalesOrderCustomerWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId,string SheetName)
 		{
 			var excelEngine = new ExcelEngine();
 			var report = new ReportUtility();
 			var workbook = report.GetWorkbook(ref excelEngine, 1);
 			workbook.Version = ExcelVersion.Excel2016;
 
-			var data = getSalesOrderCustomerWiseReportSql(CompanyId, PlantId, FromDate, ToDate);
+			var data = getSalesOrderCustomerWiseReportSql(CompanyId, PlantId, FromDate, ToDate, PartyId,true);
 
 			var sheet = workbook.Worksheets[0];
 
@@ -3352,21 +3371,35 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			#endregion sheet
 
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			sheet.UsedRange.WrapText = true;
-			sheet.UsedRange.CellStyle.Font.Size = 8;
+			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			//sheet.UsedRange.WrapText = true;
+			//sheet.UsedRange.CellStyle.Font.Size = 8;
 
-			ReportUtility reportUtility = new ReportUtility();
-			reportUtility.CompanyHeader(ref sheet, endCol, "Sales Order Register Report Customer Wise", identity.CompanyId);
-			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			return workbook;
+			//ReportUtility reportUtility = new ReportUtility();
+			//reportUtility.CompanyHeader(ref sheet, endCol, "Sales Order Register Report Customer Wise", identity.CompanyId);
+			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+			//return workbook;
+
+			sheet.Name = SheetName;
+			sheet.UsedRange.WrapText = true;
+			sheet.IsGridLinesVisible = false;
+			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
 		}
 
-		public DataTable getSalesOrderCustomerWiseReportSql(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public DataTable getSalesOrderCustomerWiseReportSql(string CompanyId, string PlantId, string FromDate, string ToDate,string PartyId, bool isreport)
 		{
 			try
 			{
-				var str = @"SELECT  p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo	
+				var str = @"SELECT  P.Id PartyId,p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo	
 									,Sum(SMD.TransactionAmount) TransactionAmount
 									--,CU.Code AS Currency
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2)) ServiceCharge
@@ -3455,10 +3488,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By p.Code	 ,PPI.UserName , P.UserName 
+									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName 
 								UNION ALL
 
-								SELECT  p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
+								SELECT  P.Id PartyId,p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
 								
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 								,sum(SCr.ServiceAmount) ServiceCharge
@@ -3544,16 +3577,26 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY p.Code	 ,PPI.UserName   , P.UserName ";
+								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ";
 
-				return _sqlRepository.GetDataTable(str);
+                if (isreport)
+                {
+					var newstr = "Select * from (" + str + ") y where y.PartyId in (" + PartyId + @")";
+					return _sqlRepository.GetDataTable(newstr);
+				}
+                else
+                {
+					str += "";
+					return _sqlRepository.GetDataTable(str);
+
+				}
 			}
 			catch (Exception e)
 			{
 				throw e;
 			}
 		}
-		public IWorkbook CreateSalesRegisterItemWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate)
+		public string CreateSalesRegisterItemWiseReportSheet(string CompanyId, string PlantId, string FromDate, string ToDate,string SheetName)
 		{
 			var excelEngine = new ExcelEngine();
 			var report = new ReportUtility();
@@ -3585,12 +3628,28 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColSalesId = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Invoicing Party Plant", 13, ExcelHAlign.HAlignLeft);
-			int ColInvoicingPartyPlant = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Sales No", 13, ExcelHAlign.HAlignLeft);
+			int ColSalesNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 13, ExcelHAlign.HAlignLeft);
-			int ColDeliveryPartyPlant = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Invoice Date", 13, ExcelHAlign.HAlignLeft);
+			int ColInvoiceDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
+			int ColDocRefNo = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer", 13, ExcelHAlign.HAlignLeft);
+			int ColParty = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer Code", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer	 Type", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyType = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "GSTIN No", 13, ExcelHAlign.HAlignLeft);
@@ -3605,222 +3664,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColMaterial = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Employee", 13, ExcelHAlign.HAlignLeft);
-			int ColEmployee = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
-			int ColGateEntryNo = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
-			int ColGateName = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 13, ExcelHAlign.HAlignLeft);
-			int ColGrnDocDateDifference = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Material Type", 13, ExcelHAlign.HAlignLeft);
-			int ColMaterialType = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "HSN No", 13, ExcelHAlign.HAlignLeft);
-			int ColHSNNo = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColBaseQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Quality Status", 13, ExcelHAlign.HAlignLeft);
-			int ColQualityStatus = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Gross Amount", 13, ExcelHAlign.HAlignLeft);
-			int ColGrossAmount = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Discount Amount", 13, ExcelHAlign.HAlignLeft);
-			int ColDiscountAmount = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Material Books Currency Amount", 13, ExcelHAlign.HAlignLeft);
-			int ColTotalMaterialBooksCurrencyAmount = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Credtible Status", 13, ExcelHAlign.HAlignLeft);
-			int ColCredtibleStatus = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "RCM", 13, ExcelHAlign.HAlignLeft);
-			int ColRCM = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Trn Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
-			int ColTrnCurrencyBaseRate = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
-			int ColBooksCurrencyBaseRate = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "MMIs Asset", 13, ExcelHAlign.HAlignLeft);
-			int ColMMIsAsset = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNIs Asset", 13, ExcelHAlign.HAlignLeft);
-			int ColGRNIsAsset = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "PO Id", 13, ExcelHAlign.HAlignLeft);
-			int ColPOId = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Storage Location", 13, ExcelHAlign.HAlignLeft);
-			int ColStorageLocation = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Shortage Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColShortageQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Shortage Rate Percent", 13, ExcelHAlign.HAlignLeft);
-			int ColShortageRatePercent = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Shortage Valuet", 13, ExcelHAlign.HAlignLeft);
-			int ColShortageValuet = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Rejection Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColRejectionQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Reject Rate Per", 13, ExcelHAlign.HAlignLeft);
-			int ColRejectRatePer = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Rejection Value", 13, ExcelHAlign.HAlignLeft);
-			int ColRejectionValue = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Rejection Clam", 13, ExcelHAlign.HAlignLeft);
-			int ColRejectionClam = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Approved Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColApprovedQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "GRN Row ID", 13, ExcelHAlign.HAlignLeft);
-			int ColGRNRowID = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Prepared By", 13, ExcelHAlign.HAlignLeft);
-			int ColPreparedBy = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Status", 13, ExcelHAlign.HAlignLeft);
-			int ColStatus = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Approving Name", 13, ExcelHAlign.HAlignLeft);
-			int ColApprovingName = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
-			int ColPostingDate = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "GL Code", 13, ExcelHAlign.HAlignLeft);
-			int ColGLCode = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "GL", 13, ExcelHAlign.HAlignLeft);
-			int ColGL = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 13, ExcelHAlign.HAlignLeft);
-			int ColBudgetCode = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Budget", 13, ExcelHAlign.HAlignLeft);
-			int ColBudget = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Activity", 13, ExcelHAlign.HAlignLeft);
-			int ColActivity = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "POR Efference", 13, ExcelHAlign.HAlignLeft);
-			int ColPOREfference = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Issue Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColIssueQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Issue Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColBaseIssueQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Purchase Return Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColPurchaseReturnQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Issue Return Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColIssueReturnQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Reduction By Adjustment Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColReductionByAdjustmentQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Inventory Sales Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColInventorySalesQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Inventory Scrap Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColInventoryScrapQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Inventory Transfer Qty", 13, ExcelHAlign.HAlignLeft);
-			int ColInventoryTransferQty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Sales No", 13, ExcelHAlign.HAlignLeft);
-			int ColSalesNo = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Invoice Date", 13, ExcelHAlign.HAlignLeft);
-			int ColInvoiceDate = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
-			int ColDocRefNo = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 13, ExcelHAlign.HAlignLeft);
-			int ColDocRefDate = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Party", 13, ExcelHAlign.HAlignLeft);
-			int ColParty = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyCode = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyType = COL;
-			COL++;
-
 			report.SetHeaderText(ref sheet, ROW, COL, "Article", 13, ExcelHAlign.HAlignLeft);
 			int ColArticle = COL;
 			COL++;
-
 
 			report.SetHeaderText(ref sheet, ROW, COL, "SKU1", 13, ExcelHAlign.HAlignLeft);
 			int ColFirstCharacteristicsValue = COL;
@@ -3842,20 +3688,24 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColTransactionQty = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TaxAmount", 13, ExcelHAlign.HAlignLeft);
-			int ColTaxAmount = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 13, ExcelHAlign.HAlignLeft);
-			int ColBaseUoM = COL;
-			COL++;
-
 			report.SetHeaderText(ref sheet, ROW, COL, "Transaction UoM", 13, ExcelHAlign.HAlignLeft);
 			int ColTransactionUoM = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
 			int ColCurrency = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "TransactionAmount", 13, ExcelHAlign.HAlignLeft);
+			int ColTransactionAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "TaxAmount", 13, ExcelHAlign.HAlignLeft);
+			int ColTaxAmount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 13, ExcelHAlign.HAlignLeft);
+			int ColBaseUoM = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Posted", 13, ExcelHAlign.HAlignLeft);
@@ -3926,20 +3776,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColNirasritTaxTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Agent Commission", 13, ExcelHAlign.HAlignLeft);
-			int ColAgentCommission = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Insurance", 13, ExcelHAlign.HAlignLeft);
-			int ColInsurance = COL;
-			COL++;
-
 			report.SetHeaderText(ref sheet, ROW, COL, "Gross Weight", 13, ExcelHAlign.HAlignLeft);
 			int ColGrossWeight = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "LoT No", 13, ExcelHAlign.HAlignLeft);
-			int ColLoTNo = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Contract No", 13, ExcelHAlign.HAlignLeft);
@@ -4004,8 +3842,216 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Realize Date", 13, ExcelHAlign.HAlignLeft);
 			int ColRealizeDate = COL;
-			COL++;
+			//COL++;
 
+			//report.SetHeaderText(ref sheet, ROW, COL, "Invoicing Party Plant", 13, ExcelHAlign.HAlignLeft);
+			//int ColInvoicingPartyPlant = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 13, ExcelHAlign.HAlignLeft);
+			//int ColDeliveryPartyPlant = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Employee", 13, ExcelHAlign.HAlignLeft);
+			//int ColEmployee = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
+			//int ColGateEntryNo = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
+			//int ColGateName = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 13, ExcelHAlign.HAlignLeft);
+			//int ColGrnDocDateDifference = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Material Type", 13, ExcelHAlign.HAlignLeft);
+			//int ColMaterialType = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "HSN No", 13, ExcelHAlign.HAlignLeft);
+			//int ColHSNNo = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Base Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColBaseQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Quality Status", 13, ExcelHAlign.HAlignLeft);
+			//int ColQualityStatus = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Gross Amount", 13, ExcelHAlign.HAlignLeft);
+			//int ColGrossAmount = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Discount Amount", 13, ExcelHAlign.HAlignLeft);
+			//int ColDiscountAmount = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Total Material Books Currency Amount", 13, ExcelHAlign.HAlignLeft);
+			//int ColTotalMaterialBooksCurrencyAmount = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Credtible Status", 13, ExcelHAlign.HAlignLeft);
+			//int ColCredtibleStatus = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "RCM", 13, ExcelHAlign.HAlignLeft);
+			//int ColRCM = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Trn Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
+			//int ColTrnCurrencyBaseRate = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
+			//int ColBooksCurrencyBaseRate = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "MMIs Asset", 13, ExcelHAlign.HAlignLeft);
+			//int ColMMIsAsset = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "GRNIs Asset", 13, ExcelHAlign.HAlignLeft);
+			//int ColGRNIsAsset = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "PO Id", 13, ExcelHAlign.HAlignLeft);
+			//int ColPOId = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Storage Location", 13, ExcelHAlign.HAlignLeft);
+			//int ColStorageLocation = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Shortage Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColShortageQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Shortage Rate Percent", 13, ExcelHAlign.HAlignLeft);
+			//int ColShortageRatePercent = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Shortage Valuet", 13, ExcelHAlign.HAlignLeft);
+			//int ColShortageValuet = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Rejection Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColRejectionQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Reject Rate Per", 13, ExcelHAlign.HAlignLeft);
+			//int ColRejectRatePer = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Rejection Value", 13, ExcelHAlign.HAlignLeft);
+			//int ColRejectionValue = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Rejection Clam", 13, ExcelHAlign.HAlignLeft);
+			//int ColRejectionClam = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Approved Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColApprovedQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "GRN Row ID", 13, ExcelHAlign.HAlignLeft);
+			//int ColGRNRowID = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Prepared By", 13, ExcelHAlign.HAlignLeft);
+			//int ColPreparedBy = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Status", 13, ExcelHAlign.HAlignLeft);
+			//int ColStatus = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Approving Name", 13, ExcelHAlign.HAlignLeft);
+			//int ColApprovingName = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
+			//int ColPostingDate = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "GL Code", 13, ExcelHAlign.HAlignLeft);
+			//int ColGLCode = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "GL", 13, ExcelHAlign.HAlignLeft);
+			//int ColGL = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 13, ExcelHAlign.HAlignLeft);
+			//int ColBudgetCode = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Budget", 13, ExcelHAlign.HAlignLeft);
+			//int ColBudget = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Activity", 13, ExcelHAlign.HAlignLeft);
+			//int ColActivity = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "POR Efference", 13, ExcelHAlign.HAlignLeft);
+			//int ColPOREfference = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Issue Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColIssueQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Base Issue Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColBaseIssueQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Purchase Return Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColPurchaseReturnQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Issue Return Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColIssueReturnQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Reduction By Adjustment Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColReductionByAdjustmentQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Inventory Sales Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColInventorySalesQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Inventory Scrap Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColInventoryScrapQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Inventory Transfer Qty", 13, ExcelHAlign.HAlignLeft);
+			//int ColInventoryTransferQty = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 13, ExcelHAlign.HAlignLeft);
+			//int ColDocRefDate = COL;
+			//COL++;
+			//report.SetHeaderText(ref sheet, ROW, COL, "Agent Commission", 13, ExcelHAlign.HAlignLeft);
+			//int ColAgentCommission = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "Insurance", 13, ExcelHAlign.HAlignLeft);
+			//int ColInsurance = COL;
+			//COL++;
+
+			//report.SetHeaderText(ref sheet, ROW, COL, "LoT No", 13, ExcelHAlign.HAlignLeft);
+			//int ColLoTNo = COL;
+			//COL++;
+
+			
 			endCol = COL;
 			#endregion Headers
 
@@ -4019,68 +4065,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			for (int i = 0; i < data.Rows.Count; i++)
 			{
-				sheet[ROW, ColSalesId].Text = data.Rows[i]["Id"].ToString();
-				sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
-				sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+				sheet[ROW, ColSalesId].Text = data.Rows[i]["SalesMaterialId"].ToString();
 				sheet[ROW, ColGSTINNo].Number = clsStaticInfo.dbl(data.Rows[i]["GSTINNo"].ToString());
-				sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
-				sheet[ROW, ColGateEntryNo].Number = clsStaticInfo.dbl(data.Rows[i]["GateEntryNo"].ToString());
-				sheet[ROW, ColGateName].Number = clsStaticInfo.dbl(data.Rows[i]["GateName"].ToString());
-				sheet[ROW, ColGrnDocDateDifference].Number = clsStaticInfo.dbl(data.Rows[i]["GrnDocDateDifference"].ToString());
-				sheet[ROW, ColMaterialType].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialType"].ToString());
-
-				sheet[ROW, ColHSNNo].Text = data.Rows[i]["HSNNo"].ToString();
-				sheet[ROW, ColBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseQty"].ToString());
-				sheet[ROW, ColQualityStatus].Text = data.Rows[i]["QualityStatus"].ToString();
-				sheet[ROW, ColGrossAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GrossAmount"].ToString());
-				sheet[ROW, ColDiscountAmount].Number = clsStaticInfo.dbl(data.Rows[i]["DiscountAmount"].ToString());
-				sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBooksCurrencyAmount"].ToString());
-				sheet[ROW, ColCredtibleStatus].Text = data.Rows[i]["CredtibleStatus"].ToString();
-				sheet[ROW, ColRCM].Text = data.Rows[i]["RCM"].ToString();
-				sheet[ROW, ColTrnCurrencyBaseRate].Number = clsStaticInfo.dbl(data.Rows[i]["TrnCurrencyBaseRate"].ToString());
-
-				sheet[ROW, ColBooksCurrencyBaseRate].Number = clsStaticInfo.dbl(data.Rows[i]["BooksCurrencyBaseRate"].ToString());
-				sheet[ROW, ColMMIsAsset].Text = data.Rows[i]["MMIsAsset"].ToString();
-				sheet[ROW, ColGRNIsAsset].Text = data.Rows[i]["GRNIsAsset"].ToString();
-				sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
-				sheet[ROW, ColStorageLocation].Text = data.Rows[i]["StorageLocation"].ToString();
-				sheet[ROW, ColShortageQty].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageQty"].ToString());
-				sheet[ROW, ColShortageRatePercent].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageRatePercent"].ToString());
-				sheet[ROW, ColShortageValuet].Text = data.Rows[i]["ShortageValuet"].ToString();
-				sheet[ROW, ColRejectionQty].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionQty"].ToString());
-
-				sheet[ROW, ColRejectRatePer].Number = clsStaticInfo.dbl(data.Rows[i]["RejectRatePer"].ToString());
-				sheet[ROW, ColRejectionValue].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionValue"].ToString());
-				sheet[ROW, ColRejectionClam].Text = data.Rows[i]["RejectionClam"].ToString();
-				sheet[ROW, ColApprovedQty].Number = clsStaticInfo.dbl(data.Rows[i]["ApprovedQty"].ToString());
-				sheet[ROW, ColGRNRowID].Text = data.Rows[i]["GRNRowID"].ToString();
-				sheet[ROW, ColPreparedBy].Text = data.Rows[i]["PreparedBy"].ToString();
-				sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
-				sheet[ROW, ColApprovingName].Text = data.Rows[i]["ApprovingName"].ToString();
-
-				sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
-				sheet[ROW, ColGLCode].Text = data.Rows[i]["GLCode"].ToString();
-				sheet[ROW, ColGL].Text = data.Rows[i]["GL"].ToString();
-				sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
-				sheet[ROW, ColBudget].Text = data.Rows[i]["Budget"].ToString();
-				sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
-				sheet[ROW, ColPOREfference].Text = data.Rows[i]["POREfference"].ToString();
-				sheet[ROW, ColIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
-
-				sheet[ROW, ColBaseIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseIssueQty"].ToString());
-				sheet[ROW, ColPurchaseReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseReturnQty"].ToString());
-				sheet[ROW, ColIssueReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueReturnQty"].ToString());
-				sheet[ROW, ColReductionByAdjustmentQty].Number = clsStaticInfo.dbl(data.Rows[i]["ReductionByAdjustmentQty"].ToString());
-				sheet[ROW, ColInventorySalesQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventorySalesQty"].ToString());
-				sheet[ROW, ColInventoryScrapQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryScrapQty"].ToString());
-				sheet[ROW, ColInventoryTransferQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryTransferQty"].ToString());
 				sheet[ROW, ColMaterialGroup].Text = data.Rows[i]["MaterialGroup"].ToString();
 				sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
 				sheet[ROW, ColSalesNo].Text = data.Rows[i]["SalesNo"].ToString();
 				sheet[ROW, ColInvoiceDate].Text = data.Rows[i]["InvoiceDate"].ToString();
 				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
-
-				sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocRefDate"].ToString();
 				sheet[ROW, ColParty].Text = data.Rows[i]["Party"].ToString();
 				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
 				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
@@ -4090,6 +4081,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColThirdCharacteristicsValue].Text = data.Rows[i]["ThirdCharacteristicsValue"].ToString();
 				sheet[ROW, ColTransactionRate].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionRate"].ToString());
 				sheet[ROW, ColTransactionQty].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionQty"].ToString());
+				sheet[ROW, ColTransactionAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionAmount"].ToString());
 				sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
 				sheet[ROW, ColBaseUoM].Text = data.Rows[i]["BaseUoM"].ToString();
 				sheet[ROW, ColTransactionUoM].Text = data.Rows[i]["TransactionUoM"].ToString();
@@ -4112,11 +4104,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColMandiTaxTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["MandiTaxTaxPercentage"].ToString());
 				sheet[ROW, ColNirasritTax].Text = data.Rows[i]["NirasritTax"].ToString();
 				sheet[ROW, ColNirasritTaxTaxPercentage].Number = clsStaticInfo.dbl(data.Rows[i]["NirasritTaxTaxPercentage"].ToString());
-				sheet[ROW, ColAgentCommission].Text = data.Rows[i]["AgentCommission"].ToString();
-				sheet[ROW, ColInsurance].Text = data.Rows[i]["Insurance"].ToString();
 				sheet[ROW, ColGrossWeight].Number = clsStaticInfo.dbl(data.Rows[i]["GrossWeight"].ToString());
-				sheet[ROW, ColLoTNo].Text = data.Rows[i]["LoTNo"].ToString();
-				sheet[ROW, ColLoTNo].Text = data.Rows[i]["LoTNo"].ToString();
 				sheet[ROW, ColContractNo].Text = data.Rows[i]["ContractNo"].ToString();
 				sheet[ROW, ColLCRef].Text = data.Rows[i]["LCRef"].ToString();
 				sheet[ROW, ColComercialInvoiceNo].Text = data.Rows[i]["ComercialInvoiceNo"].ToString();
@@ -4134,6 +4122,61 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColCNFVesselTrackingNo].Text = data.Rows[i]["CNFVesselTrackingNo"].ToString();
 				sheet[ROW, ColOwnReferenceNo].Text = data.Rows[i]["OwnReferenceNo"].ToString();
 				sheet[ROW, ColRealizeDate].Text = data.Rows[i]["RealizeDate"].ToString();
+
+				//sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+				//sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+				//sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
+				//sheet[ROW, ColGateEntryNo].Number = clsStaticInfo.dbl(data.Rows[i]["GateEntryNo"].ToString());
+				//sheet[ROW, ColGateName].Number = clsStaticInfo.dbl(data.Rows[i]["GateName"].ToString());
+				//sheet[ROW, ColGrnDocDateDifference].Number = clsStaticInfo.dbl(data.Rows[i]["GrnDocDateDifference"].ToString());
+				//sheet[ROW, ColMaterialType].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialType"].ToString());
+				//sheet[ROW, ColHSNNo].Text = data.Rows[i]["HSNNo"].ToString();
+				//sheet[ROW, ColBaseQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseQty"].ToString());
+				//sheet[ROW, ColQualityStatus].Text = data.Rows[i]["QualityStatus"].ToString();
+				//sheet[ROW, ColGrossAmount].Number = clsStaticInfo.dbl(data.Rows[i]["GrossAmount"].ToString());
+				//sheet[ROW, ColDiscountAmount].Number = clsStaticInfo.dbl(data.Rows[i]["DiscountAmount"].ToString());
+				//sheet[ROW, ColTotalMaterialBooksCurrencyAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBooksCurrencyAmount"].ToString());
+				//sheet[ROW, ColCredtibleStatus].Text = data.Rows[i]["CredtibleStatus"].ToString();
+				//sheet[ROW, ColRCM].Text = data.Rows[i]["RCM"].ToString();
+				//sheet[ROW, ColTrnCurrencyBaseRate].Number = clsStaticInfo.dbl(data.Rows[i]["TrnCurrencyBaseRate"].ToString());
+				//sheet[ROW, ColBooksCurrencyBaseRate].Number = clsStaticInfo.dbl(data.Rows[i]["BooksCurrencyBaseRate"].ToString());
+				//sheet[ROW, ColMMIsAsset].Text = data.Rows[i]["MMIsAsset"].ToString();
+				//sheet[ROW, ColGRNIsAsset].Text = data.Rows[i]["GRNIsAsset"].ToString();
+				//sheet[ROW, ColPOId].Text = data.Rows[i]["POId"].ToString();
+				//sheet[ROW, ColStorageLocation].Text = data.Rows[i]["StorageLocation"].ToString();
+				//sheet[ROW, ColShortageQty].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageQty"].ToString());
+				//sheet[ROW, ColShortageRatePercent].Number = clsStaticInfo.dbl(data.Rows[i]["ShortageRatePercent"].ToString());
+				//sheet[ROW, ColShortageValuet].Text = data.Rows[i]["ShortageValuet"].ToString();
+				//sheet[ROW, ColRejectionQty].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionQty"].ToString());
+				//sheet[ROW, ColRejectRatePer].Number = clsStaticInfo.dbl(data.Rows[i]["RejectRatePer"].ToString());
+				//sheet[ROW, ColRejectionValue].Number = clsStaticInfo.dbl(data.Rows[i]["RejectionValue"].ToString());
+				//sheet[ROW, ColRejectionClam].Text = data.Rows[i]["RejectionClam"].ToString();
+				//sheet[ROW, ColApprovedQty].Number = clsStaticInfo.dbl(data.Rows[i]["ApprovedQty"].ToString());
+				//sheet[ROW, ColGRNRowID].Text = data.Rows[i]["GRNRowID"].ToString();
+				//sheet[ROW, ColPreparedBy].Text = data.Rows[i]["PreparedBy"].ToString();
+				//sheet[ROW, ColStatus].Text = data.Rows[i]["Status"].ToString();
+				//sheet[ROW, ColApprovingName].Text = data.Rows[i]["ApprovingName"].ToString();
+				//sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
+				//sheet[ROW, ColGLCode].Text = data.Rows[i]["GLCode"].ToString();
+				//sheet[ROW, ColGL].Text = data.Rows[i]["GL"].ToString();
+				//sheet[ROW, ColBudgetCode].Text = data.Rows[i]["BudgetCode"].ToString();
+				//sheet[ROW, ColBudget].Text = data.Rows[i]["Budget"].ToString();
+				//sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
+				//sheet[ROW, ColPOREfference].Text = data.Rows[i]["POREfference"].ToString();
+				//sheet[ROW, ColIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueQty"].ToString());
+				//sheet[ROW, ColBaseIssueQty].Number = clsStaticInfo.dbl(data.Rows[i]["BaseIssueQty"].ToString());
+				//sheet[ROW, ColPurchaseReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["PurchaseReturnQty"].ToString());
+				//sheet[ROW, ColIssueReturnQty].Number = clsStaticInfo.dbl(data.Rows[i]["IssueReturnQty"].ToString());
+				//sheet[ROW, ColReductionByAdjustmentQty].Number = clsStaticInfo.dbl(data.Rows[i]["ReductionByAdjustmentQty"].ToString());
+				//sheet[ROW, ColInventorySalesQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventorySalesQty"].ToString());
+				//sheet[ROW, ColInventoryScrapQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryScrapQty"].ToString());
+				//sheet[ROW, ColInventoryTransferQty].Number = clsStaticInfo.dbl(data.Rows[i]["InventoryTransferQty"].ToString());
+				//sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocRefDate"].ToString();
+				//sheet[ROW, ColAgentCommission].Text = data.Rows[i]["AgentCommission"].ToString();
+				//sheet[ROW, ColInsurance].Text = data.Rows[i]["Insurance"].ToString();
+				//sheet[ROW, ColLoTNo].Text = data.Rows[i]["LoTNo"].ToString();
+				//sheet[ROW, ColLoTNo].Text = data.Rows[i]["LoTNo"].ToString();
+				
 
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -4195,7 +4238,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			ReportUtility reportUtility = new ReportUtility();
 			reportUtility.CompanyHeader(ref sheet, endCol, "Sales Report Register Item Wise", identity.CompanyId);
 			reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			return workbook;
+
+			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
+			workbook.Version = ExcelVersion.Excel2016;
+			workbook.SaveAs(filePath);
+			workbook.Close();
+			excelEngine.Dispose();
+			return filePath;
 		}
 
 		public DataTable GetSalesRegisterItemWiseData(string CompanyId, string PlantId, string FromDate, string ToDate)
@@ -4204,8 +4253,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			try
 			{
 
-				var str = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[S.N]
-								,SM.Id
+				var str = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[SN]
+								,SM.Id SalesMaterialId
 								,'' GRNNo
 								--,'' GRNDate
 								,'' InvoicingPartyPlant
@@ -4295,7 +4344,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								--,SM.BaseUoMFactor
 								,SM.TransactionRate
 								,SM.TransactionQty
-								--,SM.TransactionAmount
+								,SM.TransactionAmount
 								,SM.TaxAmount
 								--,SM.NetAmount
 								--,SM.NetAmount * SA.ToCurrencyRate BooksVal
@@ -4545,7 +4594,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								--,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
+								,ISs.Amount TransactionAmount
 								,ISs.TaxAmount 
 								--,0 NetAmount
 								--,0 BooksVal
@@ -4772,7 +4821,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								--,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
-								--,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
 								--,IID.[TotalSalesAmount] NetAmount
 								--,IID.[BooksCurrencyTransactionAmount] BooksVal
@@ -5004,7 +5053,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								--,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
-								--,ISs.Amount TransactionAmount
+								,ISs.Amount TransactionAmount
 								,0 TaxAmount
 								--,ISs.Amount NetAmount
 								--,ISs.Amount BooksVal
