@@ -71,7 +71,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 DataTable dtTask = null;
                 if (model["State"] == "EmployeeWise")
                 {
-                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model); 
+                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model);
                 }
                 else if (model["State"] == "DepartmentWise")
                 {
@@ -104,7 +104,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 if (model["State"] == "EmployeeWise")
                 {
-                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model); 
+                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model);
                 }
                 else if (model["State"] == "DepartmentWise")
                 {
@@ -269,14 +269,20 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 int iEarlyTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
 
+
+                xlsCol++;
+                int iTaskCompletedFP = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Completed FP";
+
+
                 xlsCol++;
                 int iOverdueTask = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                IRange rangeODT = sheet1[xlsRow, xlsCol];
-                ICommentShape shapeODT = rangeODT.AddComment();
-                shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
-                shapeODT.IsTextLocked = false;
-                shapeODT.AutoSize = false;
+                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task";
+                //IRange rangeODT = sheet1[xlsRow, xlsCol];
+                //ICommentShape shapeODT = rangeODT.AddComment();
+                //shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
+                //shapeODT.IsTextLocked = false;
+                //shapeODT.AutoSize = false;
 
 
 
@@ -289,7 +295,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
-                shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
+                shape2.RichText.Append("(Task Completed On Time*2+Task Completed Late*1+Early Task*2)-Task Unread", fontCaption);
                 shape2.IsTextLocked = false;
                 shape2.AutoSize = false;
 
@@ -311,7 +317,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick); 
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
                 #endregion
 
                 string voucherNo = "";
@@ -339,45 +345,39 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colDepartment].Text = dtTask.Rows[i]["Department"].ToString();
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
-                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100,2);
-                    sheet1.Range[xlsRow, iPerTotalTask].Number = PerTotalTask;//formula 
+                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100, 2);
+                    sheet1.Range[xlsRow, iPerTotalTask].Number = Math.Round(PerTotalTask);//formula 
                     sheet1.Range[xlsRow, iPerTotalTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
                     sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
-                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100,2);
-                    sheet1.Range[xlsRow, iPerOfDueTask].Number = PerTaskDue;//formula 
+                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100, 2);
+                    sheet1.Range[xlsRow, iPerOfDueTask].Number = Math.Round(PerTaskDue);//formula 
                     sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString());
                     sheet1.Range[xlsRow, iTaskCompletedLate].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
 
-                    sheet1[xlsRow, iOverdueTask].Number = Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString());//formula
-
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+                    sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskOverDue"].ToString());
+
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
-                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
+                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) + (Convert.ToDouble(dtTask.Rows[i]["EarlyTask"].ToString()) * 2)) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
-                    //sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    if (Convert.ToInt32(dtTask.Rows[i]["CreatedTask"].ToString()) == 0)
-                    {
-                        sheet1[xlsRow, iTotalStoryPoints].Number = 0;
-                    }
-                    else
-                    {
-                        sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    }
+                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
 
-                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2;
 
                     xlsRow++;
                 }
                 sheet1.Range[xlsRow, 5].Text = "TOTAL";
-                sheet1.Range[xlsRow, 5].HorizontalAlignment= ExcelHAlign.HAlignRight;
+                sheet1.Range[xlsRow, 5].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 5].CellStyle.Font.Bold = true;
 
+                sheet.Range[xlsRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
                 sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCreated) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCreated) + (xlsRow - 1) + ")";
@@ -432,7 +432,11 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
-             
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].CellStyle.Font.Bold = true;
+
+
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #region ******************Report Header******************
@@ -682,18 +686,22 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Task Completed-Late";
 
                 xlsCol++;
-
-                int iOverdueTask = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                IRange rangeODT = sheet1[xlsRow, xlsCol];
-                ICommentShape shapeODT = rangeODT.AddComment();
-                shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
-                shapeODT.IsTextLocked = false;
-                shapeODT.AutoSize = false;
-
-                xlsCol++;
                 int iEarlyTask = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Eary Task";
+
+                xlsCol++;
+                int iTaskCompletedFP = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Completed FP";
+
+                xlsCol++;
+
+                int iOverdueTask = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task";
+                //IRange rangeODT = sheet1[xlsRow, xlsCol];
+                //ICommentShape shapeODT = rangeODT.AddComment();
+                //shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
+                //shapeODT.IsTextLocked = false;
+                //shapeODT.AutoSize = false;
 
                 xlsCol++;
                 int iPeriviousPeriodOverdueTask = xlsCol;
@@ -705,7 +713,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
-                shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
+                shape2.RichText.Append("(Task Completed On Time*2+Task Completed Late*1+Early Task*2)-Task Unread", fontCaption);
                 shape2.IsTextLocked = false;
                 shape2.AutoSize = false;
 
@@ -756,29 +764,30 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colNoOfEmp].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoOfEmp"].ToString());
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
-                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
-                    sheet1.Range[xlsRow, iPerTotalTask].Number = PerTotalTask;//formula 
+                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100,2);
+                    sheet1.Range[xlsRow, iPerTotalTask].Number = Math.Round(PerTotalTask);//formula 
                     sheet1.Range[xlsRow, iPerTotalTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
                     sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
-                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100);
-                    sheet1.Range[xlsRow, iPerOfDueTask].Number = PerTaskDue;//formula 
+                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100,2);
+                    sheet1.Range[xlsRow, iPerOfDueTask].Number = Math.Round(PerTaskDue);//formula 
                     sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString());
                     sheet1.Range[xlsRow, iTaskCompletedLate].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
-
-                    sheet1[xlsRow, iOverdueTask].Number = Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString());//formula
-
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+                    sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskOverDue"].ToString());
+
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
-                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
+                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) + (Convert.ToDouble(dtTask.Rows[i]["EarlyTask"].ToString()) * 2)) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
-                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
+                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString())*2;
                     sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
@@ -787,6 +796,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
+                sheet.Range[xlsRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
                 sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
                 #region SUM
@@ -846,9 +856,13 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
 
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].CellStyle.Font.Bold = true;
+
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;
-                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true; 
+                sheet1.Range[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].CellStyle.Font.Bold = true;
                 #endregion
 
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
@@ -1105,14 +1119,17 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Early Task";
 
                 xlsCol++;
+                int iTaskCompletedFP = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Task Completed FP";
+                xlsCol++;
 
                 int iOverdueTask = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task ";
-                IRange rangeODT = sheet1[xlsRow, xlsCol];
-                ICommentShape shapeODT = rangeODT.AddComment();
-                shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
-                shapeODT.IsTextLocked = false;
-                shapeODT.AutoSize = false;
+                sheet1.Range[xlsRow, xlsCol].Text = "Overdue Task";
+                //IRange rangeODT = sheet1[xlsRow, xlsCol];
+                //ICommentShape shapeODT = rangeODT.AddComment();
+                //shapeODT.RichText.Append("TaskDue - OnTimeTask - LateTasks", fontCaption);
+                //shapeODT.IsTextLocked = false;
+                //shapeODT.AutoSize = false;
 
 
 
@@ -1128,7 +1145,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Performance";
                 IRange range2 = sheet1[xlsRow, xlsCol];
                 ICommentShape shape2 = range2.AddComment();
-                shape2.RichText.Append("(((Task Completed On Time*2)+(Task Completed Late*1))* % of Due task)-Task Unread", fontCaption);
+                shape2.RichText.Append("(Task Completed On Time*2+Task Completed Late*1+Early Task*2)-Task Unread", fontCaption);
                 shape2.IsTextLocked = false;
                 shape2.AutoSize = false;
 
@@ -1179,29 +1196,31 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, colNoOfEmp].Number = clsStaticInfo.dbl(dtTask.Rows[i]["NoOfEmp"].ToString());
                     sheet1.Range[xlsRow, iTaskCreated].Number = clsStaticInfo.dbl(dtTask.Rows[i]["CreatedTask"].ToString());
 
-                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100);
-                    sheet1.Range[xlsRow, iPerTotalTask].Number = PerTotalTask;//formula 
+                    double PerTotalTask = Math.Round((Convert.ToDouble(dtTask.Rows[i]["CreatedTask"].ToString()) / TotalCreatedTask) * 100,2);
+                    sheet1.Range[xlsRow, iPerTotalTask].Number = Math.Round(PerTotalTask);//formula 
                     sheet1.Range[xlsRow, iPerTotalTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
                     sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
-                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100);
-                    sheet1.Range[xlsRow, iPerOfDueTask].Number = PerTaskDue;//formula 
+                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100,2);
+                    sheet1.Range[xlsRow, iPerOfDueTask].Number = Math.Round(PerTaskDue);//formula 
                     sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString());
                     sheet1.Range[xlsRow, iTaskCompletedLate].Number = clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
-
-                    sheet1[xlsRow, iOverdueTask].Number = Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) - Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString());//formula
-
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+
+                    sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
+
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskOverDue"].ToString());
+
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
-                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) * PerTaskDue) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
+                    sheet1[xlsRow, iPerformance].Number = (((Convert.ToDouble(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2) + (Convert.ToDouble(dtTask.Rows[i]["LateTask"].ToString()) * 1) + (Convert.ToDouble(dtTask.Rows[i]["EarlyTask"].ToString()) * 2)) - (Convert.ToDouble(dtTask.Rows[i]["UnRead"].ToString())));//formula
 
-                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TotalStoryPoint"].ToString());
-                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["ColsedStoryPoint"].ToString());
+                    sheet1[xlsRow, iTotalStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) * 2;
+                    sheet1[xlsRow, iCompletedStoryPoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) * 2;
                     sheet1[xlsRow, iAvgStorypoints].Number = clsStaticInfo.dbl(dtTask.Rows[i]["AvgStorypoints"].ToString());
 
                     xlsRow++;
@@ -1211,6 +1230,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 sheet1.Range[xlsRow, 2].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, 2].CellStyle.Font.Bold = true;
 
+                sheet.Range[xlsRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
                 sheet.Range[startRow, colSLNO, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
 
                 #region SUM
@@ -1270,6 +1290,10 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iCompletedStoryPoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].Formula = formula;
                 sheet1.Range[xlsRow, iCompletedStoryPoints, xlsRow, iCompletedStoryPoints].CellStyle.Font.Bold = true;
+
+                formula = "SUM(" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTaskCompletedFP) + (xlsRow - 1) + ")";
+                sheet1[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].Formula = formula;
+                sheet1.Range[xlsRow, iTaskCompletedFP, xlsRow, iTaskCompletedFP].CellStyle.Font.Bold = true;
 
                 formula = "SUM(" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iAvgStorypoints) + (xlsRow - 1) + ")";
                 sheet1[xlsRow, iAvgStorypoints, xlsRow, iAvgStorypoints].Formula = formula;

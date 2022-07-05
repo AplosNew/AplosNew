@@ -30,6 +30,7 @@ using System.Drawing;
 
 namespace Aplos.Areas.Productions.Controllers
 {
+
     public class StocksAgeingReportController : BaseController
     {
         StocksAgeingReportService sa = new StocksAgeingReportService();
@@ -142,6 +143,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColCus = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Customer Type", 20, ExcelHAlign.HAlignCenter);
+            int ColCusTyp = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Upto 15", 10, ExcelHAlign.HAlignCenter);
             int D15 = COL;
             COL++;
@@ -205,6 +210,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColPo].Text = data.Rows[i]["POId"].ToString();
                 sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
                 sheet[ROW, ColCus].Text = data.Rows[i]["Customers"].ToString();
+                sheet[ROW, ColCusTyp].Text = data.Rows[i]["CustomerType"].ToString();
                 sheet[ROW, D15].Number = clsStaticInfo.dbl(data.Rows[i]["D15"].ToString());
                 sheet[ROW, D15T30].Number = clsStaticInfo.dbl(data.Rows[i]["D15T30"].ToString());
                 sheet[ROW, D30T60].Number = clsStaticInfo.dbl(data.Rows[i]["D30T60"].ToString());
