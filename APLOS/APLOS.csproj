@@ -1058,6 +1058,7 @@
     <Compile Include="Areas\Productions\Controllers\RecipeOperationController.cs" />
     <Compile Include="Areas\Productions\Controllers\RecipeProductionOrderController.cs" />
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
+    <Compile Include="Areas\Products\Controllers\InventoryReceiveAdditionController.cs" />
     <Compile Include="Areas\Products\Controllers\SalesRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
@@ -2549,6 +2550,7 @@
     <Content Include="Areas\Products\Scripts\ServiceRequisitionController.js" />
     <Content Include="Areas\Products\Scripts\SFGInventoryController.js" />
     <Content Include="Areas\Products\Scripts\SFGMovementController.js" />
+    <Content Include="Areas\Products\Scripts\PurchaseConfirmationController.js" />
     <Content Include="Areas\QMS\Scripts\ActivityMasterController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentLocationController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSourceController.js" />
@@ -4202,6 +4204,7 @@
     <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinAllocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTRegion\Aplos.cshtml" />
+    <Content Include="Areas\Products\Views\InventoryReceiveAddition\PurchaseConfirmation.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
