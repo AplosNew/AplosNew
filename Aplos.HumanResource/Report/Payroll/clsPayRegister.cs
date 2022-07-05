@@ -8214,6 +8214,10 @@ where h.HeadCategory='GROSS'
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
                                                 }
+                                                else if (item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "H";
+                                                }
                                                 else
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
@@ -8232,6 +8236,10 @@ where h.HeadCategory='GROSS'
                                                 else if (item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "WL")
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "H";
                                                 }
                                                 else
                                                 {
@@ -8252,6 +8260,10 @@ where h.HeadCategory='GROSS'
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
                                                 }
+                                                else if (item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "H";
+                                                }
                                                 else
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
@@ -8270,6 +8282,10 @@ where h.HeadCategory='GROSS'
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
                                                 }
+                                                else if (item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "H";
+                                                }
                                                 else
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = item["DayStatus"].ToString().Trim();
@@ -8287,6 +8303,10 @@ where h.HeadCategory='GROSS'
                                                 else if (item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "WL")
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
+                                                }
+                                                else if (item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                                {
+                                                    sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "H";
                                                 }
                                                 else
                                                 {
@@ -8344,7 +8364,7 @@ where h.HeadCategory='GROSS'
                                                     TimeSpan span = RandomTime - ShiftTime;
                                                     double totalMinutes = span.TotalMinutes;
 
-                                                    if (item["DayStatus"].ToString().Trim() != "CWP" || item["DayStatus"].ToString().Trim() != "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL")
+                                                    if (item["DayStatus"].ToString().Trim() != "CWP" || item["DayStatus"].ToString().Trim() != "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                                     {
                                                         sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].NumberFormat = "hh:mm AM/PM";
                                                         sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].DateTime = NewRealOutTime;
@@ -8365,7 +8385,7 @@ where h.HeadCategory='GROSS'
                                                     sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                     sheet1[particular3rdRow + 2, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
                                                 }
-                                                else if (item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "WL")
+                                                else if (item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                                 {
                                                     sheet1[particular3rdRow + 0, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "W";
                                                     sheet1[particular3rdRow + 1, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = "";
@@ -8459,7 +8479,7 @@ where h.HeadCategory='GROSS'
 
                                                                 }
 
-                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL")
+                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                                                 {
                                                                     OTOverstay1 += 0.00;
                                                                 }
@@ -8501,7 +8521,7 @@ where h.HeadCategory='GROSS'
 
                                                                 }
 
-                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL")
+                                                                else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                                                 {
                                                                     OTOverstay2 += 0.00;
                                                                 }
@@ -8547,7 +8567,7 @@ where h.HeadCategory='GROSS'
 
                                             }
 
-                                            else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL")
+                                            else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                             {
                                                 overstay = "";
 
