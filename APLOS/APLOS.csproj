@@ -2002,6 +2002,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTRegionController.js" />
     <Content Include="Areas\HumanResource\Scripts\PerformanceAttributeMasterController.js" />
@@ -4202,6 +4203,7 @@
     <Content Include="Areas\Materials\Views\StorageBinMaster\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StorageBinAllocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTRegion\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTControlLimit\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
