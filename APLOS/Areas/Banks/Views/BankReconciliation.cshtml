@@ -11,7 +11,8 @@
         border: 1px solid #659EC7;
     }
 </style>
-<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Bank Reconciliation</h3>
+<togglable name="{{title}}"></togglable>
+@*<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Bank Reconciliation</h3>*@
 <div class="form-elements form-horizontal" ng-form id="bankReconciliationNew" name="bankReconciliationNewForm">
     <input type="hidden" ng-model="bankReconciliationNew.Id">
     <div class="col-xs-12 col-sm-6 col-md-6">
@@ -418,5 +419,64 @@
                 </div>
             </div>
         </div>
+<div class="aplos-grid-toggle">
+    <div class="row text-right">
+        <div class="col-xs-12 col-sm-12 col-sm-12">
+            <div class="search-form">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-3">
+                        <div class="select-style">
+                            <select ng-model="$root.parameters.searchBy">
+                                <option ng-repeat="option in searchByList" value="{{option.value}}">{{option.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-7 col-md-7">
+                        <input type="text" class="form-control" placeholder="Search" ng-model="$root.parameters.search" ng-enter="getData()">
+                    </div>
+                    <div class="col-xs-12 col-sm-2 col-md-2">
+                        <button type="button" ng-click="getData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive modal-table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>BankName</th>
+                    <th>Bank Statement No</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>Opening Blance</th>
+                    <th>Closing Balance</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr dir-paginate="x in bankreconciliationList |itemsPerPage:$root.pageSize" total-items="$root.total_count" ng-dblclick="getById(x.Id);">
+                    <td>{{x.Id}}</td>
+                    <td>{{x.BankName}}</td>
+                    <td>{{x.BankStatementNo}}</td>
+                    <td>{{x.FromDate | dateFiltering}}</td>
+                    <td>{{x.ToDate | dateFiltering}}</td>
+                    <td class="text-right">{{x.OpeningBlance | number:2}}</td>
+                    <td class="text-right">{{x.ClosingBalance | number:2}}</td>
+                    <td class="text-right">
+                        <ul class="list-inline action-list">
+                            <li><a ng-click="confirmDelete(x.Id);" href="" class="btn btn-action tooltip-here">Delete</a></li>
+                            @*<li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>
+                            <li><a class="btn btn-action" href="Accounts/Advance/ReportCustomerAdvance?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a></li>*@
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <dir-pagination-controls max-size="10" direction-links="true" boundary-links="true" on-page-change="getData(newPageNumber)"></dir-pagination-controls>
+    </div>
+</div>
         <confirm-modal></confirm-modal>
+        <confirm-archive-generic modalid="confirmDeletePopUp" title="Confirmation" message={{message_delete_confirmation}} data-ng-click-right-button="delete(bankReconciliationId)"></confirm-archive-generic>
         @Html.Partial("~/Areas/Banks/Views/_BankPopUp.cshtml")
