@@ -1,9 +1,9 @@
 ﻿'use strict';
-TaskManagementReportController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
-function TaskManagementReportController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
-    $scope.title = 'Task Management Report';
+PurchaseConfirmationController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', '$window'];
+function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseService, $http, $filter, $window) {
+    $scope.title = 'Purchase Confirmation';
     $scope.TaskManagementDataList = [];
-    $scope.path = 'TaskManagement/TaskManagementReport/';
+    $scope.path = 'Products/InventoryReceiveAddition/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
     $scope.ToDate = null;
@@ -182,11 +182,22 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                     var totalTask = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "CreatedTask");
                     var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
                     for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
-                        $scope.TaskManagementDataList[i].TotalStoryPoint = $scope.TaskManagementDataList[i].TaskDue*2;
-                        $scope.TaskManagementDataList[i].ColsedStoryPoint = $scope.TaskManagementDataList[i].OnTimeTask*2;
-                        $scope.TaskManagementDataList[i].TaskCompletedFP = $scope.TaskManagementDataList[i].OnTimeTask + $scope.TaskManagementDataList[i].LateTask + $scope.TaskManagementDataList[i].EarlyTask;
+                        if ($scope.TaskManagementDataList[i].CreatedTask == 0) {
+                            $scope.TaskManagementDataList[i].TotalStoryPoint = 0;
+                        }
                         $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
-                        $scope.TaskManagementDataList[i].Performance = ($scope.TaskManagementDataList[i].OnTimeTask * 2 + $scope.TaskManagementDataList[i].LateTask * 1 + $scope.TaskManagementDataList[i].LateTask * 2) - $scope.TaskManagementDataList[i].UnRead;//formula
+                        if (isNaN($scope.TaskManagementDataList[i].OfTotalTask)) {
+                            $scope.TaskManagementDataList[i].OfTotalTask = 0;
+                        }
+                        $scope.TaskManagementDataList[i].PerTaskDue = Math.ceil(($scope.TaskManagementDataList[i].TaskDue / totalTaskDue) * 100);
+                        $scope.TaskManagementDataList[i].OverdueTask = $scope.TaskManagementDataList[i].TaskDue - $scope.TaskManagementDataList[i].OnTimeTask - $scope.TaskManagementDataList[i].LateTask;
+                        if (isNaN($scope.TaskManagementDataList[i].OverdueTask)) {
+                            $scope.TaskManagementDataList[i].OverdueTask = 0;
+                        }
+                        if (isNaN($scope.TaskManagementDataList[i].PerTaskDue)) {
+                            $scope.TaskManagementDataList[i].PerTaskDue = 0;
+                        }
+                        $scope.TaskManagementDataList[i].Performance = ((($scope.TaskManagementDataList[i].OnTimeTask * 2) + $scope.TaskManagementDataList[i].LateTask * 1) * $scope.TaskManagementDataList[i].PerTaskDue) - $scope.TaskManagementDataList[i].UnRead;//formula
                     }
                 }
             }, function errorCallback(response) {

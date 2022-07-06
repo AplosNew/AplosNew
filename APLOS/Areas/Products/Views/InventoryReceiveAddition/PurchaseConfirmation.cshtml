@@ -1,0 +1,35 @@
+﻿<div class="col-xs-12 col-sm-12 col-sm-12 ">
+    <div class="col-md-4">
+        <div class="form-group" show-errors id="div_FromDate">
+            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <input type="text" name="Form Date" ng-model="FromDate" datepicker class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group" show-errors id="div_ToDate">
+            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-7 show-message">
+                <input type="text" name="To Date" ng-model="ToDate" datepicker class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="common-btn">
+            <ul class="list-inline text-left">
+                <li> <button ng-click="getFiltersData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-ok-circle"></i> Go </button></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="col-xs-12">
+    <div id="filters">
+    </div>
+    <div class="common-btn" ng-show="filters.length>0">
+        <ul class="list-inline text-right">
+            <li> <button ng-click="GetTaskManagementData();" class="btn" tabindex="9"><i class="glyphicon glyphicon-eye-open"></i> View</button></li>
+            <li> <button ng-click="GetTaskManagementReport();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down"></i> Export to Excel</button></li>
+        </ul>
+    </div>
+</div>

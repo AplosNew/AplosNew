@@ -38,11 +38,11 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string sql = @"SELECT distinct mb.Id BudgetCodeId,mb.Deployment,mb.Code BudgetCode,p.Code PositionCode,DGM.EmployeeCategory,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
+                string sql = @"SELECT DISTINCT mb.Id BudgetCodeId,mb.Deployment,mb.Code BudgetCode,p.Code PositionCode,DGM.EmployeeCategory,E.UserName Entity,d.UserName Department,s.UserName Section,ss.UserName SubSection,DG.UserName Designation,p.Activity,sd.ShiftDefinationName
         ,ei.EmployeeName ResponsiblePerson,OT.DailyOTLimit,OT.WeeklyOTLimit,OT.WeekOffOTLimit,OT.MonthlyOTLimit,'' Remarks
         ,mb.ROBudgetCode,mb.PRBudgetCode
         ,ag.UserName AttendanceGroup,P.UserDefineGroup2,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ISNULL(ONR.ONRoll,0)OnRoll,l.UserName Line,mbd.TotalNumber
-        FROM MST.ManpowerBudget AS mb
+       FROM MST.ManpowerBudget AS mb
         LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
         LEFT JOIN ORG.Position AS p ON P.Id=mb.PositionId
         LEFT JOIN ORG.Department AS d ON d.Id=p.DepartmentId
@@ -53,19 +53,16 @@ namespace Library.HumanResource.NewOTProcess
         LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID=mb.ShiftDefinationId
         LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
         LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId=mb.Id
-        LEFT JOIN (SELECT dm.DesignationId,dmc.IsOTEntitled,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
+        LEFT JOIN (
+        SELECT dm.DesignationId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
         LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
-        LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId                            
+        LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId
+        WHERE dmc.IsOTEntitled=1                            
         ) DGM ON DGM.DesignationId=DG.Id
         LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId=mb.ResponsiblePerson
-       LEFT JOIN (SELECT COUNT(SystemId)OnRoll,BudgetCode FROM dbo.EmployeeInformation GROUP BY BudgetCode) ONR ON ONR.BudgetCode=mb.Id 
-       
-        LEFT JOIN (
-        	SELECT * FROM  [dbo].[OTControlLimitDetail]
-                   WHERE OTControlLimitId IN(SELECT TOP (1) ID FROM [dbo].[OTControlLimit] A ORDER BY EffectiveDate DESC)
-        ) OT ON OT.BudgetCodeId=MB.Id
-       
-        WHERE mb.Active=1 AND DGM.IsOTEntitled=1";
+       LEFT JOIN (SELECT COUNT(SystemId)OnRoll,BudgetCode FROM dbo.EmployeeInformation GROUP BY BudgetCode) ONR ON ONR.BudgetCode=mb.Id       
+        LEFT JOIN (SELECT * FROM  [dbo].[OTControlLimitDetail] WHERE OTControlLimitId IN(SELECT TOP (1) ID FROM [dbo].[OTControlLimit] A ORDER BY EffectiveDate DESC)) OT ON OT.BudgetCodeId=MB.Id       
+        WHERE mb.Active=1";
 
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -202,6 +199,35 @@ namespace Library.HumanResource.NewOTProcess
 LEFT JOIN dbo.EmployeeInformation AS ei ON ei.SystemId = OTL.ApproveBy
 LEFT JOIN dbo.EmployeeInformation AS eiw ON eiw.SystemId = OTL.ByWhom";
             return _sqlRepository.GetDataCollection(sql,null);
+        }
+
+        public DataTable GetOTControlLimitData()
+        {
+            string sql = @"SELECT e.UserName Entity,d.UserName Department,s.UserName Section,SS.UserName SubSection
+,DGm.EmployeeCategory,DG.UserName Designation
+,p.Activity,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END
+,ag.UserName AttendanceGroup,P.UserDefineGroup2
+,p.Code PositionCode,0 PlanDeploymentManDays,0 BudgetedManpower,0 ONRoll
+,0 PresentManpower,0 StandardOT,0 AdditionalOT, 0 TotalOT, 0 OTManDays,0 TotalDeployedMandays,0 ExcessDeploymentMandays
+,0 ShortDeploymentMandays,old.DailyOTLimit,0 ExcessOT,0 ShortOT,old.WeeklyOTLimit,old.WeekOffOTLimit,old.MonthlyOTLimit,old.Remarks
+  FROM dbo.OTControlLimit AS ol
+LEFT JOIN OTControlLimitDetail AS old ON old.OTControlLimitId = ol.Id
+LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=old.BudgetCodeId
+LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
+LEFT JOIN ORG.Position AS p ON p.Id=mb.PositionId
+LEFT JOIN ORG.Department AS d ON d.Id = p.DepartmentId
+LEFT JOIN ORG.Section AS S ON S.Id = p.SectionId
+LEFT JOIN ORG.SubSection AS SS ON d.Id = p.SubSectionId
+LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId 
+LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
+LEFT JOIN (
+SELECT DISTINCT dm.DesignationId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
+LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
+LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId
+WHERE dmc.IsOTEntitled=1
+) DGM ON DGM.DesignationId=DG.Id
+WHERE CONVERT(DATE,ol.EffectiveDate) BETWEEN '26-Jun-2022' AND '26-Jun-2022'";
+            return _sqlRepository.GetDataTable(sql);
         }
     }
 }

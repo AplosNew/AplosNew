@@ -428,5 +428,24 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             $scope.setTab(4);
         }
     };
+
+    // Enable Disable
+    $scope.EnableDisable = function () {
+        $scope.selected = $scope.ModelNew.StorageLevel;
+        if ($scope.selected == "Article") {
+            if (document.getElementById("MaterialMasterArticleId").disabled == true) {
+                document.getElementById("MaterialMasterArticleId").disabled = false;
+            }
+
+        } else {
+            if (document.getElementById("MaterialMasterArticleId").disabled == false) {
+                document.getElementById("MaterialMasterArticleId").disabled = true;
+            }
+        }
+
+
+    }
+
+
 }
 
