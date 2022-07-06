@@ -45,6 +45,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
+        public ActionResult Report()
+        {
+            return View();
+        }
+
         #endregion -- Pages
 
         #region -- Operations
