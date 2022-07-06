@@ -46,6 +46,13 @@ namespace Aplos.Areas.Banks.Controllers
         #endregion Aplos
 
         #region Operation
+        [Authorize, HttpGet]
+        public JsonResult GetBankreconciliationList(GridParameter parameters)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsBankReconcilliationService.Query(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetBankReconciledList(DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
@@ -160,6 +167,14 @@ namespace Aplos.Areas.Banks.Controllers
                 throw ex;
             }
 
+        }
+        [HttpPost]
+        public JsonResult DeleteBankreconciliation(string bankReconciliationId)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+
+            accountsBankReconcilliationService.DeleteBankreconciliation(bankReconciliationId);
+            return Json(new { Message = AplosMessage.Deleted });
         }
 
         #endregion Operation

@@ -1,6 +1,7 @@
 ﻿using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Data.UnitOfWorks;
 using Library.Model.Banks;
 using Library.Service.Enums;
 using Library.Service.Helpers;
@@ -17,10 +18,57 @@ namespace Library.Accounting.Accounts
     public class AccountsBankReconcilliationService
     {
         private readonly ISqlRepository _sqlRepository;
+        private readonly IUnitOfWork _unitOfWork;
         public AccountsBankReconcilliationService(ISqlRepository sqlRepository
             )
         {
             _sqlRepository = sqlRepository;
+        }
+        public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId)
+        {
+            parameters.CmdText = @"select top 1 BR.Id,BM.AccountTitle BankName,BR.BankStatementNo
+                                ,REPLACE(CONVERT(CHAR(11), BR.FromDate, 106),' ','-') FromDate
+                                ,REPLACE(CONVERT(CHAR(11),  BR.ToDate, 106),' ','-') ToDate
+                                ,BR.OpeningBlance,BR.ClosingBalance
+                                from trn.BankReconciliation BR
+                                LEFT JOIN [MST].[BankMaster] BM ON BM.Id=BR.BankMasterId
+                                WHERE BR.CompanyGroupId='" + companyGroupId + "'AND BR.CompanyId='" + companyId + "' order by BR.AddedDate desc";
+            return _sqlRepository.GetGridData(parameters);
+        }
+        public void DeleteBankreconciliation(string bankReconciliationId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+                
+                vendorAdWrsql = @"UPDATE trn.GLTransactionDetail SET ReconcileId=NULL,ReconcileDate=NULL where ReconcileId='" + bankReconciliationId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"DELETE FROM trn.BankReconciliation WHERE Id='" + bankReconciliationId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+                
+                flag = false;
+                
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                    //_unitOfWork.Rollback();
+            }
         }
         public IEnumerable<object> GetBankReconciledList(string companyGroupId, string companyId, DateTime cutOffDate, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
