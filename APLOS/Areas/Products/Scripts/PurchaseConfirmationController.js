@@ -39,17 +39,14 @@ function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseS
 
             $http({
                 method: 'GET',
-                url: 'TaskManagement/TaskManagementReport/getFiltersData?fromDate=' + $scope.FromDate + '&todate=' + $scope.ToDate,
+                url: 'Products/InventoryReceiveAddition/GetFiltersPurchaseconfirmationData?fromDate=' + $scope.FromDate + '&todate=' + $scope.ToDate,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
                 var columnList = [
-                    { field: 'DesignationGroup', width: 20, headerText: "Designation Group", type: "string" },
-                    { field: 'TaskCreatedBy', width: 20, headerText: "Task CreatedBy", type: "string" },
-                    { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                    { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                    { field: 'UserReportGroup', width: 20, headerText: "User Group2", type: "string" }
-
+                    { field: 'Vendor', width: 20, headerText: "Vendor", type: "string" },
+                    { field: 'MaterialType', width: 20, headerText: "MaterialType", type: "string" },
+                    { field: 'Material', width: 20, headerText: "Material", type: "string" }
                 ];
                 $("#filters").ejGrid({
                     dataSource: $scope.filters,
@@ -82,11 +79,9 @@ function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseS
 
 
         var parameters = [];
-        parameters.push({ "Key": "DesignationGroupId", "Value": getString(fl, "DesignationGroupId") });
-        parameters.push({ "Key": "DepartmentId", "Value": getString(fl, "DepartmentId") });
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "UserReportGroup", "Value": getString(fl, "UserReportGroup") });
-        parameters.push({ "Key": "TaskCreatedBy", "Value": getString(fl, "TaskCreatedBy") });
+        parameters.push({ "Key": "Vendor", "Value": getString(fl, "Vendor") });
+        parameters.push({ "Key": "MaterialType", "Value": getString(fl, "MaterialType") });
+        parameters.push({ "Key": "Material", "Value": getString(fl, "Material") });
 
         $scope.parameters = parameters;
     }

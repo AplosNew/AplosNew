@@ -1053,6 +1053,7 @@ upanelApp.controller("BuyerjobCardcomplianceReportController", BuyerjobCardcompl
 upanelApp.controller("EOTSheetController", EOTSheetController);
 upanelApp.controller("StorageBinAllocationController", StorageBinAllocationController);
 upanelApp.controller("ResidenceStatusLocationController", ResidenceStatusLocationController);
+upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationController);
 
 
 

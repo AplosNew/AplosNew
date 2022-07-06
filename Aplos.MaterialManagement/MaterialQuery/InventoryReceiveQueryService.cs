@@ -4368,31 +4368,7 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
 			}
 		}
-		//public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string SLNo,string SheetName)
-		//{
-		//	try
-		//	{
-
-		//		var excelEngine = new ExcelEngine();
-		//		var report = new ReportUtility();
-		//		var workbook = report.GetWorkbook(ref excelEngine, 2);
-		//		var sheet1 = workbook.Worksheets[0];
-		//		//var Head = "Purchase Register Item Wise" + " " + fromDate + " " + "To" + " " + toDate ;
-		//		var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-		//		CreatePurchaseRegisterItemReportSheets(ref sheet1, report, SheetName + ".xlsx", "Summary", companyId, plantId, fromDate, toDate, SLNo);
-		//		workbook.Version = ExcelVersion.Excel2016;
-		//		//return workbook;
-
-		//		workbook.SaveAs(filePath);
-		//		workbook.Close();
-		//		excelEngine.Dispose();
-		//		return filePath;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		throw;
-		//	}
-		//}
+		
 
 		public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string SLNo, string SheetName)
 		{
@@ -5746,20 +5722,7 @@ namespace Aplos.MaterialManagement
 
 			#endregion sheet
 
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//sheet.UsedRange.WrapText = true;
-			//sheet.UsedRange.CellStyle.Font.Size = 8;
-
-			//ReportUtility reportUtility = new ReportUtility();
-			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
-			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			//return workbook;
-
-			//ReportUtility reportUtility = new ReportUtility();
-			////reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
-			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-
-
+			
 			sheet.Name = SheetName;
 			sheet.UsedRange.WrapText = true;
 			sheet.IsGridLinesVisible = false;
@@ -5825,5 +5788,26 @@ namespace Aplos.MaterialManagement
 			}
 		}
 
+		public IEnumerable<object> GetFiltersPurchaseconfirmationData(string PlantId, string fromDate, string todate)
+		{
+			try
+			{
+				var sql = @"SELECT distinct P.UserName Vendor,MMT.UserName MaterialType,MM.UserName Material 
+							FROM TRN.InventoryReceiveDetail IRD 
+							LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId 
+							JOIN( select distinct MaterialMasterId,Id from TRN.InventoryMaterial) IM on IM.Id=IRD.InventoryMaterialId
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+							LEFT JOIN HKP.MaterialMasterType MMT ON MMT.Id=MM.MaterialMasterTypeId
+							LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+							WHERE IM.MaterialMasterId<>'' AND IR.PlantId='"+ PlantId + "' AND IR.GRNDate between '"+ fromDate + "' AND '"+ todate + @"'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
 	}
 }
