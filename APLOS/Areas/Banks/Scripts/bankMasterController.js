@@ -11,7 +11,7 @@ function bankMasterController(cboService, commonMessage, $scope, $rootScope, bas
     $scope.saveUrl = $scope.path + "create";
     $scope.updateUrl = $scope.path + "edit";
     $scope.deleteUrl = $scope.path + "delete/";
-    $scope.getListUrl = $scope.path + "Query";
+    $scope.getListUrl = $scope.path + "GetBankMasterQuery";
     $scope.getBankMasterContactListUrl = "addresses/contactmasterbank/getlistbybank/";
     baseService.init($scope.getListUrl, null, null, null, "Code", "Code");
     $scope.getData = function (pageno) {

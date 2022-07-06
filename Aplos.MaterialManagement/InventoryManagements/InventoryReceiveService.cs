@@ -162,20 +162,6 @@ namespace Library.MaterialManagement.InventoryManagements
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData[i]["InventoryReceiveDetailId"].ToString() + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
-                        //genId.GenID("TNA MASTER", out TNAMasterSystemID);
-                        //TNAMasterSystemID = "TM" + TNAMasterSystemID;
-                        //DataRow dr = dsMaster.Tables[0].NewRow();
-                        //dr["Id"] = TNAMasterSystemID;
-                        //dr[columnname] = TransactionId;
-                        //dr["TNAAppliedOn"] = ScheduleFor.ToString();
-                        //dr["AddedBy"] = "Scheduler";
-                        //dr["AddedDate"] = System.DateTime.Now.ToString();
-                        //dr["AddedFromIP"] = "";
-                        //dr["UpdatedBy"] = "Scheduler";
-                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        //dr["UpdatedFromIP"] = "";
-
-                        //dsMaster.Tables[0].Rows.Add(dr);
                     }
                     else
                     {
@@ -211,20 +197,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     dsDetailREjectionMap.Tables[0].DefaultView.RowFilter = "GRNDeailsId='" + UserSendData[i]["InventoryReceiveDetailId"].ToString() + "'";
                     if (dsDetailREjectionMap.Tables[0].DefaultView.Count == 0)
                     {
-                        //genId.GenID("TNA MASTER", out TNAMasterSystemID);
-                        //TNAMasterSystemID = "TM" + TNAMasterSystemID;
-                        //DataRow dr = dsMaster.Tables[0].NewRow();
-                        //dr["Id"] = TNAMasterSystemID;
-                        //dr[columnname] = TransactionId;
-                        //dr["TNAAppliedOn"] = ScheduleFor.ToString();
-                        //dr["AddedBy"] = "Scheduler";
-                        //dr["AddedDate"] = System.DateTime.Now.ToString();
-                        //dr["AddedFromIP"] = "";
-                        //dr["UpdatedBy"] = "Scheduler";
-                        //dr["UpdatedDate"] = System.DateTime.Now.ToString();
-                        //dr["UpdatedFromIP"] = "";
-
-                        //dsMaster.Tables[0].Rows.Add(dr);
+                       
                     }
                     else
                     {
@@ -683,20 +656,7 @@ namespace Library.MaterialManagement.InventoryManagements
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string paramter = "";
-            //if (Material != "")
-            //{
-            //	if (paramter == "")
-            //		paramter += "ISNULL(mm.Id,'') in(" + Material + ")";
-            //	else
-            //		paramter += " AND ISNULL(mm.Id,'') in(" + Material + ")";
-            //}
-            //if (Article != "")
-            //{
-            //	if (paramter == "")
-            //		paramter += "ISNULL(MRD.ArticleId,'') in(" + Article + ")";
-            //	else
-            //		paramter += " AND ISNULL(MRD.ArticleId,'') in(" + Article + ")";
-            //}
+            
             if (Skuvalue1 != "")
             {
                 if (paramter == "")
@@ -723,343 +683,7 @@ namespace Library.MaterialManagement.InventoryManagements
             try
             {
                 var sql = "";
-                //sql = @"Select MGM.UserName MaterialMasterGroupName,IRD.InventoryMaterialId
-                //		,MT.UserName MaterialType
-                //		,mm.Id MaterialMasterId
-                //		,mm.UserName MaterialMasterName
-                //		,MRD.ArticleId		
-                //		,ART.StandardName									
-                //		,MRD.FirstCharacteristicsId
-                //		,FC.UserName AS FirstCharacteristics
-                //		,MRD.FirstCharacteristicsValueId
-                //		,isnull(FCV.UserName,'') AS FirstCharacteristicsValue
-                //		,MRD.SecondCharacteristicsId
-                //		,SC.UserName AS SecondCharacteristics
-                //		,MRD.SecondCharacteristicsValueId
-                //		,isnull(SCV.UserName,'') AS SecondCharacteristicsValue
-                //		,MRD.ThirdCharacteristicsId
-                //		,TC.UserName AS ThirdCharacteristics
-                //		,MRD.ThirdCharacteristicsValueId
-                //		,isnull(TCV.UserName,'') AS ThirdCharacteristicsValue
-                //                    ,Isnull(C.UserName,'') CountryName,C.Id CountryId
-                //                    ,TUoM.Id AS TransactionUoMId
-                //                    ,TUoM.UserName AS UOM
-                //		,Sum(0) RequestedQty
-                //		,Sum(0) RejectedQty
-                //		,sum(((isnull(IRD.TransactionQty,0)-(isnull(IRD.IssueQty,0)+isnull(IRD.PurchaseReturnQty,0) +isnull(IRD.ReductionByAdjustmentQty,0)+isnull(IRD.InventorySalesQty,0)+isnull(IRD.InventoryScrapQty,0)+isnull(IRD.InventoryTransferQty,0))) +isnull(IRD.IssueReturnQty,0))) TotalQty
-                //	    ,Sum(IRD.ShortageQty)  ShortageQty
-                //	    ,Sum(IRD.RejectionQty)RejectionQty
-                //	FROM [TRN].[InventoryMaterial] As MRD				                    
-                //	Left JOIN MST.MaterialMaster AS MM ON MRD.MaterialMasterId = MM.Id
-                //	LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //	LEFT JOIN MST.MaterialMasterArticle AS ART ON MRD.ArticleId = ART.Id
-                //	LEFT JOIN HKP.Characteristics AS FC ON MRD.FirstCharacteristicsId = FC.Id
-                //	LEFT JOIN HKP.Characteristics AS SC ON MRD.SecondCharacteristicsId = SC.Id
-                //	LEFT JOIN HKP.Characteristics AS TC ON MRD.ThirdCharacteristicsId = TC.Id
-                //	LEFT JOIN HKP.CharacteristicsValue AS FCV ON MRD.FirstCharacteristicsValueId = FCV.Id
-                //	LEFT JOIN HKP.CharacteristicsValue AS SCV ON MRD.SecondCharacteristicsValueId = SCV.Id
-                //	LEFT JOIN HKP.CharacteristicsValue AS TCV ON MRD.ThirdCharacteristicsValueId = TCV.Id
-                //	LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId=MRD.Id
-                //	LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                //	LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =IRD.TransactionUoMId 				                  
-                //	LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id	
-                //	--where mm.UserName like 'Envelop' AND ART.StandardName='Envelop'
-                //                 LEFT JOIN SCS.Country C On C.Id=MRD.CountryId
-                //	where Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 
-                //	AND IR.IsApproved=1 AND MM.IsAsset=0 AND "+ paramter + @"
-                //	--and mm.UserName like '3 Finger Metal Glove' AND ART.StandardName='3 Finger Metal Glove- Left'
-                //	--AND MRD.MaterialMasterId='MM-20183' AND MRD.ArticleId='MM-20183'  AND MRD.FirstCharacteristicsValueId='103' and MRD.FirstCharacteristicsValueId='57' AND MRD.FirstCharacteristicsValueId=''
-                //	group by  MRD.ArticleId				                    
-                //	,MGM.UserName
-                //	,mm.Id
-                //	,mm.UserName
-                //	,ART.StandardName
-                //	,MT.UserName
-                //	,MRD.FirstCharacteristicsId
-                //	,FC.UserName
-                //	,MRD.FirstCharacteristicsValueId
-                //	,FCV.UserName
-                //	,MRD.SecondCharacteristicsId
-                //	,SC.UserName
-                //	,MRD.SecondCharacteristicsValueId
-                //	,SCV.UserName
-                //	,MRD.ThirdCharacteristicsId
-                //	,TC.UserName
-                //	,MRD.ThirdCharacteristicsValueId
-                //	,TCV.UserName
-                //	,TUoM.UserName
-                //	,TUoM.Id
-                //	,IRD.InventoryMaterialId
-                //	,Isnull(C.UserName,'') 
-                //	,C.Id";
-                //return _sqlRepository.GetDataCollection(sql);
-                //				sql = @" Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName,IRD.InventoryMaterialId
-                //						,MT.UserName MaterialType
-                //						,mm.Id MaterialMasterId
-                //						,mm.UserName MaterialMasterName
-                //						,MRD.ArticleId		
-                //						,ART.StandardName									
-                //						,FC.Id FirstCharacteristicsId
-                //						,FC.UserName AS FirstCharacteristics
-                //						,BFG.FirstCharacteristicsValueId
-                //						,isnull(v1.UserName,'') AS FirstCharacteristicsValue
-                //						,SC.Id SecondCharacteristicsId
-                //						,SC.UserName AS SecondCharacteristics
-                //						,BFG.SecondCharacteristicsValueId
-                //						,isnull(v2.UserName,'') AS SecondCharacteristicsValue
-                //						,TC.Id ThirdCharacteristicsId
-                //						,TC.UserName AS ThirdCharacteristics
-                //						,BFG.ThirdCharacteristicsValueId
-                //						,isnull(v3.UserName,'') AS ThirdCharacteristicsValue
-                //						--,Isnull(C.UserName,'') CountryName,C.Id CountryId
-                //                       ,TUoM.Id AS TransactionUoMId
-                //                        --,TUoM.UserName AS UOM
-                //							,MRD.RequiredQtyPO RequestedQty
-                //						,0 RejectedQty
-                //						--,sum(((isnull(IRD.TransactionQty,0)-(isnull(IRD.IssueQty,0)+isnull(IRD.PurchaseReturnQty,0) +isnull(IRD.ReductionByAdjustmentQty,0)+isnull(IRD.InventorySalesQty,0)+isnull(IRD.InventoryScrapQty,0)+isnull(IRD.InventoryTransferQty,0))) +isnull(IRD.IssueReturnQty,0))) TotalQty
-                //						,ISNULL(GRNALLO.TransactionQty,0) TotalQty
-                //					    ,ISNULL(IRD.ShortageQty,0)  ShortageQty
-                //					    ,ISNULL(IRD.RejectionQty,0) RejectionQty
-                //						,BO.Consumption,BO.WastagePer,POUOM.UserName UOM,0 RequestedQty,BO.SalesOrderId
-                //					FROM BOQ BO
-                //					LEFT JOIN BOQDetail As MRD ON MRD.BOQId=BO.Id		
-                //					LEFT JOIN BOQFGMapping BFG ON BFG.BOQDetailId=MRD.Id
-                //					Left JOIN MST.MaterialMaster AS MM ON MRD.MaterialMasterId = MM.Id
-                //					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //					LEFT JOIN MST.MaterialMasterArticle AS ART ON MRD.ArticleId = ART.Id
-                //					LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = MRD.FirstCharacteristicsValueId
-                //                    LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = MRD.SecondCharacteristicsValueId
-                //                    LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = MRD.ThirdCharacteristicsValueId
-                //                    LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-                //                    LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-                //                    LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId
-                //					LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.InventoryMaterialId=MRD.Id
-                //					LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-                //					LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =IRD.TransactionUoMId 				                  
-                //					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-                //					left join (select b.BOQDetailId,sum(a.TransactionQty) TransactionQty 
-                //								from trn.GRNPORequisitionAllocation a
-                //								left join trn.POBOQMap b ON b.Id=a.POBOQMapId
-                //							    group by b.BOQDetailId
-                //							   ) GRNALLO ON GRNALLO.BOQDetailId=MRD.Id
-                //					 LEFT JOIN [SCS].[UnitOfMeasurement] POUOM ON POUOM.Id=BO.POUoMId
-                //					--where mm.UserName like 'Envelop' AND ART.StandardName='Envelop'
-                //                    -- LEFT JOIN SCS.Country C On C.Id=MRD.CountryId 
-                //					where  " + paramter + @"  AND 
-                //					MM.IsAsset=0 AND MRD.ProcessId='"+processId+ @"' AND MRD.SalesOrderId in("+ parameters + @")
-                //					--AND Isnull(IRD.TransactionQty,0)-isnull(IRD.IssueQty,0)>0 
-                //					--AND IR.IsApproved=1
-                //					--GROUP BY  MGM.UserName ,IRD.InventoryMaterialId,MT.UserName 
-                //						--,mm.Id ,mm.UserName ,MRD.ArticleId,ART.StandardName	,FC.Id 
-                //						--,FC.UserName ,BFG.FirstCharacteristicsValueId,isnull(v1.UserName,'') ,SC.Id 
-                //						--,SC.UserName ,BFG.SecondCharacteristicsValueId,isnull(v2.UserName,'') ,TC.Id 
-                //						--,TC.UserName  ,BFG.ThirdCharacteristicsValueId,isnull(v3.UserName,'') ,TUoM.UserName ,TUoM.Id
-                //--                      --,Isnull(C.UserName,'') CountryName,C.Id CountryId
-                //						--,BO.Consumption,BO.WastagePer,POUOM.UserName
-                //				";//test cbddfh
-                //sql = @"Select Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
-                //		,MT.UserName MaterialType
-                //		,mm.Id MaterialMasterId
-                //		,mm.UserName MaterialMasterName
-                //		,BOQD.ArticleId		
-                //		,ART.StandardName									
-                //		,FC.Id FirstCharacteristicsId
-                //		,FC.UserName AS FirstCharacteristics
-                //		,BOQFGM.FirstCharacteristicsValueId
-                //		,isnull(v1.UserName,'') AS FirstCharacteristicsValue
-                //		,SC.Id SecondCharacteristicsId
-                //		,SC.UserName AS SecondCharacteristics
-                //		,BOQFGM.SecondCharacteristicsValueId
-                //		,isnull(v2.UserName,'') AS SecondCharacteristicsValue
-                //		,TC.Id ThirdCharacteristicsId
-                //		,TC.UserName AS ThirdCharacteristics
-                //		,BOQFGM.ThirdCharacteristicsValueId
-                //		,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
-                //		--,TUoM.Id AS TransactionUoMId
-                //		,consumptionUoMId.Id AS TransactionUoMId
-                //		,null TransactionUoMName                 
-                //		,BOQD.RequiredQtyPO RequestedQty1
-                //		,null RequestedQty,0 RequestedQtyNew   
-                //		,0 RejectedQty,null RequisitionQtyOrginal
-
-
-                //		,0  ShortageQty
-                //		,0 RejectionQty
-                //		,BOQD.Consumption,BOQD.WastagePer
-
-                //		,POUoMId.Id POUoMId
-                //		,POUoMId.UserName POUoM
-                //		,BaseUoMId.Id BaseUoMId
-                //		,BaseUoMId.UserName BaseUoM
-
-                //		,GRNALLO.StockTransactionUoMId
-                //		,GRNALLO.UserName StockUOM 
-
-                //		,consumptionUoMId.UserName consumptionUoM
-                //		,consumptionUoMId.Id consumptionUoMId
-
-                //		,0 RequisitionQty,BOQD.SalesOrderId
-                //		,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId
-                //		,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId
-                //		,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
-                //		,BOQD.BOQId
-                //		,Sum(ISNULL(GRNALLO.TransactionQty,0)) TransactionQty
-                //		,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
-                //		,Sum(ISNULL(GRNALLO.TransactionQty,0))  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
-                //		FROM BOQDetail BOQD
-                //		LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
-                //		Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
-
-                //		LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //		LEFT JOIN MST.MaterialMasterArticle AS ART ON BOQD.ArticleId = ART.Id
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQD.FirstCharacteristicsValueId
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQD.SecondCharacteristicsValueId
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQD.ThirdCharacteristicsValueId
-                //		LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-                //		LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-                //		LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
-                //		--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
-                //		LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-                //		left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
-                //				from trn.GRNPORequisitionAllocation a
-                //				left join trn.POBOQMap b ON b.Id=a.POBOQMapId
-                //				--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
-                //				LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
-                //				group by b.BOQDetailId,UOM.UserName,UOM.Id 
-                //				) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] consumptionUoMId ON consumptionUoMId.Id=BOQD.BaseUoMId
-                //		Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
-                //					from [MST].[MaterialMasterAlternativeUOM] a
-                //					left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
-                //					--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
-                //					Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
-                //					) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
-                //		--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
-                //		Where BOQD.ProcessId='" + processId + @"' and 
-                //		Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")" +
-                //		"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
-                //sql = @"Select Distinct Convert(bit, 'False') 'check', MGM.UserName MaterialMasterGroupName--,IRD.InventoryMaterialId
-                //		,MT.UserName MaterialType
-                //		,mm.Id MaterialMasterId
-                //		,mm.UserName MaterialMasterName
-                //		,BOQD.ArticleId		
-                //		,ART.StandardName									
-                //		,FC.Id FirstCharacteristicsId
-                //		,FC.UserName AS FirstCharacteristics
-                //		--,BOQFGM.FirstCharacteristicsValueId
-                //		,isnull(v1.UserName,'') AS FirstCharacteristicsValue
-                //		,SC.Id SecondCharacteristicsId
-                //		,SC.UserName AS SecondCharacteristics
-                //		--,BOQFGM.SecondCharacteristicsValueId
-                //		,isnull(v2.UserName,'') AS SecondCharacteristicsValue
-                //		,TC.Id ThirdCharacteristicsId
-                //		,TC.UserName AS ThirdCharacteristics
-                //		--,BOQFGM.ThirdCharacteristicsValueId
-                //		,isnull(v3.UserName,'') AS ThirdCharacteristicsValue						
-                //		--,TUoM.Id AS TransactionUoMId
-                //		,consumptionUoMId.Id AS TransactionUoMId
-                //		,null TransactionUoMName                 
-                //		,BOQD.RequiredQtyPO RequestedQty1
-                //		,null RequestedQty,0 RequestedQtyNew   
-                //		,0 RejectedQty,null RequisitionQtyOrginal
-
-
-                //		,0  ShortageQty
-                //		,0 RejectionQty
-                //		,BOQD.Consumption,BOQD.WastagePer
-
-                //		,POUoMId.Id POUoMId
-                //		,POUoMId.UserName POUoM
-                //		,BaseUoMId.Id BaseUoMId
-                //		,BaseUoMId.UserName BaseUoM
-
-                //		,GRNALLO.StockTransactionUoMId
-                //		,GRNALLO.UserName StockUOM 
-
-                //		,consumptionUoMId.UserName consumptionUoM
-                //		,consumptionUoMId.Id consumptionUoMId
-
-                //		,0 RequisitionQty,BOQD.SalesOrderId
-                //		,BOQD.FirstCharacteristicsValueId BOQDFirstCharacteristicsValueId
-                //		,BOQD.SecondCharacteristicsValueId BOQDSecondCharacteristicsValueId
-                //		,BOQD.ThirdCharacteristicsValueId BOQDThirdCharacteristicsValueId
-                //		,BOQD.BOQId
-                //		,ISNULL(GRNALLO.TransactionQty,0) TransactionQty
-                //		,Isnull(MMAU.BaseUOMFactor,0) BaseUOMFactor
-                //		,ISNULL(GRNALLO.TransactionQty,0)  TotalQty--* Isnull(MMAU.BaseUOMFactor,0)
-                //		,BOQD.FirstCharacteristicsValueId RwFirstCharacteristicsValueId
-                //		,BOQD.SecondCharacteristicsValueId RwSecondCharacteristicsValueId
-                //		,BOQD.ThirdCharacteristicsValueId RwThirdCharacteristicsValueId
-                //                    ,Concat(FGChar.SalesOrderId,'-',ISNULL(FGChar.FirstCharacteristicsValueId,''),'-',ISNULL(FGChar.SecondCharacteristicsValueId,''),'-',ISNULL(FGChar.ThirdCharacteristicsValueId,'')) SOFSTId
-                //		--,Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) SOFSTId
-                //		FROM BOQDetail BOQD
-                //		LEFT JOIN BOQFGMapping BOQFGM on BOQD.Id=BOQFGM.BOQDetailId
-                //		Left JOIN MST.MaterialMaster AS MM ON BOQD.MaterialMasterId = MM.Id
-
-                //		LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId = MGM.Id
-                //		LEFT JOIN MST.MaterialMasterArticle AS ART ON BOQD.ArticleId = ART.Id
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V1 ON v1.Id = BOQD.FirstCharacteristicsValueId
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V2 ON v2.Id = BOQD.SecondCharacteristicsValueId
-                //		LEFT OUTER JOIN[HKP].[CharacteristicsValue] V3 ON v3.Id = BOQD.ThirdCharacteristicsValueId
-                //		LEFT JOIN HKP.Characteristics AS FC ON FC.Id = V1.CharacteristicsId
-                //		LEFT JOIN HKP.Characteristics AS SC ON SC.Id = V2.CharacteristicsId
-                //		LEFT JOIN HKP.Characteristics AS TC ON TC.Id = V3.CharacteristicsId	
-                //		--Left JOIN [MST].[MaterialMasterAlternativeUOM] AS MMAU ON MMAU.MaterialMasterId = MM.Id
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON TUoM.Id =mm.StockUOMId 	
-                //		LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id
-                //		left join (select b.BOQDetailId,sum(a.BaseQty) TransactionQty ,UOM.UserName,UOM.Id StockTransactionUoMId
-                //				from trn.GRNPORequisitionAllocation a
-                //				left join trn.POBOQMap b ON b.Id=a.POBOQMapId
-                //				--LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.TransactionUoMId
-                //				LEFT JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.BaseUoMId
-                //				group by b.BOQDetailId,UOM.UserName,UOM.Id 
-                //				) GRNALLO ON GRNALLO.BOQDetailId=BOQD.Id
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] POUoMId ON POUoMId.Id=BOQD.POUoMId
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] BaseUoMId ON BaseUoMId.Id=BOQD.BaseUoMId
-                //		LEFT JOIN [SCS].[UnitOfMeasurement] consumptionUoMId ON consumptionUoMId.Id=BOQD.BaseUoMId
-                //		Left JOIN (Select a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId ,Sum(a.BaseUOMFactor) BaseUOMFactor 
-                //					from [MST].[MaterialMasterAlternativeUOM] a
-                //					left JOIN [SCS].[UnitOfMeasurement] UOM ON UOM.Id=a.AlternativeUOMId
-                //					--left join mst.MaterialMaster mm ON mm.Id=a.MaterialMasterId
-                //					Group by a.MaterialMasterId,a.AlternativeUOMId,a.BaseUOMId
-                //					) AS MMAU ON MMAU.MaterialMasterId = BOQD.MaterialMasterId AND MMAU.AlternativeUOMId=TUoM.Id --And MMAU.BaseUOMId=BOQD.BaseUoMId AND MMAU.BaseUOMId=mm.BaseUOMId
-                //                   LEFT JOIN(
-                //			SELECT distinct PDAMAP.BOQDetailId
-                //				,SalesOrderId=STUFF((select distinct top 1 '-'+xpo.SalesOrderId from
-                //				BOQDetail xpo
-                //				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
-                //				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')	
-
-                //				,FirstCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.FirstCharacteristicsValueId from
-                //				BOQDetail xpo
-                //				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
-                //				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                //				,SecondCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.SecondCharacteristicsValueId from
-                //			    BOQDetail xpo
-                //				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
-                //				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-                //				,ThirdCharacteristicsValueId=STUFF((select distinct top 1 '-'+xPDAMAP.ThirdCharacteristicsValueId from
-                //				BOQDetail xpo
-                //				INNER JOin BOQFGMapping xPDAMAP on xpo.Id=xPDAMAP.BOQDetailId
-                //				where xPDAMAP.BOQDetailId=PDAMAP.BOQDetailId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')							
-
-                //				from  BOQFGMapping PDAMAP 
-                //			  LEFT JOIN BOQDetail IR ON IR.Id = PDAMAP.BOQDetailId
-
-                //			  group by  PDAMAP.BOQDetailId
-                //			)FGChar ON FGChar.BOQDetailId=BOQD.Id
-                //		--Where " + paramter + @"  AND MM.IsAsset=0 AND BOQD.ProcessId='" + processId + @"' AND BOQD.SalesOrderId in(" + parameters + @")
-                //		Where BOQD.ProcessId='" + processId + @"' and 
-                //		Concat(BOQD.SalesOrderId,'-',ISNULL(BOQFGM.FirstCharacteristicsValueId,''),'-',ISNULL(BOQFGM.SecondCharacteristicsValueId,''),'-',ISNULL(BOQFGM.ThirdCharacteristicsValueId,'')) in (" + SOMATART + ")";
-                ////"group by MGM.UserName	,MT.UserName,mm.Id,mm.UserName,BOQD.ArticleId,ART.StandardName,FC.Id,FC.UserName,BOQFGM.FirstCharacteristicsValueId	,isnull(v1.UserName, ''),SC.Id,SC.UserName,BOQFGM.SecondCharacteristicsValueId,isnull(v2.UserName, ''),TC.Id,TC.UserName,BOQFGM.ThirdCharacteristicsValueId,isnull(v3.UserName, ''),TUoM.Id,TUoM.UserName	,BOQD.RequiredQtyPO,BOQD.Consumption,BOQD.WastagePer,POUoMId.Id	,POUoMId.UserName,BaseUoMId.Id,BaseUoMId.UserName,GRNALLO.StockTransactionUoMId,GRNALLO.UserName
-                //,consumptionUoMId.UserName,consumptionUoMId.Id,BOQD.SalesOrderId
-                //,BOQD.FirstCharacteristicsValueId,BOQD.SecondCharacteristicsValueId,BOQD.ThirdCharacteristicsValueId,BOQD.BOQId,Isnull(MMAU.BaseUOMFactor,0)";
-                ////return _sqlRepository.GetDataCollection(sql);
+                
                 sql = @"select 
 						 Convert(bit, 'False') 'check',Null as uoMList
 						,x.MaterialMasterGroupName
@@ -1341,24 +965,11 @@ namespace Library.MaterialManagement.InventoryManagements
                             dr["AddedBy"] = identity.Name;
                             dr["AddedDate"] = System.DateTime.Now.ToString();
                             dr["AddedFromIP"] = identity.IPAddress;
-                            //dr["UpdatedBy"] = "";
-                            //dr["UpdatedDate"] = "";
-                            //dr["UpdatedFromIP"] = "";
                             dr["InventoryReceiveId"] = MasterId.ToString();
                             dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
                             dsDetail.Tables[0].Rows.Add(dr);
                         }
-                        //else
-                        //{
-                        //	DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
-                        //	dr.BeginEdit();
-                        //	dr["ShortageRatePercent"] = UserSendData[i]["ShortageRate"];
-                        //	dr["ShortageValue"] = UserSendData[i]["ShortageValue"];
-                        //	dr["RejectRatePercent"] = UserSendData[i]["RejectionRate"];
-                        //	dr["RejectValue"] = UserSendData[i]["RejectionValue"];
-                        //	dr["RejectClamPercent"] = UserSendData[i]["RejectionClamRate"];
-                        //	dr.EndEdit();
-                        //}
+                        
                     }
 
 
@@ -1452,24 +1063,12 @@ namespace Library.MaterialManagement.InventoryManagements
                         dr["AddedBy"] = identity.Name;
                         dr["AddedDate"] = System.DateTime.Now.ToString();
                         dr["AddedFromIP"] = identity.IPAddress;
-                        //dr["UpdatedBy"] = "";
-                        //dr["UpdatedDate"] = "";
-                        //dr["UpdatedFromIP"] = "";
+                       
                         dr["PurchaseReturnId"] = MasterId.ToString();
                         dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
                         dsDetail.Tables[0].Rows.Add(dr);
                     }
-                    //else
-                    //{
-                    //	DataRow dr = dsDetail.Tables[0].DefaultView[0].Row;
-                    //	dr.BeginEdit();
-                    //	dr["ShortageRatePercent"] = UserSendData[i]["ShortageRate"];
-                    //	dr["ShortageValue"] = UserSendData[i]["ShortageValue"];
-                    //	dr["RejectRatePercent"] = UserSendData[i]["RejectionRate"];
-                    //	dr["RejectValue"] = UserSendData[i]["RejectionValue"];
-                    //	dr["RejectClamPercent"] = UserSendData[i]["RejectionClamRate"];
-                    //	dr.EndEdit();
-                    //}
+                    
                 }
 
 
@@ -1672,9 +1271,7 @@ namespace Library.MaterialManagement.InventoryManagements
                             "Order by IR.GRNDate DESC";
                     return _sqlRepository.GetDataCollection(Sql);
                 }
-                //"AND IR.CheckedBy is not NULL " +
-                //			"AND IR.CheckedByStatus='Checked'" +
-                //			"AND IR.AuthorizedByStatus = 'Approved'" +
+               
                 catch (Exception ex)
                 {
                     throw new CustomException(ex.Message, ex,
@@ -1701,24 +1298,11 @@ namespace Library.MaterialManagement.InventoryManagements
                     string sqllog = "select * from TRN.GRNApprovalLogTbl where 1=2";
                     con.OpenDataSetThroughAdapter(sqllog, out DataSet dsDetailLog, false, "1");
 
-                    //for (int i = 0; i < UserSendData.Count; i++)
-                    //{
+                   
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
-                        //DataRow dr = dsDetail.Tables[0].NewRow();
-                        //dr["Id"] = GRNDAddiTaxId();
-                        //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                        //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                        //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                        //dr["AddedBy"] = identity.Name;
-                        //dr["AddedDate"] = System.DateTime.Now.ToString();
-                        //dr["AddedFromIP"] = identity.IPAddress;
-                        ////dr["UpdatedBy"] = "";
-                        ////dr["UpdatedDate"] = "";
-                        ////dr["UpdatedFromIP"] = "";
-                        //dr["InventoryReceiveId"] = MasterId.ToString();
-                        //dsDetail.Tables[0].Rows.Add(dr);
+                        
                     }
                     else
                     {
@@ -1777,19 +1361,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
 
-                        //DataRow dr = dsDetail.Tables[0].NewRow();
-                        //dr["Id"] = GRNDAddiTaxId();
-                        //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                        //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                        //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                        //dr["AddedBy"] = identity.Name;
-                        //dr["AddedDate"] = System.DateTime.Now.ToString();
-                        //dr["AddedFromIP"] = identity.IPAddress;
-                        ////dr["UpdatedBy"] = "";
-                        ////dr["UpdatedDate"] = "";
-                        ////dr["UpdatedFromIP"] = "";
-                        //dr["InventoryReceiveId"] = MasterId.ToString();
-                        //dsDetail.Tables[0].Rows.Add(dr);
+                        
                     }
                     else
                     {
@@ -1887,19 +1459,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     dsDetail.Tables[0].DefaultView.RowFilter = "Id='" + UserSendData["Id"].ToString() + "'";
                     if (dsDetail.Tables[0].DefaultView.Count == 0)
                     {
-                        //DataRow dr = dsDetail.Tables[0].NewRow();
-                        //dr["Id"] = GRNDAddiTaxId();
-                        //dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                        //dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                        //dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                        //dr["AddedBy"] = identity.Name;
-                        //dr["AddedDate"] = System.DateTime.Now.ToString();
-                        //dr["AddedFromIP"] = identity.IPAddress;
-                        ////dr["UpdatedBy"] = "";
-                        ////dr["UpdatedDate"] = "";
-                        ////dr["UpdatedFromIP"] = "";
-                        //dr["InventoryReceiveId"] = MasterId.ToString();
-                        //dsDetail.Tables[0].Rows.Add(dr);
+                       
                     }
                     else
                     {
@@ -1910,23 +1470,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         //dr["AuthorizedByStatus"] = null;
                         //dr["IsApproved"] = 0;
                         dr.EndEdit();
-                        //DataRow drlog = dsDetailLog.Tables[0].NewRow();
-                        //drlog["Id"] = MasterId.ToString() + '-' + GRNApprovalLogTblId();
-                        //drlog["CompanyGroupId"] = identity.CompanyGroupId;
-                        //drlog["CompanyId"] = identity.CompanyId;
-                        //drlog["PlantId"] = identity.PlantId;
-                        //drlog["ApprovedBy"] = identity.EmployeeId;
-                        //drlog["Date"] = System.DateTime.Now.ToString();
-                        //drlog["POValue"] = UserSendData["TransactionQty"];
-                        //drlog["Status"] = "UnChecked";
-                        //drlog["AddedBy"] = identity.Name;
-                        //drlog["AddedDate"] = System.DateTime.Now.ToString();
-                        //drlog["AddedFromIP"] = identity.IPAddress;
-                        ////dr["UpdatedBy"] = "";
-                        ////dr["UpdatedDate"] = "";
-                        ////dr["UpdatedFromIP"] = "";
-                        //drlog["GRNID"] = MasterId.ToString();
-                        //dsDetailLog.Tables[0].Rows.Add(drlog);
+                        
                     }
                     //}
 
@@ -2535,55 +2079,6 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rows, 3, _rows, 6].Merge();
                     var _row = 7;
 
-                    //sheet1[_row, 1].Text = "Material";
-                    //sheet1[_row, 1].CellStyle.Font.Size = 10;
-                    //sheet1[_row, 1].CellStyle.Font.Bold = true;
-                    //sheet1[_row, 2].Text = inventoryMaterialList.Rows[0]["MaterialMasterName"].ToString();
-                    //sheet1.Range[_row, 2, _row, 5].Merge();
-                    //sheet1.Range[_row, 1, _row, 5].BorderAround(ExcelLineStyle.Thin);
-                    //sheet1.Range[_row, 1, _row, 2].BorderInside(ExcelLineStyle.Thin);
-
-
-                    ////if (inventoryMaterialList.Rows[0]["IsAsset"].ToString() == "False")
-                    ////{
-                    ////    sheet1[_row - 1, 16].Text = "Of Inventory";
-                    ////    sheet1.UsedRange.CellStyle.Font.Size = 15;
-                    ////    sheet1.UsedRange.CellStyle.Font.Bold = true;
-                    ////    sheet1.UsedRange.WrapText = true;
-                    ////    sheet1.Range[_row, 1].BorderAround(ExcelLineStyle.Thick);
-
-
-                    ////}
-                    ////else
-                    ////{
-                    ////    sheet1[_row - 1, 16].Text = "Of Fixed Asset";
-                    ////    sheet1.UsedRange.CellStyle.Font.Size = 15;
-                    ////    sheet1.UsedRange.CellStyle.Font.Bold = true;
-                    ////    sheet1.UsedRange.WrapText = true;
-                    ////    sheet1.Range[_row, 1].BorderAround(ExcelLineStyle.Thick);
-
-
-                    ////}
-                    //_row++;
-
-                    //sheet1[_row, 1].Text = "Article";
-                    //sheet1[_row, 1].CellStyle.Font.Size = 10;
-                    //sheet1[_row, 1].CellStyle.Font.Bold = true;
-                    //sheet1[_row, 2].Text = inventoryMaterialList.Rows[0]["ArticleName"].ToString();
-                    //sheet1.Range[_row, 2, _row, 5].Merge();
-                    //sheet1.Range[_row, 1, _row, 5].BorderAround(ExcelLineStyle.Thin);
-                    //sheet1.Range[_row, 1, _row, 2].BorderInside(ExcelLineStyle.Thin);
-
-                    //_row++;
-                    //sheet1[_row, 1].Text = "UOM";
-                    //sheet1[_row, 1].CellStyle.Font.Size = 10;
-                    //sheet1[_row, 1].CellStyle.Font.Bold = true;
-                    ////sheet1.UsedRange.WrapText = true;
-                    //sheet1[_row, 2].Text = inventoryMaterialList.Rows[0]["UOM"].ToString();
-                    //sheet1.Range[_row, 2, _row, 5].Merge();
-                    //sheet1.Range[_row, 1, _row, 5].BorderAround(ExcelLineStyle.Thin);
-                    //sheet1.Range[_row, 1, _row, 2].BorderInside(ExcelLineStyle.Thin);
-
                     _row++;
 
                     sheet1[_row, 1].Text = "RECEIPTS";
@@ -3175,100 +2670,6 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[Row_Total_Start, colBalanceQty, _rowL, colBalanceAmount].BorderAround(ExcelLineStyle.Thin);
                     sheet1.Range[Row_Total_Start, colBalanceQty, _rowL, colBalanceAmount].BorderInside(ExcelLineStyle.Hair);
 
-
-                    //#region sumCalc
-
-                    //_rowL++;
-                    //sheet1.Range[_rowL, 1, _rowL, 2].Merge();
-                    //report.SetText(ref sheet1, _rowL, 1, "Total :", true);
-                    ////report.SetText(ref sheet2, _rowL, 1, "Total :", true);
-                    //sheet1.Range[_rowL, 1, _rowL, 2].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-                    //sheet1.Range[_rowL, colRCVQuantity].Formula = "=SUM(" + report.GetColumnNameForXls(colRCVQuantity) + Row_Total_Start + ":" + report.GetColumnNameForXls(colRCVQuantity) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colRCVQuantity].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colRCVQuantity].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-                    ////BorderAround(ExcelLineStyle.Thick);
-
-
-
-                    //sheet1.Range[_rowL, colRCVAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colRCVAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colRCVAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colRCVAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colRCVAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 5].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-                    ////PO Return
-
-                    //sheet1.Range[_rowL, colPurchaseReturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colPurchaseReturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colPurchaseReturnQty) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colPurchaseReturnQty].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colPurchaseReturnQty].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-                    //sheet1.Range[_rowL, colPurchaseReturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colPurchaseReturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colPurchaseReturnAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colPurchaseReturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colPurchaseReturnAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-
-
-                    ////Issue 
-
-
-                    //sheet1.Range[_rowL, colIssueQty].Formula = "=SUM(" + report.GetColumnNameForXls(colIssueQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssueQty) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colIssueQty].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colIssueQty].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 3].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-                    //sheet1.Range[_rowL, colIssueAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colIssueAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssueAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colIssueAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colIssueAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-                    ////STOCK BALANCE
-                    //sheet1.Range[_rowL, colBalanceQty].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceQty) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colBalanceQty].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colBalanceQty].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 11].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-                    //sheet1.Range[_rowL, colBalanceAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colBalanceAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colBalanceAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colBalanceAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colBalanceAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 13].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-
-                    ////Issue Return 
-                    //sheet1.Range[_rowL, colIssuereturnQty].Formula = "=SUM(" + report.GetColumnNameForXls(colIssuereturnQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssuereturnQty) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colIssuereturnQty].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colIssuereturnQty].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-                    //sheet1.Range[_rowL, colIssuereturnAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colIssuereturnAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colIssuereturnAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colIssuereturnAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colIssuereturnAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-                    ////Adustment 
-                    //sheet1.Range[_rowL, colAdjustmentQty].Formula = "=SUM(" + report.GetColumnNameForXls(colAdjustmentQty) + Row_Total_Start + ":" + report.GetColumnNameForXls(colAdjustmentQty) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colAdjustmentQty].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colAdjustmentQty].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 8].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-
-                    //sheet1.Range[_rowL, colAdjustmentAmount].Formula = "=SUM(" + report.GetColumnNameForXls(colAdjustmentAmount) + Row_Total_Start + ":" + report.GetColumnNameForXls(colAdjustmentAmount) + (_rowL - 1) + ")";
-                    //sheet1.Range[_rowL, colAdjustmentAmount].NumberFormat = report.NumberFormatDecimalTwo();
-                    //sheet1.Range[_rowL, colAdjustmentAmount].CellStyle.Font.Bold = true;
-                    //sheet1.Range[_rowL, 1, _rowL, 10].CellStyle.Font.Underline = ExcelUnderline.Double;
-
-
-                    //#endregion sumCalc
 
 
                     sheet1.Name = sheet1Name;
@@ -5932,41 +5333,7 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string paramter = "";
-                //if (Material != "")
-                //{
-                //	if (paramter == "")
-                //		paramter += "ISNULL(mm.Id,'') in(" + Material + ")";
-                //	else
-                //		paramter += " AND ISNULL(mm.Id,'') in(" + Material + ")";
-                //}
-                //if (Article != "")
-                //{
-                //	if (paramter == "")
-                //		paramter += "ISNULL(MRD.ArticleId,'') in(" + Article + ")";
-                //	else
-                //		paramter += " AND ISNULL(MRD.ArticleId,'') in(" + Article + ")";
-                //}
-                //if (Skuvalue1 != "")
-                //{
-                //	if (paramter == "")
-                //		paramter += "ISNULL(BOQD.FirstCharacteristicsValueId,'') in(" + Skuvalue1 + ")";
-                //	else
-                //		paramter += " AND ISNULL(BOQD.FirstCharacteristicsValueId,'') in(" + Skuvalue1 + ")";
-                //}
-                //if (Skuvalue2 != "")
-                //{
-                //	if (paramter == "")
-                //		paramter += "ISNULL(BOQD.SecondCharacteristicsValueId,'') in(" + Skuvalue2 + ")";
-                //	else
-                //		paramter += " AND ISNULL(BOQD.SecondCharacteristicsValueId,'') in(" + Skuvalue2 + ")";
-                //}
-                //if (Skuvalue3 != "")
-                //{
-                //	if (paramter == "")
-                //		paramter += "ISNULL(BOQD.ThirdCharacteristicsValueId,'') in(" + Skuvalue3 + ")";
-                //	else
-                //		paramter += " AND ISNULL(BOQD.ThirdCharacteristicsValueId,'') in(" + Skuvalue3 + ")";
-                //}
+               
 
                 if (string.IsNullOrEmpty(Skuvalue1) || Skuvalue1 == "null")
                 {
@@ -6026,32 +5393,6 @@ And IR.IsApproved = 1 and IR.GRNType='GRNBYPO' AND IR.TransformationContractId='
 						Group By GRNAllocation.TransactionUoMId,UOM.UserName,GRNAllocation.SalesOrderId,mm.Id ,mm.UserName ,MMM.Id,MMM.StandardName,FC.Id,FC.UserName,IM.FirstCharacteristicsValueId,isnull(v1.UserName,''),SC.Id,SC.UserName,IM.SecondCharacteristicsValueId,isnull(v2.UserName,''),TC.Id,TC.UserName,IM.ThirdCharacteristicsValueId,isnull(v3.UserName,'')";// ,MMAU.BaseUOMFactor
                     return _sqlRepository.GetDataCollection(sql);
 
-                    //var Data = _sqlRepository.GetDataCollection(sql);
-                    //StringCollection strCol = new StringCollection();
-                    //string MaterialMasterList = "''";
-                    //for (int i = 0; i < Data.Count; i++)
-                    //{
-                    //	if (strCol.Contains(Data[i]["MaterialMasterId"].ToString()) == true)
-                    //		continue;
-                    //	strCol.Add(Data[i]["MaterialMasterId"].ToString());
-                    //	MaterialMasterList += ",'" + Data[i]["MaterialMasterId"].ToString() + "'";
-
-                    //}
-
-                    //var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
-                    //													union
-                    //													select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
-                    //													) AS M
-                    //													 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
-                    //													 where m.Id in (" + MaterialMasterList + @")");
-
-                    //for (int i = 0; i < Data.Count; i++)
-                    //{
-                    //	var temp = UOMList.Where(ee => ee["MaterialMasterId"].ToString() == Data[i]["MaterialMasterId"].ToString()).ToList();
-                    //	Data[i]["uoMList"] = temp;
-                    //}
-
-                    //return Data;
                 }
                 catch (Exception ex)
                 {

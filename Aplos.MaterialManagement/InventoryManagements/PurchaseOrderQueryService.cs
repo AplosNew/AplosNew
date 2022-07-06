@@ -36,10 +36,10 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             var tempsql = "";
-            if (string.IsNullOrEmpty(ContractId))
+            if (!string.IsNullOrEmpty(ContractId))
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '') ) AND
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) AND
                                     (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')";
             }
             else
