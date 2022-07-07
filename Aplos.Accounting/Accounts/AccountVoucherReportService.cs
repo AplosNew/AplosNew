@@ -6826,6 +6826,12 @@ namespace Library.Accounting.Accounts
             int colSubCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher Category";
+            int colVoucherCategory = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6886,6 +6892,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
                 worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
                 worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
+                worksheet[ROW, colVoucherCategory].Text = dtDayBookData.Rows[i]["VoucherCategory"].ToString();
 
                 //if (checkbox == true)
                 //{
