@@ -1892,20 +1892,23 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
-        public IEnumerable<object> view(Dictionary<string,string> parameters)
+        public IEnumerable<object> GetViewData(Dictionary<string,string> parameters)
         {
             try
             {
                 var _sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId
                                     ,EC.UserName EmployeeType,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
 									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate,'dd-MMM-yyyy')AddedDate
-								    ,RM.Vacancy,O.Occupied,Available=RM.Vacancy-O.Occupied
+								    ,isnull(RM.Vacancy,0) Vacancy,isnull(O.Occupied,0) Occupied,Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0)
 									from ResidenceMaster RM
 									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
 									left join ORG.Plant P on P.Id=RM.PlantId
 									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
 									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
-									LEFT JOIN(select COUNT(EmployeeSystemId)Occupied,ResidenceId from dbo.ResidenceAllocatedEmployees Where isOccupied=1 Group BY ResidenceId) O ON O.ResidenceId=RM.Id
+									LEFT JOIN(
+									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
+									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
+									Where A.isOccupied=1 and EI.PlantId in(" + parameters["PlantId"] + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     where RM.Id in(" + parameters["ResidenceMasterId"] + @")
                                         AND RG.Id in(" + parameters["ResidenceGroupId"] + @")
                                         AND P.Id in(" + parameters["PlantId"] + @")
@@ -1920,7 +1923,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         }
 
-        public IEnumerable<object> getemployeeDelete(string plantId, string CompanyId)
+        public IEnumerable<object> getemployeeDataList(string plantId)
         {
             try
             {
@@ -1928,7 +1931,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
                 string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
 
-                string CmdText = @"SELECT Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                string CmdText = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
@@ -1944,10 +1947,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                              Where EMP.PlantId='" + plantId + @"' 
-                                AND EMP.EmployeeStatus='Active'  And
-                            (EMP.DOJ <= '" + LastDayOfTheMonth + @"') and (DOS IS NULL OR EMP.DOS>='" + FirstDayOfTheMonth + @"') And EMP.CompanyId='" + CompanyId + @"'
-                        ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
+                              Where EMP.PlantId ='"+plantId+ @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees Where isOccupied=1) AND ISNULL(EMP.ResidenceGroupId,'')<>''
+                              ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
             }
@@ -1959,7 +1960,35 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
+        public IEnumerable<object> getviewUnallocation(string plantId)
+        {
+            try
+            {
+                string CmdText = @"select RAE.Id,EI.EmployeeCode,EI.SystemId EmployeeId,EI.EmployeeName,D.UserName Department,DE.UserName Designation
+                                            ,S.UserName Section,SS.UserName SubSection,L.UserName Line,format(EI.DOJ,'dd-MMM-yyyy') DOJ
+                                            ,RM.AssetName ResidenceName,RAE.isOccupied
 
+                                            from ResidenceAllocatedEmployees RAE
+                                            left join ResidenceMaster RM on RM.Id=RAE.ResidenceId 
+                                            left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
+                                            left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
+                                            left join ORG.Department D on D.Id=EI.DepartmentId
+                                            left join ORG.Section S on S.Id=EI.SectionId
+                                            left join ORG.SubSection SS on SS.Id=EI.SubSectionId
+                                            left join ORG.Line L on L.Id=EI.LineId 
+                                
+                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1
+                                AND EI.EmployeeStatus='Active' ";
+
+                return _sqlRepository.GetDataCollection(CmdText, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
         public IEnumerable<object> PopupEmployeeView(string fromDate, string toDate, string EmployeeCategorySystemID)
         {
             try
@@ -1993,7 +2022,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
-        public void Save(List<Dictionary<string, object>> EmployeeList, string ResidenceMasterId)
+        public void Save(List<Dictionary<string, object>> EmployeeList)
         {
 
             try
@@ -2022,9 +2051,6 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     if (dv.Count == 0)
                     {
                         item["Id"] = _Id + "-" + count;
-                        item["ResidenceId"] = ResidenceMasterId;
-                        item["EmployeeSystemId"] = item["SystemId"];
-                        item["isOccupied"] = true;
                         item["Date"] = DateTime.Now;
                         AddNewRow(dsMaster.Tables[0], item);
                     }

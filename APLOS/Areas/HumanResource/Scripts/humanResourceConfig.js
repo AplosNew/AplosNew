@@ -732,9 +732,9 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/ScatteredWeekOff/Aplos',
             controller: 'ScatteredWeekOffController'
         })
-        .when('/residence-status-location', {
-            templateUrl: 'humanResource/ResidenceStatusLocation/Aplos',
-            controller: 'ResidenceStatusLocationController'
+        .when('/residence-status-allocation', {
+            templateUrl: 'humanResource/ResidenceStatusAllocation/Aplos',
+            controller: 'ResidenceStatusAllocationController'
         })
 
         .when('/absentism-reasoning-master', {
