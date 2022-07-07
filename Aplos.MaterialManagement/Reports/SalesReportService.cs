@@ -917,7 +917,7 @@ namespace Library.MaterialManagement.Reports
                 //Closes the instance of document objects
 
                 //Saves the PDF file 
-                string Prefix = "LocalTaxInvoiceWithoutSUI" + plantId;
+                string Prefix = "LocalTaxInvoiceWithoutSKU" + plantId;
 
                 pdfDocument.Save(Prefix + ".pdf", System.Web.HttpContext.Current.Response, HttpReadType.Save);
                 //Closes the instance of document objects
@@ -1926,7 +1926,7 @@ namespace Library.MaterialManagement.Reports
             sales = loadLocalTaxMaterialMaster(salesId);
             materialTax = loadOrderMasterTax(salesId);
 
-            int LasColumnIndex = 9;
+            int LasColumnIndex = 7;
             Dictionary<string, int> dicTaxes = new Dictionary<string, int>();
             DataView dv = new DataView(materialTax.DefaultView.ToTable(true, "TaxCode"));
 
