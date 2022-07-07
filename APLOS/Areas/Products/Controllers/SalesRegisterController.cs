@@ -174,7 +174,7 @@ namespace Aplos.Areas.Products.Controllers
             return jsondata;
         }
         [Authorize, HttpPost]
-        public JsonResult GetSalesRegister(string FromDate, string ToDate, string Type)
+        public ActionResult GetSalesRegister(string FromDate, string ToDate, string Type)
         {
 
             DateTime fDate = DateTime.Parse(FromDate);
@@ -191,8 +191,11 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             SalesQueryService obj = new SalesQueryService(_sqlRepository);
-            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetSalesRegisterSql(FromDate, ToDate, Type));
-            return Json(new { NewData, Message = AplosMessage.Success });
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson
+                (obj.GetSalesRegisterSql(FromDate, ToDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
 
         }
 

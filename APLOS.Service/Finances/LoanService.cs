@@ -441,6 +441,11 @@ namespace Library.Service.Finances
 
                 if (voucherVM.IsLoanSetOff)
                 {
+                    if((voucherVM.Amount!= existingLoanList.Sum(r => r.LoanSetOffAmount)) && voucherVM.BankMasterId==null)
+                    {
+                        throw new CustomException("Dr Cr Amount Not Match!");
+                    }
+
                     var currentDetailId = 0;
                     foreach (var item in existingLoanList)
                     {

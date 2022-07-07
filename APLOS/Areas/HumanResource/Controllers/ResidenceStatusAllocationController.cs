@@ -14,11 +14,11 @@ using Library.HumanResource.NewAttendanceProcess;
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
-    public class ResidenceStatusLocationController : Controller
+    public class ResidenceStatusAllocationController : Controller
     {
         ResidenceStatusLocationService rsl = new ResidenceStatusLocationService();
         private readonly ISqlRepository _sqlRepository;
-        public ResidenceStatusLocationController(ISqlRepository R)
+        public ResidenceStatusAllocationController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -62,10 +62,16 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDelete()
+        public JsonResult getemployeeDataList(string plantId)
+        {
+            return Json(rsl.getemployeeDataList(plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult viewUnallocation(string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(rsl.getemployeeDelete(identity.PlantId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getviewUnallocation(PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -176,9 +182,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult view(Dictionary<string,string> parameters)
+        public ActionResult GetViewData(Dictionary<string,string> parameters)
         {
-            return Json(rsl.view(parameters), JsonRequestBehavior.AllowGet);
+            return Json(rsl.GetViewData(parameters), JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost, Authorize]
@@ -189,12 +195,12 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Save Operations
         [HttpPost]
-        public JsonResult residenceStatusSave(List<Dictionary<string, object>> EmployeeList, string ResidenceMasterId)
+        public JsonResult residenceStatusSave(List<Dictionary<string, object>> EmployeeList)
         {
 
             try
             {
-                rsl.Save(EmployeeList, ResidenceMasterId);
+                rsl.Save(EmployeeList);
                 return Json(new { Data = EmployeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }

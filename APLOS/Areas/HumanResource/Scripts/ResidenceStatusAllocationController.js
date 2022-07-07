@@ -1,10 +1,10 @@
 ﻿'use strict';
-ResidenceStatusLocationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ResidenceStatusLocationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ResidenceStatusAllocationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function ResidenceStatusAllocationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Residence Status/Allocation/Unallocation';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/ResidenceStatusLocation/';
+    $scope.path = 'HumanResource/ResidenceStatusAllocation/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -112,13 +112,11 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
         $scope.filterComplete();
         $http({
             method: "POST",
-            url: $scope.path + 'view',
+            url: $scope.path + 'GetViewData',
             data: { 'parameters': $scope.parameters },
-            //url: $scope.path + 'view?PlantId=' + $scope.selectedData.PlantId + '&ResidenceGroupId=' + $scope.selectedData.ResidenceGroupId ,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelList = response.data;
-            $scope.getEmployee();
         })
     }
 
@@ -126,240 +124,133 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     //$scope.AvailablePopUpData = function (data) {
     //    location.href = $scope.path + "GetEmployeeDeleteInfo?grnId=" + data.Id;
     //};
+    $scope.PlantId = null;
     $scope.dataList = [];
-    $scope.AvailablePopUpData = function () {
+    $scope.AvailablePopUpData = function (data) {
+        $scope.ResidenceId = data.data.ResidenceMasterId;
+        $scope.PlantId = data.data.PlantId;
         $scope.dataList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'getemployeeDelete'
+            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId
         }).then(function successCallback(response) {
             $scope.dataList = response.data;
+            $scope.UnallocationView();
         });
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
 
-    $scope.closeEmployeePopUp = function () {
+    $scope.closeEmployeePopUps = function () {
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
-    // All List Variables are here for dropdown
-    //$scope.PlantList = [];
-    //$scope.LocationList = [];
-    //$scope.ResidenceGroupIdList = [];
-    //$scope.ResidenceCategoryList = [];
-    //$scope.ResidenceSubCategoryList = [];
-    //$scope.BlockList = [];
 
-    //$scope.getPlant = function () {
-    //    $http({
-    //        method: 'POST',
-    //        data: {            
-    //                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //            },
-    //        url: $scope.path + 'getPlant',
-    //    }).then(function success(response) {
-    //        $scope.PlantList = response.data;
-    //    });
-    //}
-   // $scope.getPlant();
+    $scope.closeEmployeePopUp = function () {
+        MakeData();
+        $scope.SaveAllocation();
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
 
-    //$scope.getLocation = function () {
-    //    $http({
-    //        method: 'POST',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //        url: $scope.path + 'getLocation',
-    //    }).then(function successCallback(response) {
-    //        $scope.LocationList = [];
-    //        $scope.LocationList = response.data;
-    //    });
-    //}
-    //$scope.getLocation();
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPartyWise });
+    };
 
-    //$scope.ResidenceGId = null;
-    //$scope.getResidenceGroup = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getResidenceGroup',
-    //    }).then(function success(response) {
-    //        $scope.ResidenceGroupIdList = response.data;
+    function CheckBoxSelectAllPartyWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.dataList.length; i++) {
+                $scope.dataList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.saveList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.dataList.length; i++) {
+            if ($scope.dataList[i].isSelected == true) {
+                if (checkExists($scope.saveList, $scope.dataList[i].EmployeeCode) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.EmployeeCode = $scope.dataList[i].EmployeeCode;
+                    ob.EmployeeName = $scope.dataList[i].EmployeeName;
+                    ob.EmployeeSystemId = $scope.dataList[i].SystemID;
+                    ob.ResidenceId = $scope.ResidenceId;
+                    ob.isOccupied = true;
+                    ob.Date = Date.now();
+                    $scope.saveList.push(ob);
+                }
+                else {
+                    throw "This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.";
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SaveAllocation = function () {
+        try {
             
-    //    });
-    //}
-    //$scope.getResidenceGroup();
+            $http({
+                method: 'POST',
+                url: $scope.path + 'residenceStatusSave',
+                data: { 'EmployeeList': $scope.saveList},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UnallocationView();
+                    $scope.view();
+                    $scope.saveList = [];
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
 
-    //$scope.EmpServiceTypeList = [];
-    //$scope.getServiceType = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getServiceType',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.EmpServiceTypeList = response.data;
-    //    });
-    //}
-    //$scope.getResidenceCategory();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
 
-    //$scope.getResidenceSubCategory = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getResidenceSubCategory',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.ResidenceSubCategoryList = response.data;
-    //    });
-    //}
-   // $scope.getResidenceSubCategory();
 
-    //$scope.getBlock = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getBlock',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.BlockList = response.data;
-    //    });
-    //}
-   // $scope.getBlock();
+    $scope.ModelUnallocationList = [];
+    $scope.UnallocationView = function () {
+        $http({
+            method: "Get",
+            url: $scope.path + 'viewUnallocation?PlantId=' + $scope.PlantId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelUnallocationList = response.data;
+        })
+    }
+    $scope.UnallocationView();
 
-    //$scope.RoomList = [];
 
-    //$scope.getRoom = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getRoom',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.RoomList = response.data;
-    //    });
-    //}
-    //$scope.getRoom();
 
-    //$scope.EmployeeTypeIdList = [];
-    //$scope.getEmployeeType = function () {
-    //    $http({
-    //        method: 'POST',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //        url: $scope.path + 'getEmployeeType',
-    //    }).then(function success(response) {
-    //        $scope.EmployeeTypeIdList = response.data;
-    //    });
-    //}
-   // $scope.getEmployeeType();
 
-    //$scope.ResidenceNumberList = [];
-    //$scope.getResidenceNumber = function () {
-    //    $http({
-    //        method: 'POST',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //        url: $scope.path + 'getResidenceNumber',
-    //    }).then(function success(response) {
-    //        $scope.ResidenceNumberList = response.data;
-    //    });
-    //}
-   // $scope.getResidenceNumber();
-
-    //$scope.FloreList = [];
-    //$scope.getFloor = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getFloor',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.FloreList = response.data;
-    //    });
-    //}
-    // $scope.getFloor();
-    //$scope.ResidentTypeList = [];
-    //$scope.getResidentType = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getResidentType',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.ResidentTypeList = response.data;
-    //    });
-    //}
-
-    //$scope.AssetNameList = [];
-    //$scope.getAssetName = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getAssetName',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //    }).then(function success(response) {
-    //        $scope.AssetNameList = response.data;
-
-    //        $scope.getVacancy();
-    //    });
-    //}
-
-    //$scope.getVacancy = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'getVacancy',
-    //        data: {
-    //            'PlantId': $scope.selectedData.PlantId,
-    //            'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
-    //        },
-    //        dataType:'JSON',
-    //    }).then(function success(response) {
-    //        $scope.VacancyList = response.data;
-    //    })
-    //}
-
-    //$scope.selectedData = {
-    //    Id: null,      
-    //    PlantId: null,
-    //    ResidedenceGroupId: null,
-    //    EmployeeCategoryId: null,
-    //    //Occupied: null,
-    //    Location: null,
-    //    AssetName:null,
-    //    ResidenceSubCategory: null,
-    //    ResidenceCategory: null,
-    //    Rooms: null,
-    //    Block: null,
-    //    ResidenceType: null,
-    //    Floor: null,
-    //    ResidenceType: null,
-    //    ResidenceNumber: null,
-    //    VacancyStatus: null,
-    //    Vacancy:null,
-    //    isActive: 0,
-    //    afterDate: null,
-    //    toDate:null,
-    //};
-
-    
     
     $scope.popupEmployeeList = [];
     $scope.PopupEmployeeView = function () {
@@ -590,25 +481,25 @@ function ResidenceStatusLocationController(cboService, commonMessage, $scope, $r
     //    });
     //}
 
-    $scope.ResidenceStatusSave = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + 'residenceStatusSave',
-            data: {
-                'EmployeeList': $scope.EmployeeList,
-                'ResidenceMasterId': $scope.ResidenceGroupIdList[0].Id,
-            },
-            dataType: 'JSON',
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                ShowResult(response.data.Message, 'success');
-            }
-            $scope.Clear();
-        });
-    }
+    //$scope.ResidenceStatusSave = function () {
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.path + 'residenceStatusSave',
+    //        data: {
+    //            'EmployeeList': $scope.EmployeeList,
+    //            'ResidenceMasterId': $scope.ResidenceGroupIdList[0].Id,
+    //        },
+    //        dataType: 'JSON',
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            ShowResult(response.data.Message, 'success');
+    //        }
+    //        $scope.Clear();
+    //    });
+    //}
 
 
     $scope.ResidenceStatusLocationList = [];
