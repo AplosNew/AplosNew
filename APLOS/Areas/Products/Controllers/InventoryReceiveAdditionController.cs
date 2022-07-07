@@ -42,6 +42,21 @@ namespace Aplos.Areas.Products.Controllers
                 throw e;
             }
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetPurchaseConfirmationGRNData(string PlantId, string fromDate, string toDate, string vendorId,string materialTypeId,string materialMasterId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+                return Json(obj.PurchaseConfirmationGRNData(identity.PlantId, fromDate, toDate, vendorId, materialTypeId, materialMasterId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 

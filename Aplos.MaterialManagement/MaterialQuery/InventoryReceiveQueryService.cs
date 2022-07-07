@@ -5809,5 +5809,28 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
 			}
 		}
+
+		public IEnumerable<object> PurchaseConfirmationGRNData(string PlantId, string fromDate, string todate, string vendorId, string materialTypeId, string materialId)
+		{
+			try
+			{
+				var sql = @"SELECT  P.UserName Vendor,MMT.UserName MaterialType,MM.UserName Material,IRD.* 
+							FROM TRN.InventoryReceiveDetail IRD 
+							LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId 
+							JOIN( select distinct MaterialMasterId,Id from TRN.InventoryMaterial) IM on IM.Id=IRD.InventoryMaterialId
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+							LEFT JOIN HKP.MaterialMasterType MMT ON MMT.Id=MM.MaterialMasterTypeId
+							LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+							where IR.PlantId='' AND IR.PartyId IN () AND IM.MaterialMasterId IN () AND MM.MaterialMasterTypeId IN ()
+							AND IR.GRNDate BETWEEN '' AND '' ";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
 	}
 }

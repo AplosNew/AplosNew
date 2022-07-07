@@ -6,40 +6,30 @@ function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseS
     $scope.path = 'Products/InventoryReceiveAddition/';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
-    $scope.ToDate = null;
-    $scope.FromDate = null;
-    $scope.model = { State: 'EmployeeWise', Status: 'All', Task: 'WithTask' };
-
-    $scope.ChangeState = function () {
-        $scope.TaskManagementDataList = [];
-    }
-
-    $scope.Today = new Date();
-    $scope.PreviousMonth = new Date().setDate(new Date().getDate() - 31);
-    $scope.NextMonth = new Date().setDate(new Date().getDate()-1);
-    $scope.FromDate = $filter("dateFiltering")($scope.PreviousMonth);
-    $scope.ToDate = $filter("dateFiltering")($scope.NextMonth);
+    $scope.model = { FromDate:null,ToDate:null };
+    $scope.modelNew = Object.assign({}, $scope.model);
+   
 
     $scope.filters = [];
     $scope.getFiltersData = function () {
         try {
-            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+            if (baseService.isUndefinedOrNull($scope.model.FromDate)) {
                 throw "From Date is required.";
             }
-            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
+            else if (baseService.isUndefinedOrNull($scope.model.ToDate)) {
                 throw "To Date is required.";
             }
-            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
+            else if (new Date($scope.model.FromDate) > new Date($scope.model.ToDate)) {
                 throw "From date must be below or equal to To Date";
             }
-            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
+            else if (new Date($scope.model.ToDate) < new Date($scope.model.FromDate)) {
                 throw "To date must be above or equal to From Date.";
             }
 
 
             $http({
                 method: 'GET',
-                url: 'Products/InventoryReceiveAddition/GetFiltersPurchaseconfirmationData?fromDate=' + $scope.FromDate + '&todate=' + $scope.ToDate,
+                url: 'Products/InventoryReceiveAddition/GetFiltersPurchaseconfirmationData?fromDate=' + $scope.model.FromDate + '&todate=' + $scope.model.ToDate,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.filters = response.data;
@@ -98,109 +88,87 @@ function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseS
         }
         return string;
     }
+    $scope.PurchaseConfirmationGRNDataList = [];
+    $scope.GetPurchaseConfirmationGRNData = function () {
+        if ($scope.model.FromDate === "" || $scope.model.FromDate === null || $scope.model.FromDate === undefined) {
+            ShowResult('Select From Date', 'failure');
+            return false;
+        }
+        if ($scope.model.ToDate === "" || $scope.model.ToDate === null || $scope.model.ToDate === undefined) {
+            ShowResult('Select To Date', 'failure');
+            return false;
+        }
 
-    $scope.GetTaskManagementReport = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.FromDate)) {
-                throw "From Date is required.";
+        var dataList = [];
+        var g = $("#filters").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var vendorids = "";
+        var materialTypeids = "";
+        var materialMasterids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (vendorids == "") {
+                    vendorids = "'','" + dataList[i].VendorId + "'";
+                }
+                else {
+                    vendorids += ",'" + dataList[i].VendorId + "'";
+                }
+                if (materialTypeids == "") {
+                    materialTypeids = "'','" + dataList[i].MaterialTypeId + "'";
+                }
+                else {
+                    materialTypeids += ",'" + dataList[i].MaterialTypeId + "'";
+                }
+                if (materialMasterids == "") {
+                    materialMasterids = "'','" + dataList[i].MaterialMasterId + "'";
+                }
+                else {
+                    materialMasterids += ",'" + dataList[i].MaterialMasterId + "'";
+                }
             }
-            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
-                throw "To Date is required.";
+        }
+        else {
+            for (var i = 0; i < $scope.filters.length; i++) {
+                if (vendorids == "") {
+                    vendorids = "'','" + $scope.filters[i].VendorId + "'";
+                }
+                else {
+                    vendorids += ",'" + $scope.filters[i].VendorId + "'";
+                }
+                if (materialTypeids == "") {
+                    materialTypeids = "'','" + $scope.filters[i].MaterialTypeId + "'";
+                }
+                else {
+                    materialTypeids += ",'" + $scope.filters[i].MaterialTypeId + "'";
+                }
+                if (materialMasterids == "") {
+                    materialMasterids = "'','" + $scope.filters[i].MaterialMasterId + "'";
+                }
+                else {
+                    materialMasterids += ",'" + $scope.filters[i].MaterialMasterId + "'";
+                }
             }
-            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
-                throw "From date must be below or equal to To Date";
-            }
-            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
-                throw "To date must be above or equal to From Date.";
-            }
-
-            $scope.filterComplete();
-            $scope.fileName = "TaskManagementReport.xlsx";
-            if ($scope.model.State == "EmployeeWise") {
-                $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
-            }
-            else if ($scope.model.State == "DepartmentWise") {
-                $scope.fileName = "TaskManagementReportDepartmentWise.xlsx";
+        }
+        $http({
+            method: 'POST',
+            url: 'Products/InventoryReceiveAddition/GetPurchaseConfirmationGRNData',
+            data: {
+                'fromDate': $scope.model.FromDate,
+                'toDate': $scope.model.ToDate,
+                'vendorId': vendorids,
+                'materialTypeId': materialTypeids,
+                'materialMasterId': materialMasterids,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
             }
             else {
-                $scope.fileName = "TaskManagementReportDesignationGroupWise.xlsx";
+                $scope.PurchaseConfirmationGRNDataList = response.data;
             }
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetTaskManagementReport",
-                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
     }
-
-    $scope.GetTaskManagementData = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.FromDate)) {
-                throw "From Date is required.";
-            }
-            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
-                throw "To Date is required.";
-            }
-            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
-                throw "From date must be below or equal to To Date";
-            }
-            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
-                throw "To date must be above or equal to From Date.";
-            }
-
-            $scope.TaskManagementDataList = [];
-            $scope.filterComplete();
-
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetTaskManagementData",
-                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $scope.TaskManagementDataList = response.data;
-                    var totalTask = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "CreatedTask");
-                    var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
-                    for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
-                        if ($scope.TaskManagementDataList[i].CreatedTask == 0) {
-                            $scope.TaskManagementDataList[i].TotalStoryPoint = 0;
-                        }
-                        $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
-                        if (isNaN($scope.TaskManagementDataList[i].OfTotalTask)) {
-                            $scope.TaskManagementDataList[i].OfTotalTask = 0;
-                        }
-                        $scope.TaskManagementDataList[i].PerTaskDue = Math.ceil(($scope.TaskManagementDataList[i].TaskDue / totalTaskDue) * 100);
-                        $scope.TaskManagementDataList[i].OverdueTask = $scope.TaskManagementDataList[i].TaskDue - $scope.TaskManagementDataList[i].OnTimeTask - $scope.TaskManagementDataList[i].LateTask;
-                        if (isNaN($scope.TaskManagementDataList[i].OverdueTask)) {
-                            $scope.TaskManagementDataList[i].OverdueTask = 0;
-                        }
-                        if (isNaN($scope.TaskManagementDataList[i].PerTaskDue)) {
-                            $scope.TaskManagementDataList[i].PerTaskDue = 0;
-                        }
-                        $scope.TaskManagementDataList[i].Performance = ((($scope.TaskManagementDataList[i].OnTimeTask * 2) + $scope.TaskManagementDataList[i].LateTask * 1) * $scope.TaskManagementDataList[i].PerTaskDue) - $scope.TaskManagementDataList[i].UnRead;//formula
-                    }
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
 }
