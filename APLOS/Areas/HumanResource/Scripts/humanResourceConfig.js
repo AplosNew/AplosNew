@@ -771,6 +771,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/OTControlLimit/Aplos',
             controller: 'OTControlLimitController'
         })
+        .when('/ot-ctr-limit-report', {
+            templateUrl: 'humanResource/OTControlLimit/Report',
+            controller: 'OTControlLimitReportController'
+        })
 
         .when('/ot-reason', {
             templateUrl: 'humanResource/OTRegion/Aplos',

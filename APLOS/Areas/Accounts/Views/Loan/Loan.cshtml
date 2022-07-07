@@ -420,6 +420,13 @@
                             </td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="13" class="text-right">Total</td>
+                            <td class="text-right"><b>{{ (ExistingLoanList) | sumByKey:'LoanSetOffAmount' | number:2}}</b></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 

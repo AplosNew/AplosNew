@@ -347,7 +347,7 @@ namespace Library.Accounting.Accounts
 						,Replace(CONVERT(VARCHAR(11), GLTD.ReconcileDate , 106), ' ', '-') ReconcileDate
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
-                        ,P.UserCategory,P.UserSubCategory
+                         ,PC.UserName UserCategory,PSC.UserName UserSubCategory,VT.Category VoucherCategory
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -360,6 +360,8 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].BudgetSubCategory BSCT ON BSCT.Id=BM.BudgetSubCategoryId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
                         LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN [HKP].PartyCategory PC ON PC.Id=P.PartyCategoryId
+						LEFT JOIN [HKP].PartySubCategory PSC ON PSC.Id=P.PartySubCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
                         LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
                         LEFT JOIN [ORG].[Company] AS CO ON CO.Id=V.CompanyId
@@ -368,7 +370,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [MST].BankMaster AS BKM ON BKM.Id=VD.BankMasterId
                         LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
 					    left join ORG.CostCenter CCE ON CCE.Id =VD.CostCenterId
-
+                        LEFT JOIN SCS.VoucherType VT ON VT.Id=V.VoucherTypeId
                         left join trn.Invoice I on I.VoucherId=V.Id
                         left join trn.InventoryReceive ir on ir.Id=i.InventoryReceiveId
                         left join trn.InventoryIssue ii on ii.VoucherId=v.Id
@@ -6824,6 +6826,12 @@ namespace Library.Accounting.Accounts
             int colSubCategory = COL;
             worksheet[ROW, COL].ColumnWidth = 20;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Voucher Category";
+            int colVoucherCategory = COL;
+            worksheet[ROW, COL].ColumnWidth = 20;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
 
             int endCol = COL;
             worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -6884,6 +6892,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colGLUpdate].Text = dtDayBookData.Rows[i]["GLUpdate"].ToString();
                 worksheet[ROW, colCategory].Text = dtDayBookData.Rows[i]["UserCategory"].ToString();
                 worksheet[ROW, colSubCategory].Text = dtDayBookData.Rows[i]["UserSubCategory"].ToString();
+                worksheet[ROW, colVoucherCategory].Text = dtDayBookData.Rows[i]["VoucherCategory"].ToString();
 
                 //if (checkbox == true)
                 //{

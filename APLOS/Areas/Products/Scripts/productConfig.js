@@ -407,5 +407,10 @@ function ProductConfig($routeProvider, $locationProvider) {
             templateUrl: 'Products/InventorySalesReportMarketing/Aplos',
             controller: 'InventorySalesReportMarketingController'
         })
+
+        .when('/purchase-confirmation', {
+            templateUrl: 'Products/inventoryReceiveAddition/PurchaseConfirmation',
+            controller: 'PurchaseConfirmationController'
+        })
         ;
 }
