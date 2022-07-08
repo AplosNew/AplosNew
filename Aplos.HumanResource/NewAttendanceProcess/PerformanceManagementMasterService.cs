@@ -1947,7 +1947,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                              Where EMP.PlantId ='"+plantId+ @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees Where isOccupied=1) AND ISNULL(EMP.ResidenceGroupId,'')<>''
+                              Where EMP.PlantId ='"+plantId+ @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees Where isOccupied=1) --AND ISNULL(EMP.ResidenceGroupId,'')<>''
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
