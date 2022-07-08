@@ -3279,7 +3279,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColCustomerName].Text = data.Rows[i]["PartyName"].ToString();
 				sheet[ROW, ColBillTo].Text = data.Rows[i]["BillTo"].ToString();
 				sheet[ROW, ColTransactionAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionAmount"].ToString());
-				sheet[ROW, ColTransactionAmount].NumberFormat = 
+				sheet[ROW, ColTransactionAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 
 				sheet[ROW, ColServiceCharge].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceCharge"].ToString());
 				sheet[ROW, ColServiceTax].Number = clsStaticInfo.dbl(data.Rows[i]["ServiceTax"].ToString());
