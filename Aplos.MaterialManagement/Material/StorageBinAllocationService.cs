@@ -130,11 +130,11 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> getAccessType()
+        public IEnumerable<object> getAccessType(string storagesublocation)
         {
             try
             {
-                string sql = @"Select distinct sb.AccessType as Text from MST.StorageBinMaster sb";
+                string sql = @"Select distinct sb.AccessType as Text from MST.StorageBinMaster sb where sb.StorageSubLocation = '"+ storagesublocation + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -200,18 +200,18 @@ namespace Library.MaterialManagement.Material
                  }*/
                 #endregion commented
 
-                sql = @"select bah.Id, bah.UserName as BinHeader, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
-                            mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId
-                            from TRN.BinAllocationHead bah
-							left join mst.MaterialGroupMaster mgm
-							on mgm.Id = bah.MaterialGroupMasterId
-                            left join hkp.materialtype mt
-                            on mgm.materialtypeid = mt.id
-                            left join mst.MaterialMaster mm
-                            on mm.MaterialGroupMasterId = mgm.Id
-                            left join mst.MaterialMasterArticle mma
-                            on mma.materialmasterid = mm.id
-                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                    sql = @"select bah.Id, bah.UserName as BinHeader, mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                                mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId
+                                from TRN.BinAllocationHead bah
+							    left join mst.MaterialGroupMaster mgm
+							    on mgm.Id = bah.MaterialGroupMasterId
+                                left join hkp.materialtype mt
+                                on mgm.materialtypeid = mt.id
+                                left join mst.MaterialMaster mm
+                                on mm.MaterialGroupMasterId = mgm.Id
+                                left join mst.MaterialMasterArticle mma
+                                on mma.materialmasterid = mm.id
+                                where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -220,7 +220,7 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> viewBinAllocation(string storagelocation, string storagesublocation)
+        public IEnumerable<object> viewBinAllocation(string storagelocation, string storagesublocation, string AccessType)
         {
             try
             {
@@ -233,9 +233,9 @@ namespace Library.MaterialManagement.Material
                              left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
                              WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '"+ storagesublocation + "'";*/
                 #endregion commented
-                var sql = @"SELECT sb.Id as StorageBinMasterId, bah.Id, sb.UserName, ms.Id as StorageLocationId, ms.UserName as StorageLocation, e.SystemId as ResponsiblePersonId, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
+                var sql = @"SELECT DISTINCT  ms.UserName as StorageLocation, e.EmployeeName as EmployeeName, sb.StorageSubLocation,
                             sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.UserName, sb.CapacityValue,
-                            sb.AccessType, sb.UserLocationType, sb.Remarks, mm.Id as MaterialmasterId
+                            sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id
                             FROM TRN.BinAllocationHead	bah	
 							left join MST.StorageBinMaster sb on sb.Id = bah.StorageBinMasterId
                             left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
@@ -244,7 +244,7 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = bah.MaterialGroupMasterId
 							left join hkp.materialtype mt on mt.Id = mgm.MaterialTypeId
 							left join mst.MaterialMaster mm on mm.MaterialGroupMasterId = mgm.Id
-                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "'";
+                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "' and sb.AccessType = '"+ AccessType + "'";
                
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -254,11 +254,11 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> selectIDs(string materialType, string materialGroup, string material, string materialArticle)
+        public IEnumerable<object> selectIDs(string materialType, string materialGroup, string material)
         {
             try
             {
-                var sql = @"select bah.Id, mm.Id as MaterialMasterId, 
+                /*var sql = @"select bah.Id, mm.Id as MaterialMasterId, 
                             mma.Id as MaterialMasterArticleId
                             from TRN.BinAllocationHead bah
 							left join mst.MaterialGroupMaster mgm
@@ -270,7 +270,18 @@ namespace Library.MaterialManagement.Material
                             left join mst.MaterialMasterArticle mma
                             on mma.materialmasterid = mm.id
                            
-						   where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "' and mma.Id = '" + materialArticle + "'";
+						   where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";*/
+                var sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                            mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId,
+                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
+							from mst.MaterialMasterArticle mma
+							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
+							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
+							left join trn.BinAllocationHead bah on bah.MaterialMasterArticleId = mm.Id
+                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+
+                        
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -279,19 +290,21 @@ namespace Library.MaterialManagement.Material
             }
         }
 
-        public IEnumerable<object> selectBinIDs(string storagelocation, string storagesublocation)
+        public IEnumerable<object> selectBinIDs(string storagelocation, string storagesublocation, string AccessType)
         {
             try
             {
-                var sql = @"SELECT sb.Id as StorageBinMasterId, bah.Id, mm.Id as MaterialmasterId
+                var sql = @"SELECT DISTINCT 
+                            sb.AreaRackCode, sb.ColumnNo, sb.RowNo, sb.BinCode, sb.BinReference, sb.CapacityValue,
+                            sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId, bah.Id, mm.Id as MaterialMasterId
                             FROM TRN.BinAllocationHead	bah	
 							left join MST.StorageBinMaster sb on sb.Id = bah.StorageBinMasterId
                             left join hkp.MaterialStorage ms on ms.Id = sb.StorageLocation
                             left join dbo.EmployeeInformation e on e.SystemId = sb.ResponsiblePersonId
 							left join mst.MaterialGroupMaster mgm on mgm.Id = bah.MaterialGroupMasterId
 							left join hkp.materialtype mt on mt.Id = mgm.MaterialTypeId
-							left join mst.MaterialMaster mm on mm.MaterialGroupMasterId = mgm.Id
-                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "'";
+							left join mst.MaterialMaster mm on mm.Id = bah.MaterialMasterId
+                        WHERE sb.Id = '" + storagelocation + "' and sb.StorageSubLocation = '" + storagesublocation + "' and sb.AccessType = '"+ AccessType + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -316,61 +329,7 @@ namespace Library.MaterialManagement.Material
         }
         #endregion All Get and select function 
 
-        #region save
-        /*
-         public Dictionary<string, object> Save(Dictionary<string, object> datas)
-         {
-
-             try
-             {
-                 //Master Table - PMSMaster
-                 string TableName = "TRN.BinAllocationHead";
-                 DataSet dsMaster;
-
-                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                 // Validate Unique User Name
-                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
-                 if (dsMaster.Tables[0].Rows.Count > 0)
-                 {
-                     throw new Exception("Same UserName is already there!!");
-                 }
-
-                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
-
-                 string _Id = "";
-
-                 #region data Master update
-                 if (dsMaster.Tables[0].Rows.Count == 0)
-                 {
-                     bplib.clsGenID genid = new bplib.clsGenID();
-                     genid.GenID(TableName, out _Id);
-
-                     datas["Id"] = "SBA" + _Id;
-
-                     AddNewRow(dsMaster.Tables[0], datas);
-                 }
-                 else
-                 {
-                     _Id = datas["Id"].ToString();
-
-
-                     EditRow(dsMaster.Tables[0].Rows[0], datas);
-                 }
-                 #endregion data update
-
-                 clsStaticInfo _info = new clsStaticInfo();
-                 _info.SaveDataSets(dsMaster);
-
-                 return datas;
-             }
-             catch (Exception ex)
-             {
-                 throw ex;
-             }
-         }*/
-
-        #endregion save
+       
 
         #region All Save Function
         public Dictionary<string, object> Save(Dictionary<string, object> datas)

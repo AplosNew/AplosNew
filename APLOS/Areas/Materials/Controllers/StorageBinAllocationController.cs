@@ -116,11 +116,11 @@ namespace Aplos.Areas.Materials.Controllers
         
 
         [Authorize, HttpPost]
-        public ActionResult getAccessType()
+        public ActionResult getAccessType(string storagesublocation)
         {
             try
             {
-                return Json(sba.getAccessType(),JsonRequestBehavior.AllowGet);
+                return Json(sba.getAccessType(storagesublocation),JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -146,11 +146,11 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public ActionResult viewBinAllocation(string storagelocation, string storagesublocation)
+        public ActionResult viewBinAllocation(string storagelocation, string storagesublocation, string AccessType)
         {
             try
             {
-                return Json(sba.viewBinAllocation(storagelocation, storagesublocation), JsonRequestBehavior.AllowGet);
+                return Json(sba.viewBinAllocation(storagelocation, storagesublocation, AccessType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -158,11 +158,11 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public ActionResult selectIDs(string materialType, string materialGroup, string material, string materialArticle) 
+        public ActionResult selectIDs(string materialType, string materialGroup, string material) 
         {
             try
             {
-                return Json(sba.selectIDs(materialType, materialGroup, material, materialArticle), JsonRequestBehavior.AllowGet);
+                return Json(sba.selectIDs(materialType, materialGroup, material), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -170,11 +170,11 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public ActionResult selectBinIDs(string storagelocation, string storagesublocation)
+        public ActionResult selectBinIDs(string storagelocation, string storagesublocation, string AccessType)
         {
             try
             {
-                return Json(sba.selectBinIDs(storagelocation, storagesublocation), JsonRequestBehavior.AllowGet);
+                return Json(sba.selectBinIDs(storagelocation, storagesublocation, AccessType), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
