@@ -2049,7 +2049,6 @@
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ResidenceMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\ResidenceStatusAllocationController.js" />
-    <Content Include="Areas\HumanResource\Scripts\ResidenceStatusLocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
     <Content Include="Areas\HumanResource\Scripts\SalaryDisbursementReportController.js" />
@@ -4178,7 +4177,6 @@
     <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\ResidenceStatusLocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekDefinition.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekMaster.cshtml" />
     <Content Include="Areas\Accounts\Views\GSTLedgerReport.cshtml" />
