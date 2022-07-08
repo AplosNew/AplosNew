@@ -201,16 +201,32 @@ LEFT JOIN dbo.EmployeeInformation AS eiw ON eiw.SystemId = OTL.ByWhom";
             return _sqlRepository.GetDataCollection(sql,null);
         }
 
-        public DataTable GetOTControlLimitData()
+        public DataTable GetOTControlLimitData(string fromDate, string todate)
         {
-            string sql = @"SELECT e.UserName Entity,d.UserName Department,s.UserName Section,SS.UserName SubSection
+            string sql = @"SELECT mb.Id,e.UserName Entity,d.UserName Department,s.UserName Section,SS.UserName SubSection
 ,DGm.EmployeeCategory,DG.UserName Designation
 ,p.Activity,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END
 ,ag.UserName AttendanceGroup,P.UserDefineGroup2
-,p.Code PositionCode,0 PlanDeploymentManDays,0 BudgetedManpower,0 ONRoll
-,0 PresentManpower,0 StandardOT,0 AdditionalOT, 0 TotalOT, 0 OTManDays,0 TotalDeployedMandays,0 ExcessDeploymentMandays
-,0 ShortDeploymentMandays,old.DailyOTLimit,0 ExcessOT,0 ShortOT,old.WeeklyOTLimit,old.WeekOffOTLimit,old.MonthlyOTLimit,old.Remarks
-  FROM dbo.OTControlLimit AS ol
+,p.Code PositionCode
+,DMP.Deployment PlanDeploymentManDays
+	,ISNULL(BMP.BudgetedManpower,0) BudgetedManpower
+	,ISNULL(ONR.ONRoll,0) ONRoll
+	,ISNULL(PMP.PresentManpower,0) PresentManpower
+	,ISNULL(POT.StandardOT,0) StandardOT
+	,ISNULL(POT.AdditionalOT,0) AdditionalOT
+	,ISNULL(TOT.TotalOT,0)TotalOT
+	,0 OTManDays
+	,0 TotalDeployedMandays
+	,0 ExcessDeploymentMandays
+	,0 ShortDeploymentMandays
+	,old.DailyOTLimit
+	,0 ExcessOT
+	,0 ShortOT
+	,old.WeeklyOTLimit
+	,old.WeekOffOTLimit
+	,old.MonthlyOTLimit
+	,old.Remarks
+ FROM dbo.OTControlLimit AS ol
 LEFT JOIN OTControlLimitDetail AS old ON old.OTControlLimitId = ol.Id
 LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=old.BudgetCodeId
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
@@ -221,12 +237,38 @@ LEFT JOIN ORG.SubSection AS SS ON d.Id = p.SubSectionId
 LEFT JOIN HKP.Designation DG ON DG.Id=P.DesignationId 
 LEFT JOIN dbo.AttendanceGroup AS ag ON ag.Id=mb.AttendanceGroupId
 LEFT JOIN (
-SELECT DISTINCT dm.DesignationId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
+SELECT distinct dm.DesignationId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
 LEFT JOIN SCS.DesignationMasterConfiguration AS dmc ON dmc.DesignationMasterId=dm.Id
 LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId
 WHERE dmc.IsOTEntitled=1
 ) DGM ON DGM.DesignationId=DG.Id
-WHERE CONVERT(DATE,ol.EffectiveDate) BETWEEN '26-Jun-2022' AND '26-Jun-2022'";
+LEFT JOIN (SELECT SUM(CAST(Deployment AS int))Deployment,PositionId FROM MST.ManpowerBudget GROUP BY PositionId) DMP ON DMP.PositionId=MB.PositionId
+LEFT JOIN (
+		SELECT COUNT(E.SystemId)/(DATEDIFF(day, '"+ fromDate + @"', '"+todate+@"') + 1) BudgetedManpower,E.PositionId FROM dbo.AttdnProcessData AS apd
+		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
+		WHERE E.EmployeeStatus='Active' AND apd.WorkDate BETWEEN '"+ fromDate + @"' AND '"+todate+@"' GROUP BY E.PositionId
+        ) BMP ON BMP.PositionId=MB.PositionId
+LEFT JOIN (
+		SELECT COUNT(E.SystemId)ONRoll,E.PositionId FROM dbo.AttdnProcessData AS apd
+		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
+		WHERE E.EmployeeStatus='Active' AND apd.WorkDate BETWEEN '"+ fromDate + @"' AND '"+todate+@"' GROUP BY E.PositionId
+        ) ONR ON ONR.PositionId=MB.PositionId
+LEFT JOIN (
+		SELECT COUNT(E.SystemId)PresentManpower,E.PositionId FROM dbo.AttdnProcessData AS apd
+		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
+		WHERE E.EmployeeStatus='Active' AND apd.WorkDate BETWEEN '"+ fromDate + @"' AND '"+todate+@"' AND APD.DayStatus='P' GROUP BY E.PositionId
+        ) PMP ON PMP.PositionId=MB.PositionId
+LEFT JOIN (
+		SELECT SUM(ISNULL(APD.StandardOT,0))StandardOT,SUM(ISNULL(APD.AdditionalOT,0))AdditionalOT,E.PositionId FROM dbo.AttdnProcessData AS apd
+		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
+		WHERE apd.WorkDate BETWEEN '"+ fromDate + @"' AND '"+todate+@"' GROUP BY E.PositionId
+        ) POT ON POT.PositionId=MB.PositionId
+LEFT JOIN (
+		SELECT SUM(ISNULL(APD.OTHr,0))/8 TotalOT,E.PositionId FROM dbo.AttdnProcessData AS apd
+		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
+		WHERE apd.WorkDate BETWEEN '"+ fromDate + @"' AND '"+todate+@"' GROUP BY E.PositionId
+        ) TOT ON POT.PositionId=MB.PositionId
+WHERE CONVERT(DATE,ol.EffectiveDate) BETWEEN '"+ fromDate + @"' AND '"+todate+@"'";
             return _sqlRepository.GetDataTable(sql);
         }
     }
