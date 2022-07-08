@@ -135,6 +135,7 @@ namespace Aplos.Areas.Employees.Controllers
 
         #region GettingOperations
 
+        [HttpGet, Authorize]
         public ActionResult GetCurrentFileList()
         {
             var str = @"Select EmployeeCode, EmployeeName , BudgetCode from dbo.EmployeeInformation";
