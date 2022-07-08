@@ -3739,6 +3739,10 @@ namespace Aplos.MaterialManagement
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignRight);
 			int ColPartyType = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 15, ExcelHAlign.HAlignLeft);
+			int ColPartyAccountGroup = COL;
 
 			endCol = COL;
 			#endregion Headers
@@ -3772,6 +3776,7 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
 				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
 				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
 				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -4373,7 +4378,6 @@ namespace Aplos.MaterialManagement
 			}
 		}
 		
-
 		public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string SLNo, string SheetName)
 		{
 			var excelEngine = new ExcelEngine();
@@ -5351,7 +5355,13 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Account Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -5429,53 +5439,55 @@ namespace Aplos.MaterialManagement
 				report.SetText(ref sheet1, _rowL, 57, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
 				report.SetText(ref sheet1, _rowL, 58, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
 				report.SetText(ref sheet1, _rowL, 59, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
-				report.SetText(ref sheet1, _rowL, 60, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
+				report.SetText(ref sheet1, _rowL, 60, inventoryMaterialList.Rows[n]["POId"].ToString());
+				
+				report.SetText(ref sheet1, _rowL, 61, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
+				report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 69, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
 
-				report.SetText(ref sheet1, _rowL, 61, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
-				report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
-				report.SetText(ref sheet1, _rowL, 67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 69, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
-				report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
+				report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+				report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["Posted"].ToString());
+				report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+				report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["GL"].ToString());
 
-				report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
-				report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
-				report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
-				report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["Posted"].ToString());
-				report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
-				report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
-				report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["GLCode"].ToString());
-				report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["GL"].ToString());
-				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["Budget"].ToString());
+				report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["Activity"].ToString());
+				report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["CGL"].ToString());
+				report.SetText(ref sheet1, _rowL, 86, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 87, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+				report.SetText(ref sheet1, _rowL, 88, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+				report.SetText(ref sheet1, _rowL, 89, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["LCANo"].ToString());
 
-				report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["Budget"].ToString());
-				report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["Activity"].ToString());
-				report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-				report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["CGL"].ToString());
-				report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 86, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-				report.SetText(ref sheet1, _rowL, 87, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-				report.SetText(ref sheet1, _rowL, 88, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 89, inventoryMaterialList.Rows[n]["LCANo"].ToString());
-				report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
-
-				report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
-				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
-				report.SetText(ref sheet1, _rowL, 101, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
-				report.SetText(ref sheet1, _rowL, 102, inventoryMaterialList.Rows[n]["PartyType"].ToString());
+				report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
+				report.SetText(ref sheet1, _rowL, 101, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 102, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 103, inventoryMaterialList.Rows[n]["PartyType"].ToString());
+				report.SetText(ref sheet1, _rowL, 104, inventoryMaterialList.Rows[n]["PartyAccountGroup"].ToString());
 
 				//}
 			}
@@ -5645,6 +5657,10 @@ namespace Aplos.MaterialManagement
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
 			int ColPartyType = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 15, ExcelHAlign.HAlignLeft);
+			int ColPartyAccountGroup = COL;
 
 			endCol = COL;
 			#endregion Headers
@@ -5672,6 +5688,7 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
 				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
 				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
+				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
 				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
