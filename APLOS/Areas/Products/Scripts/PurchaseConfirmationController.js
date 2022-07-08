@@ -98,7 +98,6 @@ function PurchaseConfirmationController(commonMessage, $scope, $rootScope, baseS
             ShowResult('Select To Date', 'failure');
             return false;
         }
-
         var dataList = [];
         var g = $("#filters").data("ejGrid");
         dataList = g.getFilteredRecords();
