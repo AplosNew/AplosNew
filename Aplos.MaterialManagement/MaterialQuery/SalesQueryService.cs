@@ -2809,11 +2809,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
 												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
 									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
@@ -2885,6 +2890,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN (select PartyId,sum(Amount-WrittenOffAmount) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=SA.PartyId
 									WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) " + temp + @"
 									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,IV.ActualDueDate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate
+								,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName
 								UNION ALL
 								SELECT 
 
@@ -2943,6 +2949,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' SONumber
 								,'' PONumber
 								,'' MasterOrder
+,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -2950,7 +2957,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
-								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
+									left Join hkp.Party P On p.id=II.CustomerId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
 								Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
@@ -3016,7 +3029,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.CustomerId
 								WHERE II.PlantId='" + identity.PlantId + @"' AND II.CustomerId<>'' AND convert(Date,II.SalesDate) " + temp + @"
 								GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,IV.ActualDueDate,IV.WrittenOffAmount,IV.CompanyCurrencyRate,Adv.PendingAdvance
-                                UNION ALL
+								 ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName                        
+								
+								UNION ALL
                                 SELECT 
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,II.Id SalesId
@@ -3074,11 +3089,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' SONumber
 								,'' PONumber
 								,'' MasterOrder
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM [TRN].[Invoice] AS II
 								left JOIN (select  InvoiceId,sum(isnull(Amount,0)) TransactionAmount FROM  TRN.InvoiceDetail group by InvoiceId) AS IID ON IID.InvoiceId= II.Id 
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[Party] AS P  ON P.Id=II.PartyId
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.PartyPlantId
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
 								Left Join [SCS].[Currency] CU On CU.Id=II.CurrencyId
@@ -3142,7 +3163,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN trn.Invoice IV On IV.VoucherId=II.VoucherId
 								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.PartyId
 								WHERE II.PlantId='" + identity.PlantId + @"'   AND convert(Date,II.PostingDate) " + temp + @" and II.SourceType ='CustomerInvoice'
-								GROUP BY  II.Id ,PPI.UserName,P.UserName ,P.Code,CU.Code,II.IsPark,II.Narration  , II.DocRefNo,II.DocDate  ,v.VoucherNo,V.PostedBy,E.UserName ,II.PostingDate ,II.CompanyCurrencyRate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate,IV.ActualDueDate";
+								GROUP BY  II.Id ,PPI.UserName,P.UserName ,P.Code,CU.Code,II.IsPark,II.Narration  , II.DocRefNo,II.DocDate  ,v.VoucherNo,V.PostedBy,E.UserName ,II.PostingDate ,II.CompanyCurrencyRate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate,IV.ActualDueDate
+								,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName";
 				
 				return _sqlRepository.GetDataTable(sql);
 
@@ -3422,11 +3444,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 									,(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
@@ -3490,7 +3517,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName 
+									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName 
 								UNION ALL
 
 								SELECT  P.Id PartyId,p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
@@ -3513,7 +3540,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
 								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
-								 
+								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -3522,6 +3549,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								left Join hkp.Party P On p.id=II.CustomerId
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
 
 								LEFT JOIN(Select sum(Amount) ServiceAmount, sum(TotalTaxAmount) TotalTaxAmount,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount,Sum(BooksCurrencyTaxAmount) BooksCurrencyTaxAmount,InventorySalesId from trn.InventorySalesService group by InventorySalesId)SCr ON SCr.InventorySalesId=II.Id
@@ -3579,7 +3611,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ";
+								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName";
 
                 if (isreport)
                 {
@@ -4334,7 +4366,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
-
+,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -4349,7 +4381,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 									left outer join HKP.Party CNfA on CNfA.Id=SA.PartyId
 									left outer join HKP.Party TA on TA.Id=SA.PartyId
-
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=TA.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=TA.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=TA.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=TA.PartyGroupId
 
 						--LEFT JOIN [TRN].[SalesOrder] AS SO ON SM.SalesOrderId=SO.Id
 						--LEFT JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -4493,7 +4529,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
@@ -4510,6 +4546,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									left outer join HKP.Party TA on TA.Id=IR.PartyId
 
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
@@ -4623,7 +4664,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 													,0 RealizeAmount
 
 									,''RealizeDate
-
+,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
@@ -4637,7 +4678,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
 
-						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
+						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
+left Join hkp.Party P On p.id=II.CustomerId
+LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
 						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
 						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
@@ -4768,10 +4815,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate
+,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
+LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					
