@@ -3964,7 +3964,7 @@ namespace Aplos.MaterialManagement
 						,IRD.InventorySalesQty
 						,IRD.InventoryScrapQty						
 						,IRD.InventoryTransferQty,IRD.BaseQty,BUoM.UserName BaseUoM,CU.Code CurrencyName,IRD.[Description]
-						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
+						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
 					from TRN.InventoryMaterial AS IM
 					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
 					--LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
@@ -3986,7 +3986,8 @@ namespace Aplos.MaterialManagement
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
 					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
@@ -4252,13 +4253,14 @@ namespace Aplos.MaterialManagement
 					,0 InventorySalesQty
 					,0 InventoryScrapQty						
 					,0 InventoryTransferQty,0 BaseQty,'' BaseUoM,'' CurrencyName,NULL [Description]
-					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,I.PartyType
+					,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
 			from trn.InventoryService AS ISs
 			LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-			
+			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 			LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
