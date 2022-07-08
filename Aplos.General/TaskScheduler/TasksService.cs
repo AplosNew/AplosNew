@@ -1572,7 +1572,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN ORG.Position p ON p.Id=ei.PositionId 
 WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Convert(date,TA.DueDate) Between Convert(date,'" + fromDate + @"') AND Convert(date, '" + todate + @"'))
-) A WHERE A.DesignationGroup<>'Unclassified'
+) A --WHERE A.DesignationGroup<>'Unclassified'
 
 ";
 
@@ -1589,17 +1589,17 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             string wt = "";
             string taskCreatedBy = "";
             string tcb = "";
-            if (model["Task"] == "WithTask")
-            {
-                //wt = @"AND ISNULL(CT.Id,'')<>''";
-                wt = @"  WHERE ISNULL(Z.CreatedTask,0)<>0";
+            //if (model["Task"] == "WithTask")
+            //{
+            //    //wt = @"AND ISNULL(CT.Id,'')<>''";
+            //    wt = @"  WHERE ISNULL(Z.CreatedTask,0)<>0";
 
-            }
-            else
-            {
-                // wt = @"AND ISNULL(CT.Id,'')=''";
-                wt = @"  WHERE ISNULL(Z.CreatedTask,0)=0";
-            }
+            //}
+            //else
+            //{
+            //    // wt = @"AND ISNULL(CT.Id,'')=''";
+            //    wt = @"  WHERE ISNULL(Z.CreatedTask,0)=0";
+            //}
 
             if (parameters["TaskCreatedBy"]== "'','Self'")
             {
@@ -1791,7 +1791,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z " + wt + ""; 
+)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z "; 
 
             }
             else if (model["Status"] == "Issue")
@@ -1982,7 +1982,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z " + wt + "";
+)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
             }
             else if (model["Status"] == "TNA")
             {
@@ -2171,7 +2171,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z " + wt + "";
+)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
             
             }
             else
@@ -3688,7 +3688,7 @@ AND e.Id IN(" + parameters["EntityId"] + @")
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 
 AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY DG.Id,DG.UserName
-)X  GROUP BY X.DesignationGroup)Z " + wt + "";
+)X  GROUP BY X.DesignationGroup)Z ";
 
                 }
                 else

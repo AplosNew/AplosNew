@@ -348,6 +348,7 @@ namespace Library.Accounting.Accounts
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
                          ,PC.UserName UserCategory,PSC.UserName UserSubCategory,VT.Category VoucherCategory
+                        ,PG.UserName PartyGroup,PAG.UserName PartyAccountGroup
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -355,11 +356,13 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
                         LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
-                        LEFT JOIN [HKP].BudgetGroup BG ON BG.Id=BM.BudgetGroupId
                         LEFT JOIN [HKP].BudgetCategory BCT ON BCT.Id=BM.BudgetCategoryId
                         LEFT JOIN [HKP].BudgetSubCategory BSCT ON BSCT.Id=BM.BudgetSubCategoryId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId
                         LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
+                        LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType=VD.PartyType
+                        LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType=VD.PartyType
+                        LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
                         LEFT JOIN [HKP].PartyCategory PC ON PC.Id=P.PartyCategoryId
 						LEFT JOIN [HKP].PartySubCategory PSC ON PSC.Id=P.PartySubCategoryId
                         LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
