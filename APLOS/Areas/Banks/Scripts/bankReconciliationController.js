@@ -5,12 +5,37 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
     $scope.Action = "Save";
     $scope.index = -1;
     $scope.path = "banks/bankreconciliation/";
+    $scope.listUrl = $scope.path + '/GetBankreconciliationList';
     $scope.getBnkReconListUrl = $scope.path + "GetBankReconciledList/";
     $scope.issuedReconUrl = $scope.path + "GetIssuedNotPresentList";
     $scope.receivedReconUrl = $scope.path + "GetReceivedNotPresentList";
     $scope.bankCrReconUrl = $scope.path + "GetBankCrReconList";
     $scope.bankDrReconUrl = $scope.path + "GetBankDrReconList";
+    $scope.deleteUrl = $scope.path + "/DeleteBankreconciliation";
     $controller("bankBaseController", { $scope: $scope, $http: $http });
+
+    baseService.init($scope.listUrl, null, null, "DESC", "BankName", "BankName");
+    $scope.getData = function (pageno) {
+        baseService.pagination(pageno)
+            .then(function (result) {
+                $scope.bankreconciliationList = result.Rows;
+            }, function () {
+                ShowResult(commonMessage.NetworkError, "failure");
+            }).finally(function () {
+            });
+    };
+    $scope.getData();
+
+    $scope.searchByList = [
+        {
+            "name": "BankName",
+            "value": "BankName"
+        },
+        {
+            "name": "Bank Statement No",
+            "value": "BankStatementNo"
+        }
+    ];
 
     $scope.bankReconciliation = {
         Id: null,
@@ -713,4 +738,34 @@ function bankReconciliationController(commonMessage, $scope, $rootScope, baseSer
 
         }
     }
+    $scope.delete = function (bankReconciliationId) {
+        $http({
+            method: "POST",
+            url: $scope.deleteUrl,
+            data: {
+                "bankReconciliationId": bankReconciliationId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.getData();
+                $scope.bankReconciliationId = null;
+               
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
+
+    $scope.bankReconciliationId = null;
+    $scope.confirmDelete = function (bankReconciliationId) {
+        $scope.bankReconciliationId = bankReconciliationId;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector("#confirmDeletePopUp")).modal("show");
+    };
 }

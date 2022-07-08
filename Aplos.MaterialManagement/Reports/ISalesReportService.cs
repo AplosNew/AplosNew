@@ -7,7 +7,8 @@ namespace Library.MaterialManagement.Reports
         IWorkbook GetSalesReport(out string reportFileName, string companyGroupId, string companyId,string plantName, string plantId, string salesId);
         void GetSalesWordReportService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
        void LocalTaxInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
-       void LocalTaxInvoiceWithoutSUIService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
+        void LocalTaxInvoiceWithProductDetailService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
+       void LocalTaxInvoiceWithoutSKUService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
         void CommercialInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
         void SalesInvoiceService(string companyGroupId, string companyId, string plantId, string UserId, string salesId);
     }

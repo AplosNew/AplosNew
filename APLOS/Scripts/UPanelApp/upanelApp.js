@@ -1048,9 +1048,12 @@ upanelApp.controller("TaskManagementReportController", TaskManagementReportContr
 upanelApp.controller("salesRegisterController",salesRegisterController);
 upanelApp.controller("EmployeeSkillMatrixController", EmployeeSkillMatrixController);
 upanelApp.controller("OTControlLimitController", OTControlLimitController);
+upanelApp.controller("OTControlLimitReportController", OTControlLimitReportController);
 upanelApp.controller("BuyerjobCardcomplianceReportController", BuyerjobCardcomplianceReportController);
 upanelApp.controller("EOTSheetController", EOTSheetController);
 upanelApp.controller("StorageBinAllocationController", StorageBinAllocationController);
+upanelApp.controller("ResidenceStatusAllocationController", ResidenceStatusAllocationController);
+upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationController);
 
 
 

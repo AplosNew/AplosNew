@@ -2,22 +2,20 @@
 
 using Aplos.Controllers;
 using Aplos.Properties;
-using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.HumanResource.NewOTProcess;
 using Library.Model.Enums;
-using Library.Model.Payrolls;
 using Library.Security.Core;
 using Library.Service.Helpers;
 using Library.Service.HumanResources.Profile;
-using Library.Service.Setups;
 using OTSBD;
 using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Web.Mvc;
@@ -41,6 +39,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
     
         public ActionResult Aplos()
+        {
+            return View();
+        }
+
+        public ActionResult Report()
         {
             return View();
         }
@@ -405,6 +408,415 @@ namespace Aplos.Areas.HumanResource.Controllers
         public ActionResult GetLastEffectiveDate()
         {
             return Json(oTControlLimitService.GetLastEffectiveDate(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult GetOTControlLimitReport(string fromDate, string todate)
+        {
+
+            try
+            {
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string fileName = "";
+
+              
+                    fileName = GetOTControlLimitReportXL(fromDate, todate, identity.PlantId,identity.CompanyId,"OTControlLimit");
+                
+               
+                return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message, JsonRequestBehavior.AllowGet);
+
+            }
+
+
+        }
+
+        public string GetOTControlLimitReportXL(string fromDate, string todate, string PlantId, string CompanyId, string SheetName)
+        {
+            clsReport objRpt = null;
+            clsReport objRptSR = null;
+            ExcelEngine excelEngine = null;
+            IApplication application = null;
+            IWorkbook workbook = null;
+            IWorksheet sheet = null;
+            var filePath = "";
+            try
+            {
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(1);
+                var reportUtility = new ReportUtility();
+                workbook = reportUtility.GetWorkbook(ref excelEngine, 1);
+                workbook.Worksheets[0].Name = SheetName;
+                sheet = workbook.Worksheets[0];
+                DataTable data;
+
+
+                //Add rich-text Excel comment
+                IFont fontCaption = workbook.CreateFont();
+                fontCaption.Size = 8f;
+                IFont fontRegular = workbook.CreateFont();
+                fontRegular.Italic = true;
+                fontRegular.Size = 6f;
+
+                // ExcelEngine excelEngine = null;
+
+                workbook.Version = ExcelVersion.Excel2013;
+                var sheet1 = workbook.Worksheets[0];
+
+                #region Logo
+                string strPath = "";
+                Image companyLogo = null;
+                try
+                {
+                    DataTable dtCompanyImage = _sqlRepository.GetDataTable("SELECT * FROM ORG.COMPANY WHERE ID = '" + CompanyId + @"'");
+
+                    strPath = Path.Combine(ResourcesPathReader.GetLogoOrImagePath(), dtCompanyImage.Rows[0]["Image"].ToString());
+                    companyLogo = Image.FromFile(strPath);
+                }
+                catch (Exception)
+                {
+                }
+                #endregion
+                objRpt = new clsReport();
+
+                objRptSR = new clsReport(_sqlRepository);
+
+                DataTable dtoTControlLimit = null;
+                dtoTControlLimit = oTControlLimitService.GetOTControlLimitData(fromDate, todate);
+                if (dtoTControlLimit.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found....");
+                }
+
+                DataTable dtCmp = objRptSR.SelectedCompanyDT(CompanyId);
+
+                DataTable dtFactory = objRptSR.SelectedPlantDT(PlantId);
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+
+                #region Header
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+                string FactoryName = "";
+                string CmpName = "";
+                xlsRow = 6;
+                int StartRow = xlsRow;
+                sheet1[xlsRow, xlsCol].Text = "Date";
+                int colSLNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                xlsCol++;
+
+                int colEntity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Entity";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 12;
+                xlsCol++;
+
+                int colDepartment = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Department";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int colSection = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Section";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 30;
+                xlsCol++;
+
+                int colSubSection = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "SubSection";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                //xlsCol++;
+
+                xlsCol++;
+                int colEC = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Employee Category";
+
+                xlsCol++;
+                int colDesignation = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Designation";
+
+                xlsCol++;
+                int colActivity = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Activity";
+
+                xlsCol++;
+                int colDirect = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Direct";
+
+                xlsCol++;
+                int colUserGroup2 = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "User Group2";
+
+                xlsCol++;
+                int colAttendanceGroup = xlsCol;
+                sheet1[xlsRow, xlsCol].Text = "Attendance Group";
+
+
+                xlsCol++;
+                int colPositionCode = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Position Code";
+
+                xlsCol++;
+                int colPDMD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Plan Deployment Man Days";
+
+
+                xlsCol++;
+                int colBMP = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Budgeted Manpower";
+
+
+                xlsCol++;
+                int colONRoll = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "ONRoll";
+
+                xlsCol++;
+                int colPM = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Present Manpower";
+
+                xlsCol++;
+                int colSOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Standard OT";
+               
+
+                xlsCol++;
+                int colAOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Additional OT";
+
+                xlsCol++;
+                int colTOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Total OT";
+
+                xlsCol++;
+                int colOTMD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "OT ManDays";
+
+                xlsCol++;
+                int colTDMD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Total Deployed Mandays";
+
+                xlsCol++;
+                int colEDMD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Excess Deployment Mandays";
+
+                xlsCol++;
+                int colSDMD = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Short Deployment Mandays";
+
+                xlsCol++;
+                int colDOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Daily OT Limit";
+
+                xlsCol++;
+                int colEOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Excess OT";
+
+                xlsCol++;
+                int colSHOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Short OT";
+
+                xlsCol++;
+                int colWOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Weekly OT Limit";
+
+                xlsCol++;
+                int colWFOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "WeeklyOff OT Limit";
+
+                xlsCol++;
+                int colMOT = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Monthly OT Limit";
+
+                xlsCol++;
+                int colR = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "Remarks";
+
+                endXlsCol = xlsCol;
+
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 6, xlsRow, endXlsCol].ColumnWidth = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 38;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Color = ExcelKnownColors.Black;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
+                #endregion
+
+                string voucherNo = "";
+                /// string Percentage = "";
+                int startRow = 0;
+                int perStartRow = 0;
+                string formula = "";
+                string formula2 = "";
+                // string totalFormula = "";
+
+                //string lineItemPercentageType = "";
+                xlsRow++;
+                startRow = xlsRow;
+                perStartRow = xlsRow;
+
+                #region DataPlot
+                for (int i = 0; i < dtoTControlLimit.Rows.Count; i++)
+                {
+                    sheet1.Range[xlsRow, colEntity].Text = dtoTControlLimit.Rows[i]["EmployeeCode"].ToString();
+                    sheet1.Range[xlsRow, colDepartment].Text = dtoTControlLimit.Rows[i]["Department"].ToString();
+                    sheet1.Range[xlsRow, colSection].Text = dtoTControlLimit.Rows[i]["Section"].ToString();
+                    sheet1.Range[xlsRow, colSubSection].Text = dtoTControlLimit.Rows[i]["SubSection"].ToString();
+                    sheet1.Range[xlsRow, colEC].Text = dtoTControlLimit.Rows[i]["EmployeeCategory"].ToString();
+                    sheet1.Range[xlsRow, colDesignation].Text = dtoTControlLimit.Rows[i]["Designation"].ToString();
+                    sheet1.Range[xlsRow, colActivity].Text = dtoTControlLimit.Rows[i]["Activity"].ToString();
+                    sheet1.Range[xlsRow, colDirect].Text = dtoTControlLimit.Rows[i]["Direct"].ToString();
+                    sheet1.Range[xlsRow, colUserGroup2].Text = dtoTControlLimit.Rows[i]["UserGroup2"].ToString();
+                    sheet1.Range[xlsRow, colAttendanceGroup].Text = dtoTControlLimit.Rows[i]["AttendanceGroup"].ToString();
+                    sheet1.Range[xlsRow, colPositionCode].Text = dtoTControlLimit.Rows[i]["PositionCode"].ToString();
+                    sheet1.Range[xlsRow, colPDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["PlanDeploymentManDays"].ToString());
+                    sheet1.Range[xlsRow, colBMP].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["BudgetedManpower"].ToString());
+                    sheet1.Range[xlsRow, colONRoll].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ONRoll"].ToString());
+                    sheet1.Range[xlsRow, colPM].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["PresentManpower"].ToString());
+                    sheet1.Range[xlsRow, colSOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["StandardOT"].ToString());
+                    sheet1.Range[xlsRow, colAOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["AdditionalOT"].ToString());
+                    sheet1.Range[xlsRow, colTOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["TotalOT"].ToString());
+                    sheet1.Range[xlsRow, colTDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["TotalDeployedMandays"].ToString());
+                    sheet1.Range[xlsRow, colEDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ExcessDeploymentMandays"].ToString());
+                    sheet1.Range[xlsRow, colSDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ShortDeploymentMandays"].ToString());
+                    sheet1.Range[xlsRow, colDOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["DailyOTLimit"].ToString());
+                    sheet1.Range[xlsRow, colEOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ExcessOT"].ToString());
+                    sheet1.Range[xlsRow, colSHOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ShortOT"].ToString());
+                    sheet1.Range[xlsRow, colWOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeeklyOTLimit"].ToString());
+                    sheet1.Range[xlsRow, colWFOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeekOffOTLimit"].ToString());
+                    sheet1.Range[xlsRow, colMOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["MonthlyOTLimit"].ToString());
+                    sheet1.Range[xlsRow, colR].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["Remarks"].ToString());
+                }
+
+                #endregion
+
+
+
+                sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
+                #region ******************Report Header******************
+
+                xlsRow = 1;
+                FactoryName = string.Empty;
+                string FactoryAddress = string.Empty;
+
+                if (dtCmp.Rows.Count > 0)
+                {
+                    CmpName = dtCmp.Rows[0]["CompanyName"].ToString();
+                }
+                else
+                {
+                    CmpName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = CmpName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 12;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 17;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryName = dtFactory.Rows[0]["UserName"].ToString();
+                }
+                else
+                {
+                    FactoryName = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryName;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 18;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                if (dtFactory.Rows.Count > 0)
+                {
+                    FactoryAddress = dtFactory.Rows[0]["Address1"].ToString();
+                }
+                else
+                {
+                    FactoryAddress = "";
+                }
+                sheet1.Range[xlsRow, xlsCol].Text = FactoryAddress;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                //sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 22;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                xlsRow += 1;
+                sheet1.Range[xlsRow, xlsCol].Text = "OT Control Limit Report From Date: " + fromDate + " To Date: " + todate;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
+                sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 10;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
+                sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
+
+                #endregion ******************Report Header******************
+
+                #region Freeze Panes
+
+                sheet1.IsDisplayZeros = false;
+                sheet1.UsedRange["A7"].FreezePanes();
+                sheet1.FirstVisibleColumn = 1;
+                sheet1.FirstVisibleRow = 6;
+
+                #endregion Freeze Panes
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 14;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+                sheet1.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + SheetName + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Portrait;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                #endregion Page Setup
+
+
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OTControlLimit.xlsx");
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
+            }
+            catch (System.Exception ex)
+            {
+
+                throw ex;
+            }
         }
         #endregion -- Operations
     }

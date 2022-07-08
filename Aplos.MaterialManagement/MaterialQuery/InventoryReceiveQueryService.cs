@@ -3587,7 +3587,7 @@ namespace Aplos.MaterialManagement
 						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
-						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory
+						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
@@ -3599,6 +3599,8 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
@@ -3611,7 +3613,7 @@ namespace Aplos.MaterialManagement
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
 					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount
-					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType
+					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
 					,PC.UserName,PSC.UserName,PG.UserName";
 
 				if (isreport)
@@ -4368,31 +4370,7 @@ namespace Aplos.MaterialManagement
 					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
 			}
 		}
-		//public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate,string SLNo,string SheetName)
-		//{
-		//	try
-		//	{
-
-		//		var excelEngine = new ExcelEngine();
-		//		var report = new ReportUtility();
-		//		var workbook = report.GetWorkbook(ref excelEngine, 2);
-		//		var sheet1 = workbook.Worksheets[0];
-		//		//var Head = "Purchase Register Item Wise" + " " + fromDate + " " + "To" + " " + toDate ;
-		//		var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
-		//		CreatePurchaseRegisterItemReportSheets(ref sheet1, report, SheetName + ".xlsx", "Summary", companyId, plantId, fromDate, toDate, SLNo);
-		//		workbook.Version = ExcelVersion.Excel2016;
-		//		//return workbook;
-
-		//		workbook.SaveAs(filePath);
-		//		workbook.Close();
-		//		excelEngine.Dispose();
-		//		return filePath;
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		throw;
-		//	}
-		//}
+		
 
 		public string CreatePurchaseRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string SLNo, string SheetName)
 		{
@@ -5746,20 +5724,7 @@ namespace Aplos.MaterialManagement
 
 			#endregion sheet
 
-			//var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			//sheet.UsedRange.WrapText = true;
-			//sheet.UsedRange.CellStyle.Font.Size = 8;
-
-			//ReportUtility reportUtility = new ReportUtility();
-			//reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register Party Wise", identity.CompanyId);
-			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-			//return workbook;
-
-			//ReportUtility reportUtility = new ReportUtility();
-			////reportUtility.CompanyHeader(ref sheet, endCol, "Purchase Report Register GRN Wise", identity.CompanyId);
-			//reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
-
-
+			
 			sheet.Name = SheetName;
 			sheet.UsedRange.WrapText = true;
 			sheet.IsGridLinesVisible = false;
@@ -5784,12 +5749,12 @@ namespace Aplos.MaterialManagement
                             ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
                             ,SUM(X.WrittenOffAmount) Payment
                             ,Balance=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)-SUM(X.WrittenOffAmount)
-							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType
+							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
                             FROM 
                             (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
 						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Name Currency ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount,i.WrittenOffAmount
-						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,i.PartyType
+						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount,ISNULL(i.WrittenOffAmount,0) WrittenOffAmount
+						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
 						                            JOIN SCS.Currency C ON C.Id=IR.CurrencyId
@@ -5800,13 +5765,14 @@ namespace Aplos.MaterialManagement
 													LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 													LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
-
+													LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+													LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name,PC.UserName,PSC.UserName,PG.UserName,i.PartyType
+						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name,PC.UserName,PSC.UserName,PG.UserName,IR.PartyType,PAG.UserName
                             )X
-                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType";
+                            GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup";
 
                 if (isreport)
                 {
@@ -5825,5 +5791,49 @@ namespace Aplos.MaterialManagement
 			}
 		}
 
+		public IEnumerable<object> GetFiltersPurchaseconfirmationData(string PlantId, string fromDate, string todate)
+		{
+			try
+			{
+				var sql = @"SELECT distinct P.UserName Vendor,MMT.UserName MaterialType,MM.UserName Material 
+							FROM TRN.InventoryReceiveDetail IRD 
+							LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId 
+							JOIN( select distinct MaterialMasterId,Id from TRN.InventoryMaterial) IM on IM.Id=IRD.InventoryMaterialId
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+							LEFT JOIN HKP.MaterialMasterType MMT ON MMT.Id=MM.MaterialMasterTypeId
+							LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+							WHERE IM.MaterialMasterId<>'' AND IR.PlantId='"+ PlantId + "' AND IR.GRNDate between '"+ fromDate + "' AND '"+ todate + @"'";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
+
+		public IEnumerable<object> PurchaseConfirmationGRNData(string PlantId, string fromDate, string todate, string vendorId, string materialTypeId, string materialId)
+		{
+			try
+			{
+				var sql = @"SELECT  P.UserName Vendor,MMT.UserName MaterialType,MM.UserName Material,IRD.* 
+							FROM TRN.InventoryReceiveDetail IRD 
+							LEFT JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId 
+							JOIN( select distinct MaterialMasterId,Id from TRN.InventoryMaterial) IM on IM.Id=IRD.InventoryMaterialId
+							LEFT JOIN MST.MaterialMaster MM ON MM.Id=IM.MaterialMasterId
+							LEFT JOIN HKP.MaterialMasterType MMT ON MMT.Id=MM.MaterialMasterTypeId
+							LEFT JOIN HKP.Party P ON P.Id=IR.PartyId
+							where IR.PlantId='' AND IR.PartyId IN () AND IM.MaterialMasterId IN () AND MM.MaterialMasterTypeId IN ()
+							AND IR.GRNDate BETWEEN '' AND '' ";
+				return _sqlRepository.GetDataCollection(sql);
+			}
+			catch (Exception ex)
+			{
+				throw new CustomException(ex.Message, ex,
+					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+			}
+		}
 	}
 }

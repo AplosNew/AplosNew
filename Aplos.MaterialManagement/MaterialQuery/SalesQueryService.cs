@@ -4255,63 +4255,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 				var str = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[SN]
 								,SM.Id SalesMaterialId
-								,'' GRNNo
-								--,'' GRNDate
+								
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
 								,PPI.GSTIN as GSTINNo
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
+								
 								,MGM.UserName AS MaterialGroup
 								,MM.UserName Material
 								--,CASE WHEN SA.SourceType='Sales' THEN 'MaterialSales'
@@ -4320,18 +4268,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,SM.SalesId SalesNo
 								--,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') Invoi
 								,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
-								--,SM.SalesOrderId
-								--,MO.Id MasterOrderId
-								--,SO.Id SONo
-								--,po.PONumber CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as  BillToAddress
-								--,ST.UserName as  BillToState
-								--,PPD.UserName AS ShipTo
-								--,AMD.Address1 as ShipToAddress
-								--,STD.UserName as ShipToState
-		                        --,PPD.GSTIN as ShipToGSTNo
-								--, SA.ToCurrencyRate ExchangeRate
+								
 								, SA.DocRefNo
 								,FORMAT(SA.InvoiceDate,'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
@@ -4339,29 +4276,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,FCV.UserName FirstCharacteristicsValue
 								,SCV.UserName SecondCharacteristicsValue
 								,TCV.UserName ThirdCharacteristicsValue
-								--,'' HSNCode
-								--,SM.BaseRate
-								--,SM.BaseUoMFactor
+								
 								,SM.TransactionRate
 								,SM.TransactionQty
 								,SM.TransactionAmount
 								,SM.TaxAmount
-								--,SM.NetAmount
-								--,SM.NetAmount * SA.ToCurrencyRate BooksVal
-								--,v.VoucherNo
+								
 								,BUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
 								,CU.Code AS Currency
-								--,FORMAT(SO.DeliveryDate,'dd-MMM-yyyy') DeliveryDate
-								--,DT.UserName DestinationName
-								--,SO.SOType
-								--,ServiceCharge=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesService] WHERE SalesId=SA.Id)/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,ServiceTax=((SELECT ISNULL(SUM(ISNULL(Amount, 0)),0) FROM [TRN].[SalesTax] WHERE SalesId=SA.Id  AND SalesServiceId<>'')/(Select SUM(TransactionAmount) from TRN.SalesMaterial Where Salesid=SA.Id))*SM.TransactionAmount
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
 								,Posted=CASE WHEN SA.VoucherId IS NULL THEN 'No' ELSE 'YES'  END
 								--,ISNULL(SA.Narration,'') NoteForAccounts
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
@@ -4370,9 +4293,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,round(isnull(TAxInfo3.TaxAmount,0),2) TDS,TAxInfo3.Percentage TDSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS,TAxInfo6.Percentage TCSTaxPercentage
 
-								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
-								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
+								,0 GRNTCS,0 GRNTCSTaxPercentage
+								,0 MandiTax,0 MandiTaxTaxPercentage
+								,0 NirasritTax,0 NirasritTaxTaxPercentage
 
 		                        --,PSI.CNFContainerNo ContainerNo,PSI.TransportDriverName as TransporterName,PSI.TransportDocRefNo 
 								--,FORMAT( PSI.TransportDocDate, 'dd-MMM-yyyy')TransportDocDate,Agent.UserName as CNFAgent
@@ -4487,15 +4410,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									) TAxInfo3	ON TAxInfo3.SalesMaterialId=SM.Id 
 
 
-							
 					
-						LEFT JOIN (SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage Percentage,A.Amount  TaxAmount--,hs.Code HSCode 
-								   FROM [TRN].[SalesTax] A
+						LEFT JOIN (SELECT A.SalesId, B.UserName TaxCategoryName,B.Code  ,A.Percentage [Percentage],A.TaxAmount
+								   FROM [TRN].[SalesAdditionalTax] A
 									LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
-									--left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
-									WHERE B.Code='TCS' and A.SalesServiceId IS NULL		 
-								
-						) TAxInfo6 ON TAxInfo6.SalesMaterialId=SM.Id 
+									WHERE B.Code='TCS' 		 
+						) TAxInfo6 ON TAxInfo6.SalesId=SM.SalesId
 						LEFT JOIN trn.Voucher V On V.Id=SA.VoucherId
                         --LEFT JOIN PostSalesInvoice PSI On PSI.SalesId=SA.Id
 						LEFT JOIN HKP.Party as Agent on Agent.Id=PSI.TransportAgentId
@@ -4506,82 +4426,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 														Select                  
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
-								--,'' GRNDate
+								,ISs.Id SalesMaterialId
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								--,IR.SourceType
+								,'' GSTINNo
 								,'' AS MaterialGroup
 								,SM.UserName Material
-								,IR.Id SalesId
-								--,FORMAT(IR.EntryDate, 'dd-MMM-yyyy') EntryDate
+								,IR.Id SalesNo
 								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' as BillToAddress
-								--,'' as BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
+								
 								, '' DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
@@ -4589,32 +4442,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''FirstCharacteristicsValue
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
-								--,0 BaseRate
-								--,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
 								,ISs.TaxAmount 
-								--,0 NetAmount
-								--,0 BooksVal
-								--,'' VoucherNo
 								,''  BaseUoM
 								,''  TransactionUoM
-								,''  Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--, 0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
-								,'' Posted
-								--,'' 'NoteForAccounts'
-
+								,''  Currency,'' Posted
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -4628,8 +4462,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								--,FORMAT(PSI.TransportDocDate,'dd-MMM-yyyy') TransportDocDate,''CNFAgent
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,CON.ContractNo
+								,''GrossWeight,''LoTNo
+								,CON.ContractNo
 								,ML.LCRef 
 								,IR.ComercialInvoiceNo
 								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
@@ -4657,8 +4491,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
-									--, BalanceAmount=isnull(ISNULL(ISs.Amount,0)- ISNULL(I.WrittenOffAmount,0),0)
 
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -4732,82 +4564,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 								SELECT 
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,IID.Id
-								,'' SalesNo
-								--,'' GRNDate
+								,IID.Id SalesMaterialId
+								
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								--,'InventorySales' SourceType
+								,PPI.GSTIN as GSTINNo
 								,MGM.UserName AS MaterialGroup
 								,MM.UserName Material
-								,II.Id SalesInvoiceNo
-								--,FORMAT(II.SalesDate, 'dd-MMM-yyyy') EntryDate
+								,II.Id   SalesNo
 								,FORMAT(II.SalesDate, 'dd-MMM-yyyy') InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,PPI.UserName AS BillTo
-								--,AM.Address1 as BillToAddress
-								--,ST.UserName as BillToState				
-								,PPI.GSTIN as BillToGSTNo
-								--,PPI1.UserName ShipTo
-								--,AM1.Address1 ShipToAddress
-								--,ST1.UserName ShipToState
-								--,PPI1.GSTIN ShipToGSTNo
-								--,II.ToCurrencyRate ExchangeRate
 								, II.DocRefNo
 								,FORMAT(II.DocDate, 'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
@@ -4815,34 +4580,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								, ISNULL(FCV.UserName,'') AS FirstCharacteristicsValue							
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
-								--, ISNULL(TAxInfo.HSCode,'') HSNCode
-
-								--,IID.SalesRate BaseRate
-								--,IRD.BaseUoMFactor 
 								,IID.SalesRate TransactionRate
 								,IID.TransactionQty 
 								,IID.TransactionQty *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
-								--,IID.[TotalSalesAmount] NetAmount
-								--,IID.[BooksCurrencyTransactionAmount] BooksVal
-								--,II.VoucherId VoucherNo
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
 								,CU.Code AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,SCr.Amount ServiceCharge
-								--,SCr.TotalTaxAmount ServiceTax
-
-								--,E.UserName AS Entity 
-								--,EI2.EmployeeName CheckedByName
-								--,II.CheckedBy
-								--,EI1.EmployeeName ApprovedByName
-								--,II.ApprovedBy
 								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
-								--,CAST(II.NoteForAccounts AS NVARCHAR(MAX)) 'NoteForAccounts'
-
+								
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -4852,8 +4598,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,round(isnull(TAxInfo6.TaxAmount,0),2) GRNTCS,TAxInfo6.Percentage GRNTCSTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) MandiTax,TAxInfo6.Percentage MandiTaxTaxPercentage
 								,round(isnull(TAxInfo6.TaxAmount,0),2) NirasritTax,TAxInfo6.Percentage NirasritTaxTaxPercentage
-								--,''ContainerNo ,''TransporterName,''TransportDocRefNo 
-								--,''TransportDocDate,''CNFAgent
+								
 								,''AgentCommission
 								,'' Insurance
 		,''GrossWeight,''LoTNo
@@ -4876,8 +4621,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 													,0 RealizeAmount
 
 									,''RealizeDate
-
-									--,0BalanceAmount
 
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -4964,82 +4707,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 								Select                  
 								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id
-								,'' SalesNo
+								,ISs.Id SalesMaterialId
+								
 								--,'' GRNDate
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,'' Employee
-								,'' GateEntryNo
-								,'' GateName
-								,'' GrnDocDateDifference
-								,'' MaterialType
-								,'' HSNNo
-								,'' BaseQty
-								,'' QualityStatus
-								,'' GrossAmount
-								,'' DiscountAmount
-								,'' TotalMaterialBooksCurrencyAmount
-								,'' CredtibleStatus
-								,'' RCM
-								,'' TrnCurrencyBaseRate
-								,'' BooksCurrencyBaseRate
-								,'' MMIsAsset
-								,'' GRNIsAsset
-								,'' POId
-								,'' StorageLocation
-								,'' ShortageQty
-								,'' ShortageRatePercent
-								,'' ShortageValuet
-								,'' RejectionQty
-								,'' RejectRatePer
-								,'' RejectionValue
-								,'' RejectionClam
-								,'' ApprovedQty
-								,'' GRNRowID
-								,'' PreparedBy
-								,'' Status
-								,'' ApprovingName
-								,'' PostingDate
-								,'' GLCode
-								,'' GL
-								,'' BudgetCode
-								,'' Budget
-								,'' Activity
-								--,'' GLCode
-								--,'' GL
-								--,'' BudgetCode
-								--,'' Budget
-								--,'' Activity
-								,'' POREfference
-								,'' IssueQty
-								,'' BaseIssueQty
-								,'' PurchaseReturnQty
-								,'' IssueReturnQty
-								,'' ReductionByAdjustmentQty
-								,'' InventorySalesQty
-								,'' InventoryScrapQty
-								,'' InventoryTransferQty
-
-								,IR.Id SalesInvoiceNo
+								,'' as GSTINNo
 								,'' AS MaterialGroup
-								,SM.UserName MaterialM
-								--,'InventorySales' SourceType
-								--,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') EntryDate
+								,SM.UserName Material
+								,'' SalesNo
 								,'' InvoiceDate
-								--,'' SalesOrderId
-								--,'' MasterOrderId
-								--,'' SONo
-								--,'' CustomerPONo
-								--,'' AS BillTo
-								--,'' AS BillToAddress
-								--,'' AS BillToState
-								,'' as BillToGSTNo
-								--,'' AS ShipTo
-								--,'' AS ShipToAddress
-								--,'' AS ShipToState	
-								--,'' as ShipToGSTNo
-								--, 0 ExchangeRate
+								
 								, '' DocRefNo
 								,FORMAT(IR.DocDate,'') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
@@ -5047,33 +4725,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''FirstCharacteristicsValue
 								,'' SecondCharacteristicsValue
 								,'' ThirdCharacteristicsValue
-								--, '' HSNCode
-
-								--,0 BaseRate
-								--,0 BaseUoMFactor
 								,0 TransactionRate
 								,0 TransactionQty
 								,ISs.Amount TransactionAmount
 								,0 TaxAmount
-								--,ISs.Amount NetAmount
-								--,ISs.Amount BooksVal
-								--,'' VoucherNo
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
 								,'' AS Currency
-								--,'' DeliveryDate
-								--,'' DestinationName
-								--,'' SOType
-								--,0 ServiceCharge
-								--,0 ServiceTax
-								--,E.UserName Entity
-								--,'' CheckedByName
-								--,'' CheckedBy
-								--,'' ApprovedByName
-								--,'' ApprovedBy
+								
 								,'' Posted
-								--,'' 'NoteForAccounts'
-
 						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 						,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 						,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -5106,8 +4766,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate
-
-							--,0BalanceAmount
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId

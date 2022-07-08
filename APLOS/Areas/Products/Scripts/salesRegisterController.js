@@ -114,14 +114,17 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
     };
 
 
-    $scope.SalesRegisterList = [];
+    $scope.SalesRegisterLists = [];
     $scope.SalesRegisterPartyList = [];
     $scope.SalesRegisterItemList = [];
     $scope.pivotTableFieldListID = [];
 
 
 
-    $scope.GetSalesRegister = function () {
+    $scope.GetSalesRegisterView = function () {
+        $scope.SalesRegisterLists = [];
+        $scope.SalesRegisterPartyList = [];
+        $scope.SalesRegisterItemList = [];
         if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
             ShowResult('Select From Date', 'failure');
             return false;
@@ -157,9 +160,10 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if ($scope.report.ReportType == 'SaleWise') {
-                $scope.SalesRegisterList = response.data.NewData;
-                for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
-                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterList[i].GRNEntryDate);
+                $scope.SalesRegisterLists = response.data.NewData;
+                for (var i = 0; i < $scope.SalesRegisterLists.length; i++)
+                {
+                    response.data[i].GRNEntryDate = new Date($scope.SalesRegisterLists[i].GRNEntryDate);
                 }
             }
             else if ($scope.report.ReportType == 'PartyWise') {
@@ -232,12 +236,12 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             }
         }
         else {
-            for (var i = 0; i < $scope.SalesRegisterList.length; i++) {
+            for (var i = 0; i < $scope.SalesRegisterLists.length; i++) {
                 if (ids == "") {
-                    ids = "'','" + $scope.SalesRegisterList[i].SalesId + "'";
+                    ids = "'','" + $scope.SalesRegisterLists[i].SalesId + "'";
                 }
                 else {
-                    ids += ",'" + $scope.SalesRegisterList[i].SalesId + "'";
+                    ids += ",'" + $scope.SalesRegisterLists[i].SalesId + "'";
                 }
             }
         }

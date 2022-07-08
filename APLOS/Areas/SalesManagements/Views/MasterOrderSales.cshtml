@@ -866,23 +866,11 @@
                             <a class="btn btn-action" ng-click="LocalTaxInvoiceReport(x);" title="Tax Invoice" href="" target="_blank"><i class=""></i>TI</a>
                         </li>
                         <li>
-                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SUI" href="" target="_blank"><i class=""></i>TIWihoutSUI</a>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithProductDetailService(x);" title="Tax Invoice With Product Detail" href="" target="_blank"><i class=""></i>TI</a>
                         </li>
-                        @*<li>
-            <a class="btn btn-action" ng-click="SalesReport(x);" href="" target="_blank"><i class="fa fa-file-word-o"></i></a>
-        </li>*@
-
-                        <!--<li>
-    <a class="btn btn-action"-->
-                        @*href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&salesId={{x.SalesId}}"*@
-                        <!--target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-    </li>-->
-                        @*<li>
-            <a class="btn btn-action" href="SalesManagements/Sales/SalesReport?reportFormat=@Library.Model.Enums.ReportFormat.Excel.ToString()&salesId={{x.SalesId}}" target="_blank"><i class="fa fa-file-excel-o"></i></a>
-        </li>
-        <li ng-show="x.VoucherId">
-            <a class="btn btn-action" href="SalesManagements/Sales/SalesReceivableReport?reportFormat=@Library.Model.Enums.ReportFormat.Pdf.ToString()&voucherId={{x.VoucherId}}" target="_blank"><i class="fa fa-file-pdf-o"></i></a>
-        </li>*@
+                        <li>
+                            <a class="btn btn-action" ng-click="LocalTaxInvoiceWithoutSUIReport(x);" title="Tax Invoice Without SKU" href="" target="_blank"><i class=""></i>TI</a>
+                        </li>
                     </ul>
                 </td>
             </tr>

@@ -146,6 +146,13 @@ namespace Aplos.Areas.Banks.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetBankMasterQuery(GridParameter parameters, string companyId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_bankMasterService.Query(parameters, identity.CompanyGroupId, companyId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult Query(GridParameter parameters, string companyId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
