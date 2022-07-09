@@ -27,31 +27,33 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">Storage Level<sup>*</sup></label>
                     <div class="col-sm-6 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-change="getMaterialGroup()" ng-model="ModelNew.MaterialTypeId" required name="Material Type"
+                            <select class="form-control" ng-model="ModelNew.StorageLevel" required name="Storage Location"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in MaterialTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Access Type</label>
-                    <div class="col-sm-6 show-message">
-                        <div class="select-style">
-                            <select class="form-control" ng-model="ModelNew.AccessType" required name="Access Type"
-                                    tabindex="2">
-                                <option value="">--Select--</option>
-                                <option ng-repeat="option in AccessTypeList" value="{{option.Text}}">{{option.Text}}</option>
+                                <option value="Material">Material</option>
+                                <option value="Article">Article</option>
 
                             </select>
                         </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material Group</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Material Group"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in MaterialGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">No. Of Bin</label>
@@ -96,25 +98,32 @@
             </div>
         </div>*@
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Material Group</label>
+                    <label class="col-sm-4 control-label">Access Type</label>
                     <div class="col-sm-6 show-message">
                         <div class="select-style">
-                            <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Material Group"
+                            <select class="form-control" ng-model="ModelNew.AccessType" required name="Access Type"
                                     tabindex="2">
                                 <option value="">--Select--</option>
-                                <option ng-repeat="option in MaterialGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                                <option ng-repeat="option in AccessTypeList" value="{{option.Text}}">{{option.Text}}</option>
+
                             </select>
                         </div>
                     </div>
                 </div>
+
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Material</label>
+                    <label class="col-sm-4 control-label">Material Type<sup>*</sup></label>
                     <div class="col-sm-6 show-message">
-
-                        <input e-change="getMaterialArticle" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialList" ng-model="ModelNew.MaterialMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-
+                        <div class="select-style">
+                            <select class="form-control" ng-change="getMaterialGroup()" ng-model="ModelNew.MaterialTypeId" required name="Material Type"
+                                    tabindex="2">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in MaterialTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
+
                 @*<div class="form-group">
             <label class="col-sm-4 control-label">Material Article<sup>*</sup></label>
             <div class="col-sm-6 show-message">
@@ -129,7 +138,14 @@
             </div>
         </div>*@
 
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Material</label>
+                    <div class="col-sm-6 show-message">
 
+                        <input e-change="getMaterialArticle" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialList" ng-model="ModelNew.MaterialMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Remarks</label>
