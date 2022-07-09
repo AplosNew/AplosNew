@@ -158,11 +158,11 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public ActionResult selectIDs(string materialType, string materialGroup, string material) 
+        public ActionResult selectIDs(string materialType, string materialGroup, string material, string storagelevel) 
         {
             try
             {
-                return Json(sba.selectIDs(materialType, materialGroup, material), JsonRequestBehavior.AllowGet);
+                return Json(sba.selectIDs(materialType, materialGroup, material, storagelevel), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -212,12 +212,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string EstimatedCapacity)
+        public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId)
 
         {
             try
             {
-                var data = sba.SaveMaterialAllocation(BinHead, HeaderId, EstimatedCapacity);
+                var data = sba.SaveMaterialAllocation(BinHead, HeaderId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
@@ -230,12 +230,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult SaveBinAllocation(List<Dictionary<string, object>> BinHead, string HeaderId)
+        public JsonResult SaveBinAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string MaterialId)
 
         {
             try
             {
-                var data = sba.SaveBinAllocation(BinHead, HeaderId);
+                var data = sba.SaveBinAllocation(BinHead, HeaderId, MaterialId);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
