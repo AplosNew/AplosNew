@@ -191,6 +191,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 ShowResult(response.data.Message, 'success');
                 
                 $scope.ModelNew.Id = response.data.Data.Id;
+                $scope.ModelNew.MaterialMasterId = response.data.Data.MaterialMasterId
                 $scope.SaveMaterialAllocation();
                 $scope.SaveBinAllocation();
                 //$scope.viewBinHead();
@@ -245,6 +246,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
                 'materialType': $scope.ModelNew.MaterialTypeId,
                 'materialGroup': $scope.ModelNew.MaterialGroupMasterId,
                 'material': $scope.ModelNew.MaterialMasterId,
+                'storagelevel': $scope.ModelNew.StorageLevel,
                
             },
             dataType: 'JSON'
@@ -361,8 +363,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + 'SaveBinAllocation',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'BinHead': $scope.SelectedBinAllocationList
-
+                'BinHead': $scope.SelectedBinAllocationList,
+                'MaterialId': $scope.ModelNew.MaterialMasterId
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
