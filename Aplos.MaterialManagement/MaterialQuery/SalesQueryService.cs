@@ -793,8 +793,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				else
 				{
 					
-						sql = @"SELECT 
-									ROW_NUMBER() Over(Order by SA.Id) As[S.N]
+						sql = @"SELECT ROW_NUMBER() Over(Order by SA.Id) As[S.N]
 									,SA.Id SalesId
 									,SA.SourceType
 									,FORMAT(SA.EntryDate, 'dd-MMM-yyyy') SalesDate ,FORMAT(SA.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
@@ -861,11 +860,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												  LEFT JOIN [TRN].[MasterOrderItem] MOI ON MOI.Id = XSO.MasterOrderItemId
 												  LEFT JOIN [TRN].[MasterOrder] MO ON MO.Id = MOI.MasterOrderId
 									                                where smx.SalesId=SA.Id	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-
+																	,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=SA.InvoicingPartyPlantId
 									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
 									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
@@ -937,6 +941,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN (select PartyId,sum(Amount-WrittenOffAmount) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=SA.PartyId
 									WHERE SA.PlantId='" + identity.PlantId + "' AND convert(Date,SA.InvoiceDate) " + temp + @"
 									Group By p.Code	,TAxInfo6.BooksTaxAmount,TAxInfo6.TaxAmount,SA.InvoiceDate,SA.SourceType,SA.Id,SA.DocRefNo,SA.EntryDate,PPI.UserName,PPD.UserName,SA.ToCurrencyRate, P.UserName,v.VoucherNo,CU.Code,IV.ActualDueDate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate
+									,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName
 								UNION ALL
 								SELECT 
 
@@ -994,6 +999,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' SONumber
 								,'' PONumber
 								,'' MasterOrder
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -1001,7 +1007,13 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
-								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId left Join hkp.Party P On p.id=II.CustomerId
+								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
+								left Join hkp.Party P On p.id=II.CustomerId
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
 								Left Join employeeinformation EI1 On EI1.SystemId=II.CheckedBy
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
@@ -1067,7 +1079,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.CustomerId
 								WHERE II.PlantId='" + identity.PlantId + @"' AND II.CustomerId<>'' AND convert(Date,II.SalesDate) " + temp + @"
 								GROUP BY p.Code	,II.Id,II.SalesDate,PPI.UserName ,PPI1.UserName ,II.ToCurrencyRate, II.DocRefNo,II.DocDate, P.UserName ,II.[Status],v.VoucherNo,E.UserName ,EI2.EmployeeName ,II.CheckedBy,EI1.EmployeeName,II.ApprovedBy,IV.ActualDueDate,IV.WrittenOffAmount,IV.CompanyCurrencyRate,Adv.PendingAdvance
-                                UNION ALL
+                                ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName
+								UNION ALL
                                 SELECT 
 								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
 								,II.Id SalesId
@@ -1124,11 +1137,17 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' SONumber
 								,'' PONumber
 								,'' MasterOrder
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM [TRN].[Invoice] AS II
 								left JOIN (select  InvoiceId,sum(isnull(Amount,0)) TransactionAmount FROM  TRN.InvoiceDetail group by InvoiceId) AS IID ON IID.InvoiceId= II.Id 
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[Party] AS P  ON P.Id=II.PartyId
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.PartyPlantId
 								Left Join [ORG].[Plant] Pnt On Pnt.Id=II.PlantId
 								Left Join [SCS].[Currency] CU On CU.Id=II.CurrencyId
@@ -1193,7 +1212,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN (select PartyId,sum((Amount-WrittenOffAmount)*CompanyCurrencyRate) PendingAdvance from TRN.Advance where PartyType='Customer' group by PartyId)  Adv ON Adv.PartyId=II.PartyId
 								WHERE II.PlantId='" + identity.PlantId + @"'   AND convert(Date,II.PostingDate) " + temp + @" and II.SourceType ='CustomerInvoice'
 								GROUP BY  II.Id ,PPI.UserName,P.UserName ,P.Code,CU.Code,II.IsPark,II.Narration  , II.DocRefNo,II.DocDate  ,v.VoucherNo,V.PostedBy,E.UserName ,II.PostingDate ,II.CompanyCurrencyRate,Adv.PendingAdvance,IV.WrittenOffAmount,IV.CompanyCurrencyRate,IV.ActualDueDate
-                               ";
+                               ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName";
 						return _sqlRepository.GetDataTable(sql);
 					
 				}
@@ -2568,15 +2587,39 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Realize amount";
 					int colRealizeAmount = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     COL++;
 
+					worksheet[ROW, COL].Text = "Party Group";
+					int colPartyGroup = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Party Category";
+					int colPartyCategory = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
+					worksheet[ROW, COL].Text = "Party SubCategory";
+					int colPartySubCategory = COL;
+					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].CellStyle.Font.Bold = true;
+					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					COL++;
+
 					worksheet[ROW, COL].Text = "Party Account Group";
-					int ColPartyAccountGroup = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					int colPartyAccountGroup = COL;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2677,7 +2720,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								worksheet[ROW, colApprovedByName].Text = dtInventorySalesReportList.Rows[i]["ApprovedByName"].ToString();
 								worksheet[ROW, colPosted].Text = dtInventorySalesReportList.Rows[i]["Posted"].ToString();
 								worksheet[ROW, colNoteForAccounts].Text = dtInventorySalesReportList.Rows[i]["NoteForAccounts"].ToString();
-								
+								worksheet[ROW, colPartyGroup].Text = dtInventorySalesReportList.Rows[i]["PartyGroup"].ToString();
+								worksheet[ROW, colPartyCategory].Text = dtInventorySalesReportList.Rows[i]["PartyCategory"].ToString();
+								worksheet[ROW, colPartySubCategory].Text = dtInventorySalesReportList.Rows[i]["PartySubCategory"].ToString();
+								worksheet[ROW, colPartyAccountGroup].Text = dtInventorySalesReportList.Rows[i]["PartyAccountGroup"].ToString();
+
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;

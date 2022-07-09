@@ -2340,8 +2340,8 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(B1.UserName,'') AS CBUdget
                             ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
                             ,CC.UserName CostCenterName,EI.EmployeeName
-,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
-,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
+                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                            ,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
