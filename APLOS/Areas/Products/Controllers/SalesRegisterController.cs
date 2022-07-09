@@ -371,7 +371,9 @@ namespace Aplos.Areas.Products.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
                 List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.getSalesOrderCustomerWiseReportSql(identity.CompanyId, identity.PlantId, FromDate, ToDate,null,false));
-                return Json(new { NewData, Message = AplosMessage.Success });
+                var jsondata= Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {

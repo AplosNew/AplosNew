@@ -588,6 +588,7 @@
     <Compile Include="Areas\HumanResource\Controllers\FuguaiTransactionController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerControlReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTRegionController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\TrainingMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeGoalSettingController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeShiftUpdatesController.cs" />
@@ -629,7 +630,6 @@
     <Compile Include="Areas\HumanResource\Controllers\DailyDayStatusReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ManpowerBudgetDesignationReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\ResidenceMasterController.cs" />
-    <Compile Include="Areas\HumanResource\Controllers\ResidenceStatusAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterPatternController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\RosterUpdatesController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\SalaryDisbursementReportController.cs" />
@@ -4177,7 +4177,6 @@
     <Content Include="Areas\HumanResource\Views\ResidenceMaster\Aplos.cshtml" />
     <Content Include="Areas\Leave\Views\AnnualLeaveProcess\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekDefinition.cshtml" />
     <Content Include="Areas\HumanResource\Views\ScatteredWeekOff\_ScatteredWeekMaster.cshtml" />
     <Content Include="Areas\Accounts\Views\GSTLedgerReport.cshtml" />
@@ -4207,6 +4206,7 @@
     <Content Include="Areas\HumanResource\Views\OTRegion\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTControlLimit\Report.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceiveAddition\PurchaseConfirmation.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

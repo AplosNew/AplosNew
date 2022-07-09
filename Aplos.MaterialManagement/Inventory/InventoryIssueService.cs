@@ -2329,13 +2329,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
+                            ,ISNULL(IGL.AccountCode,'') AS GLCode
                             ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
                             ,CC.UserName CostCenterName,EI.EmployeeName
+,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2362,6 +2368,14 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+                        LEFT JOIN HKP.COALevel1 CC1 ON CC1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 CC2 ON CC2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
@@ -2398,9 +2412,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,Round(IID.PolicyAmount,2) PolicyAmount
 	                        ,IID.Policy
 	                        ,IID.BaseQty ,IID.InventoryReceiveId ,IID.InventoryReceiveDetailId
-                            ,ISNULL(IGL.UserName,'') AS GL,ISNULL(IA.UserName,'') Activity ,isnull(B.UserName,'') AS Budget
-							,isnull(IGL1.UserName,'') AS CGL ,isnull(IA1.UserName,'') AS CActivity ,isnull(B1.UserName,'') AS CBUdget
+                           
                             ,CC.UserName CostCenterName ,EI.EmployeeName
+							,ISNULL(IGL.AccountCode,'') AS GLCode
+							,ISNULL(IGL.UserName,'') AS GL
+							,isnull(B.UserName,'') AS Budget
+							,ISNULL(IA.UserName,'') Activity
+							,ISNULL(IBM.RefNo,'') BudgetRefNo
+							,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+							,IIH.CGLCode
+							,IIH.CGL
+							,IIH.CActivity
+							,IIH.CBUdget
+							,IIH.CBudgetRefNo,IIH.CRLevel1,IIH.CRLevel2,IIH.CRLevel3,IIH.CRLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
                         LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -2419,14 +2443,29 @@ namespace Library.MaterialManagement.Inventory
                         LEFT JOIN [HKP].[MaterialType] AS MT ON MGM.MaterialTypeId = MT.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
-						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+						LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+						LEFT JOIN (SELECT DISTINCT IIH.InventoryIssueDetailId,IGL1.AccountCode CGLCode,isnull(IGL1.UserName,'') AS CGL
+							,isnull(IA1.UserName,'') AS CActivity
+							,isnull(B1.UserName,'') AS CBUdget ,IBM1.RefNo CBudgetRefNo
+							,C1.UserName CRLevel1,C2.UserName CRLevel2,C3.UserName CRLevel3,C4.UserName CRLevel4
+							FROM TRN.InventoryIssueHistory IIH 
+					LEFT JOIN TRN.InventoryReceiveDetail IRD ON IRD.Id=IIH.InventoryReceiveDetailId
+					LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
+					LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
+					LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
+					Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
+					LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 

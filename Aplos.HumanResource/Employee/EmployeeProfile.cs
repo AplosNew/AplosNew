@@ -648,14 +648,14 @@ namespace Aplos.HumanResource
                                 {
                                     if (string.IsNullOrEmpty(data.OperationMasterID))
                                     {
-                                        throw new Exception("Operation Master is required.");
+                                        throw new Exception("Operation Master is required as Payment Link is Skill in position.");
                                     }
                                 }
                                 if (dsPC.Tables[0].Rows[0]["Operation"].ToString() == "Operation Variation")
                                 {
                                     if (string.IsNullOrEmpty(data.OperationVariationId))
                                     {
-                                        throw new Exception("Operation Variation is required.");
+                                        throw new Exception("Operation Variation is required as Payment Link is Skill in position.");
                                     }
                                 }
                             }
