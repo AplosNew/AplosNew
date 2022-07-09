@@ -183,9 +183,9 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                     var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
                     for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
                         $scope.TaskManagementDataList[i].TotalStoryPoint = $scope.TaskManagementDataList[i].TaskDue*2;
-                        $scope.TaskManagementDataList[i].ColsedStoryPoint = $scope.TaskManagementDataList[i].OnTimeTask*2;
                         $scope.TaskManagementDataList[i].TaskCompletedFP = $scope.TaskManagementDataList[i].OnTimeTask + $scope.TaskManagementDataList[i].LateTask + $scope.TaskManagementDataList[i].EarlyTask;
-                        $scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
+                        $scope.TaskManagementDataList[i].ColsedStoryPoint = $scope.TaskManagementDataList[i].TaskCompletedFP*2;
+                        //$scope.TaskManagementDataList[i].OfTotalTask = Math.ceil(($scope.TaskManagementDataList[i].CreatedTask / totalTask) * 100);
                         $scope.TaskManagementDataList[i].Performance = ($scope.TaskManagementDataList[i].OnTimeTask * 2 + $scope.TaskManagementDataList[i].LateTask * 1 + $scope.TaskManagementDataList[i].LateTask * 2) - $scope.TaskManagementDataList[i].UnRead;//formula
                     }
                 }
