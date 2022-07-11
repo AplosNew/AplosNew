@@ -336,8 +336,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + 'SaveMaterialAllocation',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'BinHead': $scope.selHeaderBinList
-                
+                'BinHead': $scope.selHeaderBinList,
+                'storagelevel': $scope.ModelNew.StorageLevel,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

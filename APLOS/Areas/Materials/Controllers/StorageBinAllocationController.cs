@@ -212,12 +212,12 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId)
+        public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string storagelevel)
 
         {
             try
             {
-                var data = sba.SaveMaterialAllocation(BinHead, HeaderId);
+                var data = sba.SaveMaterialAllocation(BinHead, HeaderId, storagelevel);
                 return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
 
             }
