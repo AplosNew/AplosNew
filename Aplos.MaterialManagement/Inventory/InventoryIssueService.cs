@@ -6178,7 +6178,8 @@ namespace Library.MaterialManagement.Inventory
             var cmdText = "";
             if (Type == "Posted")
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id IssueDetailId
+							,IRD.Id GRNDetailId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -6197,15 +6198,13 @@ namespace Library.MaterialManagement.Inventory
 	                        ,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-							,IIH.InventoryReceiveDetailId 
-							,IRD.Id GRNDetailId
 							,IRD.TransactionQty GRNQty
 							,TUoM1.UserName AS GRNUOM
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
-	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))	,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IssueAmount					
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
 	                        ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
@@ -6249,7 +6248,8 @@ namespace Library.MaterialManagement.Inventory
             }
             else
             {
-                cmdText = @"SELECT II.Id AS IssueId
+                cmdText = @"SELECT II.Id AS IssueId,IID.Id IssueDetailId
+							,IRD.Id GRNDetailId
 	                        ,REPLACE(CONVERT(CHAR(11), II.IssueDate, 106), ' ', '-') IssueDate	 
 	                        ,MT.UserName MaterialType
 	                        ,MGM.UserName AS MaterialGroupMasterName
@@ -6268,19 +6268,20 @@ namespace Library.MaterialManagement.Inventory
 	                        ,TC.UserName AS ThirdCharacteristics
 	                        ,IM.ThirdCharacteristicsValueId
 	                        ,ISNULL(TCV.UserName, '') AS ThirdCharacteristicsValue
-							,IIH.InventoryReceiveDetailId 
-							,IRD.Id GRNDetailId
+							
 							,IRD.TransactionQty GRNQty
 							,TUoM1.UserName AS GRNUOM
 							,IRD.MaterialTranRate GRNRate
 							,isnull(IIH1.Qty,0) OtherIssuedQty
-							,isnull(IIH.Qty,0) CurrentIssueQty
+							,isnull(IIH.Qty,0) CurrentIssueQty,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IssueAmount
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
+	                        ,ISNULL(IGL.AccountCode,'') AS GLCode
 	                        ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
@@ -6308,9 +6309,9 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN(select Sum(Qty) Qty,InventoryIssueDetailId from  trn.InventoryIssueHistory group by InventoryIssueDetailId) IIH1 ON IIH1.InventoryIssueDetailId=IID.Id AND  IID.InventoryIssueId !=II.Id
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId = TUoM.Id
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
-						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+						LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
 						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
