@@ -49,8 +49,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         StorageBinmasterId: null,
         StorageSubLocation: null,
         MaterialTypeId: null,
-        MaterialGroupMasterId: null,
-       
+        MaterialGroupMasterId: null,       
         MaterialMasterId: null,
         MaterialMasterArticleId:null,
         AccessType:null,
@@ -148,7 +147,10 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $http({
             method: 'POST',
             url: $scope.path + "getStorageSubLocation",
-            data: { 'storageLocationId': $scope.ModelNew.StorageBinmasterId },
+            data: {
+                'storageLocationId': $scope.ModelNew.StorageBinmasterId,
+               
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.StorageSubLocationList = response.data;
@@ -336,8 +338,8 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
             url: $scope.path + 'SaveMaterialAllocation',
             data: {
                 'headerId': $scope.ModelNew.Id,
-                'BinHead': $scope.selHeaderBinList
-                
+                'BinHead': $scope.selHeaderBinList,
+                'storagelevel': $scope.ModelNew.StorageLevel,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {

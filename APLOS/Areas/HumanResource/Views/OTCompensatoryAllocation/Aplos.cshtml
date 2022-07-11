@@ -1,0 +1,253 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <input type="hidden" ng-model="ModelNew.Id">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Entity</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.Entity" required name="Entity"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Department</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.Department" required name="Department"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in DepartmentList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sub Section<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.SubSection" required name="Sub Section" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in SubSectionList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Compensatory / OT</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Compensatory / OT"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="OT">OT</option>
+                            <option value="OT">OT</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">No. Of Bin</label>
+                <div class="col-sm-6 show-message">
+                    <input type="number" name="No Of Bin" ng-model="ModelNew.NoOfBin" class="form-control" required tabindex="5" maxlength="30">
+                </div>
+            </div>
+
+
+        </div>
+
+        <!--
+     //** ----------------------------------------------------  **//
+    -->
+
+        <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Type</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.EmployeeType" required name="Employee Type"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Section</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.Section" required name="Section"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in SectionList" value="{{option.Text}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.MaterialTypeId" required name="User Group"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Material</label>
+                <div class="col-sm-6 show-message">
+
+                    <input e-change="getMaterialArticle" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialList" ng-model="ModelNew.MaterialMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" tabindex="7" maxlength="250"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="common-btn">
+
+            <div class="col-xs-12 col-lg-12 col-md-12">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div id="TabEmployee">
+                <br />
+                <div class="col-xs-12">
+                    <div id="GridNewlyJoined" ej-grid style="z-index:3;"
+                        
+                         e-rowdatabound="onactivedatabound"
+                         e-allowfiltering="true"
+                         e-allowpaging="true"
+                         e-allowsorting="true"
+                         e-enabletouch="false"
+                         e-responsive="true"
+                         e-allowselection="true"
+                         e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="All" e-headertemplateid="#headerTemplateNewlyJoined" e-template="#checkboxTemplateNewlyJoined" e-textalign="center" e-width="30"></div>
+                            
+                            <div e-column e-field="AreaRackCode" e-headertext="Area Rack Code" e-width="70"></div>
+
+                            <div e-column e-field="ColumnNo" e-headertext="Column No" e-width="80"></div>
+                            <div e-column e-field="RowNo" e-headertext="RowNo" e-width="80"></div>
+                            <div e-column e-field="BinReference" e-headertext="Bin Reference" e-width="100"></div>
+                            <div e-column e-field="BinCode" e-headertext="Bin Code" e-width="80"></div>
+                            @*<div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>*@
+                            <div e-column e-field="CapacityValue" e-headertext="Capacity Value " e-width="80"></div>
+                            @*<div e-column e-field="AccessType" e-headertext="Access Type" e-width="100"></div>*@
+                            <div e-column e-field="UserLocationType" e-headertext="User Location Type" e-width="100"></div>
+                            @*<div e-column e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>*@
+
+
+                        </div>
+                    </div>
+                </div>
+                
+                <script type="text/template" id="checkboxTemplateNewlyJoined">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectSlrProc" />
+                </script>
+                <script type="text/x-jsrender" id="headerTemplateNewlyJoined">
+                    <input type="checkbox" id="cbxheadNewlyJoined" />
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Entity POP UP-->
+<div class="modal fade site-modal in" id="entityPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Entity Informations</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="entityParameters.searchBy">
+                                            <option ng-repeat="option in entitySearchList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="entityParameters.search" ng-enter="getEntityData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEntityData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped" ng-show="entityDataList.length">
+                        <thead>
+                            <tr>
+                                <th ng-repeat="x in entitySearchList">{{x.Text}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in entityDataList|itemsPerPage:entityParameters.pageSize" total-items="entityParameters.total_count" pagination-id="metaData.name + 'entityDataList'" ng-dblclick="selectEntityPopUp(x);">
+                                <td ng-repeat="y in entitySearchList">{{x[y.Value]}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'entityDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getEntityData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+            </div>
+            <div class="modal-footer common-btn">
+                <ul class="list-inline text-right">
+                    <li><button type="button" class="btn btn-default" ng-click="closeEntityPopUp();">Close</button></li>
+                    <li><button ng-click="selectEntityPopUp();" class="btn">Select</button></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

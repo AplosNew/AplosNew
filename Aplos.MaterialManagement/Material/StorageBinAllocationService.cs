@@ -81,7 +81,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"Select sb.Id as Value, sb.UserName as Text from MST.StorageBinMaster sb
+                string sql = @"Select sb.UserName as Text from MST.StorageBinMaster sb
                                left join HKP.MaterialStorage ms on ms.Id = sb.StorageLocation order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -97,7 +97,7 @@ namespace Library.MaterialManagement.Material
             try
             {
                 string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb
-							   where sb.Id = '"+ storageLocationId + "'";
+							   where sb.UserName = '"+ storageLocationId + "'";
                                
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -259,20 +259,19 @@ namespace Library.MaterialManagement.Material
             try
             {
                 var sql = "";
-                /*var sql = @"select bah.Id, mm.Id as MaterialMasterId, 
-                            mma.Id as MaterialMasterArticleId
-                            from TRN.BinAllocationHead bah
-							left join mst.MaterialGroupMaster mgm
-							on mgm.Id = bah.MaterialGroupMasterId
-                            left join hkp.materialtype mt
-                            on mgm.materialtypeid = mt.id
-                            left join mst.MaterialMaster mm
-                            on mm.MaterialGroupMasterId = mgm.Id
-                            left join mst.MaterialMasterArticle mma
-                            on mma.materialmasterid = mm.id
-                           
-						   where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";*/
-                if (storagelevel == "Article")
+                if (storagelevel == "Material")
+                {
+                    sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
+                            mma.standardname as ArticleName, mm.Id as MaterialMasterId,
+                            mt.Id as MaterialTypeId, mgm.Id as MaterialGroupMasterId, bah.Id
+							from mst.MaterialMasterArticle mma
+							left join MST.MaterialMaster mm on mm.Id = mma.MaterialMasterId
+							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
+							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
+							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
+                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                }
+                else if (storagelevel == "Article")
                 {
                     sql = @"select mt.UserName as MaterialType, mgm.username as MaterialgroupName, mm.username as MaterialMaster, 
                             mma.standardname as ArticleName, mma.Id as MaterialMasterArticleId, mm.Id as MaterialMasterId,
@@ -284,6 +283,7 @@ namespace Library.MaterialManagement.Material
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
                             where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 }
+                
                         
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -302,7 +302,7 @@ namespace Library.MaterialManagement.Material
                             sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId, ba.Id
                             FROM MST.StorageBinMaster sb
 							left join trn.BinAllocationHead ba on ba.StorageBinMasterId = sb.Id
-                        WHERE sb.Id = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
+                        WHERE sb.UserName = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -383,7 +383,7 @@ namespace Library.MaterialManagement.Material
         }
         #region Material Allocation
         // MATERIAL ALLOCATION SAVE FUNCTION
-        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string headerId)
+        public List<Dictionary<string, object>> SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string headerId, string storagelevel)
         {
             try
             {
@@ -405,12 +405,15 @@ namespace Library.MaterialManagement.Material
                         count++;
                         DataView dv = new DataView(dsMaster.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
+                    if (storagelevel == "Material")
+                    {
+
 
                         if (dv.Count == 0)
                         {
                             item["Id"] = headerId + "-" + count;
                             item["BinAllocationHeaderId"] = headerId;
-
+                            item["MaterialmaterArticleId"] = null;
                             AddNewRow(dsMaster.Tables[0], item);
                         }
                         else
@@ -418,6 +421,22 @@ namespace Library.MaterialManagement.Material
                             DataRow drmo = dv[0].Row;
                             EditRow(drmo, item);
                         }
+                    }
+                    else if(storagelevel == "Article")
+                    {
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = headerId + "-" + count;
+                            item["BinAllocationHeaderId"] = headerId;
+                            
+                            AddNewRow(dsMaster.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
                     }
                     clsStaticInfo _info = new clsStaticInfo();
                     _info.SaveDataSets(dsMaster);
