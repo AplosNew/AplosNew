@@ -579,6 +579,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\AbsentismReasoningMasterController.cs" />
@@ -2003,6 +2004,7 @@
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
     <Content Include="Areas\HumanResource\Scripts\manpowerAttendanceSummaryControllerNew.js" />
     <Content Include="Areas\HumanResource\Scripts\ManpowerControlReportsController.js" />
+    <Content Include="Areas\HumanResource\Scripts\OTCompensatoryAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTControlLimitController.js" />
     <Content Include="Areas\HumanResource\Scripts\OTRegionController.js" />
@@ -4207,6 +4209,8 @@
     <Content Include="Areas\HumanResource\Views\OTControlLimit\Report.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceiveAddition\PurchaseConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\_ViewStart.cshtml" />
+    <Content Include="Areas\HumanResource\Views\OTCompensatoryAllocation\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

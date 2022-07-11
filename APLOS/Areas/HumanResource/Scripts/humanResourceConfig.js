@@ -780,5 +780,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/OTRegion/Aplos',
             controller: 'OTRegionController'
         })
+
+        .when('/ot-compensatory-allocation', {
+            templateUrl: 'humanResource/OTCompensatoryAllocation/Aplos',
+            controller: 'OTCompensatoryAllocationController'
+        })
         ;
 }

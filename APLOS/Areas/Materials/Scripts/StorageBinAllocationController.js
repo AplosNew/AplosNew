@@ -49,8 +49,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         StorageBinmasterId: null,
         StorageSubLocation: null,
         MaterialTypeId: null,
-        MaterialGroupMasterId: null,
-       
+        MaterialGroupMasterId: null,       
         MaterialMasterId: null,
         MaterialMasterArticleId:null,
         AccessType:null,
@@ -148,7 +147,10 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $http({
             method: 'POST',
             url: $scope.path + "getStorageSubLocation",
-            data: { 'storageLocationId': $scope.ModelNew.StorageBinmasterId },
+            data: {
+                'storageLocationId': $scope.ModelNew.StorageBinmasterId,
+               
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.StorageSubLocationList = response.data;

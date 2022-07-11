@@ -81,7 +81,7 @@ namespace Library.MaterialManagement.Material
         {
             try
             {
-                string sql = @"Select sb.Id as Value, sb.UserName as Text from MST.StorageBinMaster sb
+                string sql = @"Select sb.UserName as Text from MST.StorageBinMaster sb
                                left join HKP.MaterialStorage ms on ms.Id = sb.StorageLocation order by Text ASC";
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -97,7 +97,7 @@ namespace Library.MaterialManagement.Material
             try
             {
                 string sql = @"Select distinct sb.StorageSubLocation as Text from MST.StorageBinMaster sb
-							   where sb.Id = '"+ storageLocationId + "'";
+							   where sb.UserName = '"+ storageLocationId + "'";
                                
 
                 return _sqlRepository.GetDataCollection(sql);
@@ -302,7 +302,7 @@ namespace Library.MaterialManagement.Material
                             sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId, ba.Id
                             FROM MST.StorageBinMaster sb
 							left join trn.BinAllocationHead ba on ba.StorageBinMasterId = sb.Id
-                        WHERE sb.Id = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
+                        WHERE sb.UserName = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
