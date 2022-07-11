@@ -281,8 +281,8 @@
                                     <div e-stackedheaderrows>
                                         <div e-stackedheaderrow>
                                             <div e-stackedheadercolumns>
-                                                <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GL,Budget,Activity" textAlign='Center'></div>
-                                                <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGL,CBUdget,CActivity" textAlign='Center'></div>
+                                                <div e-stackedheadercolumn e-headertext="Posted (Dr.)" e-column="GLCode,GL,Budget,Activity,BudgetRefNo" textAlign='Center'></div>
+                                                <div e-stackedheadercolumn e-headertext="Posted (Cr.)" e-column="CGLCode,CGL,CBUdget,CActivity,CBudgetRefNo" textAlign='Center'></div>
                                             </div>
                                         </div>
                                     </div>
@@ -294,7 +294,7 @@
                                         <div e-column e-field="CostCenterName" e-headertext="CostCenterName" e-width="130" textAlign='Center'></div>
                                         <div e-column e-field="EmployeeName" e-headertext="Person Name" e-width="130" textAlign='Center'></div>
                                         @*<div e-column e-field="AddedBy" e-headertext="Added By" e-width="180" textAlign='Left'></div>
-                            <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="130" textAlign='Left'></div>*@
+										<div e-column e-field="AddedDate" e-headertext="Added Date" e-width="130" textAlign='Left'></div>*@
                                         <div e-column e-field="MaterialStorageName" e-headertext="Material Storage Name" e-width="180"></div>
                                         <div e-column e-field="Status" e-headertext="Status" e-width="100"></div>
                                         <div e-column e-field="IssueDetailId" e-headertext="Issue Detail Id" e-width="100"></div>
@@ -314,13 +314,17 @@
                                         <div e-column e-field="PolicyAmount" e-headertext="Policy Amount" e-width="130" textAlign='Right'></div>
                                         <div e-column e-field="Policy" e-headertext="Policy" e-width="100" textAlign='Right'></div>
                                         <div e-column e-field="BaseQty" e-headertext="Base Qty" e-width="100" textAlign='Right'></div>
+                                        <div e-column e-field="GLCode" e-headertext="GL Code" e-width="130"></div>
                                         <div e-column e-field="GL" e-headertext="GL" e-width="130"></div>
                                         <div e-column e-field="Budget" e-headertext="Budget" e-width="130"></div>
                                         <div e-column e-field="Activity" e-headertext="Activity" e-width="130"></div>
+                                        <div e-column e-field="BudgetRefNo" e-headertext="Budget RefNo" e-width="130"></div>
 
+                                        <div e-column e-field="CGLCode" e-headertext="CGL Code" e-width="130"></div>
                                         <div e-column e-field="CGL" e-headertext="GL" e-width="130"></div>
                                         <div e-column e-field="CBUdget" e-headertext="Budget" e-width="130"></div>
                                         <div e-column e-field="CActivity" e-headertext="Activity" e-width="130"></div>
+                                        <div e-column e-field="CBudgetRefNo" e-headertext="CBudget RefNo" e-width="130"></div>
                                     </div>
                                 </div>
                             </div>
