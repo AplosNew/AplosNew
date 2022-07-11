@@ -4061,13 +4061,19 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.BaseQty
 	                        ,IID.InventoryReceiveId
 	                        ,IID.InventoryReceiveDetailId
+                             ,ISNULL(IGL.AccountCode,'') AS GLCode
                             ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+                            ,ISNULL(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
-                           ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
+                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
+                            ,CC1.UserName CRLevel1,CC2.UserName CRLevel2,CC3.UserName CRLevel3,CC4.UserName CRLevel4
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
 					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -4090,9 +4096,7 @@ namespace Library.MaterialManagement.Inventory
                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                        --left JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=II.Id					
-                        --left join trn.Voucher V1 on V1.Id=ep.VoucherId 
-                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                       LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
@@ -4100,7 +4104,15 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
 						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-                       LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT JOIN HKP.COALevel1 C1 ON C1.Id=IGL.COALevel1Id
+						LEFT JOIN HKP.COALevel2 C2 ON C2.Id=IGL.COALevel2Id
+						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL.COALevel3Id
+						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL.COALevel4Id
+                        LEFT JOIN HKP.COALevel1 CC1 ON CC1.Id=IGL1.COALevel1Id
+						LEFT JOIN HKP.COALevel2 CC2 ON CC2.Id=IGL1.COALevel2Id
+						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
+						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
+                        LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -4670,7 +4682,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "BUdget";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBUdget";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4679,12 +4691,12 @@ namespace Library.MaterialManagement.Inventory
 
             //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CActivity";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-
+            sheet1headreColIndex++;
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBudgetRefNo";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
