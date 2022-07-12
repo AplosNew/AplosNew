@@ -21,9 +21,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-        string TableName = "HKP.OTRegion";
+        string TableName = "HKP.OTReason";
 
-        OTRegionService ot = new OTRegionService();
+        OTReasonService ot = new OTReasonService();
 
         private readonly ISqlRepository _sqlRepository;
 

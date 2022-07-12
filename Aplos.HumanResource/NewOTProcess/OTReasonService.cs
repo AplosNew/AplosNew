@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace Library.HumanResource.NewOTProcess
 {
-   public class OTRegionService
+   public class OTReasonService
     {
         ISqlRepository _sqlRepository;
         
-        public OTRegionService() {
+        public OTReasonService() {
             _sqlRepository = new SqlRepository();
         }
 
@@ -26,7 +26,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                var sql = "select * from HKP.OTRegion where Id = '" + Id + "' ";
+                var sql = "select * from HKP.OTReason where Id = '" + Id + "' ";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string TableName = "HKP.OTRegion";
+                string TableName = "HKP.OTReason";
                 string strkey = "1=1";
                 if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
                     strkey = column + " like '%" + value + "%'";
@@ -58,7 +58,7 @@ namespace Library.HumanResource.NewOTProcess
         {
             try
             {
-                string TableName = "HKP.OTRegion";
+                string TableName = "HKP.OTReason";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
@@ -109,7 +109,7 @@ namespace Library.HumanResource.NewOTProcess
             try
             {
 
-                string TableName = "HKP.OTRegion";
+                string TableName = "HKP.OTReason";
                 if (string.IsNullOrEmpty(id))
                     throw new Exception("Select entry first");
 
@@ -175,7 +175,7 @@ namespace Library.HumanResource.NewOTProcess
         }
         public double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.OTRegion");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM HKP.OTReason");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 

@@ -1,7 +1,7 @@
 ﻿<h3 class="site-heading">
     <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
 </h3>
-<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm" id="ModelNewForm">
     <input type="hidden" ng-model="ModelNew.Id">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
@@ -25,7 +25,7 @@
                         <select class="form-control" ng-model="ModelNew.Department" required name="Department"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in DepartmentList" value="{{option.Text}}">{{option.Text}}</option>
+                            <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.text}}</option>
 
                         </select>
                     </div>
@@ -37,12 +37,20 @@
                     <div class="select-style">
                         <select class="form-control" ng-model="ModelNew.SubSection" required name="Sub Section" tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in SubSectionList" value="{{option.Text}}">{{option.Text}}</option>
+                            <option ng-repeat="option in SubSectionList" value="{{option.Value}}">{{option.Text}}</option>
 
                         </select>
                     </div>
                 </div>
             </div>
+        @*<div class="form-group">
+            <label class="col-sm-4 control-label">Sub Section</label>
+            <div class="col-sm-6 show-message">
+
+                <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="SubSectionList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+            </div>
+        </div>*@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Compensatory / OT</label>
                 <div class="col-sm-6 show-message">
@@ -51,27 +59,33 @@
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="OT">OT</option>
-                            <option value="OT">OT</option>
+                            <option value="Compensatory">Compensatory</option>
                         </select>
                     </div>
                 </div>
             </div>
-
-
-
             <div class="form-group">
-                <label class="col-sm-4 control-label">No. Of Bin</label>
+                <label class="col-sm-4 control-label">Duration (min.)</label>
                 <div class="col-sm-6 show-message">
-                    <input type="number" name="No Of Bin" ng-model="ModelNew.NoOfBin" class="form-control" required tabindex="5" maxlength="30">
+                    <input type="time" name="inTime" ng-model="duration" tabindex="8">
                 </div>
             </div>
-
-
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Active</label>
+                <div class="col-sm-8">
+                    <div class="checkbox-site">
+                        <label>
+                            <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                            <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!--
+      <!--
      //** ----------------------------------------------------  **//
-    -->
+      -->
 
         <div class="col-xs-12 col-sm-6 col-md-6 form-element-ctrl">
             <div class="form-group">
@@ -81,27 +95,34 @@
                         <select class="form-control" ng-model="ModelNew.EmployeeType" required name="Employee Type"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in StorageLocationList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in EmployeeTypeList" value="{{option.Value}}">{{option.Text}}</option>
 
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Section</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
                         <select class="form-control" ng-model="ModelNew.Section" required name="Section"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in SectionList" value="{{option.Text}}">{{option.Text}}</option>
+                            <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
 
                         </select>
                     </div>
                 </div>
-            </div>
+            </div>*@
+            <div class="form-group">
+                <label class="col-sm-4 control-label"> Section</label>
+                <div class="col-sm-6 show-message">
 
+                    <input  ej-dropdownlist e-enablefiltersearch="true" e-datasource="SectionList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+
+                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
@@ -114,13 +135,16 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-group">
-                <label class="col-sm-4 control-label">Material</label>
+                <label class="col-sm-4 control-label">OT / Compensation</label>
                 <div class="col-sm-6 show-message">
-
-                    <input e-change="getMaterialArticle" ej-dropdownlist e-enablefiltersearch="true" e-datasource="MaterialList" ng-model="ModelNew.MaterialMasterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-
+                    <div class="select-style">
+                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Compensatory / OT"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -138,9 +162,8 @@
 
             <div class="col-xs-12 col-lg-12 col-md-12">
                 <ul class="list-inline text-right">
-                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="10"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
-                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                    <li> <button class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+                    
                 </ul>
             </div>
 
@@ -163,18 +186,12 @@
                         <div e-columns>
                             <div e-column e-headertext="All" e-headertemplateid="#headerTemplateNewlyJoined" e-template="#checkboxTemplateNewlyJoined" e-textalign="center" e-width="30"></div>
                             
-                            <div e-column e-field="AreaRackCode" e-headertext="Area Rack Code" e-width="70"></div>
+                            <div e-column e-field="AreaRackCode" e-headertext="Employee Id" e-width="70"></div>
 
-                            <div e-column e-field="ColumnNo" e-headertext="Column No" e-width="80"></div>
-                            <div e-column e-field="RowNo" e-headertext="RowNo" e-width="80"></div>
-                            <div e-column e-field="BinReference" e-headertext="Bin Reference" e-width="100"></div>
-                            <div e-column e-field="BinCode" e-headertext="Bin Code" e-width="80"></div>
-                            @*<div e-column e-field="UserName" e-headertext="User Name" e-width="100"></div>*@
-                            <div e-column e-field="CapacityValue" e-headertext="Capacity Value " e-width="80"></div>
-                            @*<div e-column e-field="AccessType" e-headertext="Access Type" e-width="100"></div>*@
-                            <div e-column e-field="UserLocationType" e-headertext="User Location Type" e-width="100"></div>
-                            @*<div e-column e-field="EmployeeName" e-headertext="Responsible Person" e-width="100"></div>*@
-
+                            <div e-column e-field="ColumnNo" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="RowNo" e-headertext="Duration" e-width="80"></div>
+                            <div e-column e-field="BinReference" e-headertext="Remark" e-width="100"></div>
+                            
 
                         </div>
                     </div>
