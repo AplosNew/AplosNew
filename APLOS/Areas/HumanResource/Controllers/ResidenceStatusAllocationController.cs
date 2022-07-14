@@ -26,6 +26,10 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
+        public ActionResult RSAReport()
+        {
+            return View();
+        }
 
         [HttpGet, Authorize]
         public ActionResult getResidenceFilters()
@@ -75,83 +79,6 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        [HttpPost, Authorize]
-        public ActionResult getPlant(string ResidenceGroupId)
-        {
-            return Json(rsl.getPlant(ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getLocation(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getLocation(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getResidenceGroup()
-        {
-            return Json(rsl.getResidenceGroup(), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getServiceType(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getServiceType(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getResidenceSubCategory(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getResidenceSubCategory(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getBlock(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getBlock(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getRoom(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getRoom(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getEmployeeType(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getEmployeeType(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getResidenceNumber(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getResidenceNumber(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getFloor(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getFloor(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getResidentType(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getResidentType(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getAssetName(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getAssetName(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
-
-        [HttpPost, Authorize]
-        public ActionResult getVacancy(string PlantId, string ResidenceGroupId)
-        {
-            return Json(rsl.getVacancy(PlantId, ResidenceGroupId), JsonRequestBehavior.AllowGet);
-        }
 
         [Authorize, HttpPost]
         public ActionResult getAllEmployee(string EmpCategoryId)
@@ -210,18 +137,18 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult getData()
-        {
-            try
-            {
-                return Json(rsl.getData(), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
+        //[HttpPost]
+        //public ActionResult getData()
+        //{
+        //    try
+        //    {
+        //        return Json(rsl.getData(), JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
 
         [HttpPost]
         public ActionResult getEmployee(string PlantId, string ResidenceGroupId, string EmployeeCategoryId)
@@ -236,19 +163,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
-        public ActionResult getSelectedEmployees(List<Dictionary<string, object>> EmpList)
-        {
-            try
-            {
-                return Json(rsl.getSelectedEmployees(EmpList), JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
-        }
-
+       
         [HttpPost]
         public ActionResult getResidenceStatusLocation(string EmployeeId, string ResidenceMasterId)
         {

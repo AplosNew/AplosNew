@@ -1052,7 +1052,7 @@ upanelApp.controller("OTControlLimitReportController", OTControlLimitReportContr
 upanelApp.controller("BuyerjobCardcomplianceReportController", BuyerjobCardcomplianceReportController);
 upanelApp.controller("EOTSheetController", EOTSheetController);
 upanelApp.controller("StorageBinAllocationController", StorageBinAllocationController);
-//upanelApp.controller("ResidenceStatusAllocationController", ResidenceStatusAllocationController);
+upanelApp.controller("ResidenceStatusAllocationController", ResidenceStatusAllocationController);
 upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationController);
 upanelApp.controller("OTCompensatoryAllocationController", OTCompensatoryAllocationController);
 
