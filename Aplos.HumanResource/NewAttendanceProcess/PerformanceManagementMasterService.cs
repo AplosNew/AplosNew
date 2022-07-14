@@ -1960,7 +1960,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                var str = @"select ei.EmployeeName, FORMAT (rae.AddedDate, 'dd-MMM-yyyy') as Date ,rm.AssetName from dbo.EmployeeInformation ei
+                var str = @"select ei.EmployeeName, FORMAT (rae.AddedDate, 'dd-MMM-yyyy') as Date ,rm.AssetName 
+                            from dbo.EmployeeInformation ei
                             left join dbo.ResidenceAllocatedEmployees rae on rae.EmployeeSystemId = ei.SystemId
                             left join dbo.ResidenceMaster rm on rm.Id = rae.ResidenceId
                             where ei.SystemId='" + EmployeeId + "' and rm.Id = '" + ResidenceMasterId + "'";

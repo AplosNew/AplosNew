@@ -4,7 +4,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
     $rootScope.title = 'Residence Status/Allocation/Unallocation';
     $scope.Action = 'Save';
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/ResidenceStatusAllocationReport/';
+    $scope.path = 'HumanResource/ResidenceStatusAllocation/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
@@ -30,7 +30,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 
     //#region The Filters 
 
-    $scope.filters = [];
+    $scope.Reportfilters = [];
     $scope.getResidenceStatusReportFilters = function () {
         $http({
             method: 'GET',

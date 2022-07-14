@@ -199,26 +199,19 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
-									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
-									,VacancyStatus = 'Occupied'
-
-									from ResidenceMaster RM
-									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
-									left join ORG.Plant P on P.Id=RM.PlantId
-									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
-									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
-
-                union all
-                select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
-									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
-									,VacancyStatus = 'All'
-
-									from ResidenceMaster RM
-									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
-									left join ORG.Plant P on P.Id=RM.PlantId
-									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
-									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId";
+                var sql = @"select ei.SystemId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department,RG.UserName ResidenceGroup
+							,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory,RM.ResidenceSubCategory
+							,E.UserName Entity
+							from dbo.ResidenceAllocatedEmployees rae
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
+                            left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
+                            left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                            left join org.Section S on S.Id = ei.SectionId
+                            left join org.SubSection SS on SS.Id = ei.SubSectionId
+                            left join org.Department D on D.Id = ei.DepartmentId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
