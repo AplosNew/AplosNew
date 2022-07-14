@@ -737,7 +737,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'ResidenceStatusAllocationController'
         })
         .when('/residence-status-allocation-report', {
-            templateUrl: 'humanResource/ResidenceStatusAllocation/RSAReport',
+            templateUrl: 'humanResource/ResidenceStatusAllocation/Report',
             controller: 'ResidenceStatusAllocationReportController'
         })
         .when('/absentism-reasoning-master', {

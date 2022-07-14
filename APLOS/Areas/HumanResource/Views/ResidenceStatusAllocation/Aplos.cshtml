@@ -6,7 +6,7 @@
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Status/Allocation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Employee Status/Unallocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Employee Status/Unallocation</a></li>
             </ul>
         </div>
 
@@ -29,8 +29,8 @@
 
                     </div>
                 </div>
-                <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
-                    <div id="GridEdit" ej-grid e-datasource="ModelList" style="width:100vw !important">
+                <div class="table-responsive" id="EGSGrid" style="margin-top:20px;"> 
+                    <div id="GridEdit" ej-grid e-datasource="ModelList" style="width:100vw !important" e-allowpaging="true"> 
                         <div e-columns>
 
                             @*<div e-column e-field="Id" e-headertext="Id" e-width="30"></div>*@

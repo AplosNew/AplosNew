@@ -26,7 +26,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             return View();
         }
-        public ActionResult RSAReport()
+        public ActionResult Report()
         {
             return View();
         }
@@ -193,5 +193,39 @@ namespace Aplos.Areas.HumanResource.Controllers
          }*/
 
         #endregion Save Operations
+
+        [HttpGet, Authorize]
+        public ActionResult getResidenceReportFilters()
+        {
+            try
+            {
+                var sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
+									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
+									,VacancyStatus = 'Occupied'
+
+									from ResidenceMaster RM
+									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
+									left join ORG.Plant P on P.Id=RM.PlantId
+									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
+									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
+
+                union all
+                select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
+									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
+									,VacancyStatus = 'All'
+
+									from ResidenceMaster RM
+									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
+									left join ORG.Plant P on P.Id=RM.PlantId
+									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
+									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

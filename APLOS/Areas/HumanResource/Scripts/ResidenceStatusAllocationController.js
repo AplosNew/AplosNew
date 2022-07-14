@@ -126,9 +126,11 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
     //};
     $scope.PlantId = null;
     $scope.dataList = [];
+    $scope.availableNumber = null;
     $scope.AvailablePopUpData = function (data) {
         $scope.ResidenceId = data.data.ResidenceMasterId;
         $scope.PlantId = data.data.PlantId;
+        $scope.availableNumber = data.data.Available;
         $scope.dataList = [];
         $http({
             method: 'GET',
@@ -192,7 +194,7 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
                     $scope.saveList.push(ob);
                 }
                 else {
-                    throw "This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.";
+                    ShowResult ("This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.",'failure');
                 }
             }
         }
@@ -210,7 +212,10 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
 
     $scope.SaveAllocation = function () {
         try {
-            
+            if ($scope.availableNumber < $scope.saveList.length)
+            {
+                throw "Selected Employee should not greater than Available.";
+            }
             $http({
                 method: 'POST',
                 url: $scope.path + 'residenceStatusSave',
