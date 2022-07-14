@@ -2050,6 +2050,7 @@
     <Content Include="Areas\HumanResource\Scripts\manpowerBudgetDesignationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ArrearProcessedReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ResidenceMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\ResidenceStatusAllocationReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\ResidenceStatusAllocationController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterPatternController.js" />
     <Content Include="Areas\HumanResource\Scripts\RosterUpdatesController.js" />
@@ -4209,8 +4210,8 @@
     <Content Include="Areas\HumanResource\Views\OTControlLimit\Report.cshtml" />
     <Content Include="Areas\Products\Views\InventoryReceiveAddition\PurchaseConfirmation.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Aplos.cshtml" />
-    <Content Include="Areas\HumanResource\Views\_ViewStart.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTCompensatoryAllocation\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Report.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
