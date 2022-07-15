@@ -415,7 +415,9 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
             List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterItemData(identity.CompanyId, identity.PlantId, fromDate, toDate,null, false));
-            return Json(new { NewData, Message = AplosMessage.Success });
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpPost]
