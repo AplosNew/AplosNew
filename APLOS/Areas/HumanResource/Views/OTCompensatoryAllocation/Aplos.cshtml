@@ -9,10 +9,10 @@
                 <label class="col-sm-4 control-label">Entity</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.Entity" required name="Entity"
+                        <select class="form-control" ng-model="ModelNew.EntityId" required name="Entity"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in EntityList" value="{{option.Text}}">{{option.Text}}</option>
+                            <option ng-repeat="option in EntityList" value="{{option.Value}}">{{option.Text}}</option>
 
                         </select>
                     </div>
@@ -22,7 +22,7 @@
                 <label class="col-sm-4 control-label">Department</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.Department" required name="Department"
+                        <select class="form-control" ng-model="ModelNew.DepartmentId" required name="Department"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in DepartmentList" value="{{option.Value}}">{{option.text}}</option>
@@ -35,7 +35,7 @@
                 <label class="col-sm-4 control-label">Sub Section<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.SubSection" required name="Sub Section" tabindex="2">
+                        <select class="form-control" ng-model="ModelNew.SubSectionId" required name="Sub Section" tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in SubSectionList" value="{{option.Value}}">{{option.Text}}</option>
 
@@ -55,7 +55,7 @@
                 <label class="col-sm-4 control-label">Compensatory / OT</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Compensatory / OT"
+                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.CompensetoryOTId" required name="Compensatory / OT"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="OT">OT</option>
@@ -66,8 +66,8 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Duration (min.)</label>
-                <div class="col-sm-6 show-message">
-                    <input type="time" name="inTime" ng-model="duration" tabindex="8">
+                <div class="col-sm-6 show-message" id="durationDiv">
+                    <input type="time" name="inTime" ng-model="Duration" id="duration" tabindex="8">
                 </div>
             </div>
             <div class="form-group">
@@ -92,7 +92,7 @@
                 <label class="col-sm-4 control-label">Employee Type</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.EmployeeType" required name="Employee Type"
+                        <select class="form-control" ng-model="ModelNew.EmployeeTypeId" required name="Employee Type"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in EmployeeTypeList" value="{{option.Value}}">{{option.Text}}</option>
@@ -102,11 +102,11 @@
                 </div>
             </div>
 
-            @*<div class="form-group">
+            <div class="form-group">
                 <label class="col-sm-4 control-label">Section</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModelNew.Section" required name="Section"
+                        <select class="form-control" ng-model="ModelNew.SectionId" required name="Section"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in SectionList" value="{{option.Value}}">{{option.Text}}</option>
@@ -114,15 +114,15 @@
                         </select>
                     </div>
                 </div>
-            </div>*@
-            <div class="form-group">
+            </div>
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label"> Section</label>
                 <div class="col-sm-6 show-message">
 
-                    <input  ej-dropdownlist e-enablefiltersearch="true" e-datasource="SectionList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    <input  ej-dropdownlist e-enablefiltersearch="true" ng-model="ModelNew.SectionId" e-datasource="SectionList" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
 
                 </div>
-            </div>
+            </div>*@
             <div class="form-group">
                 <label class="col-sm-4 control-label">User Group<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
@@ -139,10 +139,10 @@
                 <label class="col-sm-4 control-label">OT / Compensation</label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.MaterialGroupMasterId" required name="Compensatory / OT"
+                        <select class="form-control" ng-change="getMaterial();" ng-model="ModelNew.OTCompensationId" required name="Compensatory / OT"
                                 tabindex="2">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in UserGroupList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in OTCompensationList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
@@ -162,7 +162,7 @@
 
             <div class="col-xs-12 col-lg-12 col-md-12">
                 <ul class="list-inline text-right">
-                    <li> <button class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> View</button></li>
+                    <li> <button class="btn" ng-click="viewOTCompensatory()" tabindex="9"><i class="glyphicon glyphicon-cloud"></i> View</button></li>
                     
                 </ul>
             </div>
@@ -173,8 +173,9 @@
             <div id="TabEmployee">
                 <br />
                 <div class="col-xs-12">
-                    <div id="GridNewlyJoined" ej-grid style="z-index:3;"
-                        
+                    <div id="GridOTCompensation" ej-grid style="z-index:3;"
+                         e-templaterefresh="ActiveEmpcbx"
+                         e-datasource="ModelList"
                          e-rowdatabound="onactivedatabound"
                          e-allowfiltering="true"
                          e-allowpaging="true"
@@ -185,24 +186,38 @@
                          e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="All" e-headertemplateid="#headerTemplateNewlyJoined" e-template="#checkboxTemplateNewlyJoined" e-textalign="center" e-width="30"></div>
-                            
-                            <div e-column e-field="AreaRackCode" e-headertext="Employee Id" e-width="70"></div>
 
-                            <div e-column e-field="ColumnNo" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="RowNo" e-headertext="Duration" e-width="80"></div>
-                            <div e-column e-field="BinReference" e-headertext="Remark" e-width="100"></div>
-                            
+                            <div e-column e-field="SystemId" e-headertext="Employee Id" e-width="70"></div>
+
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Legal Designation" e-width="80"></div>
+                            <div e-column e-field="Duration" e-headertext="Duration" e-width="80"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remark" e-width="100"></div>
+
 
                         </div>
                     </div>
+                    <div class="common-btn">
+
+                        <div class="col-xs-12 col-lg-12 col-md-12">
+                            <ul class="list-inline text-right">
+                                <li> <button class="btn" ng-click="viewOTCompensatory()" tabindex="9"><i class="glyphicon glyphicon-save"></i> Save</button></li>
+                                <li> <button class="btn" ng-click="check_OR_uncheck()" tabindex="9"><i class="glyphicon glyphicon-cloud"></i> Select</button></li>
+
+                            </ul>
+                        </div>
+
+                    </div>
                 </div>
-                
+
                 <script type="text/template" id="checkboxTemplateNewlyJoined">
                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectSlrProc" />
                 </script>
                 <script type="text/x-jsrender" id="headerTemplateNewlyJoined">
-                    <input type="checkbox" id="cbxheadNewlyJoined" />
+                    <input type="checkbox" id="cbxhead" />
                 </script>
+               
+               
             </div>
         </div>
     </div>

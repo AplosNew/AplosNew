@@ -788,5 +788,13 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/OTCompensatoryAllocation/Aplos',
             controller: 'OTCompensatoryAllocationController'
         })
+        .when('/furniture-master', {
+            templateUrl: 'humanResource/FurnitureMaster/Aplos',
+            controller: 'FurnitureMasterController'
+        })
+        .when('/furniture-policy', {
+            templateUrl: 'humanResource/FurniturePolicy/Aplos',
+            controller: 'FurniturePolicyController'
+        })
         ;
 }

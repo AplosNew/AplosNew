@@ -84,5 +84,17 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
+        [Authorize, HttpPost]
+        public ActionResult viewOTCompensatory(string un, string ec, string dp, string sc, string sbc)
+        {
+            try
+            {
+                return Json(ot.viewOTCompensatory(un, ec, dp, sc, sbc), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }
