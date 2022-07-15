@@ -1,7 +1,7 @@
 ﻿'use strict';
 ResidenceStatusAllocationReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ResidenceStatusAllocationReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Residence Status/Allocation/Unallocation';
+    $rootScope.title = 'Residence Status/Allocation/Unallocation Report';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/ResidenceStatusAllocation/';
@@ -40,19 +40,19 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             $scope.filters = response.data;
             var columnList = [
                 { field: 'EmployeeId', width: 20, headerText: "Employee Id", type: "string" },
-                { field: 'EmployeeGivenLegalDesignation', width: 20, headerText: "EmployeeGiven/LegalDesignation", type: "string" },
-                { field: 'Name', width: 20, headerText: "Name", type: "string" },
-                { field: 'SubSection', width: 20, headerText: "Sub Section", type: "string" },
+                { field: 'Designation', width: 20, headerText: "EmployeeGiven/LegalDesignation", type: "string" },
+                { field: 'EmployeeName', width: 20, headerText: "Name", type: "string" },
                 { field: 'Section', width: 20, headerText: "Section", type: "string" },
+                { field: 'SubSection', width: 20, headerText: "Sub Section", type: "string" },
                 { field: 'Department', width: 20, headerText: "Department", type: "string" },
                 { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
                 { field: 'ResidenceGroup', width: 20, headerText: "Residence Group", type: "string" },
                 { field: 'ResidenceId', width: 20, headerText: "Residence Id", type: "string" },
                 { field: 'ResidenceNumber', width: 20, headerText: "Residence Number", type: "string" },
                 { field: 'Block', width: 20, headerText: "Block", type: "string" },
-                { field: 'ResidenceType', width: 20, headerText: "Residence Type", type: "string" },
-                { field: 'ResidenceCategory', width: 20, headerText: "Residence Category", type: "string" },
-                { field: 'SubCategory', width: 20, headerText: "Sub Category", type: "string" }
+                { field: 'ResidentType', width: 20, headerText: "Resident Type", type: "string" },
+                //{ field: 'ResidenceCategory', width: 20, headerText: "Residence Category", type: "string" },
+                { field: 'ResidenceSubCategory', width: 20, headerText: "Sub Category", type: "string" }
 
             ];
             $("#filters").ejGrid({

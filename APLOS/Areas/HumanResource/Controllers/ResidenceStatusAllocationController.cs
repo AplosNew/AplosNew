@@ -196,12 +196,14 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         [HttpGet, Authorize]
         public ActionResult getResidenceReportFilters()
+        
         {
             try
             {
-                var sql = @"select ei.SystemId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department,RG.UserName ResidenceGroup
-							,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory,RM.ResidenceSubCategory
+                var sql = @"select ei.SystemId EmployeeId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department
+                            ,RG.UserName ResidenceGroup,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory
 							,E.UserName Entity
+
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
