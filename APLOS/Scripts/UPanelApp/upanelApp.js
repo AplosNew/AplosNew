@@ -1055,6 +1055,7 @@ upanelApp.controller("StorageBinAllocationController", StorageBinAllocationContr
 //upanelApp.controller("ResidenceStatusAllocationController", ResidenceStatusAllocationController);
 upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationController);
 upanelApp.controller("OTCompensatoryAllocationController", OTCompensatoryAllocationController);
+upanelApp.controller("FurniturePolicyController", FurniturePolicyController);
 
 
 
