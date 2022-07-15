@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Short Name<sup>*</sup></label>
+                <label class="col-sm-2 control-label">Short Name</label>
                 <div class="col-sm-6 show-message">
                     <input type="text" name="Short Name" ng-model="ModelNew.ShortName" class="form-control" maxlength="15" required tabindex="3">
                 </div>
@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div class="form-group" show-errors>
-                <label class="col-sm-2 control-label">Standard Name<sup>*</sup></label>
+                <label class="col-sm-2 control-label">Standard Name</label>
                 <div class="col-sm-6 show-message">
                     <input type="text" name="Standard Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="4" maxlength="50">
                 </div>
@@ -63,13 +63,24 @@
                 </div>
             </div>
 
-            <div class="form-group" show-errors>
+            
+            <div class="form-group">
                 <label class="col-sm-2 control-label">Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
-                    <input type="text" name="Type" ng-model="ModelNew.Type" class="form-control" required tabindex="4" maxlength="50">
+                    <div class="select-style">
+                        <select class="form-control" ng-model="ModelNew.Type" required name="Type"
+                                tabindex="2">
+
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="">--Select--</option>
+
+
+                        </select>
+                    </div>
                 </div>
             </div>
-
 
             <div class="form-group">
                 <label class="col-sm-2 control-label">Description</label>

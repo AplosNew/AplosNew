@@ -62,9 +62,9 @@ namespace Library.HumanResource.NewOTProcess
                 if (dsMaster.Tables[0].Rows.Count > 0)
                     throw new Exception("Same Code already exists!!!");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same User Name already exists!!!");
 
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
