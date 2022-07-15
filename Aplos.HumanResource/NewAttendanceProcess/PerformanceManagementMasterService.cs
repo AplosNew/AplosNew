@@ -1726,6 +1726,36 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         }
 
+        public IEnumerable<object> GetRSAFiltersViewData(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var _sql = @"select ei.SystemId EmployeeId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department
+                            ,RG.UserName ResidenceGroup,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory
+							,E.UserName Entity
+
+							from dbo.ResidenceAllocatedEmployees rae
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
+                            left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
+                            left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                            left join org.Section S on S.Id = ei.SectionId
+                            left join org.SubSection SS on SS.Id = ei.SubSectionId
+                            left join org.Department D on D.Id = ei.DepartmentId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+
+                            where ei.SystemId in(" + parameters["EmployeeId"] + @")";
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         public IEnumerable<object> getemployeeDataList(string plantId)
         {
             try
@@ -1986,6 +2016,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
     }
+
+
+
+
     #endregion Residence Status Location
 }
 
