@@ -1906,6 +1906,57 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
+        public void SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
+        {
+
+            try
+            {
+                var id = "";
+                foreach (var item in employeeList)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+
+                //Master Table - PMSMaster
+                string TableName = "dbo.ResidenceAllocatedEmployees";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In ("+ id +")", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                
+                foreach (var item in employeeList)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["isOccupied"] = 0;
+                        EditRow(drmo, item);
+                    }
+                   
+                }
+                #endregion data Master update
+
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                //return ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region delete
         /* public void delete(string id)
          {

@@ -140,18 +140,22 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        //[HttpPost]
-        //public ActionResult getData()
-        //{
-        //    try
-        //    {
-        //        return Json(rsl.getData(), JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
-        //    }
-        //}
+        [HttpPost]
+        public JsonResult SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
+        {
+
+            try
+            {
+               
+                rsl.SaveRSUnallocation(employeeList);
+                return Json(new { Data = employeeList, Message = AplosMessage.Insert });
+                //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
         [HttpPost]
         public ActionResult getEmployee(string PlantId, string ResidenceGroupId, string EmployeeCategoryId)
