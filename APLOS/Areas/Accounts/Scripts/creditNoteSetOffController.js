@@ -558,7 +558,11 @@ function creditNoteSetOffController(bankService, cboService, commonMessage, $sco
         $scope.voucherInvoiceDetailList = [];
         $scope.voucher.InvoiceVoucherNo = null;
     };
-
+    $scope.clearReversePopUp = function () {
+        $scope.exchangeGainLossCal($scope.voucher.CompanyCurrencyRate);
+        $scope.voucherInvoiceDetailList = [];
+        $scope.voucher.InvoiceVoucherNo = null;
+    };
     $scope.removeRow = function (index, data) {
         $scope.deletecurrency = data.CurrencyId;
         $scope.voucherDetailList.splice(index, 1);
