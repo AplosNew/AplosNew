@@ -579,6 +579,8 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
@@ -1999,6 +2001,8 @@
     <Content Include="Areas\HumanResource\Scripts\FuguaiReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiTransactionController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FurnitureMasterController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FurniturePolicyController.js" />
     <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
@@ -4212,6 +4216,8 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\OTCompensatoryAllocation\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Report.cshtml" />
+    <Content Include="Areas\HumanResource\Views\FurnitureMaster\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\FurniturePolicy\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

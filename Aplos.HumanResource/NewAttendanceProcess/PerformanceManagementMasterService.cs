@@ -1726,6 +1726,36 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         }
 
+        public IEnumerable<object> GetRSAFiltersViewData(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var _sql = @"select ei.SystemId EmployeeId,DE.UserName Designation,ei.EmployeeName,S.UserName Section,SS.UserName SubSection,D.UserName Department
+                            ,RG.UserName ResidenceGroup,RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory
+							,E.UserName Entity
+
+							from dbo.ResidenceAllocatedEmployees rae
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join HKP.Designation DE on DE.Id=ei.DesignationSystemID
+                            left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
+                            left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                            left join org.Section S on S.Id = ei.SectionId
+                            left join org.SubSection SS on SS.Id = ei.SubSectionId
+                            left join org.Department D on D.Id = ei.DepartmentId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+
+                            where ei.SystemId in(" + parameters["EmployeeId"] + @")";
+
+                return _sqlRepository.GetDataCollection(_sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
         public IEnumerable<object> getemployeeDataList(string plantId)
         {
             try
@@ -1876,6 +1906,57 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
+        public void SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
+        {
+
+            try
+            {
+                var id = "";
+                foreach (var item in employeeList)
+                {
+                    if (id == "")
+                        id = "'" + item["Id"] + "'";
+                    else
+                        id = id + ",'" + item["Id"] + "'";
+                }
+
+                //Master Table - PMSMaster
+                string TableName = "dbo.ResidenceAllocatedEmployees";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In ("+ id +")", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data Master update
+                
+                foreach (var item in employeeList)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["isOccupied"] = 0;
+                        EditRow(drmo, item);
+                    }
+                   
+                }
+                #endregion data Master update
+
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                //return ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #region delete
         /* public void delete(string id)
          {
@@ -1960,7 +2041,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                var str = @"select ei.EmployeeName, FORMAT (rae.AddedDate, 'dd-MMM-yyyy') as Date ,rm.AssetName from dbo.EmployeeInformation ei
+                var str = @"select ei.EmployeeName, FORMAT (rae.AddedDate, 'dd-MMM-yyyy') as Date ,rm.AssetName 
+                            from dbo.EmployeeInformation ei
                             left join dbo.ResidenceAllocatedEmployees rae on rae.EmployeeSystemId = ei.SystemId
                             left join dbo.ResidenceMaster rm on rm.Id = rae.ResidenceId
                             where ei.SystemId='" + EmployeeId + "' and rm.Id = '" + ResidenceMasterId + "'";
@@ -1985,6 +2067,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
     }
+
+
+
+
     #endregion Residence Status Location
 }
 
