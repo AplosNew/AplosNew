@@ -3842,7 +3842,7 @@ namespace Aplos.MaterialManagement
 			sheet.Name = SheetName;
 			sheet.UsedRange.WrapText = true;
 			sheet.IsGridLinesVisible = false;
-			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PlantHeader(ref sheet, COL, SheetName, PlantId);
 			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
 
 			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
