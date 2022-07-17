@@ -389,6 +389,7 @@ namespace Aplos.Areas.Products.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 SalesQueryService obj = new SalesQueryService(_sqlRepository);
                 string fileName = "";
+
                 fileName= obj.CreateSalesOrderCustomerWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate, PartyId, "Sales Register Report Party Wise" + FromDate + "To" + ToDate + "");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
