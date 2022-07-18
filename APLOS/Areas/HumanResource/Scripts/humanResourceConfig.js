@@ -737,7 +737,7 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             controller: 'ResidenceStatusAllocationController'
         })
         .when('/residence-status-allocation-report', {
-            templateUrl: 'humanResource/ResidenceStatusAllocation/RSAReport',
+            templateUrl: 'humanResource/ResidenceStatusAllocation/Report',
             controller: 'ResidenceStatusAllocationReportController'
         })
         .when('/absentism-reasoning-master', {
@@ -787,6 +787,14 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
         .when('/ot-compensatory-allocation', {
             templateUrl: 'humanResource/OTCompensatoryAllocation/Aplos',
             controller: 'OTCompensatoryAllocationController'
+        })
+        .when('/furniture-master', {
+            templateUrl: 'humanResource/FurnitureMaster/Aplos',
+            controller: 'FurnitureMasterController'
+        })
+        .when('/furniture-policy', {
+            templateUrl: 'humanResource/FurniturePolicy/Aplos',
+            controller: 'FurniturePolicyController'
         })
         ;
 }

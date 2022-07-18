@@ -1,6 +1,6 @@
 ﻿'use strict';
-ResidenceStatusAllocationController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ResidenceStatusAllocationController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ResidenceStatusAllocationController.$inject = ['cboService', '$window','commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
+function ResidenceStatusAllocationController(cboService, $window,commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
     $rootScope.title = 'Residence Status/Allocation/Unallocation';
     $scope.Action = 'Save';
     $scope.ModelList = [];
@@ -126,9 +126,11 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
     //};
     $scope.PlantId = null;
     $scope.dataList = [];
+    $scope.availableNumber = null;
     $scope.AvailablePopUpData = function (data) {
         $scope.ResidenceId = data.data.ResidenceMasterId;
         $scope.PlantId = data.data.PlantId;
+        $scope.availableNumber = data.data.Available;
         $scope.dataList = [];
         $http({
             method: 'GET',
@@ -192,7 +194,7 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
                     $scope.saveList.push(ob);
                 }
                 else {
-                    throw "This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.";
+                    ShowResult ("This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.",'failure');
                 }
             }
         }
@@ -210,7 +212,10 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
 
     $scope.SaveAllocation = function () {
         try {
-            
+            if ($scope.availableNumber < $scope.saveList.length)
+            {
+                throw "Selected Employee should not greater than Available.";
+            }
             $http({
                 method: 'POST',
                 url: $scope.path + 'residenceStatusSave',
@@ -238,12 +243,17 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
 
     $scope.ModelUnallocationList = [];
     $scope.UnallocationView = function () {
+        if (baseService.isUndefinedOrNull($scope.PlantId))
+        {
+            $scope.PlantId = $window.plantId;
+        }
         $http({
             method: "Get",
             url: $scope.path + 'viewUnallocation?PlantId=' + $scope.PlantId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ModelUnallocationList = response.data;
+            //$scope.SaveAllocation();
         })
     }
     $scope.UnallocationView();
@@ -461,25 +471,6 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
     };
     $scope.ResidenceData = Object.assign({}, $scope.selectedDataR);
 
-    //$scope.save = function () {
-    //    $http({
-    //        method: 'POST',
-    //        url: $scope.path + 'save',
-    //        data: {
-    //            'data': $scope.ResidenceData,
-    //            'EmployeeId': $scope.SelectedEmployeeId,
-    //            'ResidenceMasterId': $scope.selResidenceMasterId,
-    //        },
-    //        dataType: 'JSON',
-    //    }).then(function successCallback(response) {
-    //        if (response.data.Error === true) {
-    //            ShowResult(response.data.Message, 'failure');
-    //        }
-    //        else {
-    //            ShowResult(response.data.Message, 'success');
-    //        }
-    //    });
-    //}
 
     //$scope.ResidenceStatusSave = function () {
     //    $http({
@@ -517,6 +508,58 @@ function ResidenceStatusAllocationController(cboService, commonMessage, $scope, 
             
     }
 
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headcheck").ejCheckBox({ "change": CheckBoxSelectAllPartyWises });
+    };
+
+    function CheckBoxSelectAllPartyWises(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEUnallocation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
+                $scope.ModelUnallocationList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEUnallocation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveRSU = function () {
+        $scope.unallocationLoop = [];
+        for (var i = 0; i < $scope.ModelUnallocationList.length; i++)
+        {
+
+            if ($scope.ModelUnallocationList[i].isSelected)
+            {
+                $scope.unallocationLoop.push($scope.ModelUnallocationList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveRSUnallocation',
+            data: { 'employeeList': $scope.unallocationLoop },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.UnallocationView();
+                $scope.view();
+            }
+        });
+    }
 
     //-----------------------------------------------------------------------------------
 

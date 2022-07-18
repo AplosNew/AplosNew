@@ -99,11 +99,27 @@ namespace Library.HumanResource.NewOTProcess
             }
         }
 
-        public IEnumerable<object> viewOTCompensatory()
+        public IEnumerable<object> viewOTCompensatory(string un, string ec, string dp, string sc, string sbc)
         {
             try
             {
-                var sql = @"";
+                var sql = @"select EMP.SystemId, EMP.EmployeeName, DP.Id as DepartmentId, DP.UserName as Department ,
+GDSG.Id as LegalDesignationId, GDSG.UserName as LegalDesignation, Un.Id as UN, EC.Id as EC,
+DP.Id as DP, SC.Id  as SC, SBC.Id as SBC
+from dbo.EmployeeInformation EMP
+LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+left join ORG.Entity UN on UN.Id = MBGT.EntityId
+left join ORG.Department DP on DP.ID = POS.DepartmentId
+left join ORG.Section SC on SC.Id = POS.SectionId
+left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=EMP.DesignationGroupId
+LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
+where un.Id = '"+un+"' and ec.Id = '"+ec+"' and dp.Id = '"+dp+"' and sc.Id = '"+sc+"' and sbc.Id = '"+sbc+"'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex) {

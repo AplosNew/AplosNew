@@ -20,8 +20,16 @@ function OTCompensatoryAllocationController(cboService, commonMessage, $scope, $
 
     $scope.ModelTemp = {
         Id: null,
-       Duration:null,
-
+        EntityId: null,
+        DepartmentId: null,
+        SubSectionId: null,
+        CompensetoryOTId: null,
+        Duration:null,
+        EmployeeTypeId:null,
+        SectionId: null,
+        OTCompensationId: null,
+        Remarks: null,
+        Active:null
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -82,6 +90,65 @@ function OTCompensatoryAllocationController(cboService, commonMessage, $scope, $
     }
     $scope.getSubSection();
 
+    $scope.viewOTCompensatory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "viewOTCompensatory",
+            data: {
+                'un': $scope.ModelNew.EntityId,
+                'ec': $scope.ModelNew.EmployeeTypeId,
+                'dp': $scope.ModelNew.DepartmentId,
+                'sc': $scope.ModelNew.SectionId,
+                'sbc': $scope.ModelNew.SubSectionId
+            },
+            dataType: 'JSON',
+        }).then(function succesCalback(response) {
+            $scope.ModelList = response.data
+        })
+    }
 
-   
+    $scope.ActiveEmpcbx = function (args) {
+        $("#cbxhead").ejCheckBox({ "change": chkFilteredData });
+    };
+
+    function chkFilteredData(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridOTCompensation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.ModelList[i].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridOTCompensation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.OTCompesationList = [];
+    $scope.check_OR_uncheck = function () {
+       
+        var filtered = $("#GridOTCompensation").data("ejGrid").getFilteredRecords();
+
+        //if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if ($scope.ModelList[i].isSelected == true) {
+                    $scope.OTCompesationList.push($scope.ModelList[i])
+                }
+                else {
+                    $scope.OTCompesationList.pop($scope.ModelList[i])
+                }
+            }
+       /* }*/
+
+    }
+    
 }

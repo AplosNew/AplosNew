@@ -6290,6 +6290,7 @@ namespace Library.Service.Invoices
                 string voucherDetailTempId = null;
                 decimal taxDrAmount = 0;
                 //var withholdgl = false;
+                var voucherIds = voucherDetailVMList.FirstOrDefault().VoucherId;
                 var adjustNoteIds = voucherDetailVMList.Select(r => r.AdjustmentNoteId);
                 var adjustNoteDbList = _adjustmentNoteRepository.Query(r => adjustNoteIds.Contains(r.Id)).Select().ToList();
                 var adjustNoteDetailIds = voucherDetailVMList.Select(r => r.AdjustmentNoteDetailId);
@@ -6769,6 +6770,54 @@ namespace Library.Service.Invoices
                     }
                     else
                         throw new CustomException("Bank or Cash Id not found!");
+                }
+                if (voucherVM.PaymentSource == PaymentSource.Reverse.ToString())
+                {
+                        var voucherDetailCr = new VoucherDetail
+                        {
+                            Narration = voucher.Narration,
+                            CrAmount = voucherDetailVMList.Sum(r => r.Amount) + totalCharges,
+                            PaymentSource = invoiceWriteOff.PaymentSource
+                        };
+                        if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
+                            voucherDetailCr.CrAmount -= voucherVM.RoundingAmount;
+                        if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
+                            voucherDetailCr.CrAmount += voucherVM.RoundingAmount;
+                        totalAmountCr += voucherDetailCr.CrAmount;
+
+                        //var glTransactionDetail = new GLTransactionDetail
+                        //{
+                        //    SourceType = voucherDetailCr.PaymentSource,
+                        //    BankMasterId = voucherVM.BankMasterId,
+                        //    CashMasterId = voucherVM.CashMasterId
+                        //};
+
+                        var reverseGL = _accountsCommonService.GetReverseGL(voucherIds);
+                        voucherDetailCr.GLGeneralInfoId = reverseGL["GLGeneralInfoId"].ToString();
+                        voucherDetailCr.BudgetMasterId = reverseGL["BudgetMasterId"].ToString();
+                        voucherDetailCr.ActivityId = reverseGL["ActivityId"].ToString();
+                        voucherDetailCr.PartyType = "Reverse";
+                        //if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        //    glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
+                        //else
+                        //    glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+
+                        // INSRT INTO GLTransactionDetail
+
+                        currentVoucherDetailId++;
+                        _voucherService.InsertVoucherDetail(voucher, voucherDetailCr, currentVoucherDetailId);
+                        //_voucherService.InsertGLTransactionDetail(voucherDetailCr, glTransactionDetail);
+
+                        // INSERT INTO VoucherDetailCurrency
+                        var voucherDetailCurrencyCr = _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, new VoucherDetailCurrency
+                        {
+                            ParallelCurrencyId = companyCurrencyId,
+                            FromCurrencyId = voucherDetailCr.CurrencyId,
+                            ToCurrencyId = companyCurrencyId,
+                            ToCurrencyRate = voucherVM.CompanyCurrencyRate,
+                            ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
+                            CrAmount = totalCurrencyAmountDr
+                        });
                 }
 
                 if (!string.IsNullOrEmpty(invoiceWriteOff.RoundingType))

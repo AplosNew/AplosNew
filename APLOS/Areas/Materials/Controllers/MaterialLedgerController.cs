@@ -332,7 +332,9 @@ namespace Aplos.Areas.Materials.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
                 List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterGRNWiseData(identity.CompanyId, identity.PlantId, FromDate, ToDate, null,false));
-                return Json(new { NewData, Message = AplosMessage.Success });
+                var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
             }
             catch (Exception ex)
             {
@@ -349,7 +351,7 @@ namespace Aplos.Areas.Materials.Controllers
                 InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
 
                 string fileName = "";
-                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate,GRNNo, "PurchaseRegisterReportItemWise" + FromDate + "To" + ToDate + "");
+                fileName = obj.CreatePurchaseRegisterGRNWiseReportSheet(identity.CompanyId, identity.PlantId, FromDate, ToDate,GRNNo, "PurchaseRegisterReportGRNWise" + FromDate + "To" + ToDate + "");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -415,7 +417,9 @@ namespace Aplos.Areas.Materials.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
             List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterItemData(identity.CompanyId, identity.PlantId, fromDate, toDate,null, false));
-            return Json(new { NewData, Message = AplosMessage.Success });
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
         [Authorize, HttpPost]

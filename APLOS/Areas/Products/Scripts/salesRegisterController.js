@@ -155,7 +155,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
             data: {
                 fromDate: $scope.report.FromDate,
                 toDate: $scope.report.ToDate,
-                Type: $scope.productNew.Type
+                Type: 'ForThePeriod'
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -257,7 +257,7 @@ function salesRegisterController(fileReader, commonMessage, $scope, $rootScope, 
                 'FromDate': $scope.report.FromDate,
                 'SalesId': ids,
                 'Summary': $scope.report.Summary,
-                'Type': Type,
+                'Type': 'ForThePeriod',
                 'WithTax': true
             },
             dataType: 'JSON'
