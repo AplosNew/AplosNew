@@ -76,6 +76,7 @@ function FurnitureMasterController(cboService, commonMessage, $scope, $rootScope
             }
             else {
                 ShowResult(response.data.Message, 'success');
+
                 ClearFields(response.data.Sequence);
                 $scope.getData();
 
