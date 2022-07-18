@@ -1,10 +1,10 @@
 ﻿'use strict';
-OrderLineCostingItemController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function OrderLineCostingItemController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
-    $rootScope.title = "OrderLineCostingItem";
+ProductionBookingProcessparameterController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function ProductionBookingProcessparameterController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+    $rootScope.title = "ProductionBookingProcessparameter";
     $scope.Action = 'Save';
     $scope.FormulaDetails = [];
-    $scope.path = 'Costings/OrderLineCostingItem/';
+    $scope.path = 'Processes/ProductionBookingProcessparameter/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
@@ -193,7 +193,7 @@ function OrderLineCostingItemController(cboService, commonMessage, $scope, $root
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
         $scope.GetOrderLineCostingItemCbo();
-        $scope.ModelNewEntryState = 'Entry';
+        $scope.ModelNewEntryState= 'Entry';
     }
 
     function CheckField(fieldValue, fieldName) {
