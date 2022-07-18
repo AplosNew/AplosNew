@@ -1058,6 +1058,7 @@ upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationContr
 upanelApp.controller("OTCompensatoryAllocationController", OTCompensatoryAllocationController);
 upanelApp.controller("FurniturePolicyController", FurniturePolicyController);
 upanelApp.controller("FurnitureMasterController", FurnitureMasterController);
+upanelApp.controller("ResidenceMasterController", ResidenceMasterController);
 
 
 
