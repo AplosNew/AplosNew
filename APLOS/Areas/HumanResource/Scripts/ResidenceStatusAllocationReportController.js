@@ -37,7 +37,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             url: $scope.path + 'getResidenceReportFilters',
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.filters = response.data;
+            $scope.Reportfilters = response.data;
             var columnList = [
                 { field: 'EmployeeId', width: 20, headerText: "Employee Id", type: "string" },
                 { field: 'Designation', width: 20, headerText: "EmployeeGiven/LegalDesignation", type: "string" },
@@ -55,64 +55,66 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
                 { field: 'ResidenceSubCategory', width: 20, headerText: "Sub Category", type: "string" }
 
             ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
+            $("#Reportfilters").ejGrid({
+                dataSource: $scope.Reportfilters,
                 minWidth: 450, minHeight: 400,
                 allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
                 filterSettings: { filterType: "excel" },
                 columns: columnList
             });
 
-            var gridObj = $("#filters").data("ejGrid");
+            var gridObj = $("#Reportfilters").data("ejGrid");
             gridObj.refreshContent(true);
             gridObj.refreshTemplate();
-            $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
+            $("#Reportfilters").children('.e-pager.e-js.e-pager').hide();
+            $("#Reportfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+            $("#Reportfilters").children('.e-gridcontent').hide();
         });
     }
     $scope.getResidenceStatusReportFilters();
 
-    //$scope.parameters = [];
-    //$scope.filterComplete = function () {
-
-    //    var g = $("#filters").data("ejGrid");
-    //    var fl = g.getFilteredRecords();
-    //    if (fl.length == 0) {
-    //        fl = $scope.filters;
-    //    }
 
 
-    //    var parameters = [];
-    //    parameters.push({ "Key": "ResidenceMasterId", "Value": getString(fl, "ResidenceMasterId") });
-    //    parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
-    //    parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
-    //    parameters.push({ "Key": "EmployeeTypeId", "Value": getString(fl, "EmployeeTypeId") });
-    //    //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
+    $scope.parameters = [];
+    $scope.filterComplete = function () {
+
+        var g = $("#Reportfilters").data("ejGrid");
+        var fl = g.getFilteredRecords();
+        if (fl.length == 0) {
+            fl = $scope.Reportfilters;
+        }
+
+
+        var parameters = [];
+        parameters.push({ "Key": "EmployeeId", "Value": getString(fl, "EmployeeId") });
+        //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
+        //parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
+        //parameters.push({ "Key": "EmployeeTypeId", "Value": getString(fl, "EmployeeTypeId") });
+        //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
        
-    //    $scope.parameters = parameters;
-    //}
+        $scope.parameters = parameters;
+    }
 
-    //var getString = function (data, column) {
-    //    var string = "''";
-    //    var collection = [];
+    var getString = function (data, column) {
+        var string = "''";
+        var collection = [];
 
-    //    for (var i = 0; i < data.length; i++) {
-    //        if (collection.includes(data[i][column]) == false) {
-    //            string += ",'" + data[i][column] + "'";
-    //            collection.push(data[i][column]);
-    //        }
-    //    }
-    //    return string;
-    //}
-
+        for (var i = 0; i < data.length; i++) {
+            if (collection.includes(data[i][column]) == false) {
+                string += ",'" + data[i][column] + "'";
+                collection.push(data[i][column]);
+            }
+        }
+        return string;
+    }
 
     //#endregion The Filters
-    $scope.view = function () {
+
+    $scope.ViewRSAFilters = function () {
         $scope.filterComplete();
         $http({
             method: "POST",
-            url: $scope.path + 'GetViewData',
+            url: $scope.path + 'GetRSAFiltersViewData',
             data: { 'parameters': $scope.parameters },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -120,6 +122,52 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
         })
     }
 
+    $scope.DownloadResidenceStatusAllocationReport = function () {
+
+        var dataList = [];
+        var g = $("#GridRSA").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].EmployeeId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].EmployeeId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.ModelList[i].EmployeeId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.ModelList[i].EmployeeId + "'";
+                }
+            }
+        }
+        $scope.fileName = 'ResidenceStatusAllocation.xlsx';
+        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        $http({
+            method: 'POST',
+            url: $scope.path + "ResidenceStatusAllocationReport",
+            data: { 'employeeId': ids },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                //$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    }
 
     //$scope.AvailablePopUpData = function (data) {
     //    location.href = $scope.path + "GetEmployeeDeleteInfo?grnId=" + data.Id;
