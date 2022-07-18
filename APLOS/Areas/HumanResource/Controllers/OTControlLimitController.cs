@@ -508,9 +508,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 string CmpName = "";
                 xlsRow = 6;
                 int StartRow = xlsRow;
+                int colDate = xlsCol;
                 sheet1[xlsRow, xlsCol].Text = "Date";
                 int colSLNO = xlsCol;
-                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 9;
                 xlsCol++;
 
                 int colEntity = xlsCol;
@@ -650,15 +651,12 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Thick);
                 #endregion
 
-                string voucherNo = "";
-                /// string Percentage = "";
                 int startRow = 0;
                 int perStartRow = 0;
+                int endRow = 0;
                 string formula = "";
                 string formula2 = "";
-                // string totalFormula = "";
 
-                //string lineItemPercentageType = "";
                 xlsRow++;
                 startRow = xlsRow;
                 perStartRow = xlsRow;
@@ -666,7 +664,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #region DataPlot
                 for (int i = 0; i < dtoTControlLimit.Rows.Count; i++)
                 {
-                    sheet1.Range[xlsRow, colEntity].Text = dtoTControlLimit.Rows[i]["EmployeeCode"].ToString();
+                    sheet1.Range[xlsRow, colDate].Text = dtoTControlLimit.Rows[i]["EffectiveDate"].ToString();
+                    sheet1.Range[xlsRow, colEntity].Text = dtoTControlLimit.Rows[i]["Entity"].ToString();
                     sheet1.Range[xlsRow, colDepartment].Text = dtoTControlLimit.Rows[i]["Department"].ToString();
                     sheet1.Range[xlsRow, colSection].Text = dtoTControlLimit.Rows[i]["Section"].ToString();
                     sheet1.Range[xlsRow, colSubSection].Text = dtoTControlLimit.Rows[i]["SubSection"].ToString();
@@ -674,10 +673,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, colDesignation].Text = dtoTControlLimit.Rows[i]["Designation"].ToString();
                     sheet1.Range[xlsRow, colActivity].Text = dtoTControlLimit.Rows[i]["Activity"].ToString();
                     sheet1.Range[xlsRow, colDirect].Text = dtoTControlLimit.Rows[i]["Direct"].ToString();
-                    sheet1.Range[xlsRow, colUserGroup2].Text = dtoTControlLimit.Rows[i]["UserGroup2"].ToString();
+                    sheet1.Range[xlsRow, colUserGroup2].Text = dtoTControlLimit.Rows[i]["UserDefineGroup2"].ToString();
                     sheet1.Range[xlsRow, colAttendanceGroup].Text = dtoTControlLimit.Rows[i]["AttendanceGroup"].ToString();
                     sheet1.Range[xlsRow, colPositionCode].Text = dtoTControlLimit.Rows[i]["PositionCode"].ToString();
-                    sheet1.Range[xlsRow, colPDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["PlanDeploymentManDays"].ToString());
+                    sheet1.Range[xlsRow, colPDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["Deployment"].ToString());
                     sheet1.Range[xlsRow, colBMP].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["BudgetedManpower"].ToString());
                     sheet1.Range[xlsRow, colONRoll].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ONRoll"].ToString());
                     sheet1.Range[xlsRow, colPM].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["PresentManpower"].ToString());
@@ -693,13 +692,15 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, colWOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeeklyOTLimit"].ToString());
                     sheet1.Range[xlsRow, colWFOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeekOffOTLimit"].ToString());
                     sheet1.Range[xlsRow, colMOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["MonthlyOTLimit"].ToString());
-                    sheet1.Range[xlsRow, colR].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["Remarks"].ToString());
+                    sheet1.Range[xlsRow, colR].Text = dtoTControlLimit.Rows[i]["Remarks"].ToString();
+                    xlsRow++;
                 }
+                endRow = xlsRow;
 
                 #endregion
 
 
-
+                sheet1.Range[perStartRow, colDate, xlsRow, endRow].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet1.AutoFilters.FilterRange = sheet1.Range[StartRow - 1, 1, xlsRow, endXlsCol];
                 #region ******************Report Header******************
 
