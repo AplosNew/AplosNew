@@ -2780,16 +2780,21 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IIH1.Qty,0) OtherIssuedQty
 							,isnull(IIH.Qty,0) CurrentIssueQty
 							,TUoM.UserName AS IssueUOM							
-	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
+							,IIH.TotalMaterialBooksCurrencyAmount IssueAmount
+	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))	
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
 	                        
 
+                           ,ISNULL(IGL.AccountCode,'') AS GLCode
                            ,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') AS BudgetRefNo
+							,isnull(IGL1.AccountCode,'') AS CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,isnull(IBM1.RefNo,'') AS CBudgetRefNo
                             ,CC.UserName CostCenterName
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId	
@@ -2818,17 +2823,16 @@ namespace Library.MaterialManagement.Inventory
 					   LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM1 ON IRD.BaseUOMId = TUoM1.Id
 
 
-                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
-						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
+                      LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.BudgetMasterId
+                      LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IBM.GLGeneralInfoId 
+						LEFT JOIN HKP.Activity IA ON IA.Id=IID.ActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
 
 
-						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IID.PostCrGLGeneralInfoId 
-						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IID.PostCrBudgetMasterId
-						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IID.PostCrActivityId
+						LEFT JOIN HKP.GLGeneralInfo IGL1 ON IGL1.Id=IRD.PostDrGLGeneralInfoId 
+						LEFT JOIN MST.BudgetMaster IBM1 ON IBM1.Id=IRD.PostDrBudgetMasterId
+						LEFT JOIN HKP.Activity IA1 ON IA1.Id=IRD.PostDrActivityId
 						Left JOIN hkp.Budget B1 On B1.Id=IBM1.BudgetId
-
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }

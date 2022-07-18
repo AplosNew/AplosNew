@@ -34,4 +34,113 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
             $scope.setTab(4);
         }
     };
+
+    //All Lists Are Here
+    $scope.FurnitureMasterList = [];
+    $scope.FurnitureGridList = [];
+    $scope.DesignationMasterList = [];
+    $scope.DesignationGridList = [];
+    $scope.SelectedList = [];
+    
+    $scope.ModelTemp = {
+        Id: null,
+        FurnitureMaster: null,
+    };
+    $scope.FurnitureMasterNew = Object.assign({}, $scope.ModelTemp);
+
+    $scope.ModelTempT = {
+        Id: null,
+        DesignationMaster: null,
+    };
+    $scope.DesignationMasterNew = Object.assign({}, $scope.ModelTempT);
+
+    $scope.getFurnitureMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getFurnitureMaster",
+            dataType: 'JSON',
+
+        }).then(function successCallback(response) {
+            $scope.FurnitureMasterList = response.data;
+        })
+    }
+    $scope.getFurnitureMaster();
+
+    $scope.getDesignationMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getDesignationMaster",
+            dataType: 'JSON',
+
+        }).then(function successCallback(response) {
+            $scope.DesignationMasterList = response.data;
+        })
+    }
+    $scope.getDesignationMaster();
+
+    $scope.getFurnitureGridView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getFurnitureGridView",
+            data: {
+                'username': $scope.FurnitureMasterNew.FurnitureMaster,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.FurnitureGridList = response.data;
+        })
+    }
+
+    $scope.getDesignationGridView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getDesignationGridView",
+            data: {
+                'username': $scope.DesignationMasterNew.DesignationMaster,
+            },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.DesignationGridList = response.data;
+        })
+    }
+
+    //$scope.checkORuncheck = function (e) {
+    //    $('.rowCheckbox').on('change', function () {
+    //        if (this.checked) {
+    //            $scope.SelectedList.push(this.value);
+    //        }
+    //        else {
+    //            $scope.SelectedList = $scope.SelectedList.filter(item => item != this.value);
+    //        }
+
+    //       // $('#show').html(listvalues.sort());
+    //    });
+    //}
+
+    $scope.ActiveEmpcbx = function (args) {
+        $("#cbxhead").ejCheckBox({ "change": chkFilteredData });
+    };
+
+    function chkFilteredData(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridOTCompensation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelList.length; i++) {
+                $scope.ModelList[i].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridOTCompensation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+    
 }
