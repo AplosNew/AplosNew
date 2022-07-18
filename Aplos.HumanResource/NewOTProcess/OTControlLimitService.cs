@@ -219,7 +219,7 @@ LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId = mb.Id
 LEFT JOIN ORG.Position P ON P.Id=mb.PositionId
 LEFT JOIN ORG.Entity E ON E.Id=mb.EntityId
 LEFT JOIN dbo.OTControlLimitDetail AS old ON old.BudgetCodeId = mb.Id 
-LEFT JOIN dbo.OTControlLimit AS ol ON ol.Id = old.OTControlLimitId  
+LEFT JOIN dbo.OTControlLimit AS ol ON ol.Id = old.OTControlLimitId  AND ol.EffectiveDate BETWEEN '" + fromDate + @"' AND '" + todate + @"'
 
 LEFT JOIN ORG.Department AS d ON d.Id = p.DepartmentId
 LEFT JOIN ORG.Section AS S ON S.Id = p.SectionId
@@ -263,7 +263,7 @@ LEFT JOIN (
 		WHERE D.WorkDate BETWEEN '" + fromDate + @"' AND '" + todate + @"' GROUP BY E.PositionId,eod.EmpSystemId
         ) EOD ON EOD.PositionId=MB.PositionId
         
-WHERE mb.Active=1 AND ol.EffectiveDate BETWEEN '" + fromDate + @"' AND '" + todate + @"'
+WHERE mb.Active=1 
 GROUP BY P.Id,e.Id,e.UserName,d.UserName,s.UserName,SS.UserName,DGm.EmployeeCategory,DG.UserName
 ,p.Activity,P.IsDirect,ag.UserName,P.UserDefineGroup2,p.Code,
 ONR.ONRoll,PMP.PresentManpower,LMP.LateManpower,POT.StandardOT,POT.AdditionalOT,EOD.OD
