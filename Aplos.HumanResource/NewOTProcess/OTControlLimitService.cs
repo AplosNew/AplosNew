@@ -269,7 +269,7 @@ GROUP BY P.Id,e.Id,e.UserName,d.UserName,s.UserName,SS.UserName,DGm.EmployeeCate
 ONR.ONRoll,PMP.PresentManpower,LMP.LateManpower,POT.StandardOT,POT.AdditionalOT,EOD.OD
 ,old.DailyOTLimit,old.WeeklyOTLimit,old.WeekOffOTLimit,old.MonthlyOTLimit,ol.EffectiveDate,old.Remarks
 HAVING SUM(CAST(Deployment AS int))>0
-";
+ORDER BY ol.EffectiveDate ";
             return _sqlRepository.GetDataTable(sql);
         }
     }

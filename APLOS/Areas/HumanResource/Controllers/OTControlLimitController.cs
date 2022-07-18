@@ -692,7 +692,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, colWOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeeklyOTLimit"].ToString());
                     sheet1.Range[xlsRow, colWFOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["WeekOffOTLimit"].ToString());
                     sheet1.Range[xlsRow, colMOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["MonthlyOTLimit"].ToString());
-                    sheet1.Range[xlsRow, colR].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["Remarks"].ToString());
+                    sheet1.Range[xlsRow, colR].Text = dtoTControlLimit.Rows[i]["Remarks"].ToString();
                     xlsRow++;
                 }
                 endRow = xlsRow;
