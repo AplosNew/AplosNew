@@ -500,7 +500,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
     .controller("DocumentCategoryController", DocumentCategoryController)
-    .controller('ResidenceMasterController', ResidenceMasterController)
+    
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
     .controller('TrainingMasterController', TrainingMasterController)    
     .controller("FuguaiZoneMasterController", FuguaiZoneMasterController)

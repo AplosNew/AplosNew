@@ -45,15 +45,11 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     $scope.ModelTemp = {
         Id: null,
         FurnitureMaster: null,
-    };
-    $scope.FurnitureMasterNew = Object.assign({}, $scope.ModelTemp);
-
-    $scope.ModelTempT = {
-        Id: null,
         DesignationMaster: null,
     };
-    $scope.DesignationMasterNew = Object.assign({}, $scope.ModelTempT);
+    $scope.FurniturePolicyNew = Object.assign({}, $scope.ModelTemp);
 
+    
     $scope.getFurnitureMaster = function () {
         $http({
             method: 'POST',
@@ -83,7 +79,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
             method: 'POST',
             url: $scope.path + "getFurnitureGridView",
             data: {
-                'username': $scope.FurnitureMasterNew.FurnitureMaster,
+                'username': $scope.FurniturePolicyNew.FurnitureMaster,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
@@ -96,12 +92,17 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
             method: 'POST',
             url: $scope.path + "getDesignationGridView",
             data: {
-                'username': $scope.DesignationMasterNew.DesignationMaster,
+                'username': $scope.FurniturePolicyNew.DesignationMaster,
             },
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.DesignationGridList = response.data;
         })
+    }
+
+    $scope.viewFurniturePolicyGrids = function () {
+        $scope.getFurnitureGridView();
+        $scope.getDesignationGridView();
     }
 
     //$scope.checkORuncheck = function (e) {
