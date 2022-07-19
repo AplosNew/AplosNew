@@ -130,7 +130,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.ModelList = [];
     $scope.GetData = function () {
         $scope.ModelList = [];
-        $http.get("Costings/OrderLineCostingItem/GetList")
+        $http.get("Processes/ProductionBookingProcessparameter/GetList")
             .then(
                 function successCallback(response) {
                     $scope.ModelList = response.data;

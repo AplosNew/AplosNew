@@ -295,7 +295,7 @@ namespace Library.General.TaskScheduler
                         LEFT OUTER JOIN TaskAudit AS ta ON ta.authorizationType=c.AuthType AND tm.Id=ta.TaskManagerMasterId
                         WHERE tm.CurrentStatus<>'" + CurrentStatusEnum.Closed.ToString() + @"'
 
-                        UNION ALL ALL
+                        UNION ALL
 
                         SELECT c.AuthType,TM.Id TaskManagerMasterId, ta.Id,isnull(ta.isDone,0) AS isDone,
                         ta.ResponsiblePersonId,ta.isRead,tm.currentstatus,ta.AuthorizationType,ta.DueDate
@@ -304,7 +304,7 @@ namespace Library.General.TaskScheduler
                         LEFT OUTER JOIN TaskAudit AS ta ON ta.authorizationType=c.AuthType AND tm.Id=ta.TaskManagerMasterId
                         WHERE tm.CurrentStatus<>'" + CurrentStatusEnum.Closed.ToString() + @"'
 
-                        UNION ALL ALL
+                        UNION ALL
 
                         SELECT c.AuthType,TM.Id TaskManagerMasterId, ta.Id,isnull(ta.isDone,0) AS isDone,ta.ResponsiblePersonId
                        ,ta.isRead,tm.currentstatus,ta.AuthorizationType,ta.DueDate
@@ -472,7 +472,7 @@ namespace Library.General.TaskScheduler
                         LEFT OUTER JOIN TaskAudit AS ta ON ta.authorizationType=c.AuthType AND tm.Id=ta.TaskManagerMasterId
                         WHERE isnull(ta.IsDone,0)=1  AND CONVERT(DATE, ta.DueDate) BETWEEN CONVERT(DATE, DATEADD(MONTH,-3,getdate())) AND CONVERT(DATE, DATEADD(MONTH,3,getdate())) 
 
-                        UNION ALL ALL
+                        UNION ALL
 
                         SELECT c.AuthType,TM.Id TaskManagerMasterId, ta.Id,isnull(ta.isDone,0) AS isDone,ta.ResponsiblePersonId,
                         ta.isRead,tm.currentstatus,ta.AuthorizationType,ta.DueDate,ta.AddedDate
@@ -481,7 +481,7 @@ namespace Library.General.TaskScheduler
                         LEFT OUTER JOIN TaskAudit AS ta ON ta.authorizationType=c.AuthType AND tm.Id=ta.TaskManagerMasterId
                         WHERE isnull(ta.IsDone,0)=1  AND CONVERT(DATE, ta.DueDate) BETWEEN CONVERT(DATE, DATEADD(MONTH,-3,getdate())) AND CONVERT(DATE, DATEADD(MONTH,3,getdate())) 
 
-                        UNION ALL ALL
+                        UNION ALL
 
                         SELECT c.AuthType,TM.Id TaskManagerMasterId, ta.Id,isnull(ta.isDone,0) AS isDone,
                         ta.ResponsiblePersonId,ta.isRead,tm.currentstatus,ta.AuthorizationType,ta.DueDate,ta.AddedDate
