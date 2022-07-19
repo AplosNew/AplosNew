@@ -582,15 +582,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet1.Range[xlsRow, xlsCol].Text = "Present Manpower";
 
                 xlsCol++;
-                int colSOT = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Standard OT";
-               
-
-                xlsCol++;
-                int colAOT = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "Additional OT";
-
-                xlsCol++;
                 int colTOT = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Total OT";
 
@@ -680,8 +671,6 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet1.Range[xlsRow, colBMP].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["BudgetedManpower"].ToString());
                     sheet1.Range[xlsRow, colONRoll].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ONRoll"].ToString());
                     sheet1.Range[xlsRow, colPM].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["PresentManpower"].ToString());
-                    sheet1.Range[xlsRow, colSOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["StandardOT"].ToString());
-                    sheet1.Range[xlsRow, colAOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["AdditionalOT"].ToString());
                     sheet1.Range[xlsRow, colTOT].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["TotalOT"].ToString());
                     sheet1.Range[xlsRow, colTDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["TotalDeployedMandays"].ToString());
                     sheet1.Range[xlsRow, colEDMD].Number = OTSBD.clsStaticInfo.dbl(dtoTControlLimit.Rows[i]["ExcessDeploymentMandays"].ToString());

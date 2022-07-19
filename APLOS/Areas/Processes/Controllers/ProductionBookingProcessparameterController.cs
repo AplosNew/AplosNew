@@ -45,7 +45,7 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetOrderLineCostingItemCbo(string id)
+        public JsonResult GetHeaderItemCbo(string id)
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingProcessparameter] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
