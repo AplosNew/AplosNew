@@ -1059,6 +1059,8 @@ upanelApp.controller("OTCompensatoryAllocationController", OTCompensatoryAllocat
 upanelApp.controller("FurniturePolicyController", FurniturePolicyController);
 upanelApp.controller("FurnitureMasterController", FurnitureMasterController);
 upanelApp.controller("ResidenceMasterController", ResidenceMasterController);
+upanelApp.controller("ProcessWiseProductionBookingController", ProcessWiseProductionBookingController);
+upanelApp.controller("FuguaiZoneMasterController", FuguaiZoneMasterController);
 
 
 

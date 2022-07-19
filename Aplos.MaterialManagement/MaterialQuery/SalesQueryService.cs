@@ -3505,11 +3505,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
 									,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 									,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
-									,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+									,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
 									,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
 									,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
 									,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-									,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS
+									,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS
 
 									,sum(round(isnull(ServiceData.ServiceAmount,0),2))+Sum(SMD.TransactionAmount ) TotalTaxableAmt
 									,Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0)) BooksCurrencyTransactionAmount
@@ -3577,11 +3577,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT A.SalesId,A.BooksCurrencyTaxAmount BooksTaxAmount,TaxAmount TaxAmount
+									LEFT JOIN (SELECT A.SalesId,sum(A.BooksCurrencyTaxAmount) BooksTaxAmount,sum(TaxAmount) TaxAmount
 												FROM trn.SalesAdditionalTax A
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												--Group BY A.SalesId				
+												Group BY A.SalesId				
 									) TAxInfo6 ON TAxInfo6.SalesId=SA.Id 
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 											from trn.SalesService AS ISS
@@ -3590,7 +3590,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName 
+									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount
 								UNION ALL
 
 								SELECT  P.Id PartyId,p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
@@ -3603,11 +3603,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(TAxInfo2.TaxAmount,0),2)) SGST
 								,sum(round(isnull(TAxInfo1.TaxAmount,0),2)) IGST
 								,sum(round(isnull(TAxInfo3.TaxAmount,0),2)) TDS
-								,sum(round(isnull(TAxInfo6.TaxAmount,0),2)) TCS
+								,round(isnull(TAxInfo6.TaxAmount,0),2) TCS
 								,sum(round(isnull(TAxInfo.BooksCurrencyTransactionAmount,0),2)) BooksCGST		
 								,sum(round(isnull(TAxInfo2.BooksCurrencyTransactionAmount,0),2)) BooksSGST
 								,sum(round(isnull(TAxInfo1.BooksCurrencyTransactionAmount,0),2)) BooksIGST
-								,sum(round(isnull(TAxInfo6.BooksTaxAmount,0),2)) BooksTCS			
+								,round(isnull(TAxInfo6.BooksTaxAmount,0),2) BooksTCS			
 								,sum(round(isnull(SCr.ServiceAmount,0),2))+Sum(IID.TransactionAmount ) TotalTaxableAmt
 								,Sum(IID.BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 								,sum(SCr.BooksCurrencyTransactionAmount) ServiceBooksCurrencyTranAmt
@@ -3682,9 +3682,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											LEFT JOIN [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 											WHERE B.Code='TCS'
 											GROUP BY A.InventorySalesId
-								) TAxInfo6 ON TAxInfo6.InventorySalesId=IID.InventorySalesId
+								) TAxInfo6 ON TAxInfo6.InventorySalesId=II.Id
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName";
+								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount";
 
                 if (isreport)
                 {
