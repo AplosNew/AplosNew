@@ -3767,7 +3767,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColMaterialGroup = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Material", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Material/Service", 13, ExcelHAlign.HAlignLeft);
 			int ColMaterial = COL;
 			COL++;
 
@@ -4360,8 +4360,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			try
 			{
 
-				var str = @"SELECT ROW_NUMBER() Over(Order by   SM.Id) As[SN]
-								,SM.Id SalesMaterialId
+				var str = @"select ROW_NUMBER() Over(Order by   x.SalesMaterialId) As[S.N],x.* from (
+					SELECT  'Sales' ItemType,SM.Id SalesMaterialId
 								
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
@@ -4536,17 +4536,16 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									UNION ALL
 
 														Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id SalesMaterialId
+								'Service' ItemType,ISs.Id SalesMaterialId
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
-								,'' GSTINNo
+								,PP.GSTIN GSTINNo
 								,'' AS MaterialGroup
 								,SM.UserName Material
 								,IR.Id SalesNo
-								,'' InvoiceDate
+								,FORMAT(IR.InvoiceDate, 'dd-MMM-yyyy') InvoiceDate
 								
-								, '' DocRefNo
+								, IR.DocRefNo
 								,FORMAT(IR.InvoiceDate,'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
 								,'' AS Article
@@ -4574,15 +4573,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''AgentCommission
 								,'' Insurance
 								,''GrossWeight,''LoTNo
-								,CON.ContractNo
-								,ML.LCRef 
+								,'' ContractNo
+								,'' LCRef 
 								,IR.ComercialInvoiceNo
 								,FORMAT(PSI.ExpDate,'dd-MMM-yyyy') ExpiryDate
 								,PSI.CNFBLAWB BLAWBNo,FORMAT(PSI.CNFBLAWBDate,'dd-MMM-yyyy') BLAWBDate
 								,PTM.UserName PaymentTerm,FORMAT(IR.BaseOnDueDate,'dd-MMM-yyyy') BaseOnDueDate
 								,IR.BaseNoOfDays NoOfDays
 							    ,FORMAT(IR.MatureDate,'dd-MMM-yyyy') MatureDate
-								,PL.Amount LCAmount
+								,0 LCAmount
 								,FORMAT(PSI.ExFactoryDate,'dd-MMM-yyyy') ExFactoryDate
 								--,TA.UserName TransportAgent	
 
@@ -4606,18 +4605,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
-								left outer join trn.SalesMaterial IRM on IRM.SalesId=IR.Id
-									left outer join TRN.SalesOrder So on SO.Id=IRM.SalesOrderId
-									left outer join TRN.MasterOrderItem MOI on MOI.Id=SO.MasterOrderItemId
-									left outer join [Contract] CON on CON.Id=MOI.ContractId
-									left outer join PurchaseLC PL on PL.ContractId=CON.Id
-									Left outer join MasterLC ML on ML.Id=CON.MasterLCId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
 									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
-
 									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
 									left outer join HKP.Party TA on TA.Id=IR.PartyId
-
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
@@ -4679,8 +4670,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								union ALL
 
 								SELECT 
-								ROW_NUMBER() Over(Order by   II.Id) As[S.N]
-								,IID.Id SalesMaterialId
+								'InventorySales' ItemType,IID.Id SalesMaterialId
 								
 								,'' InvoicingPartyPlant
 								,'' DeliveryPartyPlant
@@ -4828,8 +4818,7 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 								UNION ALL
 
 								Select                  
-								ROW_NUMBER() Over(Order by   IR.Id) As[S.N]
-								,ISs.Id SalesMaterialId
+								'InventoryService' ItemType,ISs.Id SalesMaterialId
 								
 								--,'' GRNDate
 								,'' InvoicingPartyPlant
@@ -4838,10 +4827,9 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 								,'' AS MaterialGroup
 								,SM.UserName Material
 								,'' SalesNo
-								,'' InvoiceDate
-								
-								, '' DocRefNo
-								,FORMAT(IR.DocDate,'') DocRefDate
+								,FORMAT(IR.SalesDate, 'dd-MMM-yyyy') InvoiceDate
+								, IR.DocRefNo
+								,FORMAT(IR.DocDate, 'dd-MMM-yyyy') DocRefDate
 								, P.UserName AS Party,p.Code PartyCode,p.PartyType
 								,'' AS Article
 								,''FirstCharacteristicsValue
@@ -4952,7 +4940,8 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                                     Group By A.InventorySalesServiceId,A.InventorySalesId, B.UserName ,B.Code 
 						) TAxInfo6 ON TAxInfo6.InventorySalesServiceId=ISs.Id AND TAxInfo6.InventorySalesServiceId IS NOT NULL
 
-								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' ";
+								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.SalesDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
+						)x order by convert(Date,x.InvoiceDate) ,x.SalesNo,x.ItemType";
 
 				return _sqlRepository.GetDataTable(str);
 			}

@@ -1057,6 +1057,9 @@ upanelApp.controller("ResidenceStatusAllocationReportController", ResidenceStatu
 upanelApp.controller("PurchaseConfirmationController", PurchaseConfirmationController);
 upanelApp.controller("OTCompensatoryAllocationController", OTCompensatoryAllocationController);
 upanelApp.controller("FurniturePolicyController", FurniturePolicyController);
+upanelApp.controller("FurnitureMasterController", FurnitureMasterController);
+upanelApp.controller("ResidenceMasterController", ResidenceMasterController);
+
 
 
 

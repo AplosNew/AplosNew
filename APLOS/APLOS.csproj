@@ -746,6 +746,7 @@
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\TaxPolicyHeaderController.cs" />
     <Compile Include="Areas\Payrolls\Controllers\EmployeeIncomeTaxProcessController.cs" />
+    <Compile Include="Areas\Processes\Controllers\ProductionBookingProcessparameterController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\EmployeeTimeOutController.cs" />
     <Compile Include="Areas\Productions\Controllers\FGInventoryStockReportController.cs" />
@@ -2142,6 +2143,7 @@
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxController.js" />
     <Content Include="Areas\Payrolls\Scripts\TaxPolicyHeaderController.js" />
     <Content Include="Areas\Payrolls\Scripts\EmployeeIncomeTaxProcessController.js" />
+    <Content Include="Areas\Processes\Scripts\ProductionBookingProcessparameterController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutController.js" />
     <Content Include="Areas\Productions\Scripts\FGInventoryStockReportController.js" />
@@ -4218,6 +4220,7 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\Report.cshtml" />
     <Content Include="Areas\HumanResource\Views\FurnitureMaster\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FurniturePolicy\Aplos.cshtml" />
+    <Content Include="Areas\Processes\Views\ProductionBookingProcessparameter\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

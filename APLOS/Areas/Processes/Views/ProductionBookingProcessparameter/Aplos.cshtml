@@ -1,0 +1,258 @@
+﻿<togglable name="Order Line Costing Item"></togglable>
+
+<div class="row">
+    <div id="main" ng-form name="CostingSOFormulaForm">
+        @*<div class="form-element-ctrl form-horizontal">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Company<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="CompanyId" class="form-control" ng-model="ModelNew.CompanyId" name="Company" ng-change="getPlant();" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in companyList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Plant<sup>*</sup> </label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select id="PlantId" class="form-control" ng-model="ModelNew.PlantId" name="Plant" ng-change="GetData();" tabindex="1">
+                                    <option value="">--Select--</option>
+                                    <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+        <div class="form-horizontal form-elements">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="number" name="Sequence" ng-model="ModelNew.Sequence" class="form-control" required tabindex="1">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Sandard Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="Sandard Name" ng-model="ModelNew.LineItemCostingSandardName" class="form-control" required tabindex="3" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">SOItem Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="SOItem Name" id="SOItemName" ng-model="ModelNew.SOItemName" required tabindex="5">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in CostingSOList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-8">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="Assign" ng-model="ModelNew.EntryState" value="Entry">
+                                <span class="cr"><i class="cr-icon"></i></span>Entry
+                            </label>
+                            <label>
+                                <input type="radio" name="Assign" ng-model="ModelNew.EntryState" value="Calculate">
+                                <span class="cr"><i class="cr-icon"></i></span>Calculate
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="ModelNew.EntryState=='Entry'">
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site radio">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
+                                <span class="cr"><i class="cr-icon"></i></span>
+                            </label>
+                            <label class="control-label">Value in Percentage</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="checkbox-site radio">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.ValueinDecimal" ng-change="setCheckedValue('ValueinDecimal')">
+                                <span class="cr"><i class="cr-icon"></i></span>
+                            </label>
+                            <label class="control-label">Decimal</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" ng-show="ModelNew.EntryState=='Entry'">
+                    <label class="col-sm-4 control-label">Default Value</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="Fixed Value" n-decimals="2" ng-model="ModelNew.DefaultValue" class="form-control">
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="2" maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Costing Type<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+
+                        <div class="select-style">
+                            <select class="form-control" name="CostingType" id="CostingType" ng-model="ModelNew.CostingType" ng-change="GetCostingTypeComponent();" required tabindex="4">
+                                <option value="">--Select --</option>
+                                <option ng-repeat="option in CostingTypeList" value="{{option.Value}}">{{option.Text}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" show-errors>
+                    <label class="col-sm-4 control-label">Costing Component<sup>*</sup></label>
+                    <div class="col-sm-8 show-message">
+                        <div class="select-style">
+                            <select class="form-control" name="Costing Component" id="Costing Component" ng-model="ModelNew.CostingComponentId" required tabindex="6">
+                                <option value="">--Select--</option>
+                                <option ng-repeat="option in CostingComponentList" value="{{option.Id}}">{{option.UserName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site">
+                            <label>
+                                <input type="checkbox" ng-model="ModelNew.Active" tabindex="8">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-sm-12" ng-show="ModelNew.EntryState=='Calculate'">
+                <fieldset class="scheduler-border" style="width:1076px">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Head</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="ModelNew.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in OrderLineCostingItemList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('SHead');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Value</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="Value" ng-model="ModelNew.Value" class="form-control" maxlength="50">
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Value');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Operator</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="ModelNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Operator');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Precedence</label>
+                            <div class="col-sm-6">
+                                <div class="select-style">
+                                    <select ng-model="ModelNew.Precedence" class="form-control" name="Precedence">
+                                        <option value=""></option>
+                                        <option value="(">(</option>
+                                        <option value=")">)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li> <button ng-click="SetFormula('Precedence');" class="btn"><i class="glyphicon glyphicon-forward"></i></button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li> <button ng-click="RemoveFormula();" class="btn"><i class="glyphicon glyphicon-backward"></i></button></li>
+                            </ul>
+                        </div>
+                        <div class="form-group">
+                            {{ModelNew.FormulaDescription}}
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="clearfix"></div>
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                    <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
+                    <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="aplos-grid-toggle">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+            <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
+            <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
+            <div e-column e-field="LineItemCostingSandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+            <div e-column e-field="CostingType" e-headertext="Costing Type" e-width="5"></div>
+            <div e-column e-field="CostingComponent" e-headertext="Costing Component" e-width="5"></div>
+            <div e-column e-field="SOItemName" e-headertext="SOItemName" e-width="5"></div>
+            <div e-column e-field="Formula" e-headertext="Formula" e-width="5"></div>
+            <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
+        </div>
+    </div>
+</div>
+<confirm-modal></confirm-modal>

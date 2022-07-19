@@ -3842,7 +3842,7 @@ namespace Aplos.MaterialManagement
 			sheet.Name = SheetName;
 			sheet.UsedRange.WrapText = true;
 			sheet.IsGridLinesVisible = false;
-			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
+			report.PlantHeader(ref sheet, COL, SheetName, PlantId);
 			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
 
 			var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + ".xlsx");
@@ -3982,7 +3982,7 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
 					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 					left jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id --and ird.InventoryReceiveId='1987'
-					left join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveDetailId=IRD.Id
+					--left join trn.InventoryReceiveTax IRT ON IRT.InventoryReceiveDetailId=IRD.Id
 				    --Left JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=IRT.HSNCodeId
 					left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
 					left JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
