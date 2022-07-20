@@ -165,7 +165,55 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public GridModel GetVendorAvailableInvoiceListForCreditNotes(GridParameter parameters, string companyGroupId, string companyId, string plantId, string partyId)
+        {
+            try
+            {
+                parameters.CmdText = @" SELECT I.CompanyId, I.PlantId, I.PartyPlantId, I.PartyType, I.Id AS InvoiceId, ID.Id AS InvoiceDetailId, I.VoucherId, V.VoucherNo, VD.EntityId, EN.UserName AS EntityName, I.SalesTypeId, I.InvoiceNo, I.PartyId, VD.Id AS VoucherDetailId, I.CurrencyId
+                                    , C.Code AS CurrencyCode, ID.GLGeneralInfoId AS GLGeneralInfoId, GLGI.AccountCode AS GLGeneralInfoCode, GLGI.UserName AS GLGeneralInfoName, ID.BudgetMasterId, B.Code AS BudgetCode, V.ExchangeType, 0 ExchangeAmount
+                                    , B.UserName AS BudgetName, ID.ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName, Replace(CONVERT(VARCHAR(11), I.DocDate, 106), ' ', '-') AS DocDate, Replace(CONVERT(VARCHAR(11)
+                                    , I.PostingDate, 106), ' ', '-') AS PostingDate, I.DocRefNo, I.Narration, ISNULL(ID.NetAmount,0) AS Receivable, (ISNULL(ID.WrittenOffAmount,0)) AS Received
+                                    , PP.UserName AS PartyPlantName
+                                    , (ISNULL(ID.NetAmount,0)- (ISNULL(ID.WrittenOffAmount,0))) AS Balance, CC.CompanyCurrencyId, CC.CompanyFromCurrencyId, CC.ToCurrencyId, CC.CompanyCurrencyRate, 0 ToCurrencyRate
+                                    , CC.CompanyCurrencyConversion, V.TransactionRefNo, I.SalesOrderNo
+                                    , SONo =isnull( STUFF((select distinct ','+XVD.Id from TRN.SalesOrder XVD
+											LEFT JOIN TRN.SalesMaterial SM on SM.SalesOrderId=XVD.Id
+											LEFT JOIN TRN.Sales S ON S.Id=SM.SalesId
+											LEFT JOIN TRN.Voucher XV ON XV.Id=S.VoucherId
+											where XV.Id=V.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''),'')
 
+                                    FROM [TRN].[InvoiceDetail] AS ID
+                                    LEFT JOIN [TRN].[Invoice] AS I ON I.Id=ID.InvoiceId
+									LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=I.PartyPlantId
+                                    LEFT JOIN [TRN].[AdjustmentNoteDetail] AS AJD ON AJD.InvoiceDetailId=ID.Id
+                                    LEFT JOIN [TRN].[AdjustmentNote] AS AJ ON AJ.Id=AJD.AdjustmentNoteId
+                                    LEFT JOIN [TRN].[VoucherDetail] AS VD ON VD.InvoiceDetailId=ID.Id
+                                    LEFT JOIN [TRN].[Voucher] AS V ON V.Id=VD.VoucherId
+                                    LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=ID.GLGeneralInfoId
+                                    LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=ID.BudgetMasterId
+                                    LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                                    LEFT JOIN [HKP].[Activity] AS A ON A.Id=ID.ActivityId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=I.CurrencyId
+                                    LEFT JOIN [ORG].[Entity] AS EN ON EN.Id=I.EntityId
+										LEFT JOIN (
+										SELECT VDC.ParallelCurrencyId AS CompanyCurrencyId, VDC.FromCurrencyId AS CompanyFromCurrencyId, VDC.ToCurrencyId,
+										VDC.ToCurrencyRate AS CompanyCurrencyRate, VDC.ToCurrencyConversion AS CompanyCurrencyConversion, VDC.DrAmount AS CompanyCurrencyAmount, VDC.VoucherDetailId
+										FROM [TRN].[VoucherDetailCurrency] AS VDC
+										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
+										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
+									) AS CC ON CC.VoucherDetailId=VD.Id
+									
+                                     WHERE I.Archive=0 AND I.IsWrittenOff=0 AND ID.IsWrittenOff=0 AND I.IsPark=0 AND ID.IsBlock=0 AND I.SourceType in ('VendorInvoice','PurchaseDocAcceptance','SuspensePayable','ServicePayable','EmployeePayable','PostInvoice','InvoiceToAcceptance','InventoryPayable')
+                                    AND I.CompanyGroupId='" + companyGroupId + "' AND I.CompanyId='" + companyId + "' AND I.PlantId='" + plantId + "' AND I.PartyId='" + partyId + "'";
+                return _sqlRepository.GetGridData(parameters);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
         public List<Dictionary<string, object>> GetCustomerAvailableInvoiceList(string companyGroupId, string companyId, string plantId)
         {
             try
