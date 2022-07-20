@@ -356,6 +356,7 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].[AccountType] AS ACT ON ACT.Id=AG.AccountTypeId
                         LEFT JOIN [MST].[BudgetMaster] AS BM ON BM.Id=VD.BudgetMasterId
                         LEFT JOIN [HKP].[Budget] AS B ON B.Id=BM.BudgetId
+                        LEFT JOIN [HKP].[Budget] AS BG ON BG.Id=BM.BudgetGroupId
                         LEFT JOIN [HKP].BudgetCategory BCT ON BCT.Id=BM.BudgetCategoryId
                         LEFT JOIN [HKP].BudgetSubCategory BSCT ON BSCT.Id=BM.BudgetSubCategoryId
                         LEFT JOIN [HKP].[Activity] AS A ON A.Id=VD.ActivityId

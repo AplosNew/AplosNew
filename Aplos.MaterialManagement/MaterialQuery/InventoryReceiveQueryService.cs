@@ -3579,9 +3579,9 @@ namespace Aplos.MaterialManagement
 			{
 				var str = @"SELECT  Distinct IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
 							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
-						   ,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2) TotalTaxAmount
-						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2) TotalMaterialBaseAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) MaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
 						   ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
 						   ,( ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
 						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
@@ -3591,7 +3591,8 @@ namespace Aplos.MaterialManagement
 
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
-						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount,SUM(TotalTaxAmount) TotalTaxAmount
+						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+						,SUM(TotalTaxAmount) TotalTaxAmount,sum(ChargesTaxTranAmount) ChargesTaxTranAmount
 						FROM [TRN].[InventoryReceiveDetail]
 					group by InventoryReceiveId ) AS IRD ON IR.Id=IRD.InventoryReceiveId 
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
@@ -3612,7 +3613,7 @@ namespace Aplos.MaterialManagement
 					where  IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
                     AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount
+					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
 					,PC.UserName,PSC.UserName,PG.UserName";
 
@@ -5771,13 +5772,22 @@ namespace Aplos.MaterialManagement
 							,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup
                             FROM 
                             (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
-						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Name Currency ,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
-						                            , SUM(IRD.TotalTaxAmount*IR.ToCurrencyRate)  TotalTaxAmount,ISNULL(i.WrittenOffAmount,0) WrittenOffAmount
-						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,IR.PartyType,PAG.UserName PartyAccountGroup
+						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Code Currency 
+													,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+						                            , SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate)  TotalTaxAmount
+													,ISNULL(inv.WrittenOffAmount,0) WrittenOffAmount
+													,Balance=SUM(IRD.TotalMaterialBooksCurrencyAmount)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-ISNULL(inv.WrittenOffAmount,0)
+						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
-						                            JOIN SCS.Currency C ON C.Id=IR.CurrencyId
-						                            left join TRN.Invoice i on i.InventoryReceiveId=ir.Id 
+						                            JOIN ORG.Company CO ON CO.Id=IR.CompanyId
+						                            JOIN SCS.Currency C ON C.Id=CO.BaseCurrencyId
+						                            left join (select iv.InventoryReceiveId,iv.PartyId,sum(iv.Amount) Amount,sum((iwd.Amount*IV.CompanyCurrencyRate)) writtenOffAmount 
+													from  TRN.Invoice iv left join trn.InvoiceWriteOffDetail iwd on iwd.InvoiceId=iv.Id
+													left join trn.InvoiceWriteOff iw on iw.Id=iwd.InvoiceWriteOffId
+													where convert(Date,Iw.PostingDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' and iv.InventoryReceiveId<>''
+													group by iv.InventoryReceiveId,iv.PartyId
+													) inv on inv.InventoryReceiveId=ir.Id and inv.PartyId=IR.PartyId  
 						                            LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 						                            LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						                            LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
@@ -5789,7 +5799,7 @@ namespace Aplos.MaterialManagement
 						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
 
-						                            GROUP BY  ir.PartyId,i.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Name,PC.UserName,PSC.UserName,PG.UserName,IR.PartyType,PAG.UserName
+						                            GROUP BY  ir.PartyId,inv.WrittenOffAmount,p.UserName,P.Code,PP.GSTIN,C.Code,PC.UserName,PSC.UserName,PG.UserName,CP.PartyType,PAG.UserName
                             )X
                             GROUP BY X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo,X.Currency,X.PartyGroup,X.PartyCategory,X.PartySubCategory,X.PartyType,X.PartyAccountGroup";
 
