@@ -117,7 +117,7 @@ namespace Aplos.Areas.Productions.Controllers
         public ActionResult getEmployee()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select EMP.EmployeeCode as Code, EMP.SystemId ,EMP.EmployeeName, SC.UserName as Section, GDSG.UserName as Designation, UN.UserName as Entity
+            string str = @"select EMP.EmployeeCode as Code, EMP.SystemId, EMP.EmployeeName, SC.UserName as Section, GDSG.UserName as Designation, UN.UserName as Entity
 from EmployeeInformation EMP
 LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
 LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
