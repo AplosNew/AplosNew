@@ -181,13 +181,15 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
         $http({
             method: 'POST',
             url: $scope.path + 'getProcess',
-           
+            data: {
+                'entityId': $scope.ModelNew.EntityId,
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.ProcessList = response.data;
         });
     }
-    $scope.getsP();
+    //$scope.getsP();
 
     $scope.doubleProcess = function (e) {
         $scope.ModelNew.ProcessId = e.data.Id;
@@ -237,6 +239,7 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
     };
 
     $scope.Clear = function () {
+        $scope.EmployeeId = null;
         $scope.ModelNew = {
             Id: null,
             EntityId: null,

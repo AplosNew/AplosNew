@@ -86,7 +86,7 @@ namespace Aplos.Areas.Productions.Controllers
 
        
         [Authorize, HttpPost]
-        public ActionResult getProcess()
+        public ActionResult getProcess(string entityId)
         {
             try
             {
@@ -94,10 +94,11 @@ namespace Aplos.Areas.Productions.Controllers
                 try
                 {
                     string str = @"select P.Id,P.UserName
-			                            from MachineMasterProcess MMP
-			                            left join HKP.Process P on P.Id=MMP.ProcessId
-										where MMP.MachineMasterId = 'MM20213' OR MMP.MachineMasterId = 'MM20217'
-										";
+                                    from HKP.EntityProcessTag ep
+                                    left join HKP.Process P on P.Id = ep.ProcessId
+                                    left join ORG.Entity e on e.Id = ep.EntityId
+                                    where e.Id = '" + entityId + "'";
+										
 
                     return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
                 }
@@ -178,9 +179,9 @@ where EMP.EmployeeStatus = 'Active' and x.UserName = 'Staff' and DP.UserName = '
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
 
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            //dr["UpdatedBy"] = identity.Name;
+            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            //dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
@@ -209,41 +210,34 @@ where EMP.EmployeeStatus = 'Active' and x.UserName = 'Staff' and DP.UserName = '
         }
         private void SaveMachineMasterTransactionData(Dictionary<string, object> data, string responsiblepersonId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
             try
             {
-                string mosql = "SELECT * FROM TRN.ProcessWiseProductionBooking WHERE Id ='" + data["Id"] + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+                string TableName = "TRN.ProcessWiseProductionBooking";
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                 DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+            
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
-                string cId = string.Empty;
-                string MachineMasterTransactionId = "";
-
-
-
-                DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                dv.RowFilter = "Id='" + data["Id"] + "'";
-
-                if (dsMasterOrder.Tables[0].Rows.Count == 0)
+                string _Id = "";
+                if (dsMaster.Tables[0].Rows.Count == 0)
                 {
                     bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterTransaction", out MachineMasterTransactionId);
+                    genid.GenID(TableName, out _Id);
+                    // genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "MachineMasterTransaction", out MachineMasterTransactionId);
 
-                    data["Id"] = MachineMasterTransactionId;
+                    data["Id"] = "PWPB" + _Id; ;
                     data["ResponsiblePersonId"] = responsiblepersonId;
-                    AddNewMachineMasterTransactionRow(dsMasterOrder.Tables[0], data);
+                    AddNewMachineMasterTransactionRow(dsMaster.Tables[0], data);
                 }
                 else
                 {
-                    data["Id"] = MachineMasterTransactionId;
-                    EditMachineMasterTransactionRow(dsMasterOrder.Tables[0].Rows[0], data);
+                    _Id = data["Id"].ToString();
+                    EditMachineMasterTransactionRow(dsMaster.Tables[0].Rows[0], data);
                 }
 
                 clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
+                obj.SaveDataSets(dsMaster);
             }
             catch (Exception ex)
             {
@@ -258,7 +252,7 @@ where EMP.EmployeeStatus = 'Active' and x.UserName = 'Staff' and DP.UserName = '
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             var sql = @"SELECT E.UserName Entity, FORMAT(pwpb.Date,'dd-MMM-yyyy')[Date],P.UserName Process, EI.EmployeeName ResponsiblePerson,
-EI.EmployeeCode ResponsiblePersonCode, pwpb.ProductionQuantity, pwpb.TargetQuantity, wcm.UserName as Workcenter, ss.Description as Shift
+EI.EmployeeCode ResponsiblePersonCode, pwpb.ProductionQuantity, pwpb.Remark ,pwpb.TargetQuantity, wcm.UserName as Workcenter, ss.Description as Shift
 from TRN.ProcessWiseProductionBooking pwpb
 			                            left join ORG.Entity E on E.Id=pwpb.EntityId
 																			
