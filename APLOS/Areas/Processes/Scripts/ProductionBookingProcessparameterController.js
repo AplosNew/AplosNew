@@ -87,7 +87,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         try {
             $http({
                 method: 'GET',
-                url: 'Costings/OrderLineCostingItem/GetOrderLineCostingItemCbo?Id=' + $scope.ModelNew.Id,
+                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemCbo?Id=' + $scope.ModelNew.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
