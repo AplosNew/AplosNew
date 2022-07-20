@@ -206,13 +206,13 @@ LEFT JOIN dbo.EmployeeInformation AS eiw ON eiw.SystemId = OTL.ByWhom";
             string sql = @"SELECT FORMAT(ol.EffectiveDate,'dd-MMM-yyyy')EffectiveDate,e.UserName Entity,d.UserName Department,s.UserName Section,SS.UserName SubSection,DGm.EmployeeCategory,DG.UserName Designation
 ,p.Activity,Direct=CASE WHEN P.IsDirect=1 THEN 'Yes' ELSE 'No' END,ag.UserName AttendanceGroup,P.UserDefineGroup2, p.Code PositionCode
 ,SUM(CAST(Deployment AS int))Deployment,SUM(mbd.TotalNumber)BudgetedManPower,ONR.ONRoll,PMP.PresentManpower,LMP.LateManpower,POT.StandardOT,POT.AdditionalOT
-,ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0)TotalOT
-	,((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8 OTManDays
-    ,(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+(((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8)+ISNULL(EOD.OD,0)) TotalDeployedMandays
-	,((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+(((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8)+ISNULL(EOD.OD,0))-SUM(CAST(Deployment AS int))) ExcessDeploymentMandays
-	,(SUM(CAST(Deployment AS int))-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+(((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8)+ISNULL(EOD.OD,0))) ShortDeploymentMandays
-	,((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+(((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8)+ISNULL(EOD.OD,0))-old.DailyOTLimit) ExcessOT
-,(old.DailyOTLimit-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+(((ISNULL(ISNULL(POT.StandardOT,0)+ISNULL(POT.AdditionalOT,0),0))/60)/8)+ISNULL(EOD.OD,0))) ShortOT
+,ISNULL(POT.ProcessedOT,0)TotalOT
+	,((ISNULL(POT.ProcessedOT,0)/60)/8) OTManDays
+    ,(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0)) TotalDeployedMandays
+	,((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))-SUM(CAST(Deployment AS int))) ExcessDeploymentMandays
+	,(SUM(CAST(Deployment AS int))-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))) ShortDeploymentMandays
+	,((ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))-old.DailyOTLimit) ExcessOT
+,(old.DailyOTLimit-(ISNULL(PMP.PresentManpower,0)+ISNULL(LMP.LateManpower,0)+((ISNULL(POT.ProcessedOT,0)/60)/8)+ISNULL(EOD.OD,0))) ShortOT
 ,old.DailyOTLimit,old.WeeklyOTLimit,old.WeekOffOTLimit,old.MonthlyOTLimit,old.Remarks
 FROM MST.ManpowerBudget AS mb
 LEFT JOIN MST.ManpowerBudgetDetail mbd ON mbd.ManpowerBudgetId = mb.Id
@@ -248,7 +248,7 @@ LEFT JOIN (
 		WHERE E.EmployeeStatus='Active' AND apd.WorkDate BETWEEN '" + fromDate + @"' AND '" + todate + @"' AND APD.DayStatus='L' GROUP BY E.PositionId
         ) LMP ON LMP.PositionId=MB.PositionId
 LEFT JOIN (
-		SELECT SUM(ISNULL(APD.StandardOT,0))StandardOT,SUM(ISNULL(APD.AdditionalOT,0))AdditionalOT,E.PositionId FROM dbo.AttdnProcessData AS apd
+		SELECT SUM(ISNULL(APD.ProcessedOT,0))ProcessedOT,E.PositionId FROM dbo.AttdnProcessData AS apd
 		LEFT JOIN EmployeeInformation E ON E.SystemId = apd.EmpSystemId
 		WHERE apd.WorkDate BETWEEN '" + fromDate + @"' AND '" + todate + @"' GROUP BY E.PositionId
         ) POT ON POT.PositionId=MB.PositionId        
@@ -261,7 +261,7 @@ LEFT JOIN (
 WHERE mb.Active=1 AND ISNULL(DGm.EmployeeCategory,'')<>''
 GROUP BY P.Id,e.Id,e.UserName,d.UserName,s.UserName,SS.UserName,DGm.EmployeeCategory,DG.UserName
 ,p.Activity,P.IsDirect,ag.UserName,P.UserDefineGroup2,p.Code,
-ONR.ONRoll,PMP.PresentManpower,LMP.LateManpower,POT.StandardOT,POT.AdditionalOT,EOD.OD
+ONR.ONRoll,PMP.PresentManpower,LMP.LateManpower,POT.ProcessedOT,EOD.OD
 ,old.DailyOTLimit,old.WeeklyOTLimit,old.WeekOffOTLimit,old.MonthlyOTLimit,ol.EffectiveDate,old.Remarks
 HAVING SUM(CAST(Deployment AS int))>0
 ORDER BY ol.EffectiveDate ";

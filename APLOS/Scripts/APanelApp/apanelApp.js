@@ -499,11 +499,10 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller('PerformanceGradeMasterController', PerformanceGradeMasterController)
     .controller('BOQCostingApprovalSettingController', BOQCostingApprovalSettingController)
     .controller('GoalSettingApprovalController', GoalSettingApprovalController)
-    .controller("DocumentCategoryController", DocumentCategoryController)
-    
+    .controller("DocumentCategoryController", DocumentCategoryController)    
     .controller('ScatteredWeekOffController', ScatteredWeekOffController)
     .controller('TrainingMasterController', TrainingMasterController)    
-    .controller("FuguaiZoneMasterController", FuguaiZoneMasterController)
+    
     .controller("StorageBinMasterController", StorageBinMasterController)
     .controller("OTRegionController", OTRegionController)
     .controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
