@@ -72,28 +72,33 @@ left join HKP.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
                 throw ex;
             }
         }
-
+        /*
         //public string save(Dictionary<string, object> data)
         //{
         //    try
         //    {
-        //        string TableName1 = "HKP.FurnitureMaster";
-        //        string TableName2 = "HKP.FurnitureMaster";
+        //        string TableName1 = "HKP.FurniturePolicyChildA";
+        //        string TableName2 = "HKP.FurniturePolicyChildB";
         //        DataSet dsMaster;
         //        ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                
+
         //        con.OpenDataSetThroughAdapter("select * from " + TableName1 + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
         //        string _Id = "";
 
         //        #region data update
-              
+                     if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
         //            bplib.clsGenID genid = new bplib.clsGenID();
         //            genid.GenID(TableName1, out _Id);
 
         //            data["Id"] = "FM" + _Id;
         //            AddNewRow(dsMaster.Tables[0], data);
-               
+                   }
+                   else{
+                         _Id = data["Id"].ToString();
+                          EditRow(dsMaster.Tables[0].Rows[0], data);
+                       }
         //        #endregion data update
 
         //        clsStaticInfo _info = new clsStaticInfo();
@@ -109,6 +114,7 @@ left join HKP.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
         //    }
         //}
+        */
 
         //private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         //{
