@@ -345,7 +345,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                #region FUND 
+                #region SOCostingConfirm 
 
                 if (string.IsNullOrEmpty(lineId))
                 {
@@ -417,7 +417,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 soList.Add(so);
                             }
                         }
-                        upcharge += Convert.ToDecimal(item["SOValue"]);
+                        upcharge += Convert.ToDecimal(item["ValueDiff"]);
                     }
                 }
 

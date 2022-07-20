@@ -3571,9 +3571,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 data: { 'OpenHeadNew': $scope.costingSOConfirmList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                //$scope.costingSOConfirmList = [];
-
                 $scope.costingSOConfirmList = response.data.NewData;
+
+
+            for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                $scope.costingSOConfirmList[i].ValueDiff = parseFloat($scope.costingSOConfirmList[i].ItemValue - $scope.costingSOConfirmList[i].SOValue).toFixed(4);
+            }
+                
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
@@ -3583,29 +3587,45 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
+    $scope.calculateDiffValue = function (data) {
+        data.ValueDiff = data.ItemValue - SOValue;
+    }
+
     $scope.TempList = [];
     $scope.SaveSOCost = function () {
-        if (baseService.isUndefinedOrNull($scope.soId)) {
-            $scope.soId = $scope.soModel.Id;
-        }
+        try {
+            if (baseService.isUndefinedOrNull($scope.soId)) {
+                $scope.soId = $scope.soModel.Id;
+            }
 
-        $http({
-            method: 'POST',
-            url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
-            data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+            for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                if ($scope.costingSOConfirmList[i].ItemValue !== $scope.costingSOConfirmList[i].SOValue) {
+                    if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[i].Remark)) {
+                        throw "Remarks is required for '" + $scope.costingSOConfirmList[i].UserName + "'";
+                    }
+                }
+            }
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
+                data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
+                    getSalesOrderList();
+                    clearSO();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
-                getSalesOrderList();
-                clearSO();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
