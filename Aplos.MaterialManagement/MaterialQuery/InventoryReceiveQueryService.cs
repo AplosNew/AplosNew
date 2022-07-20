@@ -3991,8 +3991,8 @@ namespace Aplos.MaterialManagement
 					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
 					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
-					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
+					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor' 
 					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
