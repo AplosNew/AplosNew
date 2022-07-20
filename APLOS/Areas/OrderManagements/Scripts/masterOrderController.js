@@ -1802,12 +1802,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
-            ,DirectCost:0
-            , ValueLoss:0
+            , DirectCost: 0
+            , ValueLoss: 0
             , Other: 0
-            , UpCharge:0
-            , Discount:0
-            , CM:0
+            , UpCharge: 0
+            , Discount: 0
+            , CM: 0
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -1954,7 +1954,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'success', 'soPoUp');
                         getSalesOrderList();
                         $scope.soModel.Id = response.data.Data.Id;
-                        
+
                         $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
                     }
@@ -3515,6 +3515,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }).then(function successCallback(response) {
                 $scope.costingSOFormulaList = [];
                 $scope.costingSOFormulaList = response.data.NewData;
+                for (var i = 0; i < $scope.costingSOFormulaList.length; i++) {
+                    $scope.costingSOFormulaList[i].Value = parseFloat($scope.costingSOFormulaList[i].Value).toFixed(4);
+                }
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
@@ -3572,12 +3575,15 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.costingSOConfirmList = response.data.NewData;
+                for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                    $scope.costingSOConfirmList[i].ItemValue = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(4);
+                    $scope.costingSOConfirmList[i].SOValue = parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
+                }
 
+                for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                    $scope.costingSOConfirmList[i].ValueDiff = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(4) - parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
+                }
 
-            for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
-                $scope.costingSOConfirmList[i].ValueDiff = parseFloat($scope.costingSOConfirmList[i].ItemValue - $scope.costingSOConfirmList[i].SOValue).toFixed(4);
-            }
-                
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
