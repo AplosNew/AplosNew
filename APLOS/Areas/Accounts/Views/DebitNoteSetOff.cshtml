@@ -89,7 +89,7 @@
                     <input ng-click="clearCashPopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.PaymentSource.Cash.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>@Library.Model.Payments.PaymentSource.Cash.ToString()
                 </label>
-                <label ng-hide="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'">
+                <label @*ng-hide="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'"*@>
                     <input ng-click="clearInvoicePopUp()" type="radio" name="source" ng-model="voucher.PaymentSource" value="@Library.Model.Payments.SettlementType.SetOff.ToString()">
                     <span class="cr" tabindex="18"><i class="cr-icon"></i></span>Invoice
                 </label>
@@ -166,7 +166,9 @@
                 <div class="input-group">
                     <input type="text" name="CashName" ng-model="voucher.InvoiceVoucherNo" class="form-control" readonly>
                     <span class="input-group-btn">
-                        <button ng-click="showCustomerInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.CustomerDebitNote.ToString()'" ng-click="showCustomerInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        <button ng-show="voucher.NoteType=='@Library.Model.Invoices.NoteType.VendorDebitNote.ToString()'" ng-click="showVendorInvoicePopUp(voucher.PartyId);" class="btn single-small-btn" tabindex="14"><i class="glyphicon glyphicon-search"></i></button>
+                        
                     </span>
                 </div>
             </div>

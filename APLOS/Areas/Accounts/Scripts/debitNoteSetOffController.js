@@ -736,6 +736,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         $scope.advanceTax = {};
         $scope.bankCharge = {};
         $scope.TotalAdvanceAmount = 0;
+        $scope.partyType = "Customer";
     };
 
     $scope.clearBankCashTaxPopUp = function () {
@@ -796,10 +797,10 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
                 ShowResult("Please Select Customer Receivable !", "failure");
                 return true;
             }
-            if (baseService.isUndefinedOrNull($scope.voucher.GLGeneralInfoId)) {
-                ShowResult("Please select Cash or Bank!", "failure");
-                return true;
-            }
+            //if (baseService.isUndefinedOrNull($scope.voucher.GLGeneralInfoId)) {
+            //    ShowResult("Please select Cash or Bank!", "failure");
+            //    return true;
+            //}
         }
         else if ($scope.partyType === "Vendor") {
             if (baseService.isUndefinedOrNull($scope.voucher.PartyId)) {
@@ -1041,7 +1042,38 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         serverPagination: true
     };
 
+    $scope.showVendorInvoicePopUp = function (partyId) {
+        $scope.customerreceivableList = [];
+        $scope.customerInvoiceSearch = [];
+        if (baseService.isUndefinedOrNull(partyId)) {
+            $scope.customerreceivableList = [];
+            ShowResult("Please select Vendor.", "failure");
+            return;
+        }
+        else {
+            $scope.compareCurrencyId = $scope.voucher.CurrencyId;
+            $scope.customerInvoiceParameters.partyId = partyId;
+            $scope.customerreceivableGLData = function (pageno) {
+                baseService.paginationBase("accounts/Invoice/GetVendorAvailableInvoiceList", pageno, $scope.customerInvoiceParameters)
+                    .then(function (response) {
+                        $scope.customerreceivableList = response.Rows;
+                        $scope.customerInvoiceParameters.total_count = response.Total;
+                        if (baseService.arrayLength($scope.customerInvoiceSearchList) === 0) {
+                            baseService.getDDLSearchColumn($scope.customerreceivableList, $scope.customerInvoiceSearchList);
+                        }
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, "failure");
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector("#customerInvoicePopUp")).modal("show");
+            $scope.customerreceivableGLData();
+        }
+
+    };
     $scope.showCustomerInvoicePopUp = function (partyId) {
+        $scope.customerreceivableList = [];
+        $scope.customerInvoiceSearch = [];
         if (baseService.isUndefinedOrNull(partyId)) {
             $scope.customerreceivableList = [];
             ShowResult("Please select Customer.", "failure");
@@ -1051,7 +1083,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
             $scope.compareCurrencyId = $scope.voucher.CurrencyId;
             $scope.customerInvoiceParameters.partyId = partyId;
             $scope.customerreceivableGLData = function (pageno) {
-                baseService.paginationBase("accounts/Invoice/GetVendorAvailableInvoiceList", pageno, $scope.customerInvoiceParameters)
+                baseService.paginationBase("accounts/CustomerInvoice/GetCustomerAvailableInvoiceList", pageno, $scope.customerInvoiceParameters)
                     .then(function (response) {
                         $scope.customerreceivableList = response.Rows;
                         $scope.customerInvoiceParameters.total_count = response.Total;
