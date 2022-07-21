@@ -620,7 +620,7 @@ namespace Library.Service.OrderManagements
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id

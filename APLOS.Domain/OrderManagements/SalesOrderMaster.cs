@@ -41,6 +41,7 @@ namespace Library.Model.OrderManagements
         public decimal ValueLoss { get; set; }
         public decimal Other { get; set; }
         public decimal DirectProcessCost { get; set; }
+        public decimal Commission { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

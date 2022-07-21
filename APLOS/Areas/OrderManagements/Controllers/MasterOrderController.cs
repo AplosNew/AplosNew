@@ -345,7 +345,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                #region FUND 
+                #region SOCostingConfirm 
 
                 if (string.IsNullOrEmpty(lineId))
                 {
@@ -417,7 +417,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                                 soList.Add(so);
                             }
                         }
-                        upcharge += Convert.ToDecimal(item["SOValue"]);
+                        upcharge += Convert.ToDecimal(item["ValueDiff"]);
                     }
                 }
 
@@ -436,18 +436,18 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         {
                             drso["Rate"] = so.SOValue;
                         }
-                        if (so.SOItemName == "CM")
+                        if (so.SOItemName == "SalesExpense")
                         {
-                            drso["CM"] = so.SOValue;
+                            drso["SalesExpense"] = so.SOValue;
                         }
                         if (so.SOItemName == "Discount")
                         {
                             drso["Discount"] = so.SOValue;
                         }
-                        if (so.SOItemName == "SalesExpense")
+                        if (so.SOItemName == "CM")
                         {
-                            drso["SalesExpense"] = so.SOValue;
-                        }
+                            drso["CM"] = so.SOValue;
+                        }                      
                         if (so.SOItemName == "DirectMaterialCost")
                         {
                             drso["DirectMaterialCost"] = so.SOValue;
@@ -455,6 +455,10 @@ namespace Aplos.Areas.OrderManagements.Controllers
                         if (so.SOItemName == "DirectProcessCost")
                         {
                             drso["DirectProcessCost"] = so.SOValue;
+                        }
+                        if (so.SOItemName == "Commission")
+                        {
+                            drso["Commission"] = so.SOValue;
                         }
                         if (so.SOItemName == "ValueLoss")
                         {
