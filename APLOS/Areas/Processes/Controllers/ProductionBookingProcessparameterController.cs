@@ -21,7 +21,7 @@ namespace Aplos.Areas.Processes.Controllers
     {
         #region Constructor
         private readonly ISqlRepository _sqlRepository;
-        string TableName = "dbo.ProductionBookingProcessparameter";
+        string TableName = "dbo.ProductionBookingProcessParameter";
         public ProductionBookingProcessparameterController(ISqlRepository R)
         {
             _sqlRepository = R;
@@ -47,12 +47,12 @@ namespace Aplos.Areas.Processes.Controllers
         [HttpGet, Authorize]
         public JsonResult GetHeaderItemCbo(string id)
         {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingProcessparameter] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingParameter] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
 
         private double GetSequence()
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingProcessparameter");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -63,7 +63,10 @@ namespace Aplos.Areas.Processes.Controllers
         public ActionResult GetList()
         {
 
-            string sql = @"SELECT N.* from [dbo].[ProductionBookingProcessparameter] N ORDER BY N.Sequence";
+            string sql = @"SELECT N.*,P.UserName Process,uom.Code UoM
+  FROM [dbo].[ProductionBookingProcessParameter] N 
+LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
+LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -72,22 +75,81 @@ namespace Aplos.Areas.Processes.Controllers
         {
 
             string sql = @"SELECT D.Sequence,D.OrderLineHeadId
-                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.OrderLineCostingItemId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.ProductionBookingParameterId
                             FROM [dbo].[FormulaDetail] D
-                            LEFT JOIN dbo.OrderLineCostingItem SD ON SD.Id=D.OrderLineHeadId
-                            WHERE OrderLineCostingItemId='"+ OrderLineCostingItemId + "' Order By D.Sequence";
+                            LEFT JOIN dbo.ProductionBookingParameterHead SD ON SD.Id=D.ProductionBookingParameterHeadId
+                            WHERE ProductionBookingParameterHeadId='" + OrderLineCostingItemId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult GetCostingComponentByCostingType(string costingType)
+        [HttpPost, Authorize]
+        public JsonResult Create(Dictionary<string, object> data)
         {
-            string sql = @"SELECT * FROM  HKP.CostingComponent WHERE Id IN(SELECT CostingComponentId  FROM [dbo].[CostingTypeComponent] WHERE CostingType='"+ costingType + "') ORDER BY Sequence";
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+            try
+            {
+                SaveMasterData(data, out string Id);
+                return Json(new { Id, Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveMasterData(Dictionary<string, object> data, out string Id)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                 Id = "";
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("UserName already exists!!!");
+
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionBookingProcessParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionBookingProcessParameter", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+
+                     Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
         }
 
         [HttpPost, Authorize]
-        public JsonResult Create(Dictionary<string, object> data, IEnumerable<ProductionBookingProcessparameterFormulaDetail> details)
+        public JsonResult CreateProcessParameter(Dictionary<string, object> data, IEnumerable<ProductionBookingParameterFormulaDetail> details)
         {
             try
             {
@@ -102,7 +164,7 @@ namespace Aplos.Areas.Processes.Controllers
 
         }
 
-        private void SaveCostingSOTemplateData(Dictionary<string, object> data, IEnumerable<ProductionBookingProcessparameterFormulaDetail> details)
+        private void SaveCostingSOTemplateData(Dictionary<string, object> data, IEnumerable<ProductionBookingParameterFormulaDetail> details)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
@@ -120,14 +182,14 @@ namespace Aplos.Areas.Processes.Controllers
                         throw new Exception("UserName already exists!!!");
 
 
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionBookingProcessparameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where ProductionBookingProcessparameterId='" + data["Id"] + "'", out dsDestination, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionBookingParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where ProductionBookingParameterId='" + data["Id"] + "'", out dsDestination, false, "1");
 
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(ProductionBookingProcessparameter), out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(ProductionBookingParameter), out _Id);
 
                         data["Id"] =  _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -155,9 +217,9 @@ namespace Aplos.Areas.Processes.Controllers
                             count++;
                             string pk = _Id + "_" + count;
                             drF["Id"] = pk;
-                            drF["ProductionBookingProcessparameterId"] = _Id;
+                            drF["ProductionBookingParameter"] = _Id;
                             drF["Sequence"] = item.Sequence;
-                            drF["ProductionBookingProcessparameterHeadId"] = item.ProductionBookingProcessparameterHeadId;
+                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterId;
                             drF["Component"] = item.Component;
 
                             dsDestination.Tables[0].Rows.Add(drF);
@@ -245,7 +307,7 @@ namespace Aplos.Areas.Processes.Controllers
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = "DELETE FROM dbo.OrderLineCostingItem WHERE Id = '" + SystemID + "'";
+                strSQL = "DELETE FROM dbo.ProductionBookingProcessParameter WHERE Id = '" + SystemID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
@@ -280,10 +342,9 @@ namespace Aplos.Areas.Processes.Controllers
        
     }
 
-    public class ProductionBookingProcessparameter
+    public class ProductionBookingParameter
     {
         public string Id { get; set; }
-        public string PlantId { get; set; }
         public string FormulaDes { get; set; }
         public string FormulaDesID { get; set; }
         public string AddedBy { get; set; }
@@ -295,15 +356,13 @@ namespace Aplos.Areas.Processes.Controllers
 
     }
 
-    public class ProductionBookingProcessparameterFormulaDetail
+    public class ProductionBookingParameterFormulaDetail
     {
         public string Id { get; set; }
         public decimal Sequence { get; set; }
-        public string NoticePeriodSettingId { get; set; }
-        public string SalaryHeadID { get; set; }
         public string Component { get; set; }
-        public string ProductionBookingProcessparameterId { get; set; }
-        public string ProductionBookingProcessparameterHeadId { get; set; }
+        public string ProductionBookingParameterId { get; set; }
+        public string ProductionBookingParameterHeadId { get; set; }
 
     }
 }
