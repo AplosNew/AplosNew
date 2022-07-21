@@ -3580,8 +3580,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                     $scope.costingSOConfirmList[i].SOValue = parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
                 }
 
-                for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
-                    $scope.costingSOConfirmList[i].ValueDiff = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(4) - parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
+                for (var j = 0; j < $scope.costingSOConfirmList.length; j++) {
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ItemValue).toFixed(4) - parseFloat($scope.costingSOConfirmList[j].SOValue).toFixed(4);
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ValueDiff).toFixed(4);
                 }
 
             }, function errorCallback(response) {
