@@ -6,23 +6,24 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.FormulaDetails = [];
     $scope.path = 'Processes/ProductionBookingProcessparameter/';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
     $scope.Model = {Id: null, ProcessId: null, UoMId: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
-    $scope.ModelProcessPara = {Id: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
+    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId:null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.setCheckedValue = function (name) {
         if (name === 'ValueinPercentage') {
-            $scope.ModelNew.ValueinPercentage = true;
-            $scope.ModelNew.ValueinDecimal = false;
+            $scope.ModelProcessPara.ValueinPercentage = true;
+            $scope.ModelProcessPara.ValueinDecimal = false;
         }
         if (name === 'ValueinDecimal') {
-            $scope.ModelNew.ValueinDecimal = true;
-            $scope.ModelNew.ValueinPercentage = false;
+            $scope.ModelProcessPara.ValueinDecimal = true;
+            $scope.ModelProcessPara.ValueinPercentage = false;
         }
     }
 
@@ -41,7 +42,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
-            $scope.ModelNew.Sequence = data;
+            $scope.ModelProcessPara.Sequence = data;
         });
     };
     $scope.GetSequence();
@@ -51,7 +52,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         try {
             $http({
                 method: 'GET',
-                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemCbo?Id=' + $scope.ModelNew.Id,
+                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemCbo?Id=' + $scope.ModelProcessPara.Id,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -69,27 +70,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     };
     $scope.GetOrderLineCostingItemCbo();
 
-    $scope.CostingComponentList = [];
-    $scope.GetCostingTypeComponent = function () {
-        try {
-            $http({
-                method: 'GET',
-                url: 'Costings/OrderLineCostingItem/GetCostingComponentByCostingType?costingType=' + $scope.ModelNew.CostingType,
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $scope.CostingComponentList = response.data;
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
+
 
     $scope.ModelList = [];
     $scope.GetData = function () {
@@ -102,7 +83,6 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
-
     };
     $scope.GetData();
 
@@ -126,38 +106,16 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     }
 
     $scope.Clear = function () {
-        $scope.Model = {
-            Id: null,
-            Sequence: null,
-            UserName: null,
-            LineItemCostingSandardName: null,
-            CostingSegment: null,
-            SOItemName: null,
-            Active: true,
-            ValueinDecimal: false,
-            ValueinPercentage: true,
-            DefaultValue: null,
-            Formula: null,
-            AddedBy: null,
-            AddedDate: null,
-            AddedFromIP: null,
-            UpdatedBy: null,
-            UpdatedDate: null,
-            UpdatedFromIP: null,
-            Operator: null,
-            Precedence: null,
-            Value: null,
-            EntryState: 'Entry'
-        }
-        $scope.ModelNew = Object.assign({}, $scope.Model);
+        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
         $scope.Action = 'Save';
-        $scope.ModelNew.FormulaDescription = null;
-        $scope.ModelNew.FormulaIDDescription = null;
+        $scope.ModelProcessPara.FormulaDescription = null;
+        $scope.ModelProcessPara.FormulaIDDescription = null;
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
         $scope.GetOrderLineCostingItemCbo();
-        $scope.ModelNewEntryState = 'Entry';
+        $scope.ModelProcessParaEntryState = 'Entry';
     }
 
     function CheckField(fieldValue, fieldName) {
@@ -174,7 +132,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         try {
             $http({
                 method: 'POST',
-                url: 'Costings/OrderLineCostingItem/Delete?id=' + $scope.ModelNew.Id
+                url: 'Costings/OrderLineCostingItem/Delete?id=' + $scope.ModelProcessPara.Id
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -194,10 +152,10 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         }
     };
 
-    $scope.ModelNew.FormulaDes = null;
-    $scope.ModelNew.FormulaDesID = null;
-    $scope.ModelNew.SalaryHeadFormula = null;
-    $scope.ModelNew.FormulaDescription = null;
+    $scope.ModelProcessPara.FormulaDes = null;
+    $scope.ModelProcessPara.FormulaDesID = null;
+    $scope.ModelProcessPara.SalaryHeadFormula = null;
+    $scope.ModelProcessPara.FormulaDescription = null;
     $scope.FormulaArray = [];
     $scope.FormulaIdArray = [];
 
@@ -220,61 +178,61 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
             if (formula === 'SHead') {
 
                 formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
-                formulaObj.OrderLineHeadId = $scope.ModelNew.HeadIdFormula;
+                formulaObj.OrderLineCostingItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                formulaObj.OrderLineHeadId = $scope.ModelProcessPara.HeadIdFormula;
                 formulaObj.SalaryHead = $("#HeadFormula option:selected").text();
                 formulaObj.Component = null;
                 $scope.FormulaDetails.push(formulaObj);
 
-                $scope.ModelNew.FormulaDes = '';
-                $scope.ModelNew.FormulaDesID = '';
+                $scope.ModelProcessPara.FormulaDes = '';
+                $scope.ModelProcessPara.FormulaDesID = '';
 
-                $scope.ModelNew.FormulaDescription = '';
-                $scope.ModelNew.FormulaIDDescription = '';
+                $scope.ModelProcessPara.FormulaDescription = '';
+                $scope.ModelProcessPara.FormulaIDDescription = '';
 
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
-                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                    if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
                     } else {
-                        $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
+                        $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
                     }
                 }
 
-                $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-                $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+                $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
 
             }
             else if (formula === 'Operator') {
                 if ($scope.FormulaDetails.length != 0) {
-                    if (!baseService.isUndefinedOrNull($scope.ModelNew.Operator)) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Operator)) {
 
 
                         formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                        formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                        formulaObj.OrderLineCostingItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
                         formulaObj.OrderLineHeadId = null;
-                        formulaObj.Component = $scope.ModelNew.Operator;
-                        formulaObj.SalaryHead = $scope.ModelNew.Operator;;
+                        formulaObj.Component = $scope.ModelProcessPara.Operator;
+                        formulaObj.SalaryHead = $scope.ModelProcessPara.Operator;;
 
                         $scope.FormulaDetails.push(formulaObj);
 
-                        $scope.ModelNew.FormulaDes = '';
-                        $scope.ModelNew.FormulaDesID = '';
+                        $scope.ModelProcessPara.FormulaDes = '';
+                        $scope.ModelProcessPara.FormulaDesID = '';
 
-                        $scope.ModelNew.FormulaDescription = '';
-                        $scope.ModelNew.FormulaIDDescription = '';
+                        $scope.ModelProcessPara.FormulaDescription = '';
+                        $scope.ModelProcessPara.FormulaIDDescription = '';
 
                         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
-                            $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                            $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                            $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
 
                         }
 
-                        $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-                        $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+                        $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                        $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
                     }
                 }
@@ -282,38 +240,36 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                     throw "First select Salary Head or input value.";
                 }
 
-
-
             }
             else if (formula === 'Precedence') {
 
 
-                if (!baseService.isUndefinedOrNull($scope.ModelNew.Precedence)) {
+                if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Precedence)) {
 
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                    formulaObj.OrderLineCostingItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
                     formulaObj.OrderLineHeadId = null;
-                    formulaObj.SalaryHead = $scope.ModelNew.Precedence;
-                    formulaObj.Component = $scope.ModelNew.Precedence;
+                    formulaObj.SalaryHead = $scope.ModelProcessPara.Precedence;
+                    formulaObj.Component = $scope.ModelProcessPara.Precedence;
                     $scope.FormulaDetails.push(formulaObj);
 
 
-                    $scope.ModelNew.FormulaDes = '';
-                    $scope.ModelNew.FormulaDesID = '';
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
 
-                    $scope.ModelNew.FormulaDescription = '';
-                    $scope.ModelNew.FormulaIDDescription = '';
+                    $scope.ModelProcessPara.FormulaDescription = '';
+                    $scope.ModelProcessPara.FormulaIDDescription = '';
 
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
-                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
 
                     }
 
-                    $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-                    $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
                 }
 
@@ -322,30 +278,30 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
             else if (formula === 'Value') {
 
-                if (!baseService.isUndefinedOrNull($scope.ModelNew.Value)) {
+                if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Value)) {
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.OrderLineCostingItemId = $scope.ModelNew.Id == null ? null : $scope.ModelNew.Id;
+                    formulaObj.OrderLineCostingItemId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
                     formulaObj.OrderLineHeadId = null;
-                    formulaObj.SalaryHead = $scope.ModelNew.Value;
-                    formulaObj.Component = $scope.ModelNew.Value;
+                    formulaObj.SalaryHead = $scope.ModelProcessPara.Value;
+                    formulaObj.Component = $scope.ModelProcessPara.Value;
                     $scope.FormulaDetails.push(formulaObj);
 
-                    $scope.ModelNew.FormulaDes = '';
-                    $scope.ModelNew.FormulaDesID = '';
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
 
-                    $scope.ModelNew.FormulaDescription = '';
-                    $scope.ModelNew.FormulaIDDescription = '';
+                    $scope.ModelProcessPara.FormulaDescription = '';
+                    $scope.ModelProcessPara.FormulaIDDescription = '';
 
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
-                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
 
                     }
 
-                    $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-                    $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
                 }
             }
@@ -365,61 +321,61 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
             }
         }
 
-        $scope.ModelNew.FormulaDes = '';
-        $scope.ModelNew.FormulaDesID = '';
+        $scope.ModelProcessPara.FormulaDes = '';
+        $scope.ModelProcessPara.FormulaDesID = '';
 
-        $scope.ModelNew.FormulaDescription = '';
-        $scope.ModelNew.FormulaIDDescription = '';
+        $scope.ModelProcessPara.FormulaDescription = '';
+        $scope.ModelProcessPara.FormulaIDDescription = '';
 
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
-            if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
-                $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelNew.FormulaDesID += ' ' + $scope.FormulaDetails[i].OrderLineHeadId;
+            if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                $scope.ModelProcessPara.FormulaDesID += ' ' + $scope.FormulaDetails[i].OrderLineHeadId;
             } else {
-                $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
+                $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId;
             }
         }
 
-        $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-        $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+        $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+        $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
     }
 
     $scope.Get = function (obj) {
         $scope.FormulaDetails = [];
-        $scope.ModelNew.HeadIdFormula = null;
-        $scope.ModelNew.Operator = null;
-        $scope.ModelNew.Precedence = null;
-        $scope.ModelNew.Value = null;
+        $scope.ModelProcessPara.HeadIdFormula = null;
+        $scope.ModelProcessPara.Operator = null;
+        $scope.ModelProcessPara.Precedence = null;
+        $scope.ModelProcessPara.Value = null;
 
         $scope.objectData = obj.data;
-        $scope.ModelNew = Object.assign({}, $scope.objectData);
+        $scope.ModelProcessPara = Object.assign({}, $scope.objectData);
 
         $http({
             method: 'GET',
-            url: "Costings/OrderLineCostingItem/GetDetailList?OrderLineCostingItemId=" + $scope.ModelNew.Id
+            url: "Costings/OrderLineCostingItem/GetDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.FormulaDetails = response.data;
 
-                $scope.ModelNew.FormulaDes = '';
-                $scope.ModelNew.FormulaDesID = '';
+                $scope.ModelProcessPara.FormulaDes = '';
+                $scope.ModelProcessPara.FormulaDesID = '';
 
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
-                    if (!baseService.isUndefinedOrNull($scope.ModelNew.FormulaDes)) {
-                        $scope.ModelNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                    if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
 
-                        $scope.ModelNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
                     } else {
-                        $scope.ModelNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId;
+                        $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId;
                     }
                 }
 
-                $scope.ModelNew.FormulaDescription = $scope.ModelNew.FormulaDes;
-                $scope.ModelNew.FormulaIDDescription = $scope.ModelNew.FormulaDesID;
+                $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
 
             }
@@ -442,22 +398,22 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         try {
 
 
-            $scope.ModelNew.FormulaDes = $scope.ModelNew.FormulaDescription;
-            $scope.ModelNew.FormulaDesID = $scope.ModelNew.FormulaIDDescription;
+            $scope.ModelProcessPara.FormulaDes = $scope.ModelProcessPara.FormulaDescription;
+            $scope.ModelProcessPara.FormulaDesID = $scope.ModelProcessPara.FormulaIDDescription;
 
-            $scope.ModelNew.Formula = $scope.ModelNew.FormulaDescription;
-            $scope.ModelNew.FormulaId = $scope.ModelNew.FormulaIDDescription;
+            $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+            $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
 
-            $scope.ModelNew.SalaryHead = $("#SH option:selected").text();
+            $scope.ModelProcessPara.SalaryHead = $("#SH option:selected").text();
 
             $scope.Row = 'Add Row';
-            $scope.ModelNew.FormulaDescription = null;
-            $scope.ModelNew.FormulaIDDescription = null;
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.ModelProcessPara.FormulaIDDescription = null;
 
-            $scope.ModelNew.HeadIdFormula = null;
-            $scope.ModelNew.Operator = null;
-            $scope.ModelNew.Precedence = null;
-            $scope.ModelNew.Value = null;
+            $scope.ModelProcessPara.HeadIdFormula = null;
+            $scope.ModelProcessPara.Operator = null;
+            $scope.ModelProcessPara.Precedence = null;
+            $scope.ModelProcessPara.Value = null;
 
             $scope.FormulaArray = [];
             $scope.FormulaIdArray = [];
@@ -478,11 +434,38 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.Save = function () {
         try {
-            $scope.AddEditRow();
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelNew, 'details': $scope.FormulaDetails },
+                data: { 'data': $scope.ModelProcessPara},
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ModelProcessPara.Id = response.data.Id;
+                    $scope.GetData();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.SaveProcessParameter = function () {
+        try {
+            $scope.AddEditRow();
+            $scope.ModelProcessPara.ProductionBookingProcessParameterId= $scope.ModelProcessPara.Id;
+            $http({
+                method: 'POST',
+                url: $scope.saveProcessParameterUrl,
+                data: { 'data': $scope.ModelProcessPara, 'details': $scope.FormulaDetails },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
