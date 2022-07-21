@@ -3595,7 +3595,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
     $scope.calculateDiffValue = function (data) {
-        data.ValueDiff = data.ItemValue - SOValue;
+        data.ValueDiff = 0;
+        data.ValueDiff = data.ItemValue - data.SOValue;
+        data.ValueDiff = parseFloat(data.ValueDiff).toFixed(4);
     }
 
     $scope.TempList = [];
