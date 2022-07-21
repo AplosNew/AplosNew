@@ -5,7 +5,6 @@
         Rate
         , SalesExpense
         , Discount
-        //, UpCharge
         , CM
         , DirectMaterialCost
         , DirectProcessCost
