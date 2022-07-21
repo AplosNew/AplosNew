@@ -3577,18 +3577,20 @@ namespace Aplos.MaterialManagement
 		{
 			try
 			{
-				var str = @"SELECT  Distinct IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
+				var str = @"SELECT   IR.Id GRNNo,REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNEntryDate,
 							IR.GateEntryNo,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo
-						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) MaterialTranAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0),2) MaterialTranAmount
 						   ,ROUND(Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalTaxAmount
-						   ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
+						   ,ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0),2)+ROUND(Isnull(IRD.ChargesTaxTranAmount,0),2) TotalMaterialBaseAmount
 						   ,SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4)) as Payment
-						   ,( ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0)+Isnull(IRD.TotalTaxAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
+						   ,( ROUND(Isnull(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate,0)+Isnull(IRD.TotalTaxAmount,0)+Isnull(IRD.ChargesTaxTranAmount,0),2))-(SUM(ROUND(ISNULL(I.WrittenOffAmount*I.CompanyCurrencyRate,0),4))) as Balance
 						   ,VoucherNo=CASE WHEN IR.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 						   ,PostingDate= CASE WHEN IR.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
 						   ,IR.DocRefNo,CU.Code CurrencyName,IR.PartyType
 						   ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 
+							--new add
+							,'' DocRefDate,'' GrnDocDateDifference,'' GateName,'' InvoicingPartyPlant,'' DeliveryPartyPlant,'' Employee
 					from [TRN].[InventoryReceive] AS IR
 					left jOIN (select InventoryReceiveId,Sum(TransactionQty)TransactionQty,Sum(MaterialTranAmount)MaterialTranAmount
 						,Sum(TotalMaterialTranAmount)TotalMaterialTranAmount,Sum(TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
@@ -3600,7 +3602,7 @@ namespace Aplos.MaterialManagement
 					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
-					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
 					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
@@ -3615,7 +3617,7 @@ namespace Aplos.MaterialManagement
 
 					group by IR.GRNDate,IR.Id,IR.GateEntryNo,p.UserName,P.Code,PP.GSTIN,IRD.TotalMaterialTranAmount,IRD.TotalMaterialBooksCurrencyAmount,IRD.TotalTaxAmount,IRD.ChargesTaxTranAmount
 					,MaterialTranAmount,IR.EmployeeId,IR.EmployeeId,V.VoucherNo,V1.VoucherNo,ep.PostingDate,I.PostingDate,IR.DocRefNo,CU.Code,IR.PartyType,PAG.UserName
-					,PC.UserName,PSC.UserName,PG.UserName";
+					,PC.UserName,PSC.UserName,PG.UserName,IR.ToCurrencyRate";
 
 				if (isreport)
 				{
@@ -3649,7 +3651,7 @@ namespace Aplos.MaterialManagement
 			var sheet = workbook.Worksheets[0];
 
 			#region sheet1
-			sheet.Name = "Purchase Report Register GRN Wise";
+			sheet.Name = "PurchaseRegisterGRNWise";
 
 			int ROW = 7;
 			int endCol = 1;
@@ -3664,6 +3666,30 @@ namespace Aplos.MaterialManagement
 			//ROW += 2;
 
 			#region Grid Headers
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 25, ExcelHAlign.HAlignLeft);
+			int ColPartyName = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Invoicing Party Plant", 18, ExcelHAlign.HAlignLeft);
+			int ColInvoicingPartyPlant = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 18, ExcelHAlign.HAlignLeft);
+			int ColDeliveryPartyPlant = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
+			int ColPartyCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax ID", 15, ExcelHAlign.HAlignLeft);
+			int ColTaxID = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Employee", 18, ExcelHAlign.HAlignLeft);
+			int ColEmployee = COL;
+			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 13, ExcelHAlign.HAlignLeft);
 			int ColGRNNo = COL;
@@ -3685,27 +3711,27 @@ namespace Aplos.MaterialManagement
 			int ColDocRefNo = COL;
 			COL++;
 
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 13, ExcelHAlign.HAlignLeft);
+			int ColDocRefDate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 13, ExcelHAlign.HAlignLeft);
+			int ColGrnDocDateDifference = COL;
+			COL++;
+
 			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
 			int ColGateEntryNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyName = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyCode = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "GS TIN No", 13, ExcelHAlign.HAlignLeft);
-			int ColGSTINNo = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
+			int ColGateName = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
 			int ColCurrency = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Tran Amount", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignRight);
 			//sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 			int ColMaterialTranAmount = COL;
 			COL++;
@@ -3714,7 +3740,7 @@ namespace Aplos.MaterialManagement
 			int ColTotalTaxAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Material Base Amount", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 13, ExcelHAlign.HAlignRight);
 			int ColTotalMaterialBaseAmount = COL;
 			COL++;
 
@@ -3726,19 +3752,19 @@ namespace Aplos.MaterialManagement
 			int ColBalance = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 15, ExcelHAlign.HAlignRight);
 			int ColPartyGroup = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 15, ExcelHAlign.HAlignRight);
 			int ColPartyCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 15, ExcelHAlign.HAlignRight);
 			int ColPartySubCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 15, ExcelHAlign.HAlignRight);
 			int ColPartyType = COL;
 			COL++;
 
@@ -3758,15 +3784,21 @@ namespace Aplos.MaterialManagement
 
 			for (int i = 0; i < data.Rows.Count; i++)
 			{
+				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+				sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
+				sheet[ROW, ColTaxID].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
 				sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
 				sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
 				sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
 				sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
 				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
+				sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocRefDate"].ToString();
+				sheet[ROW, ColGrnDocDateDifference].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
 				sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
-				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
-				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
-				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
 				sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
 				sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
 				sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
@@ -3779,8 +3811,9 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
 				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
-				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-				sheet.Range[ROW, ColGRNNo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
 				ROW++;
 			}
@@ -3831,6 +3864,7 @@ namespace Aplos.MaterialManagement
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.UsedRange.CellStyle.Font.Size = 8;
 
 
@@ -4265,7 +4299,7 @@ namespace Aplos.MaterialManagement
 			left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			--left jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=ISs.InventoryReceiveId
 			LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+			LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
 					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 			LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 			LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -4441,8 +4475,50 @@ namespace Aplos.MaterialManagement
 			var _rowL = _row;
 			var row = _row + 1;
 			var sheet1headreColIndex = 1;
-
 			_rowL += 1;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Invoicing Party Plant";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Delivery Party Plant";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GSTIN No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Employee";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN No";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -4457,67 +4533,41 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Type";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Party");
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Type";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PartyCode";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InvoicingPartyPlant";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "DeliveryPartyPlant";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GSTIN No");
-			//sheet1headreColIndex++;
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GSTIN No";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Voucher No";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Employee");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Employee";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posting Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Gate Entry No");
-			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref Date";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Gate Entry No";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4536,39 +4586,46 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Doc Ref No");
-			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Category";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref No";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party SubCategory";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Type";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Account Group";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Row ID";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Doc Ref Date");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Doc Ref Date";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Grn Doc Date Difference");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Grn Doc Date Difference";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Material Type");
-			//sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
@@ -4607,6 +4664,24 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MMIsAsset";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNIsAsset");
+			//sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRNIsAsset";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "SKU1");
 			//sheet1headreColIndex++;
@@ -4652,8 +4727,15 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Qty");
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
 			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn UoM";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Qty";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4663,11 +4745,9 @@ namespace Aplos.MaterialManagement
 			colTransactionQtyTotal = sheet1headreColIndex;
 			sheet1headreColIndex++;
 
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "UoM");
-			//sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TrnUoM";
+			//colTransactionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base UoM";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4679,51 +4759,9 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			//colTransactionQtyTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseUoM";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 8;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
 			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-
-			sheet1headreColIndex++;
-
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Lot No";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quality Status";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO No";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Currency";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4732,6 +4770,12 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Transaction Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Gross Amount";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4739,8 +4783,6 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
-
-
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Discount Amount";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4752,7 +4794,7 @@ namespace Aplos.MaterialManagement
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Amount");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Taxable Amount";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Amount";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4763,7 +4805,7 @@ namespace Aplos.MaterialManagement
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Total Material Tran Amount");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialTranAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Total Material Tran Amount";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4771,7 +4813,7 @@ namespace Aplos.MaterialManagement
 			//colTotalMaterialTranAmountTotal = sheet1headreColIndex;
 			sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "TotalMaterialBooksCurrencyAmount";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Total Material Books Currency Amount";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4779,9 +4821,103 @@ namespace Aplos.MaterialManagement
 			//colTotalMaterialBooksCurrencyAmountTotal = sheet1headreColIndex; 
 			sheet1headreColIndex++;
 
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Credtible Status");
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
 			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
+			//sheet1headreColIndex++;
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Lot No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Quality Status";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO No";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Credtible Status";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4790,8 +4926,209 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Tax Amount");
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Currency Base Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colTrnCurrencyBaseRateTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Books Currency Base Rate");
 			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Currency Base Rate";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colBooksCurrencyBaseRateTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Id";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Storage Location");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Storage Location";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Shortage Qty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Shortage Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colShortageQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageRatePercent");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Shortage Rate Percent";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageValuet");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Shortage Value";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Rejection Qty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colRejectionQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Reject Rate Per");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Reject Rate Per";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionValue");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Value";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionClam");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Clam";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ApprovedQty");
+			//sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approved Qty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			colApprovedQtyTotal = sheet1headreColIndex;
+			sheet1headreColIndex++;
+
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "POREfference";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCRef";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ContractNo";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+			//----------------------------
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseIssueQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PurchaseReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueReturnQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReductionByAdjustmentQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventorySalesQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryScrapQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryTransferQty";
+			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			sheet1headreColIndex++;
+
+
 
 			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RCM";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -4940,429 +5277,86 @@ namespace Aplos.MaterialManagement
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			colTCSTotal1 = sheet1headreColIndex;
-			sheet1headreColIndex++;
 
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Trn Currency Base Rate";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			colTrnCurrencyBaseRateTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Books Currency Base Rate");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Books Currency Base Rate";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			colBooksCurrencyBaseRateTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
 
 
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "MMIsAsset");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "MMIsAsset";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRNIsAsset");
-			//sheet1headreColIndex++;
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRNIsAsset";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "PO Id");
 			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PO Id";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Storage Location");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Storage Location";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Shortage Qty");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Shortage Qty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			colShortageQtyTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageRatePercent");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ShortageRatePercent";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ShortageValuet");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ShortageValuet";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Rejection Qty");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Rejection Qty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			colRejectionQtyTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Reject Rate Per");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Reject Rate Per";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionValue");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RejectionValue";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "RejectionClam");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "RejectionClam";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "ApprovedQty");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approved Qty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			colApprovedQtyTotal = sheet1headreColIndex;
-			sheet1headreColIndex++;
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GRN Row ID");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GRN Row ID";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
 
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Prepared By";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Status");
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Prepared By";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Status";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
+			////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Status");
+			////sheet1headreColIndex++;
 
-
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Checking Name");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Checking Name";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Approving Name");
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Status";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//sheet1headreColIndex++;
 
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approving Name";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted");
+			////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Checking Name");
+			////sheet1headreColIndex++;
+
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Checking Name";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
+			////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Approving Name");
+			////sheet1headreColIndex++;
 
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted By");
+
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Approving Name";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted By";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
+			////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted");
+			////sheet1headreColIndex++;
+
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//sheet1headreColIndex++;
+
+			////report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Posted By");
+			////sheet1headreColIndex++;
+
+			//sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted By";
+			//sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+			//sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+			//sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			//sheet1headreColIndex++;
 
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Voucher No");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Voucher No";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posting Date";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
 			//sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Budget");
-			//sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
-			//sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "BUdget");
-			//sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Code";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "POREfference";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "LCRef";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ContractNo";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			//----------------------------
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "BaseIssueQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "PurchaseReturnQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "IssueReturnQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "ReductionByAdjustmentQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventorySalesQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryScrapQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "InventoryTransferQty";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Group";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Category";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party SubCategory";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Type";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-			sheet1headreColIndex++;
-
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Party Account Group";
-			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
-			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-			sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+			
 
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
 			sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.Font.Size = 10;
@@ -5376,119 +5370,118 @@ namespace Aplos.MaterialManagement
 				_rowL++;
 				
 				int COL = 1;
-				report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["GRNId"].ToString());
-				report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["GRNEntryDate"].ToString());
-				report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["GRNType"].ToString());
+				report.SetText(ref sheet1, _rowL, 1, inventoryMaterialList.Rows[n]["PartyName"].ToString());
+				report.SetText(ref sheet1, _rowL, 2, inventoryMaterialList.Rows[n]["InvoicingPartyPlant"].ToString());
+				report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["DeliveryPartyPlant"].ToString());
 				report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["Code"].ToString());
-				report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["PartyName"].ToString());
-				report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["InvoicingPartyPlant"].ToString());
-				report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["DeliveryPartyPlant"].ToString());
-				report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["GSTINNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["FirstName"].ToString());
-				report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["GSTINNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["FirstName"].ToString());
+				report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["GRNId"].ToString());
+				report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["GRNEntryDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["DocRefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["DocDate"].ToString());
+				report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["GateEntryNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["GateName"].ToString());
+				report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
+				report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
+				report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["PartyType"].ToString());
+				report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["PartyAccountGroup"].ToString());
+				report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
+				report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+				report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+				report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+				report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+				report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
+				report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
+				report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+				report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
 
-				report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["GateName"].ToString());
-				report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["DocRefNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["DocDate"].ToString());
-				report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["GrnInvoiceDateDifference"].ToString());
-				report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
-				report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
-				report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
-				report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
-				report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
-				report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+				report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+				report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["Description"].ToString());
+				report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["UOM"].ToString());
+				report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["BaseUoM"].ToString());
+				report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["CurrencyName"].ToString());
+				report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 38, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GrossAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 39, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["DiscountAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 41, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialTranAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 42, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialBaseAmount"].ToString()));
+				report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["GL"].ToString());
+				report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["Budget"].ToString());
+				report.SetText(ref sheet1, _rowL, 47, inventoryMaterialList.Rows[n]["Activity"].ToString());
+				report.SetText(ref sheet1, _rowL, 48, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+				report.SetText(ref sheet1, _rowL, 49, inventoryMaterialList.Rows[n]["CGL"].ToString());
+				report.SetText(ref sheet1, _rowL, 50, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 51, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+				report.SetText(ref sheet1, _rowL, 52, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+				report.SetText(ref sheet1, _rowL, 53, inventoryMaterialList.Rows[n]["LotNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 54, inventoryMaterialList.Rows[n]["QualityStatus"].ToString());
+				report.SetText(ref sheet1, _rowL, 55, inventoryMaterialList.Rows[n]["POId"].ToString());
+				report.SetText(ref sheet1, _rowL, 56, inventoryMaterialList.Rows[n]["CredtibleStatus"].ToString());
+				report.SetText(ref sheet1, _rowL, 57, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnCurrencyBaseRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 58, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
+				report.SetText(ref sheet1, _rowL, 59, inventoryMaterialList.Rows[n]["POId"].ToString());
+				report.SetText(ref sheet1, _rowL, 60, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
+				report.SetText(ref sheet1, _rowL, 61, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
+				report.SetText(ref sheet1, _rowL, 67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
+				report.SetText(ref sheet1, _rowL, 68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
+				report.SetText(ref sheet1, _rowL, 69, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["LCANo"].ToString());
+				report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
+				report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
+				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["RCM"].ToString());
+				report.SetText(ref sheet1, _rowL, 81, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
+				report.SetText(ref sheet1, _rowL, 82, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 83, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
+				report.SetText(ref sheet1, _rowL, 84, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 85, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
+				report.SetText(ref sheet1, _rowL, 86, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 87, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
+				report.SetText(ref sheet1, _rowL, 88, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 89, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCS"].ToString()));
+				report.SetText(ref sheet1, _rowL, 90, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 91, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCS"].ToString()));
+				report.SetText(ref sheet1, _rowL, 92, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCSTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 93, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTax"].ToString()));
+				report.SetText(ref sheet1, _rowL, 94, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTaxPercentage"].ToString()));
+				report.SetText(ref sheet1, _rowL, 95, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTax"].ToString()));
+				report.SetText(ref sheet1, _rowL, 96, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTaxPercentage"].ToString()));
 
-				report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
-				report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["Description"].ToString());
-				report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
-				report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["UOM"].ToString());
-				report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["BaseUoM"].ToString());
-				report.SetText(ref sheet1, _rowL, 28, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranRate"].ToString()));
-				report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["LotNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["QualityStatus"].ToString());
-
-				report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["POId"].ToString());
-				report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["CurrencyName"].ToString());
-				report.SetText(ref sheet1, _rowL, 33, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GrossAmount"].ToString()));
-				report.SetText(ref sheet1, _rowL, 34, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["DiscountAmount"].ToString()));
-				report.SetText(ref sheet1, _rowL, 35, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTranAmount"].ToString()));
-				report.SetText(ref sheet1, _rowL, 36, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialTranAmount"].ToString()));
-				report.SetText(ref sheet1, _rowL, 37, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TotalMaterialBaseAmount"].ToString()));
-				report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CredtibleStatus"].ToString());
-				report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["RCM"].ToString());
-				report.SetText(ref sheet1, _rowL, 40, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGST"].ToString()));
-
-				report.SetText(ref sheet1, _rowL, 41, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["CGSTTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 42, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGST"].ToString()));
-				report.SetText(ref sheet1, _rowL, 43, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["SGSTTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 44, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGST"].ToString()));
-				report.SetText(ref sheet1, _rowL, 45, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IGSTTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 46, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDS"].ToString()));
-				report.SetText(ref sheet1, _rowL, 47, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TDSTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 48, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCS"].ToString()));
-				report.SetText(ref sheet1, _rowL, 49, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MaterialTCSTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 50, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCS"].ToString()));
-
-				report.SetText(ref sheet1, _rowL, 51, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["GRNTCSTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 52, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTax"].ToString()));
-				report.SetText(ref sheet1, _rowL, 53, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["MandiTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 54, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTax"].ToString()));
-				report.SetText(ref sheet1, _rowL, 55, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["NirasritTaxPercentage"].ToString()));
-				report.SetText(ref sheet1, _rowL, 56, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TrnCurrencyBaseRate"].ToString()));
-				report.SetText(ref sheet1, _rowL, 57, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BooksCurrencyBaseRate"].ToString()));
-				report.SetText(ref sheet1, _rowL, 58, inventoryMaterialList.Rows[n]["IsAsset"].ToString());
-				report.SetText(ref sheet1, _rowL, 59, inventoryMaterialList.Rows[n]["GRNAsset"].ToString());
-				report.SetText(ref sheet1, _rowL, 60, inventoryMaterialList.Rows[n]["POId"].ToString());
+				//report.SetText(ref sheet1, _rowL, 3, inventoryMaterialList.Rows[n]["GRNType"].ToString());
+				//report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["GrnInvoiceDateDifference"].ToString());
 				
-				report.SetText(ref sheet1, _rowL, 61, inventoryMaterialList.Rows[n]["StorageLocation"].ToString());
-				report.SetText(ref sheet1, _rowL, 62, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 63, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageRatePercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 64, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ShortageValue"].ToString()));
-				report.SetText(ref sheet1, _rowL, 65, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectionQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 66, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectRatePercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 67, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectValue"].ToString()));
-				report.SetText(ref sheet1, _rowL, 68, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["RejectClamPercent"].ToString()));
-				report.SetText(ref sheet1, _rowL, 69, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["ApprovedQty"].ToString()));
-				report.SetText(ref sheet1, _rowL, 70, inventoryMaterialList.Rows[n]["GrnDetailId"].ToString());
+				
 
-				report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
-				report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
-				report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
-				report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
-				report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["Posted"].ToString());
-				report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
-				report.SetText(ref sheet1, _rowL, 77, inventoryMaterialList.Rows[n]["VoucherNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 78, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
-				report.SetText(ref sheet1, _rowL, 79, inventoryMaterialList.Rows[n]["GLCode"].ToString());
-				report.SetText(ref sheet1, _rowL, 80, inventoryMaterialList.Rows[n]["GL"].ToString());
-
-				report.SetText(ref sheet1, _rowL, 81, inventoryMaterialList.Rows[n]["BudgetrefNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 82, inventoryMaterialList.Rows[n]["Budget"].ToString());
-				report.SetText(ref sheet1, _rowL, 83, inventoryMaterialList.Rows[n]["Activity"].ToString());
-				report.SetText(ref sheet1, _rowL, 84, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-				report.SetText(ref sheet1, _rowL, 85, inventoryMaterialList.Rows[n]["CGL"].ToString());
-				report.SetText(ref sheet1, _rowL, 86, inventoryMaterialList.Rows[n]["CBudgetrefNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 87, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-				report.SetText(ref sheet1, _rowL, 88, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-				report.SetText(ref sheet1, _rowL, 89, inventoryMaterialList.Rows[n]["RefferenceNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 90, inventoryMaterialList.Rows[n]["LCANo"].ToString());
-
-				report.SetText(ref sheet1, _rowL, 91, inventoryMaterialList.Rows[n]["ContractNo"].ToString());
-				report.SetText(ref sheet1, _rowL, 92, inventoryMaterialList.Rows[n]["IssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 93, inventoryMaterialList.Rows[n]["BaseIssueQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 94, inventoryMaterialList.Rows[n]["PurchaseReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 95, inventoryMaterialList.Rows[n]["IssueReturnQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 96, inventoryMaterialList.Rows[n]["ReductionByAdjustmentQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 97, inventoryMaterialList.Rows[n]["InventorySalesQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 98, inventoryMaterialList.Rows[n]["InventoryScrapQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 99, inventoryMaterialList.Rows[n]["InventoryTransferQty"].ToString());
-				report.SetText(ref sheet1, _rowL, 100, inventoryMaterialList.Rows[n]["PartyGroup"].ToString());
-				report.SetText(ref sheet1, _rowL, 101, inventoryMaterialList.Rows[n]["PartyCategory"].ToString());
-				report.SetText(ref sheet1, _rowL, 102, inventoryMaterialList.Rows[n]["PartySubCategory"].ToString());
-				report.SetText(ref sheet1, _rowL, 103, inventoryMaterialList.Rows[n]["PartyType"].ToString());
-				report.SetText(ref sheet1, _rowL, 104, inventoryMaterialList.Rows[n]["PartyAccountGroup"].ToString());
+				//report.SetText(ref sheet1, _rowL, 71, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+				//report.SetText(ref sheet1, _rowL, 72, inventoryMaterialList.Rows[n]["GRNCheckStatus"].ToString());
+				//report.SetText(ref sheet1, _rowL, 73, inventoryMaterialList.Rows[n]["CheckedBY"].ToString());
+				//report.SetText(ref sheet1, _rowL, 74, inventoryMaterialList.Rows[n]["AuthorizedBy"].ToString());
+				//report.SetText(ref sheet1, _rowL, 75, inventoryMaterialList.Rows[n]["Posted"].ToString());
+				//report.SetText(ref sheet1, _rowL, 76, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+				
+				
+		
 
 				//}
 			}
@@ -5592,7 +5585,7 @@ namespace Aplos.MaterialManagement
 			var sheet = workbook.Worksheets[0];
 
 			#region sheet1
-			sheet.Name = "Purchase Report Register Party Wise";
+			sheet.Name = "PurchaseRegisterPartyWise";
 
 			int ROW = 7;
 			int endCol = 1;
@@ -5608,7 +5601,7 @@ namespace Aplos.MaterialManagement
 
 			#region Grid Headers
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 30, ExcelHAlign.HAlignLeft);
 			int ColPartyName = COL;
 			COL++;
 
@@ -5616,16 +5609,16 @@ namespace Aplos.MaterialManagement
 			int ColPartyCode = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GS TIN No", 13, ExcelHAlign.HAlignLeft);
-			int ColGSTINNo = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignLeft);
-			int ColBaseAmount = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax ID", 18, ExcelHAlign.HAlignLeft);
+			int ColTaxID = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
 			int ColCurrency = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignLeft);
+			int ColBaseAmount = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 13, ExcelHAlign.HAlignLeft);
@@ -5678,9 +5671,9 @@ namespace Aplos.MaterialManagement
 			{
 				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
 				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
-				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
-				sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
+				sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
 				sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+				sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
 				sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
 				sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalBaseAmount"].ToString());
 				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
@@ -5747,6 +5740,7 @@ namespace Aplos.MaterialManagement
 			
 			sheet.Name = SheetName;
 			sheet.UsedRange.WrapText = true;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.IsGridLinesVisible = false;
 			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
 			report.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
@@ -5764,7 +5758,7 @@ namespace Aplos.MaterialManagement
 		{
 			try
 			{
-				var str = @"SELECT X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo
+				var str = @"SELECT X.PartyId,X.PartyName,X.PartyCode,X.GSTINNo TaxID
                             ,SUM(X.TotalMaterialBooksCurrencyAmount) BaseAmount,X.Currency,SUM(X.TotalTaxAmount) TaxAmount
                             ,TotalBaseAmount=SUM(X.TotalMaterialBooksCurrencyAmount)+SUM(X.TotalTaxAmount)
                             ,SUM(X.WrittenOffAmount) Payment
@@ -5773,10 +5767,10 @@ namespace Aplos.MaterialManagement
                             FROM 
                             (select  ir.PartyId,p.UserName AS PartyName,P.Code PartyCode,isnull(PP.GSTIN,'') GSTINNo, SUM(IRD.MaterialTranAmount) MaterialTranAmount
 						                            , SUM(IRD.TotalMaterialTranAmount)TotalMaterialTranAmount,C.Code Currency 
-													,SUM(IRD.TotalMaterialBooksCurrencyAmount)TotalMaterialBooksCurrencyAmount
+													,SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate) TotalMaterialBooksCurrencyAmount
 						                            , SUM(IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount*IR.ToCurrencyRate)  TotalTaxAmount
 													,ISNULL(inv.WrittenOffAmount,0) WrittenOffAmount
-													,Balance=SUM(IRD.TotalMaterialBooksCurrencyAmount)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-ISNULL(inv.WrittenOffAmount,0)
+													,Balance=SUM(IRD.TotalMaterialTranAmount*IR.ToCurrencyRate)+SUM((IRD.TotalTaxAmount+IRD.ChargesTaxTranAmount)*IR.ToCurrencyRate)-ISNULL(inv.WrittenOffAmount,0)
 						                            ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,CP.PartyType,PAG.UserName PartyAccountGroup
 						                            FROM [TRN].[InventoryReceiveDetail] IRD 
 						                            JOIN TRN.InventoryReceive IR ON IR.Id=IRD.InventoryReceiveId
@@ -5794,7 +5788,7 @@ namespace Aplos.MaterialManagement
 													LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 													LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
 													LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
-													LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor'
+													LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND CP.PlantId=IR.PlantId
 													LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor'
 						                            where   IR.PlantId='" + PlantId + @"' AND convert(Date,IR.GRNDate) BETWEEN '" + FromDate + @"' AND '" + ToDate + @"' 
                                                 AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')
