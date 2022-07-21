@@ -2880,7 +2880,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
 									LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
-									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' and CP.PartyId=SA.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -3025,7 +3025,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=II.InvoicingPartyPlantId
 								LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
 									left Join hkp.Party P On p.id=II.CustomerId
-									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+									LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' and CP.PartyId=II.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -3161,7 +3161,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								left join dbo.EmployeeInformation AS EI ON EI.SystemId= II.EmployeeId
 								Left JOIN [ORG].[Entity] E On E.id= II.EntityId
 								LEFT JOIN [HKP].[Party] AS P  ON P.Id=II.PartyId
-								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+								LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer' and CP.PartyId=II.PlantId
 									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
 									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
 									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
@@ -3596,12 +3596,14 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												WHERE B.Code='AIT' --and A.SalesServiceId IS NULL		
 												Group by A.salesMaterialId
 									) TAxInfo5 ON TAxInfo5.salesMaterialId=SMD.Id 
-									LEFT JOIN (SELECT A.SalesId,sum(A.BooksCurrencyTaxAmount) BooksTaxAmount,sum(TaxAmount) TaxAmount
+									LEFT JOIN (SELECT SA.PartyId
+									,SUM(A.BooksCurrencyTaxAmount) BooksTaxAmount,SUM(TaxAmount) TaxAmount
 												FROM trn.SalesAdditionalTax A
+												LEFT JOIN TRN.Sales SA ON SA.Id=A.SalesId
 												LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 		
 												WHERE B.Code='TCS'  
-												Group BY A.SalesId				
-									) TAxInfo6 ON TAxInfo6.SalesId=SA.Id 
+												Group BY SA.PartyId				
+									) TAxInfo6 ON TAxInfo6.PartyId=SA.PartyId
 									LEFT JOIN(Select ISS.SalesId, Sum(ISS.Amount) ServiceAmount,Sum(ISS.TaxAmount) ServiceTax,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount
 											from trn.SalesService AS ISS
 											LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
