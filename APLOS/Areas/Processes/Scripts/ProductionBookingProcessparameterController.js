@@ -9,48 +9,21 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
-    $scope.Model = {
-        Id: null,
-        Sequence: null,
-        UserName: null,
-        LineItemCostingSandardName: null,
-        CostingSegment: null,
-        SOItemName: null,
-        Active: true,
-        ValueinDecimal: false,
-        ValueinPercentage: true,
-        DefaultValue: null,
-        Formula: null,
-        FormulaId:null,
-        AddedBy: null,
-        AddedDate: null,
-        AddedFromIP: null,
-        UpdatedBy: null,
-        UpdatedDate: null,
-        UpdatedFromIP: null,
-        Operator: null,
-        Precedence: null,
-        Value: null,
-        EntryState: 'Entry',
-        FormulaDes: null,
-        FormulaDesID: null,
-        SalaryHeadFormula: null,
-        FormulaDescription:null
-
-    }
+    $scope.Model = {Id: null, ProcessId: null, UoMId: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
     $scope.ModelNew = Object.assign({}, $scope.Model);
+
+    $scope.ModelProcessPara = {Id: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
+    $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.setCheckedValue = function (name) {
         if (name === 'ValueinPercentage') {
             $scope.ModelNew.ValueinPercentage = true;
             $scope.ModelNew.ValueinDecimal = false;
         }
-
         if (name === 'ValueinDecimal') {
             $scope.ModelNew.ValueinDecimal = true;
             $scope.ModelNew.ValueinPercentage = false;
         }
-
     }
 
     $scope.processList = [];
@@ -62,15 +35,9 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     });
 
     $scope.uOMList = [];
-    function UomCboByMaterialMaster(materilaMasterId) {
-        var mmId = []; mmId.push(materilaMasterId);
-        cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
-            $scope.uOMList = response;
-            if (baseService.arrayLength($scope.uOMList) == 1) {
-                $scope.qboqModel.UoMId = $scope.uOMList[0].Value;
-            }
-        });
-    }
+    cboService.getUoMCbo(function (response) {
+        $scope.uOMList = response;
+    });
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -190,7 +157,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
         $scope.GetOrderLineCostingItemCbo();
-        $scope.ModelNewEntryState= 'Entry';
+        $scope.ModelNewEntryState = 'Entry';
     }
 
     function CheckField(fieldValue, fieldName) {

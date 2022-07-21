@@ -63,7 +63,11 @@ namespace Aplos.Areas.Processes.Controllers
         public ActionResult GetList()
         {
 
-            string sql = @"SELECT N.* from [dbo].[ProductionBookingProcessparameter] N ORDER BY N.Sequence";
+            string sql = @"SELECT N.*,P.UserName Process,uom.Code UoM
+  from [dbo].[ProductionBookingProcessparameter] N 
+LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
+LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId
+ORDER BY N.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

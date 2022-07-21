@@ -790,7 +790,7 @@ ORDER BY OL.Sequence";
             try
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
 FROM OrderLineCostingItem AS OL
 LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
 LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'
