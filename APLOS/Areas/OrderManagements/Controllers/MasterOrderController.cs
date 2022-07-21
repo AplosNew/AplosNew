@@ -157,7 +157,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
                 {
                     MasterOrder.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
 
                     DataRow dtValueRow = dtValue.NewRow();
 
@@ -222,7 +222,7 @@ namespace Aplos.Areas.OrderManagements.Controllers
                 if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
                 {
                     MasterOrder.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString();
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
 
                     DataRow dtValueRow = dtValue.NewRow();
 

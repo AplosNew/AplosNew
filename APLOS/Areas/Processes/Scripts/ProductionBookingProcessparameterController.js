@@ -53,27 +53,24 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     }
 
-    $scope.CostingSOList = [];
-    cboService.getEnumCbo("enum/GetCostingSOEnumCbo", function (result) {
-        $scope.CostingSOList = result;
+    $scope.processList = [];
+    $http({
+        method: 'GET',
+        url: 'Processes/process/getcbo'
+    }).then(function successCallback(response) {
+        $scope.processList = response.data;
     });
 
-    $scope.companyList = [];
-    cboService.getCompanyGroupCompanyCbo(null, function (result) {
-        $scope.companyList = result;
-    });
-
-    $scope.PlantList = [];
-    $scope.getPlant = function () {
-        cboService.getCboPlantByCompany($scope.ModelNew.CompanyId, function (result) {
-            $scope.PlantList = result;
+    $scope.uOMList = [];
+    function UomCboByMaterialMaster(materilaMasterId) {
+        var mmId = []; mmId.push(materilaMasterId);
+        cboService.getUomCboByMaterialMaster(JSON.stringify(mmId), function (response) {
+            $scope.uOMList = response;
+            if (baseService.arrayLength($scope.uOMList) == 1) {
+                $scope.qboqModel.UoMId = $scope.uOMList[0].Value;
+            }
         });
-    };
-
-    $scope.CostingTypeList = [];
-    cboService.getCostingTypesCbo(function (response) {
-        $scope.CostingTypeList = response;
-    });
+    }
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {

@@ -1,7 +1,7 @@
-﻿<togglable name="Production Booking Process parameter"></togglable>
+﻿<togglable name="Production Booking Process Parameter"></togglable>
 
 <div class="row">
-    <div id="main" ng-form name="CostingSOFormulaForm">
+    <div id="main" ng-form name="ProductionForm">
        
         <div class="form-horizontal form-elements">
             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -17,7 +17,15 @@
                         <input type="text" name="Sandard Name" ng-model="ModelNew.SandardName" class="form-control" required tabindex="3" maxlength="50">
                     </div>
                 </div>
-               
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">UOM<sup>*</sup></label>
+                    <div class="col-sm-4 show-message">
+                        <div class="select-style">
+                            <select name="UOM" class="form-control" ng-model="ModelNew.UOMId" ng-options="item.Value as item.Text for item in uOMList" tabindex="13">
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-8">
@@ -69,7 +77,17 @@
                         <input type="text" name="User Name" ng-model="ModelNew.UserName" class="form-control" required tabindex="2" maxlength="50">
                     </div>
                 </div>
-                
+                <div class="form-group" show-errors>
+                    <label class="col-sm-2 control-label">Process<sup>*</sup></label>
+                    <div class="col-sm-4 show-message">
+                        <div class="select-style">
+                            <select name="Process" ng-model="ModelNew.ProcessId" class="col-sm-3 form-control"
+                                    id="processId" ng-options="item.Value as item.Text for item in processList" required tabindex="1">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Active</label>
                     <div class="col-sm-8">
@@ -186,11 +204,9 @@
         <div e-columns>
             <div e-column e-field="Id" e-headertext="Id" e-width="2" e-isprimarykey="true" e-visible="false"></div>
             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
-            <div e-column e-field="LineItemCostingSandardName" e-headertext="Standard Name" e-width="5"></div>
+            <div e-column e-field="SandardName" e-headertext="Standard Name" e-width="5"></div>
             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
-            <div e-column e-field="CostingType" e-headertext="Costing Type" e-width="5"></div>
-            <div e-column e-field="CostingComponent" e-headertext="Costing Component" e-width="5"></div>
-            <div e-column e-field="SOItemName" e-headertext="SOItemName" e-width="5"></div>
+            <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
             <div e-column e-field="Formula" e-headertext="Formula" e-width="5"></div>
             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
         </div>
