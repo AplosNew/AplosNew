@@ -10,11 +10,22 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
 
-    $scope.Model = {Id: null, ProcessId: null, UoMId: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
+    $scope.Model = {Id: null, ProcessId: null, UoMId: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null}
     $scope.ModelNew = Object.assign({}, $scope.Model);
 
-    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId:null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
+    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible:false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null}
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
+
+    $scope.ModelQualityPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelQualityPara);
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
 
     $scope.setCheckedValue = function (name) {
         if (name === 'ValueinPercentage') {
@@ -70,8 +81,6 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     };
     $scope.GetOrderLineCostingItemCbo();
 
-
-
     $scope.ModelList = [];
     $scope.GetData = function () {
         $scope.ModelList = [];
@@ -105,19 +114,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         }
     }
 
-    $scope.Clear = function () {
-        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
-        $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
-        $scope.Action = 'Save';
-        $scope.ModelProcessPara.FormulaDescription = null;
-        $scope.ModelProcessPara.FormulaIDDescription = null;
-        $scope.FormulaArray = [];
-        $scope.FormulaIdArray = [];
-        $scope.GetSequence();
-        $scope.GetOrderLineCostingItemCbo();
-        $scope.ModelProcessParaEntryState = 'Entry';
-    }
-
+  
     function CheckField(fieldValue, fieldName) {
         try {
             if (baseService.isUndefinedOrNull(fieldValue) || fieldValue === '') {
@@ -342,7 +339,20 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     }
 
-    $scope.Get = function (obj) {
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.masterId = $scope.ModelNew.Id;
+        $scope.GetProcessParameterData();
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
+    $scope.GetProcessPara = function (obj) {
+        $scope.ProductionAction = 'Update';
+        
         $scope.FormulaDetails = [];
         $scope.ModelProcessPara.HeadIdFormula = null;
         $scope.ModelProcessPara.Operator = null;
@@ -354,7 +364,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
         $http({
             method: 'GET',
-            url: "Costings/OrderLineCostingItem/GetDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
+            url: "Processes/ProductionBookingProcessparameter/GetDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
         }).then(function successCallback(response) {
             if (baseService.arrayLength(response.data) > 0) {
                 $scope.FormulaDetails = response.data;
@@ -385,12 +395,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         var value = null;
 
         $scope.GetOrderLineCostingItemCbo();
-        $scope.GetCostingTypeComponent();
 
-        $scope.Action = 'Update';
-        if (!$rootScope.isCollapsed) {
-            $rootScope.toggle();
-        }
     };
 
 
@@ -432,12 +437,13 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         }
     }
 
+    $scope.masterId = null;
     $scope.Save = function () {
         try {
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
-                data: { 'data': $scope.ModelProcessPara},
+                data: { 'data': $scope.ModelNew},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -445,7 +451,8 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.ModelProcessPara.Id = response.data.Id;
+                    $scope.ModelNew.Id = response.data.Id;
+                    $scope.masterId = response.data.Id;
                     $scope.GetData();
 
                 }
@@ -458,10 +465,23 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         }
     };
 
+    $scope.ProcessParameterList = [];
+    $scope.GetProcessParameterData = function () {
+        $scope.ProcessParameterList = [];
+        $http.get("Processes/ProductionBookingProcessParameter/GetProcessParameterList?masterId=" + $scope.masterId)
+            .then(
+                function successCallback(response) {
+                    $scope.ProcessParameterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
     $scope.SaveProcessParameter = function () {
         try {
             $scope.AddEditRow();
-            $scope.ModelProcessPara.ProductionBookingProcessParameterId= $scope.ModelProcessPara.Id;
+            $scope.ModelProcessPara.ProductionBookingProcessParameterId = $scope.masterId;
             $http({
                 method: 'POST',
                 url: $scope.saveProcessParameterUrl,
@@ -473,7 +493,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetData();
+                    $scope.GetProcessParameterData();
                     $scope.Clear();
                     $scope.FormulaDetails = [];
                 }
@@ -485,7 +505,19 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
             ShowResult(e, "failure");
         }
     };
-
+    $scope.ProductionAction = 'Save';
+    $scope.Clear = function () {
+        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
+        $scope.ProductionAction = 'Save';
+        $scope.ModelProcessPara.FormulaDescription = null;
+        $scope.ModelProcessPara.FormulaIDDescription = null;
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+        $scope.GetSequence();
+        $scope.GetOrderLineCostingItemCbo();
+        $scope.ModelProcessParaEntryState = 'Entry';
+    }
 
 
 }
