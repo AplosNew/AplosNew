@@ -69,6 +69,13 @@ LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public ActionResult GetProcessParameterList(string masterId)
+        {
+
+            string sql = @"SELECT N.* FROM [dbo].[ProductionBookingParameter] N Where ProductionBookingProcessParameterId='"+masterId+"' Order By N.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetDetailList(string OrderLineCostingItemId)
@@ -82,7 +89,7 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult Create(Dictionary<string, object> data)
         {
             try
@@ -112,11 +119,6 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                    if (dsMaster.Tables[0].Rows.Count > 0)
-                        throw new Exception("UserName already exists!!!");
-
-
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionBookingProcessParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
 
@@ -130,7 +132,9 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
                     }
                     else
                     {
-                        _Id = data["Id"].ToString();
+                        data["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"].ToString();
+                        data["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"].ToString();
+                        data["AddedFromIP"] = dsMaster.Tables[0].Rows[0]["AddedFromIP"].ToString();
                         EditRow(dsMaster.Tables[0].Rows[0], data);
                     }
 
@@ -148,7 +152,7 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public JsonResult CreateProcessParameter(Dictionary<string, object> data, IEnumerable<ProductionBookingParameterFormulaDetail> details)
         {
             try
@@ -177,7 +181,7 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
                     DataSet dsMaster, dsDestination;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                         throw new Exception("UserName already exists!!!");
 
