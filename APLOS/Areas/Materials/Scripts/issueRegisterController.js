@@ -47,28 +47,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			}
 		});
 	}
-	//$scope.model = {
-	//    Id: null,
-	//    CompanyGroupId: null,
-	//    Sequence: null,
-	//    Code: null,
-	//    ShortName: null,
-	//    StandardName: null,
-	//    UserName: null,
-	//    OperationActivityId: null,
-	//    OperationTypeId: null,
-	//    OperationCategoryId: null,
-	//    SkillId: null,
-	//    Type: null,
-	//    MachineMasterId: null,
-	//    SkillGroupId: null,
-	//    LegalDesignationId: null,
-	//    ProcessId: null,
-	//    ProposedSalary: null,
-	//    Remarks: null,
-	//    Active: null
-	//};
-	//$scope.modelNew = Object.assign({}, $scope.model);
+	
 	$scope.productNew = {
 		Type: null
 	};
@@ -105,35 +84,6 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			//entrydata = copy(searchdata);
 		});
 	};
-
-
-	//$scope.PurchaseRegisterLst = [];
-	//$scope.GetPurchaseRegister = function () {
-	//	debugger;
-	//	if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-	//		ShowResult('Select From Date', 'failure');
-	//		return false;
-	//	}
-	//	else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-	//		ShowResult('Select To Date', 'failure');
-	//		return false;
-	//	}
-	//	$http({
-	//		method: 'POST',
-	//		//url: $scope.getSearchListUrl,
-	//		url: 'Materials/MaterialLedger/GetPurchaseRegister',
-	//		data: {
-	//			fromDate: $scope.report.FromDate,
-	//			toDate: $scope.report.ToDate,
-	//			Type: $scope.productNew.Type 
-	//		},
-	//		dataType: 'JSON'
-	//	}).then(function successCallback(response) {
-	//		$scope.PurchaseRegisterLst = response.data;
-
-	//		//entrydata = copy(searchdata);
-	//	});
-	//   };
 
 
 
@@ -214,19 +164,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		//$scope.GetPurchaseRegister();
 		$scope.ShowResultCustom("Coming Soon...");
 	}
-	//$scope.getalldata1 = function () {
-	//    $http({
-	//        method: "GET",
-	//        dataType: 'JSON',
-	//        //url: $scope.getSearchListUrl,
-	//        url: 'Products/PurchaseOrder/GetListForPOApproval',
-	//    }).then(function successCallback(response) {
-	//        $scope.Griddata1 = response.data;
-	//        //entrydata = copy(searchdata);
-	//    });
-	//};
-
-
+	
 	$window.onresize = function (event) {
 
 		$scope.actionCompleteSelected();
@@ -337,21 +275,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		//};
 
 	}
-	//$scope.IssueRegisterReportExcel = function (id, reportFormat) {
-	//	debugger;
-	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-	//		ShowResult('Select From Date', 'failure');
-	//		return false;
-	//	}
-	//	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-	//		ShowResult('Select To Date', 'failure');
-	//		return false;
-	//	}
-	//	var reportFormat = "Excel";
-	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-	//	$window.open('Materials/IssueRegister/Report?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-	//};
-
+	
 
 	$scope.IssueRegisterReportExcel = function (reportFormat) {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
@@ -389,20 +313,7 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
 		$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
 	};
-	//$scope.GRNIssueRegisterReportExcel = function (id, reportFormat) {
-		
-	//	if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-	//		ShowResult('Select From Date', 'failure');
-	//		return false;
-	//	}
-	//	if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-	//		ShowResult('Select To Date', 'failure');
-	//		return false;
-	//	}
-	//	var reportFormat = "Excel";
-	//	//if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-	//	$window.open('Materials/IssueRegister/CreateIssueRegisterGRNIssueReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
-	//};
+	
 
 	$scope.GRNIssueRegisterReportExcel = function (reportFormat) {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
