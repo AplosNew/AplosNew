@@ -296,7 +296,7 @@ namespace Aplos.Areas.Parties.Controllers
                                     WHERE CPGL.PartyGLType='" + PartyGLType.ReconciliationGL + @"'
                                     ) AS RGL ON RGL.CompanyPartyId=CP.Id
                                     JOIN (SELECT DISTINCT G.PartyId FROM TRN.GateEntry G   WHERE ISNULL(G.Id,'') NOT IN (SELECT ISNULL(GateEntryNo,'') FROM TRN.InventoryReceive ) AND G.PartyId<>'' AND G.FlagStatus='OK') GE ON GE.PartyId=P.Id
-                                    JOIN (SELECT DISTINCT PartyId FROM TRN.PurchaseOrder WHERE IsClosed=0 AND IsApproved=1) PO ON PO.PartyId=P.Id
+                                    JOIN (SELECT DISTINCT po.PartyId FROM TRN.PurchaseOrder po join trn.PurchaseOrderDetail pod ON pod.InventoryReceiveId=po.Id WHERE po.IsClosed=0 AND po.IsApproved=1 AND pod.QtyStatus= 0) PO ON PO.PartyId=P.Id
                                     WHERE P.Archive=0 AND P.Active=1 AND P.CompanyGroupId='" + companyGroupId + "' AND P.PartyType IN ('" + PartyType.Party + "', '" + PartyType.Company + "') AND CP.CompanyId='" + companyId + "' AND CP.PlantId='" + plantId + "' ";
                 // If this params null will return all customer and vendor list either specific.
                 if (!string.IsNullOrEmpty(customerVendor))
