@@ -8345,6 +8345,13 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                             WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
                                             WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
 											ELSE '' END,AD.CountedShortLeave
+                                    ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
                                                 Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus
@@ -8359,6 +8366,94 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                             
                                                 LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
                                              
+                                    WHERE --E.PlantID = '" + plantId + @"' AND
+                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                    AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
+									";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSql += @" AND E.SystemID IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+                strSql += ") A ORDER BY EmpSystemId";
+                DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+                Dictionary<string, List<DataRow>> dicShift = new Dictionary<string, List<DataRow>>();
+                List<DataRow> _data = new List<DataRow>();
+                string empId = "";
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (empId != dt.Rows[i]["EmpSystemId"].ToString())
+                    {
+                        _data = new List<DataRow>();
+                        dicShift.Add(dt.Rows[i]["EmpSystemId"].ToString(), _data);
+                    }
+                    _data.Add(dt.Rows[i]);
+
+                    empId = dt.Rows[i]["EmpSystemId"].ToString();
+                }
+
+                return dicShift;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        public Dictionary<string, List<DataRow>> GetEOTMonthlyDailyAttendanceDic(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var strSql = @"SELECT A.* FROM
+	                                (SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,                                           
+											REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
+                                            AD.DayStatus, FORMAT(ad.InTime, 'hh.mm tt') InTime,  FORMAT(ad.OutTime, 'hh.mm tt') OutTime
+                                            ,OTHr=CASE WHEN (CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)-120)/60 END											 
+                                            , LT.ShortName LvShortName
+											,AD.WorkDate, DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory,SD.UserName ShiftName,LT.Code LeaveCode
+											, LTD.LeaveDuration
+                                            ,MANUALStatus = CASE WHEN  AD.IsManualDayStatus=1 THEN 'MANUAL'
+                                            WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
+                                            WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
+											ELSE '' END,AD.CountedShortLeave
+                                    ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END,GS.DisbusmentAmount Gross,OTRate=(BS.DisbusmentAmount/208)*2
+                                    FROM dbo.EmployeeInformation E
+                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus                                              
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)                                                
+                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id												
+											    left join (SELECT t.EmpSystemID,d.WorkDate,d.LeaveDuration FROM LeaveTransaction t
+                                left join LeaveTransactionDetails d on d.LvTrnsSystemID = t.SystemID
+                                where d.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                and d.IsAvailed = 1 
+                                and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
+                                                LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
+                                             LEFT JOIN (SELECT EmpSlr.*FROM
+(
+SELECT SPC.EntryAmount, SPC.DefineAmount,SPC.EmpInfoSystemID, SPC.DisbusmentAmount,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+FROM SalaryProcChild SPC
+LEFT JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(SELECT SystemID FROM SalaryProcMaster WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild WHERE PlantID = '"+ plantId + @"' GROUP BY SlrProcMstSystemID) AND MonthNo = Month('"+ toDate + @"') AND YearNo = Year('" + toDate + @"'))
+) EmpSlr Where  EmpSlr.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                                 LEFT JOIN (SELECT EmpSlr.*FROM
+(
+SELECT SPC.EntryAmount, SPC.DefineAmount,SPC.EmpInfoSystemID, SPC.DisbusmentAmount,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+FROM SalaryProcChild SPC
+LEFT JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(SELECT SystemID FROM SalaryProcMaster WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID) AND MonthNo = Month('" + toDate + @"') AND YearNo = Year('" + toDate + @"'))
+) EmpSlr Where  EmpSlr.HeadCategory='Basic') BS ON BS.EmpInfoSystemID=E.SystemId
                                     WHERE --E.PlantID = '" + plantId + @"' AND
                                         AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
                                     AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									

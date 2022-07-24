@@ -430,5 +430,9 @@ function AccessControllerConfig($routeProvider, $locationProvider, $windowProvid
             templateUrl: 'Attendances/MonthlyLeaveBalance/Aplos',
             controller: 'MonthlyLeaveBalanceController'
         })
+        .when('/eot', {
+            templateUrl: 'Attendances/EOT/Aplos',
+            controller: 'EOTController'
+        })
         ;
 } 
