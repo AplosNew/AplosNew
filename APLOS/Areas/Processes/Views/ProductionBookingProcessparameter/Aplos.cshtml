@@ -401,13 +401,13 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sequence<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="number" name="Sequence" ng-model="ModelQualityPara.Sequence" class="form-control" required tabindex="1">
+                                <input type="number" name="Sequence" ng-model="ModelQualityParaNew.Sequence" class="form-control" required tabindex="1">
                             </div>
                         </div>
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">Sandard Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="Sandard Name" ng-model="ModelQualityPara.SandardName" class="form-control" required tabindex="3" maxlength="50">
+                                <input type="text" name="Sandard Name" ng-model="ModelQualityParaNew.SandardName" class="form-control" required tabindex="3" maxlength="50">
                             </div>
                         </div>
 
@@ -416,22 +416,22 @@
                             <div class="col-sm-8">
                                 <div class="radio">
                                     <label>
-                                        <input type="radio" name="Assign" ng-model="ModelQualityPara.EntryState" value="Entry">
+                                        <input type="radio" name="Assign" ng-model="ModelQualityParaNew.EntryState" value="Entry">
                                         <span class="cr"><i class="cr-icon"></i></span>Entry
                                     </label>
                                     <label>
-                                        <input type="radio" name="Assign" ng-model="ModelQualityPara.EntryState" value="Calculate">
+                                        <input type="radio" name="Assign" ng-model="ModelQualityParaNew.EntryState" value="Calculate">
                                         <span class="cr"><i class="cr-icon"></i></span>Calculate
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" ng-show="ModelQualityPara.EntryState=='Entry'">
+                        <div class="form-group" ng-show="ModelQualityParaNew.EntryState=='Entry'">
                             <label class="col-sm-4 control-label"></label>
                             <div class="col-sm-4">
                                 <div class="checkbox-site radio">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelQualityPara.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
+                                        <input type="checkbox" ng-model="ModelQualityParaNew.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
                                         <span class="cr"><i class="cr-icon"></i></span>
                                     </label>
                                     <label class="control-label">Value in Percentage</label>
@@ -440,17 +440,17 @@
                             <div class="col-sm-4">
                                 <div class="checkbox-site radio">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelQualityPara.ValueinDecimal" ng-change="setCheckedValue('ValueinDecimal')">
+                                        <input type="checkbox" ng-model="ModelQualityParaNew.ValueinDecimal" ng-change="setCheckedValue('ValueinDecimal')">
                                         <span class="cr"><i class="cr-icon"></i></span>
                                     </label>
                                     <label class="control-label">Decimal</label>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group" ng-show="ModelQualityPara.EntryState=='Entry'">
+                        <div class="form-group" ng-show="ModelQualityParaNew.EntryState=='Entry'">
                             <label class="col-sm-4 control-label">Default Value</label>
                             <div class="col-sm-8">
-                                <input type="text" name="Fixed Value" n-decimals="2" ng-model="ModelQualityPara.DefaultValue" class="form-control">
+                                <input type="text" name="Fixed Value" n-decimals="2" ng-model="ModelQualityParaNew.DefaultValue" class="form-control">
                             </div>
                         </div>
                     </div>
@@ -458,7 +458,7 @@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
-                                <input type="text" name="User Name" ng-model="ModelQualityPara.UserName" class="form-control" required tabindex="2" maxlength="50">
+                                <input type="text" name="User Name" ng-model="ModelQualityParaNew.UserName" class="form-control" required tabindex="2" maxlength="50">
                             </div>
                         </div>
                         <div class="form-group">
@@ -466,7 +466,7 @@
                             <div class="col-sm-8">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelQualityPara.Active" tabindex="8">
+                                        <input type="checkbox" ng-model="ModelQualityParaNew.Active" tabindex="8">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -477,7 +477,7 @@
                             <div class="col-sm-8">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelQualityPara.IsCritical" tabindex="8">
+                                        <input type="checkbox" ng-model="ModelQualityParaNew.IsCritical" tabindex="8">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
@@ -488,21 +488,21 @@
                             <div class="col-sm-8">
                                 <div class="checkbox-site">
                                     <label>
-                                        <input type="checkbox" ng-model="ModelQualityPara.IsVisible" tabindex="8">
+                                        <input type="checkbox" ng-model="ModelQualityParaNew.IsVisible" tabindex="8">
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-12" ng-show="ModelQualityPara.EntryState=='Calculate'">
+                    <div class="col-sm-12" ng-show="ModelQualityParaNew.EntryState=='Calculate'">
                         <fieldset class="scheduler-border" style="width:1076px">
                             <div class="col-xs-12 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Head</label>
                                     <div class="col-sm-6">
                                         <div class="select-style">
-                                            <select ng-model="ModelQualityPara.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in QualityProcessParameterHeaderList">
+                                            <select ng-model="ModelQualityParaNew.HeadIdFormula" id="HeadFormula" class="form-control" name="Salary Head" ng-options="item.Value as item.Text for item in QualityProcessParameterHeaderList">
                                                 <option value=""></option>
                                             </select>
                                         </div>
@@ -520,7 +520,7 @@
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Value</label>
                                     <div class="col-sm-6">
-                                        <input type="text" name="Value" ng-model="ModelQualityPara.Value" class="form-control" maxlength="50">
+                                        <input type="text" name="Value" ng-model="ModelQualityParaNew.Value" class="form-control" maxlength="50">
                                     </div>
                                     <div class="col-sm-2">
                                         <div class="common-btn">
@@ -536,7 +536,7 @@
                                     <label class="col-sm-4 control-label">Operator</label>
                                     <div class="col-sm-6">
                                         <div class="select-style">
-                                            <select ng-model="ModelQualityPara.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
+                                            <select ng-model="ModelQualityParaNew.Operator" id="Operator" class="form-control" name="Operator" ng-options="item.Value as item.Text for item in OperatorList">
                                                 <option value=""></option>
                                             </select>
                                         </div>
@@ -556,7 +556,7 @@
                                     <label class="col-sm-4 control-label">Precedence</label>
                                     <div class="col-sm-6">
                                         <div class="select-style">
-                                            <select ng-model="ModelQualityPara.Precedence" class="form-control" name="Precedence">
+                                            <select ng-model="ModelQualityParaNew.Precedence" class="form-control" name="Precedence">
                                                 <option value=""></option>
                                                 <option value="(">(</option>
                                                 <option value=")">)</option>
@@ -584,7 +584,7 @@
                                     </ul>
                                 </div>
                                 <div class="form-group">
-                                    {{ModelQualityPara.FormulaDescription}}
+                                    {{ModelQualityParaNew.FormulaDescription}}
                                 </div>
                             </div>
                         </fieldset>
@@ -593,7 +593,7 @@
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li>
-                                <button ng-click="SaveQualityParameter();" ng-disabled="masterId==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityParameterAction}}</button>
+                                <button ng-click="SaveQualityProcess();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityParameterAction}}</button>
                             </li>
                             <li>
                                 <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash"></i> Delete</button>

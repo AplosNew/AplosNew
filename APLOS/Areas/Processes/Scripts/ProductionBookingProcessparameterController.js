@@ -637,7 +637,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                     ShowResult(response.data.Message, 'failure');
                 }
                 else {
-                    $scope.ModelProcessPara.Sequence = data;
+                    $scope.ModelQualityParaNew.Sequence = response.data;
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -838,12 +838,37 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     }
 
+    $scope.AddQualityProcessEditRow = function () {
+        try {
+            $scope.ModelQualityParaNew.FormulaDes = $scope.ModelQualityParaNew.FormulaDescription;
+            $scope.ModelQualityParaNew.FormulaDesID = $scope.ModelQualityParaNew.FormulaIDDescription;
 
-    $scope.ProductionAction = 'Save';
+            $scope.ModelQualityParaNew.Formula = $scope.ModelQualityParaNew.FormulaDescription;
+            $scope.ModelQualityParaNew.FormulaId = $scope.ModelQualityParaNew.FormulaIDDescription;
+
+            $scope.ModelQualityParaNew.SalaryHead = $("#HeadFormula option:selected").text();
+
+            $scope.Row = 'Add Row';
+            $scope.ModelQualityParaNew.FormulaDescription = null;
+            $scope.ModelQualityParaNew.FormulaIDDescription = null;
+
+            $scope.ModelQualityParaNew.HeadIdFormula = null;
+            $scope.ModelQualityParaNew.Operator = null;
+            $scope.ModelQualityParaNew.Precedence = null;
+            $scope.ModelQualityParaNew.Value = null;
+
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.QualityParameterAction = 'Save';
     $scope.SaveQualityProcess = function () {
         try {
             $scope.AddQualityProcessEditRow();
-            $scope.ModelQualityParaNew.QualityProcessId = $scope.masterId;
+            $scope.ModelQualityParaNew.QualityProcessId = $scope.QualityProcessId;
             $http({
                 method: 'POST',
                 url: $scope.saveQualityProcessParameterUrl,
@@ -855,9 +880,10 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
+                    $scope.GetQualityProcessParameterAutoSequence();
                     $scope.GetQualityProcessParameterHeaderItemCbo();
                     $scope.GetQualityProcessParameterList();
-                    $scope.Clear();
+                    $scope.ClearQualityProcessPara();
                     $scope.FormulaDetails = [];
                 }
             }), function errorCallBack(response) {
@@ -868,6 +894,67 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
             ShowResult(e, "failure");
         }
     };
- 
+
+    $scope.GetQualityPara = function (obj) {
+        $scope.QualityParameterAction = 'Update';
+
+        $scope.FormulaDetails = [];
+        $scope.ModelQualityParaNew.HeadIdFormula = null;
+        $scope.ModelQualityParaNew.Operator = null;
+        $scope.ModelQualityParaNew.Precedence = null;
+        $scope.ModelQualityParaNew.Value = null;
+
+        $scope.objectData = obj.data;
+        $scope.ModelQualityParaNew = Object.assign({}, $scope.objectData);
+
+        $http({
+            method: 'GET',
+            url: "Processes/ProductionBookingProcessparameter/GetDetailList?OrderLineCostingItemId=" + $scope.ModelQualityParaNew.Id
+        }).then(function successCallback(response) {
+            if (baseService.arrayLength(response.data) > 0) {
+                $scope.FormulaDetails = response.data;
+
+                $scope.ModelQualityParaNew.FormulaDes = '';
+                $scope.ModelQualityParaNew.FormulaDesID = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                    if (!baseService.isUndefinedOrNull($scope.ModelQualityParaNew.FormulaDes)) {
+                        $scope.ModelQualityParaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+
+                        $scope.ModelQualityParaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId);
+                    } else {
+                        $scope.ModelQualityParaNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelQualityParaNew.FormulaDesID = $scope.FormulaDetails[i].OrderLineHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].OrderLineHeadId;
+                    }
+                }
+
+                $scope.ModelQualityParaNew.FormulaDescription = $scope.ModelQualityParaNew.FormulaDes;
+                $scope.ModelQualityParaNew.FormulaIDDescription = $scope.ModelQualityParaNew.FormulaDesID;
+
+
+            }
+        });
+
+
+        var value = null;
+
+        $scope.GetQualityProcessParameterHeaderItemCbo();
+
+    };
+
+    $scope.ClearQualityProcessPara = function () {
+        $scope.ModelQualityPara = { Id: null, QualityProcessId: $scope.QualityProcessId, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelQualityParaNew = Object.assign({}, $scope.ModelQualityPara);
+        $scope.QualityParameterAction = 'Save';
+        $scope.ModelQualityParaNew.FormulaDescription = null;
+        $scope.ModelQualityParaNew.FormulaIDDescription = null;
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+        $scope.GetQualityProcessParameterHeaderItemCbo();
+        $scope.GetQualityProcessParameterList();
+        $scope.GetQualityProcessParameterAutoSequence();
+        $scope.ModelProcessParaEntryState = 'Entry';
+    }
 
 }
