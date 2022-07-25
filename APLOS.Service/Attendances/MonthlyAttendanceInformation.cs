@@ -2957,14 +2957,6 @@ namespace Library.Service.Attendances
                     sheet1.Range[xlsRow, iEmpName, xlsRow + 1, iEmpName].Merge();
 
                     xlsCol += 1;
-                    iGender = xlsCol;
-                    sheet1.Range[xlsRow, iGender].Text = "Gender";
-                    sheet1.Range[xlsRow, iGender].ColumnWidth = 22;
-                    sheet1.Range[xlsRow, iGender].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iGender].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, iGender, xlsRow + 1, iGender].Merge();
-
-                    xlsCol += 1;
                     iDOJ = xlsCol;
                     sheet1.Range[xlsRow, iDOJ].Text = "DOJ";
                     sheet1.Range[xlsRow, iDOJ].ColumnWidth = 9.20;
@@ -2979,22 +2971,6 @@ namespace Library.Service.Attendances
                     sheet1.Range[xlsRow, iDOS].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[xlsRow, iDOS].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, iDOS, xlsRow + 1, iDOS].Merge();
-
-                    xlsCol += 1;
-                    iPlant = xlsCol;
-                    sheet1.Range[xlsRow, iPlant].Text = "Plant";
-                    sheet1.Range[xlsRow, iPlant].ColumnWidth = 22;
-                    sheet1.Range[xlsRow, iPlant].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iPlant].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, iPlant, xlsRow + 1, iPlant].Merge();
-
-                    xlsCol += 1;
-                    iEmpCategory = xlsCol;
-                    sheet1.Range[xlsRow, iEmpCategory].Text = "Employee Category";
-                    sheet1.Range[xlsRow, iEmpCategory].ColumnWidth = 22;
-                    sheet1.Range[xlsRow, iEmpCategory].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCategory].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, iEmpCategory, xlsRow + 1, iEmpCategory].Merge();
 
                     xlsCol += 1;
                     iUnit = xlsCol;
@@ -3153,16 +3129,13 @@ namespace Library.Service.Attendances
                         sheet1.Range[xlsRow, iSrNo].Number = strCount;
                         sheet1.Range[xlsRow, iEmpCode].Text = dvMonthlyAttnSumm[i]["EmployeeCode"].ToString().Trim();
                         sheet1.Range[xlsRow, iEmpName].Text = dvMonthlyAttnSumm[i]["EmployeeName"].ToString().ToUpper();
-                        sheet1.Range[xlsRow, iGender].Text = dvMonthlyAttnSumm[i]["GenderID"].ToString().ToUpper();
                         sheet1.Range[xlsRow, iDOJ].Text = dvMonthlyAttnSumm[i]["DOJ"].ToString().Trim();
                         sheet1.Range[xlsRow, iDOS].Text = dvMonthlyAttnSumm[i]["DOS"].ToString().Trim();
                         sheet1.Range[xlsRow, iUnit].Text = dvMonthlyAttnSumm[i]["Unit"].ToString().Trim();
-                        sheet1.Range[xlsRow, iEmpCategory].Text = dvMonthlyAttnSumm[i]["EmployeeCategory"].ToString().Trim();
                         sheet1.Range[xlsRow, iDepart].Text = dvMonthlyAttnSumm[i]["Department"].ToString().Trim();
                         sheet1.Range[xlsRow, iSec].Text = dvMonthlyAttnSumm[i]["Section"].ToString().Trim();
                         sheet1.Range[xlsRow, iSubSection].Text = dvMonthlyAttnSumm[i]["SubSection"].ToString().Trim();
                         sheet1.Range[xlsRow, iLine].Text = dvMonthlyAttnSumm[i]["Line"].ToString().Trim();
-                        sheet1.Range[xlsRow, iPlant].Text = dvMonthlyAttnSumm[i]["PlantName"].ToString().Trim();
 
                         sheet1.Range[xlsRow, iDesig].Text = dvMonthlyAttnSumm[i]["LegalDG"].ToString().Trim();
                         string _m = bplib.clsWebLib.GetMonthName(Month);
@@ -3185,7 +3158,7 @@ namespace Library.Service.Attendances
 
                                 sheet1[xlsRow, iGrossSalary].Number = clsStaticInfo.dbl(drData[0]["Gross"].ToString());
                                 sheet1[xlsRow, iOTRate].Number = clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
-                                otRate= clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
+                                otRate = clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
                                 foreach (DataRow item in drData)
                                 {
 
@@ -3257,7 +3230,7 @@ namespace Library.Service.Attendances
                                     }
                                 }
                                 sheet1[xlsRow, iTotalEOTHour].Number = totalOTHr;
-                                sheet1[xlsRow, iNetEOTAmount].Number = totalOTHr*otRate;
+                                sheet1[xlsRow, iNetEOTAmount].Number = Math.Round(totalOTHr * otRate);
                             }
                         }
                         catch (Exception ex)
@@ -3388,37 +3361,8 @@ namespace Library.Service.Attendances
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
-                    string _sheetHeaderName = "Monthly Attendance Information(Day Status)";
-                    string _sheetHeaderName1 = "Monthly Attendance Information(Intime Attendance Data)";
-                    string _sheetHeaderName2 = "Monthly Attendance Information(OutTime Attendance Data)";
-                    string _sheetHeaderName3 = "Monthly Attendance Information(Intime Raw Data)";
-                    string _sheetHeaderName4 = "Monthly Attendance Information(OutTime Raw Data)";
-
-                    if (DayStatus == "DAYSTATUS")
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName;
-                    }
-                    else if (DayStatus == "INTIME")
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName1;
-                    }
-                    else if (DayStatus == "3")
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName2;
-                    }
-
-                    else if (DayStatus == "INRAW")
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName3;
-                    }
-                    else if (DayStatus == "OUTRAW")
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName4;
-                    }
-                    else
-                    {
-                        sheet1.Range[xlsRow, 3].Text = _sheetHeaderName;
-                    }
+                    string _sheetHeaderName = "Monthly OT Information";
+                    sheet1.Range[xlsRow, 3].Text = _sheetHeaderName;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol - 5].Merge();
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Bold = true;
                     sheet1.Range[xlsRow, 3].CellStyle.Font.Size = 11;
@@ -3426,15 +3370,6 @@ namespace Library.Service.Attendances
                     sheet1.Range[xlsRow, 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                     sheet1.Range[xlsRow, 3].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[xlsRow, 3, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                    xlsRow += 1;
-                    sheet1.Range[xlsRow, xlsCol].Text = "Report Ref No.";
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].Merge();
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                    sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 9;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].RowHeight = 20;
-                    sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
-                    sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet1.Range[xlsRow, 1, xlsRow, endXlsCol - 5].CellStyle.Interior.Color = System.Drawing.Color.Snow;
 
                     xlsRow += 1;
                     sheet1.Range[xlsRow, xlsCol].Text = "Year : " + Year + " and Month : " + dateForTheMonth.ToString("MMMM");
