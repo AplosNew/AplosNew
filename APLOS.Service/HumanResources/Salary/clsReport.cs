@@ -8426,7 +8426,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
-											ELSE 0 END,GS.DisbusmentAmount Gross,OTRate=(BS.DisbusmentAmount/208)*2
+											ELSE 0 END,GS.DisbusmentAmount Gross,OTRate=cast(round((BS.DisbusmentAmount/208)*2,2) as numeric(36,2))
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
                                                 Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus                                              
