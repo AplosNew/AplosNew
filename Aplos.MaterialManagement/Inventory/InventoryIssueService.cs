@@ -4292,21 +4292,21 @@ namespace Library.MaterialManagement.Inventory
             sheet1[_row, 29].WrapText = true;
             sheet1[_row, 29].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1[_row, 29].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 29, _row, 37].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 29, _row, 37].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 29, _row, 37].Merge();
-            sheet1.Range[_row, 29, _row, 37].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 29, _row, 33].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 29, _row, 33].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 29, _row, 33].Merge();
+            sheet1.Range[_row, 29, _row, 33].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 38].Text = "Posted (Cr.)";
-            sheet1[_row, 38].CellStyle.Font.Size = 10;
-            sheet1[_row, 38].CellStyle.Font.Bold = true;
-            sheet1[_row, 38].WrapText = true;
-            sheet1[_row, 38].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 38].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 38, _row, 46].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 38, _row, 46].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 38, _row, 46].Merge();
-            sheet1.Range[_row, 38, _row, 46].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 34].Text = "Posted (Cr.)";
+            sheet1[_row, 34].CellStyle.Font.Size = 10;
+            sheet1[_row, 34].CellStyle.Font.Bold = true;
+            sheet1[_row, 34].WrapText = true;
+            sheet1[_row, 34].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 34].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 34, _row, 38].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 34, _row, 38].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 34, _row, 38].Merge();
+            sheet1.Range[_row, 34, _row, 38].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
 
 
@@ -4649,33 +4649,33 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level1";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level1";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level2";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level2";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level3";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level3";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level4";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "Level4";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
 
@@ -4717,34 +4717,34 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel1";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel1";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel2";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel2";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel3";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
-            sheet1headreColIndex++;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel3";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel4";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
-            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            //sheet1.Range[_rowL, sheet1headreColIndex].Text = "CLevel4";
+            //sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            //sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            //sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
 
             //sheet1headreColIndex++;
             sheet1.Range[_rowL, 1, _rowL, sheet1headreColIndex].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
@@ -4790,20 +4790,20 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["Budget"].ToString());
                 report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["Activity"].ToString());
                 report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Level1"].ToString());
-                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Level2"].ToString());
-                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["Level3"].ToString());
-                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["Level4"].ToString());
+                //report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Level1"].ToString());
+                //report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Level2"].ToString());
+                //report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["Level3"].ToString());
+                //report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["Level4"].ToString());
 
-                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-                report.SetText(ref sheet1, _rowL, 42, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["CRLevel1"].ToString());
-                report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["CRLevel2"].ToString());
-                report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["CRLevel3"].ToString());
-                report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["CRLevel4"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
+                //report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["CRLevel1"].ToString());
+                //report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["CRLevel2"].ToString());
+                //report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["CRLevel3"].ToString());
+                //report.SetText(ref sheet1, _rowL, 46, inventoryMaterialList.Rows[n]["CRLevel4"].ToString());
 
             }
 
@@ -6223,12 +6223,16 @@ namespace Library.MaterialManagement.Inventory
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))	,isnull(IIH.TotalMaterialBooksCurrencyAmount,0) IssueAmount					
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        ,isnull(IGL.AccountCode,'') GLCode
+							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
+							,isnull(IBM.RefNo,'') BudgetRefNo
+							,isnull(IGL1.AccountCode,'') CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,ISNULL(IBM1.RefNo ,'') CBudgetRefNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
@@ -6294,14 +6298,16 @@ namespace Library.MaterialManagement.Inventory
 							,TUoM.UserName AS IssueUOM							
 	                        ,TotalIssued=(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0))						
 							,Balance=(Isnull(IRD.TransactionQty,0)-(isnull(IIH1.Qty,0) + ISNULL(IIH.Qty,0)))
-	                        ,ISNULL(IGL.AccountCode,'') AS GLCode
-	                        ,ISNULL(IGL.UserName,'') AS GL
+	                        ,isnull(IGL.AccountCode,'') GLCode
+							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget
-							,isnull(IBM.RefNo,'') AS BudgetRefNo
+							,isnull(IBM.RefNo,'') BudgetRefNo
+							,isnull(IGL1.AccountCode,'') CGLCode
 							,isnull(IGL1.UserName,'') AS CGL
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
+							,ISNULL(IBM1.RefNo ,'') CBudgetRefNo
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId						
                         LEFT JOIN ORG.Entity En ON II.EntityId = En.Id
@@ -6358,28 +6364,28 @@ namespace Library.MaterialManagement.Inventory
             sheet1.UsedRange.CellStyle.Font.Bold = false;
             var _row = 7;
 
-            sheet1[_row, 19].Text = "Posted Dr.";
+            sheet1[_row, 21].Text = "Posted Dr.";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 19].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 19].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 19, _row, 21].BorderAround(ExcelLineStyle.Hair);
+            sheet1[_row, 21].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 21].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 21, _row, 25].BorderAround(ExcelLineStyle.Hair);
             //sheet1.Range[_row, 18, _row, 20].CellStyle.Color="LightYellow";
-            sheet1.Range[_row, 19, _row, 21].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 19, _row, 21].Merge();
-            sheet1.Range[_row, 19, _row, 21].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1.Range[_row, 21, _row, 25].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 21, _row, 25].Merge();
+            sheet1.Range[_row, 21, _row, 25].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 22].Text = "Posted (Cr.)";
+            sheet1[_row, 26].Text = "Posted (Cr.)";
             sheet1.UsedRange.CellStyle.Font.Size = 10;
             sheet1.UsedRange.CellStyle.Font.Bold = true;
             sheet1.UsedRange.WrapText = true;
-            sheet1[_row, 22].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 22].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 22, _row, 24].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 22, _row, 24].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 22, _row, 24].Merge();
-            sheet1.Range[_row, 22, _row, 24].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 26].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 26].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 26, _row, 30].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 26, _row, 30].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 26, _row, 30].Merge();
+            sheet1.Range[_row, 26, _row, 30].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
             var _rowL = _row;
             var row = _row + 1;
@@ -6587,6 +6593,13 @@ namespace Library.MaterialManagement.Inventory
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL Code";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -6604,8 +6617,6 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
-
-
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
             //sheet1headreColIndex++;
 
@@ -6616,10 +6627,23 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Budget Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
 
             //         report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "GL");
             //sheet1headreColIndex++;
+            
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CGL Code";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "GL";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
@@ -6639,14 +6663,21 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
-
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Activity";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "CBudget Ref No";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            //report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Activity");
 
             //sheet1headreColIndex++;
 
@@ -6677,12 +6708,17 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["IssueUOM"].ToString());
                 report.SetText(ref sheet1, _rowL, 19, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["IssueAmount"].ToString()));
                 report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["Balance"].ToString()));
-                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+
+                report.SetText(ref sheet1, _rowL, 21, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 22, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 23, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
             }
 
             //#endregion sumCalc
