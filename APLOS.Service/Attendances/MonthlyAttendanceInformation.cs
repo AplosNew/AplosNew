@@ -2634,7 +2634,7 @@ namespace Library.Service.Attendances
             }
         }//End Function
 
-        public IWorkbook GetEOTReport(string companyId, string plantId, string Month, string Year, string userName, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        public string GetEOTReport(string companyId, string plantId, string Month, string Year, string userName, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             #region Variable
 
@@ -2672,8 +2672,6 @@ namespace Library.Service.Attendances
 
             try
             {
-
-
                 objRpt = new clsReport(_sqlRepository);
 
                 #region Validation
@@ -2784,16 +2782,7 @@ namespace Library.Service.Attendances
                     _FLAG = "DAYSTATUS";
                 }
 
-                if (_FLAG == "INRAW" || _FLAG == "OUTRAW")
-                {
-                    objRpt.GetMonthlyIntimeOutTimeRaw(_FLAG, empParameters, objm, out dsDaily);
-                }
-                else
-                {
-                    //GetMonthlyDailyAttendanceDic(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
-                    dicAttendance = objRpt.GetEOTMonthlyDailyAttendanceDic(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
-                    //objRpt.GegMonthlyDaily(_FLAG, empParameters, objm, out dsDaily, isActive,  isSeperated,  isMaternity);
-                }
+                dicAttendance = objRpt.GetEOTMonthlyDailyAttendanceDic(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
 
                 if (dicAttendance.Count == 0)
                 {
@@ -3183,6 +3172,8 @@ namespace Library.Service.Attendances
                         string _SystemId = dvMonthlyAttnSumm[i]["EmployeePK"].ToString().Trim();
 
                         string formula = "";
+                        double totalOTHr = 0;
+                        double otRate = 0;
                         #region Attendance Data Plotting
                         try
                         {
@@ -3194,10 +3185,10 @@ namespace Library.Service.Attendances
 
                                 sheet1[xlsRow, iGrossSalary].Number = clsStaticInfo.dbl(drData[0]["Gross"].ToString());
                                 sheet1[xlsRow, iOTRate].Number = clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
-
+                                otRate= clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
                                 foreach (DataRow item in drData)
                                 {
-                                   
+
                                     HasOUTtime = true;
                                     IsHalfLeave = false;
                                     IsManual = false;
@@ -3205,10 +3196,6 @@ namespace Library.Service.Attendances
                                     IsShortLeave = false;
                                     try
                                     {
-                                       
-                                       
-
-                                       
                                         _day_status = "";
                                         _day_status = item["DayStatus"].ToString();
                                         if (_FLAG.ToUpper() == "DAYSTATUS")
@@ -3237,14 +3224,14 @@ namespace Library.Service.Attendances
 
                                         }
                                         //if (item["TotalPresent"].ToString() == "1.00" && item["DayStatus"].ToString() == "WL" || item["DayStatus"].ToString() == "WP")
-                                        if (item["TotalPresent"].ToString() == "1.00" && item["DayStatus"].ToString() == "WL" || item["DayStatus"].ToString() == "WP" || item["DayStatus"].ToString() == "CWP" || item["DayStatus"].ToString() == "CWL"|| item["DayStatus"].ToString() == "PW")
+                                        if (item["TotalPresent"].ToString() == "1.00" && item["DayStatus"].ToString() == "WL" || item["DayStatus"].ToString() == "WP" || item["DayStatus"].ToString() == "CWP" || item["DayStatus"].ToString() == "CWL" || item["DayStatus"].ToString() == "PW")
                                         {
                                             dcount++;
                                         }
-                                        if (dcount == 0||dcount == 1 || dcount == 3 || dcount == 5)
+                                        if (dcount == 0 || dcount == 1 || dcount == 3 || dcount == 5)
                                         {
-                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number =attdnStatus;
-
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;
+                                            totalOTHr += attdnStatus;
                                         }
                                         //else if (dcount == 2 || dcount == 4)
                                         //{
@@ -3254,6 +3241,7 @@ namespace Library.Service.Attendances
                                         else
                                         {
                                             sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;
+                                            totalOTHr += attdnStatus;
                                         }
 
 
@@ -3262,151 +3250,14 @@ namespace Library.Service.Attendances
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle.Font.FontName = "Arial Narrow";
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle.Font.Size = 17;
-
                                         sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].BorderAround(ExcelLineStyle.Hair);
-
-                                        if (clsStaticInfo.dbl(item["LeaveDuration"].ToString()) == 0.5)
-                                        {
-
-                                            IsHalfLeave = true;
-                                        }
-                                        //dvSLeave.RowFilter = "EmployeeSystemID='" + _SystemId + "' and PDate='" + item["PDate"].ToString() + "'";
-                                        if (clsStaticInfo.dbl(item["CountedShortLeave"].ToString()) > 0)
-                                        {
-                                            IsShortLeave = true;
-                                        }
-
-                                        dvExtraAbsent.RowFilter = "EmpSystemID='" + _SystemId + "' and WorkingDate='" + item["PDate"].ToString() + "'";
-                                        if (dvExtraAbsent.Count > 0)
-                                        {
-                                            IsExtraAbsent = true;
-                                        }
-                                        if (string.IsNullOrEmpty(item["OutTime"].ToString()))
-                                        {
-                                            HasOUTtime = false;
-                                        }
-
-
-                                        ///manual
-                                        if (item["MANUALStatus"].ToString().ToUpper() == "MANUAL")
-                                        {
-                                            IsManual = true;
-
-                                        }
-
-
-
                                     }
                                     catch (Exception ex)
                                     {
-
-
-
-                                    }
-                                    if (withColor == true)
-                                    {
-
-                                        try
-                                        {
-                                            if (!HasOUTtime)
-                                            {
-                                                if (item["DayCategory"].ToString().ToUpper() == "WEEKEND" || item["DayCategory"].ToString().ToUpper() != "HOLIDAY")
-                                                {
-
-                                                }
-                                                else
-                                                {
-
-                                                    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = noOUTtimeStyle;
-                                                }
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Violet;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "P")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = presentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Green;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status == "A")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = absentStyle;
-
-                                            }
-                                            if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = lateStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Blue;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-                                            if (_day_status.Contains("LV"))
-                                            {
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = leaveStyle;
-
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Black;
-                                            }
-
-                                            if (IsManual && !_day_status.Contains("LV"))
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isManualandNotLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Interior.Color = System.Drawing.Color.Orange;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.White;
-                                            }
-
-                                            if (IsHalfLeave)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isHalfLeaveStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Yellow;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-
-                                            if (IsExtraAbsent)
-                                            {
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isExtraAbsentStyle;
-
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Color = ExcelKnownColors.Red;
-                                                //sheet1.Range[xlsRow, _col_index].CellStyle.Font.Bold = true;
-                                            }
-                                            if (IsShortLeave)
-                                            {
-                                                if (_day_status == "P")
-                                                {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Green;
-                                                }
-                                                if (_day_status == "L" || _day_status == "LVL" || _day_status == "WL" || _day_status == "HL")
-                                                {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Blue;
-                                                }
-                                                if (IsManual && !_day_status.Contains("LV"))
-                                                {
-                                                    isShortLeaveStyle.Color = System.Drawing.Color.Orange;
-
-                                                }
-
-                                                sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle = isShortLeaveStyle;
-
-                                            }
-                                        }
-                                        catch (Exception)
-                                        {
-
-
-                                        }
                                     }
                                 }
-
-                                //formula = "SUM(" + clsStaticInfo.GetxlsCol(iTotalEOTHour) + perStartRow + ":" + clsStaticInfo.GetxlsCol(iTotalEOTHour) + (xlsRow - 1) + ")";
-                                //sheet1[xlsRow, iTotalEOTHour, xlsRow, iTotalEOTHour].Formula = formula;
+                                sheet1[xlsRow, iTotalEOTHour].Number = totalOTHr;
+                                sheet1[xlsRow, iNetEOTAmount].Number = totalOTHr*otRate;
                             }
                         }
                         catch (Exception ex)
@@ -3415,147 +3266,6 @@ namespace Library.Service.Attendances
                             throw ex;
                         }
                         #endregion
-
-                        //if (chkAdditionInfo.Checked == true)
-                        //{
-                        if (withSummary)
-                        {
-                            earlyOut = dtAttdnInfoExtra.Select("InfoType = 'EARLYOUT' AND EmpSystemId = '" + _SystemId + "'").Length;
-
-                            lateIn = dtAttdnInfoExtra.Select("InfoType = 'LATEIN' AND EmpSystemId = '" + _SystemId + "'").Length;
-                            decimal _ExtraAbsent = 0;
-                            dvExtraAbsent.RowFilter = "EmpSystemID='" + _SystemId + "' ";
-                            _ExtraAbsent = dvExtraAbsent.Count;
-
-
-                            ReportUtility ru = new ReportUtility();
-                            //sheet1.Range[xlsRow, iTtlAPD].Text = dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim();
-                            //sheet1.Range[xlsRow, iTtlAPD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iTtlAPD].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                            var DaysInaMonth = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString().Trim());
-                            var TotalAbsent = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim());
-                            var TotalLWP = bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim());
-                            //var DaysInaMonth = _ExtraAbsent;
-
-                            double _pay_days = 0.00;
-                            double ExtraAbsentWeekOFF = 0.00;
-                            double ExtraAbsentHoliday = 0.00;
-                            if (dicExtraAbsentWeekOFF.ContainsKey(_SystemId))
-                            {
-                                ExtraAbsentWeekOFF = clsStaticInfo.dbl(dicExtraAbsentWeekOFF[_SystemId]);
-                            }
-                            if (dicExtraAbsentHoliday.ContainsKey(_SystemId))
-                            {
-
-                                ExtraAbsentHoliday = clsStaticInfo.dbl(dicExtraAbsentHoliday[_SystemId]);
-                            }
-
-                            if (!String.IsNullOrEmpty(dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper()))
-                            {
-                                if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOffAndHoliday.ToString().ToUpper())
-                                {
-                                    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString()) - (Convert.ToDouble(ExtraAbsentHoliday))) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                                }
-                                if (dvMonthlyAttnSumm[i]["WorkingDaysInAMonth"].ToString().ToUpper() == WorkingDaysInAMonth.ExcludingWeekOff.ToString().ToUpper())
-                                {
-                                    _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentWeekOFF) + Convert.ToDouble(ExtraAbsentHoliday)) - (clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString()) - Convert.ToDouble(ExtraAbsentWeekOFF));
-                                }
-                            }
-                            else
-                            {
-                                _pay_days = clsStaticInfo.dbl(dvMonthlyAttnSumm[i]["TotalProcDate"].ToString()) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(ExtraAbsentHoliday) + Convert.ToDouble(ExtraAbsentWeekOFF));
-                            }
-
-
-
-                            //_pay_days = Convert.ToDouble(DaysInaMonth) - (Convert.ToDouble(TotalAbsent) + Convert.ToDouble(TotalLWP) + Convert.ToDouble(_ExtraAbsent));
-
-                            //sheet1.Range[xlsRow, iTotalEOTHour].Number = 0;// Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i][""].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iTotalEOTHour].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iTotalEOTHour].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //sheet1.Range[xlsRow, iGrossSalary].Number = 0;// Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i][""].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iGrossSalary].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iGrossSalary].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                            //sheet1.Range[xlsRow, iOTRate].Number = 0;//Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i][""].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iOTRate].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iOTRate].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //sheet1.Range[xlsRow, iNetEOTAmount].Number = 0;//Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i][""].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iNetEOTAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iNetEOTAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            //sheet1.Range[xlsRow, iWorkersSignature].Number = 0;//Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i][""].ToString().Trim()));
-                            //sheet1.Range[xlsRow, iWorkersSignature].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            //sheet1.Range[xlsRow, iWorkersSignature].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, cPayDays].Text = _pay_days.ToString();
-                            ////sheet1.Range[xlsRow, cPayDays].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, cPayDays].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlHD].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalHoliDay"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlHD].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlHD].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                            ////sheet1.Range[xlsRow, iTtlWO].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalWeekOff"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlWO].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlWO].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////double _pre = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalPresent"].ToString().Trim()));
-                            ////double _Late = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
-
-                            ////double TPresentAndLate = _pre + _Late;
-                            ////sheet1.Range[xlsRow, iTtlPst].Number = TPresentAndLate;
-                            ////sheet1.Range[xlsRow, iTtlPst].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlPst].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlAbs].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalAbsent"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlLte].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLate"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlLte].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlLte].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlLWP].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLWP"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlLWP].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlLWP].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iExtraAbs].Number = Convert.ToDouble(_ExtraAbsent);
-                            ////sheet1.Range[xlsRow, iExtraAbs].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iExtraAbs].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlLv].Number = Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalLv"].ToString().Trim())) - Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim()));
-                            ////sheet1.Range[xlsRow, iTtlLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iTtlMLv].Number = System.Math.Abs(Convert.ToDouble(bplib.clsWebLib.GetNumData(dvMonthlyAttnSumm[i]["TotalMLv"].ToString().Trim())));
-                            ////sheet1.Range[xlsRow, iTtlMLv].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iTtlMLv].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-
-                            ////sheet1.Range[xlsRow, iLateIn].Number = lateIn;
-                            ////sheet1.Range[xlsRow, iLateIn].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iLateIn].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
-                            ////sheet1.Range[xlsRow, iEarlyOut].Number = earlyOut;
-                            ////sheet1.Range[xlsRow, iEarlyOut].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                            ////sheet1.Range[xlsRow, iEarlyOut].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        }
-                        //var sl = dvMonthlyAttnSumm[i]["ShortLeave"].ToString().Trim();
-                        //if (sl == "0")
-                        //{
-                        //    sl = null;
-                        //}
-                        //sheet1.Range[xlsRow, iTsl].Text = sl;
-                        //sheet1.Range[xlsRow, iTsl].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow, iTsl].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //}
 
                         xlsRow += 1;
 
@@ -3764,14 +3474,16 @@ namespace Library.Service.Attendances
                     #endregion
 
                 }
-                //workbook.Version = ExcelVersion.Excel97to2003;
-                //var strFileName = DateTime.Now.ToString("yyMMdd") + " " + "MonthlyAttendanceInformation.xls";
-                //string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
-                //workbook.SaveAs(fullPath);
-                //return Json(new { FileName = strFileName, FullPath = fullPath, Error = false }, JsonRequestBehavior.AllowGet);
-                // return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
-
-                return workbook;
+                var fileName = "EOT" + DateTime.Now.ToString("yyMMdd") + ".xlsx";
+                var filePath = "";
+                var SheetName = "";
+                //return workbook;
+                workbook.Version = ExcelVersion.Excel2013;
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SheetName + fileName);
+                workbook.SaveAs(filePath);
+                workbook.Close();
+                excelEngine.Dispose();
+                return filePath;
 
             }
 

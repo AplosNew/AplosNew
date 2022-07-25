@@ -3727,8 +3727,8 @@ namespace Aplos.MaterialManagement
 			int ColGateName = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
-			int ColCurrency = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 13, ExcelHAlign.HAlignLeft);
+			int ColBaseCurrency = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignRight);
@@ -3799,7 +3799,7 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColGrnDocDateDifference].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
 				sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
 				sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
-				sheet[ROW, ColCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
+				sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
 				sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
 				sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
 				sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
@@ -3945,7 +3945,7 @@ namespace Aplos.MaterialManagement
 						,round(isnull(TAxInfo9.TaxAmount,0),2) NirasritTax,TAxInfo9.Percentage NirasritTaxPercentage
 						,IRD.ChargesTranAmount ServiceCharge
 						,IRD.ChargesTaxTranAmount ServiceTax
-						,ROUND(Isnull(IRD.TotalMaterialTranAmount,0),2) TotalMaterialTranAmount
+						,ROUND(Isnull(IRD.MaterialTranAmount*ir.ToCurrencyRate,0),2) TotalMaterialTranAmount
                        ,ROUND(Isnull(IRD.TotalMaterialBooksCurrencyAmount,0),2) TotalMaterialBaseAmount ,IR.AddedBy
                        ,CASE 
 					        	WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
@@ -4023,7 +4023,8 @@ namespace Aplos.MaterialManagement
 					left JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
 					left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id	
 					left JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
-					left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
+					left JOIN org.Company AS co  ON co.Id=ir.CompanyId
+					left JOIN [SCS].[Currency] AS CU ON Co.BaseCurrencyId=CU.Id
 					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
 					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
 					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
@@ -4762,7 +4763,7 @@ namespace Aplos.MaterialManagement
 			//report.SetHeaderText(ref sheet1, _rowL, sheet1headreColIndex, "Transaction Rate");
 			//sheet1headreColIndex++;
 
-			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Currency";
+			sheet1.Range[_rowL, sheet1headreColIndex].Text = "Base Currency";
 			sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
 			sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 			sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -5612,43 +5613,43 @@ namespace Aplos.MaterialManagement
 			int ColTaxID = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
-			int ColCurrency = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 15, ExcelHAlign.HAlignLeft);
+			int ColBaseCurrency = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColBaseAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColTaxAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColTotalBaseAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 15, ExcelHAlign.HAlignLeft);
 			int ColPayment = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 15, ExcelHAlign.HAlignLeft);
 			int ColBalance = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 15, ExcelHAlign.HAlignLeft);
 			int ColPartyGroup = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 15, ExcelHAlign.HAlignLeft);
 			int ColPartyCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 15, ExcelHAlign.HAlignLeft);
 			int ColPartySubCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 15, ExcelHAlign.HAlignLeft);
 			int ColPartyType = COL;
 			COL++;
 
@@ -5671,7 +5672,7 @@ namespace Aplos.MaterialManagement
 				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
 				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
 				sheet[ROW, ColTaxID].Text = data.Rows[i]["TaxID"].ToString();
-				sheet[ROW, ColCurrency].Text = data.Rows[i]["Currency"].ToString();
+				sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["Currency"].ToString();
 				sheet[ROW, ColBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["BaseAmount"].ToString());
 				sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
 				sheet[ROW, ColTotalBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalBaseAmount"].ToString());

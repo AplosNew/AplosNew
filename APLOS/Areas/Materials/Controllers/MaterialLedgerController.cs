@@ -430,7 +430,7 @@ namespace Aplos.Areas.Materials.Controllers
             InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
 
             string fileName = "";
-            fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "PurchaseRegisterReportItemWise " + fromDate + "To" + toDate + "");
+            fileName = obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, SLNo, "Purchase Register Item Wise " + fromDate + "To" + toDate + "");
             return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
 

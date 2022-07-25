@@ -1,7 +1,7 @@
 ﻿'use strict';
 EOTController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService', '$window'];
 function EOTController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $window) {
-    $rootScope.title = 'Monthly Attendance Information';
+    $rootScope.title = 'EOT';
     $scope.index = -1;
     $scope.maternityLeaveTransactions = [];
     $scope.path = 'Attendances/EOT/';
