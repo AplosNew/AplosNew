@@ -126,8 +126,8 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
             string sql = @"SELECT D.Sequence,D.OrderLineHeadId
                             ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.ProductionBookingParameterId
                             FROM [dbo].[FormulaDetail] D
-                            LEFT JOIN dbo.ProductionBookingParameterHead SD ON SD.Id=D.ProductionBookingParameterHeadId
-                            WHERE ProductionBookingParameterHeadId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+                            LEFT JOIN dbo.ProductionBookingParameter SD ON SD.Id=D.ProductionBookingParameterHeadId
+                            WHERE ProductionBookingParameterId='" + OrderLineCostingItemId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
