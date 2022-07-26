@@ -45,9 +45,9 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetQualityProcessParameterAutoSequence()
+        public JsonResult GetQualityProcessParameterAutoSequence(string QualityProcessId)
         {
-            return Json(GetQualityProcessParameterSequence(), JsonRequestBehavior.AllowGet);
+            return Json(GetQualityProcessParameterSequence(QualityProcessId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -71,9 +71,9 @@ namespace Aplos.Areas.Processes.Controllers
             return 1;
         }
 
-        private double GetQualityProcessParameterSequence()
+        private double GetQualityProcessParameterSequence(string QualityProcessId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT ISNULL(Max(Sequence),0) AS Sequence FROM dbo.QualityProcessParameter");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT ISNULL(Max(Sequence),0) AS Sequence FROM dbo.QualityProcessParameter Where QualityProcessId='"+ QualityProcessId + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -123,11 +123,23 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
         public ActionResult GetDetailList(string OrderLineCostingItemId)
         {
 
-            string sql = @"SELECT D.Sequence,D.OrderLineHeadId
+            string sql = @"SELECT D.Sequence,D.ProductionBookingParameterHeadId
                             ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.ProductionBookingParameterId
                             FROM [dbo].[FormulaDetail] D
-                            LEFT JOIN dbo.ProductionBookingParameterHead SD ON SD.Id=D.ProductionBookingParameterHeadId
-                            WHERE ProductionBookingParameterHeadId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+                            LEFT JOIN dbo.ProductionBookingParameter SD ON SD.Id=D.ProductionBookingParameterHeadId
+                            WHERE ProductionBookingParameterId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityProcessParameterDetailList(string QualityProcessParameterId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.QualityProcessParameterHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.QualityProcessParameterId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.QualityProcessParameter SD ON SD.Id=D.QualityProcessParameterId
+                            WHERE QualityProcessParameterId='" + QualityProcessParameterId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -263,9 +275,9 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
                             count++;
                             string pk = _Id + "_" + count;
                             drF["Id"] = pk;
-                            drF["ProductionBookingParameter"] = _Id;
+                            drF["ProductionBookingParameterId"] = _Id;
                             drF["Sequence"] = item.Sequence;
-                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterId;
+                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterHeadId;
                             drF["Component"] = item.Component;
 
                             dsDestination.Tables[0].Rows.Add(drF);
@@ -535,10 +547,132 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
         }//End of function
 
 
+        [HttpPost, Authorize]
+        public JsonResult DeleteProductionBookingParameter(string id)
+        {
+            DeleteProductionBookingParameterData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteProductionBookingParameterData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.ProductionBookingParameter WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteQualityProcess(string id)
+        {
+            DeleteQualityProcessData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteQualityProcessData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.QualityProcess WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteQualityProcessParameter(string id)
+        {
+            DeleteQualityProcessParameterData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteQualityProcessParameterData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.QualityProcessParameter WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
 
         #endregion
 
-       
+
     }
 
     public class ProductionBookingParameter
