@@ -45,9 +45,21 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetQualityProcessParameterAutoSequence(string QualityProcessId)
+        {
+            return Json(GetQualityProcessParameterSequence(QualityProcessId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetHeaderItemCbo(string id)
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingParameter] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetQualityProcessParameterHeaderItemCbo(string id, string masterId)
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[QualityProcessParameter] WHERE QualityProcessId='"+masterId+"' AND  Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
 
         private double GetSequence()
@@ -59,16 +71,38 @@ namespace Aplos.Areas.Processes.Controllers
             return 1;
         }
 
+        private double GetQualityProcessParameterSequence(string QualityProcessId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT ISNULL(Max(Sequence),0) AS Sequence FROM dbo.QualityProcessParameter Where QualityProcessId='"+ QualityProcessId + "'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetList()
         {
 
-            string sql = @"SELECT N.*,P.UserName Process,uom.Code UoM
+            string sql = @"SELECT N.*,P.UserName Process,uom.Code InputItemUoM,ouom.Code OutputItemUoM
   FROM [dbo].[ProductionBookingProcessParameter] N 
 LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
-LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
+LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.InputItemUoMId
+LEFT JOIN SCS.UnitOfMeasurement AS ouom ON ouom.Id=N.OutputItemUoMId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityProcessList(string masterId)
+        {
+
+            string sql = @"SELECT N.*,P.UserName Process
+  FROM [dbo].[QualityProcess] N 
+LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
+Where N.ProductionBookingProcessParameterId='"+masterId+"'";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public ActionResult GetProcessParameterList(string masterId)
         {
@@ -78,14 +112,34 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetQualityProcessParameterList(string masterId)
+        {
+
+            string sql = @"SELECT N.* FROM [dbo].[QualityProcessParameter] N Where QualityProcessId='" + masterId + "' Order By N.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetDetailList(string OrderLineCostingItemId)
         {
 
-            string sql = @"SELECT D.Sequence,D.OrderLineHeadId
+            string sql = @"SELECT D.Sequence,D.ProductionBookingParameterHeadId
                             ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.ProductionBookingParameterId
                             FROM [dbo].[FormulaDetail] D
-                            LEFT JOIN dbo.ProductionBookingParameterHead SD ON SD.Id=D.ProductionBookingParameterHeadId
-                            WHERE ProductionBookingParameterHeadId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+                            LEFT JOIN dbo.ProductionBookingParameter SD ON SD.Id=D.ProductionBookingParameterHeadId
+                            WHERE ProductionBookingParameterId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetQualityProcessParameterDetailList(string QualityProcessParameterId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.QualityProcessParameterHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.QualityProcessParameterId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.QualityProcessParameter SD ON SD.Id=D.QualityProcessParameterId
+                            WHERE QualityProcessParameterId='" + QualityProcessParameterId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -221,9 +275,9 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
                             count++;
                             string pk = _Id + "_" + count;
                             drF["Id"] = pk;
-                            drF["ProductionBookingParameter"] = _Id;
+                            drF["ProductionBookingParameterId"] = _Id;
                             drF["Sequence"] = item.Sequence;
-                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterId;
+                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterHeadId;
                             drF["Component"] = item.Component;
 
                             dsDestination.Tables[0].Rows.Add(drF);
@@ -244,7 +298,160 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
             }
         }
 
-      
+        [HttpPost]
+        public JsonResult CreateQualityProcess(Dictionary<string, object> data)
+        {
+            try
+            {
+                SaveQualityProcessData(data);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveQualityProcessData(Dictionary<string, object> data)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.QualityProcess WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "QualityProcess", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        data["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"].ToString();
+                        data["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"].ToString();
+                        data["AddedFromIP"] = dsMaster.Tables[0].Rows[0]["AddedFromIP"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult CreateQualityProcessParameter(Dictionary<string, object> data, IEnumerable<QualityProcessParameterFormulaDetail> details)
+        {
+            try
+            {
+                SaveQualityProcessParameterData(data, details);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveQualityProcessParameterData(Dictionary<string, object> data, IEnumerable<QualityProcessParameterFormulaDetail> details)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster, dsDestination;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("select * from QualityProcessParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("UserName already exists!!!");
+
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.QualityProcessParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where QualityProcessParameterHeadId='" + data["Id"] + "'", out dsDestination, false, "1");
+
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "QualityProcessParameter", out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+
+                    string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                    #region NoticePeriodFormulaDetail 
+                    DataRow drF;
+                    while (dsDestination.Tables[0].DefaultView.Count > 0)
+                        dsDestination.Tables[0].DefaultView[0].Delete();
+
+                    int count = 0;
+                    if (details != null)
+                    {
+
+                        foreach (var item in details)
+                        {
+                            drF = dsDestination.Tables[0].NewRow();
+                            count++;
+                            string pk = _Id + "_" + count;
+                            drF["Id"] = pk;
+                            drF["QualityProcessParameterId"] = _Id;
+                            drF["Sequence"] = item.Sequence;
+                            drF["QualityProcessParameterHeadId"] = item.QualityProcessParameterHeadId;
+                            drF["Component"] = item.Component;
+
+                            dsDestination.Tables[0].Rows.Add(drF);
+                        }
+
+                    }
+                    #endregion NoticePeriodFormulaDetail 
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsDestination);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -340,10 +547,132 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
         }//End of function
 
 
+        [HttpPost, Authorize]
+        public JsonResult DeleteProductionBookingParameter(string id)
+        {
+            DeleteProductionBookingParameterData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteProductionBookingParameterData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.ProductionBookingParameter WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteQualityProcess(string id)
+        {
+            DeleteQualityProcessData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteQualityProcessData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.QualityProcess WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
+
+        [HttpPost, Authorize]
+        public JsonResult DeleteQualityProcessParameter(string id)
+        {
+            DeleteQualityProcessParameterData(id);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
+
+        public void DeleteQualityProcessParameterData(string SystemID)
+        {
+            string strSQL;
+            ConnectionManager.DAL.ConManager objCon = null;
+            try
+            {
+                strSQL = "DELETE FROM dbo.QualityProcessParameter WHERE Id = '" + SystemID + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenConnection("1");
+                objCon.BeginTransaction();
+
+                objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
+                objCon.CommitTransaction();
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    objCon.RollBack();
+                    throw (ex);
+                }
+                catch (Exception exx)
+                {
+                    throw exx;
+                }
+            }
+            finally
+            {
+                objCon.CloseConnection();
+                objCon = null;
+            }
+        }//End of function
+
 
         #endregion
 
-       
+
     }
 
     public class ProductionBookingParameter
@@ -367,6 +696,16 @@ LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id=N.UoMId";
         public string Component { get; set; }
         public string ProductionBookingParameterId { get; set; }
         public string ProductionBookingParameterHeadId { get; set; }
+
+    }
+
+    public class QualityProcessParameterFormulaDetail
+    {
+        public string Id { get; set; }
+        public decimal Sequence { get; set; }
+        public string Component { get; set; }
+        public string QualityProcessParameterId { get; set; }
+        public string QualityProcessParameterHeadId { get; set; }
 
     }
 }

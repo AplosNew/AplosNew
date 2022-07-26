@@ -195,6 +195,10 @@
                 <div class="col-sm-4 show-message" style="padding-right:0px;">
                     <input name="Amount" tabindex="19" ng-model="voucher.Amount" ng-keyup="exchangeGainLossAmount(voucher.Amount)" n-decimals="2" class="form-control text-right" autocomplete="off" required>
                 </div>
+                <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
+                <div class="col-sm-2 show-message">
+                    <input type="text" maxlength="50" id="Rate" name="Rate" required ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                </div>
             </div>
             <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">
                 <label class="col-sm-3 control-label">ExchangeType</label>

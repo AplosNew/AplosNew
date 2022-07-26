@@ -2961,6 +2961,9 @@ union
 							, P.DebitLimit AS [Debit Limit], P.CreditLimit AS [Credit Limit], PAG.UserName AS [Party Account Group], C.Code AS [Currency]
 							, PT.UserName AS [Payment Term], [Tax Exemption]=CASE WHEN CP.IsPaymentTermChangeable=1 THEN 'Yes' ELSE 'No' END
 							, [Customer]=CASE WHEN CP.PartyType='Customer' THEN 'Yes' ELSE '' END, [Vendor]=CASE WHEN CP.PartyType='Vendor' THEN 'Yes' ELSE '' END
+                            , GLR.AccountCode AS [ReconciliationGL Code], BGMR.RefNo [Reconciliation Budget RefNo], BGR.UserName AS [Reconciliation Budget], AR.UserName AS [Reconciliation Activity]
+							, GLD.AccountCode AS [DownPaymentGL Code], BGMD.RefNo [DownPayment Budget RefNo], BGD.UserName AS [DownPayment Budget], AD.UserName AS [DownPayment Activity]
+							, PG.UserName [Party Group],PC.UserName [Party Category],PSC.UserName [Party Sub Category]
                             FROM [HKP].[Party] AS P
 							LEFT JOIN HKP.CompanyParty CP ON P.Id=CP.PartyId
 							LEFT OUTER JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=CP.PartyAccountGroupId
@@ -2968,8 +2971,17 @@ union
 							LEFT JOIN HKP.CompanyPartyGL CPA ON P.Id=CPA.PartyId AND CPA.PartyGLType='AdditionalGL'
 							LEFT JOIN HKP.CompanyPartyGL CPD ON P.Id=CPD.PartyId AND CPD.PartyGLType='DownPaymentGL'
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLR ON GLR.Id= CPG.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMR ON BGMR.Id=CPG.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGR ON BGR.Id=BGMR.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AR ON AR.Id=CPG.ActivityId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLA ON GLA.Id= CPA.GLGeneralInfoId
 							LEFT OUTER JOIN [HKP].[GLGeneralInfo] AS GLD ON GLD.Id= CPD.GLGeneralInfoId
+							LEFT JOIN [MST].[BudgetMaster] AS BGMD ON BGMD.Id=CPD.BudgetMasterId
+                            LEFT JOIN [HKP].[Budget] AS BGD ON BGD.Id=BGMD.BudgetId
+                            LEFT JOIN [HKP].[Activity] AS AD ON AD.Id=CPD.ActivityId
+							LEFT JOIN [HKP].[PartyGroup] AS PG ON PG.Id=P.PartyGroupId
+                            LEFT JOIN [HKP].[PartyCategory] AS PC ON PC.Id=P.PartyCategoryId
+                            LEFT JOIN [HKP].[PartySubCategory] AS PSC ON PSC.Id=P.PartySubCategoryId
 							LEFT OUTER JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
 							LEFT OUTER JOIN [MST].[PaymentTerm] AS PT ON PT.Id =CP.PaymentTermId
 							LEFT OUTER JOIN [ORG].[Company] AS COM ON COM.id=CP.CompanyId
@@ -3304,7 +3316,7 @@ union
                 {
                     Sort = "Party Name"
                 };
-                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "AdditionalGL", "DownPaymentGL", "ReconciliationGL", "Customer", "Vendor");
+                dtParty = dvMainBody.ToTable(true, "Id", "Company", "Plant", "Party Group", "Party Category", "Party Sub Category", "Code", "Party Name", "VAT Resistration No", "Trade License No", "Debit Limit", "Credit Limit", "Party Account Group", "Currency", "Payment Term", "Tax Exemption", "DownPaymentGL Code", "DownPaymentGL", "DownPayment Budget", "DownPayment Activity", "DownPayment Budget RefNo", "ReconciliationGL Code", "ReconciliationGL", "Reconciliation Budget", "Reconciliation Activity", "Reconciliation Budget RefNo", "Customer", "Vendor", "AdditionalGL");
 
                 if (dtParty.Rows.Count == 0)
                 {
@@ -3340,21 +3352,32 @@ union
                 for (int q = 0; q < dtParty.Rows.Count; q++)
                 {
                     _rowL++;
-                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Code"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Name"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Trade License No"].ToString(), 20);
-                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Currency"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Payment Term"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
-                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["Customer"].ToString(), 15);
-                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 1, dtParty.Rows[q]["Party Group"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 2, dtParty.Rows[q]["Party Category"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 3, dtParty.Rows[q]["Party Sub Category"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 4, dtParty.Rows[q]["Code"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 5, dtParty.Rows[q]["Party Name"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 6, dtParty.Rows[q]["VAT Resistration No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 7, dtParty.Rows[q]["Trade License No"].ToString(), 20);
+                    reportUtility.SetText(ref sheet, _rowL, 8, dtParty.Rows[q]["Debit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 9, dtParty.Rows[q]["Credit Limit"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 10, dtParty.Rows[q]["Party Account Group"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 11, dtParty.Rows[q]["Currency"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 12, dtParty.Rows[q]["Payment Term"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 13, dtParty.Rows[q]["Tax Exemption"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 14, dtParty.Rows[q]["DownPaymentGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 15, dtParty.Rows[q]["DownPaymentGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 16, dtParty.Rows[q]["DownPayment Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 17, dtParty.Rows[q]["DownPayment Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 18, dtParty.Rows[q]["DownPayment Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 19, dtParty.Rows[q]["ReconciliationGL Code"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 20, dtParty.Rows[q]["ReconciliationGL"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 21, dtParty.Rows[q]["Reconciliation Budget"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 22, dtParty.Rows[q]["Reconciliation Activity"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 23, dtParty.Rows[q]["Reconciliation Budget RefNo"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 24, dtParty.Rows[q]["Customer"].ToString(), 15);
+                    reportUtility.SetText(ref sheet, _rowL, 25, dtParty.Rows[q]["Vendor"].ToString(), 26);
+                    reportUtility.SetText(ref sheet, _rowL, 26, dtParty.Rows[q]["AdditionalGL"].ToString(), 26);
                 }
 
                 sheet.Range[7, 1, _rowL, shet2EndxlsCol].BorderInside(ExcelLineStyle.Hair);

@@ -389,6 +389,7 @@
     <Compile Include="Areas\Administration\Controllers\VehicleMovementLocationsController.cs" />
     <Compile Include="Areas\Administration\Controllers\ServicesApprovingAuthorityController.cs" />
     <Compile Include="Areas\Attendances\Controllers\AdditionalPayDayController.cs" />
+    <Compile Include="Areas\Attendances\Controllers\EOTController.cs" />
     <Compile Include="Areas\Attendances\Controllers\MultipleEmployeeIndividualLockController.cs" />
     <Compile Include="Areas\Attendances\Controllers\NewProcessAttendanceReProcessController.cs" />
     <Compile Include="Areas\Attendances\Controllers\OTFinalInformationNewController.cs" />
@@ -1755,6 +1756,7 @@
     <Content Include="Areas\Administration\Scripts\VehicleMovementLocationsController.js" />
     <Content Include="Areas\Administration\Scripts\ServicesApprovingAuthorityController.js" />
     <Content Include="Areas\Attendances\Scripts\BuyerjobCardcomplianceReportController.js" />
+    <Content Include="Areas\Attendances\Scripts\EOTController.js" />
     <Content Include="Areas\Attendances\Scripts\MultipleEmployeeIndividualLockController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessEncashmentApprovalController.js" />
     <Content Include="Areas\Attendances\Scripts\LeaveYearEndProcessNewController.js" />
@@ -3403,7 +3405,6 @@
     <Content Include="Areas\Products\Views\ServiceRequisition\ServiceReqCreation.cshtml" />
     <Content Include="Areas\Commercial\Views\ContractFundUtilization\Aplos.cshtml" />
     <Content Include="Areas\Commercial\Views\Contract\MasterLC.cshtml" />
-    <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\RawDataDownload\Aplos.cshtml" />
     <Content Include="Areas\TaskManagement\Views\Shared\_singleChat.cshtml" />
     <Content Include="POPResources\Templates\Requisition20205.docx" />
@@ -4224,6 +4225,8 @@
     <Content Include="Areas\HumanResource\Views\FurniturePolicy\Aplos.cshtml" />
     <Content Include="Areas\Processes\Views\ProductionBookingProcessparameter\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessWiseProductionBooking\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
+    <Content Include="Areas\Attendances\Views\EOT\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -3398,6 +3398,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                 if (chkAdditionInfo == true)
                                 {
+                                    int dcount = 0;
                                     string yot = string.Empty;//OTConsiderOn
                                     string overstay = string.Empty;
                                     if (bplib.clsWebLib.GetBoolData(dvBioDvAC[i]["IsOTEntitled"].ToString()) == true)
@@ -3563,10 +3564,28 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
                                     }
 
+                                    if (dvBioDvAC[i]["TotalPresent"].ToString() == "1.00" && dvBioDvAC[i]["DayStatus"].ToString() == "WL" || dvBioDvAC[i]["DayStatus"].ToString() == "WP" || dvBioDvAC[i]["DayStatus"].ToString() == "CWP" || dvBioDvAC[i]["DayStatus"].ToString() == "CWL" || dvBioDvAC[i]["DayStatus"].ToString() == "PW")
+                                    {
+                                        dcount++;
+                                    }
+                                    if (dcount == 0 || dcount == 1 || dcount == 3 || dcount == 5)
+                                    {
+
+                                        sheet1.Range[xlsRow, iOverStay].Text = overstay;
+                                    }
+                                    //else if (dcount == 2 || dcount == 4)
+                                    //{
+                                    //    sheet1.Range[xlsRow, iOverStay].Text = 0;
+
+                                    //}
+                                    else
+                                    {
+
+                                        sheet1.Range[xlsRow, iOverStay].Text = overstay;
+                                    }
 
 
-
-                                    sheet1.Range[xlsRow, iOverStay].Text = overstay;
+                                    //sheet1.Range[xlsRow, iOverStay].Text = overstay;
                                     sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                     sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -3851,8 +3870,8 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 									,A.LIN
 									,A.LO
                                     ,A.Line,A.WDate
-,A.MaxOTPerDay*2 MaxOTPerDay,A.IsNoPunchOnHolidayForOTEntitle,A.IsNoPunchOnHolidayForOTNotEntitle,A.IsNoPunchOnWeekOffForOTEntitle,A.IsNoPunchOnWeekOffForOTNotEntitle
-,A.SystemId
+,A.MaxOTPerDay,A.IsNoPunchOnHolidayForOTEntitle,A.IsNoPunchOnHolidayForOTNotEntitle,A.IsNoPunchOnWeekOffForOTEntitle,A.IsNoPunchOnWeekOffForOTNotEntitle
+,A.SystemId,A.TotalPresent
                             FROM(
                                 SELECT E.EmployeeCode,E.EmployeeCodeNumeric
                                     , E.EmployeeName
@@ -3924,6 +3943,13 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                     , AR.IsManualDayStatus, AR.IsManualInTime, AR.IsManualOutTime,
 ar.CountedShortLeave ShortLeave,AR.IsOTEntitled,AR.IsOTComfirm,OT.WorkDate,dt.Category DayCategory
 ,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+ ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Present' and LTSystemID is not null and LEAVE.LeaveDuration<1 THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
+											WHEN DT.Category = 'Leave' and LTSystemID is not null and LEAVE.LeaveDuration<1 THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-LEAVE.LeaveDuration)
+											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
+											ELSE 0 END
                                 FROM dbo.EmployeeInformation E
 
                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
