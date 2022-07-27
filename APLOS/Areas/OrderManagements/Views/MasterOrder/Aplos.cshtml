@@ -247,16 +247,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
                                 <div class="col-sm-5 show-message">
                                     <div class="select-style">
-                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);">
+                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);" required>
                                             <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-3 show-message">
                                     <input type="text" only-numbers name="Days" ng-model="fileNew.PaymentTermDays" disabled class="form-control" tabindex="5">
                                 </div>
                             </div>

@@ -978,20 +978,28 @@ order by pk.Date  DESC";
         {
             try
             {
-                var str = @"SELECT Convert(bit,0) Active,PackingId, format(Date,'dd-MMM-yyyy') as AddedDate, format(InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
+                var str = @"SELECT distinct pk.PackingId,Convert(bit,0) Active, format(pk.Date,'dd-MMM-yyyy') as AddedDate, format(pk.InactiveDate,'dd-MMM-yyyy') as InActiveDate, p.UserName as Customer, ms.UserName as StorageLoc , e.EmployeeName as ByWhom,
                             ei.Employeename as DRespPerson, en.UserName as Entity, pk.Remarks,pk.CustomerId,pk.EntityId,CP.CurrencyId,C.Code AS Currency 
-                            , CP.PaymentTermId, PT.Code AS PaymentTermCode, PT.UserName AS PaymentTermName, CP.IsPaymentTermChangeable
+                            ,ISNULL(A.PaymentTermId,CP.PaymentTermId)PaymentTermId,ISNULL(A.Code,PT.Code) AS PaymentTermCode,ISNULL(A.UserName,PT.UserName) AS PaymentTermName,ISNULL(A.IsPaymentTermChangeable,CP.IsPaymentTermChangeable) IsPaymentTermChangeable
                             FROM TRN.Packing pk
                             LEFT JOIN hkp.Party p on p.Id = pk.CustomerId
                             LEFT JOIN dbo.EmployeeInformation e on e.SystemId = pk.ByWhom
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
-                            LEFT JOIN org.Entity en on en.Id = pk.EntityId
+                            LEFT JOIN org.Entity en on en.Id = pk.EntityId                            
                             LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
-                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)
-                            ";
+                             JOIN
+                            (SELECT PLI.PackingId,CP.PaymentTermId,PT.Code,PT.UserName,CP.IsPaymentTermChangeable
+                               FROM  trn.PackingLineItem PLI 
+                            LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
+                            LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
+                            LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId
+                            LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
+                            ) A ON A.PackingId=pk.PackingId                            
+                            WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
                 return _sqlRepository.GetDataCollection(str);
             }
             catch (Exception e)
