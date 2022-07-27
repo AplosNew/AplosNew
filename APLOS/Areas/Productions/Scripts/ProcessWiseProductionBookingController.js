@@ -13,13 +13,14 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
     $scope.ModelTransaction = {
         Id: null,
         EntityId: null,
-        WorkCenterId:null,
-        Date: null,       
+       
+        Date: new Date().toLocaleString('en-US', { timeZone: 'UTC' }),
         ProcessId: null,           
         ShiftId: null,          
         ResponsiblePersonId: null,
         ResponsiblePerson: null,
         Remark: null,
+        ProductionQuantity: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTransaction);
 
@@ -37,18 +38,22 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
     $scope.selectEntity();
 
 
-    $scope.workcenterList = [];
-    $scope.GetworkcenterData = function () {
+    
+   /* $scope.GetworkcenterData = function () {
         $http({
             method: 'GET',
-            url: 'Productions/ProcessWiseProductionBooking/GetWCCbo?processId=' + $scope.ModelNew.ProcessId,
+            url: $scope.path + 'GetWCCbo',
+            data: {
+                'processId': $scope.ModelNew.ProcessId,
+                'entityId': $scope.ModelNew.EntityId,
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.workcenterList = response.data;
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
         }
-    }
+    }*/
 
     $scope.doubleEntity = function (e) {
         $scope.ModelNew.EntityId = e.data.EntityId;
@@ -201,19 +206,30 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
         angular.element(document.querySelector('#ProcessPop')).modal('hide');
     }
 
+    $scope.ArticleList = [];
+    $scope.getArticle = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getArticle',
+            dataType:'JSON',
+        }).then(function successCallback(response) {
+            $scope.ArticleList = response.data;
+        });
+    }
+
     $scope.Save = function () {
+        $scope.check_uncheck();
         try {
             angular.copy($scope.ModelNew, $scope.ModelTransaction);
             $scope.$broadcast('show-errors-check-validity');
 
-            
-
                 $http({
                     method: 'POST',
-                    url: $scope.saveUrl,
+                    url: $scope.path + 'Save',
                     data: {
                         'data': $scope.ModelNew,
                         'responsiblepersonId': $scope.EmployeeId,
+
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -222,7 +238,8 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
                     }
                     else {
                         ShowResult(response.data.Message, 'success');
-
+                        $scope.ModelNew.Id = response.data.Data.Id;
+                        $scope.SaveChild();
                         $scope.getData();
                         $scope.Clear();
                     }
@@ -238,31 +255,49 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
 
     };
 
+    $scope.SaveChild = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveChild',
+                data: {
+                    'headerId': $scope.ModelNew.Id,
+                    'workcenterlist': $scope.chkdWorkCenterList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    //window.location.href = $scope.path +'Aplos'
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+
+            }
+
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+    }
+
     $scope.Clear = function () {
         $scope.EmployeeId = null;
         $scope.ModelNew = {
             Id: null,
             EntityId: null,
-            Entity: null,
-
-            Date: null,
-            MachineMaster: null,
-            MachineMasterId: null,
+            Date: new Date().toLocaleString('en-US', { timeZone: 'UTC' }),
             ProcessId: null,
-            Process: null,
-
-
-            DepartmentId: null,
-            Department: null,
             ShiftId: null,
-            Shift: null,
-            //IfAssetApplicable: false,
-            AssetId: null,
-            Asset: null,
-            ResponsiblePersonCode: null,
             ResponsiblePersonId: null,
             ResponsiblePerson: null,
             Remark: null,
+            ProductionQuantity:null,
         };
         $scope.Action = 'Save';
     };
@@ -376,4 +411,61 @@ function ProcessWiseProductionBookingController(cboService, commonMessage, $scop
         });
     };
     $scope.getData();
+
+    $scope.workcenterList = [];
+    $scope.processWiseGridView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetWCCbo',
+            data: {
+                'processId': $scope.ModelNew.ProcessId,
+                'entityId': $scope.ModelNew.EntityId,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.workcenterList = response.data;
+        });
+    }
+
+    //=============================================PROCESS WISE BOOKIN CHECK BOX================================
+
+    $scope.chkdWorkCenterList = [];
+    $scope.check_uncheck = function () {
+        for (var i = 0; i < $scope.workcenterList.length; i++) {
+            //if ($scope.workcenterList[i].IsSelectSlrProc === true) {
+            //    $scope.chkdWorkCenterList.push($scope.workcenterList[i])
+            //}
+
+            if ($scope.workcenterList[i].ProductionQuantity != null) {
+                $scope.chkdWorkCenterList.push($scope.workcenterList[i])
+            }
+        }
+    }
+
+    /*$scope.ActiveProcessWisecbx = function (args) {
+        $("#cbxhead").ejCheckBox({ "change": chkFilteredData });
+    };
+
+    function chkFilteredData(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridProcessWise").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.workcenterList.length; i++) {
+                $scope.workcenterList[i].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].IsSelectSlrProc = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridOTCompensation").data("ejGrid");
+       // gridObj.refreshContent();
+    };*/
+    //=============================================PROCESS WISE BOOKIN CHECK BOX================================
 }

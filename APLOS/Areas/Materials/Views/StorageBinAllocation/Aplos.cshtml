@@ -196,18 +196,23 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="table-responsive aplos-grid-toggle">
-                    <div id="GridEdit" ej-grid e-datasource="BinHeadList" e-load="loadGridEdit"
-                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-                         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+                    <div id="GridEdit"
+                         ej-grid e-datasource="BinHeadList"
+                         e-load="loadGridEdit"
+                         e-allowfiltering="true" 
+                         e-allowpaging="true" 
+                         e-allowsorting="true" 
+                         e-enabletouch="false" 
+                         e-responsive="true"
+                         e-allowselection="true" 
+                         e-filtersettings-filterType="excel" 
+                         e-allowtextwrap="true">
                         <div e-columns>
                             <div e-column e-headertext="Select" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="10"></div>
 
-                            @*<div e-column e-field="MaterialType" e-headertext="Material Type" e-width="120"></div>
-                        <div e-column e-field="MaterialgroupName" e-headertext="Material Group" e-width="70"></div>
-
-                        <div e-column e-field="MaterialMaster" e-headertext="Material" e-width="80"></div>*@
+                           
                             <div e-column e-field="ArticleName" e-headertext="Material Article" e-width="80"></div>
-                            @*<div e-column e-field="BinHeader" e-headertext="User Name" e-width="100"></div>*@
+                          
                             <div e-column e-headertext="Estimated Capacity" e-headertemplateid="#headerTemplate" e-template="#EstimatedCapacity" e-textalign="center" e-width="50"></div>
                         </div>
                     </div>
