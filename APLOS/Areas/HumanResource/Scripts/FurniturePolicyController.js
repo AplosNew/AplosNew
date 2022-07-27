@@ -41,13 +41,18 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     $scope.DesignationMasterList = [];
     $scope.DesignationGridList = [];
     $scope.SelectedList = [];
-    
+    $scope.dateNow = new Date().toLocaleString('en-US', { timeZone: 'UTC' });
+
     $scope.ModelTemp = {
         Id: null,
-        FurnitureMaster: null,
-        DesignationMaster: null,
+        ShortName:null,
+        StandardName: null,
+        UserName: null,
+        EffectiveDate: $scope.dateNow ,
+        ResponsiblePerson: null,
+        ActiveInactive: true
     };
-    $scope.FurniturePolicyNew = Object.assign({}, $scope.ModelTemp);
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
     
     $scope.getFurnitureMaster = function () {
@@ -78,9 +83,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + "getFurnitureGridView",
-            data: {
-                'username': $scope.FurniturePolicyNew.FurnitureMaster,
-            },
+            
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.FurnitureGridList = response.data;
@@ -91,9 +94,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + "getDesignationGridView",
-            data: {
-                'username': $scope.FurniturePolicyNew.DesignationMaster,
-            },
+           
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.DesignationGridList = response.data;
@@ -101,47 +102,174 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.viewFurniturePolicyGrids = function () {
+        if (baseService.isUndefinedOrNull($scope.ModelNew.StandardName)) {
+            ShowResult('Standard Name is Required.', 'failure');
+            throw 'Invalid Request';
+        }
+
+        if (baseService.isUndefinedOrNull($scope.ModelNew.UserName)) {
+            ShowResult('User Name is Required.', 'failure');
+        }
+
+        if (baseService.isUndefinedOrNull($scope.ModelNew.EffectiveDate)) {
+            ShowResult('Effective Date is Required.', 'failure');
+        }
+
         $scope.getFurnitureGridView();
         $scope.getDesignationGridView();
     }
 
-    //$scope.checkORuncheck = function (e) {
-    //    $('.rowCheckbox').on('change', function () {
-    //        if (this.checked) {
-    //            $scope.SelectedList.push(this.value);
-    //        }
-    //        else {
-    //            $scope.SelectedList = $scope.SelectedList.filter(item => item != this.value);
-    //        }
+    
 
-    //       // $('#show').html(listvalues.sort());
-    //    });
-    //}
+   //=============================================Furniture Master================================
 
-    $scope.ActiveEmpcbx = function (args) {
-        $("#cbxhead").ejCheckBox({ "change": chkFilteredData });
-    };
-
-    function chkFilteredData(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-        var filtered = $("#GridOTCompensation").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ModelList.length; i++) {
-                $scope.ModelList[i].IsSelectSlrProc = ChkOrUnchk;
+    $scope.FurnitureIdList = [];
+    $scope.chkdFurnitureList = [];
+    $scope.chkFurniture_FilteredData = function () {
+        var ob = { FurnitureMasterId: null };
+        for (var i = 0; i < $scope.FurnitureGridList.length; i++) {
+            if ($scope.FurnitureGridList[i].IsSelectSlrProc === true) {
+                ob.FurnitureMasterId = $scope.FurnitureGridList[i].Id;
+                $scope.chkdFurnitureList.push($scope.FurnitureGridList[i])
+                
+                $scope.FurnitureIdList.push(ob);
+                var ob = { FurnitureMasterId: null };
             }
         }
-        else {
+    }
+   
+    //=============================================Furniture Master================================
 
-            for (var j = 0; j < filtered.length; j++) {
-
-                filtered[j].IsSelectSlrProc = ChkOrUnchk;
+    //=============================================Designation================================
+    $scope.DesignationIdList = [];
+    $scope.chkdDesignationList = [];
+    $scope.chkDesignation_FilteredData = function () {
+        var ob = { DesignationMasterId:null};
+        for (var i = 0; i < $scope.DesignationGridList.length; i++) {
+            if ($scope.DesignationGridList[i].IsSelectSlrProc === true) {
+                ob.DesignationMasterId = $scope.DesignationGridList[i].Id;
+                $scope.chkdDesignationList.push($scope.DesignationGridList[i])
+                $scope.DesignationIdList.push(ob);
+                var ob = { DesignationMasterId: null };
             }
         }
-        var gridObj = $("#GridOTCompensation").data("ejGrid");
-        gridObj.refreshContent();
-    };
+    }
+  
+    //=============================================Designation================================
+    //==============================================SAVE==============================================
+    $scope.Save = function () {
+        $scope.chkDesignation_FilteredData();
+        $scope.chkFurniture_FilteredData();
+        $http({
+            method: 'POST',
+            url: $scope.path + "Save",
+            data: {
+                'data': $scope.ModelNew,                               
+                'responsiblePerson': $scope.EmployeeId,
+            },
+            dataType: 'JSON',
+
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.ModelNew.Id = response.data.Data.Id;
+                $scope.SaveTabA();
+                $scope.SaveTabB();
+                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
+    $scope.SaveTabA = function () {
+        
+        $http({
+            method: 'POST',
+            url: $scope.path + "SaveTabA",
+            data: {               
+                'childA': $scope.DesignationGridList,
+                'headerId': $scope.ModelNew.Id,
+                'designationmasterId': $scope.DesignationIdList,
+            },
+            dataType: 'JSON',
+
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                
+                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
+    $scope.SaveTabB = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "SaveTabB",
+            data: {
+                'childB': $scope.FurnitureGridList,
+                'headerId': $scope.ModelNew.Id,
+                'furnituremasterId': $scope.FurnitureIdList
+                
+            },
+            dataType: 'JSON',
+
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getFurnitureGridView();
+                $scope.getDesignationGridView();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+
+    }
+
+    //=================================================SAVE===========================================
+    //=======================================EMPLOYEE POP UP======================================
+    $scope.OpeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+        $scope.getEmployee();
+    }
+    $scope.closeEmployeePopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+        $scope.getEmployee();
+    }
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEmployee',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+
+    }
+
+    $scope.EmployeeId = null;
+    $scope.EmployeeName = null;
+    $scope.doubleEmploye = function (e) {
+        $scope.EmployeeId = e.data.SystemId;
+        $scope.EmployeeName = e.data.EmployeeName;
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+        $scope.viewFurniturePolicyGrids();
+    }
+    //=======================================EMPLOYEE POP UP======================================
     
 }
