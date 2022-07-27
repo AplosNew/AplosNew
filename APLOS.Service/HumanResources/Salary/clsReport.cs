@@ -17357,10 +17357,15 @@ AND (E.EmployeeStatus<>'Separated' OR DOS >= '" + frmDate + @"')
             }
             else
             {
+                //salaryProcessSystemId = @"SystemId IN( SELECT SystemID FROM SalaryProcMaster
+                //                      WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
+                //                                        WHERE PlantID = '" + para.PlantId + @"' GROUP BY SlrProcMstSystemID)
+                //                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "')  and IsCompleteMonth = 1)";
+
                 salaryProcessSystemId = @"SystemId IN( SELECT SystemID FROM SalaryProcMaster
                                       WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild
                                                         WHERE PlantID = '" + para.PlantId + @"' GROUP BY SlrProcMstSystemID)
-                                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "')  and IsCompleteMonth = 1)";
+                                        AND MonthNo = Month('" + para.FromDate + "') AND YearNo = Year('" + para.FromDate + "'))";
             }
             string strSQL;
             ConnectionManager.DAL.ConManager objCon;
