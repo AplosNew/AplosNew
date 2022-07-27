@@ -98,6 +98,13 @@ namespace Library.Model.Inventory
         public string JWTransformationPOId { get; set; }
         public string OSTransformationPOId { get; set; }
         public string OSTransformationPOInputMaterialId { get; set; }
+        public VoucherDetail DrVoucherDetail { get; set; }
+
+        public string DrVoucherDetailId { get; set; }
+        public VoucherDetail CrVoucherDetail { get; set; }
+
+        public string CrVoucherDetailId { get; set; }
+
         #endregion Navigation Properties
     }
 }
