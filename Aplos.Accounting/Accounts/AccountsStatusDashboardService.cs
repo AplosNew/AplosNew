@@ -22002,6 +22002,229 @@ group by Id) O60 ON O60.Id=IV.Id
             }
         }
 
+
+        public List<Dictionary<string, object>> GetReceivePaymentStatusDataList()
+        {
+            var sql = @"select P.Code CustomerCode,P.UserName Customer,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.BaseOnDueDate,IWO.PostingDate),C.Code Currency,IWOD.Amount
+						                        ,'' Commission,'' CashDiscount
+
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        left join TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join TRN.Sales S on S.VoucherId=I.VoucherId
+						                        left join SCS.Currency C on C.Id=S.CurrencyId
+						                        left join TRN.SalesOrderItem SI on SI.SalesId=S.Id
+						                        left join TRN.MasterOrder MO on MO.Id=SI.MasterOrderId
+						                        left join HKP.Party P on I.PartyId=P.Id
+                                                where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+
+        public IWorkbook GetReceivePaymentStatusReport(ExcelEngine excelEngine, string receivePaymentStatusList)
+        {
+            excelEngine = new ExcelEngine();
+            //Instantiate the Excel application object
+            IApplication application = excelEngine.Excel;
+
+            //Set the default application version
+            application.DefaultVersion = ExcelVersion.Excel2013;
+
+            //Load the existing Excel workbook into IWorkbook
+            IWorkbook workbook = application.Workbooks.Create(1);
+
+            //Get the first worksheet in the workbook into IWorksheet
+            IWorksheet worksheet = workbook.Worksheets[0];
+            try
+            {
+                worksheet.Name = "ReceivePaymentStatusReport";
+
+                int COL = 1; int ROW = 6;
+                int startCol = COL;
+
+                worksheet[ROW, COL].Text = "Customer Code";
+                int colCustomerCode = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Customer";
+                int colCustomer = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Invoice No";
+                int colInvoiceNo = COL;
+                worksheet[ROW, COL].ColumnWidth = 18;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Invoice Date";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                int colInvoiceDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 35;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Base On Due Date";
+                int colBaseOnDueDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 12;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Receive Date";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colReceiveDate = COL;
+                worksheet[ROW, COL].ColumnWidth = 15;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Delay Day";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colDelayDay = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Currency";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCurrency = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Amount";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colAmount = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+
+                worksheet[ROW, COL].Text = "Commission";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCommission = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
+                worksheet[ROW, COL].Text = "Cash Discount";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colCashDiscount = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+
+                int endCol = COL;
+
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Size = 12;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.Font.Bold = true;
+
+                //worksheet.Range[ROW, startCol, ROW, COL].CellStyle.ColorIndex = ExcelKnownColors.Yellow;
+                worksheet.Range[ROW, startCol, ROW, COL].CellStyle.FillBackground = ExcelKnownColors.Grey_40_percent;
+
+                worksheet.Range[ROW, startCol, ROW, COL].BorderAround(ExcelLineStyle.Hair);
+                worksheet.Range[ROW, startCol, ROW, COL].BorderInside(ExcelLineStyle.Hair);
+                // worksheet.Range[ROW,  ROW].BorderInside(ExcelLineStyle.Hair);
+
+
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+
+                var dsData = ReceivePaymentStatusReportSQL(receivePaymentStatusList);
+
+                //ConnectionManager.DAL.ConManager objCon = new ConnectionManager.DAL.ConManager("1");
+                //objCon.OpenDataSetThroughAdapter(sql, out DataSet dsData, false, "1");
+
+
+                if (dsData.Rows.Count == 0)
+                {
+                    throw new Exception("No Data Found");
+                }
+
+                ROW++;
+                int StartDataRow = ROW;
+
+                for (int i = 0; i < dsData.Rows.Count; i++)
+                {
+                    worksheet[ROW, colCustomerCode].Text = dsData.Rows[i]["CustomerCode"].ToString();
+                    worksheet[ROW, colCustomer].Text = dsData.Rows[i]["Customer"].ToString();
+                    worksheet[ROW, colInvoiceNo].Text = dsData.Rows[i]["InvoiceNo"].ToString();
+                    worksheet[ROW, colInvoiceDate].Text = dsData.Rows[i]["InvoiceDate"].ToString();
+                    worksheet[ROW, colBaseOnDueDate].Text = dsData.Rows[i]["BaseOnDueDate"].ToString();
+                    worksheet[ROW, colReceiveDate].Text = dsData.Rows[i]["ReceiveDate"].ToString();
+                    worksheet[ROW, colDelayDay].Text = dsData.Rows[i]["DelayDay"].ToString();
+                    worksheet[ROW, colCurrency].Text = dsData.Rows[i]["Currency"].ToString();
+
+                    worksheet[ROW, colAmount].Number = clsStaticInfo.dbl(dsData.Rows[i]["Amount"].ToString());
+                    worksheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colCommission].Number = clsStaticInfo.dbl(dsData.Rows[i]["Commission"].ToString());
+                    worksheet[ROW, colCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    worksheet[ROW, colCashDiscount].Number = clsStaticInfo.dbl(dsData.Rows[i]["CashDiscount"].ToString());
+                    worksheet[ROW, colCashDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                    ROW++;
+                }
+
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, colSalesOrderValue, ROW - 1, colSalesOrderValue].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundCommission, ROW - 1, colContractFundCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundUtilization, ROW - 1, colContractFundUtilization].NumberFormat = "#,##0.00;(#,##0.00)";
+                //worksheet[StartDataRow, colContractFundPercentage, ROW - 1, colContractFundPercentage].NumberFormat = "#,##0.00;(#,##0.00)";
+
+                //colGross = COL;
+                worksheet[ROW, colAmount - 1].Text = "Total";
+                worksheet[ROW, colAmount - 1].HorizontalAlignment = ExcelHAlign.HAlignRight;
+
+                worksheet[ROW, colAmount].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colAmount) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colAmount) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colAmount].NumberFormat = "#,##0.00;(#,##0.00)";
+                
+                worksheet.Range[ROW, colAmount - 1, ROW, COL].CellStyle.Font.Bold = true;
+                // worksheet[StartDataRow, 1, ROW - 1, endCol].BorderAround(ExcelLineStyle.Hair);
+                //worksheet[StartDataRow, 1, ROW - 1, endCol].BorderInside(ExcelLineStyle.Hair);
+
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                ReportUtility reportUtility = new ReportUtility();
+                reportUtility.CompanyPlantHeader(ref worksheet, endCol, "Receive Payment Status Report", identity.CompanyId, identity.PlantName, "");
+                worksheet.UsedRange.HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                reportUtility.PageSetup(ref worksheet, 6, ExcelPageOrientation.Landscape);
+                //worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                worksheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
+                worksheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        public DataTable ReceivePaymentStatusReportSQL(string receivePaymentStatusList)
+        {
+            try
+            {
+                //string codes = "'" + receivePaymentStatusList.Replace(" ", "','") + "'";
+                string sql = @"select P.Id CustomerId,P.Code CustomerCode,P.UserName Customer,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.BaseOnDueDate,IWO.PostingDate),C.Code Currency,IWOD.Amount
+						                        ,'' Commission,'' CashDiscount
+
+						                        from TRN.InvoiceWriteOffDetail IWOD
+						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
+						                        left join TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join TRN.Sales S on S.VoucherId=I.VoucherId
+						                        left join SCS.Currency C on C.Id=S.CurrencyId
+						                        left join TRN.SalesOrderItem SI on SI.SalesId=S.Id
+						                        left join TRN.MasterOrder MO on MO.Id=SI.MasterOrderId
+						                        left join HKP.Party P on I.PartyId=P.Id
+						                        where IWO.SourceType='CustomerReceipt' and IWO.PartyType='Customer'
+                                                and P.Id in ('" + receivePaymentStatusList + "')";
+
+                return _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion 
 
     }
