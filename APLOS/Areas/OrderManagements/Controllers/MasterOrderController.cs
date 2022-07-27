@@ -100,9 +100,9 @@ namespace Aplos.Areas.OrderManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProductLibrary()
+        public ActionResult GetProductLibrary(string ArticleId)
         {
-            return Json(MasterOrder.GetProductLibrary(), JsonRequestBehavior.AllowGet);
+            return Json(MasterOrder.GetProductLibrary(ArticleId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

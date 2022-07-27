@@ -3201,16 +3201,33 @@ namespace Library.Service.Attendances
                                         {
                                             dcount++;
                                         }
-                                        if (dcount == 0 || dcount == 1 || dcount == 3 || dcount == 5)
+
+                                        // plot data after 1 week
+
+                                        //if (dcount == 0 || dcount == 1 || dcount == 3 || dcount == 5)
+                                        //{
+                                        //    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;
+                                        //    totalOTHr += attdnStatus;
+                                        //}
+                                        ////else if (dcount == 2 || dcount == 4)
+                                        ////{
+                                        ////    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = 0;
+
+                                        ////}
+                                        //else
+                                        //{
+                                        //    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;
+                                        //    totalOTHr += attdnStatus;
+                                        //}
+                                        
+                                        // plot data after 1 week
+
+                                        if (item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
                                         {
+                                            attdnStatus = 0;
                                             sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;
                                             totalOTHr += attdnStatus;
                                         }
-                                        //else if (dcount == 2 || dcount == 4)
-                                        //{
-                                        //    sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = 0;
-
-                                        //}
                                         else
                                         {
                                             sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = attdnStatus;

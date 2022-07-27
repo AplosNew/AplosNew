@@ -113,7 +113,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemIndex = index;
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetProductLibrary/'
+            url: 'OrderManagements/MasterOrder/GetProductLibrary?ArticleId=' + $scope.itemList[$scope.itemIndex].ArticleId
         }).then(function successCallback(response) {
             $scope.ProductLibraryList = response.data;
             angular.element(document.querySelector('#ProductLibraryPopUp')).modal('show');
@@ -857,6 +857,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.fileNew.IsPaymentTermChangeable = '';
         $scope.fileNew.PaymentTermId = '';
+        $scope.fileNew.PaymentTermDays = 0;
 
         $scope.fileNew.PaymentTermId = party.PaymentTermId;
         $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
@@ -3456,7 +3457,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 });
     };
 
-
     $scope.GetDelivaryDate = function () {
         try {
             if (!baseService.isUndefinedOrNull($scope.soModel.SalesOrderYear) && !baseService.isUndefinedOrNull($scope.soModel.WeekNo)) {
@@ -3545,7 +3545,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             ShowResult(response.data.Message, 'failure');
         }
     };
-
 
     $scope.costingSOConfirmList = [];
     $scope.GetCostingSORatePopup = function (index, data) {
