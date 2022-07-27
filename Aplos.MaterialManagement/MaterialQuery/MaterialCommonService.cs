@@ -68,5 +68,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
                 throw new CustomException("Plant party mapping not found.");
             return partyPlantTemp;
         }
+
+      
     }
 }

@@ -69,6 +69,7 @@ namespace Library.Service.Invoices
         private readonly IRepositoryAsync<GRNAcceptanceMap> _gRNAcceptanceMapRepository;
         private readonly IRepositoryAsync<PurchaseReturn> _purchaseReturnRepository;
         private readonly IRepositoryAsync<EmployeeSubsequentTransaction> _employeeSubsequentTransactionRepository;
+        private readonly IRepositoryAsync<InventoryReceiveTax> _inventoryReceiveTaxRepository;
 
         public InventoryPayableService(
             IInvoiceService invoiceService
@@ -102,6 +103,7 @@ namespace Library.Service.Invoices
             , IRepositoryAsync<GRNAcceptanceMap> gRNAcceptanceMapRepository
             , IRepositoryAsync<PurchaseReturn> purchaseReturnRepository
              , IRepositoryAsync<EmployeeSubsequentTransaction> employeeSubsequentTransactionRepository
+            , IRepositoryAsync<InventoryReceiveTax> inventoryReceiveTaxRepository
 
             ) //: base( unitOfWork, pkGeneratorService)
         {
@@ -136,7 +138,7 @@ namespace Library.Service.Invoices
             _gRNAcceptanceMapRepository = gRNAcceptanceMapRepository;
             _purchaseReturnRepository = purchaseReturnRepository;
             _employeeSubsequentTransactionRepository = employeeSubsequentTransactionRepository;
-
+            _inventoryReceiveTaxRepository = inventoryReceiveTaxRepository;
         }
 
         #endregion Constructor
@@ -357,6 +359,7 @@ namespace Library.Service.Invoices
                                 inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
                                 inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
                                 inventoryReceiveDetail.ModelState = ModelState.Modified;
+                                inventoryReceiveDetail.VoucherDetailId = voucherDr.Id;
                                 AuditService.UpdatedLog(inventoryReceiveDetail);
                                 _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
                             }
@@ -397,6 +400,14 @@ namespace Library.Service.Invoices
                                     AddedFromIP = invoiceTax.AddedFromIP
                                 };
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                                var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r=>r.InventoryReceiveId==receiveId && r.InventoryReceiveDetailId!=null && r.TaxCategoryId== voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                                foreach (var DrTax in inventoryreceivetax)
+                                {
+                                    DrTax.DrVoucherDetailId = voucherDr.Id;
+                                    _inventoryReceiveTaxRepository.Update(DrTax);
+                                }
+
                             }
                             #region Currency
 
@@ -505,6 +516,13 @@ namespace Library.Service.Invoices
                                     AddedFromIP = voucher.AddedFromIP
                                 };
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetailCr);
+                                var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                                foreach (var Crtax in inventoryreceivetax)
+                                {
+                                    Crtax.CrVoucherDetailId = voucherCr.Id;
+                                    _inventoryReceiveTaxRepository.Update(Crtax);
+                                }
                             }
 
 
@@ -785,6 +803,7 @@ namespace Library.Service.Invoices
                             inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
                             inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
                             inventoryReceiveDetail.ModelState = ModelState.Modified;
+                            inventoryReceiveDetail.VoucherDetailId = voucherDr.Id;
                             AuditService.UpdatedLog(inventoryReceiveDetail);
                             _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
                         }
@@ -822,6 +841,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var DrTax in inventoryreceivetax)
+                            {
+                                DrTax.DrVoucherDetailId = voucherDr.Id;
+                                _inventoryReceiveTaxRepository.Update(DrTax);
+                            }
                         }
                         #region Currency
 
@@ -900,6 +926,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = voucher.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetailCr);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var CrTax in inventoryreceivetax)
+                            {
+                                CrTax.DrVoucherDetailId = voucherCr.Id;
+                                _inventoryReceiveTaxRepository.Update(CrTax);
+                            }
                         }
 
                         #region Currency
@@ -1186,6 +1219,7 @@ namespace Library.Service.Invoices
                             inventoryReceiveDetail.PostCrBudgetMasterId = CrGLBAct.BudgetMasterId;
                             inventoryReceiveDetail.PostCrActivityId = CrGLBAct.ActivityId;
                             inventoryReceiveDetail.ModelState = ModelState.Modified;
+                            inventoryReceiveDetail.VoucherDetailId = voucherDr.Id;
                             AuditService.UpdatedLog(inventoryReceiveDetail);
                             _inventoryReceiveDetailRepository.Update(inventoryReceiveDetail);
                         }
@@ -1227,6 +1261,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var DrTax in inventoryreceivetax)
+                            {
+                                DrTax.DrVoucherDetailId = voucherDr.Id;
+                                _inventoryReceiveTaxRepository.Update(DrTax);
+                            }
                         }
                         #region Currency
 
@@ -1328,6 +1369,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = voucher.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var Crtax in inventoryreceivetax)
+                            {
+                                Crtax.CrVoucherDetailId = voucherCr.Id;
+                                _inventoryReceiveTaxRepository.Update(Crtax);
+                            }
                         }
 
                         //_invoiceDetailRepository.Insert(invoiceDetail);
@@ -1586,7 +1634,14 @@ namespace Library.Service.Invoices
                                     AddedFromIP = invoiceTax.AddedFromIP
                                 };
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var DrTax in inventoryreceivetax)
+                            {
+                                DrTax.DrVoucherDetailId = voucherDr.Id;
+                                _inventoryReceiveTaxRepository.Update(DrTax);
                             }
+                        }
                             #region Currency
 
                             
@@ -1681,7 +1736,14 @@ namespace Library.Service.Invoices
                                     AddedFromIP = voucherOtherCharges.AddedFromIP
                                 };
                                 _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var Crtax in inventoryreceivetax)
+                            {
+                                Crtax.CrVoucherDetailId = voucherCr.Id;
+                                _inventoryReceiveTaxRepository.Update(Crtax);
                             }
+                        }
 
                             _invoiceService.InsertInvoiceDetail(invoice, invoiceDetail, currentInvoiceDetail);
                             voucherCr.InvoiceDetailId = invoiceDetail.Id;
@@ -2119,6 +2181,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = invoiceTax.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var DrTax in inventoryreceivetax)
+                            {
+                                DrTax.DrVoucherDetailId = voucherDr.Id;
+                                _inventoryReceiveTaxRepository.Update(DrTax);
+                            }
                         }
                         #region Currency
 
@@ -2221,6 +2290,13 @@ namespace Library.Service.Invoices
                                 AddedFromIP = voucher.AddedFromIP
                             };
                             _invoiceTaxDetailRepository.Insert(invoiceTaxDetail);
+                            var inventoryreceivetax = _inventoryReceiveTaxRepository.Query(r => r.InventoryReceiveId == receiveId && r.InventoryReceiveDetailId != null && r.TaxCategoryId == voucherDetailVM.TaxCategoryId).Select().ToList();
+
+                            foreach (var Crtax in inventoryreceivetax)
+                            {
+                                Crtax.CrVoucherDetailId = voucherCr.Id;
+                                _inventoryReceiveTaxRepository.Update(Crtax);
+                            }
                         }
 
                         _employeePayableDetailRepository.Insert(employeePayableDetail);
@@ -2860,7 +2936,18 @@ namespace Library.Service.Invoices
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             DrAmount = voucherDr.DrAmount
                         });
-
+                        foreach (var item in invIssueDetailList.Where(r=>r.GLGeneralInfoId== voucherDetailVM.GLGeneralInfoId 
+                                && r.BudgetMasterId== voucherDetailVM.BudgetMasterId && r.ActivityId== voucherDetailVM.ActivityId))
+                        {
+                            var issueDetail = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
+                            issueDetail.PostDrGLGeneralInfoId = item.GLGeneralInfoId;
+                            issueDetail.PostDrBudgetMasterId = item.BudgetMasterId;
+                            issueDetail.PostDrActivityId = item.ActivityId;
+                            issueDetail.DrVoucherDetailId = voucherDr.Id;
+                            issueDetail.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(issueDetail);
+                            _inventoryIssueService.UpdateInventoryIssueDetail(issueDetail);
+                        }
 
                     }
                     else if (voucherDetailVM.TrnType == "Cr")
@@ -2887,30 +2974,21 @@ namespace Library.Service.Invoices
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
                             CrAmount = voucherCr.CrAmount
                         });
-
+                        foreach (var item in invIssueDetailGLList.Where(r=>r.PostDrGLGeneralInfoId== voucherDetailVM.GLGeneralInfoId && r.PostDrBudgetMasterId== voucherDetailVM.BudgetMasterId 
+                        && r.PostDrActivityId== voucherDetailVM.ActivityId))
+                        {
+                            var issueDetailGL = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
+                            issueDetailGL.PostCrGLGeneralInfoId = item.PostDrGLGeneralInfoId;
+                            issueDetailGL.PostCrBudgetMasterId = item.PostDrBudgetMasterId;
+                            issueDetailGL.PostCrActivityId = item.PostDrActivityId;
+                            issueDetailGL.CrVoucherDetailId = voucherCr.Id;
+                            issueDetailGL.ModelState = ModelState.Modified;
+                            AuditService.UpdatedLog(issueDetailGL);
+                            _inventoryIssueService.UpdateInventoryIssueDetail(issueDetailGL);
+                        }
                     }
                 }
-                foreach (var item in invIssueDetailList)
-                {
-                    var issueDetail = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId);
-                    issueDetail.PostDrGLGeneralInfoId = item.GLGeneralInfoId;
-                    issueDetail.PostDrBudgetMasterId = item.BudgetMasterId;
-                    issueDetail.PostDrActivityId = item.ActivityId;
-                    issueDetail.ModelState = ModelState.Modified;
-                    AuditService.UpdatedLog(issueDetail);
-                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetail);
-                }
-
-                foreach (var item in invIssueDetailGLList)
-                {
-                    var issueDetailGL = _inventoryIssueService.FindInventoryIssueDetail(item.InventoryIssueDetailId); 
-                    issueDetailGL.PostCrGLGeneralInfoId = item.PostDrGLGeneralInfoId;
-                    issueDetailGL.PostCrBudgetMasterId = item.PostDrBudgetMasterId;
-                    issueDetailGL.PostCrActivityId = item.PostDrActivityId;
-                    issueDetailGL.ModelState = ModelState.Modified;
-                    AuditService.UpdatedLog(issueDetailGL);
-                    _inventoryIssueService.UpdateInventoryIssueDetail(issueDetailGL);
-                }
+               
                 // Update Inventory Received
                 issueData.VoucherId = voucher.Id;
                 issueData.Status = "Posting";

@@ -748,16 +748,13 @@ namespace Library.Planning.OrderManagement
             }
         }
 
-        public IEnumerable<object> GetProductLibrary()
+        public IEnumerable<object> GetProductLibrary(string ArticleId)
         {
             try
             {
-                //string sql = @"SELECT PL.Id as Value,Text=CASE WHEN PL.RecipeOrProductionGroup = 'Recipe' THEN RGM.UserName+' ('+PL.RecipeOrProductionGroup+')' ELSE PL.ProductionGroup+' ('+PL.RecipeOrProductionGroup+')' END
-                //        FROM dbo.ProductLibrary PL
-                //        LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1";
                 string sql = @"Select PL.Id,PL.Code,PL.ShortName,PL.StandardName, UserName=CASE WHEN PL.RecipeOrProductionGroup = 'Recipe' THEN RGM.UserName+' ('+PL.RecipeOrProductionGroup+')' ELSE PL.ProductionGroup+' ('+PL.RecipeOrProductionGroup+')' END
 FROM dbo.ProductLibrary PL
-LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1";
+LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active =1 AND PL.ArticleId='"+ ArticleId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             } 
             catch (Exception ex)
@@ -771,7 +768,7 @@ LEFT JOIN[TRN].[RecipeGlobalMaster] RGM ON RGM.Id = PL.RecipeId WHERE PL.Active 
             try
             {
                 string sql = @"SELECT A.Id,A.MasterOrderItemId,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-Value=CASE WHEN ISNULL(A.Value,0)<>0 THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
+Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN OL.ValueinDecimal=1 THEN OL.DefaultValue ELSE OL.DefaultValue/100 END) END
 ,OL.EntryState,ValueIN = CASE WHEN OL.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 FROM OrderLineCostingItem AS OL
 LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
@@ -790,7 +787,7 @@ ORDER BY OL.Sequence";
             try
             {
                 string sql = @"SELECT A.Id,OL.Id OrderLineCostingItemId,OL.SOItemName,OL.UserName,OL.Formula,OL.FormulaId,OL.CostingType,CC.UserName CostingComponent,
-LR.Value ItemValue,SOValue=CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN ISNULL(A.SOValue,0)=0 THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
+LR.Value ItemValue,SOValue=CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END,ValueDiff=LR.Value-(CASE WHEN A.SOValue IS NULL THEN LR.[Value] ELSE A.SOValue END),A.SalesOrderId,A.Remark
 FROM OrderLineCostingItem AS OL
 LEFT JOIN HKP.CostingComponent CC ON CC.Id=OL.CostingComponentId
 LEFT JOIN dbo.MasterOrderItemCostingRate LR ON LR.OrderLineCostingItemId=OL.Id  AND ISNULL(LR.MasterOrderItemId,'" + lineId + @"')='" + lineId + @"'

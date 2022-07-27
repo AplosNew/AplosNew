@@ -247,16 +247,16 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Payment Term<sup>*</sup></label>
                                 <div class="col-sm-5 show-message">
                                     <div class="select-style">
-                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);">
+                                        <select tabindex="10" id="paymentTermId" ng-disabled="fileNew.IsPaymentTermChangeable==false" class="form-control" name="Payment Term" ng-model="fileNew.PaymentTermId" ng-change="changePaymentTerm(fileNew.PaymentTermId);" required>
                                             <option ng-repeat="option in paymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
+                                <div class="col-sm-3 show-message">
                                     <input type="text" only-numbers name="Days" ng-model="fileNew.PaymentTermDays" disabled class="form-control" tabindex="5">
                                 </div>
                             </div>
@@ -1711,13 +1711,19 @@
                                     <th>Commitment Date</th>
                                     <th>Plan Ex-factory date</th>
                                     <th>SO Type</th>
-                                    <th>UpCharge</th>
-                                    <th>CM</th>
                                     <th>Quantity</th>
                                     <th>SKU Quantity</th>
                                     <th>Rate</th>
-                                    <th>Description</th>
+                                    <th>Sales Expense</th>
                                     <th>Discount</th>
+                                    <th>CM</th>
+                                    <th>DirectMaterialCost</th>
+                                    <th>DirectProcessCost</th>
+                                    <th>Commission</th>
+                                    <th>ValueLoss</th>
+                                    <th>Other</th>
+                                    <th>Difference</th>
+                                    <th>Description</th>
                                     <th>PO Number</th>
                                     <th>Production OrderNo</th>
                                     <th>LSD</th>
@@ -1735,8 +1741,6 @@
                                     <td>{{x.CommitmentDate}}</td>
                                     <td>{{x.PlanExFactoryDate}}</td>
                                     <td>{{x.SOType}}</td>
-                                    <td>{{x.UpCharge}}</td>
-                                    <td>{{x.CM}}</td>
                                     <td>{{x.Qty}}</td>
                                     <td>
                                         <span ng-class="{'redClr':x.SKUQty != x.Qty, '': x.SKUQty == x.Qty}">
@@ -1744,8 +1748,16 @@
                                         </span>
                                     </td>
                                     <td>{{x.Rate}} {{currency}}</td>
-                                    <td>{{x.Description}}</td>
+                                    <td>{{x.SalesExpense}}</td>
                                     <td>{{x.Discount}}</td>
+                                    <td>{{x.CM}}</td>
+                                    <td>{{x.DirectMaterialCost}}</td>
+                                    <td>{{x.DirectProcessCost}}</td>
+                                    <td>{{x.Commission}}</td>
+                                    <td>{{x.ValueLoss}}</td>
+                                    <td>{{x.Other}}</td>
+                                    <td>{{x.UpCharge}}</td>
+                                    <td>{{x.Description}}</td>
                                     <td>{{x.PONumber}}</td>
                                     <td>{{x.ProductionOrderId?x.ProductionOrderId:'N/A'}}</td>
                                     <td>{{x.LSD}}</td>
@@ -2995,9 +3007,9 @@
                                 <tbody>
                                     <tr ng-repeat="x in costingSOConfirmList">
                                         <td>{{x.UserName}}</td>
-                                        <td><input class="form-control text-right" ng-disabled="true" type="number" ng-model="x.ItemValue" /></td>
-                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.SOValue" /></td>
-                                        <td><input class="form-control text-right" ng-disabled="true" type="number" ng-model="x.ValueDiff" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="true" type="text" ng-model="x.ItemValue" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.SOValue"  ng-keyup="calculateDiffValue(x);"/></td>
+                                        <td><input class="form-control text-right" ng-disabled="true" type="text" n-decimals="4" ng-model="x.ValueDiff" /></td>
                                         <td><input class="form-control" type="text" ng-model="x.Remark" ng-maxlength="250" /></td>
                                     </tr>
                                 </tbody>

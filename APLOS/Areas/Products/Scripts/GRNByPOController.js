@@ -316,7 +316,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         baseService.setCurrentPage('partyList');
         $scope.getPartyList = function (pageno) {
             if ($scope.partyType === 'Customer' || $scope.partyType === 'Vendor') {
-                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListByGateEntry?partyType=' + $scope.partyType;
+                $scope.partyUrl = 'Parties/party/GetCompanyPartyDataListByGateEntryANDPO?partyType=' + $scope.partyType;
             }
             else if ($scope.partyType === 'Party') {
                 $scope.partyUrl = 'Parties/party/GetCompanyPartyDataList';

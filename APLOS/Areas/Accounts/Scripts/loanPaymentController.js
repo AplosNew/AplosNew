@@ -726,11 +726,11 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     $scope.exchangeGainLossCal = function (rate) {
             if ($scope.voucher.TransactionType == 'LoanGiven') {
                 if ($scope.voucher.ToCurrencyRate > rate) {
-                    $scope.voucher.ExchangeAmount = $scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate);
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate)).toFixed(2);
                     $scope.voucher.ExchangeType = "ExchangeLoss";
                 }
                 else if ($scope.voucher.CompanyCurrencyRate < rate) {
-                    $scope.voucher.ExchangeAmount = $scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate);
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate)).toFixed(2);
                     $scope.voucher.ExchangeType = "ExchangeGain";
                 }
                 else {
@@ -740,11 +740,11 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
             }
         if ($scope.voucher.TransactionType == 'LoanTaken') {
             if ($scope.voucher.ToCurrencyRate < rate) {
-                $scope.voucher.ExchangeAmount = $scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate);
+                $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate)).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeLoss";
             }
             else if ($scope.voucher.ToCurrencyRate > rate) {
-                $scope.voucher.ExchangeAmount = $scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate);
+                $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate)).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeGain";
             }
             else {

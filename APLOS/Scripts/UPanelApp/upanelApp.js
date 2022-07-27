@@ -1061,7 +1061,8 @@ upanelApp.controller("FurnitureMasterController", FurnitureMasterController);
 upanelApp.controller("ResidenceMasterController", ResidenceMasterController);
 upanelApp.controller("ProcessWiseProductionBookingController", ProcessWiseProductionBookingController);
 upanelApp.controller("FuguaiZoneMasterController", FuguaiZoneMasterController);
-
+upanelApp.controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
+upanelApp.controller("EOTController", EOTController)
 
 
 

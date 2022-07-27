@@ -756,6 +756,6 @@ namespace Library.Service.Extension.Accounts
         {
             return transactionCurrencyId == companyCurrencyId ? (decimal)1 : 1 / companyCurrencyRate;
         }
-
+       
     }
 }

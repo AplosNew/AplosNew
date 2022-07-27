@@ -1516,7 +1516,7 @@ namespace Library.Service.Finances
                         {
                             if (string.IsNullOrEmpty(voucherVM.CashMasterId))
                                 throw new CustomException("Cash Id not found!");
-                            var cashMaster = _accountsCommonService.GetCashMaster(item.CashMasterId);
+                            var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
 
                             voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
                             voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();

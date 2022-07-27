@@ -113,7 +113,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.itemIndex = index;
         $http({
             method: 'GET',
-            url: 'OrderManagements/MasterOrder/GetProductLibrary/'
+            url: 'OrderManagements/MasterOrder/GetProductLibrary?ArticleId=' + $scope.itemList[$scope.itemIndex].ArticleId
         }).then(function successCallback(response) {
             $scope.ProductLibraryList = response.data;
             angular.element(document.querySelector('#ProductLibraryPopUp')).modal('show');
@@ -857,6 +857,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
 
         $scope.fileNew.IsPaymentTermChangeable = '';
         $scope.fileNew.PaymentTermId = '';
+        $scope.fileNew.PaymentTermDays = 0;
 
         $scope.fileNew.PaymentTermId = party.PaymentTermId;
         $scope.fileNew.IsPaymentTermChangeable = party.IsPaymentTermChangeable;
@@ -1802,12 +1803,12 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , DestinationDescription: null
             , SalesExpense: null
             , NetSalesRealization: null
-            ,DirectCost:0
-            , ValueLoss:0
+            , DirectCost: 0
+            , ValueLoss: 0
             , Other: 0
-            , UpCharge:0
-            , Discount:0
-            , CM:0
+            , UpCharge: 0
+            , Discount: 0
+            , CM: 0
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -1954,7 +1955,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                         ShowResult(response.data.Message, 'success', 'soPoUp');
                         getSalesOrderList();
                         $scope.soModel.Id = response.data.Data.Id;
-                        
+
                         $scope.ShowCostingSORatePopup();
                         $scope.getMasterItemList();
                     }
@@ -3456,7 +3457,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 });
     };
 
-
     $scope.GetDelivaryDate = function () {
         try {
             if (!baseService.isUndefinedOrNull($scope.soModel.SalesOrderYear) && !baseService.isUndefinedOrNull($scope.soModel.WeekNo)) {
@@ -3515,6 +3515,9 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }).then(function successCallback(response) {
                 $scope.costingSOFormulaList = [];
                 $scope.costingSOFormulaList = response.data.NewData;
+                for (var i = 0; i < $scope.costingSOFormulaList.length; i++) {
+                    $scope.costingSOFormulaList[i].Value = parseFloat($scope.costingSOFormulaList[i].Value).toFixed(4);
+                }
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
@@ -3543,7 +3546,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     };
 
-
     $scope.costingSOConfirmList = [];
     $scope.GetCostingSORatePopup = function (index, data) {
         $scope.itemIndex = index;
@@ -3571,9 +3573,17 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 data: { 'OpenHeadNew': $scope.costingSOConfirmList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                //$scope.costingSOConfirmList = [];
-
                 $scope.costingSOConfirmList = response.data.NewData;
+                for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                    $scope.costingSOConfirmList[i].ItemValue = parseFloat($scope.costingSOConfirmList[i].ItemValue).toFixed(4);
+                    $scope.costingSOConfirmList[i].SOValue = parseFloat($scope.costingSOConfirmList[i].SOValue).toFixed(4);
+                }
+
+                for (var j = 0; j < $scope.costingSOConfirmList.length; j++) {
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ItemValue).toFixed(4) - parseFloat($scope.costingSOConfirmList[j].SOValue).toFixed(4);
+                    $scope.costingSOConfirmList[j].ValueDiff = parseFloat($scope.costingSOConfirmList[j].ValueDiff).toFixed(4);
+                }
+
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
@@ -3583,29 +3593,47 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         }
     }
 
+    $scope.calculateDiffValue = function (data) {
+        data.ValueDiff = 0;
+        data.ValueDiff = data.ItemValue - data.SOValue;
+        data.ValueDiff = parseFloat(data.ValueDiff).toFixed(4);
+    }
+
     $scope.TempList = [];
     $scope.SaveSOCost = function () {
-        if (baseService.isUndefinedOrNull($scope.soId)) {
-            $scope.soId = $scope.soModel.Id;
-        }
+        try {
+            if (baseService.isUndefinedOrNull($scope.soId)) {
+                $scope.soId = $scope.soModel.Id;
+            }
 
-        $http({
-            method: 'POST',
-            url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
-            data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
+            for (var i = 0; i < $scope.costingSOConfirmList.length; i++) {
+                if ($scope.costingSOConfirmList[i].ItemValue !== $scope.costingSOConfirmList[i].SOValue) {
+                    if (baseService.isUndefinedOrNull($scope.costingSOConfirmList[i].Remark)) {
+                        throw "Remarks is required for '" + $scope.costingSOConfirmList[i].UserName + "'";
+                    }
+                }
+            }
+
+            $http({
+                method: 'POST',
+                url: 'OrderManagements/MasterOrder/CreateSOCostingConfirm',
+                data: { 'data': $scope.costingSOConfirmList, 'lineId': $scope.soId },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
+                    getSalesOrderList();
+                    clearSO();
+                }
+            }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
             }
-            else {
-                ShowResult(response.data.Message, 'success');
-                $scope.GetSavedCostingSORateData($scope.soId, $scope.masterItemId);
-                getSalesOrderList();
-                clearSO();
-            }
-        }), function errorCallBack(response) {
-            ShowResult(response.data.Message, 'failure');
+        } catch (e) {
+            ShowResult(e, 'failure');
         }
     };
 
