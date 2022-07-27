@@ -4888,6 +4888,103 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     //**********************#endregion Current Fund Position **************************
+
+    //**********************#startregion Receive Payment Status **************************
+    $scope.refreshTemplateReceivePaymentStatus = function (args) {
+        $("#headchkReceivePaymentStatus").ejCheckBox({ "change": CheckBoxSelectReceivePaymentStatus });
+    };
+
+    function CheckBoxSelectReceivePaymentStatus(e) {
+
+        var ChkOrUnchkCustomer = false;
+        if (e.model.checkState === "check")
+        {
+            ChkOrUnchkCustomer = true;
+        }
+
+        var filtered = $("#GridReceivePaymentStatus").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ReceivePaymentStatusList.length; i++) {
+                $scope.ReceivePaymentStatusList[i].isSelected = ChkOrUnchkCustomer;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].isSelected = ChkOrUnchkCustomer;
+            }
+
+
+        }
+        var gridObj = $("#GridReceivePaymentStatus").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.ReceivePaymentStatusList = [];
+    $scope.GetReceivePaymentStatusList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: $scope.path + "GetReceivePaymentStatusDataList",
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.ReceivePaymentStatusList = response.data.DATA;
+            }),
+                function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+        }
+        catch (e) {
+
+        }
+    }
+    $scope.GetReceivePaymentStatusList();
+
+    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    $scope.ReceivePaymentStatusSummaryReport = function () {
+
+        try {
+            var gridObj = $("#GridReceivePaymentStatus").data("ejGrid");
+            var data = gridObj.model.dataSource();
+
+            var NewReceivePaymentStatusList = [];
+            for (var i = 0; i < $scope.ReceivePaymentStatusList.length; i++) {
+                if ($scope.ReceivePaymentStatusList[i].isSelected == true) {
+
+                    if (NewReceivePaymentStatusList, $scope.ReceivePaymentStatusList[i].CustomerCode) {
+                        NewReceivePaymentStatusList.push($scope.ReceivePaymentStatusList[i].CustomerCode);
+                    }
+                }
+            }
+            if (NewReceivePaymentStatusList.length == 0) {
+                ShowResult('Please select at least one Customer', 'failure');
+            }
+            $http({
+                method: 'POST',
+                url: $scope.exportgriddataUrl,
+                data: { 'data': data }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+                }
+            });
+            //else
+            //{
+            //    var file_src = "Accounts/AccountStatusDashboard/ReceivePaymentStatusReport?receivePaymentStatusList=" + NewReceivePaymentStatusList;
+            //    $rootScope.report(file_src);
+            //}
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //**********************#endregion Receive Payment Status **************************
 }
 
 
