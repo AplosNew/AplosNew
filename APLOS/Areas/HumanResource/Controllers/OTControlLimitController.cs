@@ -655,7 +655,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 #region DataPlot
                 for (int i = 0; i < dtoTControlLimit.Rows.Count; i++)
                 {
-                    sheet1.Range[xlsRow, colDate].Text = dtoTControlLimit.Rows[i]["EffectiveDate"].ToString();
+                    sheet1.Range[xlsRow, colDate].Text = dtoTControlLimit.Rows[i]["WorkDate"].ToString();
                     sheet1.Range[xlsRow, colEntity].Text = dtoTControlLimit.Rows[i]["Entity"].ToString();
                     sheet1.Range[xlsRow, colDepartment].Text = dtoTControlLimit.Rows[i]["Department"].ToString();
                     sheet1.Range[xlsRow, colSection].Text = dtoTControlLimit.Rows[i]["Section"].ToString();
