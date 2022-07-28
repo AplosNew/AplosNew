@@ -1000,6 +1000,9 @@ function inventoryPayableController(cboService, commonMessage, $scope, $rootScop
         $scope.TDS.Type = $.grep($scope.TDSCboList, function (item) {
             return item.Id === $scope.TDS.TaxCodeId;
         })[0].Type;
+        $scope.TDS.TaxCategoryId = $.grep($scope.TDSCboList, function (item) {
+            return item.Id === $scope.TDS.TaxCodeId;
+        })[0].TaxCategoryId;
         if ($scope.TDS.Type == 'FixedPercentage' && !baseService.isUndefinedOrNull($scope.TDS.ValueOfFixed)) {
             $scope.TDS.TaxAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.inventoryReceivedList), "TaxableAmount") * $scope.TDS.ValueOfFixed / 100).toFixed(4);
         }
