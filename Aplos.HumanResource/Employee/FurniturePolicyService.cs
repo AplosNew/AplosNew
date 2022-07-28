@@ -62,7 +62,7 @@ namespace Library.HumanResource.Employee
             }
         }
 
-        public IEnumerable<object> getDesignationGridView()
+        public IEnumerable<object> getDesignationGridView(string employeeCategoryId)
         {
             try
             {
@@ -77,7 +77,7 @@ left join HKP.Designation dg on dg.Id = dm.DesignationId
 left join HKP.DesignationGroup dsg on dsg.Id = dm.DesignationGroupId 
 left join HKP.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
 
-WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.DesignationMasterId = dm.Id)";
+WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.DesignationMasterId = dm.Id) and (ec.Id = '"+ employeeCategoryId + "')";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -121,7 +121,21 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
             }
         }
 
-        public Dictionary<string, object> Save(Dictionary<string, object> data, string responsiblePerson)
+        public IEnumerable<object> getEmployeeCategory()
+        {
+            try 
+            {
+                var sql = @"select Id as Value, UserName as Text from HKP.EmployeeCategory";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+            public Dictionary<string, object> Save(Dictionary<string, object> data, string responsiblePerson)
         {
             try
             {
@@ -187,40 +201,14 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-
                 string _Id = "";
-
-
-                int count = 0;
-
-                #region CHILD 1
+                 #region CHILD 1
                 con.OpenDataSetThroughAdapter("select * from " + TableNameChildA + " where FurniturePolicyId='" + headerId + "'", out dsChildA, false, "1");
-                /* foreach (var itemA in childA)
-                 {
-                     count++;
-                     DataView dv = new DataView(dsChildA.Tables[0]);
-                     dv.RowFilter = "Id='" + itemA["Id"] + "'";
-                     if (dsChildA.Tables[0].Rows.Count == 0)
-                     {
-
-                         itemA["Id"] = headerId + "-" + count;
-                         itemA["FurniturePolicyId"] = headerId;
-
-                         for (int i = 0; i < designationmasterId.Count; i++)
-                         {
-
-                             itemA["DesignationMasterId"] = designationmasterId[i]["DesignationId"].ToString();
-
-                         }
-
-                         AddNewRow(dsChildA.Tables[0], itemA);
-                     }
-
-                 }*/
+               
                 for (int i = 0; i < designationmasterId.Count; i++)
                 {
                     var jj = designationmasterId[i];
-                    //jj["DesignationMasterId"] = designationmasterId[i]["DesignationMasterId"];
+                  
                     DataRow dr = dsChildA.Tables[0].NewRow();
                     dr["Id"] = headerId + "-" + i;
                     dr["FurniturePolicyId"] = headerId;
@@ -257,39 +245,12 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
 
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                
                 string _Id = "";
-                int count = 0;
-                int countChild = 0;
-
+               
                 #region CHILD 2
                 con.OpenDataSetThroughAdapter("select * from " + TableNameChildB + " where FurniturePolicyId='" + headerId + "'", out dsChildB, false, "1");
 
-                /* foreach (var itemB in childB)
-                 {
-                     count++;
-                     DataView dv = new DataView(dsChildB.Tables[0]);
-                     dv.RowFilter = "Id='" + itemB["Id"] + "'";
-                     if (dsChildB.Tables[0].Rows.Count == 0)
-                     {
-
-                         itemB["Id"] = headerId + "-" + count;
-                         itemB["FurniturePolicyId"] = headerId;
-
-
-                         for (int i = 0; i < furnituremasterId.Count; i++)
-                         {
-
-                             var j = furnituremasterId[i];
-                             itemB["FurnitureMasterId"] = furnituremasterId[i]["FurnitureId"];
-
-                         }
-
-
-                         AddNewRow(dsChildB.Tables[0], itemB);
-                     }
-
-                 }*/
+                
                 for (int i = 0; i < furnituremasterId.Count; i++)
                 {
                     var jj = furnituremasterId[i];

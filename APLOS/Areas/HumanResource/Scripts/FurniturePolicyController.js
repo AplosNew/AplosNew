@@ -50,7 +50,8 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         UserName: null,
         EffectiveDate: $scope.dateNow ,
         ResponsiblePerson: null,
-        ActiveInactive: true
+        ActiveInactive: true,
+        EmployeeCategory: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -79,6 +80,20 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.getDesignationMaster();
 
+    $scope.EmployeeCategoryList = [];
+    $scope.getEmployeeCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeCategory",
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.EmployeeCategoryList = response.data;
+            $scope.viewFurniturePolicyGrids();
+        })
+        
+    }
+    $scope.getEmployeeCategory();
+
     $scope.getFurnitureGridView = function () {
         $http({
             method: 'POST',
@@ -94,7 +109,9 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         $http({
             method: 'POST',
             url: $scope.path + "getDesignationGridView",
-           
+            data: {
+                'employeeCategoryId': $scope.ModelNew.EmployeeCategory
+            },
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.DesignationGridList = response.data;
@@ -268,7 +285,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         $scope.EmployeeId = e.data.SystemId;
         $scope.EmployeeName = e.data.EmployeeName;
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
-        $scope.viewFurniturePolicyGrids();
+        /*$scope.viewFurniturePolicyGrids();*/
     }
     //=======================================EMPLOYEE POP UP======================================
     
