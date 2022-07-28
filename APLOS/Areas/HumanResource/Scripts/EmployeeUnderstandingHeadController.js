@@ -154,10 +154,12 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.FileDownload = function (data) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
-        //var end = Math.min(addy.indexOf(","), str.length);
-        //var streetaddress = str.substr(0, end);
-        var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.ActivityDocuments + '/' + data.Id + extention;
+
+        //var extention = str.substr(str.indexOf('.'));
+        const last2 = str.slice(-5);
+
+        var extentions = last2.substr(last2.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ActivityDocuments + '/' + data.Id + extentions;
         $window.open($scope.dwonloadUrl, '_blank');
     };
 
