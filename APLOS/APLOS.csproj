@@ -759,6 +759,7 @@
     <Compile Include="Areas\Productions\Controllers\ProcessWiseProductionBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductionGeneralReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\FinishedStockReportController.cs" />
+    <Compile Include="Areas\Productions\Controllers\QuaityProcessBookingController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProductiveAllowanceRateSetupController.cs" />
     <Compile Include="Areas\Productions\Controllers\SalesOrderStatusReportController.cs" />
     <Compile Include="Areas\Productions\Controllers\StocksAdjustmentController.cs" />
@@ -2158,6 +2159,7 @@
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessWiseProductionBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
+    <Content Include="Areas\Productions\Scripts\QuaityProcessBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutApplicableController.js" />
     <Content Include="Areas\Productions\Scripts\SalesOrderStatusReportController.js" />
@@ -4227,6 +4229,7 @@
     <Content Include="Areas\Productions\Views\ProcessWiseProductionBooking\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EOT\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\QuaityProcessBooking\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

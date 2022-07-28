@@ -55,11 +55,11 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult getDesignationGridView()
+        public ActionResult getDesignationGridView(string employeeCategoryId)
         {
             try
             {
-                return Json(fp.getDesignationGridView(), JsonRequestBehavior.AllowGet);
+                return Json(fp.getDesignationGridView(employeeCategoryId), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -73,6 +73,19 @@ namespace Aplos.Areas.HumanResource.Controllers
             try
             {
                 return Json(fp.getEmployee(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getEmployeeCategory()
+        {
+            try
+            {
+                return Json(fp.getEmployeeCategory(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

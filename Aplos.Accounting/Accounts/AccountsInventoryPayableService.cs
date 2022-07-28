@@ -1815,13 +1815,15 @@ UNION
             try
             {
                 var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATD.Amount CrAmount,ATD.AdditionalTaxId
-                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,ATD.TaxCategoryId,ATD.TaxCodeId,ATD.AType
+                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,ATD.AType
                             FROM TRN.AdditionalTaxDetail ATD 
                             JOIN TRN.AdditionalTax ATX ON ATX.Id=ATD.AdditionalTaxId
                             LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=ATD.GLGeneralInfoId
                             LEFT JOIN MST.BudgetMaster BM ON BM.Id=ATD.BudgetMasterId
                             LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
                             LEFT JOIN HKP.Activity A ON A.Id=ATD.ActivityId
+							LEFT JOIN MST.TaxCode TAC ON TAC.Id=ATD.TaxCodeId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=TAC.TaxCategoryId
 							WHERE ATX.Id='" + additionalTaxId + @"'
 
                             UNION
