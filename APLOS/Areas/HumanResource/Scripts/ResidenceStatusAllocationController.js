@@ -212,10 +212,10 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
 
     $scope.SaveAllocation = function () {
         try {
-            if ($scope.availableNumber < $scope.saveList.length)
-            {
-                throw "Selected Employee should not greater than Available.";
-            }
+            //if ($scope.availableNumber < $scope.saveList.length)
+            //{
+            //    throw "Selected Employee should not greater than Available.";
+            //}
             $http({
                 method: 'POST',
                 url: $scope.path + 'residenceStatusSave',
