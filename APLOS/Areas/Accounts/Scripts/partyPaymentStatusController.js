@@ -4947,6 +4947,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     $scope.ReceivePaymentStatusSummaryReport = function () {
 
         try {
+            var ReportFileName = "Receive Payment Status";
             var gridObj = $("#GridReceivePaymentStatus").data("ejGrid");
             var data = gridObj.model.dataSource();
 
@@ -4959,13 +4960,13 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     }
                 }
             }
-            if (NewReceivePaymentStatusList.length == 0) {
-                ShowResult('Please select at least one Customer', 'failure');
-            }
+            //if (NewReceivePaymentStatusList.length == 0) {
+            //    ShowResult('Please select at least one Customer', 'failure');
+            //}
             $http({
                 method: 'POST',
                 url: $scope.exportgriddataUrl,
-                data: { 'data': data }
+                data: { 'data': data, 'reportFileName': ReportFileName}
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
                     ShowResult(response.data.Message, 'failure');
@@ -4974,11 +4975,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     window.location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
                 }
             });
-            //else
-            //{
-            //    var file_src = "Accounts/AccountStatusDashboard/ReceivePaymentStatusReport?receivePaymentStatusList=" + NewReceivePaymentStatusList;
-            //    $rootScope.report(file_src);
-            //}
+            
         } catch (e) {
             ShowResult(e, 'failure');
         }
