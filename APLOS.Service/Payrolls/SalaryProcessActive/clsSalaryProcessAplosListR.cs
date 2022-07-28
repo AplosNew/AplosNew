@@ -1375,10 +1375,10 @@ public class clsSalaryProcessAplosR
                                     string TD_ = Convert.ToDateTime(FD_).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
                                     var _daysinmonth = Convert.ToDateTime(TD_).Subtract(Convert.ToDateTime(FD_)).Days + 1;
 
-                                    if (TotalDaysSlr < _daysinmonth)
-                                    {
-                                        DisbursedBtnMonth = true;
-                                    }
+                                    //if (TotalDaysSlr < _daysinmonth)
+                                    //{
+                                    //    DisbursedBtnMonth = true;
+                                    //}
 
                                     CountOffDay = 0;
                                     var WrkOffcount = dicCmpWrkOff.FindAll(ee => ee.PlantId == dsSelectedEmp.Tables[0].Rows[gd]["PlantID"].ToString().Trim()

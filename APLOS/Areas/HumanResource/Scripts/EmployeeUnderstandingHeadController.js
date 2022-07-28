@@ -154,8 +154,12 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     $scope.FileDownload = function (data) {
         $scope.dwonloadUrl = null;
         var str = data.FileName;
-        var extention = str.substr(str.indexOf('.'));
-        $scope.dwonloadUrl = virtualPath.ActivityDocuments + '/' + data.Id + extention;
+
+        //var extention = str.substr(str.indexOf('.'));
+        const last2 = str.slice(-5);
+
+        var extentions = last2.substr(last2.indexOf('.'));
+        $scope.dwonloadUrl = virtualPath.ActivityDocuments + '/' + data.Id + extentions;
         $window.open($scope.dwonloadUrl, '_blank');
     };
 
@@ -423,7 +427,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
         }
     };
 
-  
+
     function ValidationKPI() {
         try {
             CheckField($scope.kpiNew.KPIName, "KPI Name");
@@ -602,7 +606,7 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
                 ShowResult(response.data.Message, 'failure');
             }
         } catch (e) {
-            ShowResult(e, 'failure','documentPopUp');
+            ShowResult(e, 'failure', 'documentPopUp');
         }
     };
 
@@ -698,10 +702,14 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
 
     $scope.GetApplicableDocument = function (args) {
         try {
-            $scope.ActivityId = args.data.Id;
-            $scope.getDocumentGridData();
-            $scope.getDocumentCategory();
-            angular.element(document.querySelector('#documentPopUp')).modal('show');
+            if (args.data.IsApplicableDocument =="Yes") {
+                $scope.ActivityId = args.data.Id;
+                $scope.getDocumentGridData();
+                $scope.getDocumentCategory();
+                angular.element(document.querySelector('#documentPopUp')).modal('show');
+            } else {
+                throw "Document is not Applicable";
+            }
         } catch (e) {
             ShowResult(e, 'info');
         }
@@ -709,9 +717,13 @@ function EmployeeUnderstandingHeadController(cboService, commonMessage, $scope, 
     };
     $scope.GetApplicableKPI = function (args) {
         try {
-            $scope.ActivityId = args.data.Id;
-            $scope.getKPIGridData();
-            angular.element(document.querySelector('#kpiPopUp')).modal('show');
+            if (args.data.IsApplicableKPI =="Yes") {
+                $scope.ActivityId = args.data.Id;
+                $scope.getKPIGridData();
+                angular.element(document.querySelector('#kpiPopUp')).modal('show');
+            } else {
+                throw "KPI is not Applicable";
+            }
         } catch (e) {
             ShowResult(e, 'info');
         }
