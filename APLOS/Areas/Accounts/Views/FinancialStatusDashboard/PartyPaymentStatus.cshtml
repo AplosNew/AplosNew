@@ -118,7 +118,7 @@
                     <li role="presentation" ng-class="{ active: isSet(18) }"><a ng-click="setTab(18);GetInvoiceWithOutGRNData();" href="" data-toggle="tab">Invoice Without GRN</a></li>
                     <li role="presentation" ng-class="{ active: isSet(19) }"><a ng-click="setTab(19);GetAssetWIPstatusList();" href="" data-toggle="tab">Asset WIP Status</a></li>
                     <li role="presentation" ng-class="{ active: isSet(20) }"><a ng-click="setTab(20);GetNonRegisterAssetData();" href="" data-toggle="tab">Non Register Asset</a></li>
-                    <li role="presentation" ng-class="{ active: isSet(21) }"><a ng-click="setTab(21);GetReceivePaymentStatusData();" href="" data-toggle="tab">Receive Payment Status</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(21) }"><a ng-click="setTab(21);GetReceivePaymentStatusData();" href="" data-toggle="tab">Receipt Payment Status</a></li>
                 </ul>
             </div>
 
@@ -2215,31 +2215,33 @@
                     <div class="row">
                         <div class="table-responsive modal-table aplos-grid-toggle">
                             <div class="content-container-fluid" style="color:black;overflow:scroll">
-                                <div style="color:black;" id="GridReceivePaymentStatus" ej-grid e-datasource="ReceivePaymentStatusList" e-templaterefresh="refreshTemplateReceivePaymentStatus"
+                                <div style="color:black;" id="GridReceiptPaymentStatus" ej-grid e-datasource="ReceiptPaymentStatusList" e-templaterefresh="refreshTemplateReceiptPaymentStatus"
                                      e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true"
                                      e-filtersettings-filterType="excel" e-enabletouch="false" e-allowresizing="true" e-allowselection="false" e-allowsorting="true">
                                     <div e-columns>
-                                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateReceivePaymentStatus" e-template="#checkMasterReceivePaymentStatus" e-textalign="center" e-width="30"></div>*@
-                                        <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="60" e-textalign="right"></div>
+                                        @*<div e-column e-headertext="All" e-headertemplateid="#headerTemplateReceiptPaymentStatus" e-template="#checkMasterReceiptPaymentStatus" e-textalign="center" e-width="30"></div>*@
+                                        <div e-column e-field="CustomerCode" e-headertext="Customer Code" e-width="100" e-textalign="right"></div>
                                         <div e-column e-field="Customer" e-headertext="Customer" e-width="150"></div>
-                                        <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="150"></div>
-                                        <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="150"></div>
-                                        <div e-column e-field="BaseOnDueDate" e-headertext="Due Date" e-width="150"></div>
-                                        <div e-column e-field="ReceiveDate" e-headertext="Receive Date" e-width="150"></div>
-                                        <div e-column e-field="DelayDay" e-headertext="Delay Day" e-width="150"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Commission" e-headertext="Commission" e-width="60" e-textalign="right" style="height: 20px;"></div>
-                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CashDiscount" e-headertext="Cash Discount" e-width="60" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-field="InvoiceNo" e-headertext="Invoice No" e-width="120"></div>
+                                        <div e-column e-field="InvoiceDate" e-headertext="Invoice Date" e-width="120"></div>
+                                        <div e-column e-field="BaseOnDueDate" e-headertext="Due Date" e-width="120"></div>
+                                        <div e-column e-field="ReceiveDate" e-headertext="Receive Date" e-width="120"></div>
+                                        <div e-column e-field="DelayDay" e-headertext="Delay Day" e-width="100"></div>
+                                        <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Amount" e-headertext="Amount" e-width="150" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="Commission" e-headertext="Commission" e-width="150" e-textalign="right" style="height: 20px;"></div>
+                                        <div e-column e-type="numeric" e-format="{0:0.00}" e-field="CashDiscount" e-headertext="Cash Discount" e-width="150" e-textalign="right" style="height: 20px;"></div>
 
                                     </div>
                                  </div>
 
 
-                                <script type="text/template" id="checkMasterReceivePaymentStatus">
+                                <script type="text/template" id="checkMasterReceiptPaymentStatus">
                                     <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
                                 </script>
 
-                                <script type="text/x-jsrender" id="headerTemplateReceivePaymentStatus">
-                                    <input type="checkbox" id="headchkReceivePaymentStatus" />
+                                <script type="text/x-jsrender" id="headerTemplateReceiptPaymentStatus">
+                                    <input type="checkbox" id="headchkReceiptPaymentStatus" />
                                 </script>
                             </div>
 
@@ -2247,7 +2249,7 @@
 
                         <div class="common-btn">
                             <ul class="list-inline text-left">
-                                <li><button ng-click="ReceivePaymentStatusSummaryReport();" title="Receive Payment Status" class="btn"><i class="glyphicon glyphicon-file"></i>Download</button></li>
+                                <li><button ng-click="ReceiptPaymentStatusSummaryReport();" title="Receive Payment Status" class="btn"><i class="glyphicon glyphicon-file"></i>Download</button></li>
                             </ul>
                         </div>
 

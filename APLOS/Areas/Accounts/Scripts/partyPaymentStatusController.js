@@ -4890,11 +4890,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     //**********************#endregion Current Fund Position **************************
 
     //**********************#startregion Receive Payment Status **************************
-    $scope.refreshTemplateReceivePaymentStatus = function (args) {
-        $("#headchkReceivePaymentStatus").ejCheckBox({ "change": CheckBoxSelectReceivePaymentStatus });
+    $scope.refreshTemplateReceiptPaymentStatus = function (args) {
+        $("#headchkReceiptPaymentStatus").ejCheckBox({ "change": CheckBoxSelectReceiptPaymentStatus });
     };
 
-    function CheckBoxSelectReceivePaymentStatus(e) {
+    function CheckBoxSelectReceiptPaymentStatus(e) {
 
         var ChkOrUnchkCustomer = false;
         if (e.model.checkState === "check")
@@ -4902,10 +4902,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             ChkOrUnchkCustomer = true;
         }
 
-        var filtered = $("#GridReceivePaymentStatus").data("ejGrid").getFilteredRecords();
+        var filtered = $("#GridReceiptPaymentStatus").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ReceivePaymentStatusList.length; i++) {
-                $scope.ReceivePaymentStatusList[i].isSelected = ChkOrUnchkCustomer;
+            for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
+                $scope.ReceiptPaymentStatusList[i].isSelected = ChkOrUnchkCustomer;
             }
         }
         else {
@@ -4917,19 +4917,19 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
 
         }
-        var gridObj = $("#GridReceivePaymentStatus").data("ejGrid");
+        var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
         gridObj.refreshContent();
     };
 
-    $scope.ReceivePaymentStatusList = [];
-    $scope.GetReceivePaymentStatusList = function () {
+    $scope.ReceiptPaymentStatusList = [];
+    $scope.GetReceiptPaymentStatusList = function () {
         try {
             $http({
                 method: 'POST',
-                url: $scope.path + "GetReceivePaymentStatusDataList",
+                url: $scope.path + "GetReceiptPaymentStatusDataList",
                 dataType: 'JSON'
             }).then(function successCallback(response) {
-                $scope.ReceivePaymentStatusList = response.data.DATA;
+                $scope.ReceiptPaymentStatusList = response.data.DATA;
             }),
                 function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -4939,28 +4939,28 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetReceivePaymentStatusList();
+    $scope.GetReceiptPaymentStatusList();
 
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
-    $scope.ReceivePaymentStatusSummaryReport = function () {
+    $scope.ReceiptPaymentStatusSummaryReport = function () {
 
         try {
-            var ReportFileName = "Receive Payment Status";
-            var gridObj = $("#GridReceivePaymentStatus").data("ejGrid");
+            var ReportFileName = "Receipt Payment Status";
+            var gridObj = $("#GridReceiptPaymentStatus").data("ejGrid");
             var data = gridObj.model.dataSource();
 
-            var NewReceivePaymentStatusList = [];
-            for (var i = 0; i < $scope.ReceivePaymentStatusList.length; i++) {
-                if ($scope.ReceivePaymentStatusList[i].isSelected == true) {
+            var NewReceiptPaymentStatusList = [];
+            for (var i = 0; i < $scope.ReceiptPaymentStatusList.length; i++) {
+                if ($scope.ReceiptPaymentStatusList[i].isSelected == true) {
 
-                    if (NewReceivePaymentStatusList, $scope.ReceivePaymentStatusList[i].CustomerCode) {
-                        NewReceivePaymentStatusList.push($scope.ReceivePaymentStatusList[i].CustomerCode);
+                    if (NewReceiptPaymentStatusList, $scope.ReceiptPaymentStatusList[i].CustomerCode) {
+                        NewReceiptPaymentStatusList.push($scope.ReceiptPaymentStatusList[i].CustomerCode);
                     }
                 }
             }
-            //if (NewReceivePaymentStatusList.length == 0) {
+            //if (NewReceiptPaymentStatusList.length == 0) {
             //    ShowResult('Please select at least one Customer', 'failure');
             //}
             $http({
