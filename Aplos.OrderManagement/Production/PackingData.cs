@@ -559,7 +559,10 @@ namespace Library.OrderManagement.Production
             try
             {
                 var str = @"Select * from
-                (SELECT distinct so.Id as SO, so.Qty as SoQty, sos.Despatch , (so.Qty - sos.Despatch) as toDespatch,format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, CAST(so.DeliveryDate as DATE) as Del ,pl.Code  as ProductCode,
+                (SELECT distinct so.Id as SO
+                ,CEILING(SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) SoQty
+                , sos.Despatch , (CEILING(SUM((isnull(so.qty,0)*(1+( isnull(moi.ExtraOrderPercentage,0)/100)))*(100/(100-isnull(moi.OrderWastagePercentage,0))))) - sos.Despatch) as toDespatch
+                ,format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, CAST(so.DeliveryDate as DATE) as Del ,pl.Code  as ProductCode,
                  po.id as PO,uom.UserName as UOM,os.UserName as SOStatus,
                moi.MasterOrderId as MasterOrderNo,pc.UserName as ProductCategory, psc.UserName as ProductSubCategory,moi.Id as ItemId,mma.StandardName as ItemArticle,
                 pl.Remarks,ma.Code as MaterialCode,ma.UserName as Material,ma.Id as MaterialId,PM.UserName as Product , prod.UserName as Prod,PM.Id as ProductId,
@@ -592,6 +595,10 @@ namespace Library.OrderManagement.Production
                 where 
 				mo.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold') and so.OrderStatusId not in ( 'Closed' , 'Cancelled' , 'Hold')
 				 and pl.Code !='null'
+				 group by so.Id,sos.Despatch,so.DeliveryDate,pl.Code,po.id,uom.UserName,os.UserName,
+				 moi.MasterOrderId,pc.UserName, psc.UserName,moi.Id,mma.StandardName,
+                pl.Remarks,ma.Code,ma.UserName,ma.Id,PM.UserName, prod.UserName,PM.Id,
+                pl.Id, par.UserName,par.Id,moi.BuyerReferenceNo , moi.OwnReferenceNo
 				) as req
 
        where CustomerId = '" + customer + @"'

@@ -839,9 +839,9 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
 
             $scope.secondVals();
 
-            //if ($scope.POLotRef.PlanQty > $scope.soqty) {
-            //    throw "Plan Qty can't greater than SO Qty.";
-            //}
+            if ($scope.POLotRef.PlanQty > $scope.soqty) {
+                throw "Plan Qty can't greater than SO Qty.";
+            }
 
 
             $http({
