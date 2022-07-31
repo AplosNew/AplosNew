@@ -1259,9 +1259,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.ProductionOrderList = [];
     $scope.getPQPoPUp = function () {
-        //if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
-        //    return ShowResult('Please Work Center.', 'failure');
-        //}
+        
         $scope.ProductionOrderList = [];
         $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
             .then(
