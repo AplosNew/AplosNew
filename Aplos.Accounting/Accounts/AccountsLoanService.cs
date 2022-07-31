@@ -1037,8 +1037,8 @@ namespace Library.Accounting.Accounts
                             , P.Code AS PartyCode, P.UserName AS Customer, REPLACE(CONVERT(VARCHAR(11), AW.PostingDate, 106), ' ', '-') AS PostingDate 
                             , REPLACE(CONVERT(VARCHAR(11), AW.DocDate, 106), ' ', '-') AS DocDate, AW.DocRefNo, C.Code AS CurrencyCode,SUM(IWD.Amount) Amount
                             , AW.PartyPlantId, PP.UserName AS CustomerPlant,   UPPER(AW.Narration) AS Narration
-                            , VT.UserName AS VoucherTypeName,AW.AddedBy,NULL PostedBy, CASE WHEN AW.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
-                            ,AW.CurrencyId
+                            , VT.UserName AS VoucherTypeName,UA.FullName AddedBy, CASE WHEN AW.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+                            ,AW.CurrencyId,U.FullName PostedBy
                              ,VoucherNo=STUFF((SELECT DISTINCT ','+xpo.VoucherNo from
                             			[TRN].Voucher xpo
                             			INNER JOin [TRN].[FinancingWriteOff] xPDAMAP on xpo.Id=xPDAMAP.VoucherId
@@ -1051,10 +1051,14 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
                             LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
+							left join [TRN].[Voucher] V on V.Id=AW.VoucherId
+							left join SEC.[User] UA on UA.UserId=V.AddedBy
+							left join SEC.[User] U on U.UserId=V.PostedBy
+
                             WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + "' AND AW.LoanSetOffGroupNo='" + loanWriteOffGroupNo + "' AND AW.[SourceType]='" + sourceType + @"'
                             Group BY AW.LoanSetOffGroupNo, AW.VoucherDate
-                            , P.Code , P.UserName, AW.PostingDate,VT.UserName,AW.AddedBy,AW.Narration
-                            , AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.CurrencyId";
+                            , P.Code , P.UserName, AW.PostingDate,VT.UserName,AW.AddedBy,AW.Narration,V.PostedBy
+                            , AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.CurrencyId,UA.FullName,U.FullName";
             return _sqlRepository.GetData(cmdText);
         }
 
@@ -1077,7 +1081,9 @@ namespace Library.Accounting.Accounts
                             , VD.GLGeneralInfoId, GL.UserName AS GL, GL.AccountCode AS GLGeneralInfoCode
                             --, P.UserName AS Customer, PP.UserName AS CustomerPlant
                             , VD.Narration AS DetailNarration, BUD.UserName AS Budget
-                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle ELSE ACT.UserName END--,VD.PartyType
+                            , Activity= CASE WHEN VD.BankMasterId<>'' THEN ACT.UserName+' - '+ BM.AccountTitle 
+                            WHEN CM.UserName<>'' THEN ACT.UserName+' - '+ CM.UserName 
+                            ELSE ACT.UserName END--,VD.PartyType
                             FROM 
 							[TRN].[FinancingWriteOff] AS IV  
                             LEFT JOIN [TRN].[Voucher] AS V  ON IV.VoucherId=V.Id
@@ -1096,6 +1102,7 @@ namespace Library.Accounting.Accounts
                             LEFT JOIN [HKP].[Budget] AS BUD ON BUD.Id=BUM.BudgetId
                             LEFT JOIN [HKP].[Activity] AS ACT ON ACT.Id=VD.ActivityId
                             LEFT JOIN [MST].[BankMaster] AS BM ON BM.Id=VD.BankMasterId
+                            LEFT JOIN [MST].CashMaster AS CM ON CM.Id=VD.CashMasterId
                             WHERE V.Archive=0 AND IV.LoanSetOffGroupNo='" + loanWriteOffGroupNo + @"' 
 							GROUP BY  GL.Id 
 							, FY.FiscalYearName, FYP.PeriodName, FYP.PeriodNo, V.IsPark, V.PostingDate
@@ -1106,7 +1113,7 @@ namespace Library.Accounting.Accounts
                             , VD.GLGeneralInfoId, GL.UserName, GL.AccountCode
                             --, P.UserName, PP.UserName 
                             , VD.Narration, BUD.UserName
-                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle --,VD.PartyType
+                            ,  VD.BankMasterId,ACT.UserName,BM.AccountTitle,CM.UserName --,VD.PartyType
 							ORDER BY SUM(VD.DrAmount) DESC";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1151,13 +1158,18 @@ namespace Library.Accounting.Accounts
             int colusdCradit = 0;
 
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Voucher No");
+            sheet[row, 1, row + 1, 1].Merge();
             reportUtility.SetText(ref sheet, row, 2, header["VoucherNo"].ToString());
+            sheet[row, 2, row + 1, 2].Merge();
+            sheet.UsedRange.WrapText = true;
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Voucher Date");
             reportUtility.SetText(ref sheet, row, 4, header["VoucherDate"].ToString());
             row++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Posting Date");
-            reportUtility.SetText(ref sheet, row, 2, header["PostingDate"].ToString());
+            reportUtility.SetMasterHeaderText(ref sheet, row+1, 1, "Posting Date");
+            reportUtility.SetText(ref sheet, row+1, 2, header["PostingDate"].ToString());
+
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "DocDate");
             reportUtility.SetText(ref sheet, row, 4, header["DocDate"].ToString());
             row++;
@@ -1172,21 +1184,23 @@ namespace Library.Accounting.Accounts
             //reportUtility.SetText(ref sheet, row, 2, header["CustomerPlant"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Status");
             reportUtility.SetText(ref sheet, row, 4, header["Status"].ToString());
-
             row++;
 
 
-
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
-            reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
-            reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
-            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            reportUtility.SetMasterHeaderText(ref sheet, row - 1, 1, "Narration");
+            reportUtility.SetText(ref sheet, row - 1, 2, header["Narration"].ToString());
+            //sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            sheet[row-1, 2, row, 2].Merge();
+            sheet.UsedRange.WrapText = true;
             row++;
 
             if (companyCurrencyId == transcationCurrency)
             {
                 reportUtility.SetHeaderText(ref sheet, row, 3, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 3, row, 4].Merge();
+                sheet.Range[row, 3, row, 4].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, 3, row, 4].BorderAround(ExcelLineStyle.Hair);
             }
             else
             {
@@ -1195,9 +1209,12 @@ namespace Library.Accounting.Accounts
 
                 reportUtility.SetHeaderText(ref sheet, row, 5, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 5, row, 6].Merge();
+                sheet.Range[row, 3, row, 4].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, 3, row, 4].BorderAround(ExcelLineStyle.Hair);
             }
 
             row++;
+
 
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
             sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
@@ -1217,6 +1234,8 @@ namespace Library.Accounting.Accounts
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 14, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;
                 colLast = xlsCol;
             }
+            sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
 
             if (dsLocal.Rows.Count > 0)
             {
@@ -1332,6 +1351,7 @@ namespace Library.Accounting.Accounts
                 row += 4;
                 reportUtility.SetSignatureText(ref sheet, row - 1, 1, header["AddedBy"].ToString());
                 sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                sheet.Range[row, 1].ColumnWidth = 22;
                 reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());

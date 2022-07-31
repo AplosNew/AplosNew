@@ -636,9 +636,18 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
     } 
     $scope.loanDataList = [];
-    $scope.getPopUpData = function () {        $http({            method: 'GET',            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + $scope.voucher.TransactionType        }).then(function successCallback(response) {            $scope.loanDataList = response.data;            for (var i = 0; i < $scope.loanDataList.length; i++) {
-                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
-            }        });    };
+    $scope.getPopUpData = function () {
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanPopUpList?transactionType=' + $scope.voucher.TransactionType
+        }).then(function successCallback(response) {
+            $scope.loanDataList = response.data;
+            for (var i = 0; i < $scope.loanDataList.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataList[i].PostingDateNew);
+                response.data[i].DocDate = new Date($scope.loanDataList[i].DocDate);
+            }
+        });
+    };
     $scope.showloanPopUp = function () {
         $scope.getPopUpData();
         angular.element(document.querySelector('#loanPopUp')).modal('show');
@@ -1208,14 +1217,24 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
     }
     $scope.loanDataListML = [];
-    $scope.getPopUpDataML = function () {        if ($scope.voucherML.PartyType =="Bank") {
+    $scope.getPopUpDataML = function () {
+        if ($scope.voucherML.PartyType =="Bank") {
             if (baseService.isUndefinedOrNull($scope.voucherML.BankId)) {
                 ShowResult("Please select Party Type Bank!", "failure");;
                 return true;
             }
-        }        $http({            method: 'GET',            url: 'Accounts/Loan/GetLoanPopUpListML?transactionType=' + $scope.voucherML.TransactionType + "&partyType=" + $scope.voucherML.PartyType + "&bankId=" + $scope.voucherML.BankId        }).then(function successCallback(response) {            $scope.loanDataListML = response.data;            for (var i = 0; i < $scope.loanDataListML.length; i++) {
-                response.data[i].PostingDateNew = new Date($scope.loanDataListML[i].PostingDateNew);                response.data[i].DocDate = new Date($scope.loanDataListML[i].DocDate);
-            }        });    };
+        }
+        $http({
+            method: 'GET',
+            url: 'Accounts/Loan/GetLoanPopUpListML?transactionType=' + $scope.voucherML.TransactionType + "&partyType=" + $scope.voucherML.PartyType + "&bankId=" + $scope.voucherML.BankId
+        }).then(function successCallback(response) {
+            $scope.loanDataListML = response.data;
+            for (var i = 0; i < $scope.loanDataListML.length; i++) {
+                response.data[i].PostingDateNew = new Date($scope.loanDataListML[i].PostingDateNew);
+                response.data[i].DocDate = new Date($scope.loanDataListML[i].DocDate);
+            }
+        });
+    };
     $scope.showmultiloanPopUp = function () {
         $scope.getPopUpDataML();
         angular.element(document.querySelector('#multiloanPopUp')).modal('show');

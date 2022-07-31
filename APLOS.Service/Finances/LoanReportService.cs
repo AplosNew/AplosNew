@@ -409,7 +409,8 @@ namespace Library.Service.Finances
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Status");
             reportUtility.SetText(ref sheet, row, 2, header["Status"].ToString());
             reportUtility.SetMasterHeaderText(ref sheet, row, 3, "Doc Ref");
-            reportUtility.SetText(ref sheet, row, 4, header["DocRefNo"].ToString(), false, true);
+            //reportUtility.SetText(ref sheet, row, 4, header["DocRefNo"].ToString(), false, true);
+            reportUtility.SetText(ref sheet, row, 4, header["DocRefNo"].ToString());
 
             sheet[reportUtility.GetColumnNameForXls(4) + row + ":" + reportUtility.GetColumnNameForXls(5) + row].Merge();
 
@@ -418,14 +419,19 @@ namespace Library.Service.Finances
             colLast = companyCurrencyId == transcationCurrency ? 5 : 7;
             reportUtility.SetMasterHeaderText(ref sheet, row, 1, "Narration");
             reportUtility.SetText(ref sheet, row, 2, header["Narration"].ToString());
-            sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            //sheet[reportUtility.GetColumnNameForXls(2) + row + ":" + reportUtility.GetColumnNameForXls(colLast) + row].Merge();
+            sheet[row , 2, row+1, 2].Merge();
+            sheet.UsedRange.WrapText = true;
 
+            row++;
             row++;
 
             if (companyCurrencyId == transcationCurrency)
             {
                 reportUtility.SetHeaderText(ref sheet, row, 4, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 4, row, 5].Merge();
+                sheet.Range[row, 4, row, 5].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, 4, row, 5].BorderAround(ExcelLineStyle.Hair);
             }
             else
             {
@@ -434,12 +440,16 @@ namespace Library.Service.Finances
 
                 reportUtility.SetHeaderText(ref sheet, row, 6, companyCurrencyCode, ExcelHAlign.HAlignCenter);
                 sheet[row, 6, row, 7].Merge();
+                sheet.Range[row, 4, row, 5].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[row, 4, row, 5].BorderAround(ExcelLineStyle.Hair);
             }
 
             row++;
 
-            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol; xlsCol++;
-            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); xlsCol++;
+            reportUtility.SetHeaderText(ref sheet, row, xlsCol, "GL"); colGl = xlsCol;
+            xlsCol++;
+            sheet[reportUtility.GetColumnNameForXls(colGl) + row + ":" + reportUtility.GetColumnNameForXls(2) + row].Merge(); 
+            xlsCol++;
             reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Particulars", 12); colParticulars = xlsCol; xlsCol++;
 
             if (companyCurrencyId != transcationCurrency)
@@ -457,6 +467,8 @@ namespace Library.Service.Finances
                 reportUtility.SetHeaderText(ref sheet, row, xlsCol, "Credit", 13, ExcelHAlign.HAlignRight); colinrCredit = xlsCol;
                 colLast = xlsCol;
             }
+            sheet.Range[row, 1, row, colLast].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[row, 1, row, colLast].BorderAround(ExcelLineStyle.Hair);
 
             if (dsLocal.Rows.Count > 0)
             {
@@ -572,6 +584,7 @@ namespace Library.Service.Finances
                 row += 4;
                 reportUtility.SetSignatureText(ref sheet, row - 1, 1, header["AddedBy"].ToString());
                 sheet.Range[row, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+                sheet.Range[row, 1].ColumnWidth = 22;
                 reportUtility.SetTextMiddle(ref sheet, row, 1, "Prepared By", true);
 
                 reportUtility.SetSignatureText(ref sheet, row - 1, 2, header["PostedBy"].ToString());
@@ -651,15 +664,18 @@ namespace Library.Service.Finances
         private Dictionary<string, object> GetLoanWriteOffReportHeader(string companyGroupId, string companyId, string plantId, string voucherId, SourceType sourceType)
         {
             var cmdText = @"SELECT VT.UserName AS VoucherTypeName, V.VoucherNo, REPLACE(CONVERT(VARCHAR(11), V.VoucherDate, 106), ' ', '-') AS VoucherDate, REPLACE(CONVERT(VARCHAR(11), V.PostingDate, 106), ' ', '-') AS PostingDate
-                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, V.AddedBy, V.PostedBy, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
+                            , REPLACE(CONVERT(VARCHAR(11), V.DocDate, 106), ' ', '-') AS DocDate, V.DocRefNo, UPPER(V.Narration) AS Narration, CASE WHEN V.IsPark=1 THEN 'Parked' ELSE 'Posted' END AS [Status]
                             , P.UserName AS Vendor, PP.UserName AS VendorPlant, V.CurrencyId, C.Code AS CurrencyCode
+                            ,UA.FullName AddedBy,U.FullName PostedBy
                             FROM  [TRN].[Voucher] AS V
                                     LEFT JOIN [TRN].[FinancingWriteOff] AS BJ ON V.Id=BJ.VoucherId
-									LEFT JOIN(SELECT DISTINCT PartyId,PartyPlantId,VoucherId FROM TRN.VoucherDetail WHERE VoucherId='"+ voucherId + @"' AND PartyId<>'') VD ON VD.VoucherId=V.Id 
+									LEFT JOIN(SELECT DISTINCT PartyId,PartyPlantId,VoucherId FROM TRN.VoucherDetail WHERE VoucherId='" + voucherId + @"' AND PartyId<>'') VD ON VD.VoucherId=V.Id 
                             LEFT JOIN [SCS].[VoucherType] AS VT ON VT.Id=V.VoucherTypeId
 							LEFT JOIN [HKP].[Party] AS P ON P.Id=VD.PartyId
 							LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=VD.PartyPlantId
 							LEFT JOIN [SCS].[Currency] AS C ON C.Id=V.CurrencyId
+                            left join SEC.[User] UA on UA.UserId=V.AddedBy
+							left join SEC.[User] U on U.UserId=V.PostedBy
                             WHERE V.Archive=0 AND V.CompanyGroupId='" + companyGroupId + "' AND V.CompanyId='" + companyId + "' AND V.PlantId='" + plantId + "' AND V.Id='" + voucherId + "' AND V.SourceType='" + sourceType + "'";
             return _sqlRepository.GetData(cmdText);
         }
