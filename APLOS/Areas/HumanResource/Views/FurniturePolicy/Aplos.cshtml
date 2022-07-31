@@ -212,12 +212,12 @@
                         <p>Double click to Select an Employee</p>
                         <div style="color:black;" id="GridEntity" ej-grid e-datasource="EmployeeList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true" e-responsive="true"
                              e-recorddoubleclick="doubleEmploye">
                             <div e-columns>
                                 <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
-                                @*<div e-column e-field="Code" e-headertext="Code" e-width="50"></div>*@
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                                
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
                                 <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
 
                                 <div e-column e-field="Designation" e-headertext="Designation" e-width="50"></div>
