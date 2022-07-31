@@ -490,7 +490,7 @@ namespace Aplos.Areas.Accounts.Controllers
             else
                 throw new CustomException("No Journal");
 
-            _inventoryPayableService.PostMultipleJournalSales(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM);
+            _inventoryPayableService.PostMultipleJournalSalesReturn(receiveId, acceptanceId, voucherVM, voucherDetailVMList, voucherDetailCurrencyVMList, inventoryPayableVMList, inventoryReceiveDetailVMList, inventoryJVList, otherInvoiceVM);
 
             return Json(new { Message = AplosMessage.Insert });
         }

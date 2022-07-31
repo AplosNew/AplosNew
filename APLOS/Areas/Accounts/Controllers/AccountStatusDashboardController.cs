@@ -2943,46 +2943,12 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetReceivePaymentStatusDataList()
+        public ActionResult GetReceiptPaymentStatusDataList()
         {
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsStatusDashboardService.GetReceivePaymentStatusDataList(), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetReceiptPaymentStatusDataList(), Error = false }, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet, Authorize]
-        public ActionResult ReceivePaymentStatusReport(string receivePaymentStatusList)
-        {
-            try
-            {
-                //string masterReceivePaymentStatus = "";
-                //foreach (var item in receivePaymentStatusList)
-                //{
-                //    if (string.IsNullOrEmpty(receivePaymentStatusList))
-                //    {
-                //        masterReceivePaymentStatus += "''," + item;
-                //    }
-                //    else
-                //    {
-                //        masterReceivePaymentStatus += "," + item;
-                //    }
-
-                //}
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
-                ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetReceivePaymentStatusReport(excelEngine, receivePaymentStatusList);
-
-                string strFileName = "ReceivePaymentStatus.xlsx";
-                workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
-                workbook.Close();
-            }
-            catch (Exception ex)
-            {
-                return Json(ex.Message, JsonRequestBehavior.AllowGet);
-            }
-            return null;
-        }
     }
 }

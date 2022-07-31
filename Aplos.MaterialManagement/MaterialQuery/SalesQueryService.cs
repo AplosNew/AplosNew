@@ -3271,88 +3271,88 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			#region Grid Headers
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Customer Code", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer Code", 15, ExcelHAlign.HAlignLeft);
 			int ColCustomerCode = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Customer Name", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer Name", 20, ExcelHAlign.HAlignLeft);
 			int ColCustomerName = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Bill To", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Bill To", 20, ExcelHAlign.HAlignLeft);
 			int ColBillTo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColTransactionAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Service Charge", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Service Charge", 15, ExcelHAlign.HAlignLeft);
 			int ColServiceCharge = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "ServiceTax", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "ServiceTax", 15, ExcelHAlign.HAlignLeft);
 			int ColServiceTax = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CGST", 15, ExcelHAlign.HAlignLeft);
 			int ColCGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "SGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "SGST", 15, ExcelHAlign.HAlignLeft);
 			int ColSGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "IGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "IGST", 15, ExcelHAlign.HAlignLeft);
 			int ColIGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TDS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TDS", 15, ExcelHAlign.HAlignLeft);
 			int ColTDS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TCS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TCS", 15, ExcelHAlign.HAlignLeft);
 			int ColTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books CGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books CGST", 15, ExcelHAlign.HAlignLeft);
 			int ColBooksCGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books SGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books SGST", 15, ExcelHAlign.HAlignLeft);
 			int ColBooksSGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books IGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books IGST", 15, ExcelHAlign.HAlignLeft);
 			int ColBooksIGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books TCS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books TCS", 15, ExcelHAlign.HAlignLeft);
 			int ColBooksTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Taxable Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Taxable Amount", 20, ExcelHAlign.HAlignLeft);
 			int ColTotalTaxableAmt = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Transaction Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Transaction Amount", 20, ExcelHAlign.HAlignLeft);
 			int ColBooksCurrencyTransactionAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Service Books Currency Tran Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Service Books Currency Tran Amount", 22, ExcelHAlign.HAlignLeft);
 			int ColServiceBooksCurrencyTranAmt = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books Service Charge", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books Service Charge", 20, ExcelHAlign.HAlignLeft);
 			int ColBooksServiceCharge = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Books Total Taxable Amount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Books Total Taxable Amount", 20, ExcelHAlign.HAlignLeft);
 			int ColBooksTotalTaxableAmt = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyType = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "GSTIN No ", 18, ExcelHAlign.HAlignLeft);
+			int ColGSTINNo = COL;
 			COL++;
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 15, ExcelHAlign.HAlignLeft);
@@ -3409,7 +3409,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColBooksServiceCharge].NumberFormat = "#,##0.00;(#,##0.00)";
 				sheet[ROW, ColBooksTotalTaxableAmt].Number = clsStaticInfo.dbl(data.Rows[i]["BooksTotalTaxableAmt"].ToString());
 				sheet[ROW, ColBooksTotalTaxableAmt].NumberFormat = "#,##0.00;(#,##0.00)";
-				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString(); 
+				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString(); 
 				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
 				sheet.Range[ROW, ColCustomerCode, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
@@ -3497,6 +3497,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			//return workbook;
 
 			sheet.Name = SheetName;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.UsedRange.WrapText = true;
 			sheet.IsGridLinesVisible = false;
 			report.PlantHeader(ref sheet, ROW, SheetName, PlantId);
@@ -3537,6 +3538,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 									,(Sum(ISNULL(SMD.BooksCurrencyTransactionAmount,0))+sum(round(isnull(ServiceData.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,SA.PartyType,PAG.UserName PartyAccountGroup
+									,P.TINNO GSTINNo
 									FROM TRN.Sales AS SA
 									LEFT JOIN (select Id, SalesId,SalesOrderId, Sum(TransactionAmount) TransactionAmount,Sum(NetAmount) NetAmount,Sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from TRN.SalesMaterial Group BY SalesId,SalesOrderId,Id)SMD  ON SA.Id=SMD.SalesId
 									LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
@@ -3611,7 +3613,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											group by ISS.SalesId
 											)ServiceData on ServiceData.SalesId=SA.Id
 									WHERE SA.PlantId='" + PlantId + @"' AND convert(Date,SA.InvoiceDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount
+									Group By P.Id, p.Code	 ,PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,SA.PartyType,PAG.UserName ,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO
 								UNION ALL
 
 								SELECT  P.Id PartyId,p.Code, P.UserName AS PartyName,PPI.UserName AS BillTo
@@ -3635,6 +3637,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)) BooksServiceCharge
 								,(Sum(IId.BooksCurrencyTransactionAmount)+sum(round(isnull(SCr.BooksCurrencyTransactionAmount,0),2)))  BooksTotalTaxableAmt
 								 ,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,'' PartyType,PAG.UserName PartyAccountGroup
+								,P.TINNO GSTINNo
 								FROM[TRN].[InventorySales] AS II
 								left JOIN (select InventoryMaterialId,Id,InventorySalesId,sum(PolicyRate) PolicyRate, sum(TransactionQty) Qty ,Sum(SalesRate) SalesRate,(Sum(SalesRate)*sum(TransactionQty)) TransactionAmount, IsAsset,BaseUOMId,sum(BooksCurrencyTransactionAmount) BooksCurrencyTransactionAmount from  TRN.InventorySalesDetail group by InventoryMaterialId,InventorySalesId,IsAsset,BaseUOMId,Id) AS IID ON IID.InventorySalesId= II.Id AND IID.IsAsset= 0
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -3705,7 +3708,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 											GROUP BY A.InventorySalesId
 								) TAxInfo6 ON TAxInfo6.InventorySalesId=II.Id
 								WHERE II.PlantId='" + PlantId + @"' and II.CustomerId<>'' AND convert(Date,II.SalesDate) between '" + FromDate + @"' AND '" + ToDate + @"'
-								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount";
+								GROUP BY P.Id, p.Code, PPI.UserName , P.UserName ,PG.UserName ,PC.UserName ,PSC.UserName ,PAG.UserName,TAxInfo6.TaxAmount,TAxInfo6.BooksTaxAmount,P.TINNO";
 
                 if (isreport)
                 {
@@ -3776,23 +3779,27 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColPartyCode = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Customer	 Type", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer	 Type", 12, ExcelHAlign.HAlignLeft);
 			int ColPartyType = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GSTIN No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GSTIN No", 15, ExcelHAlign.HAlignLeft);
 			int ColGSTINNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Material Group", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "HSN Code", 10, ExcelHAlign.HAlignLeft);
+			int ColHSNCode = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Material Group", 30, ExcelHAlign.HAlignLeft);
 			int ColMaterialGroup = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Material/Service", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Material/Service", 35, ExcelHAlign.HAlignLeft);
 			int ColMaterial = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Article", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Article", 42, ExcelHAlign.HAlignLeft);
 			int ColArticle = COL;
 			COL++;
 
@@ -3808,99 +3815,99 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColThirdCharacteristicsValue = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TransactionRate", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Rate", 15, ExcelHAlign.HAlignLeft);
 			int ColTransactionRate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TransactionQty", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Qty", 15, ExcelHAlign.HAlignLeft);
 			int ColTransactionQty = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Transaction UoM", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction UoM", 10, ExcelHAlign.HAlignLeft);
 			int ColTransactionUoM = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 10, ExcelHAlign.HAlignLeft);
 			int ColCurrency = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TransactionAmount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColTransactionAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TaxAmount", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 15, ExcelHAlign.HAlignLeft);
 			int ColTaxAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 10, ExcelHAlign.HAlignLeft);
 			int ColBaseUoM = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Posted", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Posted", 8, ExcelHAlign.HAlignLeft);
 			int ColPosted = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CGST", 12, ExcelHAlign.HAlignLeft);
 			int ColCGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CGST Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColCGSTTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "SGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "SGST", 12, ExcelHAlign.HAlignLeft);
 			int ColSGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "SGST Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "SGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColSGSTTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "IGST", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "IGST", 12, ExcelHAlign.HAlignLeft);
 			int ColIGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "IGST Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "IGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColIGSTTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TDS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TDS", 12, ExcelHAlign.HAlignLeft);
 			int ColTDS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TDS Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TDS Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColTDSTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TCS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TCS", 12, ExcelHAlign.HAlignLeft);
 			int ColTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TCSTaxPercentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TCSTaxPercentage", 12, ExcelHAlign.HAlignLeft);
 			int ColTCSTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS", 12, ExcelHAlign.HAlignLeft);
 			int ColGRNTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColGRNTCSTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax", 12, ExcelHAlign.HAlignLeft);
 			int ColMandiTax = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColMandiTaxTaxPercentage = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax", 12, ExcelHAlign.HAlignLeft);
 			int ColNirasritTax = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax Tax Percentage", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax Tax Percentage", 12, ExcelHAlign.HAlignLeft);
 			int ColNirasritTaxTaxPercentage = COL;
 			COL++;
 
@@ -3932,19 +3939,19 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColBLAWBDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Payment Term", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Payment Term", 20, ExcelHAlign.HAlignLeft);
 			int ColPaymentTerm = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base On Due Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base On Due Date", 10, ExcelHAlign.HAlignLeft);
 			int ColBaseOnDueDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "No Of Days", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "No Of Days", 10, ExcelHAlign.HAlignLeft);
 			int ColNoOfDays = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Mature Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Mature Date", 10, ExcelHAlign.HAlignLeft);
 			int ColMatureDate = COL;
 			COL++;
 
@@ -3976,210 +3983,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
             int ColPartyAccountGroup = COL;
             
 
-            //report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 13, ExcelHAlign.HAlignLeft);
-            //int ColDeliveryPartyPlant = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Employee", 13, ExcelHAlign.HAlignLeft);
-            //int ColEmployee = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
-            //int ColGateEntryNo = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
-            //int ColGateName = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 13, ExcelHAlign.HAlignLeft);
-            //int ColGrnDocDateDifference = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Material Type", 13, ExcelHAlign.HAlignLeft);
-            //int ColMaterialType = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "HSN No", 13, ExcelHAlign.HAlignLeft);
-            //int ColHSNNo = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Base Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColBaseQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Quality Status", 13, ExcelHAlign.HAlignLeft);
-            //int ColQualityStatus = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Gross Amount", 13, ExcelHAlign.HAlignLeft);
-            //int ColGrossAmount = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Discount Amount", 13, ExcelHAlign.HAlignLeft);
-            //int ColDiscountAmount = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Total Material Books Currency Amount", 13, ExcelHAlign.HAlignLeft);
-            //int ColTotalMaterialBooksCurrencyAmount = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Credtible Status", 13, ExcelHAlign.HAlignLeft);
-            //int ColCredtibleStatus = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "RCM", 13, ExcelHAlign.HAlignLeft);
-            //int ColRCM = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Trn Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
-            //int ColTrnCurrencyBaseRate = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Books Currency Base Rate", 13, ExcelHAlign.HAlignLeft);
-            //int ColBooksCurrencyBaseRate = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "MMIs Asset", 13, ExcelHAlign.HAlignLeft);
-            //int ColMMIsAsset = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "GRNIs Asset", 13, ExcelHAlign.HAlignLeft);
-            //int ColGRNIsAsset = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "PO Id", 13, ExcelHAlign.HAlignLeft);
-            //int ColPOId = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Storage Location", 13, ExcelHAlign.HAlignLeft);
-            //int ColStorageLocation = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Shortage Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColShortageQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Shortage Rate Percent", 13, ExcelHAlign.HAlignLeft);
-            //int ColShortageRatePercent = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Shortage Valuet", 13, ExcelHAlign.HAlignLeft);
-            //int ColShortageValuet = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Rejection Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColRejectionQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Reject Rate Per", 13, ExcelHAlign.HAlignLeft);
-            //int ColRejectRatePer = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Rejection Value", 13, ExcelHAlign.HAlignLeft);
-            //int ColRejectionValue = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Rejection Clam", 13, ExcelHAlign.HAlignLeft);
-            //int ColRejectionClam = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Approved Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColApprovedQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "GRN Row ID", 13, ExcelHAlign.HAlignLeft);
-            //int ColGRNRowID = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Prepared By", 13, ExcelHAlign.HAlignLeft);
-            //int ColPreparedBy = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Status", 13, ExcelHAlign.HAlignLeft);
-            //int ColStatus = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Approving Name", 13, ExcelHAlign.HAlignLeft);
-            //int ColApprovingName = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
-            //int ColPostingDate = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "GL Code", 13, ExcelHAlign.HAlignLeft);
-            //int ColGLCode = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "GL", 13, ExcelHAlign.HAlignLeft);
-            //int ColGL = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Budget Code", 13, ExcelHAlign.HAlignLeft);
-            //int ColBudgetCode = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Budget", 13, ExcelHAlign.HAlignLeft);
-            //int ColBudget = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Activity", 13, ExcelHAlign.HAlignLeft);
-            //int ColActivity = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "POR Efference", 13, ExcelHAlign.HAlignLeft);
-            //int ColPOREfference = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Issue Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColIssueQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Base Issue Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColBaseIssueQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Purchase Return Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColPurchaseReturnQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Issue Return Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColIssueReturnQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Reduction By Adjustment Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColReductionByAdjustmentQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Inventory Sales Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColInventorySalesQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Inventory Scrap Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColInventoryScrapQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Inventory Transfer Qty", 13, ExcelHAlign.HAlignLeft);
-            //int ColInventoryTransferQty = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 13, ExcelHAlign.HAlignLeft);
-            //int ColDocRefDate = COL;
-            //COL++;
-            //report.SetHeaderText(ref sheet, ROW, COL, "Agent Commission", 13, ExcelHAlign.HAlignLeft);
-            //int ColAgentCommission = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "Insurance", 13, ExcelHAlign.HAlignLeft);
-            //int ColInsurance = COL;
-            //COL++;
-
-            //report.SetHeaderText(ref sheet, ROW, COL, "LoT No", 13, ExcelHAlign.HAlignLeft);
-            //int ColLoTNo = COL;
-            //COL++;
-
-
             endCol = COL;
 			#endregion Headers
 
@@ -4195,6 +3998,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			{
 				sheet[ROW, ColSalesId].Text = data.Rows[i]["SalesMaterialId"].ToString();
 				sheet[ROW, ColGSTINNo].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColHSNCode].Text = data.Rows[i]["HSNCode"].ToString();
 				sheet[ROW, ColMaterialGroup].Text = data.Rows[i]["MaterialGroup"].ToString();
 				sheet[ROW, ColMaterial].Text = data.Rows[i]["Material"].ToString();
 				sheet[ROW, ColSalesNo].Text = data.Rows[i]["SalesNo"].ToString();
@@ -4299,29 +4103,6 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
 				sheet.Range[ROW, Convert.ToInt32(ColTaxAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-				//sumObject = data.Compute("Sum(BaseAmount)", "");
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].CellStyle.Font.Bold = true;
-				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = data.Compute("Sum(TotalBaseAmount)", "");
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].CellStyle.Font.Bold = true;
-				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColTotalBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = data.Compute("Sum(Payment)", "");
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
-				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
-
-				//sumObject = data.Compute("Sum(Balance)", "");
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
-				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
 			}
 
 			endRow = ROW - 1;
@@ -4330,6 +4111,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			#endregion sheet
 
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+			sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
 			sheet.UsedRange.WrapText = true;
 			sheet.UsedRange.CellStyle.Font.Size = 8;
 
@@ -4430,7 +4212,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								                where XI.VoucherId=SA.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
-,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+									,HS.Code HSNCode
 
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
@@ -4457,6 +4240,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
 						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+						LEFT JOIN HKP.HSNCode HS ON HS.Id=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
 						LEFT JOIN TRN.FirstCharacteristics AS FC ON FC.Id=SM.FirstCharacteristicsId AND SM.SalesOrderId=FC.SalesOrderId
@@ -4592,7 +4376,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 												 join  trn.invoiceWriteOff IW 	 ON IW.Id=IWD.InvoiceWriteOffId   
 												  LEFT JOIN [TRN].[Invoice] XI ON XI.Id = IWD.InvoiceId
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
-,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+								,'' HSNCode
+
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
@@ -4698,8 +4484,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								,''AgentCommission
 								,'' Insurance
-		,''GrossWeight,''LoTNo
-		,''ContractNo
+								,''GrossWeight,''LoTNo
+								,''ContractNo
 								,''LCRef
 								,''ComercialInvoiceNo
 								,''ExpiryDate
@@ -4715,10 +4501,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''CNFContainerNo
 								,''CNFVesselTrackingNo
 								,''OwnReferenceNo
-													,0 RealizeAmount
+								,0 RealizeAmount
+								,''RealizeDate
+								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+								,HSNC.Code HSNCode
 
-									,''RealizeDate
-,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								FROM[TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
@@ -4733,12 +4520,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								LEFT JOIN [SCS].[State] as ST on ST.Id=AM.StateId
 
 						LEFT JOIN [HKP].[PartyPlant] AS PPI1 ON PPI1.Id=II.DeliveryPartyPlantId 
-left Join hkp.Party P On p.id=II.CustomerId
-LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
-									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
-									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
-									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
-									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+						left Join hkp.Party P On p.id=II.CustomerId
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+						LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+						LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+						LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+						LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 						LEFT JOIN [MST].[AddressMaster] AS AM1 ON AM1.Id=PPI1.AddressMasterId
 						LEFT JOIN [SCS].[State] as ST1 on ST1.Id=AM1.StateId
 						Left Join employeeinformation EI2 On EI2.SystemId=II.CheckedBy
@@ -4749,7 +4536,7 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 						--Left Join [HKP].[Party] Par As Par.Id=II.P
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					--	LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
+						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
@@ -4848,8 +4635,8 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 						--,''TransportDocDate,''CNFAgent
 						,''AgentCommission
 						,'' Insurance
-,''GrossWeight,''LoTNo
-,''ContractNo
+						,''GrossWeight,''LoTNo
+						,''ContractNo
 						,''LCRef
 						,''ComercialInvoiceNo
 						,''ExpiryDate
@@ -4867,16 +4654,17 @@ LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 						,''OwnReferenceNo
 						,0 RealizeAmount
 					    ,''RealizeDate
-,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
+						,'' HSNCode
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
-LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
-									LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
-									LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
-									LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
-									LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
+						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
+						LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
+						LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
+						LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
+						LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
 						LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
 						LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
 						left JOIN trn.Invoice as I ON I.InventorySalesId=IR.Id					

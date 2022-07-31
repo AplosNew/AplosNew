@@ -389,7 +389,7 @@ namespace Library.Accounting.Accounts
 						
 						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType='Vendor'
-						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.PartyId=CP.PartyId and CPGL.PartyGLType='ReconciliationGL'
+						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id  and CPGL.PartyGLType='ReconciliationGL'
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
@@ -665,7 +665,7 @@ namespace Library.Accounting.Accounts
 						JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id
 						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType='Vendor'
-						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.PartyId=CP.PartyId and CPGL.PartyGLType='ReconciliationGL'
+						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id and CPGL.PartyGLType='ReconciliationGL' 
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
@@ -873,7 +873,7 @@ SELECT T.OtherName, T.TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId
 						
 						JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
 						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType='Vendor'
-						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.PartyId=CP.PartyId and CPGL.PartyGLType='ReconciliationGL'
+						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id and CPGL.PartyGLType='ReconciliationGL' 
 						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
 						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
@@ -1815,13 +1815,15 @@ UNION
             try
             {
                 var sql = @"SELECT  GL.AccountCode+' - '+ GL.UserName GLName,BU.UserName BudgetName,A.UserName ActivityName,0 DrAmount,ATD.Amount CrAmount,ATD.AdditionalTaxId
-                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,ATD.TaxCategoryId,ATD.TaxCodeId,ATD.AType
+                            ,ATD.GLGeneralInfoId, ATD.BudgetMasterId, ATD.ActivityId,TC.Id TaxCategoryId,ATD.TaxCodeId,ATD.AType
                             FROM TRN.AdditionalTaxDetail ATD 
                             JOIN TRN.AdditionalTax ATX ON ATX.Id=ATD.AdditionalTaxId
                             LEFT JOIN HKP.GLGeneralInfo GL ON GL.Id=ATD.GLGeneralInfoId
                             LEFT JOIN MST.BudgetMaster BM ON BM.Id=ATD.BudgetMasterId
                             LEFT JOIN HKP.Budget BU ON BU.Id=BM.BudgetId
                             LEFT JOIN HKP.Activity A ON A.Id=ATD.ActivityId
+							LEFT JOIN MST.TaxCode TAC ON TAC.Id=ATD.TaxCodeId
+							LEFT JOIN MST.TaxCategory TC ON TC.Id=TAC.TaxCategoryId
 							WHERE ATX.Id='" + additionalTaxId + @"'
 
                             UNION
@@ -3438,27 +3440,24 @@ SELECT R.OtherName, R.TrnType, R.MaterialGroupMasterId, R.TaxCategoryId
 							, MAT.Amount+ISNULL(TCS.TCSAmount,0) Amount,  MAT.ServiceAcknowledgementDetailId
 					FROM (
 					SELECT  'Vendor' AS OtherName, 'Cr' AS TrnType, NULL AS MaterialGroupMasterId, NULL AS TaxCategoryId, NULL AS TaxCodeId
-							, MGPGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
-							, MGPGL.BudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
-							, MGPGL.ActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
+							, CPGL.GLGeneralInfoId AS GLGeneralInfoId, GL.AccountCode AS GLGeneralInfoCode, GL.UserName AS GLGeneralInfoName
+							, CPGL.BudgetMasterId AS BudgetMasterId, B.Code AS BudgetCode, B.UserName AS BudgetName
+							, CPGL.ActivityId AS ActivityId, A.Code AS ActivityCode, A.UserName AS ActivityName
 							, NULL Dr, SUM(IM.Amount+IM.TotalTaxAmount) AS Cr
 							, SUM(IM.Amount+IM.TotalTaxAmount) AS Amount,  NULL ServiceAcknowledgementDetailId,IM.ServiceAcknowledgementMasterId
 						FROM [TRN].[ServiceAcknowledgementDetail] AS IM
 						LEFT JOIN [TRN].ServiceAcknowledgementMaster AS IR ON IM.ServiceAcknowledgementMasterId=IR.Id
 						LEFT JOIN [HKP].[ServiceMaster] AS SM ON IM.ServiceMasterId=SM.Id
 						LEFT JOIN [HKP].[ServiceGroup] AS MM ON SM.ServiceGroupId=MM.Id
-						LEFT JOIN (SELECT MGGL.* FROM [ORG].[Company] AS C JOIN [HKP].[ServiceGroupGL] AS MGGL ON C.COAId=MGGL.COAId WHERE C.Id=@companyId)
-								AS MGGL ON MM.Id = MGGL.ServiceGroupId
-								LEFT JOIN(SELECT * FROM [HKP].[CompanyParty] WHERE PlantId=@plantId AND PartyType='Vendor')AS CP ON IR.PartyId = CP.PartyId
-						LEFT JOIN [HKP].[PartyAccountGroup] AS PACG ON CP.PartyAccountGroupId = PACG.Id
-						LEFT JOIN [HKP].[ServiceGroupPartyAccountGroupGL] AS MGPGL ON MGGL.ServiceGroupId = MGPGL.ServiceGroupId AND MGPGL.PartyAccountGroupId= PACG.Id
-						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON MGPGL.GLGeneralInfoId= GL.Id
-						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON MGPGL.BudgetMasterId= BM2.Id
+						LEFT JOIN [HKP].[CompanyParty] CP ON IR.PartyId = CP.PartyId AND CP.PlantId=@plantId AND CP.PartyType='Vendor'
+						LEFT JOIN HKP.CompanyPartyGL CPGL ON CPGL.CompanyPartyId=CP.Id and CPGL.PartyGLType='ReconciliationGL' 
+						LEFT JOIN [HKP].[GLGeneralInfo] AS GL ON CPGL.GLGeneralInfoId= GL.Id
+						LEFT JOIN [MST].[BudgetMaster] AS BM2 ON CPGL.BudgetMasterId= BM2.Id
 						LEFT JOIN [HKP].[Budget] AS B ON BM2.BudgetId= B.Id
-						LEFT JOIN [HKP].[Activity] AS A ON MGPGL.ActivityId= A.Id
+						LEFT JOIN [HKP].[Activity] AS A ON CPGL.ActivityId= A.Id
 
 						WHERE IM.ServiceAcknowledgementMasterId=@serviceAcknowledgementMasterId
-						GROUP BY MGPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, MGPGL.BudgetMasterId, B.Code, B.UserName, MGPGL.ActivityId, A.Code, A.UserName
+						GROUP BY CPGL.GLGeneralInfoId, GL.AccountCode, GL.UserName, CPGL.BudgetMasterId, B.Code, B.UserName, CPGL.ActivityId, A.Code, A.UserName
 						,IM.ServiceAcknowledgementMasterId
 						) MAT
 
