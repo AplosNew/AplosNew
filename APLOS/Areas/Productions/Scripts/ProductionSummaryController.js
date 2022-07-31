@@ -1257,6 +1257,26 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
     //search
 
+    $scope.ProductionOrderList = [];
+    $scope.getPQPoPUp = function () {
+        //if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+        //    return ShowResult('Please Work Center.', 'failure');
+        //}
+        $scope.ProductionOrderList = [];
+        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(
+                function successCallback(response) {
+                    $scope.ProductionOrderList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+        angular.element(document.querySelector('#POItemPopup')).modal('show');
+
+    };
+
+
     $scope.Clear = function () {
         ClearFields();
         return true;

@@ -167,9 +167,22 @@
                 <input type="text" class="form-control" ng-disabled="PQEnable" n-decimals="2" placeholder="Produced Quantity" ng-model="productionSummaryNew.Quantity">
             </div>
             <div class="col-sm-1" style="padding-left:0px;">
-                <label class="control-label">{{productionSummaryNew.UOM}}</label>
+                @*<label class="control-label">{{productionSummaryNew.UOM}}</label>*@
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="getPQPoPUp();" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    </ul>
+                </div>
             </div>
 
+             @*<div class="col-xs-4" ng-show="IsGo===true">
+                <div class="common-btn">
+                    <ul class="list-inline text-left">
+                        <li><button ng-click="showBothPopups(productionSummaryNew);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                    </ul>
+                </div>
+
+            </div>*@
             <label class="col-sm-2 control-label">Grade<sup>*</sup></label>
             <div class="col-sm-3 show-message" style="padding-right:-1px;">
                 <div class="select-style">
