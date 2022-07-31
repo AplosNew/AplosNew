@@ -184,5 +184,19 @@ namespace Library.HumanResource.NewOTProcess
 
             return 1;
         }
+
+        public DataTable furnituremasterReport()
+        {
+            try
+            {
+                var str = @"select fm.Id, fm.Sequence, fm.Code, fm.ShortName, fm.StandardName, fm.UserName, fm.Type, fm.Budget, fm.Category, fm.SubCategory,fm.[Description],
+                            fm.Remarks, fm.AddedBy, fm.AddedDate from HKP.furnitureMaster fm";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 }

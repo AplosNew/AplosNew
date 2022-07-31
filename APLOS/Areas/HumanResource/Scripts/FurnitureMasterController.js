@@ -10,6 +10,7 @@ function FurnitureMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.GetSequence = function () {
         cboService.getSequence($scope.getSeqUrl, function (data) {
@@ -131,6 +132,26 @@ function FurnitureMasterController(cboService, commonMessage, $scope, $rootScope
         };
 
     }
+
+    $scope.FurnitureReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsFurnitureMasterReport",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+    
 
 
 }

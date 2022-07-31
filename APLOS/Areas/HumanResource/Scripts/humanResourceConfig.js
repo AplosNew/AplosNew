@@ -796,5 +796,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/FurniturePolicy/Aplos',
             controller: 'FurniturePolicyController'
         })
+
+        .when('/furniture-policy-report', {
+            templateUrl: 'humanResource/FurniturePolicyReport/Aplos',
+            controller: 'FurniturePolicyReportController'
+        })
         ;
 }
