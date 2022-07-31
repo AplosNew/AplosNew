@@ -150,7 +150,8 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.Model = { Id: null, ProcessId: null, InputItemName: null, InputItemUoMId: null, OutputItemName: null, OutputItemUoMId: null, InPutOutPutRatio: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
         $scope.ModelNew = Object.assign({}, $scope.Model);
         $scope.Action = 'Save';
-        $scope.ModelList = [];
+        $scope.ProcessParameterList = [];
+        $scope.QualityParameterList = [];
     }
 
     $scope.ModelProcessPara.FormulaDes = null;

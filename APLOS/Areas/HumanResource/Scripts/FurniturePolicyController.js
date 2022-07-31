@@ -88,7 +88,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
             dataType: 'JSON',
         }).then(function successCallback(response) {
             $scope.EmployeeCategoryList = response.data;
-            $scope.viewFurniturePolicyGrids();
+           // $scope.viewFurniturePolicyGrids();
         })
         
     }
@@ -265,7 +265,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
-        $scope.getEmployee();
+        /*$scope.getEmployee();*/
     }
     $scope.EmployeeList = [];
     $scope.getEmployee = function () {
@@ -280,10 +280,10 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     }
 
     $scope.EmployeeId = null;
-    $scope.EmployeeName = null;
+    $scope.Employee = null;
     $scope.doubleEmploye = function (e) {
         $scope.EmployeeId = e.data.SystemId;
-        $scope.EmployeeName = e.data.EmployeeName;
+        $scope.Employee = e.data.EmployeeName;
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
         /*$scope.viewFurniturePolicyGrids();*/
     }
