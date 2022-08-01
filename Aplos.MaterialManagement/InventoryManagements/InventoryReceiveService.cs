@@ -2700,7 +2700,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     }
                     else if (GRNbyPOCheckStatus == "Checked")
                     {
-                        tempsql = @"AND IR.CheckedByStatus='Checked' AND ISNULL(IR.[Status],'')<>'Posting'";
+                        tempsql = @"AND IR.CheckedByStatus='Checked' And IR.IsApproved = 0 AND ISNULL(IR.[Status],'')<>'Posting'";
                     }
                     else if (GRNbyPOCheckStatus == "Approved")
                     {

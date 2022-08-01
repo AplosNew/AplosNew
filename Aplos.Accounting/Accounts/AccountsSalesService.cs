@@ -1969,7 +1969,7 @@ namespace Library.Accounting.Accounts
 				    ,AR.ActivityId,AR.ActivityCode,AR.ActivityName
 					,AR.Dr Dr
 					,AR.Cr
-					,AR.Dr  Amount
+					,AR.Amount  Amount
 	                FROM (
                             SELECT  'A/R' AS OtherName, 'Cr' AS TrnType, NULL MaterialGroupMasterId, NULL TaxCategoryId,NULL TaxCodeId
                             ,ISD.PostDrGLGeneralInfoId GLGeneralInfoId
