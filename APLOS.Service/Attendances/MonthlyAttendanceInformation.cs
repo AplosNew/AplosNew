@@ -3243,140 +3243,139 @@ namespace Library.Service.Attendances
                                         ReportUtility oru = new ReportUtility();
                                         string yot = string.Empty;//OTConsiderOn
                                         string overstay = string.Empty;
+                                        int minutesadd = Convert.ToInt32(item["MaxOTPerDay"].ToString().Trim());
 
-
-                                        if (!string.IsNullOrEmpty(item["DayCategory"].ToString()))
+                                        if (minutesadd==240)
                                         {
-                                            if (item["DayCategory"].ToString() == "Present" || item["DayCategory"].ToString() == "Late")
+                                            if (!string.IsNullOrEmpty(item["DayCategory"].ToString()))
                                             {
-
-                                                if (item["OutTimeShow"].ToString() != "")
+                                                if (item["DayCategory"].ToString() == "Present" || item["DayCategory"].ToString() == "Late")
                                                 {
-                                                    DateTime NewRealOutTime;
-                                                    string TakeDate = Convert.ToDateTime(item["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
-                                                    string ot = Convert.ToDateTime(item["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
 
-                                                    //check night shift
-                                                    string _sOUTtime = TakeDate + " " + ot;
-                                                    string _sINtime = TakeDate + " " + Convert.ToDateTime(item["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
-                                                    if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                                    if (item["OutTimeShow"].ToString() != "")
                                                     {
-                                                        TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                                        DateTime NewRealOutTime;
+                                                        string TakeDate = Convert.ToDateTime(item["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
+                                                        string ot = Convert.ToDateTime(item["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
+
+                                                        //check night shift
+                                                        string _sOUTtime = TakeDate + " " + ot;
+                                                        string _sINtime = TakeDate + " " + Convert.ToDateTime(item["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
+                                                        if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
+                                                        {
+                                                            TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
+                                                        }
+
+                                                        string TateandTime = TakeDate + " " + ot;
+
+                                                        DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
+                                                        DateTime RealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
+                                                        double totalMinutes;
+
+                                                        if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && (item["OriginalDayType"].ToString() != "H" && item["OriginalDayType"].ToString() != "W"))
+                                                        {
+                                                            long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(item["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
+                                                            int EmployeeSystemId = (int)Convert.ToInt64(item["SystemId"].ToString());
+                                                            WorkDateTickCount += EmployeeSystemId;
+
+                                                            Random rnd = new Random((int)(WorkDateTickCount));
+                                                            int RandomMinutes = rnd.Next(0, 15);
+                                                            NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
+                                                            DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
+                                                            DateTime ShiftTime = Convert.ToDateTime(TateandTime);
+                                                            TimeSpan span = RandomTime - ShiftTime;
+                                                            totalMinutes = span.TotalMinutes;
+                                                            oru.GetOT(item["OTConsiderOn"].ToString(), minutesadd.ToString(), out overstay);
+                                                            if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                                            {
+                                                                overstay = "";
+                                                            }
+
+
+                                                        }
+                                                        else
+                                                        {
+                                                            NewRealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
+                                                            oru.GetOT(item["OTConsiderOn"].ToString(), item["OverStay"].ToString(), out overstay);
+                                                            if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                                            {
+                                                                overstay = "";
+                                                            }
+                                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                                            {
+                                                                overstay = "";
+
+                                                            }
+
+
+                                                        }
+
                                                     }
-
-                                                    string TateandTime = TakeDate + " " + ot;
-                                                    int minutesadd = Convert.ToInt32(item["MaxOTPerDay"].ToString().Trim());
-                                                    DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
-                                                    DateTime RealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
-                                                    double totalMinutes;
-
-                                                    if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && (item["OriginalDayType"].ToString() != "H" && item["OriginalDayType"].ToString() != "W"))
-                                                    {
-                                                        long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(item["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
-                                                        int EmployeeSystemId = (int)Convert.ToInt64(item["SystemId"].ToString());
-                                                        WorkDateTickCount += EmployeeSystemId;
-
-                                                        Random rnd = new Random((int)(WorkDateTickCount));
-                                                        int RandomMinutes = rnd.Next(0, 15);
-                                                        NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
-                                                        DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
-                                                        DateTime ShiftTime = Convert.ToDateTime(TateandTime);
-                                                        TimeSpan span = RandomTime - ShiftTime;
-                                                        totalMinutes = span.TotalMinutes;
-                                                        oru.GetOT(item["OTConsiderOn"].ToString(), minutesadd.ToString(), out overstay);
-                                                        if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                        {
-                                                            overstay = "";
-                                                        }
-
-
-                                                    }
-                                                    else
-                                                    {
-                                                        NewRealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
-                                                        oru.GetOT(item["OTConsiderOn"].ToString(), item["OverStay"].ToString(), out overstay);
-                                                        if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                        {
-                                                            overstay = "";
-                                                        }
-                                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                        {
-                                                            overstay = "";
-
-                                                        }
-
-
-                                                    }
-
                                                 }
                                             }
+
+
+                                            if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                            {
+                                                overstay = "";
+
+
+                                            }
+                                            else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                            {
+                                                overstay = "";
+
+
+
+                                            }
+                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
+                                            {
+                                                overstay = "";
+
+
+
+                                            }
+                                            else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
+                                            {
+                                                overstay = "";
+
+
+                                            }
+
+                                            else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
+                                            {
+                                                overstay = "";
+
+                                            }
+
+
+
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
+
+
+                                            totalOTHr += clsStaticInfo.dbl(overstay);
+
                                         }
-
-
-                                        if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                        {
-                                            overstay = "";
-
-
-                                        }
-                                        else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                        {
-                                            overstay = "";
-
-
-
-                                        }
-                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                        {
-                                            overstay = "";
-
-
-
-                                        }
-                                        else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                        {
-                                            overstay = "";
-
-
-                                        }
-
-                                        else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
-                                        {
-                                            overstay = "";
-
-                                        }
-
-
-
-                                        sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
-                                        //sheet1.Range[particular3rdRow + 3, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
-
-
-                                        totalOTHr += clsStaticInfo.dbl(overstay);
-
-
-                                        //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                        //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
                                         #endregion
 
