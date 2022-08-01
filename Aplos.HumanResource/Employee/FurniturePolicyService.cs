@@ -12,7 +12,8 @@ using System.Threading.Tasks;
 
 namespace Library.HumanResource.Employee
 {
-   public class FurniturePolicyService
+    #region FurniturePolicyService
+    public class FurniturePolicyService
     {
         private readonly SqlRepository _sqlRepository;
         public FurniturePolicyService()
@@ -324,4 +325,135 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
             dr.EndEdit();
         }
     }
+    #endregion FurniturePolicyService
+
+    #region FurniturePolicyServiceReport
+    public class FurniturePolicyReportService
+    {
+        private readonly SqlRepository _sqlRepository;
+        public FurniturePolicyReportService() 
+        {
+            _sqlRepository = new SqlRepository();
+        }
+
+        public IEnumerable<object> getEmployeeCategory()
+        {
+            try
+            {
+                var sql = @"select Id as Value, UserName as Text from HKP.EmployeeCategory";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getDesignation(string employeeCategoryId)
+        {
+            try 
+            {
+                var sql = @"select dm.Id as Value, dm.UserName as Text from MST.DesignationMaster dm 
+                            left join  HKP.EmployeeCategory ec on ec.Id = dm.EmployeeCategoryId
+                            left join HKP.Designation d on d.Id = dm.DesignationId
+                            where ec.Id = '"+ employeeCategoryId + "' order by d.UserName";
+
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable furnitureWiseReport(string designationId) 
+        {
+            try
+            {
+                var str = "";
+                if (designationId == null)
+                {
+                    str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
+                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
+                            left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
+                            left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
+                            left join mst.DesignationMaster DM on DM.Id = FPD.DesignationMasterId
+                            left join hkp.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+                            left join hkp.Designation D on D.Id = DM.DesignationId
+                             order by D.UserName";
+                }
+                else
+                {
+                    str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
+                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
+                            left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
+                            left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
+                            left join mst.DesignationMaster DM on DM.Id = FPD.DesignationMasterId
+                            left join hkp.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+                            left join hkp.Designation D on D.Id = DM.DesignationId
+                            where DM.Id = '" + designationId + "' order by D.UserName";
+                }
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getPolicyGrid(string designationId)
+        {
+            try
+            {
+                var str = "";
+                if (designationId == null)
+                {
+                    str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
+                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
+                            left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
+                            left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
+                            left join mst.DesignationMaster DM on DM.Id = FPD.DesignationMasterId
+                            left join hkp.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+                            left join hkp.Designation D on D.Id = DM.DesignationId
+                             order by D.UserName";
+                }
+                else
+                {
+                    str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
+                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
+                            left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
+                            left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
+                            left join mst.DesignationMaster DM on DM.Id = FPD.DesignationMasterId
+                            left join hkp.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+                            left join hkp.Designation D on D.Id = DM.DesignationId
+                            where DM.Id = '" + designationId + "' order by D.UserName";
+                }
+                return _sqlRepository.GetDataCollection(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable designationWiseReport()
+        {
+            try
+            {
+                var str = @"";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+    #endregion FurniturePolicyServiceReport
 }
+

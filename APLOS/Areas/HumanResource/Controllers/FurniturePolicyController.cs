@@ -41,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [Authorize, HttpPost]
+        //[Authorize, HttpPost]
         public ActionResult getFurnitureGridView()
         {
             try
@@ -54,7 +54,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+       // [Authorize, HttpPost]
         public ActionResult getDesignationGridView(string employeeCategoryId)
         {
             try

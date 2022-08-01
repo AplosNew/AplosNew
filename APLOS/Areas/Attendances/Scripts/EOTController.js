@@ -104,10 +104,10 @@ function EOTController(commonMessage, $scope, $rootScope, baseService, $routePar
     };
 
     var empParameters = [];
-    $scope.GetEOTSummaryReport = function (reportType) {
+    $scope.GetEOTDetailsReport = function (reportType) {
         try {
             
-            $scope.fileName = "EOTSummaryReport.xls";
+            $scope.fileName = "EOTDetailsReport.xls";
             empParameters = [];
             var gridObj = $("#empInfoGrid").ejGrid("instance");
             var filteredRecords = gridObj.getFilteredRecords();
@@ -136,7 +136,7 @@ function EOTController(commonMessage, $scope, $rootScope, baseService, $routePar
                 method: 'POST',
                 url: 'Attendances/EOT/GetEOTReport',
                 data: {
-                    'Month': $scope.month, 'Year': $scope.year, 'DayStatus': $scope.MonthlyAttendanceInformation.DayStatus, 'empParameters': empParameters, 'withColor': $scope.withColor
+                    'Month': $scope.month, 'Year': $scope.year, 'DayStatus': $scope.MonthlyAttendanceInformation.DayStatus, 'empParameters': empParameters
                     , 'includeCurrentDate': $scope.includeCurrentDate, 'withSummary': $scope.withSummary
                     , 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity
                 }
@@ -148,6 +148,58 @@ function EOTController(commonMessage, $scope, $rootScope, baseService, $routePar
                     //if (reportType === 'EXCEL') {
                     //    $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
                     //}
+                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
+                }
+            });
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    var empParameters = [];
+    $scope.GetEOTSummaryReport = function (reportType) {
+        try {
+
+            $scope.fileName = "EOTSummaryReport.xls";
+            empParameters = [];
+            var gridObj = $("#empInfoGrid").ejGrid("instance");
+            var filteredRecords = gridObj.getFilteredRecords();
+
+            if (filteredRecords.length == 0) {
+                filteredRecords = $scope.EmployeeListTemp;
+            }
+
+            if ($scope.isManualFilter == true) {
+                if (filteredRecords.length == 0) {
+                    filteredRecords = $scope.EmployeeListTemp;
+
+                }
+            }
+            if (angular.isUndefinedOrNull(filteredRecords) === false) {
+                if (filteredRecords.length > 0) {
+                    empParameters = [];
+                    empParameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
+                }
+            }
+            if (empParameters.length === 0) {
+                empParameters.push({ "Key": "", "Value": "" });
+
+            }
+            $http({
+                method: 'POST',
+                url: 'Attendances/EOT/GetEOTSummaryReport',
+                data: {
+                    'Month': $scope.month, 'Year': $scope.year, 'DayStatus': $scope.MonthlyAttendanceInformation.DayStatus, 'empParameters': empParameters
+                    , 'includeCurrentDate': $scope.includeCurrentDate, 'withSummary': $scope.withSummary
+                    , 'isActive': $scope.isActive, 'isSeperated': $scope.isSeperated, 'isMaternity': $scope.isMaternity
+                }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    
                     $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FullPath + "&fileName=" + response.data.FileName);//downloadgriddataUrlPath
                 }
             });

@@ -1100,6 +1100,84 @@ namespace Library.MaterialManagement.Inventory
                                 )x
                                 Order by PODate ASC";
                 }
+                else
+                {
+                    Sql = @"SELECT  
+	                            PDA.Id AcceptanceId	
+	                            ,REPLACE(CONVERT(CHAR(11), PDA.AcceptanceDate, 106), ' ', '-') AS AcceptanceDate	
+	                            ,PO.POId	
+	
+	                            ,PO.PartyId
+	                            ,P.Code AS PartyCode
+	                            ,P.UserName AS PartyName	
+	                            ,PO.PurchaseLCId
+	                            ,PO.ContractId
+                                ,PO.ContractNo
+								,PO.LCANo
+								,PO.LCDate
+	                            ,PDA.InvoiceNo	
+                                ,PDA.InvoiceDate
+	                            ,PDA.VoucherId
+	                            ,PDA.AcceptanceRate	
+	                            	,IsNonCreditable=CASE WHEN PDA.IsNonCreditable=1 Then 'Yes' ELSE 'No' END
+	                                ,REPLACE(CONVERT(CHAR(11), PLC.LCDate, 106), ' ', '-') AS LCDate	
+	                                ,Sum(PDAD.TransactionQty) TransactionQty
+	                                ,sum(PDAD.TransactionAmount) TransactionAmount
+	                                ,sum(PDAD.BaseAmount) BaseAmount
+                            FROM TRN.PurchaseDocAcceptance AS PDA
+                            LEFT JOIN(
+			                            select PDAMAP.PurchaseDocAcceptanceId, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId,IR.ContractId,C.ContractNo,PLC.LCANo,PLC.LCDate			
+			                            ,POId=STUFF((select distinct ','+xpo.Id from
+			                            trn.PurchaseOrder xpo
+			                            INNER JOin trn.PurchaseDocAcceptancePOMap xPDAMAP on xpo.Id=xPDAMAP.POId
+			                            where xPDAMAP.PurchaseDocAcceptanceId=PDAMAP.PurchaseDocAcceptanceId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')			
+                                        from  trn.PurchaseDocAcceptancePOMap PDAMAP 
+		                              LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
+                                      LEFT JOIN [dbo].[Contract] C ON c.Id=IR.ContractId
+									  LEFT JOIN dbo.PurchaseLC PLC ON PLC.Id=IR.PurchaseLCId
+		                              group by  PDAMAP.PurchaseDocAcceptanceId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,PLC.LCDate
+		                            )PO ON PO.PurchaseDocAcceptanceId = PDA.Id
+                            LEFT JOIN (
+	                            SELECT PurchaseDocAcceptanceId
+		                            ,Id
+		                            ,SUM(TransactionQty) TransactionQty
+		                            ,Sum(MaterialTranAmount) TransactionAmount
+		                            ,Sum(TotalMaterialTranAmount) BaseAmount
+	                            FROM TRN.PurchaseDocAcceptanceDetail
+	                            GROUP BY PurchaseDocAcceptanceId
+		                            ,Id
+	                            ) PDAD ON PDAD.PurchaseDocAcceptanceId = PDA.Id
+                            LEFT JOIN [HKP].[Party] AS P ON PO.PartyId = P.Id
+                            LEFT JOIN PurchaseLC PLC ON PLC.Id = PDA.PurchaseLCId
+                            WHERE PDA.PlantId = '" + plantId + @"'
+	                            AND PDA.VoucherId <> ''
+	                            AND PDA.Id NOT IN (
+		                            SELECT PurchaseDocumentAcceptanceId
+		                            FROM trn.InventoryReceive
+		                            WHERE PurchaseDocumentAcceptanceId IS NOT NULL
+		                            )
+	                            AND PO.IsClosed = 0
+	                            AND PO.POType = 'PO'
+                            GROUP BY PDA.Id 
+	                            ,PO.POId	
+	                            ,PDA.AcceptanceRate
+	
+	                            ,PO.PartyId
+	                            ,P.Code 
+	                            ,P.UserName 
+	                            --,TU.TransactionUoMId
+	                            ,PDA.AcceptanceDate
+	                            ,PDA.EntryDate
+	                            ,PO.PurchaseLCId
+	                            ,PO.ContractId
+	                            ,PDA.InvoiceNo
+	                            ,PDA.InvoiceDate
+	                            ,PDA.DueDate
+	                            ,PDA.VoucherId
+	                            ,PLC.LCDate,PDA.IsNonCreditable,PO.ContractNo,PO.LCANo,PO.LCDate
+                            ORDER BY PO.POId";
+
+                }
                 return _sqlRepository.GetDataCollection(Sql);
             }
             catch (Exception ex)
