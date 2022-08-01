@@ -299,6 +299,8 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         , TaxOptionService: 'Yes'
         , TaxOptionServiceModify: 'Yes'
         , TaxOptionAddiTax: 'Yes'
+        , GateEntryNo: null
+        , GateEntryDate: null
     };
     $scope.productNew = Object.assign({}, $scope.product);
     $scope.productNew.TaxOptionService = 'Yes';
@@ -1819,5 +1821,37 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             //$scope.HSNCode = $scope.receiveTaxList[0].HSNCode;
         });
 
+    }
+    $scope.POPopUpGateEntry = function () {
+        $scope.getalldataGateEntry();
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('show');
+    };
+    $scope.POPopUpCloseGateEntry = function () {
+        angular.element(document.querySelector('#POPopUpGateEntry')).modal('hide');
+    };
+    $scope.GriddataGateEntry = [];
+    $scope.getalldataGateEntry = function () {
+        //debugger;
+        $http({
+            method: "GET",
+            dataType: 'JSON',
+            //url: $scope.getSearchListUrl,
+            url: 'Products/GoodsReceiveNote/GetListOfPOGateEntry?partyCode=' + $scope.productNew.PartyId,
+        }).then(function successCallback(response) {
+            $scope.GriddataGateEntry = response.data;
+            //entrydata = copy(searchdata);
+        });
+    };
+    $scope.recorddoubleclickGateEntry = function ($event) {
+        //debugger;
+        var x = $event;
+        var Id = x.data.Id;
+        //alert('Id'+Id);
+        // $scope.productNew = x.data;
+        //  $scope.productId = "";
+        $scope.productNew.GateEntryNo = x.data.Id;
+        $scope.productNew.GateEntryDate = x.data.EntryDate;
+
+        $scope.POPopUpCloseGateEntry();
     }
 }

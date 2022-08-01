@@ -148,7 +148,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColFurniture = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Type", 12, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, ROW, COL, "Grade", 12, ExcelHAlign.HAlignCenter);
             int ColType = COL;
             COL++;
 
