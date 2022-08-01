@@ -66,6 +66,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetQualityProcessCbo()
+        {
+            return Json(_productionSummaryData.GetQualityProcessCbo(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetProductionBookingPeriodCbo()
         {
             return Json(_productionSummaryData.GetProductionBookingPeriodCbo(), JsonRequestBehavior.AllowGet);

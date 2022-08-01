@@ -24,7 +24,12 @@
                     <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.EffectiveDate" datepicker class="form-control" required>
                 </div>
             </div>
-
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Quantity" ng-model="ModelNew.Quantity" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
 
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -41,7 +46,7 @@
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
 
-                        <input type="text" name="Responsible Person" ng-model="EmployeeName" class="form-control" required readonly>
+                        <input type="text" name="Responsible Person" ng-model="Employee" class="form-control" required readonly>
                         <span class="input-group-btn">
                             <button name="submit" ng-click="OpeEmployeePopUp()" class="btn single-small-btn" tabindex="1"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                         </span>
@@ -212,12 +217,12 @@
                         <p>Double click to Select an Employee</p>
                         <div style="color:black;" id="GridEntity" ej-grid e-datasource="EmployeeList"
                              e-allowpaging="true" e-allowsorting="true" e-allowscrolling="true" e-allowfiltering="true"
-                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false" e-responsive="true"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="true" e-responsive="true"
                              e-recorddoubleclick="doubleEmploye">
                             <div e-columns>
                                 <div e-column e-field="Entity" e-headertext="Entity" e-width="50"></div>
-                                @*<div e-column e-field="Code" e-headertext="Code" e-width="50"></div>*@
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="50"></div>
+                                
+                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
                                 <div e-column e-field="Section" e-headertext="Section" e-width="50"></div>
 
                                 <div e-column e-field="Designation" e-headertext="Designation" e-width="50"></div>

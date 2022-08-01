@@ -1807,6 +1807,90 @@ namespace Library.OrderManagement.Production
             }
         }
 
+        public IEnumerable<object> GetProcessParaData(string processId, string masterId)
+        {
+            try
+            {
+                var sql = "";
+                 sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id ProductionBookingParameterId
+FROM dbo.ProductionBookingParameter P
+LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='"+ masterId + @"'
+WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "')";
+                    return _sqlRepository.GetDataCollection(sql, null);
+               
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue)
+        {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
+
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "ProductionBookingParameterId = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                            strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }//End 
+
+
         public IEnumerable<object> GetSFGTotalQty(string salesOrderId, string processId, string status)
         {
             try
@@ -2371,6 +2455,21 @@ namespace Library.OrderManagement.Production
 
         #endregion PackingContent
 
+
+        public IEnumerable<object> GetQualityProcessCbo()
+        {
+            try
+            {
+                string sql = @"SELECT  P.Id, P.UserName FROM dbo.QualityProcess AS qp	
+LEFT JOIN [HKP].[Process] AS P ON P.Id=qp.ProcessId
+WHERE qp.[Active]=1";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
     }
 

@@ -1064,6 +1064,7 @@ upanelApp.controller("FuguaiZoneMasterController", FuguaiZoneMasterController);
 upanelApp.controller("ProductionBookingProcessparameterController", ProductionBookingProcessparameterController)
 upanelApp.controller("EOTController", EOTController)
 upanelApp.controller("QuaityProcessBookingController", QuaityProcessBookingController)
+upanelApp.controller("FurniturePolicyReportController", FurniturePolicyReportController)
 
 
 

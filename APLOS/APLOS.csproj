@@ -582,6 +582,7 @@
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTCompensatoryAllocationController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\OTControlLimitController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\EmployeeSkillMatrixController.cs" />
@@ -2008,6 +2009,7 @@
     <Content Include="Areas\HumanResource\Scripts\FuguaiTransactionController.js" />
     <Content Include="Areas\HumanResource\Scripts\FurnitureMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FurniturePolicyController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FurniturePolicyReport.js" />
     <Content Include="Areas\HumanResource\Scripts\GoalSettingApprovalController.js" />
     <Content Include="Areas\HumanResource\Scripts\LeavesChecklistReportNewController.js" />
     <Content Include="Areas\HumanResource\Scripts\leaveWithWagesRegistersFrom18Controller.js" />
@@ -4230,6 +4232,7 @@
     <Content Include="Areas\Attendances\Views\ExtraOT\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\EOT\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QuaityProcessBooking\Aplos.cshtml" />
+    <Content Include="Areas\HumanResource\Views\FurniturePolicyReport\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
