@@ -52,6 +52,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         ResponsiblePerson: null,
         ActiveInactive: true,
         EmployeeCategory: null,
+        Quantity: null,
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 

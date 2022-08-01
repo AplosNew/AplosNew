@@ -17,7 +17,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getFurnitureMaster()
         {
             try
@@ -29,7 +29,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getDesignationMaster()
         {
             try
@@ -41,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        //[Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getFurnitureGridView()
         {
             try
@@ -54,7 +54,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-       // [Authorize, HttpPost]
+       [HttpPost]
         public ActionResult getDesignationGridView(string employeeCategoryId)
         {
             try
@@ -67,7 +67,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getEmployee()
         {
             try
@@ -80,7 +80,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getEmployeeCategory()
         {
             try
@@ -93,7 +93,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult Save(Dictionary<string, object> data, string responsiblePerson)
         {
             
@@ -107,7 +107,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [ HttpPost]
         public ActionResult SaveTabA(List<Dictionary<string, object>> childA, string headerId, List<Dictionary<string, string>> designationmasterId)
         {
 
@@ -121,7 +121,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId)
         {
 

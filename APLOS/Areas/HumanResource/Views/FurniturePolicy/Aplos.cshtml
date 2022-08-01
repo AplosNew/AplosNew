@@ -24,7 +24,12 @@
                     <input type="text" name="Date" e-dateformat="dd-MMM-yyyy" ng-model="ModelNew.EffectiveDate" datepicker class="form-control" required>
                 </div>
             </div>
-
+            <div class="form-group" show-errors>
+                <label class="col-sm-4 control-label">Quantity<sup>*</sup></label>
+                <div class="col-sm-8 show-message">
+                    <input type="number" name="Quantity" ng-model="ModelNew.Quantity" class="form-control" required tabindex="4" maxlength="50">
+                </div>
+            </div>
 
         </div>
         <div class="col-xs-12 col-sm-6 col-md-6">

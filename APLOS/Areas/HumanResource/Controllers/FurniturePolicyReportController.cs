@@ -61,7 +61,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getPolicyGrid(string designationId)
         {
             try
@@ -78,7 +78,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost, Authorize]
+        [HttpPost]
         public ActionResult XlsFurnitureWiseReport(string designationId)
         {
             try
@@ -99,7 +99,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         private IWorkbook FurnitureReport(string designationId)
         {
             var excelEngine = new ExcelEngine();
