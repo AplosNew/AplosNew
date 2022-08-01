@@ -169,7 +169,7 @@ namespace Library.Service.Setups
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var sql = @"SELECT SM.SystemID AS Value,SM.SalaryRuleName AS Text FROM [dbo].[SalaryRuleMaster] AS SM
-                                WHERE SM.PlantID='" + plantId + "' AND  SM.GroupID='" + identity.CompanyGroupId + "' ORDER BY SM.SalaryRuleName";
+                                WHERE SM.PlantID='" + plantId + "' AND  SM.GroupID='" + identity.CompanyGroupId + "' AND SM.IsActive=1 ORDER BY SM.SalaryRuleName";
             return _sqlRepository.GetDataCollection(sql);
         }
 
