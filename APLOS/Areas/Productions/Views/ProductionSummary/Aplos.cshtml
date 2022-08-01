@@ -170,7 +170,7 @@
                 @*<label class="control-label">{{productionSummaryNew.UOM}}</label>*@
                 <div class="common-btn">
                     <ul class="list-inline text-left">
-                        <li><button ng-click="getPQPoPUp();" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                        <li><button ng-click="getProcessParaPopupPoPUp();" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
                     </ul>
                 </div>
             </div>
@@ -955,6 +955,55 @@
 
 
 </ej-dialog>
+
+<div class="modal site-modal in" id="ProcessParaPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> Production Process Parameter
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Head</th>
+                                        <th>State</th>
+                                        <th>Value</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in ProcessParaList">
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.EntryState}} ({{x.ValueIN}})</td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="removerPopUp" title="Confirmation" message={{message}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <div class="loader" data-loader>
     Please wait

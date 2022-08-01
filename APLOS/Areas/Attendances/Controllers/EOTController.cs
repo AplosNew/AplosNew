@@ -136,7 +136,7 @@ namespace Aplos.Areas.Attendances.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetEOTReport(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool withColor, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        public ActionResult GetEOTReport(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace Aplos.Areas.Attendances.Controllers
 
                 var fileName = "EOT" + DateTime.Now.ToString("yyMMdd")+identity.UserId + ".xlsx";
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
-                var workbook = _monthlyAttendanceInformation.GetEOTReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters, withColor, includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
+                var workbook = _monthlyAttendanceInformation.GetEOTReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters,  includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
                 //workbook.Version = ExcelVersion.Excel97to2003;
                 //workbook.SaveAs(fullPath);
@@ -158,6 +158,31 @@ namespace Aplos.Areas.Attendances.Controllers
             }
 
         }
+
+        [HttpPost, Authorize]
+        public ActionResult GetEOTSummaryReport(string Month, string Year, string DayStatus, Dictionary<string, string> empParameters, bool includeCurrentDate, bool withSummary, bool isActive, bool isSeperated, bool isMaternity)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var fileName = "EOT Summary " + DateTime.Now.ToString("yyMMdd") + identity.UserId + ".xlsx";
+                string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
+                var workbook = _monthlyAttendanceInformation.GetEOTSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters,  includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
+
+                //workbook.Version = ExcelVersion.Excel97to2003;
+                //workbook.SaveAs(fullPath);
+                //return Json(new { FileName = fullPath, Error = false }, JsonRequestBehavior.AllowGet);
+                return Json(new { FullPath = workbook, FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+        }
+
 
 
         [HttpPost, Authorize]
