@@ -1246,10 +1246,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
                                         sheet1.Range[8, 10, 8, 10 + 2].CellStyle.Font.Bold = true;
                                         sheet1.Range[8, 10, 8, 10 + 2].VerticalAlignment = ExcelVAlign.VAlignCenter;
                                         sheet1.Range[8, 10, 8, 10 + 2].BorderAround(ExcelLineStyle.Hair);
-                                    }
-
-                                    if (chkAdditionInfo == true)
-                                    {
+                                    
                                         //xlsRow += 1;
                                         sheet1.Range[9, 10].Text = "Total OT Hour";
                                         sheet1.Range[9, 10, 9, 10 + 1].Merge();

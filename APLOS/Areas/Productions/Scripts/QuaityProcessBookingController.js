@@ -16,20 +16,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
-    $scope.gradeList = [
-        {
-            'Value': 'A',
-            'Text': 'A'
-        },
-        {
-            'Value': 'B',
-            'Text': 'B'
-        },
-        {
-            'Value': 'C',
-            'Text': 'C'
-        }
-    ];
+    $scope.gradeList = [{ 'Value': 'A', 'Text': 'A' }, { 'Value': 'B', 'Text': 'B' }, { 'Value': 'C', 'Text': 'C' }, { 'Value': 'D', 'Text': 'D' }];
 
     $scope.productionSummary = {
         Id: null,
@@ -100,17 +87,27 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     }
     $scope.getAllEntities();
 
-    $scope.loadProcessList = function (entityid) {
-        cboService.GetEntityProcessCbo(entityid, function (result) {
-            $scope.processList = result;
-            if (baseService.arrayLength(result) === 1) {
-                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
-                $scope.getProdLevel();
-                //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
-            }
+
+    $scope.getprocessList = function () {
+        $http({
+            method: 'GET',
+            url: "Processes/Process/GetProductionProcessList"
+        }).then(function successCallback(response) {
+            $scope.processList = response.data.Rows;
         });
-    };
+    }
+    $scope.getprocessList();
+
+    $scope.getqualityprocessList = function () {
+        $http({
+            method: 'GET',
+            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
+        }).then(function successCallback(response) {
+            $scope.qualityprocessList = response.data.Rows;
+        });
+    }
+    $scope.getprocessList();
+
 
     $scope.LotNumberList = [];
     $scope.disGo = false;
