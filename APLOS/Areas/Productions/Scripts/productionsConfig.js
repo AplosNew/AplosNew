@@ -285,7 +285,7 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProcessWiseProductionBooking/Aplos',
             controller: 'ProcessWiseProductionBookingController'
         })
-        .when('/qty-process-booking', {
+        .when('/quaity-process-booking', {
             templateUrl: 'Productions/QuaityProcessBooking/Aplos',
             controller: 'QuaityProcessBookingController'
         })
