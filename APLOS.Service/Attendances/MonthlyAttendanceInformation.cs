@@ -3368,7 +3368,7 @@ namespace Library.Service.Attendances
                                         }
 
 
-                                        if (clsStaticInfo.dbl(overstay) > 2)
+                                        if (clsStaticInfo.dbl(overstay) >= 2)
                                         {
 
                                             sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
