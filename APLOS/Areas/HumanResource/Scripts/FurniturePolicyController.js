@@ -265,7 +265,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.closeEmployeePopUp = function () {
         angular.element(document.querySelector('#EmployeePop')).modal('hide');
-        /*$scope.getEmployee();*/
+       
     }
     $scope.EmployeeList = [];
     $scope.getEmployee = function () {
