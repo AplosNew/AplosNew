@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region lib
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -17,6 +18,7 @@ using Library.Service.Helpers;
 using System.Threading;
 using Library.Crosscutting.Security;
 using Library.HumanResource.Employee;
+#endregion lib
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
