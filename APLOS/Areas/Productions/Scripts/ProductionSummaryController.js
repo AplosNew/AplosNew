@@ -121,9 +121,12 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.IsSKU2 = false;
     $scope.IsSKU3 = false;
     $scope.IsFirst = false;
+    $scope.IsParameterBased = false;
+
     $scope.getProdLevel = function () {
         try {
-
+            $scope.PQEnable = false;
+            
             $scope.IsFirst = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsFirst;
@@ -152,24 +155,24 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsSKU3;
 
+            $scope.IsParameterBased = $.grep($scope.processList, function (item) {
+                return item.Value === $scope.productionSummaryNew.ProcessId;
+            })[0].IsParameterBased;
+
             if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
                 $scope.ProductionLevel = 'Production Order';
-                $scope.PQEnable = true;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
                 $scope.ProductionLevel = 'Sales Order';
-                $scope.PQEnable = true;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
                 $scope.ProductionLevel = 'Master Order Item';
-                $scope.PQEnable = true;
                 $scope.disGo = false;
             }
             else if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductCode') {
                 $scope.ProductionLevel = 'Product Code';
-                $scope.PQEnable = true;
                 $scope.disGo = false;
             }
             else {
@@ -178,7 +181,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 throw 'Production Booking Level is not defined for selected process.';
             }
 
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true) {
+            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased==true) {
                 $scope.PQEnable = true;
                 $scope.disGo = false;
             }
