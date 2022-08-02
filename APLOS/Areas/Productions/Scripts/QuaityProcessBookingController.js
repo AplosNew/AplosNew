@@ -98,15 +98,16 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     }
     $scope.getprocessList();
 
+    $scope.qualityprocessList = [];
     $scope.getqualityprocessList = function () {
         $http({
             method: 'GET',
             url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
         }).then(function successCallback(response) {
-            $scope.qualityprocessList = response.data.Rows;
+            $scope.qualityprocessList = response.data;
         });
     }
-    $scope.getprocessList();
+    $scope.getqualityprocessList();
 
 
     $scope.LotNumberList = [];

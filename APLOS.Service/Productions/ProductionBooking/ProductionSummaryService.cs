@@ -474,7 +474,7 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetShiftGroupCbo(string plantId)
         {
-            var sql = @" select Id,Description UserName from mst.CompliedShiftGrouping where  PlantId='" + plantId + "' ";
+            var sql = @"SELECT Id,Description UserName FROM MST.CompliedShiftGrouping WHERE PlantId='" + plantId + "'";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
 
