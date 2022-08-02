@@ -17,11 +17,10 @@
         </div>
 
         <div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Production Date<sup>*</sup></label>
+            <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
             <div class="col-sm-8 show-message">
-                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
+                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
             </div>
-
         </div>
         <h3 class="site-heading" style="cursor:unset;height:25px;"></h3>
 
@@ -54,6 +53,12 @@
                         <option value=""></option>
                     </select>
                 </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
+            <div class="col-sm-8 show-message">
+                <input type="text" ng-disabled="IsGo" ng-model="productionSummaryNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9" required>
             </div>
         </div>
         <div class="form-group" show-errors>
