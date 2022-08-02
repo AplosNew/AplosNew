@@ -8494,7 +8494,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
-											ELSE 0 END,GS.DefineAmount Gross,OTRate=cast(round((GS.DefineAmount/208)*2,2) as numeric(36,2))
+											ELSE 0 END,GS.DefineAmount Gross,OTRate=cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))
                                    ,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
 											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
 											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,MaxOTPerDay=240,AD.OTHr OverStay,E.SystemId
@@ -8518,10 +8518,15 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                 and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
                                                 LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
                                             LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
-FROM SalaryInfoDefine SPC
-LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
-LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                                                FROM SalaryInfoDefine SPC
+                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                                                Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                                                FROM SalaryInfoDefine SPC
+                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                                                Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
                                     WHERE --E.PlantID = '" + plantId + @"' AND
                                         AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
                                     AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
