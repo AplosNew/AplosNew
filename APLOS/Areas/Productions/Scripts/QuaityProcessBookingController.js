@@ -98,12 +98,13 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     }
     $scope.getprocessList();
 
+    $scope.qualityprocessList = [];
     $scope.getqualityprocessList = function () {
         $http({
             method: 'GET',
             url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
         }).then(function successCallback(response) {
-            $scope.qualityprocessList = response.data.Rows;
+            $scope.qualityprocessList = response.data;
         });
     }
     $scope.getqualityprocessList();
@@ -362,7 +363,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
 
     function ValidationPreMaster() {
         try {
-            CheckField("Entity", $scope.productionSummaryNew.EntityId);
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Production Date", $scope.productionSummaryNew.ProductionDate);
             CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
@@ -387,7 +387,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }

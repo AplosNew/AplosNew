@@ -53,9 +53,9 @@ namespace Library.HumanResource.Employee
             {
                 // Add condition if id  all ready there then not show in grid
                 //var sql = @"select fm.*, CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm --where fm.UserName = '" + username + "'";
-                var sql = @"SELECT fm.*, FPF.Quantity ,CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm
-                left join HKP.FurniturePolicyFM FPF on FPF.FurnitureMasterId = fm.Id
-                WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyFM AS fpf  WHERE fpf.FurnitureMasterId = fm.Id)";
+                var sql = @"SELECT fm.*,CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm
+                
+                --WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyFM AS fpf  WHERE fpf.FurnitureMasterId = fm.Id)";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)

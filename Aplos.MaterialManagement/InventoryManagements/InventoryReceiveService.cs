@@ -1048,30 +1048,30 @@ namespace Library.MaterialManagement.InventoryManagements
                 string sql = "select * from TRN.PurchaseReturnAdditionalTax where PurchaseReturnId='" + MasterId + "'";
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter(sql, out DataSet dsDetail, false, "1");
+                if (UserSendData != null)
+                {
+					for (int i = 0; i < UserSendData.Count; i++)
+					{
+						dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
+						if (dsDetail.Tables[0].DefaultView.Count == 0)
+						{
 
-                    for (int i = 0; i < UserSendData.Count; i++)
-                    {
-                        dsDetail.Tables[0].DefaultView.RowFilter = "TaxCodeId='" + UserSendData[i]["TaxCodeId"].ToString() + "'";
-                        if (dsDetail.Tables[0].DefaultView.Count == 0)
-                        {
+							DataRow dr = dsDetail.Tables[0].NewRow();
+							dr["Id"] = PurchaseReturnAddiTaxId();
+							dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
+							dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
+							dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
+							dr["AddedBy"] = identity.Name;
+							dr["AddedDate"] = System.DateTime.Now.ToString();
+							dr["AddedFromIP"] = identity.IPAddress;
 
-                        DataRow dr = dsDetail.Tables[0].NewRow();
-                        dr["Id"] = PurchaseReturnAddiTaxId();
-                        dr["TaxCodeId"] = UserSendData[i]["TaxCodeId"];
-                        dr["Percentage"] = UserSendData[i]["ValueOfFixed"];
-                        dr["TaxAmount"] = UserSendData[i]["TaxAmount"];
-                        dr["AddedBy"] = identity.Name;
-                        dr["AddedDate"] = System.DateTime.Now.ToString();
-                        dr["AddedFromIP"] = identity.IPAddress;
-                       
-                        dr["PurchaseReturnId"] = MasterId.ToString();
-                        dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
-                        dsDetail.Tables[0].Rows.Add(dr);
-                    }
+							dr["PurchaseReturnId"] = MasterId.ToString();
+							dr["TaxCategoryId"] = UserSendData[i]["TaxCategoryId"];
+							dsDetail.Tables[0].Rows.Add(dr);
+						}
+					}
                     
                 }
-
-
                     clsStaticInfo info = new clsStaticInfo();
                     info.SaveDataSets(dsDetail);
                 }

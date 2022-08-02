@@ -93,7 +93,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult Save(Dictionary<string, object> data, string responsiblePerson)
         {
             
@@ -107,7 +107,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult SaveTabA(List<Dictionary<string, object>> childA, string headerId, List<Dictionary<string, string>> designationmasterId)
         {
 
@@ -121,7 +121,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId, List<Dictionary<string, string>> quantity)
         {
 
