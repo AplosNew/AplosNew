@@ -6934,6 +6934,7 @@ namespace Library.Service.Invoices
                 var purhcaseReturn = _purchaseReturnRepository.Find(voucherVM.Id);
                 purhcaseReturn.Status = "Posting";
                 purhcaseReturn.VoucherId = voucher.Id;
+                purhcaseReturn.DocRefNo = voucherVM.DocRefNo;
                 _purchaseReturnRepository.Update(purhcaseReturn);
 
 

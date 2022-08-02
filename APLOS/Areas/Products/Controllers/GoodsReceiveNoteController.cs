@@ -2998,17 +2998,17 @@ UNION ALL
             }
 
         }
-        [Authorize, HttpGet]
-        public JsonResult ApprovedGRNList()
+        [Authorize, HttpPost]
+        public JsonResult PostedGRNListForPurchaseReturn(string column, string value, string plantId)
         {
 
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-
-
-
-                var Sql = @"SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
+                string strkey = "1=1";
+                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
+                    strkey = column + " like '%" + value + "%'";
+                var Sql = @"select top 300 * from (SELECT (ROW_NUMBER()  OVER (ORDER BY  IR.Id)) as Rowsl,IR.Id
                                     , REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate1
                                      ,IR.GRNDate
                                     , IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
@@ -3045,20 +3045,8 @@ UNION ALL
                         LEFT JOIN [SCS].[UnitOfMeasurement] AS UoM ON TU.TransactionUoMId=UoM.Id
                         left join trn.GateEntry GE On GE.Id=Ir.GateEntryNo
 						Left join dbo.PlantWiseGate PWG on PWG.id=GE.PlantWiseGateId
-
-                        --LEFT JOIN(
-			                            --select 
-			                            --POId=STUFF((select distinct ','+xpo.Id from
-			                           -- trn.PurchaseOrder xpo
-			                            --INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
-			                            --where xPDAMAP.PoId=PDAMAP.PoId for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')			
-										--from  trn.POGGRNMap PDAMAP 
-													--LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
-		                              --group by  PDAMAP.PoId
-		                            --)pur ON pur.PoId = map.PoId
-                        --where IR.Id not in (select InventoryReceiveId from trn.PurchaseReturn where InventoryReceiveId is not null)
-						where IR.Status='Posting' AND IR.GRNType<>'FG'
-                        Order by IR.GRNDate ASC";
+						WHERE IR.Status='Posting' AND IR.GRNType<>'FG'
+                        ) AS TEMP WHERE " + strkey + " Order by GRNDate  DESC";
                 var res = _sqlRepository.GetDataCollection(Sql);
                 var jsondata = Json(res, JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;

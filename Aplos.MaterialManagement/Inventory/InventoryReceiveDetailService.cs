@@ -5208,11 +5208,9 @@ namespace Library.MaterialManagement.Inventory
                           Inner JOin dbo.EmployeeInformation E On E.systemId=A.EmployeeId 
                           where  A.ActionStatus='PurchaseReturnApproveBy'";//A.PlantId='" + identity.PlantId + "' AND
                 }
-                else if (CheckedBy == "false" && ApprovedBy == "false")
-                {
-                    sql = @"";
-                }
-                return _sqlRepository.GetDataCollection(sql);
+                    return _sqlRepository.GetDataCollection(sql);
+                
+
 
             }
             catch (Exception ex)
