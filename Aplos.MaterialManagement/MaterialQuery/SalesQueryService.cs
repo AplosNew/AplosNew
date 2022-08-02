@@ -4159,8 +4159,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								
 								,SM.TransactionRate
 								,SM.TransactionQty
-								,SM.TransactionAmount
-								,SM.TaxAmount
+								,SM.BooksCurrencyTransactionAmount TransactionAmount
+
+								,SM.BooksCurrencyTaxAmount TaxAmount
 								
 								,BUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
@@ -4252,7 +4253,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN TRN.ThirdCharacteristics AS TC ON TC.Id=SM.ThirdCharacteristicsId AND SM.SalesOrderId=TC.SalesOrderId
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON TCV.Id=SM.ThirdCharacteristicsValueId
 						LEFT JOIN [HKP].[Characteristics] AS CH3 ON TC.CharacteristicsId=CH3.Id
-						LEFT JOIN SCS.Currency AS CU ON CU.Id=SA.CurrencyId
+						LEFT JOIN ORG.[Company] CO on CO.Id=SA.CompanyId
+						LEFT JOIN SCS.Currency AS CU ON CU.Id=CO.BaseCurrencyId
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON SM.BaseUOMId=BUoM.Id
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON SM.TransactionUoMId=TUoM.Id
 						LEFT JOIN [HKP].[Party] AS P ON P.Id=SA.PartyId
@@ -4329,11 +4331,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' ThirdCharacteristicsValue
 								,0 TransactionRate
 								,0 TransactionQty
-								,ISs.Amount TransactionAmount
-								,ISs.TaxAmount 
+								,ISs.BooksCurrencyTransactionAmount TransactionAmount
+								,ISs.BooksCurrencyTaxAmount TaxAmount 
 								,''  BaseUoM
 								,''  TransactionUoM
-								,''  Currency,'' Posted
+								,CUR.Code Currency,'' Posted
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
 								,round(isnull(TAxInfo2.TaxAmount,0),2) SGST,TAxInfo2.Percentage SGSTTaxPercentage
 								,round(isnull(TAxInfo1.TaxAmount,0),2) IGST,TAxInfo1.Percentage IGSTTaxPercentage
@@ -4382,6 +4384,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
+								left join ORG.Company COM on COM.Id=IR.CompanyId
+								LEFT JOIN SCS.Currency AS CUR ON CUR.Id=COM.BaseCurrencyId
 									left outer join PostSalesInvoice PSI on PSI.SalesId=IR.Id
 									left outer join MST.PaymentTerm PTM on PTM.Id=IR.PaymentTermId
 									left outer join HKP.Party CNfA on CNfA.Id=IR.PartyId
@@ -4464,12 +4468,12 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								, ISNULL(SCV.UserName,'') AS SecondCharacteristicsValue						
 								, ISNULL(TCV.UserName,'') AS ThirdCharacteristicsValue 
 								,IID.SalesRate TransactionRate
-								,IID.TransactionQty 
-								,IID.TransactionQty *IID.SalesRate TransactionAmount
+								,IID.BooksCurrencyTransactionAmount TransactionQty 
+								,IID.BooksCurrencyTransactionAmount *IID.SalesRate TransactionAmount
 								,SCr1.TaxAmount TaxAmount
 								,TUoM.UserName AS BaseUoM
 								,TUoM.UserName AS TransactionUoM
-								,CU.Code AS Currency
+								,CURR.Code AS Currency
 								,Posted=CASE WHEN II.[Status]='Posting' then 'Yes' else 'No'  END
 								
 								,round(isnull(TAxInfo.TaxAmount,0),2) CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
@@ -4506,8 +4510,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,HSNC.Code HSNCode
 
-								FROM[TRN].[InventorySalesDetail] AS IID
+								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
+								left join ORG.Company COMP on COMP.Id=II.CompanyId
+								LEFT JOIN SCS.Currency AS CURR ON CURR.Id=COMP.BaseCurrencyId
 								left JOIN [TRN].[InventorySalesHistory] AS ISH on ISH.InventorySalesDetailId=IID.ID
 								left JOIN [TRN].[InventoryReceiveDetail] AS IRD on ISH.InventoryReceiveDetailId=IRD.ID
 								left JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IID.BaseUOMId=TUoM.Id	
@@ -4615,11 +4621,11 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,'' ThirdCharacteristicsValue
 								,0 TransactionRate
 								,0 TransactionQty
-								,ISs.Amount TransactionAmount
+								,ISs.Amount*IR.ToCurrencyRate TransactionAmount
 								,0 TaxAmount
 								,'' AS BaseUoM
 								,'' AS TransactionUoM
-								,'' AS Currency
+								,CURRE.Code AS Currency
 								
 								,'' Posted
 						,round(isnull(TAxInfo.TaxAmount,0),2)  CGST,TAxInfo.Percentage CGSTTaxPercentage--MaterialTaxPer						
@@ -4659,6 +4665,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
+						left join ORG.Company COMP on COMP.Id=IR.CompanyId
+						LEFT JOIN SCS.Currency AS CURRE ON CURRE.Id=COMP.BaseCurrencyId
 						LEFT JOIN HKP.Party AS P ON P.Id=IR.CustomerId
 						LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
 						LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Customer'
