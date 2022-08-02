@@ -106,7 +106,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
             $scope.qualityprocessList = response.data.Rows;
         });
     }
-    $scope.getprocessList();
+    $scope.getqualityprocessList();
 
 
     $scope.LotNumberList = [];
