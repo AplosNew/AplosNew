@@ -2471,6 +2471,21 @@ WHERE qp.[Active]=1";
             }
         }
 
+        public IEnumerable<object> GetProductionBookingData(string processId, string productionDate)
+        {
+            string sql = @"SELECT CONVERT(bit,0) Flag,PS.Id ProductionBookingId,P.UserName Process,PR.Id ProductionOrderId,CSG.Description ShiftName,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod
+,PS.ProductionGrade,PS.LotNumber
+FROM TRN.ProductionSummary AS ps
+LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+LEFT JOIN TRN.ProductionOrder PR ON PR.Id = ps.ProductionOrderId 
+LEFT JOIN MST.CompliedShiftGrouping CSG ON CSG.Id = ps.ProductionShiftId
+LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=PS.WorkCenterMasterId
+LEFT JOIN hkp.ProductionBookingPeriod PBP ON PBP.Id=ps.ProductionBookingPeriodId
+WHERE PS.ProcessId='"+ processId + @"' AND PS.ProductionDate='"+ productionDate + "'";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+
     }
 
 }
