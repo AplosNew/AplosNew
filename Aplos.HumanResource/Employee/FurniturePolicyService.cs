@@ -53,7 +53,8 @@ namespace Library.HumanResource.Employee
             {
                 // Add condition if id  all ready there then not show in grid
                 //var sql = @"select fm.*, CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm --where fm.UserName = '" + username + "'";
-                var sql = @"SELECT fm.*, CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm
+                var sql = @"SELECT fm.*, FPF.Quantity ,CONVERT(bit,0) IsSelectSlrProc  from HKP.furnitureMaster fm
+                left join HKP.FurniturePolicyFM FPF on FPF.FurnitureMasterId = fm.Id
                 WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyFM AS fpf  WHERE fpf.FurnitureMasterId = fm.Id)";
                 return _sqlRepository.GetDataCollection(sql);
             }
@@ -235,7 +236,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
         }
 
         // SAVE TAB B
-        public List<Dictionary<string, object>> SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId)
+        public List<Dictionary<string, object>> SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId, List<Dictionary<string, string>> quantity)
         {
             try
             {
@@ -260,6 +261,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
                     dr["Id"] = headerId + "-" +i;
                     dr["FurniturePolicyId"] = headerId;
                     dr["FurnitureMasterId"] = furnituremasterId[i]["FurnitureMasterId"];
+                    dr["Quantity"] = quantity[i]["Quantity"];
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = System.DateTime.Now.ToString();
                     dr["AddedFromIP"] = identity.IPAddress;

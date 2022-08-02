@@ -119,11 +119,9 @@ namespace Library.MaterialManagement.Inventory
                     throw new CustomException("No Prefix Available for this Plant");
                 }
                 
-                var year1 = DateTime.Now.Year.ToString();
-                var yr = year1.Substring(2);
+                
                 var id = GetPK();
-                var resId = id.Substring(2);
-                entity.Id = plantId + yr + resId;
+                entity.Id = plantId + id;
          
                 AuditService.AddedLog(entity);
                 entity.ModelState = ModelState.Added;

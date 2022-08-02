@@ -41,7 +41,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getFurnitureGridView()
         {
             try
@@ -54,7 +54,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-       [HttpPost]
+       [Authorize, HttpPost]
         public ActionResult getDesignationGridView(string employeeCategoryId)
         {
             try
@@ -122,12 +122,12 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId)
+        public ActionResult SaveTabB(List<Dictionary<string, object>> childB, string headerId, List<Dictionary<string, string>> furnituremasterId, List<Dictionary<string, string>> quantity)
         {
 
             try
             {
-                return Json(new { Error = false, Data = fp.SaveTabB(childB, headerId, furnituremasterId), Message = AplosMessage.Success });
+                return Json(new { Error = false, Data = fp.SaveTabB(childB, headerId, furnituremasterId, quantity), Message = AplosMessage.Success });
             }
             catch (Exception ex)
             {
