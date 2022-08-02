@@ -363,7 +363,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
 
     function ValidationPreMaster() {
         try {
-            CheckField("Entity", $scope.productionSummaryNew.EntityId);
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Production Date", $scope.productionSummaryNew.ProductionDate);
             CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
@@ -388,7 +387,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
