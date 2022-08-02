@@ -52,7 +52,7 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
         ResponsiblePerson: null,
         ActiveInactive: true,
         EmployeeCategory: null,
-        Quantity: null,
+        
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
 
@@ -142,16 +142,21 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
    //=============================================Furniture Master================================
 
     $scope.FurnitureIdList = [];
+    $scope.QuantityList = [];
     $scope.chkdFurnitureList = [];
     $scope.chkFurniture_FilteredData = function () {
         var ob = { FurnitureMasterId: null };
+        var qt = { Quantity: null };
         for (var i = 0; i < $scope.FurnitureGridList.length; i++) {
             if ($scope.FurnitureGridList[i].IsSelectSlrProc === true) {
                 ob.FurnitureMasterId = $scope.FurnitureGridList[i].Id;
+                qt.Quantity = $scope.FurnitureGridList[i].Quantity;
                 $scope.chkdFurnitureList.push($scope.FurnitureGridList[i])
                 
                 $scope.FurnitureIdList.push(ob);
+                $scope.QuantityList.push(qt);
                 var ob = { FurnitureMasterId: null };
+                var qt = { Quantity: null };
             }
         }
     }
@@ -238,7 +243,8 @@ function FurniturePolicyController(cboService, commonMessage, $scope, $rootScope
             data: {
                 'childB': $scope.FurnitureGridList,
                 'headerId': $scope.ModelNew.Id,
-                'furnituremasterId': $scope.FurnitureIdList
+                'furnituremasterId': $scope.FurnitureIdList,
+                'quantity': $scope.QuantityList,
                 
             },
             dataType: 'JSON',
