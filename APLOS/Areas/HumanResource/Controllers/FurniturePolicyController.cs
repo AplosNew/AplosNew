@@ -17,7 +17,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             return View();
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getFurnitureMaster()
         {
             try
@@ -29,7 +29,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getDesignationMaster()
         {
             try
@@ -67,7 +67,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getEmployee()
         {
             try
@@ -80,7 +80,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public ActionResult getEmployeeCategory()
         {
             try
@@ -107,7 +107,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [ HttpPost]
+        [HttpPost]
         public ActionResult SaveTabA(List<Dictionary<string, object>> childA, string headerId, List<Dictionary<string, string>> designationmasterId)
         {
 

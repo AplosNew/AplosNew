@@ -8143,6 +8143,74 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
             }
         }//End Function
 
+        public void GetMonthlyDailyAttendanceDicCom(ParaMontlyAttendance objm, Dictionary<string, string> parameters, out DataSet dsRef)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager objCon;
+                string strSql = string.Empty;
+                 strSql = @"SELECT A.* FROM
+	                                (SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ,
+                                            D.UserName Designation, U.UserName Unit, Dv.UserName Division, Dp.UserName Department,
+                                            S.UserName Section, SB.UserName SubSection, L.UserName Line,  REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
+                                            AD.DayStatus, FORMAT(AD.InTime, 'hh.mm tt') InTime, ARIN.DeviceID InDeviceID, FORMAT(AD.OutTime, 'hh.mm tt') OutTime,
+                                            AROUT.DeviceID OutDeviceID,CONVERT(VARCHAR(10),CONVERT(DECIMAL(18,2),AD.OTHr/60), 108) OTHr,FinalOT.TotalOTHr, LT.UserName LvShortName
+											,AD.WorkDate, DD.UserName GivenDesignation,DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory
+
+                                            ,CAS.MaxOTPerDay,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+											,AD.IsOTEntitled,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
+											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
+											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,AD.WorkDate WDate,E.EmployeeCodeNumeric,AD.IsManualOutTime, HR.OTConsiderOn, dt.OriginalDayType,E.SystemId,AD.OTHr OverStay
+
+                                    FROM dbo.EmployeeInformation E
+                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus
+                                                LEFT JOIN dbo.AttdnRawData ARIN ON AD.InTimeRowID = ARIN.RowID
+                                                LEFT JOIN dbo.AttdnRawData AROUT ON AD.OutTimeRowID = AROUT.RowID
+											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND AD.WorkDate = FinalOT.WorkDate                                                
+                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id
+                                                LEFT JOIN ORG.Unit U ON E.UnitID = U.Id
+                                                LEFT JOIN ORG.Division Dv ON E.DivisionID = Dv.Id
+                                                LEFT JOIN ORG.Department Dp ON E.DepartmentID = Dp.Id
+                                                LEFT JOIN ORG.Section S ON E.SectionID = S.Id
+                                                LEFT JOIN ORG.SubSection SB ON E.SubSectionID = SB.Id
+                                                LEFT JOIN ORG.Line L ON E.LineID = L.Id
+                                                LEFT JOIN HKP.Designation D ON E.DesignationSystemID = D.Id
+												LEFT JOIN HKP.Designation DD ON E.GivenDesignationId = DD.Id
+
+                                                LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+												left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.CompanyGroupId and cas.PlantId=e.PlantId
+												left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId AND AD.WorkDate = ES.WorkDate
+												left join(
+                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
+                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
+                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = AD.WorkDate
+										 left join[ShiftDefination] sd on sd.SystemID = es.ShiftSystemID
+                                        LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
+                                        --LEFT JOIN DayType dt on dt.Daytype=AD.DayStatus
+
+                                    WHERE AD.PlantID = '" + objm.PlantId + @"' AND AD.WorkDate BETWEEN '" + objm.FDate + @"' AND '" + objm.TDate + @"' 
+                                    AND (E.DOS is null or E.DOS >= '" + objm.FDate + @"')									
+									";
+                if (parameters.Count > 0)
+                {
+                    if (parameters.Keys.ElementAt(0) != "")
+                    {
+                        strSql += @" AND E.SystemID IN(" + parameters["EmpSystemId"] + ")";
+                    }
+                }
+                strSql += ") A ORDER BY EmpSystemId";
+                DataTable dt = _sqlRepository.GetDataTable(strSql);
+
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, false, "", "1");
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
 
         public void GetComplianceMonthlyAttnSummaryRptForDetails(string plantId, string month, string year, out DataSet dsRef)
         {
@@ -8426,9 +8494,20 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
 											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
-											ELSE 0 END,GS.DisbusmentAmount Gross,OTRate=cast(round((BS.DisbusmentAmount/208)*2,2) as numeric(36,2))
+											ELSE 0 END,GS.DefineAmount Gross,OTRate=cast(round((GS.DefineAmount/208)*2,2) as numeric(36,2))
+                                   ,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
+											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
+											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,CAS.MaxOTPerDay,AD.OTHr OverStay,E.SystemId
+                                            ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
+                                                LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
+                                                left join [dbo].[ComplianceAttendanceSetting] CAS ON cas.PlantId=e.PlantId
+                                                left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId AND AD.WorkDate = ES.WorkDate
+												left join(
+                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
+                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
+                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = AD.WorkDate
                                                 Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus                                              
 											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)                                                
                                                 LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id												
@@ -8438,22 +8517,11 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                 and d.IsAvailed = 1 
                                 and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
                                                 LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
-                                             LEFT JOIN (SELECT EmpSlr.*FROM
-(
-SELECT SPC.EntryAmount, SPC.DefineAmount,SPC.EmpInfoSystemID, SPC.DisbusmentAmount,sh.SalaryHead, sh.HeadCategory, sh.HeadType
-FROM SalaryProcChild SPC
-LEFT JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
+                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+FROM SalaryInfoDefine SPC
+LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
 LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(SELECT SystemID FROM SalaryProcMaster WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild WHERE PlantID = '"+ plantId + @"' GROUP BY SlrProcMstSystemID) AND MonthNo = Month('"+ toDate + @"') AND YearNo = Year('" + toDate + @"'))
-) EmpSlr Where  EmpSlr.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
-                                 LEFT JOIN (SELECT EmpSlr.*FROM
-(
-SELECT SPC.EntryAmount, SPC.DefineAmount,SPC.EmpInfoSystemID, SPC.DisbusmentAmount,sh.SalaryHead, sh.HeadCategory, sh.HeadType
-FROM SalaryProcChild SPC
-LEFT JOIN SalaryProcMaster SPM ON SPC.SlrProcMstSystemID = SPM.SystemID
-LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-WHERE ISNULL(SPC.SlrProcMstSystemID,'')  IN(SELECT SystemID FROM SalaryProcMaster WHERE SystemID IN(SELECT SlrProcMstSystemID FROM SalaryProcChild WHERE PlantID = '" + plantId + @"' GROUP BY SlrProcMstSystemID) AND MonthNo = Month('" + toDate + @"') AND YearNo = Year('" + toDate + @"'))
-) EmpSlr Where  EmpSlr.HeadCategory='Basic') BS ON BS.EmpInfoSystemID=E.SystemId
+Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
                                     WHERE --E.PlantID = '" + plantId + @"' AND
                                         AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
                                     AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
