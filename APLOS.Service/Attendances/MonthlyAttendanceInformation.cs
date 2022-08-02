@@ -3368,11 +3368,17 @@ namespace Library.Service.Attendances
                                         }
 
 
-                                        if (clsStaticInfo.dbl(overstay) >= 2)
+                                        double os = clsStaticInfo.dbl(overstay) - 2;
+                                        if (os < 0)
                                         {
-
-                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
-                                            totalOTHr += clsStaticInfo.dbl(overstay);
+                                            os = 0;
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = os;
+                                            totalOTHr += os;
+                                        }
+                                        else
+                                        {
+                                            sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = os;
+                                            totalOTHr += os;
                                         }
 
 
