@@ -8498,7 +8498,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                    ,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
 											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
 											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,MaxOTPerDay=240,AD.OTHr OverStay,E.SystemId
-                                            ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle
+                                            ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle,AD.IsOTEntitled
                                     FROM dbo.EmployeeInformation E
                                                 INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
                                                 LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
@@ -8528,7 +8528,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                                 LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                                                 Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
                                     WHERE --E.PlantID = '" + plantId + @"' AND
-                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND AD.IsOTEntitled=1
                                     AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
 									";
                 if (parameters.Count > 0)

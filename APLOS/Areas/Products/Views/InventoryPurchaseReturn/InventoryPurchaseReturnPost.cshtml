@@ -4,11 +4,11 @@
         <legend class="scheduler-border">General</legend>
         <div class="col-xs-12 col-sm-5 col-md-5">
             <div class="form-group">
-                <label class="col-sm-4 control-label">Doc Ref & Date<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Date & Doc Ref<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="input-group">
-                        <span class="input-group-addon">{{voucher.DocRefNo}}</span>
-                        <input type="text" ng-model="voucher.DocDate" class="form-control" readonly>
+                        <span class="input-group-addon">{{voucher.DocDate}}</span>
+                        <input type="text" ng-model="voucher.DocRefNo" class="form-control" >
                         <span class="input-group-btn">
                             <button ng-click="popUp();" class="btn single-small-btn" tabindex="1"><i class="glyphicon glyphicon-search"></i></button>
                         </span>

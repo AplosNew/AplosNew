@@ -363,7 +363,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
 
     function ValidationPreMaster() {
         try {
-            CheckField("Entity", $scope.productionSummaryNew.EntityId);
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Production Date", $scope.productionSummaryNew.ProductionDate);
             CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
@@ -387,8 +386,8 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.masterGo = function (isdisabled) {
         try {
             ValidationPreMaster();
+            $scope.getProdBookedData();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -403,6 +402,19 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         $scope.ClearMasterPart();
         $scope.ProductionSummaryDetail = [];
         $scope.LineGridList = [];
+    };
+
+    $scope.ProdBookedDataList = [];
+    $scope.getProdBookedData = function () {
+        try {
+            $scope.ProdQtyCount = 0;
+            $http.get('Productions/QuaityProcessBooking/GetProductionBookingData?processId=' + $scope.productionSummaryNew.ProcessId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate)
+                .then(function (response) {
+                    $scope.ProdBookedDataList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
     };
 
     $scope.SOItemList = [];

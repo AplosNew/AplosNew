@@ -60,7 +60,7 @@ namespace Aplos.Areas.Productions.Controllers
         #endregion
 
         #region -- Operations
-        [HttpGet,Authorize]
+        [HttpGet, Authorize]
         public JsonResult GetIsProductionHourOpen()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -103,7 +103,7 @@ namespace Aplos.Areas.Productions.Controllers
         public JsonResult GetWCProcessCbo(string processid, string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId,identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
@@ -333,7 +333,10 @@ namespace Aplos.Areas.Productions.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ps.PlantId = identity.PlantId;
             _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId);
-            SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+            if (ProcessParaList != null)
+            {
+                SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
+            }
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
         }
 
