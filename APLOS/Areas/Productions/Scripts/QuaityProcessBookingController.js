@@ -417,6 +417,97 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         }
     };
 
+
+    $scope.refreshTemplateAdditionalInfo = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+
+        }
+
+        var filtered = $("#GridAdditionalInfo").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.searchdata.length; i++) {
+                $scope.searchdata[i].Flag = ChkOrUnchk;
+            }
+
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridAdditionalInfo").data("ejGrid");
+        gridObj.refreshContent();
+
+    };
+
+    function MakeAdditionalInfoData() {
+        for (var i = 0; i < $scope.searchdata.length; i++) {
+            if ($scope.searchdata[i].Flag == true) {
+                if (checkExists($scope.SalesAdditionalInfoList, $scope.searchdata[i].Id) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.AdditionalInfoId = $scope.searchdata[i].Id;
+                    ob.SalesId = $scope.salesVM.Id;
+                    ob.Sequence = $scope.searchdata[i].Sequence;
+                    ob.Code = $scope.searchdata[i].Code;
+                    ob.ShortName = $scope.searchdata[i].ShortName;
+                    ob.StandardName = $scope.searchdata[i].StandardName;
+                    ob.UserName = $scope.searchdata[i].UserName;
+                    ob.Description = $scope.searchdata[i].Description;
+
+                    $scope.SalesAdditionalInfoList.push(ob);
+                }
+
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].AdditionalInfoId === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     $scope.SOItemList = [];
     $scope.getMaterialMasterbyTypePopUp = function (flag) {
         if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
