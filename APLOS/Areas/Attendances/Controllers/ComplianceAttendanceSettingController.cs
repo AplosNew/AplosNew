@@ -2330,7 +2330,7 @@ left join [dbo].[ComplianceAttendanceSetting] CAS ON CAS.CompanyGroupId=mpb.Comp
 
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetBuyerComplianceJobCardReport(ReportFormat reportFormat, string[] employeeId, string fromDate, string toDate, bool chkAdditionInfo)
         {
             try

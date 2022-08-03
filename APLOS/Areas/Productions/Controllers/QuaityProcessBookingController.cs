@@ -72,6 +72,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetProductionBookingData(string processId, string productionDate)
+        {
+            return Json(_productionSummaryData.GetProductionBookingData(processId, productionDate), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetProductionBookingPeriodCbo()
         {
             return Json(_productionSummaryData.GetProductionBookingPeriodCbo(), JsonRequestBehavior.AllowGet);
