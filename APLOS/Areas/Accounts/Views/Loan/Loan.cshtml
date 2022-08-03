@@ -136,11 +136,11 @@
             <label class="col-sm-4 control-label">Loan Type<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 @*<div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
-            <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
-                <option value="">--Select--</option>
-                <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
-            </select>
-        </div>*@
+                        <select ng-change="getTransactionTypeGL(voucher.FinancingTypeId)" name="Loan Type" class="form-control searchableDDL" ng-model="voucher.FinancingTypeId" tabindex="16" required>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in financingTypeList" value="{{option.Value}}">{{option.AssetUserName}}</option>
+                        </select>
+                    </div>*@
 
                 <div class="select-style" ng-show="voucher.TransactionType=='LoanGiven'">
                     <select name="Budget" class="form-control searchableDDL1" ng-model="voucher.FinancingTypeId" ng-change="getTransactionTypeGL(voucher.FinancingTypeId)">
@@ -475,6 +475,54 @@
             </div>
         </fieldset>
     </div>
+    @*<div class="clearfix"></div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <fieldset class="scheduler-border">
+            <legend class="scheduler-border">Order Specific(Yes/No)</legend>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label">Order Specific</label>
+                    <div class="col-sm-6">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="No" ng-click="hide()">
+                                <span class="cr"><i class="cr-icon"></i></span>No
+                            </label>
+                            <label>
+                                <input type="radio" name="OrderSpecific" ng-model="voucher.OrderSpecific" value="Yes" ng-click="show()">
+                                <span class="cr"><i class="cr-icon"></i></span>Yes
+                            </label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4" ng-hide="voucher.OrderSpecific==='No'">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">@Library.Model.Parties.PartyType.Customer.ToString()</label>
+                    <div class="col-sm-8 show-message">
+                        <div class="input-group">
+                            <input type="text" name="@Library.Model.Parties.PartyType.Customer.ToString()" ng-model="voucher.PartyName" class="form-control" readonly>
+                            <span class="input-group-btn">
+                                <button ng-click="showPartyPopUpNew();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4" ng-hide="voucher.OrderSpecific==='No'">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label" title="Contract">Master Order</label>
+                    <span class="input-group-btn">
+                        <button ng-click="ShowResultMasterOrderPopUp()" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </span>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            
+        </fieldset>
+    </div>
+    <div class="clearfix"></div>*@
     <div class="col-xs-12 col-sm-12 col-md-12 modal-table" id="loanDetails">
     </div>
     <div class="common-btn">
