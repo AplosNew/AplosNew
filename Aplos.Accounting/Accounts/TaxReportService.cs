@@ -7706,7 +7706,6 @@ UNION ALL
 
         #region TDS Deduction
         public IWorkbook GetTdsDeductionReport(string companyGroupId, string companyId, string plantId, string plantName, string fromDate, string toDate, string name)
-
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -7791,13 +7790,22 @@ UNION ALL
                 sheet1[xlsRow, xlsCol].Text = "SL. No";
                 sheet1[xlsRow, xlsCol].ColumnWidth = 7;
                 sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                xlsCol++;
 
                 //COL++;
 
-                xlsCol++;
+               
+                //COL++;
+
                 int PartyName = xlsCol; // Party
                 sheet1.Range[xlsRow, xlsCol].Text = "Suppliers Name";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 40;
+                xlsCol++;
+
+                sheet1[xlsRow, xlsCol].Text = "Pen No";
+                int colPenNO = xlsCol;
+                sheet1[xlsRow, xlsCol].ColumnWidth = 7;
+                sheet1[xlsRow, xlsCol].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 xlsCol++;
 
 
@@ -7846,9 +7854,13 @@ UNION ALL
                 int iDocRefNo = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "DocRef No";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
-
-
                 xlsCol++;
+
+                int iTDSPer = xlsCol;
+                sheet1.Range[xlsRow, xlsCol].Text = "TDS %";
+                sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
+                xlsCol++;
+
                 int iInvoiceAmount = xlsCol;
                 sheet1.Range[xlsRow, xlsCol].Text = "Invoice Amount";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
@@ -7940,6 +7952,7 @@ UNION ALL
 
                                 //sheet1[perStartRow, iPostingDate, xlsRow - 1, iPostingDate].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, PartyName, xlsRow - 1, PartyName].BorderAround(ExcelLineStyle.Hair);
+                                sheet1[perStartRow, colPenNO, xlsRow - 1, colPenNO].BorderAround(ExcelLineStyle.Hair);
 
                                 sheet1[perStartRow, GSTIN, xlsRow - 1, GSTIN].BorderAround(ExcelLineStyle.Hair);
                                 sheet1[perStartRow, iDocRefNo, xlsRow - 1, iDocRefNo].BorderAround(ExcelLineStyle.Hair);
@@ -7992,11 +8005,15 @@ UNION ALL
                         sheet1[xlsRow, colSLNO].Number = sl;
                         sheet1.Range[xlsRow, PartyName].Text = dtRCMPayable.Rows[i]["PartyName"].ToString();
 
+                        sheet1.Range[xlsRow, colPenNO].Text = dtRCMPayable.Rows[i]["PanNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceVoucherNo].Text = dtRCMPayable.Rows[i]["InvoiceVoucherNo"].ToString();
                         sheet1.Range[xlsRow, iInvoicePostingDate].Text = clsStaticInfo.GetDateTaxFormate(dtRCMPayable.Rows[i]["InvoicePostingDate"].ToString());
                         sheet1.Range[xlsRow, iInvoiceDocRefNo].Text = dtRCMPayable.Rows[i]["InvoieDocRefNo"].ToString();
                         sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
+
+                        sheet1.Range[xlsRow, iTDSPer].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TDSPer"].ToString());//TaxableAmount
+                        sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                         sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
@@ -8267,7 +8284,7 @@ UNION ALL
 				--,TC.TaxCategoryType,TC.UserName+'-'+TC.Code TaxCategory,IsNULL(TAXC.IsRCM,0) IsRCM,TAXC.UserName TaxCodeName
 				--,IsNULL(IV.IsExcludingTax,0) IsExcludingTax,IsNULL(IR.IsTaxApplicable,0) IsTaxApplicable,TAXC.[Type],TAXC.ValueOfFixed
 				--,HSNP.[Percentage],MM.HSNCodeId,MM.UserName Material
-
+                ,P.VATResistrationNo PanNo,'' TDSPer
 
                 from TRN.InvoiceTax IT 
                 left join TRN.InvoiceTaxDetail ITD  ON IT.Id=ITD.InvoiceTaxId AND ITD.AType='Cr'

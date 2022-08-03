@@ -93,7 +93,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetStopageInformation()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @" select s.Id as StopagePrimaryId,s.CityId,s.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description]
+            string sql = @" select s.Id as StopagePrimaryId,s.CityId,s.Sequence,S.Code,S.ShortName,S.StandardName,S.UserName,S.[Description],s.Active
                             from [HKP].[Stoppage] s 
                                 where s.CompanyId='" + identity.CompanyId + "' and s.CompanyGroupId='" + identity.CompanyGroupId + "'";
             var data = _sqlRepository.GetDataCollection(sql);
@@ -473,10 +473,10 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpPost]
         public ActionResult GetTransportDetails(string RouteId)
         {
-            string sql = @"select TD.*,R.UserName Route,EI.EmployeeCode DriverCode,EI.EmployeeName DriverName 
+            string sql = @"select TD.*,R.UserName Route,TD.DriverName 
 			                            from TransportDetail TD
 			                            left join MST.Route R on R.Id=TD.RouteId
-			                            left join EmployeeInformation EI on EI.SystemId=TD.DriverId
+			                            --left join EmployeeInformation EI on EI.SystemId=TD.DriverId
 										where TD.RouteId='" + RouteId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
