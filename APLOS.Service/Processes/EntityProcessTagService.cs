@@ -263,7 +263,7 @@ namespace Library.Service.Processes
             }
             else
             {
-                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EP.IsParameterBased FROM HKP.EntityProcessTag EPT
+                string _sql = @"SELECT P.Id AS [Value], P.UserName AS [Text],EPT.ProductionBookingLevel,EPT.LotNumberMandatory,EPT.LotNumberCapture,EPT.IsSKU1,EPT.IsSKU2,EPT.IsSKU3,P.IsFirst,EPT.IsParameterBased FROM HKP.EntityProcessTag EPT
 						        INNER JOIN HKP.Process AS P ON P.Id=EPT.ProcessId
 						        INNER JOIN [SEC].[UserProcess] UP ON UP.ProcessId=P.Id
 						        WHERE EPT.EntityId='" + entityId + @"' AND UP.UserId='"+ userId + "' AND P.Active=1";
