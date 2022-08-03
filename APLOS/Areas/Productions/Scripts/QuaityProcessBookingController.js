@@ -16,20 +16,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
-    $scope.gradeList = [
-        {
-            'Value': 'A',
-            'Text': 'A'
-        },
-        {
-            'Value': 'B',
-            'Text': 'B'
-        },
-        {
-            'Value': 'C',
-            'Text': 'C'
-        }
-    ];
+    $scope.gradeList = [{ 'Value': 'A', 'Text': 'A' }, { 'Value': 'B', 'Text': 'B' }, { 'Value': 'C', 'Text': 'C' }, { 'Value': 'D', 'Text': 'D' }];
 
     $scope.productionSummary = {
         Id: null,
@@ -100,17 +87,28 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     }
     $scope.getAllEntities();
 
-    $scope.loadProcessList = function (entityid) {
-        cboService.GetEntityProcessCbo(entityid, function (result) {
-            $scope.processList = result;
-            if (baseService.arrayLength(result) === 1) {
-                $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
-                $scope.getProdLevel();
-                //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
-            }
+
+    $scope.getprocessList = function () {
+        $http({
+            method: 'GET',
+            url: "Processes/Process/GetProductionProcessList"
+        }).then(function successCallback(response) {
+            $scope.processList = response.data.Rows;
         });
-    };
+    }
+    $scope.getprocessList();
+
+    $scope.qualityprocessList = [];
+    $scope.getqualityprocessList = function () {
+        $http({
+            method: 'GET',
+            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
+        }).then(function successCallback(response) {
+            $scope.qualityprocessList = response.data;
+        });
+    }
+    $scope.getqualityprocessList();
+
 
     $scope.LotNumberList = [];
     $scope.disGo = false;
@@ -365,7 +363,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
 
     function ValidationPreMaster() {
         try {
-            CheckField("Entity", $scope.productionSummaryNew.EntityId);
             CheckField("Process", $scope.productionSummaryNew.ProcessId);
             CheckField("Production Date", $scope.productionSummaryNew.ProductionDate);
             CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
@@ -389,8 +386,8 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.masterGo = function (isdisabled) {
         try {
             ValidationPreMaster();
+            $scope.getProdBookedData();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -405,6 +402,19 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         $scope.ClearMasterPart();
         $scope.ProductionSummaryDetail = [];
         $scope.LineGridList = [];
+    };
+
+    $scope.ProdBookedDataList = [];
+    $scope.getProdBookedData = function () {
+        try {
+            $scope.ProdQtyCount = 0;
+            $http.get('Productions/QuaityProcessBooking/GetProductionBookingData?processId=' + $scope.productionSummaryNew.ProcessId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate)
+                .then(function (response) {
+                    $scope.ProdBookedDataList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
     };
 
     $scope.SOItemList = [];

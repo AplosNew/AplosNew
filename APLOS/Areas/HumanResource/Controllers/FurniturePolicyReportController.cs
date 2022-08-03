@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region lib
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -17,6 +18,7 @@ using Library.Service.Helpers;
 using System.Threading;
 using Library.Crosscutting.Security;
 using Library.HumanResource.Employee;
+#endregion lib
 
 namespace Aplos.Areas.HumanResource.Controllers
 {
@@ -59,7 +61,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public ActionResult getPolicyGrid(string designationId)
         {
             try
@@ -76,7 +78,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost, Authorize]
+        [Authorize,HttpPost]
         public ActionResult XlsFurnitureWiseReport(string designationId)
         {
             try
@@ -97,7 +99,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost, Authorize]
+        [HttpPost]
         private IWorkbook FurnitureReport(string designationId)
         {
             var excelEngine = new ExcelEngine();

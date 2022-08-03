@@ -7296,6 +7296,7 @@ where h.HeadCategory='GROSS'
                 var locCL = GetLeaveType(dvLeaveType, "CL");
                 var locSL = GetLeaveType(dvLeaveType, "SL");
                 bool pageBreakRequired = false;
+                double tothr = 0;
                 try
                 {
                     for (int i = 0; i <= dtEmployees.Rows.Count - 1; i++)
@@ -7745,12 +7746,7 @@ where h.HeadCategory='GROSS'
                         FormatText(ref sheet1, ref rtf, Environment.NewLine, 6);
                         FormatText(ref sheet1, ref rtf, _late + ":" + lateBangla + " ", 27);
                         FormatText(ref sheet1, ref rtf, Environment.NewLine, 6);
-                        if (Convert.ToBoolean(dtEmployees.Rows[i]["IsOTEntitled"]) == true)
-                        {
-                            FormatText(ref sheet1, ref rtf, _otHour + ":" + totalOTHr + " ", 27);
-                            FormatText(ref sheet1, ref rtf, Environment.NewLine, 6);
-                            FormatText(ref sheet1, ref rtf, _otRateLocal + ":" + otRateBangla + " ", 27);
-                        }
+                    
 
                         if (sheetBasedOn == "structured")
                         {
@@ -8173,6 +8169,7 @@ where h.HeadCategory='GROSS'
                             //var dtEndDateIntData = 31;
 
                             #region MyRegion
+                            
                             try
                             {
                                 if (dicAttendance.ContainsKey(dtEmployees.Rows[i]["EmpSystemId"].ToString()))
@@ -8577,6 +8574,11 @@ where h.HeadCategory='GROSS'
 
 
                                             sheet1.Range[particular3rdRow + 3, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Text = overstay;
+
+                                           
+                                            tothr+= clsStaticInfo.dbl(overstay);
+                                          
+
                                             //sheet1.Range[xlsRow, iOverStay].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                                             //sheet1.Range[xlsRow, iOverStay].VerticalAlignment = ExcelVAlign.VAlignCenter;
 
@@ -8742,6 +8744,13 @@ where h.HeadCategory='GROSS'
 
                         }
                         #endregion
+
+                        if (Convert.ToBoolean(dtEmployees.Rows[i]["IsOTEntitled"]) == true)
+                        {
+                            FormatText(ref sheet1, ref rtf, _otHour + ":" + tothr + " ", 27);
+                            FormatText(ref sheet1, ref rtf, Environment.NewLine, 6);
+                            FormatText(ref sheet1, ref rtf, _otRateLocal + ":" + otRateBangla + " ", 27);
+                        }
                     }
                 }
                 catch (Exception ex)
