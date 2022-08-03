@@ -1164,4 +1164,22 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     $scope.removeInvoiceRow = function (index, data) {
         $scope.voucherInvoiceDetailList.splice(index, 1);
     };
+
+    $scope.advancList = [];
+    $scope.showAdvancePopUpNew = function () {
+        $scope.advanceUrl = 'Accounts/Advance/GetAvailableAdvanceByVendor?vendorId=' + $scope.voucher.PartyId;
+        $http({
+            method: 'POST',
+            url: $scope.advanceUrl,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.advancList = response.data;
+        });
+        //}
+        angular.element(document.querySelector('#advancePopUp')).modal('show');
+    };
+    $scope.CloseAdvancePopUp = function () {
+        angular.element(document.querySelector('#advancePopUp')).modal('hide');
+
+    }
 }
