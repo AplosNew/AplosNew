@@ -103,7 +103,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch(Exception ex)
             {
-                return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { Error = "Yes", Msg = ex.Message }, JsonRequestBehavior.AllowGet);
+                return Json(new { Error = true, Msg = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
     }

@@ -4233,6 +4233,7 @@
     <Content Include="Areas\Attendances\Views\EOT\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\QuaityProcessBooking\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FurniturePolicyReport\Aplos.cshtml" />
+    <Content Include="Areas\Accounts\Views\_VendorPopUpNew.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -6048,7 +6049,7 @@
     <Content Include="Areas\Accounts\Views\_CustomerInvoicePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_EmployeePayablePopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_MultipleVendorInvoicePopUp.cshtml" />
-    <Content Include="Areas\Accounts\Views\_VendorInvoicePopUp.cshtml" />
+    <Content Include="Areas\Accounts\Views\_AdvanceByPartyPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\_VendorPaymentPlanPopUp.cshtml" />
     <Content Include="Areas\Accounts\Views\CustomerInvoice.cshtml" />
     <Content Include="Areas\Accounts\Views\CustomerReceipt.cshtml" />
