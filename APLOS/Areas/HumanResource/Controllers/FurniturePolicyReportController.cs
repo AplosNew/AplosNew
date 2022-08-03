@@ -78,7 +78,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult XlsFurnitureWiseReport(string designationId)
         {
             try
