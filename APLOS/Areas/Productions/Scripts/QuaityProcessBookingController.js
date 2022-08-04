@@ -71,6 +71,15 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         Qty: 0
     };
 
+
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.entityList = [];
     $scope.getAllEntities = function () {
         $http({

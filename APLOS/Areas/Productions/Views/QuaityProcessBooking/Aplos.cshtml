@@ -27,6 +27,12 @@
             </div>
         </div>
         <div class="form-group" ng-show="IsGo===true">
+            <label class="col-sm-4 control-label">Sample Size<sup>*</sup></label>
+            <div class="col-sm-8">
+                <input type="text" name="Lot Number" ng-model="productionSummaryNew.SampleSize" class="form-control" tabindex="5" maxlength="20" @*ng-keyup="CheckValidLotNumber();"*@>
+            </div>
+        </div>
+        <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-4 control-label">Remarks</label>
             <div class="col-sm-8">
                 <textarea class="form-control" rows="1" ng-model="productionSummaryNew.Remarks" name="Remarks" maxlength="250" tabindex="6"></textarea>
@@ -46,7 +52,7 @@
                 </div>
             </div>
         </div>
-       
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
             <div class="col-sm-8 show-message">
@@ -71,6 +77,16 @@
                 <input type="text" name="Batch No" ng-model="productionSummaryNew.BatchNo" class="form-control" tabindex="5" maxlength="20" @*ng-keyup="CheckValidLotNumber();"*@>
             </div>
         </div>
+        <div class="form-group" ng-show="IsGo===true"  show-errors>
+            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+            <div class="col-sm-8 show-message" style="padding-right:-1px;">
+                <div class="select-style">
+                    <select class="form-control" ng-model="productionSummaryNew.ProductionGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
+                        <option value=""></option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-4 control-label">CheckedBy</label>
             <div class="col-sm-8 show-message">
@@ -86,26 +102,62 @@
     </div>
 
     <div class="col-xs-12" ng-show="IsGo===true">
-        <div style="color:black;" id="PBGrid" ej-grid e-datasource="ProdBookedDataList" e-allowscrolling="true" e-templaterefresh="refreshTemplateAdditionalInfo"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
-            <div e-columns>
-                <div e-column e-headertext="" e-headertemplateid="#headerTemplateAdditionalInfo" e-template="#checkboxTemplateAdditionalInfo" e-textalign="center" e-width="30"></div>
-                <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
-                <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
-                <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
-                <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
-                <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
-                <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
-                <div e-column e-type="string" e-field="ShiftName" e-headertext="Shift" e-width="80"></div>
-                <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
+        <div class="tab-design" id="tab_show">
+            <div class="site-tab">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Prod Book</a></li>
+                    <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Quality Parameter</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+                    <div style="color:black;" id="PBGrid" ej-grid e-datasource="ProdBookedDataList" e-allowscrolling="true" e-templaterefresh="refreshTemplateAdditionalInfo"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateAdditionalInfo" e-template="#checkboxTemplateAdditionalInfo" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
+                            <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ShiftName" e-headertext="Shift" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateAdditionalInfo">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateAdditionalInfo">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                    <div style="color:black;" id="QPGrid" ej-grid e-datasource="qualityProcList" e-allowscrolling="true" e-templaterefresh="refreshQualityProcInfo"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateQualityProc" e-template="#checkboxTemplateQualityProc" e-textalign="center" e-width="30"></div>
+                            <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
+                            <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
+                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
+                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ShiftName" e-headertext="Shift" e-width="80"></div>
+                            <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
+                        </div>
+                    </div>
+                    <script type="text/template" id="checkboxTemplateQualityProc">
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                    </script>
+                    <script type="text/x-jsrender" id="headerTemplateQualityProc">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                </div>
             </div>
         </div>
-        <script type="text/template" id="checkboxTemplateAdditionalInfo">
-            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
-        </script>
-        <script type="text/x-jsrender" id="headerTemplateAdditionalInfo">
-            <input type="checkbox" id="headchk" />
-        </script>
+
+       
     </div>
 </div>
 
