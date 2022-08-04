@@ -577,7 +577,7 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.GetAdvance(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
+        [Authorize, HttpPost]
         public JsonResult GetAvailableAdvanceByVendor(string vendorId)
         {
             AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
