@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-sm-12">
+                    <div class="col-sm-12" id="stopageId">
                         <div class="common-btn">
                             <ul class="list-inline text-left">
                                 <li> <button ng-click="GetStopageInformation();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="1008"></i>Add Stoppage</button></li>
@@ -504,14 +504,14 @@
            e-enablemodal="true"
            e-position-y="0"
            e-showoninit="false"
-           e-target=".site-heading"
+           @*e-target=".site-heading"*@
            e-close="onDialogClose"
-           e-minwidth="95%"
-           e-minheight="500" e-open="enableBtn">
+           e-minwidth="75%"
+           e-minheight="400" e-open="enableBtn">
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-12">
 
-            <div id="empInfoGrid" ng-init="chkinit()" ej-grid e-datasource="StopageList" e-gridlines="vertical" e-templaterefresh="refreshTemplateemployee"
+            <div id="empInfoGrid" ej-grid e-datasource="StopageList" e-gridlines="vertical" 
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel">
 
@@ -522,7 +522,7 @@
                     <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
                     <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
-                    <div e-column e-field="Actives" e-headertext="Active" e-allowediting="false" e-width="80"></div>
+                    <div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>
 
                 </div>
 
