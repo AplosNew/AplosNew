@@ -1214,7 +1214,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         #region UPPER BODY
 
                                         _child_emp_seed++;
+                                        if (_child_emp_seed==15)
+                                        {
 
+                                        }
                                         firstDate = para.FromDate.Trim();
                                         lastDate = para.ToDate.Trim();
                                         DisbursedBtnMonth = false;
@@ -3380,7 +3383,7 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                                         if (dicCrRulSlrHD_Sub[i].HeadCategory == "Total Earning" || dicCrRulSlrHD_Sub[i].HeadCategory == "Total Deduction")
                                                         {
                                                             #region Load Value in Variables
-
+                                                            _child_salaryhead_seed++;
                                                             IsNetPayEffect = false;
                                                             Disbursed = false;
                                                             tempDisbCur = 0;
@@ -3548,7 +3551,10 @@ namespace Library.HumanResource.Payroll.SalaryProcessActive
                                         for (int gd = 0; gd < dsSelectedEmp.Tables[0].Rows.Count; gd++)
                                         {
                                             _child_emp_seed++;
+                                            if (_child_emp_seed == 15)
+                                            {
 
+                                            }
                                             #region PF Employee Value
 
                                             var dicPF_Sub = dicPF.FindAll(x => x.EmpSystemID == dsSelectedEmp.Tables[0].Rows[gd]["EmpSystemID"].ToString().Trim());

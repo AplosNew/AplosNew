@@ -150,7 +150,7 @@ namespace Library.MaterialManagement.Inventory
 
 		#region PO By Requisition
 		IEnumerable<object> GetRequisitionList(string RequisitionId);
-		IEnumerable<object> GetListForRequisition(string CompanyId);
+		DataTable GetListForRequisition(string CompanyId);
 		IEnumerable<object> GetListForRequisition1(string CompanyId);
 		IEnumerable<object> GetListForPOBYReq(string plantId, string POTypeStatus);
 		IEnumerable<object> GetListForPOBYReq1(string plantId, string ApproveRejectHold);
