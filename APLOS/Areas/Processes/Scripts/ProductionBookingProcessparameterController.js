@@ -18,7 +18,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
-    $scope.ModelQuality = { Id: null, ProcessId: null, ProductionBookingProcessParameterId: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.ModelQuality = { Id: null, ProcessId: null, ProductionBookingProcessParameterId: null, ItemName:null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.ModelQualityNew = Object.assign({}, $scope.ModelQuality);
 
     $scope.ModelQualityPara = { Id: null, QualityProcessId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
@@ -403,6 +403,12 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     };
 
+    $scope.GetQualityPro = function (args) {
+        $scope.QualityAction = 'Update';
+        $scope.ModelQualityNew = Object.assign({}, args.data);
+     
+    };
+
     $scope.AddEditRow = function () {
         try {
 
@@ -590,6 +596,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.GetQualityProcessList();
+                    $scope.ClearQuality();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');

@@ -326,6 +326,12 @@
                                 </div>
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-4 control-label">Item Name<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Item Name" ng-model="ModelQualityNew.ItemName" class="form-control" required tabindex="5" maxlength="100">
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label class="col-sm-4 control-label">Active</label>
                                     <div class="col-sm-8">
@@ -350,6 +356,7 @@
                                  e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
                                 <div e-columns>
                                     <div e-column e-field="Process" e-headertext="Process" e-width="5"></div>
+                                    <div e-column e-field="ItemName" e-headertext="Item Name" e-width="2"></div>
                                     <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                                     <div e-column e-headertext="Actions" e-template="#ShowActionButtons" e-width="3"></div>
                                 </div>

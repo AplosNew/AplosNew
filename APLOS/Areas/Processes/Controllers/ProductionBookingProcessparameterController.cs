@@ -97,9 +97,9 @@ LEFT JOIN SCS.UnitOfMeasurement AS ouom ON ouom.Id=N.OutputItemUoMId";
         {
 
             string sql = @"SELECT N.*,P.UserName Process
-  FROM [dbo].[QualityProcess] N 
+  FROM [dbo].[ProductionQualityProcess] N 
 LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
-Where N.ProductionBookingProcessParameterId='"+masterId+"'";
+Where N.ProductionBookingProcessParameterId='" + masterId+"'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
@@ -327,13 +327,13 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
                     DataSet dsMaster;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.QualityProcess WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionQualityProcess WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
 
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
                         bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "QualityProcess", out _Id);
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ProductionQualityProcess", out _Id);
 
                         data["Id"] = _Id;
                         AddNewRow(dsMaster.Tables[0], data);
@@ -601,7 +601,7 @@ Where N.ProductionBookingProcessParameterId='"+masterId+"'";
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
-                strSQL = "DELETE FROM dbo.QualityProcess WHERE Id = '" + SystemID + "'";
+                strSQL = "DELETE FROM dbo.ProductionQualityProcess WHERE Id = '" + SystemID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
