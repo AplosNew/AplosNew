@@ -34,8 +34,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         TransportNo: null,
         TransportPort: null,
         Capacity: 0,
-        DriverId: null,
-        DriverCode: null,
         DriverName: null,
         Remarks: null
     };
@@ -272,10 +270,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
             var eDialog = $("#StoppageInfo").data("ejDialog");
             eDialog.close();
-
-            if ($rootScope.isCollapsed) {
-                $rootScope.toggle();
-            }
 
         } catch (e) {
             ShowResult(e, "failure");
