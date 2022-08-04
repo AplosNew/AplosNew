@@ -141,9 +141,6 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["Id"] = Id;
                     dr["PlantId"] = identity.PlantId;
                     dr["CompanyId"] = identity.CompanyId;
-                    //dr["DriverId"] = Route.DriverId;
-                    //dr["AssetId"] = Route.AssetId;
-                    dr["UpOrDown"] = Route.UpOrDown;
 
                     dr["Code"] = Route.Code;
                     dr["UserName"] = Route.UserName;
@@ -168,9 +165,6 @@ namespace Aplos.Areas.Employees.Controllers
 
                     dr["PlantId"] = identity.PlantId;
                     dr["CompanyId"] = identity.CompanyId;
-                    //dr["DriverId"] = Route.DriverId;
-                    //dr["AssetId"] = Route.AssetId;
-                    dr["UpOrDown"] = Route.UpOrDown;
 
                     dr["Code"] = Route.Code;
                     dr["UserName"] = Route.UserName;
