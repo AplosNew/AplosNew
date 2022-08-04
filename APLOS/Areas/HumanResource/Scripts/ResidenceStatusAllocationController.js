@@ -9,6 +9,7 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     // Tab Change
     $scope.tab = 1;
@@ -569,4 +570,24 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         $('#myModal').modal('show');
     }
 //-----------------------------------------------------------------------------------
+
+    // REPORT DOWNLOAD
+    $scope.ResidenceAllocationReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsResidenceAllocationReport",
+            data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
 }
