@@ -1620,6 +1620,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             dr.EndEdit();
         }
         #endregion Add & Edit Row
+
+       
     }
     #endregion RESIDENCE MASTER SERVICE
 
@@ -1703,11 +1705,13 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                     ,EC.UserName EmployeeType,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
 									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate,'dd-MMM-yyyy')AddedDate
 								    ,isnull(RM.Vacancy,0) Vacancy,isnull(O.Occupied,0) Occupied,Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0)
-									from ResidenceMaster RM
+									
+                                    from ResidenceMaster RM
 									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
 									left join ORG.Plant P on P.Id=RM.PlantId
 									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
 									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
+                                   
 									LEFT JOIN(
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
@@ -2064,6 +2068,51 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public DataTable residenceAllocationReport(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var str = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId
+                                    , EC.UserName EmployeeType, EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
+									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate, 'dd-MMM-yyyy')AddedDate
+								    ,isnull(RM.Vacancy, 0) Vacancy,isnull(O.Occupied, 0) Occupied,Available = isnull(isnull(RM.Vacancy, 0) - isnull(O.Occupied, 0), 0)
+                                    
+                                    from ResidenceMaster RM
+
+                                    left
+                                    join ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+
+                               left
+                                    join ORG.Plant P on P.Id = RM.PlantId
+
+                               left
+                                    join HKP.EmployeeCategory EC on EC.Id = RM.EmployeeCategoryId
+
+                               left
+                                    join EmpServiceType EST on EST.Id = RM.EmpServiceTypeId
+                               
+
+                               LEFT JOIN(
+                               select COUNT(A.EmployeeSystemId)Occupied, A.ResidenceId from dbo.ResidenceAllocatedEmployees A
+
+                                 left
+                                                                                       join EmployeeInformation EI on EI.SystemId = A.EmployeeSystemId
+                                                  
+                                                                                      Where A.isOccupied = 1 and EI.PlantId in (" + parameters["PlantId"] + @") Group BY ResidenceId) O ON O.ResidenceId = RM.Id
+                                    where RM.Id in(" + parameters["ResidenceMasterId"] + @")
+                                        AND RG.Id in(" + parameters["ResidenceGroupId"] + @")
+                                        AND P.Id in(" + parameters["PlantId"] + @")
+                                        AND EC.Id in(" + parameters["EmployeeTypeId"] + @")";
+
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

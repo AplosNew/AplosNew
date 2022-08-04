@@ -1331,7 +1331,7 @@ WHERE po.Id='" + POID+@"'";
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Article");
             range.ApplyCharacterFormat(FontBold);
             int colArticle = COL; COL++;
-            wTable.Rows[ROW].Cells[colArticle].Width = 75;
+            wTable.Rows[ROW].Cells[colArticle].Width = 80;
 
 
 
@@ -1348,7 +1348,7 @@ WHERE po.Id='" + POID+@"'";
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("SKU3");
             range.ApplyCharacterFormat(FontBold);
             int colChar3 = COL; COL++;
-            wTable.Rows[ROW].Cells[colChar3].Width = 35;
+            wTable.Rows[ROW].Cells[colChar3].Width = 60;
 
             //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("HSN No");
             //range.ApplyCharacterFormat(FontBold);
@@ -1360,12 +1360,12 @@ WHERE po.Id='" + POID+@"'";
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Material Description");
             range.ApplyCharacterFormat(FontBold);
             int colMatDescription = COL; COL++;
-            wTable.Rows[ROW].Cells[colMatDescription].Width = 55;
+            wTable.Rows[ROW].Cells[colMatDescription].Width = 100;
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
             range.ApplyCharacterFormat(FontBold);
             int colDescription = COL; COL++;
-            wTable.Rows[ROW].Cells[colDescription].Width = 55;
+            wTable.Rows[ROW].Cells[colDescription].Width = 60;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Reff No");
@@ -1515,9 +1515,9 @@ WHERE po.Id='" + POID+@"'";
                 TROW.Cells[colArticle].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Article"].ToString());
                 TROW.Cells[colChar1].AddParagraph().AppendText(dsOrderMaster.Rows[i]["FirstCharacteristicsValue"].ToString());
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
-                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
+                TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SKUDesc"].ToString());
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDetail"].ToString());
+                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
                 TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
                 TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
@@ -1811,6 +1811,8 @@ WHERE po.Id='" + POID+@"'";
                     when PO.AuthorizedByStatus='Approved' Then 'Approved'
                     else ''
                     END
+					,boq.RMDescription MaterialDescription,boq.SKUDesc
+
                     FROM TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
                     LEFT JOIN ORG.Company Cmp ON Cmp.Id = PO.CompanyId
@@ -1843,6 +1845,9 @@ WHERE po.Id='" + POID+@"'";
                     LEFT JOIN dbo.EmployeeInformation eI1 ON eI1.SystemId=PO.AuthorizedBy
                     left join [SEC].[User] U on U.UserId=PO.AddedBy
                     LEFT JOIN dbo.EmployeeInformation eI3 ON eI3.SystemId=U.EmployeeId
+					left join TRN.POBOQMAP poqm on poqm.PODetailId=POD.Id
+					left join BOQ boq on boq.Id=poqm.BOQDetailId
+
                 WHERE PO.Id = '" + purchaseOrderBOQId + @"' order by MM.UserName";
                 return _sqlRepository.GetDataTable(strSQL);
 

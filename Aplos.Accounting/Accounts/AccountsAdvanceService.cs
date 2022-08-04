@@ -468,7 +468,7 @@ namespace Library.Accounting.Accounts
 								    WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 							    ) AS CC ON CC.VoucherDetailId=VD.Id
                                 WHERE AM.Archive=0 AND AM.IsPosted=1 AND AM.IsWrittenOff=0 AND AD.IsWrittenOff=0 AND AM.SourceType='" + sourceType + @"'
-                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "'  ";
+                                AND AM.CompanyGroupId='" + companyGroupId + "' AND AM.CompanyId='" + companyId + "' AND AM.PlantId='" + plantId + "' AND AM.PartyId='"+ vendorId + @"'  ";
             return _sqlRepository.GetDataCollection(sql);
         }
 

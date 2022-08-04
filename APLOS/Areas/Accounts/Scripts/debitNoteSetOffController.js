@@ -1182,4 +1182,9 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         angular.element(document.querySelector('#advancePopUp')).modal('hide');
 
     }
+    $scope.selectAndCloseadvancePopUp = function (x) {
+        var advance = x.data;
+        $scope.voucherInvoiceDetailList.push(advance);
+        angular.element(document.querySelector("#advancePopUp")).modal("hide");
+    }
 }
