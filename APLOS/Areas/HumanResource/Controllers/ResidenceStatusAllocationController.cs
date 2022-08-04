@@ -450,5 +450,174 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        #region -- Residence Status Allocation
+
+
+
+        [Authorize, HttpPost]
+        public ActionResult XlsResidenceAllocationReport(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var workbook = ResidenceReport(parameters);
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ResidenceAllocationReport.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        private IWorkbook ResidenceReport(Dictionary<string, string> parameters)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+            var data = rsl.residenceAllocationReport(parameters);
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Furniture Policy";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+            //report.SetHeaderText(ref sheet, ROW, COL, "EmployeeCode", 20, ExcelHAlign.HAlignCenter);
+            //int ColEmployeeCode = COL;
+            //COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "EmployeeName", 20, ExcelHAlign.HAlignCenter);
+            //int ColEmployeeName = COL;
+            //COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Location", 12, ExcelHAlign.HAlignCenter);
+            int ColLocation = COL;
+            COL++;
+
+            
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEmpCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Sub Category", 12, ExcelHAlign.HAlignCenter);
+            int ColSubCategogry = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Type", 12, ExcelHAlign.HAlignCenter);
+            int ColType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 20, ExcelHAlign.HAlignCenter);
+            int ColBlock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Floor", 20, ExcelHAlign.HAlignCenter);
+            int ColFloor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 12, ExcelHAlign.HAlignCenter);
+            int ColNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Rooms", 12, ExcelHAlign.HAlignCenter);
+            int ColRooms = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vacancy", 20, ExcelHAlign.HAlignCenter);
+            int ColVacancy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Occupied", 20, ExcelHAlign.HAlignCenter);
+            int ColOccupied = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Available", 20, ExcelHAlign.HAlignCenter);
+            int ColAvailable = COL;
+            COL++;
+
+            
+
+
+
+
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeType"].ToString();
+                sheet[ROW, ColSubCategogry].Text = data.Rows[i]["ResidenceSubCategory"].ToString();
+                sheet[ROW, ColType].Text = data.Rows[i]["ResidentType"].ToString();
+                //sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                //sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+
+
+                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
+                sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
+                sheet[ROW, ColNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
+                sheet[ROW, ColRooms].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
+                sheet[ROW, ColVacancy].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
+                sheet[ROW, ColOccupied].Text = data.Rows[i]["Occupied"].ToString();
+                sheet[ROW, ColAvailable].Text = data.Rows[i]["Available"].ToString();
+                
+                
+               
+
+                ROW++;
+
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceAllocation", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        #endregion -- Residence Status Allocation  
+
     }
 }
