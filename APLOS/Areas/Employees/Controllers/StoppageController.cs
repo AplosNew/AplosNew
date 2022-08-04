@@ -32,7 +32,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Pages
-        [Authorize]
+       
         public ActionResult Aplos()
         {
             return View();
@@ -40,7 +40,7 @@ namespace Aplos.Areas.Employees.Controllers
         #endregion
 
         #region -- Operations
-        [HttpGet]
+        [HttpGet, Authorize]
         public JsonResult GetCbo(string routeId)
         {
             return Json(_stoppageService.GetCbo(routeId).Rows, JsonRequestBehavior.AllowGet);
@@ -67,7 +67,7 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

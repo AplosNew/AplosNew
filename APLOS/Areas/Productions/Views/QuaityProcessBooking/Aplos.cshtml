@@ -115,13 +115,11 @@
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateAdditionalInfo" e-template="#checkboxTemplateAdditionalInfo" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
                             <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PrOId" e-headertext="PrO" e-width="80"></div>
                             <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
                             <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ShiftName" e-headertext="Shift" e-width="80"></div>
                             <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
                         </div>
                     </div>
@@ -133,17 +131,15 @@
                     </script>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                    <div style="color:black;" id="QPGrid" ej-grid e-datasource="qualityProcList" e-allowscrolling="true" e-templaterefresh="refreshQualityProcInfo"
+                    @*<div style="color:black;" id="QPGrid" ej-grid e-datasource="qualityProcList" e-allowscrolling="true" e-templaterefresh="refreshQualityProcInfo"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateQualityProc" e-template="#checkboxTemplateQualityProc" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="Process" e-headertext="Process" e-width="80"></div>
                             <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductionOrderId" e-headertext="PrO" e-width="80"></div>
+                            <div e-column e-type="string" e-field="PrOId" e-headertext="PrO" e-width="80"></div>
                             <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
                             <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
                             <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ShiftName" e-headertext="Shift" e-width="80"></div>
                             <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
                         </div>
                     </div>
@@ -152,7 +148,7 @@
                     </script>
                     <script type="text/x-jsrender" id="headerTemplateQualityProc">
                         <input type="checkbox" id="headchk" />
-                    </script>
+                    </script>*@
                 </div>
             </div>
         </div>
@@ -168,117 +164,7 @@
         <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
 </div>
-<div class="table-responsive modal-table" ng-show="IsGo===true && LineGridList.length>0">
-    <table class="table table-striped text-left" ng-show="productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
-        <thead>
-            <tr>
-                @*<th ng-repeat="h in SearchLineGridList">{{h.Text}}</th>*@
-                <th>Action</th>
-                <th>Production Order</th>
-                <th ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">Master Order</th>
-                <th ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">Master Order Item</th>
-                <th ng-show="productionSummaryNew.ProductionBookingLevel=='ProductCode'">Product Code</th>
-                <th ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'">Sales Order</th>
 
-                <th>Buyer Order</th>
-                <th>Own Order</th>
-                <th>Buyer Item</th>
-                <th>Own Item</th>
-
-                <th>SO Desc</th>
-                <th>Lot Number</th>
-
-                <th>Material</th>
-                <th>Article</th>
-                <th>Grade</th>
-                <th>Produced Qty</th>
-                <th>Production Booking Period</th>
-                <th>Customer</th>
-                <th>PO Number</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="x in LineGridList">
-                <td>
-                    <ul class="list-inline action-list">
-                        <li>
-                            <button ng-click="Get(x.Id, $index);" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></button>
-                            <button ng-click="deleteMaster(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button>
-                        </li>
-                    </ul>
-                </td>
-                <td>{{x.ProductionOrderId}}</td>
-                <td ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">{{x.MasterOrderNo}}</td>
-                <td ng-show="productionSummaryNew.ProductionBookingLevel=='MasterOrderItem'">{{x.MOrderLineNo}}</td>
-                <td ng-show="productionSummaryNew.ProductionBookingLevel=='ProductCode'">{{x.ProductCode}}</td>
-                <td ng-show="productionSummaryNew.ProductionBookingLevel=='SalesOrder'">{{x.SalesOrderId}}</td>
-
-                <td>{{x.BuyerOrder}}</td>
-                <td>{{x.OwnOrder}}</td>
-                <td>{{x.BuyerItem}}</td>
-                <td>{{x.OwnItem}}</td>
-
-                <td>{{x.Description}}</td>
-                <td>{{x.LotNumber}}</td>
-
-                <td>{{x.MaterialMaster}}</td>
-                <td>{{x.Article}}</td>
-                <td>{{x.ProductionGrade}}</td>
-                <td>{{x.Quantity}}</td>
-                <td>{{x.ProductionBookingPeriod}}</td>
-                <td>{{x.Customer}}</td>
-                <td>{{x.PONumber}}</td>
-               
-            </tr>
-        </tbody>
-    </table>
-    <table class="table table-striped text-left" ng-show="productionSummaryNew.ProductionBookingLevel==='ProductionOrder'">
-        <thead>
-            <tr>
-                @*<th ng-repeat="h in SearchLineGridList">{{h.Text}}</th>*@
-                <th>Action</th>
-                <th>Production Order</th>
-                <th>Production Date</th>
-                <th>Buyer Order</th>
-                <th>Own Order</th>
-                <th>Buyer Item</th>
-                <th>Own Item</th>
-                <th>Lot Number</th>
-                <th>Grade</th>
-                <th>Produced Qty</th>
-                <th>Production Booking Period</th>
-                @*<th>SKU</th>*@
-            </tr>
-        </thead>
-        <tbody>
-            @*<tr dir-paginate="x in LineGridList  |itemsPerPage:$root.pageSize" pagination-id="metaData.name + 'LineGridList'"
-                total-items="mmPopUpParameters.total_count" ng-dblclick="selectLineItem(x);">*@
-            <tr ng-repeat="x in LineGridList">
-                <td>
-                    <ul class="list-inline action-list">
-                        <li>
-                            <button ng-click="Get(x.Id, $index)" class="btn-action tooltip-here" data-placement="top" title="Edit" tooltip><i class="glyphicon glyphicon-pencil"></i></button>
-                            <button ng-click="deleteMaster(x)" class="btn-action tooltip-here" data-placement="top" title="Remove" tooltip><i class="glyphicon glyphicon-remove"></i></button>
-                        </li>
-                    </ul>
-                </td>
-                <td>{{x.ProductionOrderId}}</td>
-                <td>{{x.ProductionDate}}</td>
-                <td>{{x.BuyerOrder}}</td>
-                <td>{{x.OwnOrder}}</td>
-                <td>{{x.BuyerItem}}</td>
-                <td>{{x.OwnItem}}</td>
-                <td>{{x.LotNumber}}</td>
-                <td>{{x.ProductionGrade}}</td>
-                <td>{{x.Quantity}}</td>
-                <td>{{x.ProductionBookingPeriod}}</td>
-                @*<td>
-            <button class="btn single-small-btn" ng-disabled="productionSummaryNew.ProductionBookingLevel==='ProductionOrder' || productionSummaryNew.ProductionBookingLevel==='SalesOrder'"><i class="cr-icon glyphicon glyphicon-list"> </i></button>
-        </td>*@
-            </tr>
-        </tbody>
-    </table>
-</div>
 
 
 
