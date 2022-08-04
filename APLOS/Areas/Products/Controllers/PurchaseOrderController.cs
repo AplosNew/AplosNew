@@ -1003,11 +1003,14 @@ namespace Aplos.Areas.Products.Controllers
             return Json(purchaseOrderService.GetApprovedListForPOBYReq(identity.PlantId, column, value), JsonRequestBehavior.AllowGet);
         }
 
-        [Authorize, HttpGet]
+        [Authorize, HttpPost]
         public ActionResult GetListForRequisition()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_purchaseOrderService.GetListForRequisition(identity.CompanyGroupId), JsonRequestBehavior.AllowGet);
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_purchaseOrderService.GetListForRequisition(identity.CompanyGroupId));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
         [Authorize, HttpGet]
         public ActionResult GetListForRequisition1()

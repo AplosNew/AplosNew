@@ -7749,136 +7749,12 @@ ORDER BY IR.ID DESC";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Party.ToString()));
             }
         }
-        public IEnumerable<object> GetListForRequisition(string CompanyId)
+        public DataTable GetListForRequisition(string CompanyId)
         {
             try
             {
-                //     var sql = @"SELECT IR.Id As RequisitionId 
-                //                 , IM.Id  AS RequisitionDetailId  
-                //                 , MGM.UserName AS MaterialGroupMasterName
-                //                 , IM.MaterialMasterId, MM.UserName
-                //                 , IM.ArticleId, ART.StandardName
-                //                 , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
-                //                 , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
-                //                 , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                //                 , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
-                //                 , IM.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
-                //                 , IM.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                //                 , ROUND(IM.TransactionQty,2) ReqQty
-                //                 ,ISNULL(PORaisedQty,0) AS PORaisedQty
-                //                 ,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty
-                //              , IM.TransactionUoMId
-                //              , TUoM.UserName AS TransactionUoM
-                //              , '' TransactionRate 
-                //              , CU.Code AS CurrencyName
-
-                //                 , ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount   
-                //                 ,IM.MaterialDetail
-                //                 ,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
-
-                //              ,Act.Id As Activity
-                //              ,Act.UserName As ActivityName
-                //              ,IM.BudgetType
-                //              ,IM.Reason
-                //              ,IM.Remarks
-                //              ,IM.FutureReqApp
-                //              --,BudgetMasterId
-                //              --,GLGeneralInfoId
-                //                ,null CheckedStatus   
-                //                ,null TaxList
-                //             --,(ISNULL(IM.TransactionQty + ISNULL(PORaisedQty,0),0)-ROUND(IM.TransactionQty,2)) AS BalanceQty
-                //               ,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-                //             ,MM.HSNCodeId	
-                //             --,IM.DeliveryDate
-                //             FROM TRN.MaterialRequsitionDetails AS IM
-                //             JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-                //             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-                //             LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-                //             LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-                //             LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-                //             LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-                //             LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-                //             LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-                //             LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-
-                //             JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id
-                //             JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
-                //             JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
-                //             JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
-                //             LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty 
-                //FROM trn.PurchaseOrderDetail POD
-                //INNER JOIN TRN.PoRequisitionDetail PORD ON PORD.PoDetailId=POD.Id
-                //Group By PORD.RequisitionDetailId) AS Pre on pre.RequisitionDetailId=IM.id
-                //             WHERE IM.POQtyStatus=0 AND IR.AuthorizedByStatus='Approval' --AND Pre.POID not in ('1949')
-                //             AND IM.CompanyGroupId='" + CompanyId + "' " +
-                //             "Order by MGM.UserName , IM.MaterialMasterId, MM.UserName, IM.ArticleId, ART.StandardName, IM.FirstCharacteristicsId, FC.UserName , IM.FirstCharacteristicsValueId, FCV.UserName , IM.SecondCharacteristicsId, SC.UserName , IM.SecondCharacteristicsValueId, SCV.UserName ,IM.ThirdCharacteristicsId, TC.UserName,IM.ThirdCharacteristicsValueId, TCV.UserName ASC";
-                //     return _sqlRepository.GetDataCollection(sql);
-
-                //var sql = @"SELECT IR.Id As RequisitionId 
-                //                    , IM.Id  AS RequisitionDetailId  
-                //                     , ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
-                //                    , IM.MaterialMasterId, MM.UserName
-                //                    , IM.ArticleId, ART.StandardName
-                //                    , IM.FirstCharacteristicsId, FC.UserName AS FirstCharacteristics
-                //                    , IM.FirstCharacteristicsValueId, FCV.UserName AS FirstCharacteristicsValue
-                //                    , IM.SecondCharacteristicsId, SC.UserName AS SecondCharacteristics
-                //                    , IM.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
-                //                    , IM.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
-                //                    , IM.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                //                    , ROUND(IM.TransactionQty,2) ReqQty
-                //                    ,ISNULL(PORaisedQty,0) AS PORaisedQty
-                //                    ,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty
-
-                //                 , IM.TransactionUoMId
-                //                 , TUoM.UserName AS TransactionUoM
-                //                 , '' TransactionRate 
-                //                 , CU.Code AS CurrencyName
-
-                //                    , ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount   
-                //                    ,IM.MaterialDetail
-                //                    ,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate
-
-                //                 ,Act.Id As Activity
-                //                 ,Act.UserName As ActivityName
-                //                 ,IM.BudgetType
-                //                 ,IM.Reason
-                //                 ,IM.Remarks
-                //                 ,IM.FutureReqApp
-                //                 --,BudgetMasterId
-                //                 --,GLGeneralInfoId
-                //                    ,null CheckedStatus   
-                //                    ,null TaxList
-                //                --,(ISNULL(IM.TransactionQty + ISNULL(PORaisedQty,0),0)-ROUND(IM.TransactionQty,2)) AS BalanceQty
-                //                    ,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty
-                //                ,MM.HSNCodeId	
-                //                --,IM.DeliveryDate
-                //                ,EI.EmployeeName PreparedBy
-                //                ,IM.POQtyStatus
-                //                ,convert(bit,0) WantToClose
-                //                FROM TRN.MaterialRequsitionDetails AS IM
-                //                left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-                //                LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-                //                LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-                //                LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-                //                LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-                //                LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-                //                LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-                //                LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-                //                LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-
-                //                JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id
-                //                JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
-                //                JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id 
-                //                JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId
-                //                LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty 
-                //                   FROM trn.PurchaseOrderDetail POD
-                //                   INNER JOIN TRN.PoRequisitionDetail PORD ON PORD.PoDetailId=POD.Id
-                //                   Group By PORD.RequisitionDetailId) AS Pre on pre.RequisitionDetailId=IM.id
-                //                 LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.ReqEmpId
-                //                WHERE IM.POQtyStatus=0 	AND IR.InActive=0 AND IR.CheckedByStatus is null AND IR.AuthorizedByStatus is null OR  IR.AuthorizedByStatus='Approved'
-                //                AND IM.CompanyGroupId='" + CompanyId + "' and IM.MaterialMasterId is null Order By ART.StandardName DESC";
-                //"union all SELECT IR.Id As RequisitionId , IM.Id  AS RequisitionDetailId  , '' MaterialGroupMasterName, '' MaterialMasterId, '' UserName, '' ArticleId, '' StandardName, '' FirstCharacteristicsId, '' FirstCharacteristics, '' FirstCharacteristicsValueId , '' FirstCharacteristicsValue, '' SecondCharacteristicsId, ''  SecondCharacteristics, '' SecondCharacteristicsValueId, '' SecondCharacteristicsValue, '' ThirdCharacteristicsId, '' ThirdCharacteristics, '' ThirdCharacteristicsValueId, '' ThirdCharacteristicsValue , ROUND(IM.TransactionQty,2) ReqQty,ISNULL(PORaisedQty,0) AS PORaisedQty,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) TransactionQty, IM.TransactionUoMId, TUoM.UserName AS TransactionUoM , '' TransactionRate , CU.Code AS CurrencyName, ROUND((IM.TransactionQty * IM.EstimatedRate),2) AS TrnAmount ,IM.MaterialDetail ,Replace(CONVERT(VARCHAR(11), IM.DeliveryDate, 106), ' ', '-') DeliveryDate,Act.Id As Activity,Act.UserName As ActivityName ,IM.BudgetType,IM.Reason,IM.Remarks,IM.FutureReqApp,null CheckedStatus   ,null TaxList,(ROUND(IM.TransactionQty,2)-ISNULL(PORaisedQty,0)) AS BalanceQty,MM.HSNCodeId,EI.EmployeeName PreparedBy,IM.POQtyStatus ,convert(bit,0) WantToClose  FROM TRN.MaterialRequsitionDetails AS IM LEFT JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IM.TransactionUoMId=TUoM.Id LEFT JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id LEFT JOIN [SCS].[Currency] AS CU ON IM.CurrencyId=CU.Id LEFT JOIN [HKP].[Activity] As Act On ACT.Id=IM.ActivityId LEFT JOIN (select PORD.RequisitionDetailId,  Sum(PORD.TransactionQty) as PORaisedQty FROM trn.PurchaseOrderDetail POD INNER JOIN TRN.PoRequisitionDetail PORD ON PORD.PoDetailId=POD.Id Group By PORD.RequisitionDetailId) AS Pre on pre.RequisitionDetailId=IM.id LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.ReqEmpId WHERE IM.POQtyStatus=0 	AND IR.InActive=0 AND IR.CheckedByStatus is null AND IR.AuthorizedByStatus is null OR  IR.AuthorizedByStatus='Approved' AND IM.CompanyGroupId='" + CompanyId + "' and IM.MaterialMasterId is null Order By ART.StandardName DESC";
-                var sql = @"SELECT IR.Id As RequisitionId 
+                
+                var sql = @"select    * from  (SELECT  IR.Id As RequisitionId 
 								, IM.Id  AS RequisitionDetailId  
 								, ISNULL(MGM.UserName,'') AS MaterialGroupMasterName
 								, IM.MaterialMasterId, MM.UserName
@@ -7919,7 +7795,6 @@ ORDER BY IR.ID DESC";
 							,EI.EmployeeName PreparedBy
 							,IM.POQtyStatus
 							,convert(bit,0) WantToClose
-							, IM.POQtyStatus	
 							,IR.InActive
 							,IR.CheckedByStatus
 							,IR.AuthorizedByStatus,MM.IsOriginApplicable
@@ -7990,7 +7865,6 @@ ORDER BY IR.ID DESC";
 							,EI.EmployeeName PreparedBy
 							,IM.POQtyStatus
 							,convert(bit,0) WantToClose
-							, IM.POQtyStatus	
 							,IR.InActive
 							,IR.CheckedByStatus
 							,IR.AuthorizedByStatus,MM.IsOriginApplicable
@@ -8061,7 +7935,6 @@ ORDER BY IR.ID DESC";
 							,EI.EmployeeName PreparedBy
 							,IM.POQtyStatus
 							,convert(bit,0) WantToClose
-							, IM.POQtyStatus	
 							,IR.InActive
 							,IR.CheckedByStatus
 							,IR.AuthorizedByStatus,MM.IsOriginApplicable
@@ -8088,9 +7961,10 @@ ORDER BY IR.ID DESC";
 							WHERE  Isnull(IR.InActive,0)=0 AND Isnull(IM.POQtyStatus,0)=0 
 							AND IR.CheckedByStatus='Checked' AND  IR.AuthorizedByStatus='Approved'	
 							AND IM.CompanyGroupId='" + CompanyId + @"' and IM.MaterialMasterId is not null 
-							Order By ART.StandardName DESC
+							)x
+							Order By x.StandardName DESC
 							";
-                return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataTable(sql);
             }//Order by MGM.UserName , IM.MaterialMasterId, MM.UserName, IM.ArticleId, ART.StandardName, IM.FirstCharacteristicsId, FC.UserName , IM.FirstCharacteristicsValueId, FCV.UserName , IM.SecondCharacteristicsId, SC.UserName , IM.SecondCharacteristicsValueId, SCV.UserName ,IM.ThirdCharacteristicsId, TC.UserName,IM.ThirdCharacteristicsValueId, TCV.UserName DESC
             catch (Exception ex)
             {
@@ -8104,18 +7978,6 @@ ORDER BY IR.ID DESC";
         {
             try
             {
-                //var sql = @"SELECT     
-                //            MGM.UserName AS MaterialGroupMasterName
-                //            , MM.UserName
-                //            , ART.StandardName  
-                //            FROM TRN.MaterialRequsitionDetails AS IM
-                //            JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-                //            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-                //            LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-                //            JOIN [TRN].[MaterialRequsitionMaster] AS IR ON IM.MaterialReqqusitionMasterId=IR.Id
-                //            WHERE IM.POQtyStatus=0 AND IR.AuthorizedByStatus='Approval'
-                //            AND IM.CompanyGroupId='" + CompanyId + "' " +
-                //            "group by MGM.UserName,MM.UserName,ART.StandardName";
                 var sql = @"SELECT     
                             PurchaseOrderGroupName=Case when pog.UserName <> '' then pog.UserName else 'N/A' end,MGM.UserName AS MaterialGroupMasterName
                             , MM.UserName
