@@ -14,7 +14,7 @@ function BOQController(cboService, commonMessage, $scope, $rootScope, baseServic
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-
+  
 
     $scope.EditList = [];
     $scope.SelectedEdit = {};
