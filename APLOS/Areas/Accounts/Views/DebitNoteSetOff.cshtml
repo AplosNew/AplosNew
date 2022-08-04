@@ -169,7 +169,7 @@
             </div>
         </div>
         <div class="form-group" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">
-            <label class="col-sm-4 control-label">Invoice<sup>*</sup></label>
+            <label class="col-sm-4 control-label">Advance<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="input-group">
                     <input type="text" name="CashName" ng-model="voucher.InvoiceVoucherNo" class="form-control" readonly>
@@ -243,7 +243,8 @@
             </div>
         </fieldset>
         <fieldset class="scheduler-border" ng-show="voucherInvoiceDetailList.length">
-            <legend class="scheduler-border">Invoice</legend>
+            <legend class="scheduler-border" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.Invoice.ToString()'">Invoice</legend>
+            <legend class="scheduler-border" ng-show="voucher.PaymentSource=='@Library.Model.Payments.SettlementType.AdvanceToVendor.ToString()'">Advance</legend>
             <div class="table-responsive modal-table">
                 <table class="table table-striped table-bordered">
                     <thead>
@@ -373,6 +374,7 @@
 @Html.Partial("~/Areas/Accounts/Views/_DebitCreditNotePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_CustomerInvoicePopUp.cshtml")
 @Html.Partial("~/Areas/Accounts/Views/_PartyAdvanceAmountPopUp.cshtml")
-@Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_VendorAdvancePopUp.cshtml")
+@Html.Partial("~/Areas/Accounts/Views/_AdvanceByPartyPopUp.cshtml")
 
