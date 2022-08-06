@@ -7857,7 +7857,7 @@ UNION ALL
                 xlsCol++;
 
                 int iTDSPer = xlsCol;
-                sheet1.Range[xlsRow, xlsCol].Text = "TDS %";
+                sheet1.Range[xlsRow, xlsCol].Text = "TDS Percentage";
                 sheet1.Range[xlsRow, xlsCol].ColumnWidth = 15;
                 xlsCol++;
 

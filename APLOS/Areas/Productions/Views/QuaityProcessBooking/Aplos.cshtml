@@ -6,7 +6,7 @@
             <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in processList" required>
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in processList" ng-change="getqualityprocessList();" required>
                         <option value=""></option>
                     </select>
                 </div>

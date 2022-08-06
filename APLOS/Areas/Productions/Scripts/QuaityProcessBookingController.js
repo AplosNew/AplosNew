@@ -80,21 +80,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         return $scope.tab === tabNum;
     };
 
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-            if (baseService.arrayLength(response.data) === 1) {
-                $scope.productionSummaryNew.EntityId = $scope.entityList[0].Value;
-                //default
-                $scope.loadProcessList($scope.productionSummaryNew.EntityId);
-            }
-        });
-    }
-    $scope.getAllEntities();
+    
 
 
     $scope.getprocessList = function () {
@@ -111,12 +97,12 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.getqualityprocessList = function () {
         $http({
             method: 'GET',
-            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
+            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo?ProcessId=" + $scope.productionSummaryNew.ProcessId
         }).then(function successCallback(response) {
             $scope.qualityprocessList = response.data;
         });
     }
-    $scope.getqualityprocessList();
+    
 
 
     $scope.LotNumberList = [];
@@ -439,10 +425,10 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
 
         }
 
-        var filtered = $("#GridAdditionalInfo").data("ejGrid").getFilteredRecords();
+        var filtered = $("#PBGrid").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.searchdata.length; i++) {
-                $scope.searchdata[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.ProdBookedDataList.length; i++) {
+                $scope.ProdBookedDataList[i].Flag = ChkOrUnchk;
             }
 
         }
@@ -452,7 +438,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridAdditionalInfo").data("ejGrid");
+        var gridObj = $("#PBGrid").data("ejGrid");
         gridObj.refreshContent();
 
     };

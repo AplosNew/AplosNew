@@ -613,7 +613,8 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
 
-        #endregion -- Residence Status Allocation  
+        #endregion -- Residence Status Allocation
+        [Authorize, HttpPost]
         public ActionResult employeeCurrrentStatus()
         {
             try
@@ -1006,6 +1007,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
         #endregion RESIDENCE MASTER REPORT ALL
 
+        [Authorize, HttpPost]
         public ActionResult gridViewResidenceMAster()
         {
             try

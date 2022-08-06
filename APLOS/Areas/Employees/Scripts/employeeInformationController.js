@@ -1709,6 +1709,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         CheckField($scope.employeeNew.FixSystemID, "Shift(Fix)");
         CheckField($scope.employeeNew.DOJ, "Date Of Join");
         CheckField($scope.employeeNew.DOC, "Date Of Confirmation");
+        CheckField($scope.employeeNew.EmploymentType, "Employment Type");
 
 
         if (baseService.isUndefinedOrNull($scope.employeeNew.LegalDesignationId)) {
