@@ -350,6 +350,7 @@
   <ItemGroup>
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
