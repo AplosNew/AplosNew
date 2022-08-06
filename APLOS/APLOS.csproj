@@ -4234,6 +4234,7 @@
     <Content Include="Areas\Productions\Views\QuaityProcessBooking\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\FurniturePolicyReport\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\_VendorPopUpNew.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\_ResidenceMasterReport.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

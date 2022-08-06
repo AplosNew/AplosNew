@@ -52,6 +52,10 @@ function FurniturePolicyReportController(cboService, commonMessage, $scope, $roo
             },
             dataType:'JSON',
         }).then(function successCallback(response) {
+            if (baseService.isUndefinedOrNull($scope.ModelNew.Designation)) {
+                ShowResult('Designation is Required.', 'failure');
+                throw "Invalid Request";
+            }
             $scope.PolicyGridList = response.data;
         })
     }
@@ -67,6 +71,10 @@ function FurniturePolicyReportController(cboService, commonMessage, $scope, $roo
                 ShowResult(response.data.Message, 'failure');
             }
             else {
+                if (baseService.isUndefinedOrNull($scope.ModelNew.Designation)) {
+                    ShowResult('Designation is Required.', 'failure');
+                    throw "Invalid Request";
+                }
                 $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
