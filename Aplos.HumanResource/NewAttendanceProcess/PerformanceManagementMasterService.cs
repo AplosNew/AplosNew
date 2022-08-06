@@ -1620,6 +1620,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             dr.EndEdit();
         }
         #endregion Add & Edit Row
+
+       
     }
     #endregion RESIDENCE MASTER SERVICE
 
@@ -1703,11 +1705,13 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                     ,EC.UserName EmployeeType,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
 									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate,'dd-MMM-yyyy')AddedDate
 								    ,isnull(RM.Vacancy,0) Vacancy,isnull(O.Occupied,0) Occupied,Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0)
-									from ResidenceMaster RM
+									
+                                    from ResidenceMaster RM
 									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
 									left join ORG.Plant P on P.Id=RM.PlantId
 									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
 									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
+                                   
 									LEFT JOIN(
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
@@ -2064,6 +2068,172 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+        #region REPORTS QUERY
+        public DataTable residenceAllocationReport(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var str = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId
+                                    , EC.UserName EmployeeType, EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
+									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate, 'dd-MMM-yyyy')AddedDate
+								    ,isnull(RM.Vacancy, 0) Vacancy,isnull(O.Occupied, 0) Occupied,Available = isnull(isnull(RM.Vacancy, 0) - isnull(O.Occupied, 0), 0)
+                                    
+                                    from ResidenceMaster RM
+
+                                    left
+                                    join ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+
+                               left
+                                    join ORG.Plant P on P.Id = RM.PlantId
+
+                               left
+                                    join HKP.EmployeeCategory EC on EC.Id = RM.EmployeeCategoryId
+
+                               left
+                                    join EmpServiceType EST on EST.Id = RM.EmpServiceTypeId
+                               
+
+                               LEFT JOIN(
+                               select COUNT(A.EmployeeSystemId)Occupied, A.ResidenceId from dbo.ResidenceAllocatedEmployees A
+
+                                 left
+                                                                                       join EmployeeInformation EI on EI.SystemId = A.EmployeeSystemId
+                                                  
+                                                                                      Where A.isOccupied = 1 and EI.PlantId in (" + parameters["PlantId"] + @") Group BY ResidenceId) O ON O.ResidenceId = RM.Id
+                                    where RM.Id in(" + parameters["ResidenceMasterId"] + @")
+                                        AND RG.Id in(" + parameters["ResidenceGroupId"] + @")
+                                        AND P.Id in(" + parameters["PlantId"] + @")
+                                        AND EC.Id in(" + parameters["EmployeeTypeId"] + @")";
+
+
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable allresidencemasterReport()
+        {
+            var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
+                            ,RM.Floor, RM.ResidenceNumber, RM.ResidenceSubCategory, RM.ResidentType, RM.Vacancy, EMP.EmployeeName,
+                            EMP.EmployeeCode, EMP.EmployeeStatus, 
+                            case when  EMP.EmployeeCurrentStatus is null then 'Regular' else EMP.EmployeeCurrentStatus end as EmployeeCurrentStatus ,
+                            FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, SC.UserName 'Section', SBC.UserName 'Sub Section', 
+                            LDSG.UserName 'Designation', GDSG.UserName 'Legal Designation'
+                            from ResidenceMaster RM
+
+                            left join ResidenceAllocatedEmployees RAE on RAE.ResidenceId = RM.Id
+                            left join EmployeeInformation EMP on EMP.SystemId = RAE.EmployeeSystemId
+                            left join ResidenceGroup RG on EMP.ResidenceGroupId = RG.Id
+                            LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                            left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId";
+
+            return _sqlRepository.GetDataTable(sql);
+        }
+
+        public DataTable residencemasterReport(string empCurrentStatus)
+        {
+            try
+            {
+               
+                   var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
+                            ,RM.Floor, RM.ResidenceNumber, RM.ResidenceSubCategory, RM.ResidentType, RM.Vacancy, EMP.EmployeeName,
+                            EMP.EmployeeCode, EMP.EmployeeStatus, 
+                            case when  EMP.EmployeeCurrentStatus is null then 'Regular' else EMP.EmployeeCurrentStatus end as EmployeeCurrentStatus ,
+                            FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, SC.UserName 'Section', SBC.UserName 'Sub Section', 
+                            LDSG.UserName 'Designation', GDSG.UserName 'Legal Designation'
+                            from ResidenceMaster RM
+
+                            left join ResidenceAllocatedEmployees RAE on RAE.ResidenceId = RM.Id
+                            left join EmployeeInformation EMP on EMP.SystemId = RAE.EmployeeSystemId
+                            left join ResidenceGroup RG on EMP.ResidenceGroupId = RG.Id
+                            LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                            left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
+
+                            where EMP.EmployeeCurrentStatus = '" + empCurrentStatus + "'";
+                    return _sqlRepository.GetDataTable(sql);
+                
+                
+                
+                
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion REPORTS QUERY
+
+        public IEnumerable<object> employeeCurrrentStatus()
+        {
+            try 
+            {
+                var sql = @"select distinct EmployeeCurrentStatus from EmployeeInformation where EmployeeCurrentStatus is not null";
+                return _sqlRepository.GetDataCollection(sql);
+
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> gridViewResidenceMAster()
+        {
+            try 
+            {
+                var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
+                            ,RM.Floor, RM.ResidenceNumber, RM.ResidenceSubCategory, RM.ResidentType, RM.Vacancy, EMP.EmployeeName,
+                            EMP.EmployeeCode, EMP.EmployeeStatus, 
+                            case when  EMP.EmployeeCurrentStatus is null then 'Regular' else EMP.EmployeeCurrentStatus end as EmployeeCurrentStatus ,
+                            FORMAT(EMP.DOJ, 'dd-MMM-yyyy') DOJ, SC.UserName 'Section', SBC.UserName 'Sub Section', 
+                            LDSG.UserName 'Designation', GDSG.UserName 'Legal Designation'
+                            from ResidenceMaster RM
+
+                            left join ResidenceAllocatedEmployees RAE on RAE.ResidenceId = RM.Id
+                            left join EmployeeInformation EMP on EMP.SystemId = RAE.EmployeeSystemId
+                            left join ResidenceGroup RG on EMP.ResidenceGroupId = RG.Id
+                            LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = EMP.BudgetCode
+                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
+                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
+                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
+                            left join ORG.Department DP on DP.ID = POS.DepartmentId
+                            left join ORG.Section SC on SC.Id = POS.SectionId
+                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
+                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
+                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
+                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=dm.DesignationGroupId
+                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=EMP.LegalDesignationId
+                            left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
             }
         }
     }

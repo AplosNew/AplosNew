@@ -577,6 +577,14 @@ namespace Aplos.Areas.Accounts.Controllers
             return Json(_accountsAdvanceService.GetAdvance(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpPost]
+        public JsonResult GetAvailableAdvanceByVendor(string vendorId)
+        {
+            AccountsAdvanceService _accountsAdvanceService = new AccountsAdvanceService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_accountsAdvanceService.GetAvailableAdvanceByVendor(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, SourceType.VendorAdvance, vendorId), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpGet]
         public JsonResult GetPartyWiseOutstandingAdvance(string partyId)
         {

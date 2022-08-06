@@ -61,7 +61,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize,HttpPost]
         public ActionResult getPolicyGrid(string designationId)
         {
             try
