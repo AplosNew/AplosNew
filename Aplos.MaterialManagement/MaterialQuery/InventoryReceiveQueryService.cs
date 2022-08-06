@@ -3691,35 +3691,35 @@ namespace Aplos.MaterialManagement
 			int ColEmployee = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 10, ExcelHAlign.HAlignLeft);
 			int ColGRNNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 10, ExcelHAlign.HAlignLeft);
 			int ColGRNEntryDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 12, ExcelHAlign.HAlignLeft);
 			int ColVoucherNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 10, ExcelHAlign.HAlignLeft);
 			int ColPostingDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 10, ExcelHAlign.HAlignLeft);
 			int ColDocRefNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 11, ExcelHAlign.HAlignLeft);
 			int ColDocRefDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 11, ExcelHAlign.HAlignLeft);
 			int ColGrnDocDateDifference = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 12, ExcelHAlign.HAlignLeft);
 			int ColGateEntryNo = COL;
 			COL++;
 
@@ -3727,7 +3727,7 @@ namespace Aplos.MaterialManagement
 			int ColGateName = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 12, ExcelHAlign.HAlignLeft);
 			int ColBaseCurrency = COL;
 			COL++;
 
@@ -3736,11 +3736,11 @@ namespace Aplos.MaterialManagement
 			int ColMaterialTranAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Tax Amount", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Tax Amount", 15, ExcelHAlign.HAlignRight);
 			int ColTotalTaxAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 16, ExcelHAlign.HAlignRight);
 			int ColTotalMaterialBaseAmount = COL;
 			COL++;
 
@@ -3752,23 +3752,23 @@ namespace Aplos.MaterialManagement
 			int ColBalance = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 15, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 10, ExcelHAlign.HAlignRight);
 			int ColPartyGroup = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 15, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
 			int ColPartyCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 15, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 16, ExcelHAlign.HAlignRight);
 			int ColPartySubCategory = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 15, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 10, ExcelHAlign.HAlignRight);
 			int ColPartyType = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 15, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 18, ExcelHAlign.HAlignLeft);
 			int ColPartyAccountGroup = COL;
 
 			endCol = COL;
