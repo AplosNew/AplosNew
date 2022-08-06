@@ -98,7 +98,7 @@ LEFT JOIN SCS.UnitOfMeasurement AS ouom ON ouom.Id=N.OutputItemUoMId";
 
             string sql = @"SELECT N.*,P.UserName Process
   FROM [dbo].[ProductionQualityProcess] N 
-LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
+LEFT JOIN HKP.QualityProcess AS p ON P.Id=N.ProcessId
 Where N.ProductionBookingProcessParameterId='" + masterId+"'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
