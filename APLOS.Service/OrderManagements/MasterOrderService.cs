@@ -57,6 +57,7 @@ namespace Library.Service.OrderManagements
         private readonly IRepositoryAsync<FirstCharacteristics> _firstCharacteristicsRepository;
         private readonly IRepositoryAsync<SecondCharacteristics> _secondCharacteristicsRepository;
         private readonly IRepositoryAsync<ThirdCharacteristics> _thirdCharacteristicsRepository;
+        private readonly IRepositoryAsync<SOCostingConfirmation> _SOCostingConfirmationRepository;
 
 
         private readonly ISqlRepository _sqlRepository;
@@ -76,6 +77,7 @@ namespace Library.Service.OrderManagements
             , IRepositoryAsync<FirstCharacteristics> firstCharacteristicsRepository
             , IRepositoryAsync<SecondCharacteristics> secondCharacteristicsRepository
             , IRepositoryAsync<ThirdCharacteristics> thirdCharacteristicsRepository
+            , IRepositoryAsync<SOCostingConfirmation> SOCostingConfirmationRepository
 
             , IUnitOfWork unitOfWork) :
             base(baseRepository, unitOfWork, pkGeneratorService)
@@ -95,6 +97,7 @@ namespace Library.Service.OrderManagements
             _firstCharacteristicsRepository = firstCharacteristicsRepository;
             _secondCharacteristicsRepository = secondCharacteristicsRepository;
             _thirdCharacteristicsRepository = thirdCharacteristicsRepository;
+            _SOCostingConfirmationRepository = SOCostingConfirmationRepository;
         }
 
         #endregion Constructor
@@ -1340,6 +1343,7 @@ namespace Library.Service.OrderManagements
                     var firstCharDbList = _firstCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var secondCharDbList = _secondCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                     var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
+                    var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
 
                     var count = _itemRepository.SqlQuery<int>($"SELECT ISNULL(MAX(CAST(RIGHT(Id, 2) AS INT)), 0) Id FROM [TRN].[MasterOrderItem] WHERE MasterOrderId='{masterId}'").First();
                     foreach (var item in itemList)
@@ -1370,6 +1374,7 @@ namespace Library.Service.OrderManagements
                                     var firstList = firstCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var secondList = secondCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var thirdList = thirdCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
+                                    var SOCostingList = SOCostingConfirmationDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     foreach (var third in thirdList)
                                     {
                                         _thirdCharacteristicsRepository.Delete(third);
@@ -1381,6 +1386,10 @@ namespace Library.Service.OrderManagements
                                     foreach (var first in firstList)
                                     {
                                         _firstCharacteristicsRepository.Delete(first);
+                                    }
+                                    foreach (var costing in SOCostingList)
+                                    {
+                                        _SOCostingConfirmationRepository.Delete(costing);
                                     }
                                     _salesOrderRepository.Delete(so);
                                 }
@@ -1439,6 +1448,7 @@ namespace Library.Service.OrderManagements
                         var firstCharDbList = _firstCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         var secondCharDbList = _secondCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         var thirdCharDbList = _thirdCharacteristicsRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
+                        var SOCostingConfirmationDbList = _SOCostingConfirmationRepository.Query(t => salesOrderIds.Contains(t.SalesOrderId)).Select().ToList();
                         foreach (var item in itemDbDataList)
                         {
                             if (!itemList.Any(t => t.Id == item.Id))
@@ -1449,6 +1459,7 @@ namespace Library.Service.OrderManagements
                                     var firstList = firstCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var secondList = secondCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     var thirdList = thirdCharDbList.Where(t => t.SalesOrderId == so.Id).ToList();
+                                    var SOCostingList = SOCostingConfirmationDbList.Where(t => t.SalesOrderId == so.Id).ToList();
                                     foreach (var third in thirdList)
                                     {
                                         _thirdCharacteristicsRepository.Delete(third);
@@ -1460,6 +1471,10 @@ namespace Library.Service.OrderManagements
                                     foreach (var first in firstList)
                                     {
                                         _firstCharacteristicsRepository.Delete(first);
+                                    }
+                                    foreach (var costing in SOCostingList)
+                                    {
+                                        _SOCostingConfirmationRepository.Delete(costing);
                                     }
                                     _salesOrderRepository.Delete(so);
                                 }
@@ -1924,6 +1939,7 @@ namespace Library.Service.OrderManagements
                     _thirdCharacteristicsRepository.Delete(_thirdCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
                     _secondCharacteristicsRepository.Delete(_secondCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
                     _firstCharacteristicsRepository.Delete(_firstCharacteristicsRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
+                    _SOCostingConfirmationRepository.Delete(_SOCostingConfirmationRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
 
                     _salesOrderTaxRepository.Delete(_salesOrderTaxRepository.Query(t => t.SalesOrderId == salesOrderMaster.Id).Select().AsEnumerable());
 

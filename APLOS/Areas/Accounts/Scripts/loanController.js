@@ -54,7 +54,10 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         TransactionType: "LoanTaken",
         IsSchedule: false,
         IsLoanSetOff: false,
-        IsPayment:true
+        IsPayment: true,
+        OrderSpecific: 'No',
+        OrderSpecificPartyName: null,
+        OrderSpecificPartyId: null
     };
 
     $scope.searchByList = [
@@ -524,6 +527,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.voucher.PaymentSource = "Bank";
         $scope.voucher.PartyType = "Bank";
         $scope.voucher.TransactionType = "LoanTaken";
+        $scope.voucher.OrderSpecific = "No";
         $scope.ExistingLoanList = [];
         $scope.currencyExchangeRate = [];
         $scope.getCboVoucherTypeLoanList();
@@ -846,5 +850,116 @@ function loanController(accountService, bankService, cboService, commonMessage, 
             }
         }
     };
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+        if (baseService.isUndefinedOrNull(party.DownPaymentGLId)) {
+            ShowResult("Customer DownPaymentGL not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if ($scope.companyConfig.IsVoucherFromBudget && baseService.isUndefinedOrNull(party.DownPaymentBudgetId)) {
+            ShowResult("Customer budget not found!", "failure", "partyPopUp");
+            return;
+        }
+        else if (baseService.isUndefinedOrNull(party.CurrencyId)) {
+            ShowResult('Customer transaction currency not found!', 'failure', 'partyPopUp');
+            return;
+        }
+        
+        $scope.voucher.OrderSpecificPartyId = party.Id;
+        $scope.voucher.OrderSpecificPartyName = party.Code + " - " + party.UserName;
+       
+        $scope.hidePartyPopUp();
+    };
+    $scope.ShowResultMasterOrderPopUp = function () {
+        $scope.GetMasterOrderList();
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('show');
+    }
+    $scope.masterOrderList = [];
+    $scope.selectedMasterOrderList = [];
+    $scope.GetMasterOrderList = function () {
+        $scope.masterOrderList = [];
+        $http({
+            method: 'GET',
+            url: "accounts/CustomerInvoice/GetMasterOrderListByPartyId?partyId=" + $scope.voucher.OrderSpecificPartyId
+        }).then(function (response) {
+            $scope.masterOrderList = response.data;
+            if (baseService.arrayLength($scope.selectedMasterOrderList) > 0) {
+                for (var i = 0; i < $scope.selectedMasterOrderList.length; i++) {
+                    for (var j = 0; j < $scope.masterOrderList.length; j++) {
+                        if ($scope.selectedMasterOrderList[i].MasterOrderId === $scope.masterOrderList[j].MasterOrderId) {
+                            $scope.masterOrderList[j].Active = true;
+                        }
+                    }
+                }
+            }
+        });
+    }
+   
+    $scope.CloseMasterOrder = function () {
+        MakeData();
+        angular.element(document.querySelector('#masterOrderPopUp')).modal('hide');
+    }
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
 
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridOperation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.masterOrderList.length; i++) {
+                $scope.masterOrderList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+
+                filtered[j].Active = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridOperation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+    function MakeData() {
+        $scope.selectedMasterOrderList = [];
+        try {
+            for (var i = 0; i < $scope.masterOrderList.length; i++) {
+                var getRow = $filter("filter")($scope.selectedMasterOrderList, { "selectedMasterOrderList": $scope.masterOrderList[i].MasterOrderId });
+              
+                if (getRow.length == 0) {
+                    if ($scope.masterOrderList[i].Active == true) {
+                        var ob = {};
+                        ob.MasterOrderId = $scope.masterOrderList[i].MasterOrderId;
+                        ob.PartyId = $scope.masterOrderList[i].PartyId;
+                            if (checkExistList($scope.selectedMasterOrderList, ob.MasterOrderId) === false) {
+                                ob.Active = $scope.masterOrderList[i].Active;
+                                ob.CustomerName = $scope.masterOrderList[i].CustomerName;
+                                ob.InvoicingPartyPlant = $scope.masterOrderList[i].InvoicingPartyPlant;
+                                ob.DeliveryPartyPlant = $scope.masterOrderList[i].DeliveryPartyPlant;
+                                ob.Type = $scope.masterOrderList[i].Type;
+                                ob.Currency = $scope.masterOrderList[i].Currency;
+                                $scope.selectedMasterOrderList.push(ob);
+                            }
+                    }
+                }
+
+            }
+            
+        } catch (e) {
+            ShowResult(e, 'failure', 'masterOrderPopUp');
+        }
+    }
+    function checkExistList(list, MasterOrderId) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].MasterOrderId === MasterOrderId) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
