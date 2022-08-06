@@ -477,7 +477,7 @@ namespace Aplos.Areas.Products.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"Select
+                var _sql = @"SELECT * FROM (Select
                                   Id
                                 , REPLACE(CONVERT(CHAR(11), RequisitionDate, 106),' ','-') AS RequisitionDate 
                                 , REPLACE(CONVERT(CHAR(11), RequisitionDate, 106),' ','-') AS RequisitionDate1 
@@ -639,8 +639,8 @@ namespace Aplos.Areas.Products.Controllers
                                 , CheckedByEmp
                                 , AuthorizedBy
                                 , AuthorizedByEmp
-                                , AuthorizedByStatus,AddedBy,Reason,OrderRefNo,PreparedById,PreparedBy
-                                Order By RequisitionDate ASC";
+                                , AuthorizedByStatus,AddedBy,Reason,OrderRefNo,PreparedById,PreparedBy)x
+                                Order By CONVERT(VARCHAR, x.RequisitionDate, 23) desc";
                 return _sqlRepository.GetDataCollection(_sql);
             }
             catch (Exception ex)
