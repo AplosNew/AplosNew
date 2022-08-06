@@ -853,10 +853,15 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         $scope.passBankCashAmount();
             $scope.entityValidation();
         if ($scope.form1.$valid && !$scope.validation() && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
+            if ($scope.voucher.PaymentSource =="AdvanceToVendor")
+                $scope.saveUrl = "accounts/CommonAccounts/InsertDebitNoteAdvanceSetOff";
+            else
+                $scope.saveUrl = "accounts/AdjustmentNote/InsertDebitNoteSetOff";
+
             if ($scope.Action === "Save") {
                 $http({
                     method: "POST",
-                    url: "accounts/AdjustmentNote/InsertDebitNoteSetOff",
+                    url: $scope.saveUrl,
                     data: {
                         "voucherVM": $scope.voucher,
                         "voucherDetailVMList": $scope.voucherDetailList,

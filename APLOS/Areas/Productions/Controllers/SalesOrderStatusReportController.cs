@@ -286,9 +286,10 @@ namespace Aplos.Areas.Productions.Controllers
                             from dbo.ItemScanChild sc
                             left join dbo.ItemScan s on s.Id = sc.MasterId 
                             left join dbo.ProductLibrary pl on pl.Code = sc.ProductCode
+                            left join MST.MaterialMovementMaster MMM ON MMM.Id = SC.LocMasterId
                             where pl.Id = moi.ProductLibraryId 
                             and s.WorkDate <= GetDate()
-                            and sc.Booked = 0 and sc.IsDespatch = 0) as AllotedStock
+                            and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
                             , mor.ExchangeRate * so.Rate as Rates
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
@@ -296,7 +297,7 @@ namespace Aplos.Areas.Productions.Controllers
                             left join mst.MaterialMasterArticle mma on mma.Id = moi.ArticleId
                             left join hkp.OrderCategory oc on oc.Id = so.OrderCategoryId
                             left outer join [HKP].[OrderStatus] OS on OS.id=so.OrderStatusId
-							left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
+                            left join dbo.ProductLibrary pl on pl.ID = moi.ProductLibraryId
                             left join MasterOrderExchangeRates mor on mor.TransactionId = mo.Id
                             left join
                             (
@@ -307,8 +308,8 @@ namespace Aplos.Areas.Productions.Controllers
                             left join hkp.Party p on p.Id = mo.PartyId
                             LEFT JOIN [HKP].[CompanyParty] AS COMP ON COMP.PartyId=P.Id AND COMP.PartyType='Customer'
                              LEFT JOIN [HKP].[PartyAccountGroup] AS PAG ON PAG.Id=COMP.PartyAccountGroupId
-							 left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
-                            where os.Id not in ('Closed' , 'Cancelled') " + ent + @"
+                             left join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
+                            where os.Id not in ('Closed' , 'Cancelled') 
                             order by pag.UserName asc, convert(datetime, mo.AddedDate, 103) desc
                             ";
 

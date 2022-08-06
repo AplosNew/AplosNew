@@ -2456,13 +2456,14 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
         #endregion PackingContent
 
 
-        public IEnumerable<object> GetQualityProcessCbo()
+        public IEnumerable<object> GetQualityProcessCbo(string ProcessId)
         {
             try
             {
                 string sql = @"SELECT  P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
-LEFT JOIN [HKP].[Process] AS P ON P.Id=qp.ProcessId
-WHERE qp.[Active]=1";
+LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
+LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
+WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
