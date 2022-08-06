@@ -43,6 +43,15 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         }
     }
 
+    $scope.qprocessList = [];
+    $http({
+        method: 'GET',
+        url: 'QMS/QualityProcess/getcbo'
+    }).then(function successCallback(response) {
+        $scope.qprocessList = response.data;
+    });
+
+
     $scope.processList = [];
     $http({
         method: 'GET',
