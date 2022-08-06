@@ -273,7 +273,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             }
         }
 
-        $scope.fileName = 'PurchaseRegisterPartyWise.xlsx';
+        $scope.fileName = 'Purchase Register Party Wise.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
         $http({
