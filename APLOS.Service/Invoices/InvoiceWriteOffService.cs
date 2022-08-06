@@ -5721,7 +5721,6 @@ namespace Library.Service.Invoices
                         else
                             glTransactionDetail.DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
 
-
                         currentVoucherDetailId++;
                         _voucherService.InsertVoucherDetail(voucher, voucherDetailDr, currentVoucherDetailId);
                         _voucherService.InsertGLTransactionDetail(voucherDetailDr, glTransactionDetail);
