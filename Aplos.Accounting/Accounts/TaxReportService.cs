@@ -8012,8 +8012,8 @@ UNION ALL
                         sheet1.Range[xlsRow, iInvoiceDocDate].Text = dtRCMPayable.Rows[i]["InvoiceDocDate"].ToString();
                         sheet1.Range[xlsRow, GSTIN].Text = dtRCMPayable.Rows[i]["GSTIN"].ToString();
 
-                        sheet1.Range[xlsRow, iTDSPer].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["TDSPer"].ToString());//TaxableAmount
-                        sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                        sheet1.Range[xlsRow, iTDSPer].Text =  dtRCMPayable.Rows[i]["TDSPer"].ToString();//TaxableAmount
+                        //sheet1.Range[xlsRow, iTDSPer].NumberFormat = reportUtility.NumberFormatDecimalTwo();
 
                         sheet1.Range[xlsRow, iInvoiceAmount].Number = clsStaticInfo.dbl(dtRCMPayable.Rows[i]["InvoiceAmount"].ToString());//TaxableAmount
                         sheet1.Range[xlsRow, iInvoiceAmount].NumberFormat = reportUtility.NumberFormatDecimalTwo();
