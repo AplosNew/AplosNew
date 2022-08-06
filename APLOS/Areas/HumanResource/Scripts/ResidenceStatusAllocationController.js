@@ -590,4 +590,75 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         });
 
     };
+
+    $scope.ResidenceMasterReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsResidenceMaterReport",
+            data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.EmployeeNew.EmployeeCurrentStatus)) {
+                    ShowResult('Employee Current Statusus Required.', 'failure');
+                    throw "Invalid Request";
+                }
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.allResidenceMasterReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsAllResidenceMaterReport",
+            data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.ResidenceMasterList = [];
+    $scope.gridViewResidenceMAster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "gridViewResidenceMAster",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ResidenceMasterList = response.data;
+        })
+    };
+
+    $scope.EmployeeNew = {
+        EmployeeCurrentStatus: null
+    };
+
+    $scope.EmployeeStatusList = [];
+    $scope.employeeCurrentStatus = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'employeeCurrrentStatus',
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+           
+            $scope.EmployeeStatusList = response.data;
+        })
+    };
+    $scope.employeeCurrentStatus();
 }

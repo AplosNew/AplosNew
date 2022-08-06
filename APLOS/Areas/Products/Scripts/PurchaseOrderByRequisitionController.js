@@ -2923,12 +2923,12 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.getalldataListForRequisitionList = function () {
 		$scope.GetListForMasterOrder = [];
 		$http({
-			method: "GET",
+			method: "POST",
 			dataType: 'JSON',
 			url: 'Products/PurchaseOrder/GetListForRequisition',
 		}).then(function successCallback(response) { //datagatefun
 			$scope.GetListForMasterOrder = [];
-			$scope.GetListForMasterOrder = response.data;
+			$scope.GetListForMasterOrder = response.data.NewData;
 		});
 
 		$scope.processgroupList1();
@@ -3392,7 +3392,7 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 	$scope.GerRequisition = function () {
 
 		$.ajax({
-			type: "Get",
+			type: "POST",
 			url: 'Products/PurchaseOrder/GetListForRequisition',
 			data: {},
 			dataType: "json",
@@ -3590,11 +3590,11 @@ function PurchaseOrderByRequisitionController(accountService, addressService, $w
 
 	$scope.LoadAllReq = function () {
 		$http({
-			method: "GET",
+			method: "POST",
 			dataType: 'JSON',
 			url: 'Products/PurchaseOrder/GetListForRequisition',
 		}).then(function successCallback(response) {
-			$scope.GetListForMasterOrder = response.data;
+			$scope.GetListForMasterOrder = response.data.NewData;
 		});
 	}
 
