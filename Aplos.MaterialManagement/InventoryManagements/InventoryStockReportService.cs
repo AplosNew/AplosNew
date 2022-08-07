@@ -57,8 +57,8 @@ namespace Library.MaterialManagement.InventoryManagements
                 {
                     cmdText = @"SELECT * FROM (
 						SELECT Distinct ROW_NUMBER() Over(Order by  IM.Id) As[S.N]             
-							   -- isnull(MT.UserName,'') MaterialType
-							--, isnull(MGM.UserName,'') AS MaterialGroupMasterName						
+							  ,isnull(MT.UserName,'') MaterialType
+							  , isnull(MGM.UserName,'') AS MaterialGroup						
 							 ,isnull(MM.UserName,'') MaterialMasterName	
 							 ,MM.Id	MaterialMasterId	
 							,HSNC.Code HSNCode
@@ -263,8 +263,8 @@ namespace Library.MaterialManagement.InventoryManagements
                 {
                     cmdText = @"SELECT * FROM (
 						SELECT Distinct ROW_NUMBER() Over(Order by  IM.Id) As[S.N]             
-							   -- isnull(MT.UserName,'') MaterialType
-							--, isnull(MGM.UserName,'') AS MaterialGroupMasterName						
+							  ,isnull(MT.UserName,'') MaterialType
+							  , isnull(MGM.UserName,'') AS MaterialGroup					
 							 ,isnull(MM.UserName,'') MaterialMasterName	
 							 ,MM.Id	MaterialMasterId	
 							,HSNC.Code HSNCode
@@ -488,8 +488,8 @@ namespace Library.MaterialManagement.InventoryManagements
                 {
                     cmdText = @"SELECT * FROM (
 						SELECT Distinct ROW_NUMBER() Over(Order by  IM.Id) As[S.N]             
-							   -- isnull(MT.UserName,'') MaterialType
-							--, isnull(MGM.UserName,'') AS MaterialGroupMasterName						
+							  , isnull(MT.UserName,'') MaterialType
+							  , isnull(MGM.UserName,'') AS MaterialGroup						
 							 ,isnull(MM.UserName,'') MaterialMasterName	
 							 ,MM.Id	MaterialMasterId	
 							,HSNC.Code HSNCode
@@ -539,7 +539,6 @@ namespace Library.MaterialManagement.InventoryManagements
 							--Balance    
 							,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
 							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
-
 
 						from TRN.InventoryMaterial AS IM
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
@@ -654,8 +653,8 @@ namespace Library.MaterialManagement.InventoryManagements
                 {
                     cmdText = @"SELECT * FROM (
 						SELECT Distinct ROW_NUMBER() Over(Order by  IM.Id) As[S.N]             
-							   -- isnull(MT.UserName,'') MaterialType
-							--, isnull(MGM.UserName,'') AS MaterialGroupMasterName						
+							  ,isnull(MT.UserName,'') MaterialType
+							 , isnull(MGM.UserName,'') AS MaterialGroup						
 							 ,isnull(MM.UserName,'') MaterialMasterName	
 							 ,MM.Id	MaterialMasterId,MaterialStorageLocation= MS.UserName	
 							,HSNC.Code HSNCode
@@ -1289,6 +1288,20 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Mat.Mst.Id";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -1843,6 +1856,20 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Mat.Mst.Id";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2291,6 +2318,21 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
+
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Mat.Mst.Id";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
@@ -2827,6 +2869,20 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Type";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
+                    sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Group";
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+                    sheet1headreColIndex++;
+
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Mat.Mst.Id";
                     sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
@@ -2853,7 +2909,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     sheet1headreColIndex++;
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Article";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 35;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2917,7 +2973,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
 
                         sheet1.Range[_rowL, sheet1headreColIndex].Text = "Material Storage";
-                        sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+                        sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 18;
                         sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                         sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2928,7 +2984,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     //sheet1headreColIndex++;
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "UOM";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 6;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2960,7 +3016,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Receipts Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 28;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2972,7 +3028,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Material Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 28;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2985,7 +3041,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue Material Return Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -2995,7 +3051,7 @@ namespace Library.MaterialManagement.InventoryManagements
                     //sheet1headreColIndex++;
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Purchase Material Return Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 28;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -3006,14 +3062,14 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Adjustment Material Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 25;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
                     sheet1headreColIndex++;
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Sales Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -3023,7 +3079,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Scrap Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -3031,7 +3087,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
 
                     sheet1.Range[_rowL, sheet1headreColIndex].Text = "Inventory Transfer Qty";
-                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
+                    sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 22;
                     sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -3251,6 +3307,8 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
                         col = 1;
                         report.SetText(ref sheet1, _rowL, col, sl.ToString()); col++;
+                        report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialType"].ToString()); col++;
+                        report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialGroup"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterId"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["ArticleId"].ToString()); col++;
@@ -3336,6 +3394,8 @@ namespace Library.MaterialManagement.InventoryManagements
                     {
                         col = 1;
                         report.SetText(ref sheet1, _rowL, col, sl.ToString()); col++;
+                        report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialType"].ToString()); col++;
+                        report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialGroup"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterId"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString()); col++;
                         report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["ArticleId"].ToString()); col++;
@@ -3504,6 +3564,8 @@ namespace Library.MaterialManagement.InventoryManagements
                         {
                             col = 1;
                             report.SetText(ref sheet1, _rowL, col, sl.ToString()); col++;
+                            report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialType"].ToString()); col++;
+                            report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialGroup"].ToString()); col++;
                             report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterId"].ToString()); col++;
                             report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString()); col++;
                             report.SetText(ref sheet1, _rowL, col, inventoryMaterialList.Rows[n]["ArticleId"].ToString()); col++;
