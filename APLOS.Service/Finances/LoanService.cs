@@ -57,7 +57,7 @@ namespace Library.Service.Finances
 
         #endregion Constructor
 
-        public string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList)
+        public string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist)
         {
             var flag = false;
             try
@@ -622,6 +622,21 @@ namespace Library.Service.Finances
                             Balance = item.Balance
                         };
                         _financingService.InsertFinancingSchedule(financing, financingSchedule);
+                    }
+                }
+                var currentfinancingMasterOrderId = 1;
+                if (financingMasterOrderlist !=null)
+                {
+                    foreach (var item in financingMasterOrderlist)
+                    {
+                        var financingMasterOrder = new FinancingMasterOrder
+                        {
+                            MasterOrderId = item.MasterOrderId,
+                            PartyId = item.PartyId,
+                            FinancingId = financing.Id
+                        };
+                        _financingService.InsertFinancingMasterOrder(financing, financingMasterOrder, currentfinancingMasterOrderId);
+                        currentfinancingMasterOrderId++;
                     }
                 }
 

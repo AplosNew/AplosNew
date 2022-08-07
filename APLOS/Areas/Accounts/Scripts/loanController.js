@@ -392,6 +392,10 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.passBankCashAmount();
         $scope.voucher.PostingDate = $filter("dateFiltering")($scope.voucher.PostingDate);
         $scope.voucher.DocDate = $filter("dateFiltering")($scope.voucher.DocDate);
+        if ($scope.voucher.OrderSpecific === "Yes" && $scope.selectedMasterOrderList.length ===0) {
+            ShowResult("Please select Master Order!", 'failure');
+            return;
+        }
         if ($scope.form0.$valid && !$scope.invalidDocDate && !$scope.invalidPostingDate) {
             if ($scope.Action === "Save") {
                 $http({
@@ -400,7 +404,8 @@ function loanController(accountService, bankService, cboService, commonMessage, 
                     data: {
                         "voucherVM": $scope.voucher,
                         "existingLoanList": $scope.ExistingLoanList,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
+                        "financingMasterOrderlist": $scope.selectedMasterOrderList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -424,7 +429,9 @@ function loanController(accountService, bankService, cboService, commonMessage, 
                     url: "Accounts/Loan/UpdateLoan",
                     data: {
                         "voucherVM": $scope.voucher,
-                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
+                        "existingLoanList": $scope.ExistingLoanList,
+                        "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist,
+                        "financingMasterOrderlist": $scope.selectedMasterOrderList
                     },
                     dataType: "JSON"
                 }).then(function successCallback(response) {
@@ -532,6 +539,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         $scope.currencyExchangeRate = [];
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];
+        $scope.selectedMasterOrderList = [];
         $("#loanDetails").children().remove();
         $scope.isReadOnly = false;
     };

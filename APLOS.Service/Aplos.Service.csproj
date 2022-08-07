@@ -652,6 +652,8 @@
     <Compile Include="TaskScheduler\ITaskSchedulerMasterService.cs" />
     <Compile Include="TaskScheduler\TaskScheduler.cs" />
     <Compile Include="TaskScheduler\TaskSchedulerMasterService.cs" />
+    <Compile Include="Vouchers\CommonAccountsSetOffService.cs" />
+    <Compile Include="Vouchers\ICommonAccountsSetOffService.cs" />
     <Compile Include="Vouchers\IVoucherReportService.cs" />
     <Compile Include="Materials\IServiceGroupGLService.cs" />
     <Compile Include="Materials\IServiceGroupPartyAccountGroupGLService.cs" />
