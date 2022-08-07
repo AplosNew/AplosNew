@@ -473,7 +473,7 @@ namespace Library.Service.Vouchers
 
                         // INSERT INTO InvoiceWriteOffDetail
                         currentInvoiceWriteOffDetailId++;
-                        var invoiceWriteOffDetail = new AdvanceWriteOffDetail
+                        var advanceWriteOffDetail = new AdvanceWriteOffDetail
                         {
                             GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
                             BudgetMasterId = advanceDetail.BudgetMasterId,
@@ -494,14 +494,14 @@ namespace Library.Service.Vouchers
                             Archive = invoiceWriteOff.Archive
                             
                         };
-                        InsertAdvanceWriteOffDetail(advanceWriteOff, invoiceWriteOffDetail, currentInvoiceWriteOffDetailId);
-                        invoiceWriteOff.Amount = invoiceWriteOffDetail.Amount;
+                        InsertAdvanceWriteOffDetail(advanceWriteOff, advanceWriteOffDetail, currentInvoiceWriteOffDetailId);
+                        invoiceWriteOff.Amount = advanceWriteOffDetail.Amount;
 
                         // INSERT INTO VoucherDetail
                         var voucherDetailCr = new VoucherDetail
                         {
                             VoucherId = voucher.Id,
-                            InvoiceWriteOffDetailId = invoiceWriteOffDetail.Id,
+                            AdvanceWriteOffDetailId = advanceWriteOffDetail.Id,
                             GLGeneralInfoId = advanceDetail.GLGeneralInfoId,
                             BudgetMasterId = advanceDetail.BudgetMasterId,
                             ActivityId = advanceDetail.ActivityId,
