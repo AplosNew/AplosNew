@@ -4933,7 +4933,7 @@ LEFT OUTER JOIN
                     }
                 }
 
-                string CmdText = @"SELECT DISTINCT E.SystemId,E.EmployeeName,E.EmployeeCode,REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106), ' ', '-') DOJ,SD.ShiftDefinationName ShiftDefinationName,LTRIM(RIGHT(CONVERT(VARCHAR(25), EDWSA.ShiftInTime, 100), 7)) ShiftInTime,EmpC.UserName EmpCategory,ISNULL(LDes.UserName,'-') Designation,ISNULL(LDes.Id,'-') DesignationId
+                string CmdText = @"SELECT DISTINCT E.SystemId,E.EmployeeName,E.EmployeeCode,REPLACE(CONVERT(VARCHAR(11), E.DOJ, 106), ' ', '-') DOJ,SD.ShiftDefinationName ShiftDefinationName,LTRIM(RIGHT(CONVERT(VARCHAR(25),SD.InTime, 100), 7)) ShiftInTime,EmpC.UserName EmpCategory,ISNULL(LDes.UserName,'-') Designation,ISNULL(LDes.Id,'-') DesignationId
                                             , ISNULL(OA.UserName,'-') OperationActivityName
 											,ISNULL(OA.Id,'-') OperationActivityId
 											,ISNULL(OM.UserName,'-') OperationMasterName
