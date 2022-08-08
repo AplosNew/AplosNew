@@ -2472,6 +2472,24 @@ WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
             }
         }
 
+        public IEnumerable<object> GetQualityProcessParameterList(string processId, string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT CONVERT(bit,0) Active,A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id QualityProcessParameterId
+FROM dbo.QualityProcessParameter P
+LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
+WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> GetProductionBookingData(string processId, string productionDate)
         {
             string sql = @"SELECT CONVERT(bit,0) Flag,PS.Id PrOId,P.UserName Process,PR.Id ProductionOrderId,CSG.Description ShiftName,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod

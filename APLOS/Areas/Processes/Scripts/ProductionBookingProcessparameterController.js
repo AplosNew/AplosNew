@@ -81,7 +81,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         try {
             $http({
                 method: 'GET',
-                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemCbo?Id=' + $scope.ModelProcessPara.Id,
+                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemCbo?Id=' + $scope.ModelProcessPara.Id + '&masterId=' + $scope.masterId,
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -97,7 +97,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
             ShowResult(e, 'failure');
         }
     };
-    $scope.GetOrderLineCostingItemCbo();
+    
 
     $scope.ModelList = [];
     $scope.GetData = function () {
@@ -358,6 +358,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.masterId = $scope.ModelNew.Id;
         $scope.GetProcessParameterData();
         $scope.GetQualityProcessList();
+        $scope.GetOrderLineCostingItemCbo();
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -557,7 +558,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.FormulaArray = [];
         $scope.FormulaIdArray = [];
         $scope.GetSequence();
-        $scope.GetOrderLineCostingItemCbo();
+        //$scope.GetOrderLineCostingItemCbo();
         $scope.ModelProcessPara.EntryState = 'Entry';
     }
 
