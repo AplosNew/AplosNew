@@ -235,7 +235,7 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                     DataSet dsMaster, dsDestination;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND ProductionBookingProcessParameterId='"+data["ProductionBookingProcessParameterId"] +"'", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                         throw new Exception("UserName already exists!!!");
 

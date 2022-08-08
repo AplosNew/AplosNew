@@ -1355,7 +1355,7 @@ EffectiveDate = CASE
                                         SequenceNo = CASE WHEN ISNULL(Fml.SequenceNo, 0) > 0 THEN ISNULL(Fml.SequenceNo, 0)
 														  WHEN ISNULL(Fxd.SequenceNo, 0) > 0 THEN ISNULL(Fxd.SequenceNo, 0)
 														  WHEN ISNULL(SG.SequenceNo, 0) > 0 THEN ISNULL(SG.SequenceNo, 0)
-														  ELSE 0 END,
+														  ELSE SH.[Sequence] END,
 										SH.HeadCategory,
 										BaseOnNetPay = CASE WHEN ISNULL(Fml.BaseOnNetPay, '') != '' THEN Fml.BaseOnNetPay
 															WHEN ISNULL(Fxd.BaseOnNetPay, '') != '' THEN Fxd.BaseOnNetPay

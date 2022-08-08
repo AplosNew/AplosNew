@@ -1817,7 +1817,7 @@ namespace Library.OrderManagement.Production
 ,P.Id ProductionBookingParameterId
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='"+ masterId + @"'
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "')";
+WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "') ORDER BY P.Sequence";
                     return _sqlRepository.GetDataCollection(sql, null);
                
             }
