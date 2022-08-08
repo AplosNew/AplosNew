@@ -104,6 +104,13 @@ namespace Aplos.Areas.Materials.Controllers
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+
+            //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            //InventoryReceiveQueryService obj = new InventoryReceiveQueryService(_sqlRepository);
+            //List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(obj.GetPurchaseRegisterPartyWiseData(identity.CompanyId, identity.PlantId, fromDate, toDate,null,false));
+            //return Json(new { NewData, Message = AplosMessage.Success });
+
+
         }
 
 		[Authorize,HttpPost]
