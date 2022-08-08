@@ -1188,6 +1188,7 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
 
     }
     $scope.selectAndCloseadvancePopUp = function (x) {
+        $scope.voucherInvoiceDetailList = [];
         var advance = x.data;
         $scope.voucherInvoiceDetailList.push(advance);
         angular.element(document.querySelector("#advancePopUp")).modal("hide");
