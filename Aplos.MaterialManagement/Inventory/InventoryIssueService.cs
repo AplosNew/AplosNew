@@ -4076,7 +4076,7 @@ namespace Library.MaterialManagement.Inventory
                             ,CC.UserName CostCenterName,EI.EmployeeName
                             ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
                             ,CC1.UserName CRLevel1,CC2.UserName CRLevel2,CC3.UserName CRLevel3,CC4.UserName CRLevel4
-                            ,format(V.PostingDate,'dd-MMM-yyyy')PostingDate,V.AddedBy
+                            ,format(V.PostingDate,'dd-MMM-yyyy') PostingDate,U.FullName PostedBy
                         FROM trn.InventoryIssue II
                         LEFT JOIN trn.InventoryIssueDetail IID ON II.Id = IId.InventoryIssueId
 					    LEFT JOIN ORG.CostCenter CC ON CC.Id=IID.CostCenterId
@@ -4099,7 +4099,8 @@ namespace Library.MaterialManagement.Inventory
                         --left JOIN [SCS].[Currency] AS CU ON IR.CurrencyId=CU.Id
                         --LEFT JOIN trn.Invoice AS I ON I.InventoryReceiveId = II.Id
                         LEFT JOIN trn.Voucher V ON V.Id = II.VoucherId
-                       LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
+                        LEFT JOIN [SEC].[User] U on U.UserId=V.AddedBy
+                        LEFT JOIN HKP.GLGeneralInfo IGL ON IGL.Id=IID.PostDrGLGeneralInfoId 
 						LEFT JOIN MST.BudgetMaster IBM ON IBM.Id=IID.PostDrBudgetMasterId
 						LEFT JOIN HKP.Activity IA ON IA.Id=IID.PostDrActivityId
 						Left JOIN hkp.Budget B On B.Id=IBM.BudgetId
@@ -4596,7 +4597,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
             sheet1headreColIndex++;
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted Date";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posting Date";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 13;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4604,7 +4605,7 @@ namespace Library.MaterialManagement.Inventory
             sheet1headreColIndex++;
 
             sheet1.Range[_rowL, sheet1headreColIndex].Text = "Posted By";
-            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 10;
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 15;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
@@ -4784,7 +4785,7 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, colBaseUOMTotal, inventoryMaterialList.Rows[n]["BaseUOM"].ToString());
                 report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["IsPark"].ToString());
                 report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
-                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["AddedBy"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
                 report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["Remarks"].ToString());
                 report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["GLCode"].ToString());
                 report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["GL"].ToString());
