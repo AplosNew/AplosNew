@@ -1065,6 +1065,7 @@ upanelApp.controller("ProductionBookingProcessparameterController", ProductionBo
 upanelApp.controller("EOTController", EOTController)
 upanelApp.controller("QuaityProcessBookingController", QuaityProcessBookingController)
 upanelApp.controller("FurniturePolicyReportController", FurniturePolicyReportController)
+upanelApp.controller("FiveSZoneMasterController", FiveSZoneMasterController)
 
 
 
