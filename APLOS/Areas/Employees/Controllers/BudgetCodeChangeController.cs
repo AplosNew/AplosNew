@@ -72,16 +72,18 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetGivenDesignationByLegalDesignationCbo(string legalDesignationId)
+        public JsonResult GetGivenDesignationByLegalDesignationCbo(string legalDesignationId,string BudgetCode)
         {
             string strSQL;
 
             try
             {
-                strSQL = @"SELECT B.DesignationId, C.UserName FROM [MST].[DesignationMasterLegalDesignation] A
+                strSQL = @"SELECT DISTINCT B.DesignationId, C.UserName FROM [MST].[DesignationMasterLegalDesignation] A
                             INNER JOIN  [MST].[DesignationMaster] B ON B.Id=A.DesignationMasterId
                             INNER JOIN HKP.Designation C ON C.Id=B.DesignationId
-                            WHERE A.LegalDesignationId='" + legalDesignationId + "'";
+                            WHERE A.LegalDesignationId IN(select LegalDesignationId from [MST].[DesignationMasterLegalDesignation] where DesignationMasterId=
+(select Id from MST.DesignationMaster where 
+DesignationId=(select DesignationId from  ORG.Position where Id =(select PositionId from mst.ManpowerBudget where id='" + BudgetCode + "'))))";
 
                 return Json(_sqlRepository.GetCombo(strSQL, "DesignationId", "UserName"), JsonRequestBehavior.AllowGet);
             }

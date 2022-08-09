@@ -377,7 +377,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
                 if (designationId == null)
                 {
                     str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
-                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            DM.UserName as Designation, FPF.Quantity  from hkp.FurniturePolicy FP
                             left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
                             left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
                             left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
@@ -389,7 +389,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
                 else
                 {
                     str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
-                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            DM.UserName as Designation, FPF.Quantity  from hkp.FurniturePolicy FP
                             left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
                             left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
                             left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
@@ -414,7 +414,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
                 if (designationId == null)
                 {
                     str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
-                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            DM.UserName as Designation, FPF.Quantity  from hkp.FurniturePolicy FP
                             left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
                             left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
                             left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId
@@ -426,7 +426,7 @@ WHERE NOT EXISTS( SELECT * FROM HKP.FurniturePolicyDM AS fpd  WHERE fpd.Designat
                 else
                 {
                     str = @"select FP.Id, FM.Sequence, FP.StandardName as PolicyName, FM.Category, FM.SubCategory, FM.StandardName as Furniture, FM.Type, FM.Budget,
-                            DM.UserName as Designation  from hkp.FurniturePolicy FP
+                            DM.UserName as Designation, FPF.Quantity  from hkp.FurniturePolicy FP
                             left join hkp.FurniturePolicyFM FPF on FPF.FurniturePolicyId = FP.Id
                             left join hkp.FurniturePolicyDM FPD on FPD.FurniturePolicyId = FP.Id
                             left join hkp.furnitureMaster FM on FM.Id = FPF.FurnitureMasterId

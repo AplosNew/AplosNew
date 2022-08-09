@@ -154,6 +154,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColType = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Quantity", 12, ExcelHAlign.HAlignCenter);
+            int ColQuantity = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Budget", 20, ExcelHAlign.HAlignCenter);
             int ColBudget = COL;
             COL++;
@@ -189,6 +193,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                     sheet[ROW, ColFurniture].Text = data.Rows[i]["Furniture"].ToString();
                     sheet[ROW, ColType].Text = data.Rows[i]["Type"].ToString();
                     sheet[ROW, ColBudget].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Budget"].ToString());
+                    sheet[ROW, ColQuantity].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Quantity"].ToString());
                     sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
 
                     ROW++;

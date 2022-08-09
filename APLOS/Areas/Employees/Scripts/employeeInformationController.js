@@ -563,7 +563,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
         $scope.popUpList = [];
         $scope.popUpParameters.sort = 'Sequence';
         $scope.popUpParameters.searchBy = 'UserName';
-        $scope.popUpUrl = 'employees/RecruitmentApproval/GetLegalDesignationCbo?companyGroupId=' + $window.companyGroupId;
+        $scope.popUpUrl = 'employees/RecruitmentApproval/GetLegalDesignationCbo?companyGroupId=' + $window.companyGroupId + '&BudgetCode=' + $scope.employeeNew.BudgetCode;
         baseService.setCurrentPage('dataList');
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
@@ -620,7 +620,7 @@ function employeeInformationController(addressService, fileReader, cboService, c
     $scope.GetGivenDesignationByLegalDesignaiton = function (legalDesignationId) {
         $http({
             method: 'GET',
-            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId
+            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId + '&BudgetCode=' + $scope.employeeNew.BudgetCode
         }).then(function successCallback(response) {
             $scope.givenDesignationList = response.data;
             if ($scope.flg === 'new') {

@@ -801,5 +801,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/FurniturePolicyReport/Aplos',
             controller: 'FurniturePolicyReportController'
         })
+
+        .when('/5s-zone-master', {
+            templateUrl: 'humanResource/FiveSZoneMaster/Aplos',
+            controller: 'FiveSZoneMasterController'
+        })
         ;
 }

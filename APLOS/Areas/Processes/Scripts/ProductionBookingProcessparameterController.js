@@ -70,9 +70,6 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     });
 
     $scope.GetSequence = function () {
-        //cboService.getSequence($scope.getSeqUrl, function (data) {
-        //    $scope.ModelProcessPara.Sequence = data;
-        //});
         $http.get("Processes/ProductionBookingProcessparameter/getautosequence?masterId=" + $scope.masterId)
             .then(
                 function successCallback(response) {
