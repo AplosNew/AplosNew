@@ -348,7 +348,7 @@ namespace Library.Accounting.Accounts
 						,Reconcile=CASE WHEN VD.BankMasterId<>'' AND GLTD.ReconcileId<>'' THEN 'Yes' WHEN VD.BankMasterId IS NULL THEN '' ELSE 'No' END
                         ,(select COUNT(Id) from [TRN].[VoucherGLUpdateLog] where VoucherDetailId=VD.Id)GLUpdate
                          ,PC.UserName UserCategory,PSC.UserName UserSubCategory,VT.Category VoucherCategory
-                        ,PG.UserName PartyGroup,PAG.UserName PartyAccountGroup
+                        ,PG.UserName PartyGroup,PAG.UserName PartyAccountGroup,IsPark = case when V.IsPark=1 then 'Yes' else 'No' end
                         FROM TRN.VoucherDetail AS VD
                         LEFT JOIN TRN.Voucher AS V ON V.Id=VD.VoucherId
                         LEFT JOIN [HKP].[GLGeneralInfo] AS GLGI ON GLGI.Id=VD.GLGeneralInfoId
@@ -6702,12 +6702,7 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
-            //worksheet[ROW, COL].Text = "Dr/Cr";
-            //int colDrCr = COL;
-            //worksheet[ROW, COL].ColumnWidth = 5;
-            //worksheet[ROW, COL].CellStyle.Font.Bold = true;
-            //COL++;
-
+            
             worksheet[ROW, COL].Text = "Tran. Dr.";
             int colDrAmount = COL;
             worksheet[ROW, COL].ColumnWidth = 15;
@@ -6740,6 +6735,12 @@ namespace Library.Accounting.Accounts
             worksheet[ROW, COL].ColumnWidth = 15;
             worksheet[ROW, COL].CellStyle.Font.Bold = true;
             worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            COL++;
+
+            worksheet[ROW, COL].Text = "Park";
+            int colIsPark = COL;
+            worksheet[ROW, COL].ColumnWidth = 8;
+            worksheet[ROW, COL].CellStyle.Font.Bold = true;
             COL++;
 
             worksheet[ROW, COL].Text = "GRNNo.";
@@ -6878,6 +6879,7 @@ namespace Library.Accounting.Accounts
                 worksheet[ROW, colBudgetRefNo].Text = dtDayBookData.Rows[i]["BudgetRefNo"].ToString();
 
                 worksheet[ROW, colParticular].Text = dtDayBookData.Rows[i]["Particular"].ToString();
+                worksheet[ROW, colIsPark].Text = dtDayBookData.Rows[i]["IsPark"].ToString();
                 worksheet[ROW, colGRNNo].Text = dtDayBookData.Rows[i]["GRNNo"].ToString();
                 worksheet[ROW, colAcceptanceNo].Text = dtDayBookData.Rows[i]["AcceptanceNo"].ToString();
                 worksheet[ROW, colIssue].Text = dtDayBookData.Rows[i]["Issue"].ToString();
