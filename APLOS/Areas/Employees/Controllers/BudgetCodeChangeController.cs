@@ -78,12 +78,12 @@ namespace Aplos.Areas.Employees.Controllers
 
             try
             {
-                strSQL = @"SELECT B.DesignationId, C.UserName FROM [MST].[DesignationMasterLegalDesignation] A
+                strSQL = @"SELECT DISTINCT B.DesignationId, C.UserName FROM [MST].[DesignationMasterLegalDesignation] A
                             INNER JOIN  [MST].[DesignationMaster] B ON B.Id=A.DesignationMasterId
                             INNER JOIN HKP.Designation C ON C.Id=B.DesignationId
-                            WHERE A.LegalDesignationId=(select LegalDesignationId from [MST].[DesignationMasterLegalDesignation] where DesignationMasterId=
+                            WHERE A.LegalDesignationId IN(select LegalDesignationId from [MST].[DesignationMasterLegalDesignation] where DesignationMasterId=
 (select Id from MST.DesignationMaster where 
-DesignationId=(select DesignationId from  ORG.Position where Id=(select PositionId from mst.ManpowerBudget where id='"+ BudgetCode + "'))))";
+DesignationId=(select DesignationId from  ORG.Position where Id =(select PositionId from mst.ManpowerBudget where id='" + BudgetCode + "'))))";
 
                 return Json(_sqlRepository.GetCombo(strSQL, "DesignationId", "UserName"), JsonRequestBehavior.AllowGet);
             }
