@@ -2290,7 +2290,7 @@ namespace Library.MaterialManagement.Inventory
         }
 
 
-        public IEnumerable<object> GetIssueRegister(string fromDate, string toDate, string Type)
+        public DataTable GetIssueRegister(string fromDate, string toDate, string Type)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
@@ -2471,7 +2471,7 @@ namespace Library.MaterialManagement.Inventory
 
                 }
 
-                return _sqlRepository.GetDataCollection(sql);
+                return _sqlRepository.GetDataTable(sql);
 
             }
             catch (Exception ex)

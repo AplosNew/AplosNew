@@ -130,6 +130,10 @@ function customerInvoiceReceiptController(bankService, cboService, commonMessage
         {
             "Text": "Amount",
             "Value": "Amount"
+        },
+        {
+            "Text": "Status",
+            "Value": "Status"
         }
     ];
 

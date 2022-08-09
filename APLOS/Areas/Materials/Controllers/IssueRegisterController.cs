@@ -103,13 +103,12 @@ namespace Aplos.Areas.Materials.Controllers
                 throw new CustomException("Select To Date");
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+            //return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
 
-            //var jsondata = Json(new { _inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), Message = AplosMessage.Success });
-            //jsondata.MaxJsonLength = int.MaxValue;
-            //return jsondata;
-
-
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type));
+            var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
         }
 
 		[Authorize,HttpPost]
