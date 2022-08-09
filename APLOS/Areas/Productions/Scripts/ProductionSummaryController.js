@@ -126,7 +126,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     $scope.getProdLevel = function () {
         try {
             $scope.PQEnable = false;
-            
+
             $scope.IsFirst = $.grep($scope.processList, function (item) {
                 return item.Value === $scope.productionSummaryNew.ProcessId;
             })[0].IsFirst;
@@ -181,7 +181,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 throw 'Production Booking Level is not defined for selected process.';
             }
 
-            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased==true) {
+            if ($scope.IsSKU1 === true || $scope.IsSKU2 === true || $scope.IsSKU2 === true || $scope.IsParameterBased == true) {
                 $scope.PQEnable = true;
                 $scope.disGo = false;
             }
@@ -1301,7 +1301,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                             $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
                         }
                     }
-                    $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
+                    if (response.data.NewData[i].EntryState == "Calculate") {
+                        $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
+                    }
                 }
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
