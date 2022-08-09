@@ -104,6 +104,12 @@ namespace Aplos.Areas.Materials.Controllers
             }
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(_inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
+
+            //var jsondata = Json(new { _inventoryIssueService.GetIssueRegister(fromDate, toDate, Type), Message = AplosMessage.Success });
+            //jsondata.MaxJsonLength = int.MaxValue;
+            //return jsondata;
+
+
         }
 
 		[Authorize,HttpPost]

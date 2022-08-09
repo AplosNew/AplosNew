@@ -954,7 +954,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PPI1.UserName ShipTo
 								,II.ToCurrencyRate
 								, II.DocRefNo
-								,II.DocDate
+								,format(II.DocDate,'dd-MMM-yyyy') DocDate
 								, P.UserName AS PartyName,p.Code
 								,Sum(IID.Qty *IID.SalesRate) TransactionAmount
 								,v.VoucherNo VoucherId
@@ -1090,7 +1090,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PPI.UserName ShipTo
 								,II.CompanyCurrencyRate ToCurrencyRate
 								, II.DocRefNo
-								,II.DocDate
+								,format(II.DocDate,'dd-MMM-yyyy') DocDate
 								, P.UserName AS PartyName,p.Code
 								,Sum(IID.TransactionAmount) TransactionAmount
 								,v.VoucherNo VoucherId
@@ -2107,23 +2107,23 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "SourceType";
+					worksheet[ROW, COL].Text = "Source Type";
 					int colSourceType = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Entry Date";
 					int colSalesDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Invloice Date";
 					int colInvoiceDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].ColumnWidth = 13;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2146,7 +2146,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					COL++;
 					worksheet[ROW, COL].Text = "Doc Ref No";
 					int colDocRefNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2154,7 +2154,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Doc Date";
 					int colDocDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2170,52 +2170,52 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Customer Code";
 					int colPartyCode = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Customer PO Number";
 					int colCustomerPONumber = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Master Order Number";
 					int colMasterOrderNumber = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Sales Order Number";
 					int colSalesOrderNumber = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 25;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					
-					worksheet[ROW, COL].Text = "Books Mat.Amt";
+					worksheet[ROW, COL].Text = "Books Material Amount";
 					int colBooksMatAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 22;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "Books Serv. Amt";
+					worksheet[ROW, COL].Text = "Books Service Amount";
 					int colBooksServAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 22;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "Books Ttl. Taxable Amt.";
+					worksheet[ROW, COL].Text = "Books Total Taxable Amount";
 					int colBooksTtlTaxableAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].ColumnWidth = 26;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2225,7 +2225,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					{
 						worksheet[ROW, COL].Text = "Books CGST";
 						colBooksCGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].ColumnWidth = 12;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
 						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2234,7 +2234,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 						worksheet[ROW, COL].Text = "Books SGST";
 						colBooksSGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].ColumnWidth = 12;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
 						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2243,7 +2243,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 						worksheet[ROW, COL].Text = "Books IGST";
 						colBooksIGST = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].ColumnWidth = 12;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
 						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2252,7 +2252,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 						worksheet[ROW, COL].Text = "Books TCS";
 						colBooksTCS = COL;
-						worksheet[ROW, COL].ColumnWidth = 20;
+						worksheet[ROW, COL].ColumnWidth = 12;
 						worksheet[ROW, COL].CellStyle.Font.Bold = true;
 						worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 						worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2261,7 +2261,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Total Receivable";
 					int colTotalReceivable = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 16;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2269,7 +2269,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Total Receipt";
 					int colTotalReceipt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 13;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2285,7 +2285,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Pending Advance";
 					int colPendingAdvance = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 17;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2294,7 +2294,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Maturatrity Date";
 					int colMaturatrityDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 16;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2302,7 +2302,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Over Due";
 					int colOverDue = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2310,7 +2310,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Today";
 					int colToday = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 8;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2318,7 +2318,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Future";
 					int colFuture = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 8;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2326,15 +2326,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Days";
 					int colDays = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 8;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 
-					worksheet[ROW, COL].Text = "Tran. Currency";
+					worksheet[ROW, COL].Text = "Transaction Currency";
 					int colCurrency = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2342,26 +2342,26 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Exchange Rate";
 					int colToCurrencyRate = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].ColumnWidth = 14;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Mat.Amt";
+					worksheet[ROW, COL].Text = "Material Amount";
 					int colMatAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 16;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Serv. Amt";
+					worksheet[ROW, COL].Text = "Service Amount";
 					int colServAmt = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 16;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
-					worksheet[ROW, COL].Text = "Ttl. Taxable Amt.";
+					worksheet[ROW, COL].Text = "Total Taxable Amount";
 					int colTransactionAmount = COL;
 					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
@@ -2438,7 +2438,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Is Posted";
 					int colPosted = COL;
-					worksheet[ROW, COL].ColumnWidth = 12;
+					worksheet[ROW, COL].ColumnWidth = 10;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2446,7 +2446,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Note For Accounts";
 					int colNoteForAccounts = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2454,28 +2454,28 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Contract";
 					int colContract = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "MastrerLC Ref No";
 					int colMastrerLCRefNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 20;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Commercial Invoice No";
 					int colComercialInvoiceNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 22;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Expiry Date";
 					int colExpiryDatet = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2489,84 +2489,84 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					COL++;
 					worksheet[ROW, COL].Text = "BL/AWB Date";
 					int colBLAWBDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 13;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Payment Term";
 					int colPaymentTerm = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Base on Due Date";
 					int colBaseOnDueDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 17;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "No Of Days";
 					int colNoOfDays = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Mature Date";
 					int colMatureDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "LC Amount";
 					int colLCAmount = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "ExFactory Date";
 					int colExFactoryDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transport Agent";
 					int colTransportAgent = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 16;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Transport Doc Date";
 					int colTransportDocDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 18;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "CNF Agent";
 					int colCNFAgent = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Container No.";
 					int colContainerNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 14;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
 					COL++;
 					worksheet[ROW, COL].Text = "Vessel Tracking No.";
 					int colVesselTrackingNo = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 18;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2574,7 +2574,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Own Order Ref.";
 					int colOwnOrderRef = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2582,7 +2582,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Realize date";
 					int colRealizeDate = COL;
-					worksheet[ROW, COL].ColumnWidth = 30;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2590,7 +2590,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Realize amount";
 					int colRealizeAmount = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
+					worksheet[ROW, COL].ColumnWidth = 15;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2598,7 +2598,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Party Group";
 					int colPartyGroup = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].ColumnWidth = 12;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -2606,7 +2606,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 					worksheet[ROW, COL].Text = "Party Category";
 					int colPartyCategory = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
+					worksheet[ROW, COL].ColumnWidth = 19;
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -3759,15 +3759,15 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColSalesId = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Sales No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Sales No", 11, ExcelHAlign.HAlignLeft);
 			int ColSalesNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Invoice Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Invoice Date", 11, ExcelHAlign.HAlignLeft);
 			int ColInvoiceDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 11, ExcelHAlign.HAlignLeft);
 			int ColDocRefNo = COL;
 			COL++;
 
@@ -3779,7 +3779,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColPartyCode = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Customer	 Type", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Customer	Type", 14, ExcelHAlign.HAlignLeft);
 			int ColPartyType = COL;
 			COL++;
 
@@ -3819,31 +3819,31 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColTransactionRate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Qty", 15, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Qty", 13, ExcelHAlign.HAlignLeft);
 			int ColTransactionQty = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Transaction UoM", 10, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction UoM", 14, ExcelHAlign.HAlignLeft);
 			int ColTransactionUoM = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 10, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Currency", 8, ExcelHAlign.HAlignLeft);
 			int ColCurrency = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 15, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Transaction Amount", 17, ExcelHAlign.HAlignLeft);
 			int ColTransactionAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 15, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Tax Amount", 11, ExcelHAlign.HAlignLeft);
 			int ColTaxAmount = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 10, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base UoM", 8, ExcelHAlign.HAlignLeft);
 			int ColBaseUoM = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Posted", 8, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Posted", 7, ExcelHAlign.HAlignLeft);
 			int ColPosted = COL;
 			COL++;
 
@@ -3851,7 +3851,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColCGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CGST Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColCGSTTaxPercentage = COL;
 			COL++;
 
@@ -3859,7 +3859,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColSGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "SGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "SGST Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColSGSTTaxPercentage = COL;
 			COL++;
 
@@ -3867,7 +3867,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColIGST = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "IGST Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "IGST Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColIGSTTaxPercentage = COL;
 			COL++;
 
@@ -3875,7 +3875,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColTDS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TDS Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TDS Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColTDSTaxPercentage = COL;
 			COL++;
 
@@ -3883,7 +3883,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "TCSTaxPercentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "TCSTaxPercentage", 18, ExcelHAlign.HAlignLeft);
 			int ColTCSTaxPercentage = COL;
 			COL++;
 
@@ -3891,7 +3891,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColGRNTCS = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "GRNTCS Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColGRNTCSTaxPercentage = COL;
 			COL++;
 
@@ -3899,7 +3899,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColMandiTax = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "MandiTax Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColMandiTaxTaxPercentage = COL;
 			COL++;
 
@@ -3907,7 +3907,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColNirasritTax = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax Tax Percentage", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "NirasritTax Tax Percentage", 18, ExcelHAlign.HAlignLeft);
 			int ColNirasritTaxTaxPercentage = COL;
 			COL++;
 
@@ -3923,7 +3923,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColLCRef = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Comercial InvoiceNo", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Comercial InvoiceNo", 17, ExcelHAlign.HAlignLeft);
 			int ColComercialInvoiceNo = COL;
 			COL++;
 
@@ -3943,7 +3943,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColPaymentTerm = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base On Due Date", 10, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Base On Due Date", 15, ExcelHAlign.HAlignLeft);
 			int ColBaseOnDueDate = COL;
 			COL++;
 
@@ -3951,7 +3951,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColNoOfDays = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Mature Date", 10, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Mature Date", 11, ExcelHAlign.HAlignLeft);
 			int ColMatureDate = COL;
 			COL++;
 
@@ -3963,27 +3963,66 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			int ColExFactoryDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CNF Container No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CNF Container No", 15, ExcelHAlign.HAlignLeft);
 			int ColCNFContainerNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "CNF Vessel Tracking No", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "CNF Vessel Tracking No", 19, ExcelHAlign.HAlignLeft);
 			int ColCNFVesselTrackingNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Own Referenc eNo", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Own Reference No", 15, ExcelHAlign.HAlignLeft);
 			int ColOwnReferenceNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Realize Date", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Realize Date", 11, ExcelHAlign.HAlignLeft);
 			int ColRealizeDate = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 17, ExcelHAlign.HAlignLeft);
             int ColPartyAccountGroup = COL;
-            
+			COL++;
 
-            endCol = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Rate", 10, ExcelHAlign.HAlignLeft);
+			int ColRate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Sales Expense", 15, ExcelHAlign.HAlignLeft);
+			int ColSalesExpense = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Discount", 10, ExcelHAlign.HAlignLeft);
+			int ColDiscount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "CM", 10, ExcelHAlign.HAlignLeft);
+			int ColCM = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Direct Material Cost", 17, ExcelHAlign.HAlignLeft);
+			int ColDirectMaterialCost = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Direct Process Cost", 16, ExcelHAlign.HAlignLeft);
+			int ColDirectProcessCost = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Commission", 11, ExcelHAlign.HAlignLeft);
+			int ColCommission = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Value Loss", 11, ExcelHAlign.HAlignLeft);
+			int ColValueLoss = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Other", 11, ExcelHAlign.HAlignLeft);
+			int ColOther = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Up Charge", 11, ExcelHAlign.HAlignLeft);
+			int ColUpCharge = COL;
+
+			endCol = COL;
 			#endregion Headers
 
 
@@ -4012,9 +4051,9 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColSecondCharacteristicsValue].Text = data.Rows[i]["SecondCharacteristicsValue"].ToString();
 				sheet[ROW, ColThirdCharacteristicsValue].Text = data.Rows[i]["ThirdCharacteristicsValue"].ToString();
 				sheet[ROW, ColTransactionRate].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionRate"].ToString());
-				sheet[ROW, ColTransactionRate].NumberFormat = "#,##0.00;(#,##0.00)";
+				sheet[ROW, ColTransactionRate].NumberFormat = "#,##0.0000;(#,##0.0000)";
 				sheet[ROW, ColTransactionQty].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionQty"].ToString());
-				sheet[ROW, ColTransactionQty].NumberFormat = "#,##0.00;(#,##0.00)";
+				sheet[ROW, ColTransactionQty].NumberFormat = "#,##0.0000;(#,##0.0000)";
 				sheet[ROW, ColTransactionAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TransactionAmount"].ToString());
 				sheet[ROW, ColTransactionAmount].NumberFormat = "#,##0.00;(#,##0.00)";
 				sheet[ROW, ColTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TaxAmount"].ToString());
@@ -4077,10 +4116,39 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColOwnReferenceNo].Text = data.Rows[i]["OwnReferenceNo"].ToString();
 				sheet[ROW, ColRealizeDate].Text = data.Rows[i]["RealizeDate"].ToString();
                 sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				
+				sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+				sheet[ROW, ColRate].NumberFormat = "#,##0.0000;(#,##0.0000)";
 
-                
+				sheet[ROW, ColSalesExpense].Number = clsStaticInfo.dbl(data.Rows[i]["SalesExpense"].ToString());
+				sheet[ROW, ColSalesExpense].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet[ROW, ColDiscount].Number = clsStaticInfo.dbl(data.Rows[i]["Discount"].ToString());
+				sheet[ROW, ColDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColCM].Number = clsStaticInfo.dbl(data.Rows[i]["CM"].ToString());
+				sheet[ROW, ColCM].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColDirectMaterialCost].Number = clsStaticInfo.dbl(data.Rows[i]["DirectMaterialCost"].ToString());
+				sheet[ROW, ColDirectMaterialCost].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColDirectProcessCost].Number = clsStaticInfo.dbl(data.Rows[i]["DirectProcessCost"].ToString());
+				sheet[ROW, ColDirectProcessCost].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColCommission].Number = clsStaticInfo.dbl(data.Rows[i]["Commission"].ToString());
+				sheet[ROW, ColCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
+				sheet[ROW, ColValueLoss].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColOther].Number = clsStaticInfo.dbl(data.Rows[i]["Other"].ToString());
+				sheet[ROW, ColOther].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColUpCharge].Number = clsStaticInfo.dbl(data.Rows[i]["UpCharge"].ToString());
+				sheet[ROW, ColUpCharge].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				
+				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
 				ROW++;
@@ -4215,7 +4283,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									,HS.Code HSNCode
-
+									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 
@@ -4380,6 +4448,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,'' HSNCode
+								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -4509,6 +4578,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''RealizeDate
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,HSNC.Code HSNCode
+								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 
 								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -4662,6 +4732,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					    ,''RealizeDate
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						,'' HSNCode
+						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
+
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId

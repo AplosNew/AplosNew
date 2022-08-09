@@ -6,7 +6,7 @@
             <label class="col-sm-4 control-label">Production Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in processList" required>
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in processList" ng-change="getqualityprocessList();" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -46,7 +46,7 @@
             <label class="col-sm-4 control-label">Quality Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.QualityProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in qualityprocessList" required>
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.QualityProcessId" name="ProcessId" ng-options="item.Id as item.UserName for item in qualityprocessList" required ng-change="GetQualityProcessParameterList();">
                         <option value=""></option>
                     </select>
                 </div>
@@ -131,24 +131,28 @@
                     </script>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                    @*<div style="color:black;" id="QPGrid" ej-grid e-datasource="qualityProcList" e-allowscrolling="true" e-templaterefresh="refreshQualityProcInfo"
+                    <div style="color:black;" id="QPGrid" ej-grid e-datasource="QualityProcessParameterList" e-allowscrolling="true" e-templaterefresh="refreshTemplateQualityProcessParameter"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplateQualityProc" e-template="#checkboxTemplateQualityProc" e-textalign="center" e-width="30"></div>
-                            <div e-column e-type="string" e-field="WorkCenterMaster" e-headertext="Work Center" e-width="80"></div>
-                            <div e-column e-type="string" e-field="PrOId" e-headertext="PrO" e-width="80"></div>
-                            <div e-column e-type="string" e-field="ProductionGrade" e-headertext="Grade" e-width="80"></div>
-                            <div e-column e-type="string" e-field="LotNumber" e-headertext="Lot Number" e-width="80"></div>
-                            <div e-column e-type="number" e-format="{0:0.00}" e-field="Quantity" e-headertext="Qty" e-textalign="right" e-width="80"></div>
-                            <div e-column e-type="string" e-field="BookingPeriod" e-headertext="Booking Period" e-width="80"></div>
+                            <div e-column e-type="string" e-field="UserName" e-headertext="UserName" e-width="80"></div>
+                            <div e-column e-type="string" e-field="EntryState" e-headertext="EntryState" e-width="80"></div>
+                            <div e-column e-type="string" e-field="ValueIN" e-headertext="ValueIN" e-width="80"></div>
+                            <div e-column e-template="#Values" e-headertext="Values" e-width="80" style="height: 20px;"></div>
                         </div>
                     </div>
                     <script type="text/template" id="checkboxTemplateQualityProc">
-                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
+                        <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
                     </script>
                     <script type="text/x-jsrender" id="headerTemplateQualityProc">
                         <input type="checkbox" id="headchk" />
-                    </script>*@
+                    </script>
+                    <script type="text/template" id="Values">
+                        <div class="col-sm-10" style="padding:0px; width:70px;">
+                            @*<input type="text" ej-numerictextbox e-decimalplaces="2" e-value="data.Value" e-width="80" />*@
+                            <input type="text" ng-model="data.Value" ng-disabled="data.Formula!==null" only-numbers style="color:black;" class="form-control" />
+                        </div>
+                    </script>
                 </div>
             </div>
         </div>

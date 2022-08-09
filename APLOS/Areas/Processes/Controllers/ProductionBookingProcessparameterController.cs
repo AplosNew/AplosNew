@@ -39,9 +39,9 @@ namespace Aplos.Areas.Processes.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
+        public JsonResult GetAutoSequence(string masterId)
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            return Json(GetSequence(masterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -51,9 +51,9 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetHeaderItemCbo(string id)
-        {
-            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingParameter] WHERE Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
+        public JsonResult GetHeaderItemCbo(string id,string masterId)
+        { 
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[ProductionBookingParameter] WHERE Id<>'" + id + "' AND ProductionBookingProcessParameterId='"+ masterId + "'"), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -62,9 +62,9 @@ namespace Aplos.Areas.Processes.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[QualityProcessParameter] WHERE QualityProcessId='"+masterId+"' AND  Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
 
-        private double GetSequence()
+        private double GetSequence(string masterId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter Where ProductionBookingProcessParameterId='"+masterId+"'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -98,7 +98,7 @@ LEFT JOIN SCS.UnitOfMeasurement AS ouom ON ouom.Id=N.OutputItemUoMId";
 
             string sql = @"SELECT N.*,P.UserName Process
   FROM [dbo].[ProductionQualityProcess] N 
-LEFT JOIN HKP.Process AS p ON P.Id=N.ProcessId
+LEFT JOIN HKP.QualityProcess AS p ON P.Id=N.ProcessId
 Where N.ProductionBookingProcessParameterId='" + masterId+"'";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -235,7 +235,7 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                     DataSet dsMaster, dsDestination;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                    con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND ProductionBookingProcessParameterId='"+data["ProductionBookingProcessParameterId"] +"'", out dsMaster, false, "1");
                     if (dsMaster.Tables[0].Rows.Count > 0)
                         throw new Exception("UserName already exists!!!");
 

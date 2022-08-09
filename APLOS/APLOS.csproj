@@ -350,6 +350,7 @@
   <ItemGroup>
     <Compile Include="Areas\Accounts\AccountsAreaRegistration.cs" />
     <Compile Include="Areas\Accounts\Controllers\AccountStatusDashboardController.cs" />
+    <Compile Include="Areas\Accounts\Controllers\CommonAccountsController.cs" />
     <Compile Include="Areas\Accounts\Controllers\AdjustmentNoteController.cs" />
     <Compile Include="Areas\Accounts\Controllers\FiscalYearCloseController.cs" />
     <Compile Include="Areas\Accounts\Controllers\PostInvoiceController.cs" />
@@ -1095,6 +1096,7 @@
     <Compile Include="Areas\Products\Controllers\SFGInventoryController.cs" />
     <Compile Include="Areas\Products\Controllers\SFGMovementController.cs" />
     <Compile Include="Areas\QMS\Controllers\ActivityMasterController.cs" />
+    <Compile Include="Areas\QMS\Controllers\QualityProcessController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentLocationController.cs" />
     <Compile Include="Areas\QMS\Controllers\DefectZoneController.cs" />
     <Compile Include="Areas\QMS\Controllers\DocumentSourceController.cs" />
@@ -2572,6 +2574,7 @@
     <Content Include="Areas\Products\Scripts\SFGMovementController.js" />
     <Content Include="Areas\Products\Scripts\PurchaseConfirmationController.js" />
     <Content Include="Areas\QMS\Scripts\ActivityMasterController.js" />
+    <Content Include="Areas\QMS\Scripts\QualityProcessController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentLocationController.js" />
     <Content Include="Areas\QMS\Scripts\DocumentSourceController.js" />
     <Content Include="Areas\QMS\Scripts\DefectTypeController.js" />
@@ -4297,6 +4300,7 @@
     <Content Include="Areas\Products\Views\InventorySalesReportMarketing\Aplos.cshtml" />
     <Content Include="Areas\Securities\Views\LIC\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\SalesRegister\SalesRegister.cshtml" />
+    <Content Include="Areas\QMS\Views\QualityProcess\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

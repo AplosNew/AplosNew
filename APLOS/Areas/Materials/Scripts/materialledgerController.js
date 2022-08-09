@@ -273,7 +273,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
             }
         }
 
-        $scope.fileName = 'PurchaseRegisterPartyWise.xlsx';
+        $scope.fileName = 'Purchase Register Party Wise.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
         $http({
@@ -954,13 +954,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 ShowResult('Select To Date', 'failure');
                 return false;
             }
-            if ($scope.productNew.RcptIssue != true) {
-            	ShowResult('Select With Receipts & Issue', 'failure');
-            	return false;
-            }
-
-
-
+            
             if ($scope.productNew.Qty) {
                 $scope.choice1 = 'Qty';
                 $scope.choice2 = '';

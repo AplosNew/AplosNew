@@ -1934,6 +1934,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
     $scope.Print = function () {
         var gridObj = $($scope.dataGrid).data("ejGrid");
         var data = gridObj.model.dataSource();
+        
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
@@ -1972,10 +1973,12 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
         var gridObj = $($scope.dataGrid).data("ejGrid");
         var data = gridObj.model.dataSource;
         data = ej.DataManager(data).executeLocal(ej.Query().select(["EmployeeName", "EmployeeCode", "Shift", "Designation", "EmpCategory", "DOJ", "OperationActivityName", "OperationMasterName", "OperationCode", "CompanyName", "Plant", "Department", "Line", "CellPhnNo"]));
+
+        var reportFileName = "List of Employees"
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            data: { 'data': data }
+            data: { 'data': data, 'reportFileName': reportFileName  }
             // dataType: 'JSON'
             //, contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {

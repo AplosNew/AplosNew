@@ -194,9 +194,9 @@ namespace Aplos.HumanResource
             {
                 strSQL = @"DECLARE @employeeId varchar(20)='" + empSystemId + @"';
 									DECLARE @plantId varchar(20)='" + plantid + @"';
-									DECLARE @manpowerBudgetId varchar(20);
-									DECLARE @givenDesignationId varchar(20);
-									DECLARE @empType varchar(20);
+									DECLARE @manpowerBudgetId varchar(20)='"+ budgetId + @"';
+									DECLARE @givenDesignationId varchar(20)='" + givenDesignationId + @"';
+									DECLARE @empType varchar(20)='" + empType + @"';
 									DELETE FROM EmployeeDocument WHERE EmpSystemID=@employeeId AND FileName IS NULL;
 									SELECT  @ManpowerBudgetId=BudgetCode, @givenDesignationId=GivenDesignationId, @empType=EmpType FROM EmployeeInformation WHERE SystemId=@employeeId;
 									INSERT INTO EmployeeDocument (Id, EmpSystemID, AddedBy, AddedDate, ComplianceDocumentId, OptionalOrMandatory, ComplianceDocumentSetId, ResponsiblePersonId)

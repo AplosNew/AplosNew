@@ -80,21 +80,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
         return $scope.tab === tabNum;
     };
 
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-            if (baseService.arrayLength(response.data) === 1) {
-                $scope.productionSummaryNew.EntityId = $scope.entityList[0].Value;
-                //default
-                $scope.loadProcessList($scope.productionSummaryNew.EntityId);
-            }
-        });
-    }
-    $scope.getAllEntities();
+    
 
 
     $scope.getprocessList = function () {
@@ -111,12 +97,12 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.getqualityprocessList = function () {
         $http({
             method: 'GET',
-            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo"
+            url: "Productions/QuaityProcessBooking/GetQualityProcessCbo?ProcessId=" + $scope.productionSummaryNew.ProcessId
         }).then(function successCallback(response) {
             $scope.qualityprocessList = response.data;
         });
     }
-    $scope.getqualityprocessList();
+    
 
 
     $scope.LotNumberList = [];
@@ -427,34 +413,68 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     };
 
 
+    $scope.QualityProcessParameterList = [];
+    $scope.GetQualityProcessParameterList = function () {
+        try {
+            $scope.ProdQtyCount = 0;
+            $http.get('Productions/QuaityProcessBooking/GetQualityProcessParameterList?processId=' + $scope.productionSummaryNew.QualityProcessId, '&masterId=' + $scope.productionSummaryNew.Id)
+                .then(function (response) {
+                    $scope.QualityProcessParameterList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+
     $scope.refreshTemplateAdditionalInfo = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
     function CheckBoxSelectAllEmolyeeWise(e) {
-
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-
         }
 
-        var filtered = $("#GridAdditionalInfo").data("ejGrid").getFilteredRecords();
+        var filtered = $("#PBGrid").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.searchdata.length; i++) {
-                $scope.searchdata[i].Flag = ChkOrUnchk;
+            for (var i = 0; i < $scope.ProdBookedDataList.length; i++) {
+                $scope.ProdBookedDataList[i].Flag = ChkOrUnchk;
             }
-
         }
         else {
-
             for (var j = 0; j < filtered.length; j++) {
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
-        var gridObj = $("#GridAdditionalInfo").data("ejGrid");
+        var gridObj = $("#PBGrid").data("ejGrid");
         gridObj.refreshContent();
+    };
 
+    $scope.refreshTemplateQualityProcessParameter = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllQualityProcessParameter });
+    };
+
+    function CheckBoxSelectAllQualityProcessParameter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#QPGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityProcessParameterList.length; i++) {
+                $scope.QualityProcessParameterList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#QPGrid").data("ejGrid");
+        gridObj.refreshContent();
     };
 
     function MakeAdditionalInfoData() {
