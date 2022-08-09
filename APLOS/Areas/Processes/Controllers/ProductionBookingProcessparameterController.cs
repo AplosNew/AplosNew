@@ -39,9 +39,9 @@ namespace Aplos.Areas.Processes.Controllers
         #region -- Operations
 
         [HttpGet, Authorize]
-        public JsonResult GetAutoSequence()
+        public JsonResult GetAutoSequence(string masterId)
         {
-            return Json(GetSequence(), JsonRequestBehavior.AllowGet);
+            return Json(GetSequence(masterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -62,9 +62,9 @@ namespace Aplos.Areas.Processes.Controllers
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[QualityProcessParameter] WHERE QualityProcessId='"+masterId+"' AND  Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
         }
 
-        private double GetSequence()
+        private double GetSequence(string masterId)
         {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter");
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter Where ProductionBookingProcessParameterId='"+masterId+"'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
