@@ -3981,9 +3981,48 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
             report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 17, ExcelHAlign.HAlignLeft);
             int ColPartyAccountGroup = COL;
-            
+			COL++;
 
-            endCol = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Rate", 10, ExcelHAlign.HAlignLeft);
+			int ColRate = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Sales Expense", 15, ExcelHAlign.HAlignLeft);
+			int ColSalesExpense = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Discount", 10, ExcelHAlign.HAlignLeft);
+			int ColDiscount = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "CM", 10, ExcelHAlign.HAlignLeft);
+			int ColCM = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Direct Material Cost", 17, ExcelHAlign.HAlignLeft);
+			int ColDirectMaterialCost = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Direct Process Cost", 16, ExcelHAlign.HAlignLeft);
+			int ColDirectProcessCost = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Commission", 11, ExcelHAlign.HAlignLeft);
+			int ColCommission = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Value Loss", 11, ExcelHAlign.HAlignLeft);
+			int ColValueLoss = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Other", 11, ExcelHAlign.HAlignLeft);
+			int ColOther = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Up Charge", 11, ExcelHAlign.HAlignLeft);
+			int ColUpCharge = COL;
+
+			endCol = COL;
 			#endregion Headers
 
 
@@ -4077,10 +4116,39 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColOwnReferenceNo].Text = data.Rows[i]["OwnReferenceNo"].ToString();
 				sheet[ROW, ColRealizeDate].Text = data.Rows[i]["RealizeDate"].ToString();
                 sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				
+				sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rate"].ToString());
+				sheet[ROW, ColRate].NumberFormat = "#,##0.0000;(#,##0.0000)";
 
-                
+				sheet[ROW, ColSalesExpense].Number = clsStaticInfo.dbl(data.Rows[i]["SalesExpense"].ToString());
+				sheet[ROW, ColSalesExpense].NumberFormat = "#,##0.00;(#,##0.00)";
 
-                sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet[ROW, ColDiscount].Number = clsStaticInfo.dbl(data.Rows[i]["Discount"].ToString());
+				sheet[ROW, ColDiscount].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColCM].Number = clsStaticInfo.dbl(data.Rows[i]["CM"].ToString());
+				sheet[ROW, ColCM].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColDirectMaterialCost].Number = clsStaticInfo.dbl(data.Rows[i]["DirectMaterialCost"].ToString());
+				sheet[ROW, ColDirectMaterialCost].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColDirectProcessCost].Number = clsStaticInfo.dbl(data.Rows[i]["DirectProcessCost"].ToString());
+				sheet[ROW, ColDirectProcessCost].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColCommission].Number = clsStaticInfo.dbl(data.Rows[i]["Commission"].ToString());
+				sheet[ROW, ColCommission].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColValueLoss].Number = clsStaticInfo.dbl(data.Rows[i]["ValueLoss"].ToString());
+				sheet[ROW, ColValueLoss].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColOther].Number = clsStaticInfo.dbl(data.Rows[i]["Other"].ToString());
+				sheet[ROW, ColOther].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				sheet[ROW, ColUpCharge].Number = clsStaticInfo.dbl(data.Rows[i]["UpCharge"].ToString());
+				sheet[ROW, ColUpCharge].NumberFormat = "#,##0.00;(#,##0.00)";
+
+				
+				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
 				ROW++;
@@ -4215,7 +4283,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									--, BalanceAmount=isnull(ISNULL(SM.TransactionAmount,0) - ISNULL(I.WrittenOffAmount,0),0)
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									,HS.Code HSNCode
-
+									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 
@@ -4380,6 +4448,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								                where XI.VoucherId=IR.VoucherId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,'' HSNCode
+								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
@@ -4509,6 +4578,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,''RealizeDate
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,HSNC.Code HSNCode
+								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
 
 								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
@@ -4662,6 +4732,8 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					    ,''RealizeDate
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						,'' HSNCode
+						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
+
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
