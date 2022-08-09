@@ -181,7 +181,7 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
                         ob.PackingId = $scope.PackingList[i].PackingId;
                         ob.PartyId = $scope.PackingList[i].CustomerId;
                         ob.EntityId = $scope.PackingList[i].EntityId;
-                        if (checkExistCustomer($scope.selectedPackingList, ob.PartyId, ob.EntityId)) {
+                        if (checkExistCustomer($scope.selectedPackingList, ob.PartyId)) {
                             if (checkExistList($scope.selectedPackingList, ob.PackingId) === false) {
 
                                 ob.PackingId = $scope.PackingList[i].PackingId;
@@ -218,9 +218,9 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
         }
     }
 
-    function checkExistCustomer(list, customerId, EntityId) {
+    function checkExistCustomer(list, customerId) {
         for (var i = 0; i < list.length; i++) {
-            if (list[i].PartyId !== customerId || list[i].EntityId !== EntityId) {
+            if (list[i].PartyId !== customerId) {
                 return false;
             }
         }
