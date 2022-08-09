@@ -17,6 +17,6 @@ namespace Library.Service.Employees
         void InsertORUpdate(IEnumerable<PreRecruitmentEmployee> entities);
 
         IEnumerable<object> GetGivenDesignationCbo(string GroupId);
-        GridModel GetLegalDesignationCbo(GridParameter parameters, string companyGroupId, string plantId);
+        GridModel GetLegalDesignationCbo(GridParameter parameters, string companyGroupId, string plantId, string BudgetCode);
     }
 }

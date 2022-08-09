@@ -703,7 +703,7 @@ namespace Library.Service.Employees
         }
 
         
-        public GridModel GetLegalDesignationCbo(GridParameter parameters,string companyGroupId, string plantId)
+        public GridModel GetLegalDesignationCbo(GridParameter parameters,string companyGroupId, string plantId, string BudgetCode)
         {
             try
             {
@@ -715,8 +715,10 @@ namespace Library.Service.Employees
                          WHERE a.id in
                          (
                              SELECT LegalDesignationId FROM [HKP].[CompanyGroupLegalDesignation] WHERE CompanyGroupId = '" + companyGroupId + @"'
-                         ) AND A.Active=1 
-                         AND A.Id IN (SELECT LegalDesignationId FROM [MST].[LegalSalaryGradeDesignation] WHERE PlantId='"+ plantId + "')";
+                         ) AND A.Active=1 AND A.Id in (select LegalDesignationId from [MST].[DesignationMasterLegalDesignation] where DesignationMasterId=
+(select Id from MST.DesignationMaster where 
+DesignationId=(select DesignationId from  ORG.Position where Id=(select PositionId from mst.ManpowerBudget where id='"+BudgetCode+@"'))))
+                         AND A.Id IN (SELECT LegalDesignationId FROM [MST].[LegalSalaryGradeDesignation] WHERE PlantId='" + plantId + "')";
 
                 //return _sqlRepository.GetDataCollection(sql, null);
                 return _sqlRepository.GetGridData(parameters);
