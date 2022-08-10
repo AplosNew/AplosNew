@@ -131,6 +131,10 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
         {
             "Text": "Amount",
             "Value": "Amount"
+        },
+        {
+            "Text": "Status",
+            "Value": "Status"
         }
     ];
 
@@ -147,7 +151,11 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
     };
 
     $scope.getData = function (pageno) {
-        baseService.pagination(pageno, $scope.parameters)
+        try {
+            if ($scope.parameters.searchBy == "Status" && baseService.isUndefinedOrNull($scope.parameters.search)) {
+                throw "Value is required.";
+            }
+            baseService.pagination(pageno, $scope.parameters)
             .then(function (result) {
                 $scope.paymentList = result.Rows;
                 $scope.parameters.total_count = result.Total;
@@ -155,6 +163,10 @@ function debitNoteSetOffController(bankService, cboService, commonMessage, $scop
                 ShowResult(commonMessage.NetworkError, "failure");
             }).finally(function () {
             });
+        }
+        catch (e) {
+            ShowResult(e, "failure");
+        }
     };
     $scope.getData();
 
