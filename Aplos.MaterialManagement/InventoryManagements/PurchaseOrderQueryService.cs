@@ -91,6 +91,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
+                        , BalanceTrnUOMQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         ,0 Tolerance
 						,MOI.Type,isnull(moi.Consignment,0) AS Consignment,
 						 CASE WHEN isnull(moi.Consignment,0)=1 THEN
@@ -139,7 +140,7 @@ namespace Library.MaterialManagement.InventoryManagements
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
-						where "+ tempsql + @"
+						where " + tempsql + @"
                         AND b.MaterialMasterId<>'' AND b.ArticleId<>''
 						ORDER BY b.Sequence, b.SalesOrderId";//b.MaterialMasterId,
             var Data = _sqlRepository.GetDataCollection(sql);
@@ -154,9 +155,10 @@ namespace Library.MaterialManagement.InventoryManagements
 
             }
 
-            var UOMList = _sqlRepository.GetDataCollection(@"select M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text] from (select Id,BaseUOMId UOMId from mst.MaterialMaster
-																	union
-																	select MaterialMasterId,AlternativeUOMId from mst.MaterialMasterAlternativeUOM
+            var UOMList = _sqlRepository.GetDataCollection(@"SELECT M.Id AS MaterialMasterId, UOM1.Id AS [Value],UOM1.UserName AS [Text],BaseUOMFactor FROM (
+																	SELECT Id,BaseUOMId UOMId,1 BaseUOMFactor  FROM mst.MaterialMaster
+																	UNION
+																	SELECT MaterialMasterId Id,AlternativeUOMId UOMId,BaseUOMFactor FROM mst.MaterialMasterAlternativeUOM
 																	) AS M
 																	 JOIN scs.UnitOfMeasurement AS uom1 ON uom1.Id=m.UOMId
 																	 where m.Id in (" + MaterialMasterList + @")");

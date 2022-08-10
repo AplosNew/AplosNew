@@ -232,6 +232,9 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
     $scope.poBoqItemList = [];
     $scope.GetPOBoqItem = function () {
         $scope.poBoqItemList = [];
+        if (baseService.isUndefinedOrNull($scope.SubmitContractId))
+            $scope.SubmitContractId = '';
+        $scope.SubmitContractId
         $http.get("Products/PurchaseOrder/GetPOBOQItems?ContractId=" + $scope.SubmitContractId + '&VendorId=' + $scope.SubmitPartyId)
             .then(
                 function successCallback(response) {
@@ -242,6 +245,12 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
+    }
+
+    $scope.ConvertedDataRow = function (list,trnuomId) {
+        var BaseUOMFactortemp = $.grep(list, function (item) {
+            return item.Value === trnuomId;
+        })[0].BaseUOMFactor;
     }
 
 
@@ -710,10 +719,10 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
-        if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
-            ShowResult('Please Input DeliveryDate', 'failure');
-            return true;
-        }
+        //if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
+        //    ShowResult('Please Input DeliveryDate', 'failure');
+        //    return true;
+        //}
 
         return false;
     }
