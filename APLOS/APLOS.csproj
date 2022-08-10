@@ -581,6 +581,7 @@
     <Compile Include="Areas\Farming\FarmingAreaRegistration.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\EntityFixedAssetsRegisterController.cs" />
     <Compile Include="Areas\FixedAssets\Controllers\SubAssetTypeController.cs" />
+    <Compile Include="Areas\HumanResource\Controllers\FiveSZoneMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurnitureMasterController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyController.cs" />
     <Compile Include="Areas\HumanResource\Controllers\FurniturePolicyReportController.cs" />
@@ -2006,6 +2007,7 @@
     <Content Include="Areas\HumanResource\Scripts\AttendanceBonusMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeGoalSettingController.js" />
     <Content Include="Areas\HumanResource\Scripts\EmployeeShiftUpdatesController.js" />
+    <Content Include="Areas\HumanResource\Scripts\FiveSZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiReportController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiZoneMasterController.js" />
     <Content Include="Areas\HumanResource\Scripts\FuguaiTransactionController.js" />
@@ -4240,6 +4242,7 @@
     <Content Include="Areas\Accounts\Views\_VendorInvoicePopUp.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\_ResidenceMasterReport.cshtml" />
     <Content Include="Areas\Accounts\Views\_MultipleMasterOrderPopUp.cshtml" />
+    <Content Include="Areas\HumanResource\Views\FiveSZoneMaster\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

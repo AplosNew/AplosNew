@@ -229,12 +229,12 @@ namespace Library.OrderManagement.Costing
 		                                LEFT JOIN trn.FirstCharacteristics AS fc ON fc.SalesOrderId=so.Id AND fc.Id=(SELECT TOP 1 Id FROM trn.FirstCharacteristics WHERE SalesOrderId=so.Id)
 		                              
 		                                LEFT JOIN (SELECT COUNT(cb.CostingItemId) CostItemNos,cb.OrderCostingMasterTemplateId
-		                                             FROM OrderProcurementCostingDirectMaterial AS cb GROUP BY cb.OrderCostingMasterTemplateId) AS ITM ON itm.OrderCostingMasterTemplateId=so.OrderCostingMasterTemplateId
+		                                             FROM OrderProcurementCostingDirectMaterial AS cb GROUP BY cb.OrderCostingMasterTemplateId) AS ITM ON itm.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
 		                                
 		                                 LEFT JOIN (SELECT SUM(CASE WHEN isnull(cb2.Id,'')='' THEN 1 ELSE 0 END) ItemWithoutBOQ,cb.OrderCostingMasterTemplateId
 		                                             FROM OrderProcurementCostingDirectMaterial AS cb 
 		                                            LEFT JOIN CostingBOQItems AS cb2 ON cb2.OrderProcurementCostingDirectMaterialId=cb.Id
-		                                            GROUP BY cb.OrderCostingMasterTemplateId) AS ITMW ON ITMW.OrderCostingMasterTemplateId=so.OrderCostingMasterTemplateId
+		                                            GROUP BY cb.OrderCostingMasterTemplateId) AS ITMW ON ITMW.OrderCostingMasterTemplateId=moi.OrderCostingMasterTemplateId
 		                                            
 		                                 LEFT JOIN (SELECT COUNT(DISTINCT so.Id) AS OverdueSOList,so.Id
 														FROM trn.SalesOrder AS so

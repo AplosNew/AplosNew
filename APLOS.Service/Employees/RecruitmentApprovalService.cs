@@ -703,21 +703,26 @@ namespace Library.Service.Employees
         }
 
         
-        public GridModel GetLegalDesignationCbo(GridParameter parameters,string companyGroupId, string plantId)
+        public GridModel GetLegalDesignationCbo(GridParameter parameters,string companyGroupId, string plantId, string BudgetCode)
         {
             try
             {
-                //var sql = @"SELECT A.Id AS [Value], A.UserName AS [Text], B.DesignationGroupId FROM [HKP].[LegalDesignation] A
-                //            LEFT OUTER JOIN (SELECT * FROM [MST].[DesignationMasterLegalDesignation]) DL ON A.Id=DL.LegalDesignationId
-                //            LEFT OUTER JOIN (SELECT * FROM [MST].[DesignationMaster] where CompanyGroupId='" + companyGroupId + @"')B ON DL.DesignationMasterId = B.Id
-                //            Order By A.UserName";
+              
+//                parameters.CmdText = @"SELECT A.Id, A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName FROM [HKP].[LegalDesignation] A                           
+//                         WHERE a.id in
+//                         (
+//                             SELECT LegalDesignationId FROM [HKP].[CompanyGroupLegalDesignation] WHERE CompanyGroupId = '" + companyGroupId + @"'
+//                         ) AND A.Active=1 AND A.Id in (select LegalDesignationId from [MST].[DesignationMasterLegalDesignation] where DesignationMasterId=
+//(select Id from MST.DesignationMaster where 
+//DesignationId=(select DesignationId from  ORG.Position where Id=(select PositionId from mst.ManpowerBudget where id='"+BudgetCode+@"'))))
+//                         AND A.Id IN (SELECT LegalDesignationId FROM [MST].[LegalSalaryGradeDesignation] WHERE PlantId='" + plantId + "')";
+
                 parameters.CmdText = @"SELECT A.Id, A.Sequence,A.Code,A.ShortName,A.StandardName,A.UserName FROM [HKP].[LegalDesignation] A                           
                          WHERE a.id in
                          (
                              SELECT LegalDesignationId FROM [HKP].[CompanyGroupLegalDesignation] WHERE CompanyGroupId = '" + companyGroupId + @"'
                          ) AND A.Active=1 
-                         AND A.Id IN (SELECT LegalDesignationId FROM [MST].[LegalSalaryGradeDesignation] WHERE PlantId='"+ plantId + "')";
-
+                         AND A.Id IN (SELECT LegalDesignationId FROM [MST].[LegalSalaryGradeDesignation] WHERE PlantId='" + plantId + "')";
                 //return _sqlRepository.GetDataCollection(sql, null);
                 return _sqlRepository.GetGridData(parameters);
             }

@@ -400,17 +400,15 @@
                         <div e-column e-field="RequiredQtyPO" e-headertext="BOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="OtherMapQty" e-headertext="OtherBOQ Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-field="BalanceQty" e-headertext="Balance Qty" e-width="100" textAlign='Right'></div>
+                        <div e-column e-field="BalanceTrnUOMQty" e-headertext="Balance TRN UOM Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-template="#CurrentTextBOQ" e-field="TransactionQty" e-textalign="right" e-headertext="CurrentQty" e-width="100"></div>
-                        @*<div e-column e-field="TransactionRate" e-textalign="right" e-headertext="BOQRate" e-width="100"></div>*@
                         <div e-column e-template="#BOQQRate" e-field="TransactionRate" e-textalign="right" e-decimalplaces="4" e-headertext="Rate" e-width="100"></div>
                         <div e-column e-field="TransactionRateBOQ" e-headertext="BOQRate" e-width="80" e-textalign="right"></div>
+                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
                         <div e-column e-field="RMDescription" e-headertext="Item Desc" e-width="100"></div>
                         <div e-column e-field="RMVendorSpec" e-headertext="Vendor Ref." e-width="100"></div>
                         <div e-column e-field="RMCustomerSpec" e-headertext="Customer Ref." e-width="100"></div>
                         <div e-column e-field="BOQOwnReferenceNo" e-headertext="Own Ref." e-width="100"></div>
-
-                        <div e-column e-template="#UOM" e-headertext="UoM" e-width="100"></div>
-
                         <div e-column e-field="RequiredQty" e-headertext="Required Qty" e-width="100" textAlign='Right'></div>
                         <div e-column e-type="number" e-field="BOMQty" e-headertext="Plan Qty" e-width="100" textAlign='Right'></div>
                         @*<div e-column e-type="string" e-field="Currency" e-headertext="Currency" e-width="120px"></div>*@
@@ -466,7 +464,7 @@
                 </script>
                 <script type="text/template" id="UOM">
                     <div class="select-style">
-                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data)"
+                        <select name="Entity" ng-model="data.TransactionUoMId" class="form-control" ng-change="$parent.ConvertedDataRow(data.uoMList,data.TransactionUoMId)"
                                 ng-options="item.Value as item.Text for item in data.uoMList"></select>
                     </div>
 

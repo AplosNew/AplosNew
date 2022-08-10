@@ -273,7 +273,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-       
+
         public List<Dictionary<string, object>> GetInvoiceSalesAvailable(string voucherId)
         {
             try
@@ -384,7 +384,7 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
-        public List<Dictionary<string, object>> GetInvoiceSetOffDetailByInvoice(string companyGroupId, string companyId, string plantId, SourceType sourceType,string invoiceId)
+        public List<Dictionary<string, object>> GetInvoiceSetOffDetailByInvoice(string companyGroupId, string companyId, string plantId, SourceType sourceType, string invoiceId)
         {
             var sql = @"SELECT AW.InvoiceWriteOffNo,AW.[SourceType], VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
@@ -400,7 +400,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + @"' 
-                                    AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"' AND IWD.InvoiceId='"+ invoiceId + @"'
+                                    AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"' AND IWD.InvoiceId='" + invoiceId + @"'
                                     Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
 									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.[SourceType]";
             return _sqlRepository.GetDataCollection(sql);
@@ -599,7 +599,7 @@ namespace Library.Accounting.Accounts
 									) AS GC ON GC.VoucherDetailId=VD.Id
 									
                                         WHERE IV.Archive=0 AND IV.IsWrittenOff=0 AND IVD.IsWrittenOff=0 AND IVD.IsBlock=0 AND IV.SourceType in ('VendorInvoice','InventoryPayable')
-                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='"+entityId+ @"' OR IV.EntityId IS NULL)
+                                        AND IV.CompanyGroupId='" + companyGroupId + "' AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"'  AND (IV.EntityId='" + entityId + @"' OR IV.EntityId IS NULL)
                                         AND MPD.InvoiceId IS NULL" + temp;
 
                 return _sqlRepository.GetGridData(parameters);
@@ -664,7 +664,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public List<Dictionary<string, object>> GetMultiplePaymentParkList(string companyGroupId, string plantId,string id)
+        public List<Dictionary<string, object>> GetMultiplePaymentParkList(string companyGroupId, string plantId, string id)
         {
             try
             {
@@ -826,7 +826,7 @@ namespace Library.Accounting.Accounts
             }
         }
 
-        public List<Dictionary<string, object>> GetMultipleVendorAvailableDetailList(string companyId, string plantId,string multiplePaymentId)
+        public List<Dictionary<string, object>> GetMultipleVendorAvailableDetailList(string companyId, string plantId, string multiplePaymentId)
         {
             try
             {
@@ -856,7 +856,7 @@ namespace Library.Accounting.Accounts
 										JOIN [SCS].[CompanyParallelCurrency] AS CPC ON CPC.CurrencyId=VDC.ParallelCurrencyId
 										WHERE CPC.ParallelCurrencyType='CompanyCurrency' AND CPC.CompanyId='" + companyId + @"'
 									) AS CC ON CC.VoucherDetailId=VD.Id
-                                     WHERE   MP.PlantId='" + plantId + "' AND MPD.MultiplePaymentId='"+ multiplePaymentId + "'";
+                                     WHERE   MP.PlantId='" + plantId + "' AND MPD.MultiplePaymentId='" + multiplePaymentId + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1242,7 +1242,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
-                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='"+ companyGroupId + "' AND AW.CompanyId='"+ companyId + "' AND AW.PlantId='"+ plantId + @"' AND AW.[SourceType]='"+ sourceType + @"'
+                                    WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + "' AND AW.PlantId='" + plantId + @"' AND AW.[SourceType]='" + sourceType + @"'
                                     Group BY  P.Code , P.UserName, AW.PostingDate
                                     , AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark,AW.InvoiceGroupNo";
             return _sqlRepository.GetGridData(parameters);
@@ -1253,9 +1253,9 @@ namespace Library.Accounting.Accounts
             var cmdText = @"select IsNonCreditable,PartyId FROM TRN.[InventoryReceive] where Id = '" + receivedId.ToString() + "'";
             return _sqlRepository.GetData(cmdText);
         }
-        private Dictionary<string, object> GetCompanyPartyGroup(string partyId,string plantId)
+        private Dictionary<string, object> GetCompanyPartyGroup(string partyId, string plantId)
         {
-            var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='"+ plantId + @"'";
+            var cmdText = @"select PartyAccountGroupId FROM HKP.CompanyParty where PartyId = '" + partyId + "' AND PlantId='" + plantId + @"'";
             return _sqlRepository.GetData(cmdText);
         }
         public IEnumerable<object> GetInventoryPayableFOC(string companyId, string plantId, string inveReveiveId)
@@ -1649,8 +1649,31 @@ namespace Library.Accounting.Accounts
 
         public GridModel CustomerInvoiceReceipt(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
+            string wc, wcc = string.Empty;
+            if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "POSTED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Posted";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+           else if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "PARKED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Parked";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+            else
+            {
+                   
+            }
+
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
-                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
+                                    , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.BankJournalId,IWD.MultiplePaymentNo
+                                   , Status = case when AW.IsPark = 0 then 'Posted' else 'Parked' end,AW.IsPark
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT WD.Id,WD.InvoiceWriteOffId,MPD.MultiplePaymentId MultiplePaymentNo,SUM(WD.Amount) Amount 
 											FROM [TRN].[InvoiceWriteOffDetail] WD 
@@ -1668,13 +1691,13 @@ namespace Library.Accounting.Accounts
             return _sqlRepository.GetGridData(parameters);
         }
 
-		public IEnumerable<object> GetOtherInvoiceJournal(string companyId, string plantId, string otherInvoieId)
-		{
-			try
-			{
+        public IEnumerable<object> GetOtherInvoiceJournal(string companyId, string plantId, string otherInvoieId)
+        {
+            try
+            {
 
-			
-					var sql = @"DECLARE @otherInvoiceId varchar(10)='"+ otherInvoieId + "', @companyId varchar(10)='"+ companyId + "', @plantId varchar(30)='"+ plantId + @"'
+
+                var sql = @"DECLARE @otherInvoiceId varchar(10)='" + otherInvoieId + "', @companyId varchar(10)='" + companyId + "', @plantId varchar(30)='" + plantId + @"'
 SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 							,OI.GLGeneralInfoId
 							,RGL.ReconciliationGLCode GLGeneralInfoCode
@@ -1736,15 +1759,15 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 						WHERE OI.Id=@otherInvoiceId AND IV.PlantId=@plantId
 					--ORDER BY T.TrnType DESC 
 ";
-					return _sqlRepository.GetDataCollection(sql);
-			}
-			catch (Exception ex)
-			{
-				throw new CustomException(ex.Message, ex,
-					Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
-					ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
-			}
-		}
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Product.ToString()));
+            }
+        }
         public IEnumerable<object> GetMasterOrderList(string companyId, string plantId)
         {
             try
@@ -1811,7 +1834,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
         }
 
 
-        public IWorkbook MultiVendorPaymentReportSheet(out string reportFileName,string mpdId)
+        public IWorkbook MultiVendorPaymentReportSheet(out string reportFileName, string mpdId)
         {
             var excelEngine = new ExcelEngine();
             var reportUtility = new ReportUtility();
@@ -1822,7 +1845,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
             var dsLocal = MultiVendorPaymentDetailSQL(mpdId);
             var dsSummary = MultiVendorPaymentSummarySQL(mpdId);
-            
+
             int row = 5;
 
 
@@ -1963,7 +1986,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             row = 12;
 
             var summerCol = col - 1;
-           
+
             row = 13;
             var startRow = row;
 
@@ -2069,7 +2092,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
             //var lastRow = ROW;
 
             row++;
-           
+
             row = row + 4;
 
             sheet.UsedRange.AutofitColumns();
@@ -2078,7 +2101,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
 
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-             reportUtility.CompanyPlantHeader(ref sheet, endCol, "Multi Vendor Payment", identity.CompanyId, identity.PlantName, null);
+            reportUtility.CompanyPlantHeader(ref sheet, endCol, "Multi Vendor Payment", identity.CompanyId, identity.PlantName, null);
 
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -2092,7 +2115,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
         public DataTable MultiVendorPaymentDetailSQL(string mpdId)
         {
             try
-            { 
+            {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var strSQL = @"SELECT MPD.Id ,BM.AccountTitle, 0 c ,P.UserName PartyName,MPD.PartyId,0 as PDC,0 as Advance
 							,FORMAT(I.AddedDate,'dd-MMM-yyyy') EntryDate
@@ -2109,7 +2132,7 @@ SELECT  P.UserName Customer, 'Dr' AS TrnType,OI.InvoiceId
                             where  MP.PlantId='" + identity.PlantId + @"' AND MPD.MultiplePaymentId='" + mpdId + @"'
                             order by P.UserName";
 
-               return _sqlRepository.GetDataTable(strSQL);
+                return _sqlRepository.GetDataTable(strSQL);
             }
             catch (Exception ex)
             {

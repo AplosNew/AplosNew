@@ -6,6 +6,7 @@ using Library.ViewModel.OrderManagements;
 using Library.ViewModel.SalesManagements;
 using Syncfusion.XlsIO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Library.MaterialManagement.Inventory
 {
@@ -25,8 +26,8 @@ namespace Library.MaterialManagement.Inventory
 
         void InsertGraphIssueReturn(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList, InventoryIssueReturn inventoryIssue, string IssueTypeStatus);
 
-        
-        IEnumerable<object> GetIssueRegister(string fromDate, string toDate, string Type);
+
+        DataTable GetIssueRegister(string fromDate, string toDate, string Type);
 
         // OutSource
         IEnumerable<object> GetOSIssueRegister(string fromDate, string toDate, string Type);

@@ -1817,7 +1817,7 @@ namespace Library.OrderManagement.Production
 ,P.Id ProductionBookingParameterId
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='"+ masterId + @"'
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "')";
+WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "') ORDER BY P.Sequence";
                     return _sqlRepository.GetDataCollection(sql, null);
                
             }
@@ -2464,6 +2464,24 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
 LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
 LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
 WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
+                return _sqlRepository.GetDataCollection(sql, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetQualityProcessParameterList(string processId, string masterId)
+        {
+            try
+            {
+                string sql = @"SELECT CONVERT(bit,0) Active,A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id QualityProcessParameterId
+FROM dbo.QualityProcessParameter P
+LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
+WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)

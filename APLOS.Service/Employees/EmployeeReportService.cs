@@ -706,13 +706,13 @@ namespace Library.Service.Employees
 
             var headreColIndex = 1;
 
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "GL", 24, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "GL", 30, ExcelHAlign.HAlignCenter);
             headreColIndex++;
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Budget", 20, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Budget", 30, ExcelHAlign.HAlignCenter);
             headreColIndex++;
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Activity", 18, ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Activity", 30, ExcelHAlign.HAlignCenter);
             headreColIndex++;
-            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Particulars", 18,ExcelHAlign.HAlignCenter);
+            report.SetHeaderText(ref sheet, _rowL, headreColIndex, "Particulars", 30, ExcelHAlign.HAlignCenter);
             headreColIndex++;
 
             _companyParallelCurrencyService.GetParallelCurrency(companyId, out string companyCurrencyId, out string companyCurrencyCode);
