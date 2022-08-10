@@ -141,6 +141,7 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.SelectedSalesOrderList = response.data.DATA;
+            console.log($scope.SelectedSalesOrderList);
             $scope.Submit();
         });
     }
@@ -160,6 +161,7 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.MaterialList = response.data.DATA;
+            console.log($scope.MaterialList);
         });
     }
 
@@ -185,13 +187,19 @@ function BOQGenerationController(cboService, commonMessage, $scope, $rootScope, 
 
 
     $scope.Save = function () {
-
-        var CheckedData = ej.DataManager($scope.MaterialList).executeLocal(ej.Query().where("Selected", "equal", true));
+        $scope.MaterialCheckedData = [];
+        for (var i = 0; i < $scope.MaterialList.length; i++) {
+            if ($scope.MaterialList[i].Selected == true && $scope.MaterialList[i].Saved == false) {
+                $scope.MaterialCheckedData.push($scope.MaterialList[i]);
+            }
+        }
+        
+        //var CheckedData = ej.DataManager($scope.MaterialList).executeLocal(ej.Query().where("Selected", "equal", true));
         var _SalesOrderData = ej.DataManager($scope.SelectedSalesOrderList).executeLocal(ej.Query().select(["SalesOrderId", "RN"]));
         $http({
             method: 'POST',
             url: $scope.path + "Save",
-            data: { MasterData: $scope.Model, SalesOrderData: _SalesOrderData, ItemData: CheckedData },
+            data: { MasterData: $scope.Model, SalesOrderData: _SalesOrderData, ItemData: $scope.MaterialCheckedData },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {

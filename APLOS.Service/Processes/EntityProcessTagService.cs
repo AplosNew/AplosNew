@@ -175,7 +175,7 @@ namespace Library.Service.Processes
                                 ,EPT.IsPackingSKURequired,EPT.PackingForm,EPT.IsDispatchSKURequired,EPT.DispatchForm,EPT.DispatchType
 								, P.[Sequence], P.Code, P.UserName, P.ShortName
 								, P.StandardName, MT.[Description] AS MaterialType, P.Active
-                                , P.IsProductionProcess
+                                , P.IsProductionProcess,ept.IsParameterBased
 								--, PP.UserName ProductionProcessGroup
                                 --, EPT.ProductionProcessGroupId
                                 , EPT.ProductionBookingLevel

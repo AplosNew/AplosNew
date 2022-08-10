@@ -413,16 +413,28 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     };
 
 
+    $scope.QualityProcessParameterList = [];
+    $scope.GetQualityProcessParameterList = function () {
+        try {
+            $scope.ProdQtyCount = 0;
+            $http.get('Productions/QuaityProcessBooking/GetQualityProcessParameterList?processId=' + $scope.productionSummaryNew.QualityProcessId, '&masterId=' + $scope.productionSummaryNew.Id)
+                .then(function (response) {
+                    $scope.QualityProcessParameterList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+
     $scope.refreshTemplateAdditionalInfo = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
     };
 
     function CheckBoxSelectAllEmolyeeWise(e) {
-
         var ChkOrUnchk = false;
         if (e.model.checkState === "check") {
             ChkOrUnchk = true;
-
         }
 
         var filtered = $("#PBGrid").data("ejGrid").getFilteredRecords();
@@ -430,17 +442,39 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
             for (var i = 0; i < $scope.ProdBookedDataList.length; i++) {
                 $scope.ProdBookedDataList[i].Flag = ChkOrUnchk;
             }
-
         }
         else {
-
             for (var j = 0; j < filtered.length; j++) {
                 filtered[j].Flag = ChkOrUnchk;
             }
         }
         var gridObj = $("#PBGrid").data("ejGrid");
         gridObj.refreshContent();
+    };
 
+    $scope.refreshTemplateQualityProcessParameter = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllQualityProcessParameter });
+    };
+
+    function CheckBoxSelectAllQualityProcessParameter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#QPGrid").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.QualityProcessParameterList.length; i++) {
+                $scope.QualityProcessParameterList[i].Active = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#QPGrid").data("ejGrid");
+        gridObj.refreshContent();
     };
 
     function MakeAdditionalInfoData() {
