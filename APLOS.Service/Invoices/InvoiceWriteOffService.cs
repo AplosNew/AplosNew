@@ -2786,6 +2786,7 @@ namespace Library.Service.Invoices
 
         public GridModel Query(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
+            
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(IWD.Amount) AS Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId,IWD.MultiplePaymentNo
                                     ,Status=case when AW.IsPark=1 then 'Parked' else 'Posted' end
@@ -2829,8 +2830,31 @@ namespace Library.Service.Invoices
         }
         public GridModel GetNoteSetOff(GridParameter parameters, string companyGroupId, string companyId, string plantId, SourceType sourceType)
         {
+            string wc, wcc = string.Empty;
+            if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "POSTED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Posted";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+            else if (parameters.searchBy == "Status" && parameters.search.ToUpper() == "PARKED")
+            {
+                wc = "(case when TAB.IsPark = 1 then 'Parked' else 'Posted' end)";
+                wcc = "Parked";
+
+                parameters.searchBy = wc;
+                parameters.search = wcc;
+            }
+            else
+            {
+
+            }
+
             parameters.CmdText = @"SELECT AW.InvoiceWriteOffNo, vd.VoucherId, V.VoucherNo, AW.Id, P.Code AS PartyCode, P.UserName AS PartyName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode, SUM(iwd.Amount) Amount
                                     , AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark, AW.BankJournalId
+                                    , Status = case when AW.IsPark = 1 then 'Posted' else 'Parked' end
                                     FROM [TRN].[InvoiceWriteOff] AS AW
 									LEFT JOIN (SELECT Id,InvoiceWriteOffId,SUM(Amount) Amount,AdjustmentNoteDetailId 
 												FROM [TRN].[InvoiceWriteOffDetail] Group BY Id,InvoiceWriteOffId,AdjustmentNoteDetailId ) AS IWD ON IWD.InvoiceWriteOffId=AW.Id and IWD.AdjustmentNoteDetailId<>''

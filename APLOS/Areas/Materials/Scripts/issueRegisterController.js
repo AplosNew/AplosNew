@@ -109,9 +109,11 @@ function issueRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
-			$scope.IssueRegisterList = response.data;
 
-			//entrydata = copy(searchdata);
+			$scope.IssueRegisterList = response.data.NewData;
+			for (var i = 0; i < $scope.IssueRegisterList.length; i++) {
+				response.data[i].IssueDate = new Date($scope.IssueRegisterList[i].IssueDate);
+			}
 		});
 
 	};

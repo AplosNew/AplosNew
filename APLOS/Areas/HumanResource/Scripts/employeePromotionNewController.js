@@ -1370,7 +1370,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
     $scope.GetGivenDesignationByLegalDesignaiton = function (legalDesignationId) {
         $http({
             method: 'GET',
-            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId
+            url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + legalDesignationId + '&BudgetCode=' + $scope.budgetCodeChangeNew.BudgetCode
         }).then(function successCallback(response) {
             //$scope.givenDesignationList = response.data;
             if (response.data.length > 0) {
@@ -1792,7 +1792,7 @@ function employeePromotionNewController(fileReader, cboService, commonMessage, $
 
             $http({
                 method: 'GET',
-                url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + $scope.budgetCodeChangeOld.LegalDesignationId
+                url: 'Employees/BudgetCodeChange/GetGivenDesignationByLegalDesignationCbo?legalDesignationId=' + $scope.budgetCodeChangeOld.LegalDesignationId + '&BudgetCode=' + $scope.budgetCodeChangeNew.BudgetCode
             }).then(function successCallback(response) {
                 //$scope.givenDesignationList = response.data;
                 if (response.data.length > 0) {
