@@ -858,6 +858,32 @@ function loanController(accountService, bankService, cboService, commonMessage, 
             }
         }
     };
+    $scope.exchangeGainLossAmountExistingLoan = function (data) {
+        var balance = parseFloat(data.Balance), dramount = parseFloat(data.LoanSetOffAmount);
+        if (dramount > balance) {
+            data.LoanSetOffAmount = data.Balance;
+            ShowResult("Loan SetOff Amount should not exceed Balance Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        if (data.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+            data.ExchangeAmount = Math.abs(data.ConversionAmount * ($scope.voucher.CompanyCurrencyRate - data.ToCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeLoss";
+        }
+        else if (data.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
+            data.ExchangeAmount = Math.abs(data.ConversionAmount * (data.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+            data.ExchangeType = "ExchangeGain";
+        }
+        else {
+            data.ExchangeAmount = 0;
+            data.ExchangeType = null;
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount * data.ToCurrencyRate).toFixed(2);
+        }
+        
+    };
     $scope.closePartyPopUp = function (x) {
         var party = x.data;
         if (baseService.isUndefinedOrNull(party.DownPaymentGLId)) {

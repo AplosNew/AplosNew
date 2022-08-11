@@ -43,7 +43,6 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Amount should more than 0");
                 voucherVM.EntityId = advanceDetailVM.EntityId;
             }
-            
                 voucherVM.Amount = voucherDetailInvoiceList.Sum(r => r.Amount);
                 return Json(new { Message = string.Format(AplosMessage.VoucherSave, _commonAccountsSetOffService.InsertDebitNoteAdvanceSetOff(voucherVM, voucherDetailVMList, voucherDetailInvoiceList)) });
            

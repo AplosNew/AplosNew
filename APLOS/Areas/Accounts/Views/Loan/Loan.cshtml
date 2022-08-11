@@ -391,7 +391,11 @@
                             <th>Total Loan</th>
                             <th>Total SetOff</th>
                             <th>Balance</th>
-                            <th>SetOff</th>
+                            <th>SetOff Amount</th>
+                            <th>To Currency Rate</th>
+                            <th>Conversion Amount</th>
+                            <th>Exchange Type</th>
+                            <th>Exchange Amount</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -411,8 +415,21 @@
                             <td class="text-right">{{x.LoanSetOff | number:2}}</td>
                             <td class="text-right">{{x.Balance | number:2}}</td>
                             <td>
-                                <input type="text" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.LoanSetOffAmount">
+                                <input type="text" ng-keyup="exchangeGainLossAmountExistingLoan(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="Amount" autocomplete="off" ng-model="x.LoanSetOffAmount">
                             </td>
+                            <td>
+                                <input type="text" ng-keyup="exchangeGainLossAmountExistingLoan(x)" n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ToCurrencyRate" autocomplete="off" ng-model="x.ToCurrencyRate">
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2"  title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ConversionAmount" ng-model="x.ConversionAmount" >
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeType" ng-model="x.ExchangeType">
+                            </td>
+                            <td>
+                                <input type="text" readonly n-decimals="2" title="Text, Comma, +, -, Two Dot is not allow" class="form-control text-right" name="ExchangeAmount" ng-model="x.ExchangeAmount" >
+                            </td>
+
                             <td class="text-right">
                                 <button ng-click="removeRow($index,x)" data-toggle="modal" class="btn-action tooltip-here" data-placement="top" title="Remove">
                                     <i class="glyphicon glyphicon-remove"></i>
