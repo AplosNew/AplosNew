@@ -52,6 +52,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionSummary/Aplos',
             controller: 'ProductionSummaryController'
         })
+        .when('/production-summary-wc', {
+            templateUrl: 'Productions/ProductionSummary/AplosWC',
+            controller: 'ProductionSummaryController'
+        })
         .when('/recipe-Material-Grouping-Master', {
             templateUrl: 'Productions/RecipeMaterialGroupingMaster/Aplos',
             controller: 'recipeMaterialGroupingMasterController'
