@@ -403,7 +403,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.getProdBookedData = function () {
         try {
             $scope.ProdQtyCount = 0;
-            $http.get('Productions/QuaityProcessBooking/GetProductionBookingData?processId=' + $scope.productionSummaryNew.ProcessId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate)
+            $http.get('Productions/QuaityProcessBooking/GetProductionBookingData?processId=' + $scope.productionSummaryNew.ProcessId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&ProductionShiftId=' + $scope.productionSummaryNew.ProductionShiftId)
                 .then(function (response) {
                     $scope.ProdBookedDataList = response.data;
                 });
@@ -449,31 +449,6 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
             }
         }
         var gridObj = $("#PBGrid").data("ejGrid");
-        gridObj.refreshContent();
-    };
-
-    $scope.refreshTemplateQualityProcessParameter = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllQualityProcessParameter });
-    };
-
-    function CheckBoxSelectAllQualityProcessParameter(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#QPGrid").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.QualityProcessParameterList.length; i++) {
-                $scope.QualityProcessParameterList[i].Active = ChkOrUnchk;
-            }
-        }
-        else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Flag = ChkOrUnchk;
-            }
-        }
-        var gridObj = $("#QPGrid").data("ejGrid");
         gridObj.refreshContent();
     };
 
