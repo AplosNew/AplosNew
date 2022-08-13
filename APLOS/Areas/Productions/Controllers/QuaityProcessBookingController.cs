@@ -64,30 +64,28 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_ProductionSummaryService.GetShiftGroupCbo(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
-        
-
         [HttpGet, Authorize]
-        public ActionResult GetMentorAndRespPersonByWCM(string wcmId)
+        public JsonResult GetProductionBookingData(string processId, string productionDate, string ProductionShiftId)
         {
-            return Json(_ProductionSummaryService.GetMentorAndRespPersonByWCM(wcmId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetProductionBookingData(processId, productionDate, ProductionShiftId), JsonRequestBehavior.AllowGet);
         }
-        
+
 
         [HttpPost]
-        public JsonResult Create(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, List<Dictionary<string, object>> ParameterList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ps.PlantId = identity.PlantId;
-            _ProductionSummaryService.SaveMaster(ps, psd, identity.CompanyGroupId);
-            return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+
+            _productionSummaryData.SaveData(data, ProdBookedSaveList, ParameterList);
+            return Json(new {Message = AplosMessage.Success });
         }
         
-        [HttpPost]
-        public ActionResult Delete(string id)
-        {
-            _ProductionSummaryService.DeleteDetail(id);
-            return Json(new { Message = AplosMessage.Deleted });
-        }
+        //[HttpPost]
+        //public ActionResult Delete(string id)
+        //{
+        //    _ProductionSummaryService.DeleteDetail(id);
+        //    return Json(new { Message = AplosMessage.Deleted });
+        //}
         
 
         #endregion

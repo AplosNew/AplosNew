@@ -5,6 +5,8 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using Library.Service.Enums;
+using Library.Crosscutting.Security;
+using System.Threading;
 
 namespace Library.OrderManagement.Production
 {
@@ -2481,6 +2483,7 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
 
         #endregion PackingContent
 
+        #region QualityProcessBooking
 
         public IEnumerable<object> GetQualityProcessCbo(string ProcessId)
         {
@@ -2504,7 +2507,7 @@ WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
             {
                 string sql = @"SELECT CONVERT(bit,0) Active,A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
-,P.Id QualityProcessParameterId
+,P.Id QualityProcessParameterId,P.GradeLot,P.ParameterGrade
 FROM dbo.QualityProcessParameter P
 LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
 WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
@@ -2565,9 +2568,155 @@ LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=PS.WorkCenterMasterId
 LEFT JOIN hkp.ProductionBookingPeriod PBP ON PBP.Id=ps.ProductionBookingPeriodId
 LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=MM.Id
-WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDate + "' AND PS.ProductionShiftId='" + ProductionShiftId + "' AND ISNULL(QuaityProcessBookingId,'')=''";
+WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDate + "' AND PS.ProductionShiftId='" + ProductionShiftId + "' AND PS.Id NOT IN(SELECT ProductionSummaryId FROM [dbo].[QuaityBookingProductionSummary])";
             return _sqlRepository.GetDataCollection(sql);
         }
+
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, List<Dictionary<string, object>> ParameterList)
+        {
+            
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsProdBooked, dsParameter;
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.QuaityProcessBooking WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "QuaityProcessBooking", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"].ToString();
+                    data["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"].ToString();
+                    data["AddedFromIP"] = dsMaster.Tables[0].Rows[0]["AddedFromIP"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityBookingProductionSummary] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsProdBooked, false, "1");
+                if (ParameterList != null)
+                {
+                    int pbc = 0;
+                    foreach (var item in ProdBookedSaveList)
+                    {
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = Id + "-" + pbc++;
+                            item["QuaityProcessBookingId"] = Id;
+
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                    }
+                }
+
+                int pac = 0;
+                //objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[[QuaityProcessBookingParameterValue]] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsParameter, false, "1");
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityProcessBookingParameterValue] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsParameter, false, "1");
+
+
+                if (ParameterList != null)
+                {
+                    foreach (var item in ParameterList)
+                    {
+                        DataView dv = new DataView(dsParameter.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = Id + "-"+pac++;
+                            item["QuaityProcessBookingId"] = Id;
+
+                            AddNewRow(dsParameter.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsProdBooked, dsParameter);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+
+        #endregion
 
 
     }
