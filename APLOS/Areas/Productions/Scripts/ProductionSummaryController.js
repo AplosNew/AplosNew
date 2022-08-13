@@ -46,7 +46,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        ProductionGrade: null,
+        ProductionGrade: 'A',
         Quantity: 0,
         UOM: 0,
         MOQty: 0,
@@ -1270,7 +1270,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         try {
             ValidationMaster();
             $scope.ProcessParaList = [];
-            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id)
+            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
                 .then(
                     function successCallback(response) {
                         $scope.ProcessParaList = response.data;
@@ -1301,7 +1301,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                             $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
                         }
                     }
-                    if (response.data.NewData[i].EntryState == "Calculate") {
+                    if (response.data.NewData[i].IsProduction == true) {
                         $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
                     }
                 }
@@ -1322,8 +1322,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     function ClearFields() {
         $scope.Action = "Save";
         $scope.productionSummary = {};
-        $scope.productionSummaryNew = {};
+        $scope.productionSummaryNew = { ProductionGrade: 'A'};
         $scope.productionSummaryNew.Active = true;
+        $scope.productionSummaryNew.ProductionGrade= 'A';
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
         $scope.ProdQtyCount = 0;
         $scope.TotalProductionBookingQty = 0;
