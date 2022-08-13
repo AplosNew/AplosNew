@@ -281,9 +281,9 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessParaData(string processId, string masterId)
+        public ActionResult GetProcessParaData(string processId, string masterId, string ProductionOrderId)
         {
-            return Json(_productionSummaryData.GetProcessParaData(processId, masterId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetProcessParaData(processId, masterId, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -705,5 +705,6 @@ namespace Aplos.Areas.Productions.Controllers
         public decimal Value { get; set; }
         public string EntryState { get; set; }
         public string ValueIN { get; set; }
+        public bool IsProduction { get; set; }
     }
 }

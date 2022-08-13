@@ -98,7 +98,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId,string ProductionOrderId)
+        public IEnumerable<object> GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
             if (productionLevel == ProductionBookingLevel.SalesOrder.ToString())
             {
@@ -210,7 +210,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='"+ProductionOrderId+"'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -412,7 +412,7 @@ namespace Library.OrderManagement.Production
             //                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
             //                    WHERE PS.UserName = 'Running' AND POSP.ProcessId = '" + processId + "'";
             string wc = string.Empty;
-            if (status== "PROCESS")
+            if (status == "PROCESS")
             {
                 wc = "PS.ProcessId = '" + processId + @"'";
             }
@@ -437,7 +437,7 @@ namespace Library.OrderManagement.Production
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                                       FROM [TRN].[ProductionSummary] PS WHERE " + wc+ @" GROUP BY PS.ProductionOrderId
+                                       FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.ProductionOrderId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
@@ -1689,9 +1689,9 @@ namespace Library.OrderManagement.Production
             }
             //if (IsCrossAllowed == false)
             //{
-                if (status == "PROCESS")
-                {
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+            if (status == "PROCESS")
+            {
+                sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                             (
                             SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.ToProcessId ProcessId,PS.SalesOrderId
                             FROM trn.ProductionSummary AS ps
@@ -1703,11 +1703,11 @@ namespace Library.OrderManagement.Production
                             ) AS K ";
 
 
-                }
-                else
-                {
+            }
+            else
+            {
 
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+                sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                                (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.ToSFGInventoryId='" + processId + @"' AND PS.ToEntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
@@ -1722,7 +1722,7 @@ namespace Library.OrderManagement.Production
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                                ) AS K ";
-                }
+            }
             //}
             //else
             //{
@@ -1807,19 +1807,32 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetProcessParaData(string processId, string masterId)
+        public IEnumerable<object> GetProcessParaData(string processId, string masterId, string ProductionOrderId)
         {
             try
             {
                 var sql = "";
-                 sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+                if (masterId!=null)
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
-,P.Id ProductionBookingParameterId
+,P.Id ProductionBookingParameterId,P.IsProduction
 FROM dbo.ProductionBookingParameter P
-LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='"+ masterId + @"'
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "') ORDER BY P.Sequence";
-                    return _sqlRepository.GetDataCollection(sql, null);
-               
+LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='" + masterId + @"'
+WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='" + processId + "') ORDER BY P.Sequence";
+                }
+                else
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN PD.Value IS NOT NULL THEN PD.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id ProductionBookingParameterId,P.IsProduction
+FROM dbo.ProductionBookingParameter P
+LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'null')='null'
+LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='"+ ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
+WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + @"') ORDER BY P.Sequence";
+                }
+                return _sqlRepository.GetDataCollection(sql, null);
+
             }
             catch (Exception ex)
             {
@@ -2463,7 +2476,7 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
                 string sql = @"SELECT  P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
 LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
 LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
-WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
+WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -2539,7 +2552,7 @@ LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=PS.WorkCenterMasterId
 LEFT JOIN hkp.ProductionBookingPeriod PBP ON PBP.Id=ps.ProductionBookingPeriodId
 LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
 LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=MM.Id
-WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='"+ productionDate + "' AND PS.ProductionShiftId='"+ ProductionShiftId + "' AND ISNULL(QuaityProcessBookingId,'')=''";
+WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDate + "' AND PS.ProductionShiftId='" + ProductionShiftId + "' AND ISNULL(QuaityProcessBookingId,'')=''";
             return _sqlRepository.GetDataCollection(sql);
         }
 
