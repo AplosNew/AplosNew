@@ -179,8 +179,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetInvoiceList = function () {
-        $scope.FromDateValidation();
-        $scope.ToDatevalidation();
+        //$scope.FromDateValidation();
+        //$scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
                 
@@ -189,7 +189,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
                     data: {
                         fromDate: "",
-                        toDate: ""
+                        toDate: $scope.material.VendorToDate
                     },
                     dataType: 'JSON'
 
