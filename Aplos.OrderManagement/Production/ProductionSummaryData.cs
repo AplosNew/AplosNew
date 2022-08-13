@@ -2490,17 +2490,56 @@ WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where Proc
             }
         }
 
-        public IEnumerable<object> GetProductionBookingData(string processId, string productionDate)
+        public IEnumerable<object> GetProductionBookingData(string processId, string productionDate, string ProductionShiftId)
         {
-            string sql = @"SELECT CONVERT(bit,0) Flag,PS.Id PrOId,P.UserName Process,PR.Id ProductionOrderId,CSG.Description ShiftName,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod
-,PS.ProductionGrade,PS.LotNumber
+            string sql = @"
+SELECT CONVERT(bit,0) Flag,PS.Id ProductionSummaryId,PR.Id PrOId,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod
+,PS.ProductionGrade,PS.LotNumber,MM.UserName MaterialMaster,MMA.StandardName Article,''ProductCode
+,BuyerOrder = REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								                		,'&amp;','&'), 'amp;', '')
+                                ,OwnOrder =REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									                	,'&amp;','&'), 'amp;', '')
+							 ,BuyerItem=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                ,'&amp;','&'), 'amp;', '')	                                                
+                              ,OwnItem=REPLACE(REPLACE(
+										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
+                            ,ProductCode=REPLACE(REPLACE(
+										STUFF((select distinct ','+pl.UserName
+																from dbo.ProductLibrary AS pl
+																INNER JOIN trn.MasterOrderItem XMOI ON XMOI.ProductLibraryId = pl.Id	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
 FROM TRN.ProductionSummary AS ps
-LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
 LEFT JOIN TRN.ProductionOrder PR ON PR.Id = ps.ProductionOrderId 
-LEFT JOIN MST.CompliedShiftGrouping CSG ON CSG.Id = ps.ProductionShiftId
 LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=PS.WorkCenterMasterId
 LEFT JOIN hkp.ProductionBookingPeriod PBP ON PBP.Id=ps.ProductionBookingPeriodId
-WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='"+ productionDate + "'";
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=MM.Id
+WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='"+ productionDate + "' AND PS.ProductionShiftId='"+ ProductionShiftId + "' AND ISNULL(QuaityProcessBookingId,'')=''";
             return _sqlRepository.GetDataCollection(sql);
         }
 
