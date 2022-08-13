@@ -560,6 +560,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         var workdate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
+        $scope.LotNumber = $scope.productionSummaryNew.LotNumber;
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.SalesOrderId = null;
         $scope.productionSummaryNew.ProductionOrderId = null;
@@ -573,7 +574,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.WastageP = null;
         $scope.productionSummaryNew.MasterOrderNo = null;
         $scope.productionSummaryNew.CharCount = null;
-        $scope.productionSummaryNew.ProductionGrade = null;
 
         $scope.productionSummaryNew.Quantity = null;
         $scope.productionSummaryNew.Customer = null;
@@ -589,7 +589,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.CheckedBy = null;
         $scope.productionSummaryNew.CheckedByName = null;
         $scope.productionSummaryNew.Remarks = null;
-        $scope.productionSummaryNew.LotNumber = null;
 
         $scope.productionSummaryNew.BuyerOrder = null;
         $scope.productionSummaryNew.OwnOrder = null;
@@ -598,6 +597,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.NewLotNumber = true;
         $scope.ShowLotNum = false;
         $scope.ShowNew = false;
+        $scope.productionSummaryNew.ProductionGrade = 'A';
+        $scope.productionSummaryNew.ProductionOrderId = $scope.ProductionOrderId;
+        $scope.productionSummaryNew.LotNumber = $scope.LotNumber;
     }
 
     $scope.selectLineItem = function (soitem) {
@@ -1322,9 +1324,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     function ClearFields() {
         $scope.Action = "Save";
         $scope.productionSummary = {};
-        $scope.productionSummaryNew = { ProductionGrade: 'A'};
+        $scope.productionSummaryNew = {};
         $scope.productionSummaryNew.Active = true;
-        $scope.productionSummaryNew.ProductionGrade= 'A';
+        $scope.productionSummaryNew.ProductionGrade = 'A';
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
         $scope.ProdQtyCount = 0;
         $scope.TotalProductionBookingQty = 0;

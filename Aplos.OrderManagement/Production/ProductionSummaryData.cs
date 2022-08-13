@@ -529,6 +529,19 @@ namespace Library.OrderManagement.Production
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,Material=STUFF((select distinct ','+MM.UserName from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                             ,Article=STUFF((select distinct ','+MMA.StandardName  from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+																 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								   FROM TRN.ProductionOrder PO 
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
 								   LEFT JOIN ORG.Entity E ON E.Id=PO.EntityId
@@ -1812,14 +1825,14 @@ namespace Library.OrderManagement.Production
             try
             {
                 var sql = "";
-                if (masterId!=null)
+                if (masterId!= "null")
                 {
                     sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
 ,P.Id ProductionBookingParameterId,P.IsProduction
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='" + masterId + @"'
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='" + processId + "') ORDER BY P.Sequence";
+WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='" + processId + "') ORDER BY P.Sequence";
                 }
                 else
                 {
@@ -1829,7 +1842,7 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'null')='null'
 LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='"+ ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + @"') ORDER BY P.Sequence";
+WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='"+ processId + @"') ORDER BY P.Sequence";
                 }
                 return _sqlRepository.GetDataCollection(sql, null);
 

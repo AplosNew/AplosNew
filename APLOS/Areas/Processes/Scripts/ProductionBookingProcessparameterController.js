@@ -609,6 +609,10 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.SaveQuality = function () {
         try {
+           
+            CheckField($scope.ModelQualityNew.ProcessId, "Process");
+            CheckField($scope.ModelQualityNew.ItemName, "Item Name");
+
             $scope.ModelQualityNew.ProductionBookingProcessParameterId = $scope.masterId;
             $http({
                 method: 'POST',
