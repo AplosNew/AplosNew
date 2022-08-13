@@ -12,6 +12,7 @@
                         <thead>
                             <tr>
                                 <th>VoucherNo</th>
+                                <th>Source Type</th>
                                 <th>Ordering @Library.Model.Parties.PartyType.Vendor.ToString()</th>
                                 <th>PostingDate</th>
                                 <th>DocDate</th>
@@ -23,6 +24,7 @@
                         <tbody>
                             <tr ng-repeat="x in invoiceSetOffDetailList">
                                 <td>{{x.VoucherNo}}</td>
+                                <td>{{x.SourceType}}</td>
                                 <td>{{x.PartyPlantName}}</td>
                                 <td>{{x.PostingDate |dateFiltering}}</td>
                                 <td>{{x.DocDate |dateFiltering}}</td>
@@ -33,7 +35,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="6" class="text-right">Total</td>
+                                <td colspan="7" class="text-right">Total</td>
                                 <td class="text-right"><b>{{ (invoiceSetOffDetailList) | sumByKey:'Amount' }}</b></td>
                             </tr>
                         </tfoot>

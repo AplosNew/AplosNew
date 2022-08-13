@@ -364,7 +364,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
@@ -785,7 +785,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
 
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString())-clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
@@ -1220,7 +1220,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
 
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
