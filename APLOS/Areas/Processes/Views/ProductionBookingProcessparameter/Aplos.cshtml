@@ -347,7 +347,7 @@
 
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li><button ng-click="SaveQuality();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityAction}}</button></li>
+                                    <li><button ng-click="SaveQuality();" ng-disabled="masterId==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityAction}}</button></li>
                                     <li><button ng-click="ClearQuality();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 </ul>
                             </div>

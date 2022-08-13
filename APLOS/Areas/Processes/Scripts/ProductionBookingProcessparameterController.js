@@ -166,6 +166,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.Model = { Id: null, ProcessId: null, InputItemName: null, InputItemUoMId: null, OutputItemName: null, OutputItemUoMId: null, InPutOutPutRatio: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
         $scope.ModelNew = Object.assign({}, $scope.Model);
         $scope.Action = 'Save';
+        $scope.masterId = null;
         $scope.ProcessParameterList = [];
         $scope.QualityParameterList = [];
     }
@@ -530,8 +531,12 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.SaveProcessParameter = function () {
         try {
-            $scope.AddEditRow();
             $scope.ModelProcessPara.ProductionBookingProcessParameterId = $scope.masterId;
+            CheckField($scope.ModelProcessPara.ProductionBookingProcessParameterId, "Master");
+            CheckField($scope.ModelProcessPara.UserName, "User Name");
+            CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
+            $scope.AddEditRow();
+            
             $http({
                 method: 'POST',
                 url: $scope.saveProcessParameterUrl,
