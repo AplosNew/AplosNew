@@ -104,52 +104,6 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
         return string;
     }
 
-    $scope.GetTaskManagementReport = function () {
-        try {
-            if (baseService.isUndefinedOrNull($scope.FromDate)) {
-                throw "From Date is required.";
-            }
-            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
-                throw "To Date is required.";
-            }
-            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
-                throw "From date must be below or equal to To Date";
-            }
-            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
-                throw "To date must be above or equal to From Date.";
-            }
-
-            $scope.filterComplete();
-            $scope.fileName = "TaskManagementReport.xlsx";
-            if ($scope.model.State == "EmployeeWise") {
-                $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
-            }
-            else if ($scope.model.State == "DepartmentWise") {
-                $scope.fileName = "TaskManagementReportDepartmentWise.xlsx";
-            }
-            else {
-                $scope.fileName = "TaskManagementReportDesignationGroupWise.xlsx";
-            }
-            $http({
-                method: 'POST',
-                url: $scope.path + "GetTaskManagementReport",
-                data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error == true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-                }
-            }, function errorCallback(response) {
-                ShowResult(response.data.Message, 'failure');
-            });
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
-
     $scope.GetTaskManagementData = function () {
         try {
             if (baseService.isUndefinedOrNull($scope.FromDate)) {
@@ -182,10 +136,9 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
                     var totalTask = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "CreatedTask");
                     var totalTaskDue = $filter("sumByKey")($filter("filter")($scope.TaskManagementDataList), "TaskDue");
                     for (var i = 0; i < $scope.TaskManagementDataList.length; i++) {
-                        $scope.TaskManagementDataList[i].TotalStoryPoint = $scope.TaskManagementDataList[i].TaskDue*2;
+                        $scope.TaskManagementDataList[i].TotalStoryPoint = $scope.TaskManagementDataList[i].TaskDue * 2;
                         $scope.TaskManagementDataList[i].TaskCompletedFP = $scope.TaskManagementDataList[i].OnTimeTask + $scope.TaskManagementDataList[i].LateTask + $scope.TaskManagementDataList[i].EarlyTask;
-                        $scope.TaskManagementDataList[i].ColsedStoryPoint = $scope.TaskManagementDataList[i].TaskCompletedFP*2;
-                        //$scope.TaskManagementDataList[i].TaskOverDue = $scope.TaskManagementDataList[i].TaskDue - $scope.TaskManagementDataList[i].OnTimeTask - $scope.TaskManagementDataList[i].LateTask;
+                        $scope.TaskManagementDataList[i].ColsedStoryPoint = $scope.TaskManagementDataList[i].TaskCompletedFP * 2;
                         $scope.TaskManagementDataList[i].Performance = ($scope.TaskManagementDataList[i].OnTimeTask * 2 + $scope.TaskManagementDataList[i].LateTask * 1 + $scope.TaskManagementDataList[i].LateTask * 2) - $scope.TaskManagementDataList[i].UnRead;//formula
                     }
                 }
@@ -196,5 +149,104 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
             ShowResult(e, 'failure');
         }
     }
+
+    $scope.ids = "";
+    function filteredData() {
+        var dataList = [];
+        var g = $("#GridEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if ($scope.ids == "") {
+                    $scope.ids = "'','" + dataList[i].SystemId + "'";
+                }
+                else {
+                    $scope.ids += ",'" + dataList[i].SystemId + "'";
+                }
+            }
+        }
+
+    }
+
+    $scope.GetTaskManagementReport = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.FromDate)) {
+                throw "From Date is required.";
+            }
+            else if (baseService.isUndefinedOrNull($scope.ToDate)) {
+                throw "To Date is required.";
+            }
+            else if (new Date($scope.FromDate) > new Date($scope.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            else if (new Date($scope.ToDate) < new Date($scope.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
+
+            $scope.filterComplete();
+            $scope.fileName = "TaskManagementReport.xlsx";
+            if ($scope.model.State == "EmployeeWise") {
+                filteredData();
+                $scope.fileName = "TaskManagementReportEmployeeWise.xlsx";
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetTaskManagementReport",
+                    data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': $scope.ids },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+            else if ($scope.model.State == "DepartmentWise") {
+                $scope.fileName = "TaskManagementReportDepartmentWise.xlsx";
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetTaskManagementReport",
+                    data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': null },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+            else {
+                $scope.fileName = "TaskManagementReportDesignationGroupWise.xlsx";
+                $http({
+                    method: 'POST',
+                    url: $scope.path + "GetTaskManagementReport",
+                    data: { 'parameters': $scope.parameters, 'fromDate': $scope.FromDate, 'todate': $scope.ToDate, 'model': $scope.model, 'EmpIds': null },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error == true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        $window.open($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+                    }
+                }, function errorCallback(response) {
+                    ShowResult(response.data.Message, 'failure');
+                });
+            }
+            
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+  
 
 }

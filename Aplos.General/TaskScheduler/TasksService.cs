@@ -1584,9 +1584,10 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             }
         }
 
-        public DataTable GetTaskManagementData(string fromDate, string todate, Dictionary<string, string> parameters, Dictionary<string, string> model)
+        public DataTable GetTaskManagementData(string fromDate, string todate, Dictionary<string, string> parameters, Dictionary<string, string> model, string EmpIds)
         {
             string wt = "";
+            string wh = "";
             string taskCreatedBy = "";
             string tcb = "";
             //if (model["Task"] == "WithTask")
@@ -1600,7 +1601,11 @@ WHERE ei.EmployeeStatus='Active' AND  p.TaskManagementApplicable=1 --AND (Conver
             //    // wt = @"AND ISNULL(CT.Id,'')=''";
             //    wt = @"  WHERE ISNULL(Z.CreatedTask,0)=0";
             //}
-
+            if (!string.IsNullOrEmpty(EmpIds))
+            {
+                wt = "WHERE X.SystemId IN("+ EmpIds + ")";
+                wh = "AND X.SystemId IN("+ EmpIds + ")";
+            }
             if (parameters["TaskCreatedBy"]== "'','Self'")
             {
                 taskCreatedBy = "AND TA.AuthorizationType IN('CreatedBy','AssignTo')";
@@ -1721,7 +1726,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate+ @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate+ @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -1768,7 +1773,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z "; 
+)X "+wt+@" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z "; 
 
             }
             else if (model["Status"] == "Issue")
@@ -1886,7 +1891,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed'" + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -1935,7 +1940,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
+)X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
             }
             else if (model["Status"] == "TNA")
             {
@@ -2051,7 +2056,7 @@ LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2101,7 +2106,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName
-)X GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
+)X " + wt + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z ";
             
             }
             else
@@ -2217,7 +2222,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN HKP.LegalDesignation AS ld ON ld.Id=ei.LegalDesignationId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
             AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2263,7 +2268,7 @@ AND ISNULL(PPDT.isDone,0)=1 AND (Convert(date,PPDT.DueDate) < Convert(date,'" + 
             AND DP.Id IN(" + parameters["DepartmentId"] + @") 
             AND p.UserReportGroup IN(" + parameters["UserReportGroup"] + @") 
 GROUP BY ei.SystemId,ei.EmployeeCode,ei.EmployeeName,ld.UserName,Dp.UserName,tmm.TaskTypeGroup
-)X WHERE X.TaskTypeGroup='ToDo'  GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z";
+)X WHERE X.TaskTypeGroup='ToDo' " + wh + @" GROUP BY X.SystemId,X.EmployeeCode,X.EmployeeName,X.LegalDesignation,X.Department)Z";
             }
             return _sqlRepository.GetDataTable(strSql);
 
@@ -2412,7 +2417,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2564,7 +2569,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2725,7 +2730,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -2886,7 +2891,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3085,7 +3090,7 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3244,7 +3249,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN IssueTransaction AS IT ON IT.Id = TMM.IssueTransactionId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3404,7 +3409,7 @@ LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 INNER JOIN [dbo].[TNATasks] AS TT ON TT.Id = TMM.TNATasksId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) 
+AND Convert(date, '" + todate + @"') > Convert(date,ET.UpdatedDate) 
 AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
 AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
@@ -3557,7 +3562,9 @@ LEFT JOIN MST.ManpowerBudget AS mb ON mb.Id=ei.BudgetCode
 LEFT JOIN ORG.Entity AS e ON e.Id=mb.EntityId
 LEFT JOIN [TaskManagerMaster] AS tmm ON tmm.Id = ET.TaskManagerMasterId
 WHERE ei.EmployeeStatus='Active' AND p.TaskManagementApplicable=1
-AND Convert(date, '" + todate + @"') < Convert(date,ET.UpdatedDate) AND ISNULL(isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed' " + tcb + @"
+AND Convert(date, '"+todate+@"') > Convert(date,ET.UpdatedDate) 
+AND Convert(date, ET.DueDate) > Convert(date,ET.UpdatedDate)
+AND ISNULL(ET.isDone,0)=1 AND ET.AuthorizationType='AssignTo' AND tmm.currentstatus='Closed " + tcb + @"
 AND DG.Id IN(" + parameters["DesignationGroupId"] + @") 
 AND e.Id IN(" + parameters["EntityId"] + @") 
 AND DP.Id IN(" + parameters["DepartmentId"] + @") 

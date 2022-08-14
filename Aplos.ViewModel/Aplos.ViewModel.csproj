@@ -82,6 +82,7 @@
     <Compile Include="OrderManagements\InventoryReportViewModel.cs" />
     <Compile Include="OrderManagements\SalesOrderCharacteristicsViewModel.cs" />
     <Compile Include="OrderManagements\PurchaseLCChargesViewModel.cs" />
+    <Compile Include="OrderManagements\QuaityProcessBookingParameterValue.cs" />
     <Compile Include="OrderManagements\SampleOrderViewModel.cs" />
     <Compile Include="Organizations\OrgStrunctureListViewModel.cs" />
     <Compile Include="Organizations\OrganoNode.cs" />

@@ -4,7 +4,7 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $rootScope.title = "Quaity Process Booking";
     $scope.Action = 'Save';
     $scope.index = -1;
-    $scope.productionSummaryes = [];
+    $scope.ModelList = [];
     $scope.gradeList = [];
     $scope.path = 'Productions/QuaityProcessBooking/';
     $scope.getListUrl = $scope.path + 'getlist';
@@ -34,6 +34,16 @@ function QuaityProcessBookingController(cboService, commonMessage, $scope, $root
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
+
+    $scope.GetList = function () {
+        $http({
+            method: 'GET',
+            url: 'Productions/QuaityProcessBooking/GetList'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        });
+    }
+    $scope.GetList();
 
     $scope.getprocessList = function () {
         $http({

@@ -12,6 +12,7 @@ using Library.Model.Productions.ProductionBooking;
 using Library.Data.Sql;
 using Library.OrderManagement.Production;
 using System;
+using Library.ViewModel.OrderManagements;
 
 #endregion
 
@@ -58,6 +59,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetList()
+        {
+            return Json(_productionSummaryData.GetQualityList(), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetShiftGroupCbo()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -72,7 +79,7 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpPost]
-        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, List<Dictionary<string, object>> ParameterList)
+        public JsonResult Create(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, IEnumerable<QuaityProcessBookingParameterValue> ParameterList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
