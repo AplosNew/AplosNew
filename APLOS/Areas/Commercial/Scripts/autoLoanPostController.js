@@ -170,7 +170,8 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
     });
 
     $scope.getCboVoucherTypeLoanList = function () {
-        cboService.getCboVoucherTypeAutoLoanList(function (result) {
+       /* cboService.getCboVoucherTypeAutoLoanList(function (result) {*/
+            accountService.getCboVoucherTypeLoanList(function (result) {
             $scope.voucherTypeList = result;
             if ($scope.voucherTypeList.length === 1) {
                 $scope.voucher.VoucherTypeId = $scope.voucherTypeList[0].Value;

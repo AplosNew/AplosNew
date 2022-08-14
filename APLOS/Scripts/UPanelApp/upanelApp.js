@@ -1066,7 +1066,7 @@ upanelApp.controller("EOTController", EOTController)
 upanelApp.controller("QuaityProcessBookingController", QuaityProcessBookingController)
 upanelApp.controller("FurniturePolicyReportController", FurniturePolicyReportController)
 upanelApp.controller("FiveSZoneMasterController", FiveSZoneMasterController)
-
+upanelApp.controller("ProductionSummaryWCController", ProductionSummaryWCController)
 
 
 upanelApp.config(AccessControllerConfig);

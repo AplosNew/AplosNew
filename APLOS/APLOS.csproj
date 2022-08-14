@@ -2165,6 +2165,7 @@
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessWiseProductionBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionSummaryWCController.js" />
     <Content Include="Areas\Productions\Scripts\QuaityProcessBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductiveAllowanceRateSetupController.js" />
     <Content Include="Areas\Productions\Scripts\EmployeeTimeOutApplicableController.js" />

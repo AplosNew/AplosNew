@@ -109,6 +109,12 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
+        public JsonResult GetWCProcessCboNew(string processid, string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
             string sql = @"SELECT ProductionBookingLevel FROM MST.SFGMovementEntity WHERE SFGMovementId = 
@@ -690,9 +696,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion
-
-
-
+        
     }
     public class OpenHeadModelNew
     {
