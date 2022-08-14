@@ -152,6 +152,7 @@ function TaskManagementReportController(commonMessage, $scope, $rootScope, baseS
 
     $scope.ids = "";
     function filteredData() {
+        $scope.ids = "";
         var dataList = [];
         var g = $("#GridEmp").data("ejGrid");
         dataList = g.getFilteredRecords();
