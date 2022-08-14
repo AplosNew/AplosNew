@@ -7,6 +7,7 @@ using OTSBD;
 using Library.Service.Enums;
 using Library.Crosscutting.Security;
 using System.Threading;
+using Library.ViewModel.OrderManagements;
 
 namespace Library.OrderManagement.Production
 {
@@ -1827,7 +1828,7 @@ namespace Library.OrderManagement.Production
             try
             {
                 var sql = "";
-                if (masterId!= "null")
+                if (masterId != "null")
                 {
                     sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
@@ -1843,8 +1844,8 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
 ,P.Id ProductionBookingParameterId,P.IsProduction
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'null')='null'
-LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='"+ ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
-WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='"+ processId + @"') ORDER BY P.Sequence";
+LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='" + ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
+WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='" + processId + @"') ORDER BY P.Sequence";
                 }
                 return _sqlRepository.GetDataCollection(sql, null);
 
@@ -2484,6 +2485,22 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
         #endregion PackingContent
 
         #region QualityProcessBooking
+        public IEnumerable<object> GetQualityList()
+        {
+            try
+            {
+                string sql = @"Select a.*,P.UserName Process,qp.UserName QualityProcess,csg.[Description],FORMAT(A.ProductionDate,'dd-MMM-yyyy')PD 
+FROM dbo.QuaityProcessBooking A
+LEFT JOIN hkp.Process AS p ON p.Id = A.ProcessId
+LEFT JOIN hkp.QualityProcess AS qp ON qp.Id = A.QualityProcessId 
+LEFT JOIN MST.CompliedShiftGrouping AS csg ON csg.Id = A.ProductionShiftId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> GetQualityProcessCbo(string ProcessId)
         {
@@ -2572,9 +2589,9 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
             return _sqlRepository.GetDataCollection(sql);
         }
 
-        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, List<Dictionary<string, object>> ParameterList)
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, IEnumerable<QuaityProcessBookingParameterValue> ParameterList)
         {
-            
+
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsMaster, dsProdBooked, dsParameter;
             string contId = string.Empty;
@@ -2605,7 +2622,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
                 Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityBookingProductionSummary] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsProdBooked, false, "1");
-                if (ParameterList != null)
+                if (ProdBookedSaveList != null)
                 {
                     int pbc = 0;
                     foreach (var item in ProdBookedSaveList)
@@ -2629,20 +2646,74 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
                 }
 
                 int pac = 0;
-                //objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[[QuaityProcessBookingParameterValue]] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsParameter, false, "1");
                 objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityProcessBookingParameterValue] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsParameter, false, "1");
-
 
                 if (ParameterList != null)
                 {
-                    foreach (var item in ParameterList)
+                    DataTable dtValue = new DataTable();
+                    dtValue.TableName = "TempTable";
+                    dtValue.Columns.Add("QualityProcessParameterId");
+                    dtValue.Columns.Add("Amount");
+                    string sFormulaResult = null;
+
+                    DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<QuaityProcessBookingParameterValue>(ParameterList);
+                    for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+
+                        if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                        {
+                            ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                            sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = sFormulaResult;
+
+                            dtValue.Rows.Add(dtValueRow);
+
+                            DataView dv = new DataView(dsOpenHead.Tables[0]);
+                            dv.RowFilter = "QualityProcessParameterId='" + dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString() + "'";
+                            if (dv.Count > 0)
+                            {
+                                DataRow drmo = dv[0].Row;
+
+                                drmo.BeginEdit();
+                                drmo["Value"] = sFormulaResult;
+                                drmo.EndEdit();
+
+                            }
+                        }
+                    }
+
+                    List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+
+                    foreach (var item in NewData)
                     {
                         DataView dv = new DataView(dsParameter.Tables[0]);
                         dv.RowFilter = "Id='" + item["Id"] + "'";
 
                         if (dv.Count == 0)
                         {
-                            item["Id"] = Id + "-"+pac++;
+                            item["Id"] = Id + "-" + pac++;
                             item["QuaityProcessBookingId"] = Id;
 
                             AddNewRow(dsParameter.Tables[0], item);
@@ -2664,7 +2735,6 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
                 throw (ex);
             }
         }
-
 
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
@@ -2720,6 +2790,7 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
 
 
     }
+
 
 }
 
