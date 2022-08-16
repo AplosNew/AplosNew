@@ -374,10 +374,10 @@ namespace Library.Service.Finances
                     ToCurrencyId = companyCurrencyId,
                     ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                     ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailFrom.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                    CrAmount = voucherVM.CompanyCurrencyRate * voucherVM.Amount
+                    CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2)
                 });
                 totalAmountCr += voucherDetailFrom.CrAmount;
-                totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherVM.Amount;
+                totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2);
                 if (financing.TransactionType == TransactionType.LoanTaken.ToString() && voucherVM.IsPayment == true)
                 {
                     currentVoucherDetailId++;
@@ -390,11 +390,11 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount
+                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2)
                     });
                     totalAmountDr += voucherDetailTo.DrAmount;
-                    totalCurrencyAmountDr += voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount;
-                    if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
+                    totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2);
+                if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
                         if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
                         {
@@ -413,7 +413,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount =  voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2),
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -432,7 +432,7 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount
+                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.DrAmount), 2)
                     });
                     if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
                     {
@@ -444,7 +444,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherVM.Amount : Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2),
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }
@@ -454,7 +454,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailTo.BankMasterId,
                                 CashMasterId = voucherDetailTo.CashMasterId,
-                                DrAmount = voucherVM.CompanyCurrencyRate * voucherVM.Amount,
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.Amount), 2),
                                 SourceType = voucherDetailTo.PaymentSource
                             });
                         }

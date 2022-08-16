@@ -166,6 +166,7 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         $scope.Model = { Id: null, ProcessId: null, InputItemName: null, InputItemUoMId: null, OutputItemName: null, OutputItemUoMId: null, InPutOutPutRatio: null, Active: true, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
         $scope.ModelNew = Object.assign({}, $scope.Model);
         $scope.Action = 'Save';
+        $scope.masterId = null;
         $scope.ProcessParameterList = [];
         $scope.QualityParameterList = [];
     }
@@ -530,8 +531,12 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.SaveProcessParameter = function () {
         try {
-            $scope.AddEditRow();
             $scope.ModelProcessPara.ProductionBookingProcessParameterId = $scope.masterId;
+            CheckField($scope.ModelProcessPara.ProductionBookingProcessParameterId, "Master");
+            CheckField($scope.ModelProcessPara.UserName, "User Name");
+            CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
+            $scope.AddEditRow();
+            
             $http({
                 method: 'POST',
                 url: $scope.saveProcessParameterUrl,
@@ -609,6 +614,10 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
 
     $scope.SaveQuality = function () {
         try {
+           
+            CheckField($scope.ModelQualityNew.ProcessId, "Process");
+            CheckField($scope.ModelQualityNew.ItemName, "Item Name");
+
             $scope.ModelQualityNew.ProductionBookingProcessParameterId = $scope.masterId;
             $http({
                 method: 'POST',
@@ -686,13 +695,15 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.GetQualityProcessParameterPopUp = function (obj) {
         $scope.QualityParameterAction = 'Save';
         $scope.QualityProcessId = obj.data.Id;
-        $scope.ModelQualityPara = { Id: null, QualityProcessId: obj.data.Id, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelQualityPara = { Id: null, QualityProcessId: obj.data.Id, Sequence: 0, UserName: null, SandardName: null, ParameterGrade: null, GradeLot: null, IsCritical: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelQualityParaNew = Object.assign({}, $scope.ModelQualityPara);
         $scope.GetQualityProcessParameterList();
         $scope.GetQualityProcessParameterAutoSequence();
         $scope.GetQualityProcessParameterHeaderItemCbo();
         angular.element(document.querySelector('#QualityProcesspopup')).modal('show');
     }
+
+    $scope.gradeList = [{ 'Value': 'A', 'Text': 'A' }, { 'Value': 'B', 'Text': 'B' }, { 'Value': 'C', 'Text': 'C' }];
 
     $scope.ModelQualityParaNew.FormulaDes = null;
     $scope.ModelQualityParaNew.FormulaDesID = null;
@@ -901,6 +912,12 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
     $scope.QualityParameterAction = 'Save';
     $scope.SaveQualityProcess = function () {
         try {
+            CheckField($scope.ModelQualityParaNew.Sequence, "Sequence");
+            CheckField($scope.ModelQualityParaNew.UserName, "User Name");
+            CheckField($scope.ModelQualityParaNew.SandardName, "Sandard Name");
+            CheckField($scope.ModelQualityParaNew.ParameterGrade, "Grade");
+            CheckField($scope.ModelQualityParaNew.GradeLot, "Grade Lot No");
+
             $scope.AddQualityProcessEditRow();
             $scope.ModelQualityParaNew.QualityProcessId = $scope.QualityProcessId;
             $http({

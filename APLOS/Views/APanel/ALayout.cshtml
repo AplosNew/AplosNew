@@ -173,31 +173,7 @@
                                     </ul>
                                 </li>
 
-                                <li>
-                                    <a>Quality Management</a>
 
-                                    <ul>
-
-                                        <li><a href="{{bootPoint}}qms-activity-category">Activity Category</a></li>
-                                        <li><a href="{{bootPoint}}quality-activity-checkType">Activity Check Type</a></li>
-                                        <li><a href="{{bootPoint}}business-process">Business Process</a></li>
-                                        <li><a href="{{bootPoint}}business-process-type">Business Process Type</a></li>
-                                        <li><a href="{{bootPoint}}defect-type">Defect Type</a></li>
-                                        <li><a href="{{bootPoint}}defect-check-level">Defect Check Level</a></li>
-                                        <li><a href="{{bootPoint}}defect-zone">Defect Zone</a></li>
-                                        <li><a href="{{bootPoint}}repair-type">Repair Type</a></li>
-                                        <li><a href="{{bootPoint}}qmstesting-master">Testing Master</a></li>
-                                        <li><a href="{{bootPoint}}grade-master">Grade Master</a></li>
-                                        <li><a href="{{bootPoint}}inspection-type">InspectionType</a></li>
-                                        <li><a href="{{bootPoint}}qms-inspection">QMS Inspection</a></li>
-                                        <li><a href="{{bootPoint}}inspection-master">Inspection Master</a></li>
-                                        <li><a href="{{bootPoint}}quality-status">Quality Status</a></li>
-                                        <li><a href="{{bootPoint}}stock-keeping-unit">Stock Keeping Unit</a></li>
-                                        <li><a href="{{bootPoint}}process-parameter">Process Parameter</a></li>
-                                        <li><a href="{{bootPoint}}quality-process">Quality Process</a></li>
-
-                                    </ul>
-                                </li>
 
                                 <li>
                                     <a>Work Centers</a>
@@ -350,9 +326,9 @@
                                         <li><a href="{{bootPoint}}fiscal-year-period">Fiscal Year Period</a></li>
                                         <li><a href="{{bootPoint}}company-fiscal-year">Company Fiscal Year</a></li>
                                         <li><a href="{{bootPoint}}company-fiscal-year-period">Company Fiscal Year Period</a></li>
-                                        
-                                        <li><a href="{{bootPoint}}voucher-type-matrix">Voucher Type Matrix</a></li>
-                                        <li><a href="{{bootPoint}}voucher-type-config">Voucher Type Config</a></li>
+
+                                        @*<li><a href="{{bootPoint}}voucher-type-matrix">Voucher Type Matrix</a></li>
+                                        <li><a href="{{bootPoint}}voucher-type-config">Voucher Type Config</a></li>*@
                                         <li><a href="{{bootPoint}}payment-mode">Payment Mode</a></li>
 
                                         <li><a href="{{bootPoint}}register">Register</a></li>
@@ -471,7 +447,7 @@
                                     </ul>
                                 </li>
 
-                                 <li>
+                                <li>
                                     <a>New Testing</a>
                                     <ul>
                                         <li><a href="{{bootPoint}}leave-year-defination">Leave Year Defination</a></li>
@@ -618,8 +594,8 @@
                                         @*<li><a href="{{bootPoint}}buyer">Buyer</a></li>*@
                                         @*<li><a href="{{bootPoint}}buyer-program">Buyer Program</a></li>*@
                                         @*<li><a href="{{bootPoint}}buyer-division">Buyer Division</a></li>
-                                            <li><a href="{{bootPoint}}buyer-department">Buyer Department</a></li>
-                                            <li><a href="{{bootPoint}}buyer-brand">Buyer Brand</a></li>*@
+                        <li><a href="{{bootPoint}}buyer-department">Buyer Department</a></li>
+                        <li><a href="{{bootPoint}}buyer-brand">Buyer Brand</a></li>*@
                                         <li><a href="{{bootPoint}}buyer-activity">Buyer Activity</a></li>
                                         <li><a href="{{bootPoint}}intermediate-item">Intermediate Item</a></li>
                                         <li><a href="{{bootPoint}}intermediateItem-entity">Intermediate Item Entity</a></li>
@@ -745,7 +721,28 @@
                                 <li><a href="{{bootPoint}}machine-category">Machine Category</a></li>
                                 <li><a href="{{bootPoint}}machine-subcategory">Machine SubCategory</a></li>
                                 <li><a href="{{bootPoint}}machine-variant">Machine Variant</a></li>
-
+                            </ul>
+                        </li>
+                        <li>
+                            <a><span class="glyphicon glyphicon-book"></span>Quality Management</a>
+                            <ul>
+                                <li><a href="{{bootPoint}}qms-activity-category">Activity Category</a></li>
+                                <li><a href="{{bootPoint}}quality-activity-checkType">Activity Check Type</a></li>
+                                <li><a href="{{bootPoint}}business-process">Business Process</a></li>
+                                <li><a href="{{bootPoint}}business-process-type">Business Process Type</a></li>
+                                <li><a href="{{bootPoint}}defect-type">Defect Type</a></li>
+                                <li><a href="{{bootPoint}}defect-check-level">Defect Check Level</a></li>
+                                <li><a href="{{bootPoint}}defect-zone">Defect Zone</a></li>
+                                <li><a href="{{bootPoint}}repair-type">Repair Type</a></li>
+                                <li><a href="{{bootPoint}}qmstesting-master">Testing Master</a></li>
+                                <li><a href="{{bootPoint}}grade-master">Grade Master</a></li>
+                                <li><a href="{{bootPoint}}inspection-type">InspectionType</a></li>
+                                <li><a href="{{bootPoint}}qms-inspection">QMS Inspection</a></li>
+                                <li><a href="{{bootPoint}}inspection-master">Inspection Master</a></li>
+                                <li><a href="{{bootPoint}}quality-status">Quality Status</a></li>
+                                <li><a href="{{bootPoint}}stock-keeping-unit">Stock Keeping Unit</a></li>
+                                <li><a href="{{bootPoint}}process-parameter">Process Parameter</a></li>
+                                <li><a href="{{bootPoint}}quality-process">Quality Process</a></li>
 
                             </ul>
                         </li>
@@ -834,13 +831,12 @@
                                 <li>
                                     <a>Settings</a>
                                     <ul>
-                                        
                                     </ul>
                                 </li>
                             </ul>
 
                         </li>
-                        
+
                         <li>
                             <a><span class="glyphicon glyphicon-book"></span>Address Setups</a>
                             <ul>
@@ -935,7 +931,7 @@
                                 <li><a href="{{bootPoint}}role">Role</a></li>
                                 <li><a href="{{bootPoint}}role-detail">Role Privileges</a></li>
                                 @*<li><a href="{{bootPoint}}role-mapping-position">Role Mapping Position</a></li>
-                                    <li><a href="{{bootPoint}}role-mapping-manpower-budget">Role Mapping (MB)</a></li>*@
+                <li><a href="{{bootPoint}}role-mapping-manpower-budget">Role Mapping (MB)</a></li>*@
                                 <li><a href="{{bootPoint}}user-role">User Access Role</a></li>
                                 <li><a href="{{bootPoint}}user-access-plant">User Access Plant</a></li>
                                 <li><a href="{{bootPoint}}user-entity">User Entity</a></li>

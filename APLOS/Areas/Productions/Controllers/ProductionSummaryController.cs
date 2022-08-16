@@ -109,6 +109,12 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
+        public JsonResult GetWCProcessCboNew(string processid, string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
             string sql = @"SELECT ProductionBookingLevel FROM MST.SFGMovementEntity WHERE SFGMovementId = 
@@ -281,9 +287,9 @@ namespace Aplos.Areas.Productions.Controllers
 
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessParaData(string processId, string masterId)
+        public ActionResult GetProcessParaData(string processId, string masterId, string ProductionOrderId)
         {
-            return Json(_productionSummaryData.GetProcessParaData(processId, masterId), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetProcessParaData(processId, masterId, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -690,9 +696,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         #endregion
-
-
-
+        
     }
     public class OpenHeadModelNew
     {
@@ -705,5 +709,6 @@ namespace Aplos.Areas.Productions.Controllers
         public decimal Value { get; set; }
         public string EntryState { get; set; }
         public string ValueIN { get; set; }
+        public bool IsProduction { get; set; }
     }
 }

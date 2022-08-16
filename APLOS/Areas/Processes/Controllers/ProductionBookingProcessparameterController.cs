@@ -556,15 +556,19 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
 
         public void DeleteProductionBookingParameterData(string SystemID)
         {
-            string strSQL;
+            string strSQL, strFSQL, strFDSQL;
             ConnectionManager.DAL.ConManager objCon = null;
             try
             {
                 strSQL = "DELETE FROM dbo.ProductionBookingParameter WHERE Id = '" + SystemID + "'";
+                strFSQL = "DELETE FROM dbo.FormulaDetail WHERE ProductionBookingParameterHeadId = '" + SystemID + "'";
+                strFDSQL = "DELETE FROM dbo.ProductionSummaryParameterValue WHERE ProductionBookingParameterId = '" + SystemID + "'";
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenConnection("1");
                 objCon.BeginTransaction();
 
+                objCon.ExecuteNonQueryWrapper(strFSQL, true, "1");
+                objCon.ExecuteNonQueryWrapper(strFDSQL, true, "1");
                 objCon.ExecuteNonQueryWrapper(strSQL, true, "1");
                 objCon.CommitTransaction();
             }

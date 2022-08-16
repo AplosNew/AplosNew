@@ -231,18 +231,7 @@
         <div class="form-group" ng-show="IsGo===true">
             <label class="col-sm-12 control-label" style="color:blue">Only Running order will be consider for production booking.</label>
         </div>
-        
-        @*<div class="form-group" ng-show="IsGo===true" style="margin-top: 18px;">
-            <label class="col-sm-4 control-label" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">Master Order</label>
-            <div class="col-sm-8" ng-show="productionSummaryNew.ProductionBookingLevel!==null && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
-                <div class="input-group">
-                    <label class="control-label">{{productionSummaryNew.Customer}}({{productionSummaryNew.MasterOrderNo}})</label>
-                    <span class="input-group-btn">
-                        <button ng-click="showOrderDetail();" ng-disabled="productionSummaryNew.MasterOrderNo===null" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-info-sign"></i></button>
-                    </span>
-                </div>
-            </div>
-        </div>*@
+       
         <div class="form-group" ng-show="IsGo===true && productionSummaryNew.ProductionBookingLevel!=='ProductionOrder'">
             <label class="col-sm-4 control-label">{{ProductionLevel}}<sup>*</sup></label>
             <div class="col-sm-8">
