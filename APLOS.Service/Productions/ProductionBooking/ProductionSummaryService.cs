@@ -1079,6 +1079,7 @@ namespace Library.Service.Productions
                 ProductionSummary entity = base.Find(masterid);
                 _FGInventoryReceiveRepository.ExecuteSqlCommand(@"Delete from TRN.FGInventoryReceive Where ProductionSummaryDetailId IN (Select D.Id from TRN.ProductionSummaryDetail  D 
                 LEFT JOIN TRN.ProductionSummary P ON P.Id=D.ProductionSummaryId Where P.Id='" + masterid + "')");
+                _ProductionOrderProcessSetRepository.ExecuteSqlCommand(@"Delete from dbo.ProductionSummaryParameterValue Where ProductionSummaryId='" + masterid + "'");
                 _psds.DeleteDetail(masterid);
                 base.Delete(entity);
                 _unitOfWork.SaveChanges();
