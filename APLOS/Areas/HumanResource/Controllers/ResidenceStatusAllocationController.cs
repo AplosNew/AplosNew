@@ -274,9 +274,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             #region Grid Headers
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category Id", 10, ExcelHAlign.HAlignLeft);
-            int ColEmployeeCategoryId = COL;
-            COL++;
+            //report.SetHeaderText(ref sheet, ROW, COL, "Employee Category Id", 10, ExcelHAlign.HAlignLeft);
+            //int ColEmployeeCategoryId = COL;
+            //COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "To", 10, ExcelHAlign.HAlignLeft);
             int ColTo = COL;
@@ -320,7 +320,24 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Entity", 25, ExcelHAlign.HAlignLeft);
             int ColEntity = COL;
-        
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 25, ExcelHAlign.HAlignLeft);
+            int ColResidenceGroup = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 25, ExcelHAlign.HAlignLeft);
+            int ColResidenceNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 25, ExcelHAlign.HAlignLeft);
+            int ColBlock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 25, ExcelHAlign.HAlignLeft);
+            int ColResidentType = COL;
+            COL++;
+
             endCol = COL;
             #endregion Headers
 
@@ -334,7 +351,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                sheet[ROW, ColEmployeeCategoryId].Text = data.Rows[i]["EmployeeCategoryId"].ToString();
+                //sheet[ROW, ColEmployeeCategoryId].Text = data.Rows[i]["EmployeeCategoryId"].ToString();
                 sheet[ROW, ColTo].Text = data.Rows[i]["To"].ToString();
                 sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
                 sheet[ROW, ColEmployeeCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
@@ -346,9 +363,14 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+
+                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
+                sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
+                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
                
-                sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
                 ROW++;
             }
