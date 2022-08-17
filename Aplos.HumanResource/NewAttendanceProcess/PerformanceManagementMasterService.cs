@@ -1870,10 +1870,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             {
                 //Master Table - PMSMaster
                 string TableName = "dbo.ResidenceAllocatedEmployees";
-                DataSet dsMaster;
+                DataSet dsMaster=null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id =''", out dsMaster, false, "1");
+              
 
                 string _Id = "";
 
@@ -1885,19 +1885,23 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 int count = 0;
                 foreach (var item in EmployeeList)
                 {
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["EmployeeSystemId"] + "'", out dsMaster, false, "1");
                     count++;
                     DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
+                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
 
                     if (dv.Count == 0)
                     {
                         item["Id"] = _Id + "-" + count;
                         item["Date"] = DateTime.Now;
+                        item["isOccupied"] = 1;
                         AddNewRow(dsMaster.Tables[0], item);
                     }
                     else
                     {
                         DataRow drmo = dv[0].Row;
+                        item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                        item["isOccupied"] = 1;
                         EditRow(drmo, item);
                     }
                 }
