@@ -602,7 +602,9 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
+                conC.executeQuery("delete from RouteScheduleTransport where RouteScheduleId ='" + id + "'");
                 conC.executeQuery("delete from RouteSchedule where Id ='" + id + "'");
+
                 conC.CommitTransaction();
 
                 return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
