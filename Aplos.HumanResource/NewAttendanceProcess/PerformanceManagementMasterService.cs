@@ -1526,6 +1526,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 {
                     throw new Exception("Please SelectResidenceGroup Id!!");
                 }
+                // Unique User Validation
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where ResidenceNumber='" + data["ResidenceNumber"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //    throw new Exception("Same Code already exists!!!");
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
 
