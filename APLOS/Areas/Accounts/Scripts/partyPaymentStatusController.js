@@ -179,8 +179,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
     }
 
     $scope.GetInvoiceList = function () {
-        $scope.FromDateValidation();
-        $scope.ToDatevalidation();
+        //$scope.FromDateValidation();
+        //$scope.ToDatevalidation();
         if (!$scope.invalidFromDate && !$scope.invalidDocDate) {
             try {
                 
@@ -189,7 +189,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                     url: $scope.path + "GetPartyPaymentStatusInvoiceList",
                     data: {
                         fromDate: "",
-                        toDate: ""
+                        toDate: $scope.material.VendorToDate
                     },
                     dataType: 'JSON'
 
@@ -281,7 +281,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusReport",
-                    data: { 'MasterLCList': NewMasterLCList },
+                    data: {
+                        'MasterLCList': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
@@ -324,7 +328,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusAgingReport",
-                    data: { 'parameters': NewMasterLCList },
+                    data: {
+                        'parameters': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {

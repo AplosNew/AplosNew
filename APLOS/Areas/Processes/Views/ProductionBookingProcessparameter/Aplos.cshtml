@@ -125,7 +125,7 @@
                                                 <input type="checkbox" ng-model="ModelProcessPara.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
                                                 <span class="cr"><i class="cr-icon"></i></span>
                                             </label>
-                                            <label class="control-label">Value in Percentage</label>
+                                            <label class="control-label">Percentage</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-4">
@@ -347,7 +347,7 @@
 
                             <div class="common-btn">
                                 <ul class="list-inline text-right">
-                                    <li><button ng-click="SaveQuality();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityAction}}</button></li>
+                                    <li><button ng-click="SaveQuality();" ng-disabled="masterId==null" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{QualityAction}}</button></li>
                                     <li><button ng-click="ClearQuality();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                                 </ul>
                             </div>
@@ -413,7 +413,16 @@
                                 <input type="text" name="Sandard Name" ng-model="ModelQualityParaNew.SandardName" class="form-control" required tabindex="3" maxlength="50">
                             </div>
                         </div>
-
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Grade<sup>*</sup></label>
+                            <div class="col-sm-8 show-message" style="padding-right:-1px;">
+                                <div class="select-style">
+                                    <select class="form-control" ng-model="ModelQualityParaNew.ParameterGrade" placeholder="Grade" name="ProductionGrade" ng-options="item.Value as item.Text for item in gradeList" required>
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label"></label>
                             <div class="col-sm-8">
@@ -437,7 +446,7 @@
                                         <input type="checkbox" ng-model="ModelQualityParaNew.ValueinPercentage" ng-change="setCheckedValue('ValueinPercentage')">
                                         <span class="cr"><i class="cr-icon"></i></span>
                                     </label>
-                                    <label class="control-label">Value in Percentage</label>
+                                    <label class="control-label">Percentage</label>
                                 </div>
                             </div>
                             <div class="col-sm-4">
@@ -473,6 +482,12 @@
                                         <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Grade Lot No<sup>*</sup></label>
+                            <div class="col-sm-8">
+                                <input type="text" name="Grade Lot No" ng-model="ModelQualityParaNew.GradeLot" class="form-control" tabindex="5" maxlength="20">
                             </div>
                         </div>
                         <div class="form-group">
@@ -607,6 +622,8 @@
                             <div e-column e-field="Sequence" e-headertext="Sequence" e-width="2"></div>
                             <div e-column e-field="SandardName" e-headertext="Standard Name" e-width="5"></div>
                             <div e-column e-field="UserName" e-headertext="User Name" e-width="5"></div>
+                            <div e-column e-field="GradeLot" e-headertext="Grade Lot No" e-width="5"></div>
+                            <div e-column e-field="ParameterGrade" e-headertext="Grade" e-width="5"></div>
                             <div e-column e-field="Formula" e-headertext="Formula" e-width="5"></div>
                             <div e-column e-field="Active" e-headertext="Active" e-width="2"></div>
                             <div e-column e-headertext="Actions" e-template="#ShowQPActionButtons" e-width="3"></div>

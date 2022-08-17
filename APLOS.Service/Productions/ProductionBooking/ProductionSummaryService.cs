@@ -454,7 +454,21 @@ namespace Library.Service.Productions
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='"+ CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
-
+        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string CompanyId)
+        {
+            var sql = @"SELECT CONVERT(bit,0) Flag,ppw.Id,wc.Id as WorkCenterMasterId, wc.UserName as WorkCenter,
+                        ppw.ProductionOrderId,ppw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as	ResponsiblePerson,C.EmployeeName as	CheckedBy,
+                        ppw.Quantity,ppw.ProductionGrade as Grade,ppw.Remarks
+                        FROM  SCS.WorkCenterMaster wc
+                        Outer Apply(Select pw.* from TRN.ProductionSummary pw Where pw.ProcessId = '" + ProcessId + @"' 
+                        AND pw.WorkCenterMasterId=wc.Id AND  pw.EntityId='" + entityId + @"') PPW LEFT JOIN EmployeeInformation R ON PPW.ResponsiblePersonId=R.SystemId LEFT JOIN EmployeeInformation M ON PPW.MentorId=M.SystemId LEFT JOIN EmployeeInformation C ON PPW.CheckedBy=C.SystemId
+                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"'
+                        --AND PPW.PlantId='" + plantId + @"' 
+                        --AND wc.CompanyId= '" + CompanyId + @"'
+                        Order by Sequence ";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+        
         public IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid)
         {
             var sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
@@ -1065,6 +1079,7 @@ namespace Library.Service.Productions
                 ProductionSummary entity = base.Find(masterid);
                 _FGInventoryReceiveRepository.ExecuteSqlCommand(@"Delete from TRN.FGInventoryReceive Where ProductionSummaryDetailId IN (Select D.Id from TRN.ProductionSummaryDetail  D 
                 LEFT JOIN TRN.ProductionSummary P ON P.Id=D.ProductionSummaryId Where P.Id='" + masterid + "')");
+                _ProductionOrderProcessSetRepository.ExecuteSqlCommand(@"Delete from dbo.ProductionSummaryParameterValue Where ProductionSummaryId='" + masterid + "'");
                 _psds.DeleteDetail(masterid);
                 base.Delete(entity);
                 _unitOfWork.SaveChanges();

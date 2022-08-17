@@ -58,7 +58,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //summary Report Downloard
         [HttpPost, Authorize]
-        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList)
+        public ActionResult PartyPaymentStatusReport(Dictionary<string, string> MasterLCList, string fromDate, string toDate)
         {
 
             try
@@ -66,7 +66,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
-                var workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(/*excelEngine,*/ MasterLCList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                var workbook = accountsStatusDashboardService.GetPartyPaymentStatusReport(/*excelEngine,*/ MasterLCList,  fromDate,  toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
 
                 string strFileName = "PayableSummary.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Accounts.Controllers
 
         //PartyPaymentStatusAgingReport
         [HttpPost, Authorize]
-        public ActionResult PartyPaymentStatusAgingReport(Dictionary<string, string> parameters)
+        public ActionResult PartyPaymentStatusAgingReport(Dictionary<string, string> parameters, string fromDate, string toDate)
         {
 
             try
@@ -95,7 +95,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 string fileName = "";
-                fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
+                fileName = accountsStatusDashboardService.GetPartyPaymentStatusAgingReport(parameters, fromDate, toDate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "PayableAging");
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
 
             }

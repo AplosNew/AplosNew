@@ -5,6 +5,9 @@ using System.Data;
 using Library.Data.Sql;
 using OTSBD;
 using Library.Service.Enums;
+using Library.Crosscutting.Security;
+using System.Threading;
+using Library.ViewModel.OrderManagements;
 
 namespace Library.OrderManagement.Production
 {
@@ -98,7 +101,7 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId,string ProductionOrderId)
+        public IEnumerable<object> GetItemsData(string entityid, string workCenterMasterId, string productionLevel, string processId, string ProductionOrderId)
         {
             if (productionLevel == ProductionBookingLevel.SalesOrder.ToString())
             {
@@ -210,7 +213,7 @@ namespace Library.OrderManagement.Production
                                 LEFT JOIN [TRN].[ProductionOrderProcessSet] POSP ON POSP.ProductionOrderId = POD.ProductionOrderId
                                 LEFT JOIN [SCS].[WorkCenterMasterProductPriority] WC ON WC.ProductMasterId = PM.Id AND WC.WorkCenterMasterId = '" + workCenterMasterId + @"'
                                 LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
-                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='"+ProductionOrderId+"'";
+                                WHERE PO.EntityId = '" + entityid + @"'	AND PS.UserName = 'Running'	AND POSP.ProcessId = '" + processId + "' AND PO.Id='" + ProductionOrderId + "'";
 
                 return _sqlRepository.GetDataCollection(CmdText);
             }
@@ -412,7 +415,7 @@ namespace Library.OrderManagement.Production
             //                    LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = SO.CustomerPOId
             //                    WHERE PS.UserName = 'Running' AND POSP.ProcessId = '" + processId + "'";
             string wc = string.Empty;
-            if (status== "PROCESS")
+            if (status == "PROCESS")
             {
                 wc = "PS.ProcessId = '" + processId + @"'";
             }
@@ -437,7 +440,7 @@ namespace Library.OrderManagement.Production
 								  LEFT JOIN ProductionOrderSchedulingParametersType1 PQ ON PQ.ProductionOrderID=PO.Id
 								  LEFT JOIN 
 								  (    SELECT SUM(PS.Quantity) TotalProductionQty,PS.ProductionOrderId
-                                       FROM [TRN].[ProductionSummary] PS WHERE " + wc+ @" GROUP BY PS.ProductionOrderId
+                                       FROM [TRN].[ProductionSummary] PS WHERE " + wc + @" GROUP BY PS.ProductionOrderId
                                   ) AS PRS ON PRS.ProductionOrderId = PO.Id
 								   LEFT JOIN 
 								   (select distinct POD.ProductionOrderId,PM.UserName AS Product,pc.UserName AS ProductCategory--,SO.Qty
@@ -528,6 +531,19 @@ namespace Library.OrderManagement.Production
                                                                  trn.SalesOrder XSO 
                                                                  JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
 						                                         LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.Id = XSO.CustomerPOId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                ,Material=STUFF((select distinct ','+MM.UserName from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+                                                                 WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                             ,Article=STUFF((select distinct ','+MMA.StandardName  from 
+                                                                 trn.SalesOrder XSO 
+                                                                 JOIN trn.ProductionOrderDetail AS Xpod ON Xpod.SalesOrderId=Xso.Id
+						                                         LEFT JOIN trn.MasterOrderItem moi ON moi.Id = XSO.MasterOrderItemId
+						                                         LEFT JOIN MST.MaterialMaster mm on mm.id=MOI.MaterialMasterId
+																 LEFT JOIN MST.MaterialMasterArticle AS mma on mma.MaterialMasterId=MM.Id
                                                                  WHERE po.Id=Xpod.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 								   FROM TRN.ProductionOrder PO 
 								   LEFT JOIN [HKP].[ProductionStatus] PS ON PS.Id=PO.ProductionStatusId
@@ -1689,9 +1705,9 @@ namespace Library.OrderManagement.Production
             }
             //if (IsCrossAllowed == false)
             //{
-                if (status == "PROCESS")
-                {
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+            if (status == "PROCESS")
+            {
+                sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                             (
                             SELECT ps.ProductionOrderId,PS.ToWorkCenterMasterId AS WorkCenterMasterId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.ToProcessId ProcessId,PS.SalesOrderId
                             FROM trn.ProductionSummary AS ps
@@ -1703,11 +1719,11 @@ namespace Library.OrderManagement.Production
                             ) AS K ";
 
 
-                }
-                else
-                {
+            }
+            else
+            {
 
-                    sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
+                sql = @"SELECT ISNULL(SUM(InQuantity),0) AS InQuantity,ISNULL(SUM(OutQuantity),0) AS OutQuantity,ISNULL(SUM(KillQuantity),0) AS KillQuantity, WIP=(ISNULL(SUM(InQuantity)-SUM(OutQuantity)-SUM(KillQuantity),0)) FROM
                                (SELECT ps.ProductionOrderId,ps.Quantity AS InQuantity,0 AS OutQuantity,0 AS KillQuantity,PS.FromSFGInventoryId,PS.SalesOrderId
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.ToSFGInventoryId='" + processId + @"' AND PS.ToEntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
@@ -1722,7 +1738,7 @@ namespace Library.OrderManagement.Production
                                FROM trn.ProductionSummary AS ps
                                WHERE ps.FromSFGInventoryId='" + processId + @"' AND PS.EntityId='" + EntityId + @"' AND (ISNULL(ps.SalesOrderId,'')='" + salesOrderId + @"' OR ISNULL(ps.ProductionOrderId,'')='" + productionOrderId + @"') and ps.id<>'" + Id + @"'
                                ) AS K ";
-                }
+            }
             //}
             //else
             //{
@@ -1807,19 +1823,32 @@ namespace Library.OrderManagement.Production
             }
         }
 
-        public IEnumerable<object> GetProcessParaData(string processId, string masterId)
+        public IEnumerable<object> GetProcessParaData(string processId, string masterId, string ProductionOrderId)
         {
             try
             {
                 var sql = "";
-                 sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+                if (masterId != "null")
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
-,P.Id ProductionBookingParameterId
+,P.Id ProductionBookingParameterId,P.IsProduction
 FROM dbo.ProductionBookingParameter P
-LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='"+ masterId + @"'
-WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookingProcessParameter where ProcessId='"+ processId + "') ORDER BY P.Sequence";
-                    return _sqlRepository.GetDataCollection(sql, null);
-               
+LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'" + masterId + @"')='" + masterId + @"'
+WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='" + processId + "') ORDER BY P.Sequence";
+                }
+                else
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN PD.Value IS NOT NULL THEN PD.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id ProductionBookingParameterId,P.IsProduction
+FROM dbo.ProductionBookingParameter P
+LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'null')='null'
+LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='" + ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
+WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='" + processId + @"') ORDER BY P.Sequence";
+                }
+                return _sqlRepository.GetDataCollection(sql, null);
+
             }
             catch (Exception ex)
             {
@@ -2455,6 +2484,23 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
 
         #endregion PackingContent
 
+        #region QualityProcessBooking
+        public IEnumerable<object> GetQualityList()
+        {
+            try
+            {
+                string sql = @"Select a.*,P.UserName Process,qp.UserName QualityProcess,csg.[Description],FORMAT(A.ProductionDate,'dd-MMM-yyyy')PD 
+FROM dbo.QuaityProcessBooking A
+LEFT JOIN hkp.Process AS p ON p.Id = A.ProcessId
+LEFT JOIN hkp.QualityProcess AS qp ON qp.Id = A.QualityProcessId 
+LEFT JOIN MST.CompliedShiftGrouping AS csg ON csg.Id = A.ProductionShiftId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public IEnumerable<object> GetQualityProcessCbo(string ProcessId)
         {
@@ -2463,7 +2509,7 @@ WHERE p.ProductionBookingProcessParameterId=(select Id from dbo.ProductionBookin
                 string sql = @"SELECT  P.Id, P.UserName FROM dbo.ProductionQualityProcess AS qp	
 LEFT JOIN [HKP].[QualityProcess] AS P ON P.Id=qp.ProcessId
 LEFT JOIN dbo.ProductionBookingProcessParameter PP ON PP.Id=qp.ProductionBookingProcessParameterId  
-WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
+WHERE qp.[Active]=1 AND pp.ProcessId='" + ProcessId + "'";
                 return _sqlRepository.GetDataCollection(sql, null);
             }
             catch (Exception ex)
@@ -2478,7 +2524,7 @@ WHERE qp.[Active]=1 AND pp.ProcessId='"+ ProcessId + "'";
             {
                 string sql = @"SELECT CONVERT(bit,0) Active,A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
 ,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
-,P.Id QualityProcessParameterId
+,P.Id QualityProcessParameterId,P.GradeLot,P.ParameterGrade
 FROM dbo.QualityProcessParameter P
 LEFT JOIN [dbo].[QuaityProcessBookingParameterValue] A ON A.QualityProcessParameterId=P.Id AND ISNULL(A.QuaityProcessBookingId,'" + masterId + @"')='" + masterId + @"'
 WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where ProcessId='" + processId + "')";
@@ -2490,22 +2536,261 @@ WHERE p.QualityProcessId=(select Id from dbo.ProductionQualityProcess where Proc
             }
         }
 
-        public IEnumerable<object> GetProductionBookingData(string processId, string productionDate)
+        public IEnumerable<object> GetProductionBookingData(string processId, string productionDate, string ProductionShiftId)
         {
-            string sql = @"SELECT CONVERT(bit,0) Flag,PS.Id PrOId,P.UserName Process,PR.Id ProductionOrderId,CSG.Description ShiftName,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod
-,PS.ProductionGrade,PS.LotNumber
+            string sql = @"
+SELECT CONVERT(bit,0) Flag,PS.Id ProductionSummaryId,PR.Id PrOId,PS.Quantity,WM.Code WorkCenterMaster,PBP.UserName BookingPeriod
+,PS.ProductionGrade,PS.LotNumber,MM.UserName MaterialMaster,MMA.StandardName Article,''ProductCode
+,BuyerOrder = REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+								                		,'&amp;','&'), 'amp;', '')
+                                ,OwnOrder =REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrder XMOI 	 
+								                                INNER JOIN  trn.MasterOrderItem MOI ON MOI.MasterOrderId=XMOI.Id	 
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=moi.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+									                	,'&amp;','&'), 'amp;', '')
+							 ,BuyerItem=REPLACE(REPLACE(
+										 STUFF((select distinct ','+XMOI.BuyerReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										                ,'&amp;','&'), 'amp;', '')	                                                
+                              ,OwnItem=REPLACE(REPLACE(
+										STUFF((select distinct ','+XMOI.OwnReferenceNo from 
+																			trn.MasterOrderItem XMOI 	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
+                            ,ProductCode=REPLACE(REPLACE(
+										STUFF((select distinct ','+pl.UserName
+																from dbo.ProductLibrary AS pl
+																INNER JOIN trn.MasterOrderItem XMOI ON XMOI.ProductLibraryId = pl.Id	  
+								                                INNER JOIN trn.SalesOrder AS sox ON sox.MasterOrderItemId=XMOI.Id  
+								                                INNER JOIN trn.ProductionOrderDetail AS podx ON podx.SalesOrderId=sox.Id                                                
+							                                where podx.ProductionOrderId=ps.ProductionOrderId	for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+										,'&amp;','&'), 'amp;', '')	 
 FROM TRN.ProductionSummary AS ps
-LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
 LEFT JOIN TRN.ProductionOrder PR ON PR.Id = ps.ProductionOrderId 
-LEFT JOIN MST.CompliedShiftGrouping CSG ON CSG.Id = ps.ProductionShiftId
 LEFT JOIN SCS.WorkCenterMaster WM ON WM.Id=PS.WorkCenterMasterId
 LEFT JOIN hkp.ProductionBookingPeriod PBP ON PBP.Id=ps.ProductionBookingPeriodId
-WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='"+ productionDate + "'";
+LEFT JOIN MST.MaterialMaster MM ON MM.Id=PS.MaterialMasterId
+LEFT JOIN MST.MaterialMasterArticle MMA ON MMA.MaterialMasterId=MM.Id
+WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDate + "' AND PS.ProductionShiftId='" + ProductionShiftId + "' AND PS.Id NOT IN(SELECT ProductionSummaryId FROM [dbo].[QuaityBookingProductionSummary])";
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public void SaveData(Dictionary<string, object> data, List<Dictionary<string, object>> ProdBookedSaveList, IEnumerable<QuaityProcessBookingParameterValue> ParameterList)
+        {
+
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster, dsProdBooked, dsParameter;
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM dbo.QuaityProcessBooking WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "QuaityProcessBooking", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    data["AddedBy"] = dsMaster.Tables[0].Rows[0]["AddedBy"].ToString();
+                    data["AddedDate"] = dsMaster.Tables[0].Rows[0]["AddedDate"].ToString();
+                    data["AddedFromIP"] = dsMaster.Tables[0].Rows[0]["AddedFromIP"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+
+                Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityBookingProductionSummary] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsProdBooked, false, "1");
+                if (ProdBookedSaveList != null)
+                {
+                    int pbc = 0;
+                    foreach (var item in ProdBookedSaveList)
+                    {
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = Id + "-" + pbc++;
+                            item["QuaityProcessBookingId"] = Id;
+
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                    }
+                }
+
+                int pac = 0;
+                objCon.OpenDataSetThroughAdapter("SELECT * FROM [dbo].[QuaityProcessBookingParameterValue] where  QuaityProcessBookingId='" + data["Id"] + "'", out dsParameter, false, "1");
+
+                if (ParameterList != null)
+                {
+                    DataTable dtValue = new DataTable();
+                    dtValue.TableName = "TempTable";
+                    dtValue.Columns.Add("QualityProcessParameterId");
+                    dtValue.Columns.Add("Amount");
+                    string sFormulaResult = null;
+
+                    DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<QuaityProcessBookingParameterValue>(ParameterList);
+                    for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+                        else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                        {
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                            dtValue.Rows.Add(dtValueRow);
+                        }
+
+                        if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                        {
+                            ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                            sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+
+                            DataRow dtValueRow = dtValue.NewRow();
+
+                            dtValueRow["QualityProcessParameterId"] = dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString().Trim();
+                            dtValueRow["Amount"] = sFormulaResult;
+
+                            dtValue.Rows.Add(dtValueRow);
+
+                            DataView dv = new DataView(dsOpenHead.Tables[0]);
+                            dv.RowFilter = "QualityProcessParameterId='" + dsOpenHead.Tables[0].Rows[i]["QualityProcessParameterId"].ToString() + "'";
+                            if (dv.Count > 0)
+                            {
+                                DataRow drmo = dv[0].Row;
+
+                                drmo.BeginEdit();
+                                drmo["Value"] = sFormulaResult;
+                                drmo.EndEdit();
+
+                            }
+                        }
+                    }
+
+                    List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+
+                    foreach (var item in NewData)
+                    {
+                        DataView dv = new DataView(dsParameter.Tables[0]);
+                        dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                        if (dv.Count == 0)
+                        {
+                            item["Id"] = Id + "-" + pac++;
+                            item["QuaityProcessBookingId"] = Id;
+
+                            AddNewRow(dsParameter.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drmo = dv[0].Row;
+                            EditRow(drmo, item);
+                        }
+                    }
+                }
+
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster, dsProdBooked, dsParameter);
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
+
+        #endregion
+
 
     }
+
 
 }
 

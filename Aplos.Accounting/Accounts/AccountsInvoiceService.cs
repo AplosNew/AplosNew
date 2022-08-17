@@ -400,7 +400,7 @@ namespace Library.Accounting.Accounts
                                     LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=AW.PartyPlantId
                                     LEFT JOIN [SCS].[Currency] AS C ON C.Id=AW.CurrencyId
                                     WHERE AW.Archive=0 AND AW.CompanyGroupId='" + companyGroupId + "' AND AW.CompanyId='" + companyId + @"' 
-                                    AND AW.PlantId='" + plantId + "' AND AW.[SourceType]='" + sourceType + @"' AND IWD.InvoiceId='" + invoiceId + @"'
+                                    AND AW.PlantId='" + plantId + "'  AND IWD.InvoiceId='" + invoiceId + @"'
                                     Group BY AW.InvoiceWriteOffNo, VD.VoucherId, V.VoucherNo, AW.Id, P.Code , P.UserName, AW.PostingDate
 									, AW.DocDate, AW.DocRefNo, C.Code, AW.PartyPlantId, PP.UserName, AW.IsPark, AW.BankJournalId, IWD.MultiplePaymentNo,AW.[SourceType]";
             return _sqlRepository.GetDataCollection(sql);

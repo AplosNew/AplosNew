@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProductionSummaryController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
-function ProductionSummaryController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
+ProductionSummaryWCController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = "Production Booking";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -46,7 +46,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        ProductionGrade: 'A',
+        ProductionGrade: null,
         Quantity: 0,
         UOM: 0,
         MOQty: 0,
@@ -193,15 +193,16 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.wcList = [];
-    $scope.loadWC = function (processid, entityId) {
-        cboService.GetWCProcessCbo(processid, entityId, function (result) {
-            $scope.wcList = result;
-            //if (baseService.arrayLength(result) === 1) {
-            //    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
-            //}
-        });
+    $scope.loadWC = function () {
+        try {
+            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId)
+                .then(function (response) {
+                    $scope.wcList = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
     };
-
     $scope.productionSummaryNew.NewLotNumber = true;
     $scope.ShowLotNum = false;
     $scope.SetNewLotNumber = function () {
@@ -551,7 +552,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.SalesOrderId = null;
-    $scope.ProductionOrderId = null;
+    /*$scope.ProductionOrderId = null;*/
     $scope.ClearMasterPart = function () {
         $scope.ProductionOrderId = $scope.productionSummaryNew.ProductionOrderId;
         $scope.SalesOrderId = $scope.productionSummaryNew.SalesOrderId;
@@ -560,7 +561,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         var workdate = $scope.productionSummaryNew.ProductionDate;
         var shiftid = $scope.productionSummaryNew.ProductionShiftId;
         var wcid = $scope.productionSummaryNew.WorkCenterMasterId;
-        $scope.LotNumber = $scope.productionSummaryNew.LotNumber;
         $scope.productionSummaryNew.Id = null;
         $scope.productionSummaryNew.SalesOrderId = null;
         $scope.productionSummaryNew.ProductionOrderId = null;
@@ -574,6 +574,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.WastageP = null;
         $scope.productionSummaryNew.MasterOrderNo = null;
         $scope.productionSummaryNew.CharCount = null;
+        $scope.productionSummaryNew.ProductionGrade = null;
 
         $scope.productionSummaryNew.Quantity = null;
         $scope.productionSummaryNew.Customer = null;
@@ -589,6 +590,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.CheckedBy = null;
         $scope.productionSummaryNew.CheckedByName = null;
         $scope.productionSummaryNew.Remarks = null;
+        $scope.productionSummaryNew.LotNumber = null;
 
         $scope.productionSummaryNew.BuyerOrder = null;
         $scope.productionSummaryNew.OwnOrder = null;
@@ -597,9 +599,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummaryNew.NewLotNumber = true;
         $scope.ShowLotNum = false;
         $scope.ShowNew = false;
-        $scope.productionSummaryNew.ProductionGrade = 'A';
-        $scope.productionSummaryNew.ProductionOrderId = $scope.ProductionOrderId;
-        $scope.productionSummaryNew.LotNumber = $scope.LotNumber;
     }
 
     $scope.selectLineItem = function (soitem) {
@@ -1272,7 +1271,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         try {
             ValidationMaster();
             $scope.ProcessParaList = [];
-            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id + '&ProductionOrderId=' + $scope.productionSummaryNew.ProductionOrderId)
+            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id)
                 .then(
                     function successCallback(response) {
                         $scope.ProcessParaList = response.data;
@@ -1303,7 +1302,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                             $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
                         }
                     }
-                    if (response.data.NewData[i].IsProduction == true) {
+                    if (response.data.NewData[i].EntryState == "Calculate") {
                         $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
                     }
                 }
@@ -1326,7 +1325,6 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.productionSummary = {};
         $scope.productionSummaryNew = {};
         $scope.productionSummaryNew.Active = true;
-        $scope.productionSummaryNew.ProductionGrade = 'A';
         $scope.productionSummaryNew.ProductionDate = $filter("date")(Date.now(), 'dd-MMM-yyyy');
         $scope.ProdQtyCount = 0;
         $scope.TotalProductionBookingQty = 0;
@@ -1337,4 +1335,5 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         $scope.ProductionSummaryDetail = [];
         $scope.LineGridList = [];
     }
+   
 }

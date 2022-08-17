@@ -63,7 +63,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaskManagementData(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model)
+        public ActionResult GetTaskManagementData(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model, string EmpIds)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 DataTable dtTask = null;
                 if (model["State"] == "EmployeeWise")
                 {
-                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model);
+                    dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model, EmpIds);
                 }
                 else if (model["State"] == "DepartmentWise")
                 {
@@ -93,7 +93,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model)
+        public ActionResult GetTaskManagementReport(Dictionary<string, string> parameters, string fromDate, string todate, Dictionary<string, string> model, string EmpIds)
         {
 
             try
@@ -104,7 +104,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                 if (model["State"] == "EmployeeWise")
                 {
-                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model);
+                    fileName = GetTaskManagementReportXL(parameters, fromDate, todate, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, "Task", model, EmpIds);
                 }
                 else if (model["State"] == "DepartmentWise")
                 {
@@ -127,7 +127,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
         }
 
-        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName, Dictionary<string, string> model)
+        public string GetTaskManagementReportXL(Dictionary<string, string> parameters, string fromDate, string todate, string CompanyGroupId, string CompanyId, string PlantId, string SheetName, Dictionary<string, string> model, string EmpIds)
         {
             clsReport objRpt = null;
             clsReport objRptSR = null;
@@ -179,7 +179,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                 objRptSR = new clsReport(_sqlRepository);
 
                 DataTable dtTask = null;
-                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model);
+                dtTask = tasksService.GetTaskManagementData(fromDate, todate, parameters, model, EmpIds);
                 if (dtTask.Rows.Count == 0)
                 {
                     throw new Exception("No Data Found....");
@@ -355,8 +355,8 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1.Range[xlsRow, iTaskUnread].Number = clsStaticInfo.dbl(dtTask.Rows[i]["UnRead"].ToString());
                     sheet1.Range[xlsRow, iTaskDue].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString());
 
-                    double PerTaskDue = Math.Round((Convert.ToDouble(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100, 2);
-                    sheet1.Range[xlsRow, iPerOfDueTask].Number = Math.Round(PerTaskDue);//formula 
+                    double PerTaskDue = Math.Round((clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) / TotalTaskDue) * 100, 2);
+                    sheet1.Range[xlsRow, iPerOfDueTask].Number = clsStaticInfo.dbl(Math.Round(PerTaskDue));//formula 
                     sheet1.Range[xlsRow, iPerOfDueTask].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                     sheet1.Range[xlsRow, iTaskCompletedOnTime].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString());
@@ -364,7 +364,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
@@ -785,7 +785,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
                     sheet1[xlsRow, iEarlyTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString()) + clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
 
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString())-clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 
@@ -1220,7 +1220,7 @@ namespace Aplos.Areas.TaskManagement.Controllers
 
                     sheet1[xlsRow, iTaskCompletedFP].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString())+ clsStaticInfo.dbl(dtTask.Rows[i]["EarlyTask"].ToString());
 
-                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["TaskDue"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["OnTimeTask"].ToString()) - clsStaticInfo.dbl(dtTask.Rows[i]["LateTask"].ToString());
+                    sheet1[xlsRow, iOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["OverdueTask"].ToString());
 
                     sheet1[xlsRow, iPeriviousPeriodOverdueTask].Number = clsStaticInfo.dbl(dtTask.Rows[i]["PeriviousPeriodOverdueTask"].ToString());
 

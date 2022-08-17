@@ -880,7 +880,7 @@ function loanController(accountService, bankService, cboService, commonMessage, 
         else {
             data.ExchangeAmount = 0;
             data.ExchangeType = null;
-            data.ConversionAmount = Math.abs(data.LoanSetOffAmount * data.ToCurrencyRate).toFixed(2);
+            data.ConversionAmount = Math.abs(data.LoanSetOffAmount / data.ToCurrencyRate).toFixed(2);
         }
         
     };
