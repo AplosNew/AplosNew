@@ -7,7 +7,7 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$scope.products = [];
 	$scope.path = 'Materials/StockRegister/';
 	$scope.path1 = 'Accounts/InventoryPayable/';
-	$scope.exportgriddataUrl = 'GridReports/ExcelExport';
+	$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 	$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
 	$scope.downloadgriddataUrl = 'GridReports/Download';

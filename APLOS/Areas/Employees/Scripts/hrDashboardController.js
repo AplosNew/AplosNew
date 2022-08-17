@@ -18,7 +18,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
 
     $scope.MPOnRoleBudgetList = [];
 
-    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.clickdde = function () {
