@@ -18,7 +18,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
 
     $scope.MPOnRoleBudgetList = [];
 
-    $scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
     $scope.clickdde = function () {
@@ -1934,11 +1934,12 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
     $scope.Print = function () {
         var gridObj = $($scope.dataGrid).data("ejGrid");
         var data = gridObj.model.dataSource();
-        
+        $scope.fileName = 'Employee';
+
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            data: { 'data': data }
+            data: { 'data': data, 'reportFileName': $scope.fileName}
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
                 ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');

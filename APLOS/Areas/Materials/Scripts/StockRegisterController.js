@@ -7,7 +7,7 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$scope.products = [];
 	$scope.path = 'Materials/StockRegister/';
 	$scope.path1 = 'Accounts/InventoryPayable/';
-	$scope.exportgriddataUrl = 'GridReports/ExcelExport';
+	$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 	$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
 	$scope.downloadgriddataUrl = 'GridReports/Download';
@@ -192,15 +192,13 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		var gridObjStockReg = $("#GridStockRegister").data("ejGrid");
 		var dataStockReg = gridObjStockReg.model.dataSource();
 
-		$scope.fileName = 'StockRegisterReport.xlsx';
+		$scope.fileName = 'Stock Register';
 
 		$http({
 			method: 'POST',
 			//url: $scope.path + "StockRegisterReport",
 			url: $scope.exportgriddataUrl,
 			data: {
-			    'ToDate': $scope.report.ToDate,
-			    'FromDate': $scope.report.FromDate,
 				'reportFileName': $scope.fileName,
 				'data': dataStockReg
 			},
@@ -210,8 +208,8 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 				ShowResult(response.data.Message, 'failure');
 			}
 			else {
-				$rootScope.report($scope.downloadgriddataUrl + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-				//$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+				//$rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
+				$window.open($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
 			}
 		}, function errorCallback(response) {
 			ShowResult(response.data.Message, 'failure');
