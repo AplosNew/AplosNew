@@ -1,0 +1,319 @@
+﻿
+<style>
+
+	.loaderr {
+		width: 300px;
+		height: 200px;
+		background-color: #0780BA;
+		color: #fff;
+		padding: 100px;
+		font-size: 25px;
+	}
+
+	.e-grid .e-headercelldiv {
+		font-weight: bold;
+		font-size: 10px;
+		display: block;
+		border: 0 none;
+		height: 29px;
+		line-height: 29px;
+		margin: -7px;
+		padding: 0 .7em;
+		text-align: left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-family: "Arial Narrow";
+	}
+
+	.e-grid .e-rowcell {
+		border-width: 1px 0 0 1px;
+		padding: .7em;
+		line-height: 10px;
+		white-space: nowrap;
+		width: auto;
+		vertical-align: middle;
+	}
+	/*.e-gridheader .e-headercell {
+		background-color: #1c1f32;
+		color: White;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}*/
+	.e-grid.e-wrap .e-columnheader .e-headercelldiv {
+		margin-bottom: 2px;
+		margin-top: 0;
+		font-size: 9px;
+	}
+	/*.e-filterset:before {
+		color: Green;
+	}*/
+
+
+
+
+	e-grid .e-columnheader .wrap .e-headercelldiv {
+		height: Auto;
+	}
+
+	.e-grid .e-excelfilter .e-btncontainer input {
+		padding: .2em .4em .3em;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-clear {
+		padding: 3px;
+	}
+
+	.e-grid.e-dlgcontainer .e-dlgBtns .e-filter {
+		padding: 3px;
+	}
+
+	::-ms-clear {
+		display: none;
+	}
+
+	.e-grid.filtered .e-filteredicon {
+		color: red;
+	}
+</style>
+
+<script>
+
+
+
+	function chkChange(Id, UserName) {
+		debugger;
+		$("#message").text(Id);
+		$("#PartyCode").text(Id);
+		$("#Vendor").val(UserName);
+		$('#partyPopUp').modal('hide');
+		//alert('Session==' + UserName);
+		PartyId = $("#PartyCode").text();
+		//$scope.getPartyPlantList(Id);
+	}
+	function getMasterId(Id) {
+		debugger;
+		$("#masterId").text(Id);
+
+	}
+</script>
+<style>
+	.e-filterset:before {
+		/*content: "";*/
+		color: white;
+	}
+
+	.e-gridheader .e-headercell { /* grid header color and grid row select color*/
+		/*background: #a2f1ff;
+		color: #080076;
+		min-height: 100%;
+		border-bottom-color: #8B4513;*/
+		background-color: #1c1f32;
+		color: White;
+		min-height: 100%;
+		border-bottom-color: #8B4513;
+	}
+
+	element.style {
+		height: 20px;
+		width: 50px;
+	}
+</style>
+<div id="Test">
+
+
+
+
+
+
+	<h3 class="site-heading"><span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> Material Stock Ledger</h3>
+    <div class="form-elements form-horizontal" ng-form="from0">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            @*<div class="form-group" show-errors id="div_GL">
+                <label class="col-sm-3 control-label">GL<sup>*</sup></label>
+                <div class="col-sm-9 show-message">
+                    <div class="input-group">
+                        <div class="select-style">
+                            <select name="Fiscal Year" class="form-control searchableDDL" ng-change="getBudgetMasterCboList(report.GLGeneralInfoId);" ng-model="report.GLGeneralInfoId" required>
+                                <option ng-repeat="option in glList" value="{{option.GLGeneralInfoId}}">{{option.GLGeneralInfoCode}} - {{option.GLGeneralInfoName}}</option>
+                            </select>
+                        </div>
+                        <span class="input-group-btn">
+                            <button ng-click="GetCOAICodeList();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Budget</label>
+                <div class="col-sm-9">
+                    <div class="select-style">
+                        <select name="Budget" class="form-control searchableDDL" ng-model="report.BudgetMasterId" ng-change="getBudgetMasterActivityCbo(report.BudgetMasterId)">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in budgetList" value="{{option.BudgetMasterId}}">{{option.BudgetName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Activity</label>
+                <div class="col-sm-9">
+                    <div class="select-style">
+                        <select name="Activity" class="form-control searchableDDL" ng-model="report.ActivityId">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in activityList" value="{{option.ActivityId}}">{{option.ActivityName}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border">Select Options</legend>
+                <div class="clearfix"></div>
+                <div class="form-group" show-errors id="div_FromDate">
+                    <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                    <div class="col-sm-9 show-message">
+                        <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">  @*ng-disabled="productNew.AsOnDate==='AsOnDate'"*@
+                    </div>
+                </div>
+                <div class="form-group" show-errors id="div_ToDate">
+                    <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
+                    <div class="col-sm-9  show-message">
+                        <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                    </div>
+                </div>
+                @*<div class="form-group" show-errors>
+                    <label class="col-sm-3 control-label">Format<sup>*</sup></label>
+                    <div class="col-sm-9 radio">
+                        <label>
+                            <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Pdf.ToString()">
+                            <span class="cr" tabindex="1"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Pdf.ToString()
+                        </label>
+                        <label>
+                            <input type="radio" name="source" ng-model="report.ReportFormat" value="@Library.Model.Enums.ReportFormat.Excel.ToString()">
+                            <span class="cr" tabindex="2"><i class="cr-icon"></i></span>@Library.Model.Enums.ReportFormat.Excel.ToString()
+                        </label>
+                    </div>
+                </div>*@
+            </fieldset>
+        </div>
+        <!--<div class="common-btn">
+        <ul class="list-inline text-left">
+            <li><button ng-click="getReport();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+
+            <li> <button id="go2" class="btn" ng-click="MaterialLedgerReportPdf();"><i class="glyphicon glyphicon-download"></i> Export To Pdf</button></li>
+            <li> <button id="go3" class="btn" ng-click="MaterialLedgerReportExcel();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>-->
+        @*<li> <button id="go1" class="btn" ng-click="Print();"><i class="glyphicon glyphicon-download"></i> Export To Excel</button></li>*@
+        <!--</ul>
+    </div>-->
+    <div class="common-btn">
+        <ul class="list-inline text-left">
+            <li>
+                <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialLedgerReportPdf('Pdf');" e-width="width">
+                    <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Pdf</button>
+                </div>
+            </li>
+
+            <li>
+                <div ej-tooltip e-showshadow="true" e-content="All active orders with individual line items" ng-click="MaterialLedgerReportExcel('Excel');" e-width="width">
+                    <button class="btn"><i class="glyphicon glyphicon-file"></i>Export To Excel</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+            <div class="clearfix"></div>
+            <fieldset class="scheduler-border">
+                <legend class="scheduler-border"><span style="color:maroon;font-weight:bold;">Search Data</span></legend>
+
+
+                <div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="GriddataMaterialLedger"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected" e-allowscrolling="true" e-showstackedheader="true">
+                        <div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
+                                    <div e-stackedheadercolumn e-headertext="Opening Balance" e-column="OpeningBalance,OpeningBalanceUnitPrice,OpeningBalanceAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Receipt For The Day" e-column="ReceivedForTheDay,ReceivedForTheDayUnitPrice,ReceivedForTheDayAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Receipt For The Day Period" e-column="ReceivedForThePeriod,ReceivedForThePeriodUnitPrice,ReceivedForThePeriodAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Issue For The Day " e-column="IssueForTheDay,IssueForTheDayUnitPrice,IssueForTheDayAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Issue For The Day Period" e-column="IssueForThePeriod,IssueForThePeriodUnitPrice,IssueForThePeriodAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Closing Balance" e-column="Closing,ClosingUnitPrice,ClosingAmount" textAlign='Center'></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div e-columns>
+                            <div e-column e-field="MaterialType" e-headertext="Material Type" e-width="220"></div>
+                            <div e-column e-field="MaterialGroupMasterName" e-headertext="Material Group" e-width="180"></div>
+                            <div e-column e-field="MaterialMasterName" e-headertext="Material" e-width="180"></div>
+                            <div e-column e-field="ArticleName" e-headertext="Article" e-width="180"></div>
+                            <div e-column e-field="FirstCharacteristicsValue" e-headertext="SKU1" e-width="80"></div>
+                            <div e-column e-field="SecondCharacteristicsValue" e-headertext="SKU2" e-width="80"></div>
+                            <div e-column e-field="ThirdCharacteristicsValue" e-headertext="SKU3" e-width="80"></div>
+
+                            <div e-column e-field="OpeningBalance" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="OpeningBalanceUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="OpeningBalanceAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="ReceivedForTheDay" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="ReceivedForTheDayUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="ReceivedForTheDayAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="ReceivedForThePeriod" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="ReceivedForThePeriodUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="ReceivedForThePeriodAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="IssueForTheDay" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="IssueForTheDayUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="IssueForTheDayAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="IssueForThePeriod" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="IssueForThePeriodUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="IssueForThePeriodAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="Closing" e-headertext="Qty" e-width="120" textAlign='Right'></div>
+                            <div e-column e-field="ClosingUnitPrice" e-headertext="Unit" e-width="120" textAlign='Right'></div>
+
+
+                            <div e-column e-field="ClosingAmount" e-headertext="Amount" e-width="120" textAlign='Right'></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                @*<div class="content-container-fluid" style="color:black;">
+                    <div style="color:black;" id="GridPO" ej-grid e-datasource="GriddataMaterialLedger" ng-init="chkinit()"
+                         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="true" e-allowscrolling="true" e-rowdatabound="rowDataBound" e-showstackedheader="true">
+                        <div e-stackedheaderrows>
+                            <div e-stackedheaderrow>
+                                <div e-stackedheadercolumns>
+                                    <div e-stackedheadercolumn e-headertext="Receipts" e-column="RcvDate,Id,RcvQty,RcvRate,RcvAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Issue " e-column="IssueDate,IssueNo,IssueQtyRate,IssueAmount" textAlign='Center'></div>
+                                    <div e-stackedheadercolumn e-headertext="Stock Balance" e-column="BalanceQty,BalanceRate,BalanceAmount" textAlign='Center'></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div e-columns>
+                            <div e-column e-field="RcvDate" e-headertext="Date" e-width="80"></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="100"></div>
+                            <div e-column e-field="RcvQty" e-headertext="Qty" e-width="80"></div>
+                            <div e-column e-field="RcvRate" e-headertext="Rate" e-width="100"></div>
+                            <div e-column e-field="RcvAmount" e-headertext="Amount" e-width="100"></div>
+                            <div e-column e-field="IssueDate" e-headertext="Date" e-width="100"></div>
+
+
+                            <div e-column e-field="IssueNo" e-headertext="Issue No" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="IssueQty" e-headertext="Qty" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="Rate" e-headertext="Rate" e-width="120" textAlign='Right'></div>
+
+                            <div e-column e-field="IssueAmount" e-headertext="Amount" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="BalanceQty" e-headertext="Qty" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="BalanceRate" e-headertext="Rate" e-width="100" textAlign='Right'></div>
+                            <div e-column e-field="BalanceAmount" e-headertext="Amount" e-width="100" textAlign='Right'></div>
+                        </div>
+                    </div>
+                </div>*@
+            </fieldset>
+        </div>
+    </div>
+@Html.Partial("~/Areas/Accounts/Views/GLItem/_GLBudgetPopUp.cshtml")

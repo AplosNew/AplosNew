@@ -736,6 +736,7 @@
     <Compile Include="Areas\Administration\AdministrationAreaRegistration.cs" />
     <Compile Include="Areas\Leave\Controllers\LeaveYearDefinationController.cs" />
     <Compile Include="Areas\Materials\Controllers\DetentionMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\StockRegisterController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinAllocationController.cs" />
     <Compile Include="Areas\Materials\Controllers\StorageBinMasterController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
@@ -2136,6 +2137,7 @@
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
+    <Content Include="Areas\Materials\Scripts\StockRegisterController.js" />
     <Content Include="Areas\Materials\Scripts\StorageBinAllocationController.js" />
     <Content Include="Areas\Materials\Scripts\StorageBinMasterController.js" />
     <Content Include="Areas\Materials\Scripts\UtilityTransactionReportController.js" />
@@ -4245,6 +4247,20 @@
     <Content Include="Areas\Accounts\Views\_MultipleMasterOrderPopUp.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionSummary\AplosWC.cshtml" />
     <Content Include="Areas\HumanResource\Views\FiveSZoneMaster\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\Aplos.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialConsumption.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialIssueReport.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialMasterStock.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialReceiptsReport.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\Materialstationeryrequest.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialStockBalance.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\MaterialStoreLedger.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\PhysicalInventory.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\PurchaseOrderRegister.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\StockRegister.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\PurchaseReturnRegister.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\ServiceAcktRegister.cshtml" />
+    <Content Include="Areas\Materials\Views\StockRegister\ServicePORegister.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

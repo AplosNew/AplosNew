@@ -1,5 +1,6 @@
 ﻿using Library.Model.Enums;
 using Syncfusion.XlsIO;
+using System.Data;
 
 namespace Library.Service.Advances
 {
@@ -20,5 +21,6 @@ namespace Library.Service.Advances
 
         IWorkbook GetInterTransactionReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId, SourceType sourceType);
         IWorkbook GetInterTransactionVoucherReport(out string reportFileName, string companyGroupId, string companyId, string plantId, string plantName, string voucherId);
+        string VendorAdvanceReport(string companyGroupId, string companyId, string plantId, SourceType sourceType, string SheetName);
     }
 }
