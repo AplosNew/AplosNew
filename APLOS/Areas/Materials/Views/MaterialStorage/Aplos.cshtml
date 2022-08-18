@@ -84,6 +84,15 @@
                     <textarea maxlength="250" class="form-control" rows="3" ng-model="buyerStyleNew.Remarks" tabindex="8"></textarea>
                 </div>
             </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Responsible ManPower</label>
+                <div class="col-sm-6">
+                    <input type="text" name="Responsible ManPower" ng-model="buyerStyleNew.ResponsibleManPower" class="form-control" maxlength="150" tabindex="10" ng-disabled="true"/>
+                </div>
+                <div class="col-sm-2">
+                    <button ng-click="ResponsibleManPowerPopUp()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+            </div>
         </div>
         <div class="common-btn">
             <ul class="list-inline text-right">
