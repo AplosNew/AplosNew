@@ -149,7 +149,6 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
             "value": "Currency"
         }
     ];
-
     baseService.init("Commercial/AutoLoan/GetAutoLoanList", null, null, "DESC", "PostingDate DESC, VoucherNo", "VoucherNo");
     $scope.getData = function (pageno) {
         baseService.pagination(pageno)

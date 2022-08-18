@@ -148,7 +148,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
                 }
             }
         }
-        $scope.fileName = 'ResidenceStatusAllocation.xlsx';
+        $scope.fileName = 'Residence Status Allocation.xlsx';
         $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
         $http({

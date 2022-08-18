@@ -87,7 +87,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
                         ,TransactionUoM=CASE WHEN b.POUoMId IS NULL THEN uom.UserName ELSE Tuom.UserName END 
 						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
-						,mm.BaseUOMId,Isnull(b.Rate,0) TransactionRate,Isnull(b.Rate,0) TransactionRateBOQ
+						,mm.BaseUOMId,Isnull(OPC.Rate,0) TransactionRate,Isnull(OPC.Rate,0) TransactionRateBOQ
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
@@ -138,6 +138,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
+                        LEFT JOIN CostingBOQItems CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId
+						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
 						where " + tempsql + @"

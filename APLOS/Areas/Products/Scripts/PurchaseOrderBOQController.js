@@ -719,6 +719,19 @@ function purchaseOrderBOQController(accountService, addressService, $window, cbo
             ShowResult('Please select Vendor', 'failure');
             return true;
         }
+        if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === false && $scope.productNew.CheckedBy==null) {
+            ShowResult('Please select Checked By', 'failure');
+            return true;
+        }
+        else if ($scope.CheckedByStatusForNoti === false && $scope.ApprovedByStatusForNoti === true && $scope.productNew.CheckedBy == null) {
+            ShowResult('Please select Approved By', 'failure');
+            return true;
+        }
+        else if ($scope.CheckedByStatusForNoti === true && $scope.ApprovedByStatusForNoti === true && $scope.productNew.CheckedBy == null) {
+            ShowResult('Please select Checked By', 'failure');
+            return true;
+        }
+       
         //if (baseService.isUndefinedOrNull($scope.productNew.DeliveryDate)) {
         //    ShowResult('Please Input DeliveryDate', 'failure');
         //    return true;
