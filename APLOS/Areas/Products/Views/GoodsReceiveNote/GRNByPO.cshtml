@@ -246,7 +246,7 @@
         </div>
     </div>
     <div class="modal fade site-modal in" id="POPopUp" role="dialog" data-backdrop="static">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modellgModify">
             <div class="modal-content">
                 <div class="modal-header">Approved PO List<button type="button" class="close" ng-click="POPopUpClose();">&times;</button></div>
                 <div class="modal-body form-elements form-horizontal">
@@ -282,6 +282,8 @@
                                     <div e-column e-field="OpeningBank" e-headertext="OpeningBank" e-width="80"></div>
                                     <div e-column e-field="AcceptanceId" e-headertext="Acceptance No" e-width="150"></div>
                                     <div e-column e-field="TransactionQty" e-headertext="Qty" e-width="100"></div>
+                                    <div e-column e-field="ToleranceQty" e-headertext="ToleranceQty" e-width="100"></div>
+                                    <div e-column e-field="GRNQty" e-headertext="GRNQty" e-width="100"></div>
                                     <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
                                     <div e-column e-field="TransactionAmount" e-headertext="Amount" e-width="100" format="{0:N2}"></div>
                                     <div e-column e-field="BaseAmount" e-headertext="T.Amount" e-width="100" format="{0:N2}"></div>
@@ -979,6 +981,7 @@
                                 <th colspan="2" ng-show="GriddataSelected.length===0">POQty</th>
                                 <th colspan="2" ng-show="GriddataSelected.length>0">POQty</th>
                                 <th colspan="2" ng-show="GriddataSelected.length===0">AcceptanceQty</th>
+                                <th  ng-show="GriddataSelected.length>0">ToleranceQty</th>
 
                                 <th ng-show="GriddataSelected.length>0">Other GRN Received</th>
                                 <th ng-show="GriddataSelected.length===0">Other Acceptance Received</th>
@@ -1037,6 +1040,7 @@
 
                                 <th colspan="2" ng-show="GriddataSelected.length>0">PO Qty</th>
                                 <th colspan="2" ng-show="GriddataSelected.length===0">Acceptance Qty</th>
+                                <th  ng-show="GriddataSelected.length>0">ToleranceQty</th>
                                 <th>OtherGRNReceived</th>
                                 <th>CurrentReceived</th>
                                 <th>Balance</th>
@@ -1094,6 +1098,7 @@
 
                                 <td><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" style="width:100px;" ng-model="x.POQty" ng-disabled="true"></td>
                                 <td class="text-right">{{x.TransactionUoM}}</td>
+                                <td><input type="text" n-decimals="2" class="form-control text-right"  style="width:100px;" ng-model="x.ToleranceQty" ng-disabled="true"></td>
 
                                 <td class="text-right" ng-hide="false"><input type="text" n-decimals="2" class="form-control text-right" ng-keyup="calculateAmount(x);" width="200" ng-model="x.GRNRcvQty" ng-disabled="true"></td>
                                
@@ -1179,6 +1184,7 @@
                                 <td ng-show="GriddataSelected.length===0"></td>
                                 <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'POQty' }}</strong></td>
                                 <td></td>
+                                <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'ToleranceQty' }}</strong></td>
 
                                 <td class="text-right" ng-hide="false"><strong>{{inventoryMaterialListPO | sumByKey : 'GRNRcvQty' }}</strong></td>
                                 <td class="text-right"><strong>{{inventoryMaterialListPO | sumByKey : 'TransactionQty' }}</strong></td>
