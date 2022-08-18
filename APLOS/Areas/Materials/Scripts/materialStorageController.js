@@ -264,7 +264,8 @@ function materialStorageController(cboService, commonMessage, $scope, $rootScope
         $scope.popUpParameters.searchBy = 'Code';
         $scope.popUpUrl = 'Materials/MaterialStorage/getbudgetcodelist';
         baseService.setCurrentPage('dataList');
-            $rootScope.parameters.plantId = $scope.buyerStyleNew.PlantId;
+        $rootScope.parameters.plantId = $scope.buyerStyleNew.PlantId;
+
         $scope.getPopUpData = function (pageno) {
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
                 .then(function (result) {
