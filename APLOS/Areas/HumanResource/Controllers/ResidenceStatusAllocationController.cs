@@ -286,11 +286,11 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColAvailable = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 20, ExcelHAlign.HAlignLeft);
             int ColEmployeeCategory = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Given/Legal Designation", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Given/Legal Designation", 25, ExcelHAlign.HAlignLeft);
             int ColDesignation = COL;
             COL++;
 
@@ -306,15 +306,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColSkill = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 18, ExcelHAlign.HAlignLeft);
             int ColSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 18, ExcelHAlign.HAlignLeft);
             int ColSubSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 25, ExcelHAlign.HAlignLeft);
             int ColDepartment = COL;
             COL++;
 
