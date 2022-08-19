@@ -179,7 +179,7 @@ namespace Library.Service.Productions
 												where p.Id= '" + id + @"'                                                
 									) psd on psd.SalesOrderId=so.id and psd.MaterialMasterId=moi.MaterialMasterId and psd.ArticleId=moi.ArticleId
 									AND psd.FCharId=fc.Id 
-                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='"+soid+"')";
+                                     WHERE so.id=(Select SalesOrderId from TRN.ProductionOrderDetail Where ProductionOrderId='" + soid + "')";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
             catch (Exception ex)
@@ -451,24 +451,24 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId)
         {
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='"+ CompanyId + "' Order by Sequence";
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
-        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string CompanyId)
+        public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId)
         {
-            var sql = @"SELECT CONVERT(bit,0) Flag,ppw.Id,wc.Id as WorkCenterMasterId, wc.UserName as WorkCenter,
-                        ppw.ProductionOrderId,ppw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as	ResponsiblePerson,C.EmployeeName as	CheckedBy,
-                        ppw.Quantity,ppw.ProductionGrade as Grade,ppw.Remarks
-                        FROM  SCS.WorkCenterMaster wc
-                        Outer Apply(Select pw.* from TRN.ProductionSummary pw Where pw.ProcessId = '" + ProcessId + @"' 
-                        AND pw.WorkCenterMasterId=wc.Id AND  pw.EntityId='" + entityId + @"') PPW LEFT JOIN EmployeeInformation R ON PPW.ResponsiblePersonId=R.SystemId LEFT JOIN EmployeeInformation M ON PPW.MentorId=M.SystemId LEFT JOIN EmployeeInformation C ON PPW.CheckedBy=C.SystemId
-                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"'
-                        --AND PPW.PlantId='" + plantId + @"' 
-                        --AND wc.CompanyId= '" + CompanyId + @"'
-                        Order by Sequence ";
+            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
+                        pw.ProductionOrderId,pw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as ResponsiblePerson,
+                        C.EmployeeName as CheckedByName,pw.Quantity,pw.ProductionGrade,pw.Remarks
+                        FROM  SCS.WorkCenterMaster wc 
+                        LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
+                        AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"'                   
+                        LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
+                        LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
+                        LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
+                        where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' ";
             return _sqlRepository.GetDataCollection(sql);
         }
-        
+
         public IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid)
         {
             var sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
@@ -478,7 +478,7 @@ namespace Library.Service.Productions
 
         public IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid)
         {
-           
+
             string sql = @"SELECT C.Id, C.UserName FROM [TRN].[FirstCharacteristics] FC
                             LEFT JOIN hkp.CharacteristicsValue C ON C.Id=FC.CharacteristicsValueId 
                             LEFT JOIN TRN.ProductionOrderDetail PD ON PD.SalesOrderId=FC.SalesOrderId
@@ -727,7 +727,6 @@ namespace Library.Service.Productions
             parameters.order = "X.StartTime";
             return _sqlRepository.GetGridData(parameters).Source;
         }
-
         public void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
         {
             var flag = false;
@@ -739,7 +738,7 @@ namespace Library.Service.Productions
                 if (ob_fromDB == null)
                 {
                     ps.Id = "P" + GetPK();
-                   
+
 
                     ps.ModelState = ModelState.Added;
                     AuditService.AddedLog(ps);
@@ -763,7 +762,7 @@ namespace Library.Service.Productions
                     }
 
 
-                    
+
                     base.Insert(ps);
                 }
                 else
@@ -813,7 +812,100 @@ namespace Library.Service.Productions
         }
 
 
-     
+        public void SaveMasterWC(List<Dictionary<string, object>> DataList)
+        {
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsProdBooked;
+            string TableName = "TRN.ProductionSummary";
+            string contId = string.Empty;
+            string _Id, Id = string.Empty;
+            try
+            {
+                objCon = new ConnectionManager.DAL.ConManager("1");
+
+
+                if (DataList != null)
+                {
+                    foreach (var item in DataList)
+                    {
+                        objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
+                        DataView dv = new DataView(dsProdBooked.Tables[0]);
+
+                        if (dv.Count == 0)
+                        {
+                            //bplib.clsGenID genid = new bplib.clsGenID();
+                            //genid.GenID(TableName, out _Id);
+                            //item["Id"] = "P" + _Id;
+                            item["Id"] = "P" + GetPK();
+                            AddNewRow(dsProdBooked.Tables[0], item);
+                        }
+                        else
+                        {
+                            DataRow drpb = dv[0].Row;
+                            EditRow(drpb, item);
+                        }
+                        clsStaticInfo obj = new clsStaticInfo();
+                        obj.SaveDataSets(dsProdBooked);
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            DataRow dr = dt.NewRow();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+
+
+            dr["AddedBy"] = identity.Name;
+            dr["AddedDate"] = System.DateTime.Now.ToString();
+            dr["AddedFromIP"] = identity.IPAddress;
+
+            dt.Rows.Add(dr);
+        }
+        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            dr.BeginEdit();
+
+            foreach (var item in sourceData.Keys)
+            {
+                try
+                {
+                    dr[item] = sourceData[item];
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+
+            dr["UpdatedBy"] = identity.Name;
+            dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            dr["UpdatedFromIP"] = identity.IPAddress;
+
+            dr.EndEdit();
+        }
+
         public void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId)
         {
             var flag = false;
@@ -915,7 +1007,7 @@ namespace Library.Service.Productions
                 if (!string.IsNullOrEmpty(ps.ProcessId))
                 {
                     var productionOrderProcessSet = _ProductionOrderProcessSetRepository.Query(r => r.ProductionOrderId == ps.ProductionOrderId && r.ProcessId == ps.ProcessId).Select().FirstOrDefault();
-                    if (productionOrderProcessSet==null)
+                    if (productionOrderProcessSet == null)
                     {
                         throw new CustomException("Production Order ProcessSet not define.");
                     }
@@ -925,7 +1017,7 @@ namespace Library.Service.Productions
                         AuditService.UpdatedLog(productionOrderProcessSet);
                         _ProductionOrderProcessSetRepository.Update(productionOrderProcessSet);
                     }
-                    
+
                 }
 
                 _unitOfWork.SaveChanges();

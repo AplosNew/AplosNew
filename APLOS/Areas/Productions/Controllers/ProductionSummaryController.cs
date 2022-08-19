@@ -109,10 +109,10 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCboNew(string processid, string entityId)
+        public JsonResult GetWCProcessCboNew(string processid, string entityId,string productionDate,string shiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCboWC(identity.PlantId, processid, entityId, productionDate, shiftId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
@@ -347,6 +347,13 @@ namespace Aplos.Areas.Productions.Controllers
                 SaveMasterOrderItemCostingRateData(ProcessParaList, ps.Id);
             }
             return Json(new { ProductionSummary = ps, Message = AplosMessage.Success });
+        }
+        [HttpPost]
+        public JsonResult CreateWC(List<Dictionary<string, object>> DataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _ProductionSummaryService.SaveMasterWC(DataList);
+            return Json(new { Message = AplosMessage.Success });
         }
 
         private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
