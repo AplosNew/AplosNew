@@ -281,7 +281,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusReport",
-                    data: { 'MasterLCList': NewMasterLCList },
+                    data: {
+                        'MasterLCList': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {
@@ -324,7 +328,11 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 $http({
                     method: 'POST',
                     url: $scope.path + "PartyPaymentStatusAgingReport",
-                    data: { 'parameters': NewMasterLCList },
+                    data: {
+                        'parameters': NewMasterLCList,
+                        'fromDate': "",
+                        'toDate': $scope.material.VendorToDate
+                    },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error == false) {

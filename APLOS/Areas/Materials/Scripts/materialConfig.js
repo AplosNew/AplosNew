@@ -276,4 +276,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/StorageBinAllocation/Aplos',
             controller: 'StorageBinAllocationController'
         })
+        .when('/stock-register', {
+            templateUrl: 'materials/StockRegister/StockRegister',
+            controller: 'StockRegisterController'
+        })
 };

@@ -4991,7 +4991,7 @@ where h.HeadCategory='GROSS'
                 dtPlantWishSetting = _sqlRepository.GetDataTable(@"SELECT * FROM PlantWiseHRMSSetting WHERE  PlantID = '" + plantId + @"'");
                 if (dtPlantWishSetting.Rows.Count == 0)
                 {
-                    throw new Exception("Platn wise HRMS Setting is Missing.");
+                    throw new Exception("Plant wise HRMS Setting is Missing.");
                 }
                 if (withAttendance)
                 {
