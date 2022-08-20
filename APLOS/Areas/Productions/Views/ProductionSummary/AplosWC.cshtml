@@ -146,7 +146,7 @@
 <div>
     <div class="col-xs-12">
         <div id="ProductionSummaryWC" ej-grid style="z-index:3;"
-             e-templaterefresh="ActiveEmpcbxD"
+             e-templaterefresh="refreshTemplateProductionSummaryWC"
              e-datasource="wcList"
              e-rowdatabound="onactivedatabound"
              e-allowfiltering="true"
@@ -158,65 +158,75 @@
              e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryWC" e-template="#checkboxTemplateProductionSummaryWC" e-textalign="center" e-width="30"></div>
-                <div e-column e-field="Id" e-headertext="Id" e-width="50" e-isprimarykey="true" e-visible="true"></div>
+                <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="true"></div>
                 <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="100"></div>
-                <div e-column e-template="#ProductionOrderId" e-headertext="Production Order" e-width="100"></div>
+                <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200"></div>
+                <div e-column e-template="#ProductionOrderId" e-headertext="Production Order" e-width="200"></div>
                 <div e-column e-template="#LotNumber" e-headertext="Lot Number" e-width="100"></div>
                 <div e-column e-template="#Mentor" e-headertext="Mentor" e-width="200"></div>
                 <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="200"></div>
                 <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-width="200"></div>
-                <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="100"></div>
-                <div e-column e-template="#Grade" e-headertext="Grade" e-width="80"></div>
+                <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="200"></div>
+                <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
                 <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
             </div>
         </div>
         <script type="text/template" id="checkboxTemplateProductionSummaryWC">
-            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.IsSelectSlrProc" />
+            <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Flag" />
         </script>
         <script type="text/x-jsrender" id="headerTemplateProductionSummaryWC">
-            <input type="checkbox" id="Desigcbxhead" />
+            <input type="checkbox" id="headchk" />
         </script>
         <script type="text/template" id="ProductionOrderId">
             <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="ProductionOrderId" ng-model="data.ProductionOrderId" ng-click="" class="form-control" maxlength="200">
+                <input type="text" name="ProductionOrderId" ng-model="data.ProductionOrderId" ng-disabled="true" ng-click="" class="form-control" maxlength="200">
             </div>
             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.ProductionOrderId==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.getProductionOrderPopUp();" style="margin: -6px;"></i></button>
+                <button ng-click="$parent.getProductionOrderPopUp(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
             </div>
         </script>
         <script type="text/template" id="Mentor">
             <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="Mentor" ng-model="data.Mentor" class="form-control" readonly>
+                <input type="text" name="Mentor" ng-model="data.Mentor" ng-disabled="true" class="form-control" readonly>
             </div>
             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.Mentor==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.showEmployeeListPopUp('Mentor');" style="margin: -6px;"></i></button>
+                <button ng-click="$parent.showEmployeeListPopUp(this,'Mentor');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
             </div>
         </script>
         <script type="text/template" id="ResponsiblePerson">
             <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" class="form-control" readonly>
+                <input type="text" name="Responsible Person" ng-model="data.ResponsiblePerson" ng-disabled="true" class="form-control" readonly>
             </div>
             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.ResponsiblePerson==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.showEmployeeListPopUp('ResponsiblePerson');" style="margin: -6px;"></i></button>
+                <button ng-click="$parent.showEmployeeListPopUp(this,'ResponsiblePerson');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
             </div>
         </script>
         <script type="text/template" id="CheckedBy">
             <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="Responsible Person" ng-model="data.CheckedBy" class="form-control" readonly>
+                <input type="text" name="Responsible Person" ng-model="data.CheckedByName" ng-disabled="true" class="form-control" readonly>
             </div>
             <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                <button style="color: #f3f3ec;background-color: #1c1f32;height: 20px;" ng-disabled="data.CheckedBy==null" class="btn"><i class="glyphicon glyphicon-list" ng-click="$parent.showEmployeeListPopUp('CheckedBy');" style="margin: -6px;"></i></button>
+                <button ng-click="$parent.showEmployeeListPopUp(this,'CheckedBy');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
             </div>
         </script>
         <script type="text/template" id="LotNumber">
             <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="LotNumbers" ng-model="data.LotNumber" ng-click="" class="form-control" maxlength="200">
+                <input type="text" name="LotNumbers" ng-model="data.LotNumber"  class="form-control" maxlength="200">
             </div>
         </script>
         <script type="text/template" id="Quantity">
-            <div class="col-sm-10" style="padding:0px;">
-                <input type="text" name="Quantity" ng-model="data.Quantity" ng-click="" class="form-control" maxlength="200">
+            <div class="form-group" show-errors ng-show="IsGo===true">
+                <div class="col-sm-10" style="padding:0px;">
+                    @*<input type="text" name="Quantity" ng-model="data.Quantity" ng-disabled="data.IsParameterBased" class="form-control" maxlength="200">*@
+                    <input type="text" class="form-control" ng-disabled="$parent.PQEnable" placeholder="Produced Quantity" ng-model="data.Quantity">
+                </div>
+                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-disabled="$parent.IsParameterBased===false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </script>
         <script type="text/template" id="Remarks">
@@ -224,9 +234,9 @@
                 <input type="text" name="Remark" ng-model="data.Remarks" ng-click="" class="form-control" maxlength="200">
             </div>
         </script>
-        <script type="text/template" id="Grade">
+        <script type="text/template" id="ProductionGrade">
             <div class="select-style">
-                <select class="form-control" ng-model="data.Grade" name="Grade" required
+                <select class="form-control" ng-model="data.ProductionGrade" name="ProductionGrade" required
                         ng-options="item.Value as item.Text for item in $parent.gradeList">
                     <option value="">Select</option>
 
@@ -237,9 +247,9 @@
 
 </div>
 <div class="clearfix"></div>
-<div class="common-btn" ng-show="IsGo===true">
+<div class="common-btn">
     <ul class="list-inline text-right">
-        <li><button ng-click="SaveMaster();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+        <li><button ng-click="SaveMasterWC();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
         <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
 </div>
@@ -873,7 +883,7 @@
                     <ul class="list-inline text-right">
                         <li>
                             <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
-                            <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                            @*<button ng-click="SaveMasterWCParaList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>*@
                         </li>
                     </ul>
                 </div>

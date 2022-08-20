@@ -9,6 +9,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.path = 'Productions/productionSummary/';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlWC = $scope.path + 'createWC';
+    $scope.saveUrlWCParaList = $scope.path + 'createWCParaList';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
     $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
     $scope.updateUrl = $scope.path + 'edit';
@@ -195,7 +197,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.wcList = [];
     $scope.loadWC = function () {
         try {
-            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId)
+            $http.get('Productions/ProductionSummary/GetWCProcessCboNew?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId)
                 .then(function (response) {
                     $scope.wcList = response.data;
                 });
@@ -511,12 +513,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     }
 
     $scope.ProductionOrderList = [];
-    $scope.getProductionOrderPopUp = function () {
-        if (baseService.isUndefinedOrNull($scope.productionSummaryNew.WorkCenterMasterId)) {
+    $scope.getProductionOrderPopUp = function (data) {
+        $scope.NewObject = data.data;
+        if (baseService.isUndefinedOrNull(data.data.WorkCenterMasterId)) {
             return ShowResult('Please Work Center.', 'failure');
         }
         $scope.ProductionOrderList = [];
-        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + $scope.productionSummaryNew.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
+        $http.get('Productions/ProductionSummary/GetProductionOrderDataList?entityid=' + $scope.productionSummaryNew.EntityId + '&workCenterMasterId=' + data.data.WorkCenterMasterId + '&productionLevel=' + $scope.productionSummaryNew.ProductionBookingLevel + '&processId=' + $scope.productionSummaryNew.ProcessId)
             .then(
                 function successCallback(response) {
                     $scope.ProductionOrderList = response.data;
@@ -530,16 +533,11 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     };
 
     $scope.SetPrOData = function ($event) {
-        $scope.productionSummaryNew.ProductionOrderId = $event.data.POId;
-
-        $scope.productionSummaryNew.ProductLibraryId = null;
-        $scope.productionSummaryNew.ProductCode = null;
-        $scope.productionSummaryNew.MasterOrderItemId = null;
-        $scope.productionSummaryNew.SalesOrderId = null;
-
+        $scope.NewObject.ProductionOrderId = $event.data.POId;
+       
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#POItemPopup')).modal('hide');
-        $scope.GetTotalProductionBookingQty();
-        $scope.getLotNumberCbo();
+        
     }
 
     $scope.psdList = [];
@@ -978,8 +976,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         , serverPagination: true
     };
 
-    $scope.showEmployeeListPopUp = function (flag) {
+    $scope.showEmployeeListPopUp = function (data,flag) {
         $scope.respOrMentor = flag;
+        $scope.NewObject = data.data;
         if ($scope.respOrMentor === 'ResponsiblePerson') { $scope.popUpTitle = 'Responsible Person'; }
         else if ($scope.respOrMentor === 'Mentor') { $scope.popUpTitle = 'Mentor'; }
         else if ($scope.respOrMentor === 'CheckedBy') { $scope.popUpTitle = 'CheckedBy'; }
@@ -1011,20 +1010,21 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         if ($scope.employeeIndex !== -1) {
             var employee = $scope.employeeList[$scope.employeeIndex];
             if ($scope.respOrMentor === 'ResponsiblePerson') {
-                $scope.productionSummaryNew.ResponsiblePersonId = employee.SystemId;
-                $scope.productionSummaryNew.ResponsiblePersonName = employee.EmployeeName;
+                $scope.NewObject.ResponsiblePersonId = employee.SystemId;
+                $scope.NewObject.ResponsiblePerson = employee.EmployeeName;
             }
             else if ($scope.respOrMentor === 'Mentor') {
-                $scope.productionSummaryNew.MentorId = employee.SystemId;
-                $scope.productionSummaryNew.MentorName = employee.EmployeeName;
+                $scope.NewObject.MentorId = employee.SystemId;
+                $scope.NewObject.Mentor = employee.EmployeeName;
             }
             else if ($scope.respOrMentor === 'CheckedBy') {
-                $scope.productionSummaryNew.CheckedBy = employee.SystemId;
-                $scope.productionSummaryNew.CheckedByName = employee.EmployeeName;
+                $scope.NewObject.CheckedBy = employee.SystemId;
+                $scope.NewObject.CheckedByName = employee.EmployeeName;
             }
 
         }
         $scope.hideEmployeePopUp();
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
     $scope.ClearEmployee = function () {
@@ -1063,63 +1063,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SaveMaster = function () {
         try {
-            if ($scope.productionSummaryNew.ProductionBookingLevel === 'ProductionOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'SalesOrder') {
-                $scope.productionSummaryNew.MasterOrderItemId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === 'MasterOrderItem') {
-                $scope.productionSummaryNew.SalesOrderId = null;
-                $scope.productionSummaryNew.ProductLibraryId = null;
-            }
-            else {
-                $scope.productionSummaryNew.SalesOrderId = null;
-            }
-
-            if (new Date($scope.productionSummaryNew.ProductionDate) > new Date()) {
-                throw "Future Date not allowed for Production Booking.";
-            }
-            CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            ValidationMaster();
-            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.LotNumber)) {
-                if (/^[ A-Za-z0-9_./-]*$/.test($scope.productionSummaryNew.LotNumber)) {
-                    ///
-                } else {
-                    throw "You have entered an invalid value for Lot Number.";
-                }
-            }
-            $scope.ProdQty = 0;
-
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                for (var i = 0; i < $scope.ProductionSummaryDetail.length; i++) {
-                    if (!baseService.isUndefinedOrNull($scope.ProductionSummaryDetail[i].Qty)) {
-                        $scope.ProdQty = $scope.ProdQty + $scope.ProductionSummaryDetail[i].Qty;
-                    }
-                }
-                $scope.productionSummaryNew.Quantity = $scope.ProdQty;
-            }
-            if ($scope.IsSKU1 || $scope.IsSKU2 || $scope.IsSKU3) {
-                if ($scope.ProdQty === 0) {
-                    throw "SKU Qty is required.";
-                }
-            }
-
-            if ($scope.IsFirst == false) {
-                if (parseFloat($scope.RemainQty) < 0) {
-                    throw "Order Quantity dosen't available.";
-                }
-            }
-
-            if ($scope.IsFirst == false) {
-                if (parseFloat($scope.TotalSalesOrderQty) < parseFloat($scope.TotalProductionBookingQty) + parseFloat($scope.productionSummaryNew.Quantity)) {
-                    throw "Produced Quantity should less than Order Quantity.";
-                }
-            }
-
+            
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -1136,14 +1080,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.getLineGrid();
+                    $scope.loadWC();
                     $scope.Action = 'Save';
-                    $scope.getProdQty();
-                    $scope.closeCharPopUp();
-                    $scope.GetTotalProductionBookingQty();
-                    $scope.ClearMasterPart();
-                    angular.element(document.querySelector('#ProcessParaPopup')).modal('hide');
-
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -1152,7 +1090,73 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             ShowResult(ex, 'Info');
         }
     };
+    $scope.refreshTemplateProductionSummaryWC = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWorkCenter });
+    };
+    function CheckBoxSelectAllWorkCenter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
 
+        var filtered = $("#ProductionSummaryWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                $scope.wcList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.SaveMasterWC = function () {
+        try {
+   
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.wcList.length; i++)
+            {
+                if ($scope.wcList[i].Flag == true)
+                {
+                    $scope.wcList[i].PlantId = $window.plantId;
+                    $scope.wcList[i].EntityId = $scope.productionSummaryNew.EntityId;
+                    $scope.wcList[i].ProcessId = $scope.productionSummaryNew.ProcessId;
+                    $scope.wcList[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
+                    $scope.wcList[i].ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.SaveList.push($scope.wcList[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlWC,
+                data: {
+                        "DataList": $scope.SaveList,
+                      },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.loadWC();
+                    $scope.Action = 'Save';
+                }
+                
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+  
     $scope.charSave = function () {
         try {
 
@@ -1267,11 +1271,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     //search
 
     $scope.ProcessParaList = [];
-    $scope.getProcessParaPopupPoPUp = function () {
+    $scope.getProcessParaPopupPoPUp = function (data) {
+        $scope.NewObject = data.data;
+        var processid = $scope.productionSummaryNew.ProcessId;
+        var entityid = $scope.productionSummaryNew.EntityId;
+        var productiondate = $scope.productionSummaryNew.ProductionDate;
+        var shiftid = $scope.productionSummaryNew.ProductionShiftId;
+        $scope.productionSummaryNew = data.data;
+        $scope.productionSummaryNew.ProcessId = processid;
+        $scope.productionSummaryNew.EntityId = entityid;
+        $scope.productionSummaryNew.ProductionDate = productiondate;
+        $scope.productionSummaryNew.ProductionShiftId = shiftid;
         try {
-            ValidationMaster();
             $scope.ProcessParaList = [];
-            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + $scope.productionSummaryNew.Id)
+            $http.get('Productions/ProductionSummary/GetProcessParaData?processId=' + $scope.productionSummaryNew.ProcessId + '&masterId=' + data.data.Id + '&ProductionOrderId=' + data.data.ProductionOrderId)
                 .then(
                     function successCallback(response) {
                         $scope.ProcessParaList = response.data;
@@ -1289,7 +1302,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.Calculate = function () {
         try {
-            $scope.productionSummaryNew.Quantity = 0;
+            $scope.NewObject.Quantity = 0 ;
             $http({
                 method: 'POST',
                 url: 'Productions/ProductionSummary/Calculate',
@@ -1302,10 +1315,12 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             $scope.ProcessParaList[j].Value = response.data.NewData[i].Value;
                         }
                     }
-                    if (response.data.NewData[i].EntryState == "Calculate") {
-                        $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
+                    if (response.data.NewData[i].IsProduction == true) {
+                        $scope.NewObject.Quantity += response.data.NewData[i].Value;
                     }
                 }
+                $scope.SaveMaster();
+                var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
             });
@@ -1333,7 +1348,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.SetBack(false);
         $scope.IsGo = false;
         $scope.ProductionSummaryDetail = [];
-        $scope.LineGridList = [];
+        $scope.wcList = [];
     }
    
 }
