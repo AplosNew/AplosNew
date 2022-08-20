@@ -282,15 +282,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColTo = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Available", 12, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Available", 10, ExcelHAlign.HAlignLeft);
             int ColAvailable = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 20, ExcelHAlign.HAlignLeft);
             int ColEmployeeCategory = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Given/Legal Designation", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Given/Legal Designation", 25, ExcelHAlign.HAlignLeft);
             int ColDesignation = COL;
             COL++;
 
@@ -306,37 +306,40 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColSkill = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Section", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 18, ExcelHAlign.HAlignLeft);
             int ColSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 18, ExcelHAlign.HAlignLeft);
             int ColSubSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 13, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 25, ExcelHAlign.HAlignLeft);
             int ColDepartment = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 15, ExcelHAlign.HAlignLeft);
             int ColEntity = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 18, ExcelHAlign.HAlignLeft);
             int ColResidenceGroup = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 18, ExcelHAlign.HAlignLeft);
             int ColResidenceNumber = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Block", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 10, ExcelHAlign.HAlignLeft);
             int ColBlock = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 25, ExcelHAlign.HAlignLeft);
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 15, ExcelHAlign.HAlignLeft);
             int ColResidentType = COL;
             COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 18, ExcelHAlign.HAlignLeft);
+            int ColEmployeeStatus = COL;
 
             endCol = COL;
             #endregion Headers
@@ -368,9 +371,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
                 sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
                 sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-               
-                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+
+                sheet.Range[ROW, ColTo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColTo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
                 ROW++;
             }
@@ -438,7 +442,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                             RG.UserName ResidenceGroup,
 							RM.Id ResidenceId,RM.ResidenceNumber,RM.[Block],RM.ResidentType,RM.ResidenceSubCategory,
 							E.UserName Entity
-							,P.PaymentLink Skill
+							,P.PaymentLink Skill,ei.EmployeeStatus
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId

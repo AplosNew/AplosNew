@@ -27,12 +27,12 @@
                 <th>Procurement Level</th>
                 <th>Sourcing Type</th>
 
+                <th>Remarks</th>
                 <th>IsMandatory</th>
                 <th>Predefined Material</th>
                 <th>Material</th>
                 <th>Article</th>
                 <th>Vendor</th>
-                <th>Remarks</th>
                 <th class="text-right">Min. Qty</th>
 
                 <th>BOQ Days</th>
@@ -124,7 +124,9 @@
                         </select>
                     </div>
                 </td>
-
+                <td>
+                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
+                </td>
                 <td>
                     <div class="text-center">
                         <input type="checkbox" ej-checkbox class="nodetext" e-value="x.IsMandatory" e-checked="x.IsMandatory" />
@@ -168,9 +170,7 @@
                         </span>
                     </div>
                 </td>
-                <td>
-                    <input style="min-width:150px;" type="text" ng-model="x.Remarks" class="form-control" />
-                </td>
+
                 <td class="text-right">
                     <input type="number" style="min-width:80px;background-color:{{x.MinimumOfQuantity<0?'red':'white'}}" name="MaterialMasterName" min="0" ng-click="x.MinimumOfQuantity>0?x.MinimumOfQuantity:x.MinimumOfQuantity=''" ng-model="x.MinimumOfQuantity" class="form-control">
                 </td>
