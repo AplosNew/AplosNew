@@ -146,6 +146,7 @@
                     <th>Short Name</th>
                     <th>Standard Name</th>
                     <th>User Name</th>
+                    <th>BudgetCode</th>
                     <th>Active</th>
                 </tr>
             </thead>
@@ -156,6 +157,7 @@
                     <td>{{x.ShortName}}</td>
                     <td>{{x.StandardName}}</td>
                     <td>{{x.UserName}}</td>
+                    <td>{{x.BudgetCode}}</td>
                     <td>{{x.Active? 'Yes':'No'}}</td>
                 </tr>
             </tbody>
@@ -168,82 +170,41 @@
     </div>
 </div>
 
-<modal-table modalid="popUpId"
-             data-title={{popUpTitle}}
-             data-search-parameters="budgetpopUpParameters"
-             data-exclued-column-list="Code"
-             data-field-list="popUpList"
-             data-data-list="popUpDataList"
-             data-search-function="getPopUpData"
-             data-single-click="selectSingleClick(data)"
-             data-double-click="selectDoubleClick(data)"
-             data-right-button="true"
-             data-left-button="true"
-             data-ng-click-left-button="selectByButton()"
-             data-ng-click-cancel="closePopUp()">
-</modal-table>
 
-<div class="modal fade site-modal in" id="LDPopUp" role="dialog" data-backdrop="static">
+<div class="modal site-modal in" id="popUpId" role="dialog" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header"> Legal Designation<button type="button" class="close" data-dismiss="modal">&times;</button></div>
-            <div class="modal-body">
-                <div class="row text-right">
-                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
-                        <div class="search-form">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-3 col-md-3">
-                                    <div class="select-style">
-                                        <select ng-model="popUpParameters.searchBy">
-                                            <option ng-repeat="option in popUpList" value="{{option.Value}}">{{option.Text}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-xs-12 col-sm-7 col-md-7">
-                                    <input type="text" class="form-control" placeholder="Search" ng-model="popUpParameters.search" ng-enter="getPopUpData();">
-                                </div>
-                                <div class="col-xs-12 col-sm-2 col-md-2">
-                                    <button type="button" ng-click="getPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
-                                </div>
-                            </div>
-                        </div>
+            <div class="modal-header">Budget Code Info<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body text-center">
+                <div style="color:black;" id="POItemGrid" ej-grid e-datasource="popUpDataList" e-allowscrolling="true" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                   e-recorddoubleclick="selectDoubleClick"  e-allowResizing="true" e-allowselection="true" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-type="string" e-field="Code" e-headertext="Code" e-width="80"></div>
+                        <div e-column e-type="string" e-field="EntityName" e-headertext="Entity Name" e-width="80"></div>
+                        <div e-column e-type="string" e-field="PositionName" e-headertext="Position Name" e-width="150"></div>
+                        <div e-column e-type="string" e-field="PositionCode" e-headertext="Position Code" e-width="80"></div>
+                        <div e-column e-type="string" e-field="EntityCode" e-headertext="Entity Code" e-width="80"></div>
+                        <div e-column e-type="string" e-field="EmploymentType" e-headertext="Employment Type" e-width="80"></div>
+                        <div e-column e-type="string" e-field="IsOTEntitled" e-headertext="Is O T Entitled" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Deployment" e-headertext="Deployment" e-width="80"></div>
+                        <div e-column e-type="string" e-field="IsDirect" e-headertext="Is Direct" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Plant" e-headertext="Plant" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Division" e-headertext="Division" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SubDivision" e-headertext="Sub Division" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Unit" e-headertext="Unit" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="100"></div>
+                        <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="80"></div>
+                        <div e-column e-type="string" e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+                        <div e-column e-type="string" e-field="Line" e-headertext="Line" e-width="80"></div>
+                        <div e-column e-type="string" e-field="ShiftDefination" e-headertext="Shift Defination" e-width="150"></div>
+                        <div e-column e-type="string" e-field="Designation" e-headertext="Designation" e-width="100"></div>
+
                     </div>
-                </div>
-                <div class="table-responsive modal-table">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-
-                                <th>Sequence</th>
-                                <th>Code</th>
-                                <th>Short Name</th>
-                                <th>Standard Name</th>
-                                <th>User Define Name</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr dir-paginate="x in popUpDataList|itemsPerPage:popUpParameters.pageSize" pagination-id="metaData.name + 'popUpDataList'" total-items="popUpParameters.total_count" ng-dblclick="selectLegalDesignationDoubleClick(x)">
-
-                                <td>{{x.Sequence}}</td>
-                                <td>{{x.Code}}</td>
-                                <td>{{x.ShortName}}</td>
-                                <td>{{x.StandardName}}</td>
-                                <td>{{x.UserName}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <dir-pagination-controls pagination-id="metaData.name + 'popUpDataList'"
-                                             max-size="10"
-                                             direction-links="true"
-                                             boundary-links="true"
-                                             on-page-change="getPopUpData(newPageNumber)">
-                    </dir-pagination-controls>
                 </div>
 
             </div>
         </div>
     </div>
 </div>
-
 
 <confirm-modal></confirm-modal>
