@@ -22976,7 +22976,7 @@ UNION ALL
 									,(sum(isnull(IID.TransactionQty,0))* sum(isnull(IID.PolicyRate,0))) Amount
 									,REPLACE(CONVERT(CHAR(11), II.AddedDate, 106),' ','-') AS IssueDate
 								FROM trn.InventoryIssue II
-									LEFT JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
+									 JOIN trn.InventoryIssueDetail IID ON IID.InventoryIssueId=II.Id
 									--LEFT JOIN trn.InventoryIssueHistory IIH ON IIH.InventoryIssueDetailId=IID.Id
 									LEFT JOIN ORG.CompanyGroup CG ON CG.Id=II.CompanyGroupId
 									LEFT JOIN ORG.Company C ON C.Id=II.CompanyId
