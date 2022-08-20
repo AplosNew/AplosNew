@@ -1844,7 +1844,7 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
 ,P.Id ProductionBookingParameterId,P.IsProduction
 FROM dbo.ProductionBookingParameter P
 LEFT JOIN [dbo].[ProductionSummaryParameterValue] A ON A.ProductionBookingParameterId=P.Id AND ISNULL(A.ProductionSummaryId,'null')='null'
-LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='" + ProductionOrderId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
+LEFT JOIN (SELECT * FROM [dbo].[ProductionSummaryParameterValue] WHERE ProductionSummaryId=(SELECT TOP(1) Id FROM TRN.ProductionSummary WHERE ProductionOrderId='" + ProductionOrderId + @"' AND ProcessId='" + processId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
 WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookingProcessParameter WHERE ProcessId='" + processId + @"') ORDER BY P.Sequence";
                 }
                 return _sqlRepository.GetDataCollection(sql, null);
