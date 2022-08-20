@@ -931,10 +931,11 @@ namespace Library.MaterialManagement.Inventory
                             , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                            , IRD.TransactionQty AS POQty
+                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*IR.Tolerance/100) ToleranceQty
+							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)
                             , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount
@@ -978,7 +979,7 @@ namespace Library.MaterialManagement.Inventory
                         LEFT join [trn].MaterialRequsitionDetails MRD on MRD.Id=IRD.RequisitionDetailId
                         left join scs.country C On C.Id=IRD.CountryId		
 						LEFT JOIN (Select PODetailsId ,Sum(TransactionQty) TransactionQty from trn.InventoryReceiveDetail where " + paramter1 + @" group by PODetailsId) aa ON  aa.PODetailsId=IRD.Id	
-                        WHERE  IRD.QtyStatus=0 and IRD.InventoryMaterialId is not null 	AND " + paramter + @"			
+                        WHERE   IRD.InventoryMaterialId is not null 	AND " + paramter + @"			
 					
 						
                Union ALL
@@ -998,10 +999,11 @@ namespace Library.MaterialManagement.Inventory
                             , IRD.SecondCharacteristicsValueId, SCV.UserName AS SecondCharacteristicsValue
                             , IRD.ThirdCharacteristicsId, TC.UserName AS ThirdCharacteristics
                             , IRD.ThirdCharacteristicsValueId, TCV.UserName AS ThirdCharacteristicsValue
-                            , IRD.TransactionQty AS POQty
+                             , IRD.TransactionQty AS POQty,(IRD.TransactionQty*IR.Tolerance/100) ToleranceQty
+							,TotalPOQty=IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)
                             , ISNULL(GRND.GRNRcvQty,0) AS GRNRcvQty                           
                             , '' AS TransactionQty
-                            , (IRD.TransactionQty-ISNULL(GRND.GRNRcvQty,0)) As Balance
+                            , (IRD.TransactionQty+(IRD.TransactionQty*IR.Tolerance/100)-ISNULL(GRND.GRNRcvQty,0)) As Balance
                             ,ISNULL(IRD.QtyStatus,0) QtyStatus
                             , IRD.TransactionUoMId, TUoM.UserName AS TransactionUoM, IRD.TransactionRate, CU.Code AS CurrencyName, IR.ToCurrencyRate
                             ,IRD.TransactionAmount

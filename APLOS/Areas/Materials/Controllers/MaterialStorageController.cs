@@ -3,6 +3,7 @@ using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
 using Library.Model.Materials;
+using Library.Service.Employees;
 using Library.Service.Materials;
 using System.Threading;
 using System.Web.Mvc;
@@ -14,10 +15,11 @@ namespace Aplos.Areas.Materials.Controllers
         #region -- Constructor
 
         private readonly IMaterialStorageService _storageService;
-
-        public MaterialStorageController(IMaterialStorageService storageService)
+        private readonly IRecruitmentSelectionService _preRecruitmentEmployee;
+        public MaterialStorageController(IMaterialStorageService storageService,IRecruitmentSelectionService preRecruitmentEmployee)
         {
             _storageService = storageService;
+            _preRecruitmentEmployee = preRecruitmentEmployee;
         }
 
         #endregion -- Constructor
@@ -33,6 +35,12 @@ namespace Aplos.Areas.Materials.Controllers
         #endregion Pages
 
         #region -- Operations
+
+        [HttpGet, Authorize]
+        public ActionResult GetBudgetCodeList(GridParameter parameters,string plantId)
+        {
+            return Json(_preRecruitmentEmployee.GetBudgetCodeList(parameters, plantId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetList(GridParameter parameters, string companyId, string plantId)

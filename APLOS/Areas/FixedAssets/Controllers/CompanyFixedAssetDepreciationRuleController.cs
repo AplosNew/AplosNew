@@ -126,6 +126,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                             drCompanyFADepRule["DepreciationRuleId"] = item["DepreciationRuleId"];
                             drCompanyFADepRule["FixedAssetMasterId"] = item["FixedAssetMasterId"];
 
+                            drCompanyFADepRule["Active"] = true;
                             drCompanyFADepRule["AddedBy"] = identity.Name;
                             drCompanyFADepRule["AddedDate"] = DateTime.Now;
                             drCompanyFADepRule["AddedFromIP"] = identity.IPAddress;
@@ -139,6 +140,7 @@ namespace Aplos.Areas.FixedAssets.Controllers
                             dr["DepreciationRuleId"] = item["DepreciationRuleId"];
                             dr["FixedAssetMasterId"] = item["FixedAssetMasterId"];
 
+                            dr["Active"] = true;
                             dr["UpdatedBy"] = identity.Name;
                             dr["UpdatedDate"] = DateTime.Now;
                             dr["UpdatedFromIP"] = identity.IPAddress;
