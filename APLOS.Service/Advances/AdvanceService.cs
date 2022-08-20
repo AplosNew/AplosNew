@@ -370,7 +370,8 @@ namespace Library.Service.Advances
                 Archive = advance.Archive,
                 Narration = advanceDetailVM.Narration,
                 Amount = advanceDetailVM.Amount,
-                NetAmount = advanceDetailVM.Amount
+                NetAmount = advanceDetailVM.Amount,
+                BooksAmount = Math.Round((advanceDetailVM.Amount * advance.CompanyCurrencyRate), 2, MidpointRounding.AwayFromZero)
             };
             if (advanceDetail.PartyType != PartyType.Company.ToString())
             {
