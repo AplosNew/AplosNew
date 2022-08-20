@@ -197,7 +197,13 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             var AllCheckUAEmployeeList = [];
             for (var i = 0; i < $scope.UnassignEmpList.length; i++) {
                 if ($scope.UnassignEmpList[i].CheckBoxSelect == true) {
-                    AllCheckUAEmployeeList.push($scope.UnassignEmpList[i]);
+                    var ob = {};
+                    ob.RouteId = $scope.UArouteEmployee.UARouteUpId;
+                    ob.StoppageId = $scope.UArouteEmployee.UAStopageUpId;
+                    ob.ShiftId = $scope.UArouteEmployee.ShiftId;
+                    ob.EmployeeId=$scope.UnassignEmpList[i].SystemID;
+                    AllCheckUAEmployeeList.push(ob);
+                    ob = {};
                 }
             }
             if (AllCheckUAEmployeeList.length == 0) {
