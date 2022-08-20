@@ -24,6 +24,8 @@ function materialStorageController(cboService, commonMessage, $scope, $rootScope
         UserName: null,
         Description: null,
         Remarks: null,
+        BudgetId: null,
+        BudgetCode: null,
         Active: true
     };
     $scope.buyerStyleNew = Object.assign({}, $scope.buyerStyle);
@@ -95,6 +97,149 @@ function materialStorageController(cboService, commonMessage, $scope, $rootScope
             $rootScope.toggle();
         }
     };
+
+    //#region Responsible ManPower
+
+    $scope.name = null;
+    $scope.popUpList = [];
+    $scope.valueData = '';
+    $scope.budgetpopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Code',
+        searchBy: "Code",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.popUp = function () {
+
+        $scope.popUpDataList = [];
+        $scope.popUpList = [];
+        $scope.popUpParameters.sort = 'Code';
+        $scope.popUpParameters.searchBy = 'Code';
+        $scope.popUpUrl = $scope.path + 'getbudgetcodelist';
+        baseService.setCurrentPage('dataList');
+        $rootScope.parameters.plantId = $scope.buyerStyleNew.PlantId;
+
+        $scope.getPopUpData = function (pageno) {
+            $rootScope.parameters.companyId = $scope.buyerStyleNew.CompanyId;
+            $rootScope.parameters.plantId = $scope.buyerStyleNew.PlantId;
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.budgetpopUpParameters)
+                .then(function (result) {
+                    $scope.popUpDataList = result.Rows;
+                    $scope.budgetpopUpParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.popUpList) === 0) {
+                        baseService.getDDLSearchColumn(result.Rows, $scope.popUpList);
+                    }
+                    //$scope.popUpParameters.sort = 'Code';
+                    //$scope.popUpParameters.searchBy = 'Code';
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#popUpId')).modal('show');
+    };
+
+    $scope.selectDoubleClick = function (data) {
+        $scope.employeeNew.BudgetCode = data.Id;
+        $scope.employeeNew.Code = data.Code;
+
+        $scope.employeeNew.DesignationSystemID = data.DesignationId;
+        $scope.employeeNew.Designation = data.Designation;
+        $scope.employeeNew.PositionName = data.PositionName;
+        $scope.employeeNew.DesignationId = data.DesignationId;
+        $scope.employeeNew.UnitId = data.UnitId;
+        $scope.employeeNew.DivisionId = data.DivisionId;
+        $scope.employeeNew.DepartmentId = data.DepartmentId;
+        $scope.employeeNew.SectionId = data.SectionId;
+        $scope.employeeNew.SubSectionId = data.SubSectionId;
+        $scope.employeeNew.SubdivisionID = data.SubdivisionID;
+        $scope.employeeNew.LineId = data.LineId;
+        $scope.employeeNew.EmploymentType = data.EmploymentType;
+        $scope.employeeNew.PositionID = data.PositionId;
+        $scope.employeeNew.IsDirect = data.IsDirect;
+
+        angular.element(document.querySelector('#popUpId')).modal('hide');
+    };
+
+    $scope.clearCode = function () {
+        $scope.employeeNew.BudgetCode = null;
+        $scope.employeeNew.Code = null;
+        $scope.employeeNew.EntityName = null;
+        $scope.employeeNew.Designation = null;
+        $scope.employeeNew.PositionName = null;
+
+        $scope.employeeNew.DesignationId = null;
+        $scope.employeeNew.UnitId = null;
+        $scope.employeeNew.DivisionId = null;
+        $scope.employeeNew.DepartmentId = null;
+        $scope.employeeNew.SectionId = null;
+        $scope.employeeNew.SubSectionId = null;
+        $scope.employeeNew.SubdivisionID = null;
+        $scope.employeeNew.LineId = null;
+        $scope.employeeNew.EmployeeCodeTypeId = null;
+        $scope.employeeNew.EmploymentType = null;
+        $scope.employeeNew.PositionID = null;
+        $scope.employeeNew.IsDirect = false;
+    };
+
+    //#endregion Responsible ManPower
+
+    $scope.popUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'Sequence',
+        searchBy: "UserName",
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.flg = null;
+    $scope.popUpLD = function (flg) {
+        $scope.flg = flg;
+        $scope.popUpDataList = [];
+        $scope.popUpList = [];
+        $scope.popUpParameters.sort = 'Sequence';
+        $scope.popUpParameters.searchBy = 'UserName';
+        $scope.popUpUrl = 'employees/RecruitmentApproval/GetLegalDesignationCbo?companyGroupId=' + $window.companyGroupId + '&BudgetCode=' + $scope.employeeNew.BudgetCode;
+        baseService.setCurrentPage('dataList');
+        $scope.getPopUpData = function (pageno) {
+            baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
+                .then(function (result) {
+                    $scope.popUpDataList = result.Rows;
+                    $scope.popUpParameters.total_count = result.Total;
+                    if (baseService.arrayLength($scope.popUpList) === 0) {
+                        for (var i = 0; i < $scope.searchByUserList.length; i++) {
+                            $scope.popUpList.push($scope.searchByUserList[i]);
+                        }
+
+                    }
+                    $scope.popUpParameters.sort = 'Sequence';
+                    $scope.popUpParameters.searchBy = 'UserName';
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'popUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#LDPopUp')).modal('show');
+        $scope.getPopUpData();
+
+    };
+
+    $scope.closePopUp = function () {
+        $scope.valueData = '';
+        angular.element(document.querySelector('#popUpId')).modal('hide');
+        angular.element(document.querySelector('#LDPopUp')).modal('hide');
+    };
+
+
     $scope.Save = function () {
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.buyerStyleForm.$valid) {

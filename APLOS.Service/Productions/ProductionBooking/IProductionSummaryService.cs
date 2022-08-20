@@ -34,7 +34,7 @@ namespace Library.Service.Productions
         IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid);
         IEnumerable<object> Query(string plantId);
         IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId);
-        IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string CompanyId);
+        IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId,string productionDate,string shiftId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);
         IEnumerable<object> GetSOItem(string entityid, string workCenterMasterId, string productionLevel, string processId);
@@ -44,6 +44,7 @@ namespace Library.Service.Productions
         IEnumerable<object> GetCharInfoByPrO(string masterid, string workdate, string mmid, string soid, string artid, string CharCount, string CharacteristicsValueId);
         IEnumerable<ComboModel> GetShiftGroupCbo(string plantId);
         void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
+        void SaveMasterWC(List<Dictionary<string, object>> DataList);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveDetail(string psid, IEnumerable<ProductionSummaryDetail> psd);
 
