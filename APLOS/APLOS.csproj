@@ -1070,6 +1070,7 @@
     <Compile Include="Areas\Productions\Controllers\RecipeProductionOrderController.cs" />
     <Compile Include="Areas\Productions\Controllers\InventoryReportController.cs" />
     <Compile Include="Areas\Products\Controllers\InventoryReceiveAdditionController.cs" />
+    <Compile Include="Areas\Productions\Controllers\ProductionReportWithParameterController.cs" />
     <Compile Include="Areas\Products\Controllers\SalesRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\GatePassRegisterController.cs" />
     <Compile Include="Areas\Products\Controllers\InventorySalesReportMarketingController.cs" />
@@ -2501,6 +2502,7 @@
     <Content Include="Areas\Productions\Scripts\recipeGlobalMasterController.js" />
     <Content Include="Areas\Productions\Scripts\recipeMaterialController.js" />
     <Content Include="Areas\Products\Scripts\assetInventoryIssueController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionReportWithParameterController.js" />
     <Content Include="Areas\Products\Scripts\salesRegisterController.js" />
     <Content Include="Areas\Products\Scripts\GatePassPotalController.js" />
     <Content Include="Areas\Products\Scripts\GatePassRegisterController.js" />
@@ -4319,6 +4321,7 @@
     <Content Include="Areas\Securities\Views\LIC\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\SalesRegister\SalesRegister.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionReportWithParameter\Aplos.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />
