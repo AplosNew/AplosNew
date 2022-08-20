@@ -140,7 +140,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
-        [HttpPost]
+        [Authorize, HttpPost]
         public JsonResult SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
         {
 
@@ -322,6 +322,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEntity = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Id", 25, ExcelHAlign.HAlignLeft);
+            int ColEntityResidenceId = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 25, ExcelHAlign.HAlignLeft);
             int ColResidenceGroup = COL;
             COL++;
@@ -336,7 +340,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 25, ExcelHAlign.HAlignLeft);
             int ColResidentType = COL;
-            COL++;
+            
 
             endCol = COL;
             #endregion Headers
@@ -364,18 +368,19 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
 
+                sheet[ROW, ColEntityResidenceId].Text = data.Rows[i]["ResidenceId"].ToString();
                 sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
                 sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
                 sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
                 sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-               
-                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-                //sheet.Range[ROW, ColEmployeeCategoryId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[ROW, ColTo, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.Range[ROW, ColTo, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
                 ROW++;
             }
 
-            //ROW++;
+            ROW++;
 
             //if (FromDate != "" && ToDate != "")
             //{
