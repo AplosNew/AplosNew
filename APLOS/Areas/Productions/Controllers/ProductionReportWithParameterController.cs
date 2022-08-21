@@ -31,7 +31,7 @@ using Aplos.MaterialManagement;
 
 #endregion using
 
-namespace Aplos.Areas.Materials.Controllers
+namespace Aplos.Areas.Productions.Controllers
 {
 	public class ProductionReportWithParameterController : BaseController
 	{
@@ -86,7 +86,7 @@ namespace Aplos.Areas.Materials.Controllers
 
 		#region Pages
 
-		public ActionResult StockRegister()
+		public ActionResult Aplos()
 		{
 			return View();
 		}
@@ -113,12 +113,12 @@ namespace Aplos.Areas.Materials.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public ActionResult StockRegisterData(string PlantId, string ToDate, string FromDate)
+		public ActionResult StockRegisterData(string ToDate, string FromDate, string EntityId, string ShiftId, string ProcessId)
 		{
 			try
 			{
 				var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-				List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate));
+				List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(FromDate, ToDate, EntityId, ShiftId, ProcessId));
 				var jsondata = Json(new { NewData, Message = AplosMessage.Success });
 				jsondata.MaxJsonLength = int.MaxValue;
 				return jsondata;
@@ -129,105 +129,26 @@ namespace Aplos.Areas.Materials.Controllers
 			}
 		}
 
-		public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate)
+		public DataTable GetStockRegisterData(string FromDate, string ToDate,string EntityId,string ShiftId,string ProcessId)
 		{
 			try
 			{
-				var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
-							,IsRegular =case when MM.IsRegular=1 then 'Yes' else 'No' end
-							,MT.UserName MaterialType
-						,MGM.UserName AS MaterialGroupMasterName
-						,IM.MaterialMasterId
-						,MM.UserName MaterialMasterName
-						,ART.StandardName ArticleName, ISNULL(FCV.UserName,'') AS SKU1
-						,ISNULL(SCV.UserName,'') AS SKU2
-						,ISNULL(TCV.UserName,'') AS SKU3 
-						,IR.Id As GRNId,IRD.Id As GrnDetailId,   REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
-						,IRD.TransactionQty
-						,TUoM.UserName AS UOM
-						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
-						,IRD.BaseQty-IRD.IssueQty BalanceStock
-						,DATEDIFF(day, IR.GRNDate,GETDATE()) AS 'StockInDays'
-                        ,IsAsset=CASE WHEN IRD.IsAsset=0 then 'No' else 'Yes' END
-						,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
-                        ,p.UserName AS PartyName
-						,EI.EmployeeName FirstName						   
-						,IR.GateEntryNo
-						,IR.DocRefNo
-						,IR.AddedBy
-                        ,CASE  WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  AND IR.AuthorizedByStatus = 'Approved' Then 'Approved'
-								WHEN IR.CheckedBy is not null And IR.CheckedByStatus = 'ForChecked' AND IR.AuthorizedBy is null And IR.AuthorizedByStatus is null Then 'To be Checked'										
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Checked' AND IR.AuthorizedBy is NOT null  Then 'To be approved'
-								WHEN IR.CheckedBy is not null ANd IR.CheckedByStatus = 'Hold' Then 'Checking Hold'
-								WHEN IR.CheckedBy is not null AND IR.CheckedByStatus = 'Rejected' Then 'Checking Rejected'
-                                WHEN IR.CheckedBy is not null ANd IR.AuthorizedByStatus = 'Hold' Then 'Approving Hold'
-								WHEN IR.CheckedBy is not null AND IR.AuthorizedByStatus = 'Rejected' Then 'Approving Rejected'	 
-								END GRNCheckStatus
-                        ,EI1.EmployeeName CheckedBY
-						,EI2.EmployeeName AuthorizedBy
-						,MRM.Id RequsitionNo,REPLACE(CONVERT(CHAR(11), MRM.RequisitionDate, 106),' ','-') AS  RequisitionDate,MRD.TransactionQty RequisitionQty
-						,EMRM.EmployeeName RequisitionAddedBy
-						,EMRM1.EmployeeName ReqCheckBy
-						,EMRM2.EmployeeName ReqApproveBy
-					from TRN.InventoryMaterial AS IM
-					JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
-					LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
-					LEFT JOIN MST.MaterialMasterArticle AS ART ON IM.ArticleId=ART.Id
-					LEFT JOIN HKP.Characteristics AS FC ON IM.FirstCharacteristicsId=FC.Id
-					LEFT JOIN HKP.Characteristics AS SC ON IM.SecondCharacteristicsId=SC.Id
-					LEFT JOIN HKP.Characteristics AS TC ON IM.ThirdCharacteristicsId=TC.Id
-					LEFT JOIN HKP.CharacteristicsValue AS FCV ON IM.FirstCharacteristicsValueId=FCV.Id
-					LEFT JOIN HKP.CharacteristicsValue AS SCV ON IM.SecondCharacteristicsValueId=SCV.Id
-					LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
-					LEFT jOIN [TRN].[InventoryReceiveDetail] AS IRD ON IRD.InventoryMaterialId=IM.Id --and ird.InventoryReceiveId='1987'
-					LEFT jOIN [TRN].[InventoryReceive] AS IR ON IR.Id=IRD.InventoryReceiveId
-					LEFT JOIN [TRN].[PurchaseOrderDetail] AS PID on PID.Id=IRD.PODetailsId 
-					LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON IRD.TransactionUoMId=TUoM.Id	
-					LEFT JOIN [SCS].[UnitOfMeasurement] AS BUoM ON IRD.BaseUOMId=BUoM.Id
-					left JOIN org.Company AS co  ON co.Id=ir.CompanyId
-					left JOIN [SCS].[Currency] AS CU ON Co.BaseCurrencyId=CU.Id
-					LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id				
-					LEFT JOIN HKP.Party AS P ON P.Id=IR.PartyId
-					LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND CP.PartyType='Vendor' AND cp.PlantId=IR.PlantId
-					LEFT JOIN HKP.PartyAccountGroup PAG ON PAG.Id=CP.PartyAccountGroupId AND PAG.AccountType='Vendor' 
-					LEFT JOIN HKP.PartyCategory PC on PC.Id=P.PartyCategoryId
-					LEFT JOIN HKP.PartySubCategory PSC on PSC.Id=P.PartySubCategoryId
-					LEFT JOIN HKP.PartyGroup PG on PG.Id=P.PartyGroupId
-					LEFT JOIN HKP.PartyPlant AS PP ON PP.Id=IR.InvoicingPartyPlantId  
-					LEFT JOIN HKP.PartyPlant AS PPD ON PPD.Id=IR.DeliveryPartyPlantId
-					LEFT JOIN EmployeeInformation EI ON EI.SystemId=IR.EmployeeId
-                    LEFT JOIN hkp.MaterialStorage AS MS ON MS.Id=IR.MaterialStorageId
-					LEFT JOIN EmployeeInformation EI1 ON EI1.SystemId=IR.CheckedBy
-					LEFT JOIN EmployeeInformation EI2 ON EI2.SystemId=IR.AuthorizedBy
-                    LEFT JOIN trn.Invoice as I ON I.InventoryReceiveId=IR.Id					
-					LEFT JOIN trn.Voucher V on V.Id=I.VoucherId
-                    LEFT JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
-					LEFT JOIN trn.Voucher V1 on V1.Id=ep.VoucherId
-					LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo	
-					left join trn.PurchaseOrderDetail pod on pod.Id=IRD.PODetailsId
-					LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.Id=pod.RequisitionDetailId
-					LEFT JOIN TRN.MaterialRequsitionMaster MRM ON MRM.Id=MRD.MaterialReqqusitionMasterId
-					LEFT JOIN EmployeeInformation EMRM ON EMRM.SystemId=MRM.AddedBy
-					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
-					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
-					WHERE  IR.PlantId='202034' AND convert(Date,IR.GRNDate) BETWEEN  '01-Jul-2022' AND '14-Aug-2022'
-						AND IR.GRNType IN('GRNBYPO') and (IRD.BaseQty-IRD.IssueQty)>0 and MRM.Id<>''
-						) x";
+				var str = @"SELECT e2.UserName Entity,P.UserName Process,PSQ.Sequence ProcessSequence,FORMAT(PS.ProductionDate,'dd-MMM-yyyy')ProductionDate
+										,CSG.[Description] [Shift],WCM.UserName WorkCenterMaster,PS.ProductionOrderId,PS.LotNumber,E.EmployeeName ResponsiblePerson,E.EmployeeName Mentor
+										,PS.Remarks,'' MaterialMaster,''Article,''BuyerRefrence,''Productcode,PS.AddedBy,FORMAT(PS.AddedDate,'dd-MMM-yyyy')AddedDate,PS.UpdatedBy,FORMAT(PS.UpdatedDate,'dd-MMM-yyyy')UpdateDate
+										FROM [TRN].[ProductionSummary] PS
+										LEFT JOIN ORG.Entity AS e2 ON e2.Id = PS.EntityId
+										LEFT JOIN HKP.Process P ON P.Id=PS.ProcessId
+										LEFT JOIN [dbo].[ProcessAndInventorySequence] PSQ ON PSQ.ProcessId = P.Id
+										LEFT JOIN EmployeeInformation E ON E.SystemId=PS.ResponsiblePersonId
+										LEFT JOIN EmployeeInformation M ON M.SystemId=PS.MentorId
+										LEFT JOIN SCS.WorkCenterMaster WCM ON WCM.Id=PS.WorkCenterMasterId
+										LEFT JOIN MST.CompliedShiftGrouping AS csg ON CSG.Id=PS.ProductionShiftId
+										Where
+										PS.EntityId='"+ EntityId +@"' and
+										
+										PS.ProductionDate between '" + FromDate + "' AND '"+ ToDate + "'";
 				return _sqlRepository.GetDataTable(str);
-
-				//if (isreport)
-				//{
-
-				//    var newsql = "select * from(" + str + ") y where y.GRNNo in (" + GRNNo + @")";
-				//    return _sqlRepository.GetDataTable(newsql);
-
-				//}
-				//else
-				//{
-				//    str += "";
-				//    return _sqlRepository.GetDataTable(str);
-				//}
-
 
 			}
 			catch (Exception e)
@@ -281,110 +202,106 @@ namespace Aplos.Areas.Materials.Controllers
 
 			#region Grid Headers
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Name", 25, ExcelHAlign.HAlignLeft);
-			int ColPartyName = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Entity", 25, ExcelHAlign.HAlignLeft);
+			int ColEntity = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Invoicing Party Plant", 18, ExcelHAlign.HAlignLeft);
-			int ColInvoicingPartyPlant = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Process", 18, ExcelHAlign.HAlignLeft);
+			int ColProcess = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Delivery Party Plant", 18, ExcelHAlign.HAlignLeft);
-			int ColDeliveryPartyPlant = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Process sequence", 18, ExcelHAlign.HAlignLeft);
+			int ColProcessSequence = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Code", 13, ExcelHAlign.HAlignLeft);
-			int ColPartyCode = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Date", 13, ExcelHAlign.HAlignLeft);
+			int ColDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Tax ID", 15, ExcelHAlign.HAlignLeft);
-			int ColTaxID = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Shift", 15, ExcelHAlign.HAlignLeft);
+			int ColShift = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Employee", 18, ExcelHAlign.HAlignLeft);
-			int ColEmployee = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Work Center", 18, ExcelHAlign.HAlignLeft);
+			int ColWorkCenter = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRNNo", 10, ExcelHAlign.HAlignLeft);
-			int ColGRNNo = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Po No.", 10, ExcelHAlign.HAlignLeft);
+			int ColPoNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "GRN Date", 10, ExcelHAlign.HAlignLeft);
-			int ColGRNEntryDate = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Lot No.", 10, ExcelHAlign.HAlignLeft);
+			int ColLotNo = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Voucher No", 12, ExcelHAlign.HAlignLeft);
-			int ColVoucherNo = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Production Work Station", 12, ExcelHAlign.HAlignLeft);
+			int ColProductionWorkStation = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Posting Date", 12, ExcelHAlign.HAlignLeft);
-			int ColPostingDate = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Responsible Person", 12, ExcelHAlign.HAlignLeft);
+			int ColResponsiblePerson = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref No", 10, ExcelHAlign.HAlignLeft);
-			int ColDocRefNo = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Mentor", 10, ExcelHAlign.HAlignLeft);
+			int ColMentor = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Doc Ref Date", 11, ExcelHAlign.HAlignLeft);
-			int ColDocRefDate = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Production", 11, ExcelHAlign.HAlignLeft);
+			int ColProduction = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Grn Doc Date Difference", 20, ExcelHAlign.HAlignLeft);
-			int ColGrnDocDateDifference = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 1", 20, ExcelHAlign.HAlignLeft);
+			int ColPeramiter1 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Gate Entry No", 12, ExcelHAlign.HAlignLeft);
-			int ColGateEntryNo = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 2", 12, ExcelHAlign.HAlignLeft);
+			int ColPeramiter2 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Gate Name", 13, ExcelHAlign.HAlignLeft);
-			int ColGateName = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 3", 13, ExcelHAlign.HAlignLeft);
+			int ColPeramiter3 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Currency", 12, ExcelHAlign.HAlignLeft);
-			int ColBaseCurrency = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 4", 12, ExcelHAlign.HAlignLeft);
+			int ColPeramiter4 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Base Amount", 13, ExcelHAlign.HAlignRight);
+			report.SetHeaderText(ref sheet, ROW, COL, "Remarks", 13, ExcelHAlign.HAlignRight);
 			//sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-			int ColMaterialTranAmount = COL;
+			int ColRemarks = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Tax Amount", 15, ExcelHAlign.HAlignRight);
-			int ColTotalTaxAmount = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Material Master", 15, ExcelHAlign.HAlignRight);
+			int ColMaterialMaster = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Total Base Amount", 16, ExcelHAlign.HAlignRight);
-			int ColTotalMaterialBaseAmount = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Article", 16, ExcelHAlign.HAlignRight);
+			int ColArticle = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Payment", 13, ExcelHAlign.HAlignRight);
-			int ColPayment = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Buyer Refrence", 13, ExcelHAlign.HAlignRight);
+			int ColBuyerRefrence = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Balance", 13, ExcelHAlign.HAlignRight);
-			int ColBalance = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Product Code", 13, ExcelHAlign.HAlignRight);
+			int ColProductCode = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Group", 10, ExcelHAlign.HAlignRight);
-			int ColPartyGroup = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Add By", 10, ExcelHAlign.HAlignRight);
+			int ColAddBy = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Category", 13, ExcelHAlign.HAlignRight);
-			int ColPartyCategory = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Add Date", 13, ExcelHAlign.HAlignRight);
+			int ColAddDate = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party SubCategory", 16, ExcelHAlign.HAlignRight);
-			int ColPartySubCategory = COL;
+			report.SetHeaderText(ref sheet, ROW, COL, "Updated By", 16, ExcelHAlign.HAlignRight);
+			int ColUpdatedBy = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Type", 10, ExcelHAlign.HAlignRight);
-			int ColPartyType = COL;
-			COL++;
-
-			report.SetHeaderText(ref sheet, ROW, COL, "Party Account Group", 18, ExcelHAlign.HAlignLeft);
-			int ColPartyAccountGroup = COL;
-
+			report.SetHeaderText(ref sheet, ROW, COL, "Updated Time", 10, ExcelHAlign.HAlignRight);
+			int ColUpdatedTime = COL;
+			
 			endCol = COL;
 			#endregion Headers
 
@@ -398,76 +315,75 @@ namespace Aplos.Areas.Materials.Controllers
 
 			for (int i = 0; i < data.Rows.Count; i++)
 			{
-				sheet[ROW, ColPartyName].Text = data.Rows[i]["PartyName"].ToString();
-				sheet[ROW, ColInvoicingPartyPlant].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
-				sheet[ROW, ColDeliveryPartyPlant].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
-				sheet[ROW, ColPartyCode].Text = data.Rows[i]["PartyCode"].ToString();
-				sheet[ROW, ColTaxID].Text = data.Rows[i]["GSTINNo"].ToString();
-				sheet[ROW, ColEmployee].Text = data.Rows[i]["Employee"].ToString();
-				sheet[ROW, ColGRNNo].Text = data.Rows[i]["GRNNo"].ToString();
-				sheet[ROW, ColGRNEntryDate].Text = data.Rows[i]["GRNEntryDate"].ToString();
-				sheet[ROW, ColVoucherNo].Text = data.Rows[i]["VoucherNo"].ToString();
-				sheet[ROW, ColPostingDate].Text = data.Rows[i]["PostingDate"].ToString();
-				sheet[ROW, ColDocRefNo].Text = data.Rows[i]["DocRefNo"].ToString();
-				sheet[ROW, ColDocRefDate].Text = data.Rows[i]["DocRefDate"].ToString();
-				sheet[ROW, ColGrnDocDateDifference].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
-				sheet[ROW, ColGateEntryNo].Text = data.Rows[i]["GateEntryNo"].ToString();
-				sheet[ROW, ColGateName].Text = data.Rows[i]["GateName"].ToString();
-				sheet[ROW, ColBaseCurrency].Text = data.Rows[i]["CurrencyName"].ToString();
-				sheet[ROW, ColMaterialTranAmount].Number = clsStaticInfo.dbl(data.Rows[i]["MaterialTranAmount"].ToString());
-				sheet[ROW, ColTotalTaxAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalTaxAmount"].ToString());
-				sheet[ROW, ColTotalMaterialBaseAmount].Number = clsStaticInfo.dbl(data.Rows[i]["TotalMaterialBaseAmount"].ToString());
-				sheet[ROW, ColPayment].Number = clsStaticInfo.dbl(data.Rows[i]["Payment"].ToString());
-				sheet[ROW, ColBalance].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
-				sheet[ROW, ColPartyGroup].Text = data.Rows[i]["PartyGroup"].ToString();
-				sheet[ROW, ColPartyCategory].Text = data.Rows[i]["PartyCategory"].ToString();
-				sheet[ROW, ColPartySubCategory].Text = data.Rows[i]["PartySubCategory"].ToString();
-				sheet[ROW, ColPartyType].Text = data.Rows[i]["PartyType"].ToString();
-				sheet[ROW, ColPartyAccountGroup].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				sheet[ROW, ColEntity].Text = data.Rows[i]["PartyName"].ToString();
+				sheet[ROW, ColProcess].Text = data.Rows[i]["InvoicingPartyPlant"].ToString();
+				sheet[ROW, ColProcessSequence].Text = data.Rows[i]["DeliveryPartyPlant"].ToString();
+				sheet[ROW, ColDate].Text = data.Rows[i]["PartyCode"].ToString();
+				sheet[ROW, ColShift].Text = data.Rows[i]["GSTINNo"].ToString();
+				sheet[ROW, ColWorkCenter].Text = data.Rows[i]["Employee"].ToString();
+				sheet[ROW, ColPoNo].Text = data.Rows[i]["GRNNo"].ToString();
+				sheet[ROW, ColLotNo].Text = data.Rows[i]["GRNEntryDate"].ToString();
+				sheet[ROW, ColProductionWorkStation].Text = data.Rows[i]["VoucherNo"].ToString();
+				sheet[ROW, ColResponsiblePerson].Text = data.Rows[i]["PostingDate"].ToString();
+				sheet[ROW, ColMentor].Text = data.Rows[i]["DocRefNo"].ToString();
+				sheet[ROW, ColProduction].Text = data.Rows[i]["DocRefDate"].ToString();
+				sheet[ROW, ColPeramiter1].Text = data.Rows[i]["GrnDocDateDifference"].ToString();
+				sheet[ROW, ColPeramiter2].Text = data.Rows[i]["GateEntryNo"].ToString();
+				sheet[ROW, ColPeramiter3].Text = data.Rows[i]["GateName"].ToString();
+				sheet[ROW, ColPeramiter4].Text = data.Rows[i]["CurrencyName"].ToString();
+				sheet[ROW, ColRemarks].Text = data.Rows[i]["PartyGroup"].ToString();
+				sheet[ROW, ColMaterialMaster].Text = data.Rows[i]["PartyCategory"].ToString();
+				sheet[ROW, ColArticle].Text = data.Rows[i]["PartySubCategory"].ToString();
+				sheet[ROW, ColBuyerRefrence].Text = data.Rows[i]["PartyType"].ToString();
+				sheet[ROW, ColProductCode].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				sheet[ROW, ColAddBy].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				sheet[ROW, ColAddDate].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				sheet[ROW, ColUpdatedBy].Text = data.Rows[i]["PartyAccountGroup"].ToString();
+				sheet[ROW, ColUpdatedTime].Text = data.Rows[i]["PartyAccountGroup"].ToString();
 
 
-				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-				sheet.Range[ROW, ColPartyName, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColEntity, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+				sheet.Range[ROW, ColEntity, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
 				ROW++;
 			}
 
 			//ROW++;
 
-			if (FromDate != "" && ToDate != "")
-			{
+			//if (FromDate != "" && ToDate != "")
+			//{
 
 
-				report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, "Total");
-				sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount) - 1].CellStyle.Font.Bold = true;
-				//sheet.Range[1, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, ROW].Merge();
-				object sumObject;
+			//	report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, "Total");
+			//	sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount) - 1].CellStyle.Font.Bold = true;
+			//	//sheet.Range[1, ROW, Convert.ToInt32(ColMaterialTranAmount) - 1, ROW].Merge();
+			//	object sumObject;
 
-				//sumObject = data.Compute("Sum(MaterialTranAmount)", "");
-				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].CellStyle.Font.Bold = true;
-				//report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//	//sumObject = data.Compute("Sum(MaterialTranAmount)", "");
+			//	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].CellStyle.Font.Bold = true;
+			//	//report.SetText(ref sheet, ROW, Convert.ToInt32(ColMaterialTranAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+			//	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			//	//sheet.Range[ROW, Convert.ToInt32(ColMaterialTranAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-				sumObject = data.Compute("Sum(TotalMaterialBaseAmount)", "");
-				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].CellStyle.Font.Bold = true;
-				report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalMaterialBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
-				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//	sumObject = data.Compute("Sum(TotalMaterialBaseAmount)", "");
+			//	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].CellStyle.Font.Bold = true;
+			//	report.SetText(ref sheet, ROW, Convert.ToInt32(ColTotalMaterialBaseAmount), Convert.ToDouble(sumObject).ToString("0.##"));
+			//	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			//	sheet.Range[ROW, Convert.ToInt32(ColTotalMaterialBaseAmount)].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-				sumObject = data.Compute("Sum(Payment)", "");
-				sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
-				report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
-				sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//	sumObject = data.Compute("Sum(Payment)", "");
+			//	sheet.Range[ROW, Convert.ToInt32(ColPayment)].CellStyle.Font.Bold = true;
+			//	report.SetText(ref sheet, ROW, Convert.ToInt32(ColPayment), Convert.ToDouble(sumObject).ToString("0.##"));
+			//	sheet.Range[ROW, Convert.ToInt32(ColPayment)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			//	sheet.Range[ROW, Convert.ToInt32(ColPayment)].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-				sumObject = data.Compute("Sum(Balance)", "");
-				sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
-				report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
-				sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
-				sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
+			//	sumObject = data.Compute("Sum(Balance)", "");
+			//	sheet.Range[ROW, Convert.ToInt32(ColBalance)].CellStyle.Font.Bold = true;
+			//	report.SetText(ref sheet, ROW, Convert.ToInt32(ColBalance), Convert.ToDouble(sumObject).ToString("0.##"));
+			//	sheet.Range[ROW, Convert.ToInt32(ColBalance)].HorizontalAlignment = ExcelHAlign.HAlignRight;
+			//	sheet.Range[ROW, Convert.ToInt32(ColBalance)].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-			}
+			//}
 
 			endRow = ROW - 1;
 			endRow = ROW - 1;
