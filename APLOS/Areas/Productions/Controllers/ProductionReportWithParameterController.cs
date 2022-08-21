@@ -250,19 +250,19 @@ namespace Aplos.Areas.Productions.Controllers
 			int ColProduction = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 1", 20, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Parameter 1", 20, ExcelHAlign.HAlignLeft);
 			int ColPeramiter1 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 2", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Parameter 2", 12, ExcelHAlign.HAlignLeft);
 			int ColPeramiter2 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 3", 13, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Parameter 3", 13, ExcelHAlign.HAlignLeft);
 			int ColPeramiter3 = COL;
 			COL++;
 
-			report.SetHeaderText(ref sheet, ROW, COL, "Peramiter 4", 12, ExcelHAlign.HAlignLeft);
+			report.SetHeaderText(ref sheet, ROW, COL, "Parameter 4", 12, ExcelHAlign.HAlignLeft);
 			int ColPeramiter4 = COL;
 			COL++;
 
