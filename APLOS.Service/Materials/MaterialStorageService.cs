@@ -98,7 +98,8 @@ namespace Library.Service.Materials
         {
             try
             {
-                parameters.CmdText = @"SELECT * FROM [HKP].[MaterialStorage] WHERE CompanyGroupId='" + groupId + "' AND CompanyId='" + companyId + "' AND PlantId='" + plantId + "' AND Archive=0";
+                parameters.CmdText = @"SELECT MS.*,mb.Code BudgetCode FROM [HKP].[MaterialStorage] MS
+LEFT JOIN MST.ManpowerBudget AS mb ON MB.Id=MS.BudgetId WHERE MS.CompanyGroupId='" + groupId + "' AND MS.CompanyId='" + companyId + "' AND MS.PlantId='" + plantId + "' AND MS.Archive=0";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

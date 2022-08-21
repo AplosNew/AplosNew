@@ -232,7 +232,8 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                 {
                     string _Id = "";
 
-                    DataSet dsMaster, dsDestination;
+                    DataSet dsMaster, dsDestination=null;
+                    DataRow drF;
                     ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                     con.OpenDataSetThroughAdapter("select * from ProductionBookingParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND ProductionBookingProcessParameterId='"+data["ProductionBookingProcessParameterId"] +"'", out dsMaster, false, "1");
@@ -243,6 +244,16 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.ProductionBookingParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
                     con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where ProductionBookingParameterId='" + data["Id"] + "'", out dsDestination, false, "1");
 
+                    if (data["EntryState"].ToString()=="Entry")
+                    {
+                        data["Formula"] = DBNull.Value;
+                        data["FormulaId"] = DBNull.Value;
+
+                       
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                    }
+                   
 
                     if (dsMaster.Tables[0].Rows.Count == 0)
                     {
@@ -261,28 +272,30 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                     string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
 
                     #region NoticePeriodFormulaDetail 
-                    DataRow drF;
-                    while (dsDestination.Tables[0].DefaultView.Count > 0)
-                        dsDestination.Tables[0].DefaultView[0].Delete();
 
-                    int count = 0;
-                    if (details != null)
+                    if (data["EntryState"].ToString() == "Calculate")
                     {
-
-                        foreach (var item in details)
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                        int count = 0;
+                        if (details != null)
                         {
-                            drF = dsDestination.Tables[0].NewRow();
-                            count++;
-                            string pk = _Id + "_" + count;
-                            drF["Id"] = pk;
-                            drF["ProductionBookingParameterId"] = _Id;
-                            drF["Sequence"] = item.Sequence;
-                            drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterHeadId;
-                            drF["Component"] = item.Component;
 
-                            dsDestination.Tables[0].Rows.Add(drF);
-                        }
+                            foreach (var item in details)
+                            {
+                                drF = dsDestination.Tables[0].NewRow();
+                                count++;
+                                string pk = _Id + "_" + count;
+                                drF["Id"] = pk;
+                                drF["ProductionBookingParameterId"] = _Id;
+                                drF["Sequence"] = item.Sequence;
+                                drF["ProductionBookingParameterHeadId"] = item.ProductionBookingParameterHeadId;
+                                drF["Component"] = item.Component;
 
+                                dsDestination.Tables[0].Rows.Add(drF);
+                            }
+
+                        } 
                     }
                     #endregion NoticePeriodFormulaDetail 
 

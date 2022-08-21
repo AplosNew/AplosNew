@@ -77,25 +77,25 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                foreach (var item in routeEmployeeList)
-                {
-                    if (item.RouteUpGridId != null && item.StopageUpGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Up Stopage");
-                        throw (ex);
-                    }
-                    if (item.RouteDownGridId != null && item.StopageDownGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Down Stopage");
-                        throw (ex);
-                    }
+                //foreach (var item in routeEmployeeList)
+                //{
+                //    if (item.RouteUpGridId != null && item.StopageUpGridId == null)
+                //    {
+                //        Exception ex = new Exception("Please Select Up Stopage");
+                //        throw (ex);
+                //    }
+                //    if (item.RouteDownGridId != null && item.StopageDownGridId == null)
+                //    {
+                //        Exception ex = new Exception("Please Select Down Stopage");
+                //        throw (ex);
+                //    }
 
-                    if (item.RouteUpGridId == null && item.RouteDownGridId == null)
-                    {
-                        Exception ex = new Exception("Please Select Route");
-                        throw (ex);
-                    }
-                }               
+                //    if (item.RouteUpGridId == null && item.RouteDownGridId == null)
+                //    {
+                //        Exception ex = new Exception("Please Select Route");
+                //        throw (ex);
+                //    }
+                //}               
                 SaveRouteEmployeeSepLis(routeEmployee, routeEmployeeList);
                 return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
@@ -241,7 +241,7 @@ namespace Aplos.Areas.Employees.Controllers
                         objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "[TRN].[RouteEmployee]", out sID);
 
                         dr["Id"] = "RE" + sID;
-                        dr["EmployeeId"] = item.SystemID;
+                        dr["EmployeeId"] = item.EmployeeId;
 
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
@@ -266,7 +266,7 @@ namespace Aplos.Areas.Employees.Controllers
                         DataRow dr = DvMaster[0].Row;
                         dr.BeginEdit();
 
-                        dr["EmployeeId"] = item.SystemID;
+                        dr["EmployeeId"] = item.EmployeeId;
 
                         dr["RouteId"] = item.RouteId;
                         dr["StoppageId"] = item.StoppageId;
@@ -640,7 +640,7 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         public class UARouteEmployeeList
         {
             public string Id { get; set; }
-            public string SystemID { get; set; }
+            public string EmployeeId { get; set; }
             public string RouteId { get; set; }
             public string StoppageId { get; set; }
             public string ShiftId { get; set; }
