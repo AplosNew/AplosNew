@@ -142,13 +142,14 @@ namespace Aplos.Areas.Materials.Controllers
 						,ART.StandardName ArticleName, ISNULL(FCV.UserName,'') AS SKU1
 						,ISNULL(SCV.UserName,'') AS SKU2
 						,ISNULL(TCV.UserName,'') AS SKU3 
-						,IR.Id As GRNId,IRD.Id As GrnDetailId,   REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
-						,IRD.TransactionQty
+						,IR.Id As GRNNo,IRD.Id As GRNROWId,   REPLACE(CONVERT(CHAR(11), IR.GRNDate, 106),' ','-') AS GRNDate
+						,IRD.TransactionQty GRNQty
 						,TUoM.UserName AS UOM
-						,ROUND(Isnull(IRD.MaterialTranAmount,0),2) MaterialTranAmount
+						,ROUND(Isnull(IRD.MaterialTranAmount,0),2)  GRNMaterialAmount
 						,IRD.BaseQty-IRD.IssueQty BalanceStock
 						,DATEDIFF(day, IR.GRNDate,GETDATE()) AS 'StockInDays'
                         ,IsAsset=CASE WHEN IRD.IsAsset=0 then 'No' else 'Yes' END
+						,MS.UserName StorageLocation,'' StorageResponsiblePerson
 						,GRNType=CASE WHEN IR.EmployeeId <> '' Then 'Employee' else 'Vendor' END
                         ,p.UserName AS PartyName
 						,EI.EmployeeName FirstName						   
@@ -165,6 +166,7 @@ namespace Aplos.Areas.Materials.Controllers
 								END GRNCheckStatus
                         ,EI1.EmployeeName CheckedBY
 						,EI2.EmployeeName AuthorizedBy
+						,pod.InventoryReceiveId PONo,REPLACE(CONVERT(CHAR(11), po.PODate, 106),' ','-') AS PODate,pod.TransactionQty POQty
 						,MRM.Id RequsitionNo,REPLACE(CONVERT(CHAR(11), MRM.RequisitionDate, 106),' ','-') AS  RequisitionDate,MRD.TransactionQty RequisitionQty
 						,EMRM.EmployeeName RequisitionAddedBy
 						,EMRM1.EmployeeName ReqCheckBy
@@ -204,14 +206,16 @@ namespace Aplos.Areas.Materials.Controllers
                     LEFT JOIN trn.EmployeePayable as ep ON ep.InventoryReceiveId=IR.Id					
 					LEFT JOIN trn.Voucher V1 on V1.Id=ep.VoucherId
 					LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo	
-					left join trn.PurchaseOrderDetail pod on pod.Id=IRD.PODetailsId
+					LEFT JOIN trn.PurchaseOrderDetail pod on pod.Id=IRD.PODetailsId
+					LEFT JOIN trn.PurchaseOrder po on po.Id=pod.InventoryReceiveId
 					LEFT JOIN TRN.MaterialRequsitionDetails MRD ON MRD.Id=pod.RequisitionDetailId
 					LEFT JOIN TRN.MaterialRequsitionMaster MRM ON MRM.Id=MRD.MaterialReqqusitionMasterId
 					LEFT JOIN EmployeeInformation EMRM ON EMRM.SystemId=MRM.AddedBy
 					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
 					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
-					WHERE  IR.PlantId='202034' AND convert(Date,IR.GRNDate) BETWEEN  '01-Jul-2022' AND '14-Aug-2022'
-						AND IR.GRNType IN('GRNBYPO') and (IRD.BaseQty-IRD.IssueQty)>0 and MRM.Id<>''
+					WHERE  IR.PlantId='" + PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '"+ FromDate + "' AND '"+ ToDate + @"'
+						--AND IR.GRNType IN('GRNBYPO') 
+					AND (IRD.BaseQty-IRD.IssueQty)>0 and MRM.Id<>''
 						) x";
                 return _sqlRepository.GetDataTable(str);
 
