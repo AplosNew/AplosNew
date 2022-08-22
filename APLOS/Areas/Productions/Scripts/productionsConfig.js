@@ -293,5 +293,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/QuaityProcessBooking/Aplos',
             controller: 'QuaityProcessBookingController'
         })
+        .when('/production-report-with-parameter', {
+            templateUrl: 'Productions/ProductionReportWithParameter/Aplos',
+            controller: 'ProductionReportWithParameterController'
+        })
         ;
 }
