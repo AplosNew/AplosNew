@@ -49,9 +49,10 @@ namespace Library.Service.Materials
         {
             try
             {
-                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName, MMA.RPM, MMA.MachineAllowance, MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster
+                var _sql = @"SELECT MMA.Id, MMA.MaterialMasterId, MMA.Code, MMA.ShortName, MMA.StandardName,HC.Code as HSNCode,MMA.HSNCodeId,MMA.RPM, MMA.MachineAllowance, MMA.StitchCodeId,MMA.MachineMasterId,MM.UserName MachineMaster
 		                    FROM MST.MaterialMasterArticle MMA
                            LEFT JOIN [MST].[MachineMaster] MM ON MM.Id=MMA.MachineMasterId
+						   LEFT JOIN [HKP].[HSNCode] HC ON HC.id=MMA.HSNCodeId
                             WHERE MaterialMasterId='" + materialMasterId + "'";
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -311,6 +312,7 @@ namespace Library.Service.Materials
                         art.Code = item.Code;
                         art.ShortName = item.ShortName;
                         art.StandardName = item.StandardName;
+                        art.HSNCodeId = item.HSNCodeId;
                         art.UpdatedBy = item.UpdatedBy;
                         art.UpdatedDate = item.UpdatedDate;
                         art.UpdatedFromIP = item.UpdatedFromIP;
@@ -759,6 +761,7 @@ namespace Library.Service.Materials
         public string StandardName { get; set; }
         public string ShortName { get; set; }
         public string Code { get; set; }
+        public string HSNCodeId { get; set; }
         public string Id { get; set; }
         public string StitchCodeId { get; set; }
     }
