@@ -1179,7 +1179,6 @@ namespace Library.MaterialManagement.Inventory
 	                            ,PDA.VoucherId
 	                            ,PLC.LCDate,PDA.IsNonCreditable,PO.ContractNo,PO.LCANo,PO.LCDate
                             ORDER BY PO.POId";
-
                 }
                 return _sqlRepository.GetDataCollection(Sql);
             }
