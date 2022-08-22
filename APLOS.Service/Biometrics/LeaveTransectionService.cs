@@ -762,7 +762,7 @@ WHERE DC.PlantId='" + sPlantID + @"') DM
         {
             try
             {
-                var sql = @"SELECT Id, YearNo FROM dbo.YearlyCalendar WHERE PlantId='" + plantId + "'";
+                var sql = @"SELECT Id, YearNo FROM dbo.YearlyCalendar WHERE PlantId='" + plantId + "' Order By YearNo Desc";
                 return _sqlRepository.GetCombo(sql, "Id", "YearNo");
             }
             catch (Exception ex)
