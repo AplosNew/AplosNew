@@ -800,14 +800,16 @@ namespace Library.MaterialManagement.Inventory
                 {
                     Sql = @"--DECLARE @plantId VARCHAR(10)='" + plantId + @"';                                     
                     Select* from(
-                    SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
+                     SELECT ROW_NUMBER() OVER (ORDER BY  IR.Id) AS SiNo, IR.Id, REPLACE(CONVERT(CHAR(11), IR.PODate, 106), ' ', '-') AS PODate, IR.CompanyGroupId, IR.CompanyId, IR.PlantId, IR.PartyId, P.Code AS PartyCode, P.UserName AS PartyName
 	                                , CP.UserName AS PartyAccountGroupName,ISNULL(Pr.UserName ,'') CustomerName,ISNULL(CON.ContractNo,'') ContractNo
 	                                , IR.MaterialStorageId, IR.DocRefNo, REPLACE(CONVERT(CHAR(11), IR.DocDate, 106), ' ', '-') AS DocDate
                                       , IR.CurrencyId, CU.Code AS CurrencyCode, IR.BaseCurrencyId, IR.PaymentTermId, IR.BaseNoOfDays
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , pod.TransactionQty,ToleranceQty=((pod.TransactionQty*ir.Tolerance)/100),ird.GRNQty, pod.TransactionUoMId, UoM.UserName AS TransactionUoM, pod.TransactionAmount, pod.BaseAmount, IR.ToCurrencyRate
+	                                , pod.TransactionQty
+									,ToleranceQty=((pod.TransactionQty*ir.Tolerance)/100)
+									,pod.GRNQty , pod.TransactionAmount, pod.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -830,14 +832,17 @@ namespace Library.MaterialManagement.Inventory
                                  LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id= PL.AddressMasterId
                                  LEFT JOIN [SCS].[State] AS SP ON SP.Id= AMP.StateId
                                  
-								 LEFT JOIN  [TRN].[PurchaseOrderDetail] AS pod ON pod.InventoryReceiveId=IR.Id
+								 LEFT JOIN (select pod.InventoryReceiveId,pod.CountryId,sum(pod.TransactionQty) TransactionQty
+										,sum(TransactionAmount) TransactionAmount,sum(BaseAmount) BaseAmount,sum(ird.GRNQty) GRNQty 
+										FROM  [TRN].[PurchaseOrderDetail] pod
+										left join (select isnull(sum(ird.TransactionQty),0) GRNQty,ird.PODetailsId FROM TRN.InventoryReceiveDetail ird 
+											left join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
+											where (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
+											group by ird.PODetailsId
+											) ird on ird.PODetailsId=pod.Id
+											group by pod.InventoryReceiveId,pod.CountryId--,ird.GRNQty
+										)AS pod ON pod.InventoryReceiveId=IR.Id
 								 left join scs.country C on C.Id= pod.CountryId
-								 left join (select isnull(sum(ird.TransactionQty),0) GRNQty,ird.PODetailsId FROM TRN.InventoryReceiveDetail ird 
-						            join trn.InventoryReceive Ir on ir.Id=ird.InventoryReceiveId
-						            where (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject'
-									group by ird.PODetailsId
-									) ird on ird.PODetailsId=pod.Id
-                                        LEFT JOIN[SCS].[UnitOfMeasurement] AS UoM ON pod.TransactionUoMId= UoM.Id
 								 LEFT JOIN(   SELECT distinct PDAMAP.CustomerId
 											,OpeningBank=STUFF((select distinct ','+xPDAMAP.OpeningBank from
 											trn.PurchaseOrder xpo
@@ -847,7 +852,7 @@ namespace Library.MaterialManagement.Inventory
 											 group by  PDAMAP.CustomerId
 										) POothers ON POothers.CustomerId = IR.PartyId
                                          WHERE IR.PlantId='" + plantId + @"' AND (IR.POType='PO' OR IR.POType='POByReq' OR IR.POType='POBOQ')
-                                AND IR.IsClosed= 0 and  (pod.TransactionQty+((pod.TransactionQty*ir.Tolerance)/100)) > ISNULL(ird.GRNQty,0) AND IR.PartyId='" + vendorId + @"'
+                                AND IR.IsClosed= 0 and  (pod.TransactionQty+((pod.TransactionQty*ir.Tolerance)/100)) > ISNULL(pod.GRNQty,0) AND IR.PartyId='" + vendorId + @"'
                                          AND IR.CheckedByStatus= 'Checked' AND IR.AuthorizedByStatus= 'Approved'
                                          AND isnull(PT.PaymentMode,'') <> 'LC'
 								UNION All
@@ -858,7 +863,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                         , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                           , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -908,7 +913,7 @@ namespace Library.MaterialManagement.Inventory
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -955,7 +960,7 @@ namespace Library.MaterialManagement.Inventory
 											, REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
 											  , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
 											, IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+											, IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 											, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -1006,7 +1011,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
@@ -1054,7 +1059,7 @@ namespace Library.MaterialManagement.Inventory
 	                                , REPLACE(CONVERT(CHAR(11), IR.BaseOnDueDate, 106),' ','-') AS BaseOnDueDate, REPLACE(CONVERT(CHAR(11), IR.MatureDate, 106), ' ', '-') AS MatureDate
                                       , IR.FixedAssetOrInventory, IR.PODepended,'' PurchaseDocAcceptanceDetailId
                                     , IR.InvoicingPartyPlantId, IPP.UserName AS InvoicingBy, IR.InvoicingByAddress, IR.DeliveryPartyPlantId, DPP.UserName AS DeliveryBy, IR.DeliveryByAddress, IR.IsNonCreditable
-	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, TU.TransactionUoMId, UoM.UserName AS TransactionUoM, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
+	                                , IRD.TransactionQty,0 ToleranceQty,0 GRNQty, IRD.TransactionAmount, IRD.BaseAmount, IR.ToCurrencyRate
 	                                , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 	                                , IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 	                                ,IPP.UserName As InvoicingByName
