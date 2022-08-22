@@ -63,7 +63,8 @@ namespace Aplos.Areas.Costings.Controllers
 							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
                              left  join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
                              left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
-                              where BOM.CustomerId <>''";
+                             where BOM.CustomerId <>''  
+							  and moi.OrderCostingMasterTemplateId<>''";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -102,7 +103,7 @@ namespace Aplos.Areas.Costings.Controllers
             var workbook = report.GetWorkbook(ref excelEngine, 3);
             workbook.Version = ExcelVersion.Excel2016;
 
-
+            var headerData = getBOQStatusReportHeaderSql(parameters);
 
             var data = getBOQStatusReportSql(parameters);
 
@@ -110,11 +111,73 @@ namespace Aplos.Areas.Costings.Controllers
 
 
 
-            int ROW = 6; int COL = 1;
+            int ROW = 5; int COL = 1;
+
+            #region Header
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "Master Order");
+            sheet[ROW, 1].ColumnWidth = 20;
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 2, headerData["MasterOrderId"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(3) + ROW].Merge();
+            sheet[ROW, 2].ColumnWidth = 20;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 4, "Customer");
+            sheet[ROW, 4].ColumnWidth = 25;
+            sheet.Range[ROW, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 5, headerData["PartyName"].ToString());
+            sheet[report.GetColumnNameForXls(5) + ROW + ":" + report.GetColumnNameForXls(6) + ROW].Merge();
+            sheet[ROW, 5].ColumnWidth = 30;
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "Buyer Ref No");
+            sheet[ROW, 1].ColumnWidth = 20;
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 2, headerData["BuyerReferenceNo"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(3) + ROW].Merge();
+            sheet[ROW, 2].ColumnWidth = 20;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 4, "Buyer");
+            sheet[ROW, 4].ColumnWidth = 25;
+            sheet.Range[ROW, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 5, headerData["BuyerName"].ToString());
+            sheet[report.GetColumnNameForXls(5) + ROW + ":" + report.GetColumnNameForXls(6) + ROW].Merge();
+            sheet[ROW, 5].ColumnWidth = 30;
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+            ROW++;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 1, "Contract No");
+            sheet[ROW, 1].ColumnWidth = 20;
+            sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 2, headerData["OwnReferenceNo"].ToString());
+            sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(3) + ROW].Merge();
+            sheet[ROW, 2].ColumnWidth = 20;
+            sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            report.SetMasterHeaderText(ref sheet, ROW, 4, "Product");
+            sheet[ROW, 4].ColumnWidth = 25;
+            sheet.Range[ROW, 4].VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[ROW, 4].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            report.SetText(ref sheet, ROW, 5, headerData["Product"].ToString());
+            sheet[report.GetColumnNameForXls(5) + ROW + ":" + report.GetColumnNameForXls(6) + ROW].Merge();
+            //sheet[ROW, 5].ColumnWidth = 25;
+            sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            ROW++;
+            ROW++;
+            #endregion
+
 
             #region columns
             sheet[ROW, COL].Text = "Row Id";
-            sheet[ROW, COL].ColumnWidth = 8;
+            sheet[ROW, COL].ColumnWidth = 12;
             int ColRowId = COL;
             COL++;
 
@@ -124,7 +187,7 @@ namespace Aplos.Areas.Costings.Controllers
             COL++;
 
             sheet[ROW, COL].Text = "Item Ref No";
-            sheet[ROW, COL].ColumnWidth = 8;
+            sheet[ROW, COL].ColumnWidth = 12;
             int ColItemRefNo = COL;
             COL++;
 
@@ -139,7 +202,7 @@ namespace Aplos.Areas.Costings.Controllers
             COL++;
 
             sheet[ROW, COL].Text = "Currency";
-            sheet[ROW, COL].ColumnWidth = 8;
+            sheet[ROW, COL].ColumnWidth = 12;
             int ColCurrency = COL;
             COL++;
 
@@ -423,6 +486,41 @@ namespace Aplos.Areas.Costings.Controllers
                 throw ex;
             }
         }
+
+        public Dictionary<string,object> getBOQStatusReportHeaderSql(Dictionary<string, string> parameters)
+        {
+            try
+            {
+                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,mma.StandardName AS Article
+										,boq.SKUDesc,boq.POCriteria,boq.Consumption
+										,boq.BOMQty,boq.BOMQtyBase,boq.RequiredQty
+										,MO.Id MasterOrderId
+										,moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineItemId
+										,PAR.UserName PartyName,B.UserName BuyerName,mma.StandardName Product
+										FROM BOQ  boq
+										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+										left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+										left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+									    left join TRN.MasterOrder MO on MO.PartyId=BOM.CustomerId
+										left join HKP.Party PAR on PAR.Id=MO.PartyId
+										left join HKP.Buyer B on B.Id=MO.BuyerId
+										left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId 
+										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId 
+
+                                        where PAR.Id in(" + parameters["PartyId"] + @")
+                                        AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
+                                        AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
+                                        AND MO.Id in(" + parameters["MasterOrderId"] + @")
+                                        AND moi.Id in(" + parameters["LineItemId"] + @")";
+
+                return _sqlRepository.GetData(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
     }
 
 }
