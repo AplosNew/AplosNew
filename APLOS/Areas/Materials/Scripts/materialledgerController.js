@@ -1141,7 +1141,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 $scope.productNew.Asset = true;
             }
             if (($scope.productNew.Inventory === true) && ($scope.productNew.Asset === false || $scope.productNew.Asset === undefined)) {
-                debugger;
+                 debugger;
                 //$scope.productNew.Inventory = 'Inventory';
                 $scope.productNew.Asset = false;
                 $scope.productNew.Inventory = true;
