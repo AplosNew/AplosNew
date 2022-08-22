@@ -187,7 +187,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL group By IRD.InventoryMaterialId) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
+									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
+                           AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject' 
+                           GROUP BY IRD.InventoryMaterialId
+                        ) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
          
 
 						left join (select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty , Sum(ISNULL(IH.TotalAmount,0)) PolicyAmount
@@ -404,6 +407,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
+                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
 									group By IRD.InventoryMaterialId ,IRD.MaterialStorageId,IRD.IsAsset) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                             and opbal2.MaterialStorageId=IRS.MaterialStorageId
 
@@ -579,7 +583,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						left join(SELECT IRD.InventoryMaterialId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL group By IRD.InventoryMaterialId) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
+									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
+                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
+                                    GROUP BY IRD.InventoryMaterialId
+                                    ) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
          
 						left join (select IID.InventoryMaterialId, Sum(IH.Qty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
 									FROM TRN.InventoryIssueDetail IID  
@@ -747,7 +754,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						left join(SELECT IRD.InventoryMaterialId, IRD.MaterialStorageId, Sum(IRD.BaseQty) AS TransactionQty ,  Sum(IRD.TotalMaterialBooksCurrencyAmount) TotalMaterialBooksCurrencyAmount
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
-									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL group By IRD.InventoryMaterialId, IRD.MaterialStorageId) AS opbal2 
+									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
+                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
+                                    GROUP BY IRD.InventoryMaterialId, IRD.MaterialStorageId) AS opbal2 
                                         ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' and opbal2.MaterialStorageId=IRS.MaterialStorageId
          
 						left join (select IID.InventoryMaterialId, II.MaterialStorageId, Sum(IH.Qty) IssueQty , Sum(IID.PolicyAmount) PolicyAmount
