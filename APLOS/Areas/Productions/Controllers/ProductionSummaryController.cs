@@ -673,7 +673,7 @@ namespace Aplos.Areas.Productions.Controllers
                 if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
                 {
                     _productionSummaryData.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#,##0");
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
 
                     DataRow dtValueRow = dtValue.NewRow();
 
