@@ -1274,7 +1274,7 @@ left join (select distinct EmpInfoSystemID from SalaryProcChild where SlrProcMst
             ConnectionManager.DAL.ConManager objCon;
             try
             {
-                strSQL = @"select EmployeeId from trn.RouteEmployee where EmployeeId in (" + sEmpSysIDColl + ") and UpRouteId is not null and Active=1";//eee
+                strSQL = @"select EmployeeId from trn.RouteEmployee where EmployeeId in (" + sEmpSysIDColl + ") and RouteId is not null and Active=1";//eee
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSQL, out dsRef, false, "1");
