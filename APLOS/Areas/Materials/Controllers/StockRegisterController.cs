@@ -90,28 +90,7 @@ namespace Aplos.Areas.Materials.Controllers
 		{
 			return View();
 		}
-
-        
-
-        [Authorize, HttpPost]
-		public JsonResult GetMaterialLedger(string fromDate,string toDate)
-        {
-			DateTime fDate = DateTime.Parse(fromDate);
-			DateTime tDate = DateTime.Parse(toDate);
-			if (fromDate == null || fromDate == "")
-			{
-				throw new CustomException("Select From Date");
-			}
-			else if (toDate == null || toDate == "")
-			{
-				throw new CustomException("Select To Date");
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var jsondata= Json(_inventoryReceiveService.GetMaterialLedger(fromDate,toDate), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
-		}
-        
+      
         [HttpPost, Authorize]
         public ActionResult StockRegisterData(string ToDate, string FromDate,int Days,string Type)
         {
