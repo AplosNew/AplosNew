@@ -113,7 +113,7 @@ namespace Aplos.Areas.Materials.Controllers
 		}
         
         [HttpPost, Authorize]
-        public ActionResult StockRegisterData(string ToDate, string FromDate,string Days,string Type)
+        public ActionResult StockRegisterData(string ToDate, string FromDate,int Days,string Type)
         {
             try
             {
@@ -129,12 +129,20 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate,string Days,string Type)
+        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate,int Days,string Type)
         {
             try
             {
-                var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
-							,IsRegular =case when MM.IsRegular=1 then 'Yes' else 'No' end
+				var tempquery = "";
+				if (FromDate ==null)
+				{ tempquery = "AND convert(Date,IR.GRNDate) >  '" + ToDate + "'"; }
+                else
+                {
+					tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
+				}
+				
+				var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
+							,IsRegular =case when MM.IsRegular=1 then 'Regular' else 'Irregular' end
 							,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName
 						,IM.MaterialMasterId
@@ -213,10 +221,10 @@ namespace Aplos.Areas.Materials.Controllers
 					LEFT JOIN EmployeeInformation EMRM ON EMRM.SystemId=MRM.AddedBy
 					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
 					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
-					WHERE  IR.PlantId='" + PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '"+ FromDate + "' AND '"+ ToDate + @"'
-						--AND IR.GRNType IN('GRNBYPO') 
-					AND (IRD.BaseQty-IRD.IssueQty)>0 and MRM.Id<>''
-						) x";
+					WHERE  IR.PlantId='" + PlantId + "' "+tempquery+ @"
+						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' 
+					AND (IRD.BaseQty-IRD.IssueQty)>0  
+						) x where x.StockInDays >= " + Days+ " AND x.IsRegular='"+Type+"'";
                 return _sqlRepository.GetDataTable(str);
 
             }

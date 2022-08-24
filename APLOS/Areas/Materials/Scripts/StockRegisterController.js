@@ -140,19 +140,15 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$scope.GetStockRegister = function () {
 		debugger;
 
-		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
+		//if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
+		//	ShowResult('Select From Date', 'failure');
+		//	return false;
+		//}
+		 if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
 			ShowResult('Select To Date', 'failure');
 			return false;
 		}
-		else if ($scope.report.ReportType === null || $scope.report.ReportType === "") {
-			ShowResult('Please select Report Type', 'failure');
-			return false;
-		}
-
+		
 		$http({
 			method: 'POST',
 			url: 'Materials/StockRegister/StockRegisterData',
@@ -166,29 +162,29 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		}).then(function successCallback(response) {
 			$scope.MaterialStockList = response.data.NewData;
 
-			for (var i = 0; i < $scope.MaterialStockList.length; i++) {
-				response.data[i].GRNEntryDate = new Date($scope.MaterialStockList[i].GRNEntryDate);
-			}
+			//for (var i = 0; i < $scope.MaterialStockList.length; i++) {
+			//	response.data[i].GRNEntryDate = new Date($scope.MaterialStockList[i].GRNEntryDate);
+			//}
 
-			$scope.load();
+			//$scope.load();
 		});
 
 	};
 
 	$scope.StockRegisterReportExcel = function () {
-		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
-			ShowResult('Select To Date', 'failure');
-			return false;
-		}
+		//if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
+		//	ShowResult('Select From Date', 'failure');
+		//	return false;
+		//}
+		//if ($scope.report.ToDate === "" || $scope.report.ToDate === null || $scope.report.ToDate === undefined) {
+		//	ShowResult('Select To Date', 'failure');
+		//	return false;
+		//}
 
+		var dataList = [];
 		var g = $("#GridStockRegister").data("ejGrid");
 		dataList = g.getFilteredRecords();
 
-		//var dataList = [];
 		//var ids = "";
 		//if (baseService.arrayLength(dataList) > 0) {
 		//	for (var i = 0; i < dataList.length; i++) {
