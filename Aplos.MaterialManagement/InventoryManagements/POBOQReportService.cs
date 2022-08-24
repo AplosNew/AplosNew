@@ -405,7 +405,7 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 strSQL = @"SELECT PO.Id PONumber
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
+                    ,POType=CASE WHEN PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO BOQ' END
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'
@@ -1721,7 +1721,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
+                    ,POType=CASE WHEN PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO BOQ' END
                     ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                     ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
                     ,PO.InvoicingPartyPlantId

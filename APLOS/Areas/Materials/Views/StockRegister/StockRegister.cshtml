@@ -123,41 +123,50 @@
     <div class="form-elements form-horizontal">
         <div class="col-xs-12 col-sm-12 col-md-12" ng-form="from0">
             <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="col-xs-6 col-sm-6 col-md-6">
-                    <fieldset class="scheduler-border">
-                        <legend class="scheduler-border">Stock Register By GRN Date</legend>
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border">Stock Register By GRN Date</legend>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors id="div_FromDate">
+                            <label class="col-sm-3 control-label">Days<sup>*</sup></label>
+                            <div class="col-sm-6 show-message">
+                                <input type="text" name="Days" ng-model="report.Days" tabindex="1" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors id="div_ToDate">
+                            <label class="col-sm-3 control-label">Type<sup>*</sup></label>
+                            <div class="col-sm-6  show-message">
+                                @*<input type="text" name="Type" ng-model="report.Type" tabindex="2" class="form-control">*@
+                                <div class="select-style">
+                                    <select class="form-control" id="Type" ng-model="report.Type" required name="Type" tabindex="2">
+                                        <option value="Regular">Regular</option>
+                                        <option value="Irregular">Irregular</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6">
                         <div class="clearfix"></div>
                         <div class="form-group" show-errors id="div_FromDate">
                             <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
                             <div class="col-sm-9 show-message">
-                                <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="2" class="form-control">
+                                <input type="text" name="Form Date" ng-model="report.FromDate" datepicker tabindex="3" class="form-control">
                             </div>
                         </div>
                         <div class="form-group" show-errors id="div_ToDate">
-                            <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                            <label class="col-sm-3 control-label">To Date<sup>*</sup></label>
                             <div class="col-sm-9  show-message">
-                                <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="3" class="form-control">
+                                <input type="text" name="To Date" ng-model="report.ToDate" datepicker tabindex="4" class="form-control">
                             </div>
                         </div>
-                        @*<div class="form-group" show-errors id="div_ToDate">
-                            <label class="col-sm-3 control-label">Report Type<sup>*</sup></label>
-                            <div class="col-sm-9 show-message">
-                                <div class="select-style">
-                                    <select name="ReportType" ng-model="report.ReportType" class="col-sm-3 form-control">
-                                        <option value="PartyWise">Party Wise</option>
-                                        <option value="GRNWise">GRN Wise</option>
-                                        <option value="ItemWise">Item Wise</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>*@
+
+                    </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="GetStockRegister();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
                             </ul>
                         </div>
-                    </fieldset>
-                </div>
+                </fieldset>
 
             </div>
         </div>
@@ -168,7 +177,7 @@
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
 
-                    <div style="color:black;" id="GridStockRegister" ej-grid e-datasource="PurchaseRegisterList"
+                    <div style="color:black;" id="GridStockRegister" ej-grid e-datasource="MaterialStockList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
@@ -228,7 +237,7 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="PurchaseOrderGRNWiseReportExcel();" e-width="width">
+                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="StockRegisterReportExcel();" e-width="width">
                         <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
                     </div>
                 </li>
