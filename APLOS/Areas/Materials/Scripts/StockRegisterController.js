@@ -14,111 +14,129 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$scope.RowColor = "";
 	$scope.isAlternative = -1;
-	$scope.rowDataBound = function rowDataBound(e) {
 
-		if ($scope.RowColor != e.data.Id) {
-			$scope.isAlternative = $scope.isAlternative * -1;
-			$scope.RowColor = e.data.Id;
-		}
-		if ($scope.isAlternative > 0)
-			e.row.css("background-color", '#D3D3D3');
-		else
-			e.row.css("background-color", '#ffffff');
+	//$scope.rowDataBound = function rowDataBound(e) {
 
-
-	}
-	$scope.Print = function () {
-
-		var gridObj1 = $("#GridPO").data("ejGrid");
-		var data1 = gridObj1.model.dataSource();
-		$http({
-			method: 'POST',
-			url: $scope.exportgriddataUrl,
-			//data: { 'data': data1 }
-			data: JSON.stringify(data1)
-		}).then(function successCallback(response) {
-			if (response.data.Error == true) {
-				// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
-			}
-			else {
-
-				location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
-			}
-		});
-	}
-	$scope.PrintPurchaseRegister = function () {
-
-		var gridObj11 = $("#GridPrint").data("ejGrid");
-		var data11 = gridObj11.model.dataSource();
-
-		$http({
-
-			method: "POST",
-			url: $scope.exportgriddataUrl,
-			data: { 'data': data11 }
-
-		}).then(function successCallback(response) {
-			if (response.data.Error == true) {
-				// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
-
-			}
-			else {
-
-				location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
-			}
-		});
-
-	}
+	//	if ($scope.RowColor != e.data.Id) {
+	//		$scope.isAlternative = $scope.isAlternative * -1;
+	//		$scope.RowColor = e.data.Id;
+	//	}
+	//	if ($scope.isAlternative > 0)
+	//		e.row.css("background-color", '#D3D3D3');
+	//	else
+	//		e.row.css("background-color", '#ffffff');
 
 
-	$scope.productNew = {
-		Type: null,
-		WithStock: true,
-		WithoutStock: false,
-		Storage: false
+	//}
+	//$scope.Print = function () {
+
+	//	var gridObj1 = $("#GridPO").data("ejGrid");
+	//	var data1 = gridObj1.model.dataSource();
+	//	$http({
+	//		method: 'POST',
+	//		url: $scope.exportgriddataUrl,
+	//		//data: { 'data': data1 }
+	//		data: JSON.stringify(data1)
+	//	}).then(function successCallback(response) {
+	//		if (response.data.Error == true) {
+	//			// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
+
+	//		}
+	//		else {
+
+	//			location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+	//		}
+	//	});
+	//}
+	//$scope.PrintPurchaseRegister = function () {
+
+	//	var gridObj11 = $("#GridPrint").data("ejGrid");
+	//	var data11 = gridObj11.model.dataSource();
+
+	//	$http({
+
+	//		method: "POST",
+	//		url: $scope.exportgriddataUrl,
+	//		data: { 'data': data11 }
+
+	//	}).then(function successCallback(response) {
+	//		if (response.data.Error == true) {
+	//			// ShowResult(response.data.Message, 'failure', 'recipeMaterialPopUp');
+
+	//		}
+	//		else {
+
+	//			location.href = $scope.downloadgriddataUrl + "?FileName=" + response.data.FileName;
+	//		}
+	//	});
+
+	//}
+
+
+	//$scope.productNew = {
+	//	Type: null,
+	//	WithStock: true,
+	//	WithoutStock: false,
+	//	Storage: false
+	//};
+	//$scope.changeSourceFrom = function (from) {
+	//	debugger;
+	//	if (from === 'AsOnDate') {
+	//		$scope.report.FromDate = "";
+
+	//		$scope.productNew.Type = 'Posted';
+
+	//	}
+	//	if (from === 'ForThePeriod') {
+	//		$scope.productNew.Type = 'NonPosted';
+
+
+	//	}
+	//};
+
+	//$scope.GriddataMaterialLedger = [];
+	//$scope.getaldataMaterialLedger = function () {
+
+	//	$http({
+	//		method: 'POST',
+	//		//url: $scope.getSearchListUrl,
+	//		url: 'Materials/MaterialLedger/GetMaterialLedger',
+	//		data: {
+	//			fromDate: $scope.report.FromDate,
+	//			toDate: $scope.report.ToDate,
+	//			Type: $scope.productNew.Type
+	//		},
+	//		dataType: 'JSON'
+	//	}).then(function successCallback(response) {
+	//		$scope.GriddataMaterialLedger = response.data;
+
+	//		//entrydata = copy(searchdata);
+	//	});
+	//};
+
+	$window.onresize = function (event) {
+
+		$scope.actionCompleteSelected();
+
 	};
-	$scope.changeSourceFrom = function (from) {
-		debugger;
-		if (from === 'AsOnDate') {
-			$scope.report.FromDate = "";
-
-			$scope.productNew.Type = 'Posted';
-
+	$scope.actionCompleteSelected = function (args) {
+		try {
+			if (args.requestType === "refresh") {
+				var gridObj = $("#GridPrint").ejGrid("instance");
+				var scrollerwidth = $("#PR").width();//Obtain the width of the container
+				gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300 } });//pass the obtainer width and height to gridmodel options
+				gridObj.windowonresize();
+			}
+		} catch (e) {
 		}
-		if (from === 'ForThePeriod') {
-			$scope.productNew.Type = 'NonPosted';
 
-
-		}
 	};
 
-	$scope.GriddataMaterialLedger = [];
-	$scope.getaldataMaterialLedger = function () {
+	$scope.report.Days = 0,
+	$scope.report.Type = 'Regular',
+	$scope.report.ToDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'),
 
-		$http({
-			method: 'POST',
-			//url: $scope.getSearchListUrl,
-			url: 'Materials/MaterialLedger/GetMaterialLedger',
-			data: {
-				fromDate: $scope.report.FromDate,
-				toDate: $scope.report.ToDate,
-				Type: $scope.productNew.Type
-			},
-			dataType: 'JSON'
-		}).then(function successCallback(response) {
-			$scope.GriddataMaterialLedger = response.data;
-
-			//entrydata = copy(searchdata);
-		});
-	};
-
-
-	$scope.PurchaseRegisterList = [];
-	$scope.PurchaseRegisterItemWiseList = [];
-	$scope.PurchaseRegisterPartyWiseList = [];
-	$scope.pivotTableFieldListID = [];
-
+	$scope.MaterialStockList = [];
 	$scope.GetStockRegister = function () {
 		debugger;
 
@@ -141,13 +159,15 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			data: {
 				fromDate: $scope.report.FromDate,
 				toDate: $scope.report.ToDate,
+				Days: $scope.report.Days,
+				Type: $scope.report.Type,
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
-			$scope.PurchaseRegisterList = response.data.NewData;
+			$scope.MaterialStockList = response.data.NewData;
 
-			for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
-				response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterList[i].GRNEntryDate);
+			for (var i = 0; i < $scope.MaterialStockList.length; i++) {
+				response.data[i].GRNEntryDate = new Date($scope.MaterialStockList[i].GRNEntryDate);
 			}
 
 			$scope.load();
@@ -155,7 +175,7 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 
 	};
 
-	$scope.PurchaseOrderGRNWiseReportExcel = function () {
+	$scope.StockRegisterReportExcel = function () {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 			ShowResult('Select From Date', 'failure');
 			return false;
@@ -165,9 +185,10 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			return false;
 		}
 
+		var g = $("#GridStockRegister").data("ejGrid");
+		dataList = g.getFilteredRecords();
+
 		//var dataList = [];
-		//var g = $("#GridStockRegister").data("ejGrid");
-		//dataList = g.getFilteredRecords();
 		//var ids = "";
 		//if (baseService.arrayLength(dataList) > 0) {
 		//	for (var i = 0; i < dataList.length; i++) {
@@ -180,17 +201,15 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 		//	}
 		//}
 		//else {
-		//	for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
+		//	for (var i = 0; i < $scope.MaterialStockList.length; i++) {
 		//		if (ids == "") {
-		//			ids = "'','" + $scope.PurchaseRegisterList[i].SLNo + "'";
+		//			ids = "'','" + $scope.MaterialStockList[i].SLNo + "'";
 		//		}
 		//		else {
-		//			ids += ",'" + $scope.PurchaseRegisterList[i].SLNo + "'";
+		//			ids += ",'" + $scope.MaterialStockList[i].SLNo + "'";
 		//		}
 		//	}
 		//}
-		var gridObjStockReg = $("#GridStockRegister").data("ejGrid");
-		var dataStockReg = gridObjStockReg.model.dataSource();
 
 		$scope.fileName = 'Stock Register';
 
@@ -200,7 +219,7 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 			url: $scope.exportgriddataUrl,
 			data: {
 				'reportFileName': $scope.fileName,
-				'data': dataStockReg
+				'data': dataList
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {

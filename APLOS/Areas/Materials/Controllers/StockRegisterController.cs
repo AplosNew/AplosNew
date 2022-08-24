@@ -113,12 +113,12 @@ namespace Aplos.Areas.Materials.Controllers
 		}
         
         [HttpPost, Authorize]
-        public ActionResult StockRegisterData(string PlantId, string ToDate, string FromDate)
+        public ActionResult StockRegisterData(string ToDate, string FromDate,string Days,string Type)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate,Days,Type));
                 var jsondata = Json(new { NewData, Message = AplosMessage.Success });
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -129,7 +129,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate)
+        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate,string Days,string Type)
         {
             try
             {
