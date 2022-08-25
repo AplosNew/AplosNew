@@ -345,8 +345,7 @@ function masterOrderSalesPostController(cboService, commonMessage, $window, $sco
         //GetCurrencyExchangeRateList();
         $scope.modelNew.SourceType = x.data.SourceType;
         if ($scope.modelNew.SourceType == 'Packing') {
-            $scope.modelPacking.Id = x.data.SalesPackingId
-
+            //$scope.modelPacking.Id = x.data.SalesPackingId
             $scope.GetPackingDetail();
             $scope.packingJournal();
             $scope.GetCboVoucherTypePackingJournalList();

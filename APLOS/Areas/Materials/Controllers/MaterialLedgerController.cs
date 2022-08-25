@@ -214,10 +214,9 @@ namespace Aplos.Areas.Materials.Controllers
 			var reportFileName = "Material Stock Balance" + fromDate + "To" + toDate + "";
           
             Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
-            
-            //var workbook = _materialMasterService.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory,Country);
-			switch (reportFormat)
+                var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+
+            switch (reportFormat)
 			{
 				case ReportFormat.Pdf:
 					return RenderReportAsPdf(workbook, reportFileName);

@@ -1427,8 +1427,17 @@ namespace Library.MaterialManagement.InventoryManagements
                         Head = "Material Stock Balance (Of Fixed Asset And Inventory)";
                     }
                     InventoryStockReportService inventoryStockReportService = new InventoryStockReportService();
-                    inventoryStockReportService.CreateMaterialStockBalanceSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
-                    workbook.Version = ExcelVersion.Excel2016;
+
+                if (fromDate == null || fromDate=="")
+                {
+					inventoryStockReportService.CreateMaterialStockBalanceSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+				}
+                else
+                {
+					inventoryStockReportService.CreateMaterialStockBalanceForThePeriodSheet(ref sheet1, ref sheet2, report, Head, "Summary", companyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+				}
+					
+				workbook.Version = ExcelVersion.Excel2016;
                     return workbook;
                 }
                 catch (Exception ex)

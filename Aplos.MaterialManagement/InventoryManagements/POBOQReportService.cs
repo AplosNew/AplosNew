@@ -405,7 +405,7 @@ namespace Library.MaterialManagement.InventoryManagements
             {
                 strSQL = @"SELECT PO.Id PONumber
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
+                    ,POType=CASE WHEN PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO BOQ' END
                     ,CheckStatus= CASE when PO.CheckedByStatus='pending' Then 'To be checked'
                     when PO.CheckedByStatus='Hold' Then 'Hold'
                     when PO.CheckedByStatus='Reject' Then 'Reject'
@@ -1721,7 +1721,7 @@ WHERE po.Id='" + POID+@"'";
                     ,Plant.GSTIN
 	                ,REPLACE(Convert(VARCHAR(11), PLC.LCDate, 106), ' ', '-') AS LCODate
                     ,REPLACE(Convert(VARCHAR(11), PO.PODate, 106), ' ', '-') AS PODate
-                    ,POType=CASE WHEN PO.POType='PO' then 'PO Without Requisition' ELSE 'PO With Requisition' END
+                    ,POType=CASE WHEN PO.POType='POBOQ' then 'PO BOQ' ELSE 'PO BOQ' END
                     ,REPLACE(Convert(VARCHAR(11), PO.BaseOnDueDate, 106), ' ', '-') AS BaseOnDueDate
                     ,REPLACE(Convert(VARCHAR(11), PO.MatureDate, 106), ' ', '-') AS MatureDate
                     ,PO.InvoicingPartyPlantId
@@ -1812,6 +1812,7 @@ WHERE po.Id='" + POID+@"'";
                     else ''
                     END
 					,boq.RMDescription MaterialDescription,boq.SKUDesc
+                    ,MLC.LCRef MasterLCNo,MLC.LCDate MasterLCDate
 
                     FROM TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
@@ -1824,6 +1825,7 @@ WHERE po.Id='" + POID+@"'";
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
+                    LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id = CNO.MasterLCId
                     LEFT JOIN trn.MasterOrder AS mo ON mo.Id=cno.MasterOrderId
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
