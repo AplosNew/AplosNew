@@ -1812,6 +1812,7 @@ WHERE po.Id='" + POID+@"'";
                     else ''
                     END
 					,boq.RMDescription MaterialDescription,boq.SKUDesc
+                    ,MLC.LCRef MasterLCNo,MLC.LCDate MasterLCDate
 
                     FROM TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
@@ -1824,6 +1825,7 @@ WHERE po.Id='" + POID+@"'";
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
+                    LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id = CNO.MasterLCId
                     LEFT JOIN trn.MasterOrder AS mo ON mo.Id=cno.MasterOrderId
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
