@@ -193,7 +193,7 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult Save(Dictionary<string, object> datas)
 
         {
@@ -211,7 +211,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult SaveMaterialAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string storagelevel)
 
         {
@@ -229,7 +229,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        [Authorize, HttpPost]
+        [HttpPost]
         public JsonResult SaveBinAllocation(List<Dictionary<string, object>> BinHead, string HeaderId, string MaterialId)
 
         {
