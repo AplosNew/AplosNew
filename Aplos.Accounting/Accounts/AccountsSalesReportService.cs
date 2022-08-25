@@ -690,33 +690,62 @@ namespace Library.Accounting.Accounts
 
                 if (companyCurrencyId != transcationCurrency)
                 {
-                    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(3) + 12 + ":" + reportUtility.GetColumnNameForXls(3) + (row - 1) + ")";
-                    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
-
-                    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + 12 + ":" + reportUtility.GetColumnNameForXls(4) + (row - 1) + ")";
-                    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
-                    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
-                    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
-                    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
-
-                    sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + 12 + ":" + reportUtility.GetColumnNameForXls(5) + (row - 1) + ")";
+                    sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + 12 + ":" + reportUtility.GetColumnNameForXls(6) + (row - 1) + ")";
                     sheet.Range[row, colusdDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colusdDebit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colusdDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colusdDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colusdDebit].BorderAround(ExcelLineStyle.Hair);
 
-                    sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + 12 + ":" + reportUtility.GetColumnNameForXls(6) + (row - 1) + ")";
+                    sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(7) + 12 + ":" + reportUtility.GetColumnNameForXls(7) + (row - 1) + ")";
                     sheet.Range[row, colusdCradit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colusdCradit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colusdCradit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colusdCradit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colusdCradit].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + 12 + ":" + reportUtility.GetColumnNameForXls(4) + (row - 1) + ")";
+                    sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                    sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + 12 + ":" + reportUtility.GetColumnNameForXls(5) + (row - 1) + ")";
+                    sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                    sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+
+
+                    //sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(3) + 12 + ":" + reportUtility.GetColumnNameForXls(3) + (row - 1) + ")";
+                    //sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    //sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    //sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
+
+                    //sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + 12 + ":" + reportUtility.GetColumnNameForXls(4) + (row - 1) + ")";
+                    //sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    //sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet.Range[row, colinrCredit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    //sheet.Range[row, colinrCredit].BorderAround(ExcelLineStyle.Hair);
+
+                    //sheet.Range[row, colusdDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + 12 + ":" + reportUtility.GetColumnNameForXls(5) + (row - 1) + ")";
+                    //sheet.Range[row, colusdDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    //sheet.Range[row, colusdDebit].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colusdDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet.Range[row, colusdDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    //sheet.Range[row, colusdDebit].BorderAround(ExcelLineStyle.Hair);
+
+                    //sheet.Range[row, colusdCradit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + 12 + ":" + reportUtility.GetColumnNameForXls(6) + (row - 1) + ")";
+                    //sheet.Range[row, colusdCradit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                    //sheet.Range[row, colusdCradit].CellStyle.Font.Bold = true;
+                    //sheet.Range[row, colusdCradit].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    //sheet.Range[row, colusdCradit].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    //sheet.Range[row, colusdCradit].BorderAround(ExcelLineStyle.Hair);
                 }
                 else
                 {
@@ -1019,14 +1048,14 @@ namespace Library.Accounting.Accounts
                 }
                 else
                 {
-                    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(3) + 12 + ":" + reportUtility.GetColumnNameForXls(3) + (row - 1) + ")";
+                    sheet.Range[row, colinrDebit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + 12 + ":" + reportUtility.GetColumnNameForXls(4) + (row - 1) + ")";
                     sheet.Range[row, colinrDebit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colinrDebit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colinrDebit].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[row, colinrDebit].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     sheet.Range[row, colinrDebit].BorderAround(ExcelLineStyle.Hair);
 
-                    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(4) + 12 + ":" + reportUtility.GetColumnNameForXls(4) + (row - 1) + ")";
+                    sheet.Range[row, colinrCredit].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + 12 + ":" + reportUtility.GetColumnNameForXls(5) + (row - 1) + ")";
                     sheet.Range[row, colinrCredit].NumberFormat = reportUtility.NumberFormatDecimalTwo();
                     sheet.Range[row, colinrCredit].CellStyle.Font.Bold = true;
                     sheet.Range[row, colinrCredit].VerticalAlignment = ExcelVAlign.VAlignCenter;

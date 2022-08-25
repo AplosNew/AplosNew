@@ -103,6 +103,42 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 		}
 	});
 
+	//$scope.IsGo = false;
+	//$scope.masterGo = function (isdisabled) {
+	//	try {
+	//		ValidationPreMaster();
+	//		$scope.SetGo(isdisabled);
+	//		//$scope.getLineGrid();
+	//	} catch (ex) {
+	//		ShowResult(ex, 'Info');
+	//	}
+	//};
+
+	//$scope.SetGo = function (isdisabled) {
+	//	$scope.IsGo = isdisabled;
+	//};
+
+	//function ValidationPreMaster() {
+	//	try {
+	//		CheckField("Entity", $scope.productionSummaryNew.EntityId);
+	//		CheckField("Process", $scope.productionSummaryNew.ProcessId);
+	//		CheckField("Productio From Date", $scope.productionSummaryNew.ProductionFromDate);
+	//		CheckField("Production To Date", $scope.productionSummaryNew.ProductionToDate);
+	//		CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
+	//	} catch (ex) {
+	//		throw ex;
+	//	}
+	//}
+
+	//$scope.wcList = [];
+	//$scope.loadWC = function (processid, entityId) {
+	//	cboService.GetWCProcessCbo(processid, entityId, function (result) {
+	//		$scope.wcList = result;
+	//		//if (baseService.arrayLength(result) === 1) {
+	//		//    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
+	//		//}
+	//	});
+	//};
 
 	$scope.Print = function () {
 
@@ -216,8 +252,11 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 			method: 'POST',
 			url: 'Materials/StockRegister/StockRegisterData',
 			data: {
-				fromDate: $scope.report.FromDate,
-				toDate: $scope.report.ToDate,
+				FromDate: $scope.productionSummaryNew.FromDate,
+				ToDate: $scope.productionSummaryNew.ToDate,
+				EntityId: $scope.productionSummaryNew.ToDate,
+				ShiftId: $scope.productionSummaryNew.ProductionShiftId,
+				ProcessId: $scope.productionSummaryNew.ProcessId
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {

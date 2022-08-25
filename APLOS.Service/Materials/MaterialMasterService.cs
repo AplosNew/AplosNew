@@ -8789,7 +8789,8 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                     group by IRD.Id,Ins.SalesDate,Ins.Id--,Ins.Iss
                                      )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
-						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND 
+						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND
+                        (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' AND 
 						Convert(date ,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'  
                         " + Sku + @" ";
 
