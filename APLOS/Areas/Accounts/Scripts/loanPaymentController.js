@@ -684,7 +684,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.voucher.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
         $scope.voucher.OtherExpensesPayable = data.OtherExpensesPayable;
         $scope.voucher.Balance = data.Balance;
-        $scope.voucher.LoanDocRefNo = data.DocRefNo;
+        $scope.voucher.LoanDocRefNo = data.Particulars+"-"+ data.DocRefNo;
         $scope.voucher.LoanPostingDate = data.PostingDate;
         $scope.voucher.LoanDocDate = data.DocDateNew;
         $scope.voucher.InterestWriteOff = data.InterestWriteOff;
@@ -731,7 +731,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.loanAddition.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
         $scope.loanAddition.OtherExpensesPayable = data.OtherExpensesPayable;
         $scope.loanAddition.Balance = data.Balance;
-        $scope.loanAddition.LoanDocRefNo = data.DocRefNo;
+        $scope.loanAddition.LoanDocRefNo = data.Particulars + "-" + data.DocRefNo;
         $scope.loanAddition.LoanPostingDate = data.PostingDate;
         $scope.loanAddition.LoanDocDate = data.DocDateNew;
         $scope.loanAddition.InterestWriteOff = data.InterestWriteOff;

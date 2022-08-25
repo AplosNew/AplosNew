@@ -1687,34 +1687,7 @@ namespace Library.Service.Finances
 
                     #region To
 
-                    //if (voucherVM.PaymentSource == PaymentSource.Bank.ToString())
-                    //{
-                    //    if (string.IsNullOrEmpty(voucherVM.BankMasterId))
-                    //        throw new CustomException("Bank Id not found!");
-                    //    var bankMaster = _accountsCommonService.GetBankMaster(voucherVM.BankMasterId);
-
-                    //    voucherDetailTo.BankMasterId = bankMaster["Id"].ToString();
-                    //    voucherDetailTo.GLGeneralInfoId = bankMaster["GLGeneralInfoId"].ToString();
-                    //    voucherDetailTo.BudgetMasterId = bankMaster["BudgetMasterId"].ToString();
-                    //    voucherDetailTo.ActivityId = bankMaster["ActivityId"].ToString();
-
-                    //    voucherDetailTo.TrnNature = TransactionNature.ToBank.ToString();
-                    //}
-                    //else if (voucherVM.PaymentSource == PaymentSource.Cash.ToString())
-                    //{
-                    //    if (string.IsNullOrEmpty(voucherVM.CashMasterId))
-                    //        throw new CustomException("Cash Id not found!");
-                    //    var cashMaster = _accountsCommonService.GetCashMaster(voucherVM.CashMasterId);
-
-                    //    voucherDetailTo.CashMasterId = cashMaster["Id"].ToString();
-                    //    voucherDetailTo.GLGeneralInfoId = cashMaster["GLGeneralInfoId"].ToString();
-                    //    voucherDetailTo.BudgetMasterId = cashMaster["BudgetMasterId"].ToString();
-                    //    voucherDetailTo.ActivityId = cashMaster["ActivityId"].ToString();
-
-                    //    voucherDetailTo.CashMasterId = voucherVM.CashMasterId;
-                    //    voucherDetailTo.TrnNature = TransactionNature.ToCash.ToString();
-                    //}
-                   if (voucherVM.PaymentSource == "Loan")
+                   if (voucherVM.PaymentSource == PaymentSource.Loan.ToString())
                     {
                         if (string.IsNullOrEmpty(loanAdditionVM.FinancingId))
                             throw new CustomException("Loan not found!");
@@ -1975,62 +1948,7 @@ namespace Library.Service.Finances
                     totalCurrencyAmountDr += voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount;
 
                 }
-                //*********************GLGeneralInfo Dr**********************************
-                //if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId) || !string.IsNullOrEmpty(voucherDetailFrom.CashMasterId))
-                //{
-                //    if (voucherVM.Amount > 0)
-                //    {
-                //        if (!string.IsNullOrEmpty(voucherDetailFrom.BankMasterId))
-                //        {
-                //            var bankMasterFrom = _accountsCommonService.GetBankMaster(voucherDetailFrom.BankMasterId);
-                //            _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
-                //            {
-                //                BankMasterId = voucherDetailFrom.BankMasterId,
-                //                CashMasterId = voucherDetailFrom.CashMasterId,
-                //                DrAmount = bankMasterFrom["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailFrom.DrAmount : voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
-                //                SourceType = voucherDetailFrom.PaymentSource
-                //            });
-                //        }
-                //        else
-                //        {
-                //            _voucherService.InsertGLTransactionDetail(voucherDetailFrom, new GLTransactionDetail
-                //            {
-                //                BankMasterId = voucherDetailFrom.BankMasterId,
-                //                CashMasterId = voucherDetailFrom.CashMasterId,
-                //                DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
-                //                SourceType = voucherDetailFrom.PaymentSource
-                //            });
-                //        }
-
-                //    }
-                //}
-                ////*********************GLGeneralInfo Cr**********************************
-                //if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId) || !string.IsNullOrEmpty(voucherDetailTo.CashMasterId))
-                //{
-                //    if (!string.IsNullOrEmpty(voucherDetailTo.BankMasterId))
-                //    {
-                //        var bankMasterTo = _accountsCommonService.GetBankMaster(voucherDetailTo.BankMasterId);
-
-                //        _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
-                //        {
-                //            BankMasterId = voucherDetailTo.BankMasterId,
-                //            CashMasterId = voucherDetailTo.CashMasterId,
-                //            CrAmount = bankMasterTo["CurrencyId"].ToString() == voucher.CurrencyId ? voucherDetailTo.CrAmount : voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
-                //            SourceType = voucherDetailTo.PaymentSource
-                //        });
-                //    }
-                //    else
-                //    {
-                //        _voucherService.InsertGLTransactionDetail(voucherDetailTo, new GLTransactionDetail
-                //        {
-                //            BankMasterId = voucherDetailTo.BankMasterId,
-                //            CashMasterId = voucherDetailTo.CashMasterId,
-                //            CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
-                //            SourceType = voucherDetailTo.PaymentSource
-                //        });
-                //    }
-
-                //}
+                
                 //***********************Loan Schedule***********************************
                 if (voucherVM.IsSchedule)
                 {

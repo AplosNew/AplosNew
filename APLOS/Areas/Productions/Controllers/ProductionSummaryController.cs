@@ -295,6 +295,11 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_productionSummaryData.GetProcessParaData(processId, masterId, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
+        {
+            return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetTotalProductionQty(string wcid, string workdate)

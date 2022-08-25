@@ -1855,7 +1855,35 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 throw ex;
             }
         }
+        public IEnumerable<object> GetProcessDetentionData(string processId,  string entityId, string productionDate, string shiftId, string workcenter)
+        {
+            try
+            {
+                var sql = "";
+                    sql = @"
+SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "' and MMT.ShiftId = '" + shiftId + "' and MMT.Date = '" + productionDate + "' and MMT.WorkCenterId = '" + workcenter + "'";
 
+
+                return _sqlRepository.GetDataCollection(sql, null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public void ReLoadFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue)
         {
             DataSet dsLocal = null;
