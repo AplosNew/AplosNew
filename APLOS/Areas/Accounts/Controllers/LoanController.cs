@@ -8,6 +8,7 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.Model.Parties;
+using Library.Model.Payments;
 using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Finances;
@@ -272,7 +273,7 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input  No Of Installment!");
             }
 
-            if(voucherVM.PaymentSource== "Loan")
+            if(voucherVM.PaymentSource== PaymentSource.Loan.ToString())
             {
                 if (voucherVM.FinancingId == loanAdditionVM.FinancingId)
                     throw new CustomException("Please Select  Different Loan!");
