@@ -59,7 +59,11 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet , Authorize]
         public ActionResult getFilters()
         {
-            return Json(ps.getFilters() , JsonRequestBehavior.AllowGet);
+            var jsondata = Json( ps.getFilters(), JsonRequestBehavior.AllowGet );
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+
+            //return Json(ps.getFilters() , JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost , Authorize]

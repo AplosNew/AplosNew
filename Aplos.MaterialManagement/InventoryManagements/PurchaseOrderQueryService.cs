@@ -2005,7 +2005,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
-        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
+        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             try
             {
@@ -2015,7 +2015,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 var workbook = report.GetWorkbook(ref excelEngine, 2);
                 var sheet1 = workbook.Worksheets[0];
                 var Head = "Purchase Order Register";// + " " + fromDate + " " + "To" + " " + toDate ;
-                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type, POId);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
@@ -2659,7 +2659,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
         }
 
-        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var cmdText = "";
