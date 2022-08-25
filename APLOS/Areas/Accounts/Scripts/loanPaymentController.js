@@ -55,6 +55,10 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         IsSchedule: false,
         CompanyCurrencyRate:1
     };
+    $scope.loanAddition = {
+        LoanDocRefNo: null,
+        FinancingId: null
+    };
 
 
     $scope.LoanSetOffType = 'Single';
@@ -419,6 +423,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                     url: "Accounts/Loan/InsertLoanPayment",
                     data: {
                         "voucherVM": $scope.voucher,
+                        "loanAdditionVM": $scope.loanAddition,
                         "loanRepaymentSchedulelist": $scope.loanRepaymentSchedulelist
                     },
                     dataType: "JSON"
@@ -546,6 +551,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.voucher.PartyType = "Customer";
         $scope.voucher.TransactionType = "LoanTaken";
         $scope.currencyExchangeRate = [];
+        $scope.loanAddition = {};
         $scope.getCboVoucherTypeLoanList();
         $scope.loanRepaymentSchedulelist = [];
         $("#loanDetails").children().remove();
@@ -695,6 +701,53 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         $scope.GetCurrencyExchangeRateList();
         angular.element(document.querySelector("#loanPopUp")).modal("hide");
     };
+    $scope.showAdditionloanPopUp = function () {
+        $scope.getPopUpData();
+        angular.element(document.querySelector('#additionLoanPopUp')).modal('show');
+    };
+    $scope.closeAdditionloanPopUp = function () {
+        angular.element(document.querySelector("#additionLoanPopUp")).modal("hide");
+    };
+    $scope.closeAdditionloanPopUpSelected = function (x) {
+        var data = x.data;
+        $scope.loanAddition.FinancingId = data.FinancingId;
+        $scope.loanAddition.FinancingDetailId = data.FinancingDetailId;
+        $scope.loanAddition.FinancingTypeId = data.FinancingTypeId;
+        $scope.loanAddition.VoucherNo = data.VoucherNo;
+        $scope.loanAddition.PartyName = data.Particulars;
+        $scope.loanAddition.PartyId = data.PartyId;
+        $scope.loanAddition.PartyType = data.PartyType;
+        $scope.loanAddition.PartyPlantName = data.PartyPlantName;
+        $scope.loanAddition.CurrencyId = data.CurrencyId;
+        $scope.loanAddition.CurrencyCode = data.CurrencyCode;
+        $scope.loanAddition.EntityId = data.EntityId;
+        $scope.loanAddition.CompanyId = data.CompanyId;
+        $scope.loanAddition.PlantId = data.PlantId;
+        $scope.loanAddition.LoanAmount = data.LoanAmount;
+        $scope.loanAddition.LoanSetOff = data.LoanPayment;
+        $scope.loanAddition.InitialSactionAmount = data.InitialSactionAmount;
+        $scope.loanAddition.AdditionalLoanAmount = data.AdditionalLoanAmount;
+        $scope.loanAddition.TotalInterestPayableAmount = data.InterestAmount;
+        $scope.loanAddition.InterestAmount = data.InterestAmount - data.OtherExpensesPayable;
+        $scope.loanAddition.OtherExpensesPayable = data.OtherExpensesPayable;
+        $scope.loanAddition.Balance = data.Balance;
+        $scope.loanAddition.LoanDocRefNo = data.DocRefNo;
+        $scope.loanAddition.LoanPostingDate = data.PostingDate;
+        $scope.loanAddition.LoanDocDate = data.DocDateNew;
+        $scope.loanAddition.InterestWriteOff = data.InterestWriteOff;
+        $scope.loanAddition.InterestBalance = data.InterestBalance;
+        $scope.loanAddition.InterestCashPayment = data.InterestCashPayment;
+        $scope.loanAddition.OtherBankMasterId = data.OtherBankMasterId;
+        $scope.loanAddition.ToCurrencyRate = data.CompanyCurrencyRate;
+        $scope.loanAddition.PartyPlantId = data.PartyPlantId;
+        $scope.loanAddition.TotalAmount = '';
+        $scope.loanAddition.InterestPaymentAmount = '';
+        $scope.loanAddition.InterestCashAmount = '';
+        $scope.loanAddition.Amount = 0;
+        $scope.loanAddition.LoanSetOffAmount = 0;
+        $scope.voucher.CompanyCurrencyRate = data.CompanyCurrencyRate;
+        angular.element(document.querySelector("#additionLoanPopUp")).modal("hide");
+    };
 
     $scope.exchangeGainLossAmount = function (amount) {
         var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat(amount);
@@ -706,33 +759,59 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         else {
             CloseShowResult();
         }
-        if ($scope.voucher.TransactionType == 'LoanTaken') {
-            if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeLoss";
-            }
-            else if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+        if ($scope.voucher.PaymentSource == "Loan") {
+            $scope.loanAddition.Amount = Math.abs(amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+            if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.LoanSetOffAmount - $scope.loanAddition.Amount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeGain";
             }
-        }
-        else if ($scope.voucher.TransactionType == 'LoanGiven') {
-            if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
+            else if ($scope.loanAddition.Amount > $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.Amount - $scope.loanAddition.LoanSetOffAmount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeLoss";
-            }
-            else if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-                $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeGain";
             }
         }
         else {
-            $scope.voucher.ExchangeAmount = 0;
-            $scope.voucher.ExchangeType = null;
+            if ($scope.voucher.TransactionType == 'LoanTaken') {
+                if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+                    $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeLoss";
+                }
+                else if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+                    $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeGain";
+                }
+            }
+            else if ($scope.voucher.TransactionType == 'LoanGiven') {
+                if ($scope.voucher.ToCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
+                    $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.CompanyCurrencyRate - $scope.voucher.ToCurrencyRate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeLoss";
+                }
+                else if ($scope.voucher.ToCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
+                    $scope.voucher.ExchangeAmount = Math.abs(amount * ($scope.voucher.ToCurrencyRate - $scope.voucher.CompanyCurrencyRate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeGain";
+                }
+            }
+            else {
+                $scope.voucher.ExchangeAmount = 0;
+                $scope.voucher.ExchangeType = null;
+            }
         }
+        
     };
 
     $scope.exchangeGainLossCal = function (rate) {
+        if ($scope.voucher.PaymentSource == "Loan") {
+            $scope.loanAddition.Amount = Math.abs(amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
+            if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.LoanSetOffAmount - $scope.loanAddition.Amount).toFixed(2);
+                $scope.voucher.ExchangeType = "ExchangeGain";
+            }
+            else if ($scope.loanAddition.Amount > $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.Amount - $scope.loanAddition.LoanSetOffAmount).toFixed(2);
+                $scope.voucher.ExchangeType = "ExchangeLoss";
+            }
+        }
+        else {
             if ($scope.voucher.TransactionType == 'LoanGiven') {
                 if ($scope.voucher.ToCurrencyRate > rate) {
                     $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate)).toFixed(2);
@@ -747,14 +826,39 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                     $scope.voucher.ExchangeType = null;
                 }
             }
-        if ($scope.voucher.TransactionType == 'LoanTaken') {
-            if ($scope.voucher.ToCurrencyRate < rate) {
-                $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate)).toFixed(2);
-                $scope.voucher.ExchangeType = "ExchangeLoss";
+            if ($scope.voucher.TransactionType == 'LoanTaken') {
+                if ($scope.voucher.ToCurrencyRate < rate) {
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * (rate - $scope.voucher.ToCurrencyRate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeLoss";
+                }
+                else if ($scope.voucher.ToCurrencyRate > rate) {
+                    $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate)).toFixed(2);
+                    $scope.voucher.ExchangeType = "ExchangeGain";
+                }
+                else {
+                    $scope.voucher.ExchangeAmount = 0;
+                    $scope.voucher.ExchangeType = null;
+                }
             }
-            else if ($scope.voucher.ToCurrencyRate > rate) {
-                $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.Amount * ($scope.voucher.ToCurrencyRate - rate)).toFixed(2);
+        }
+    };
+    $scope.exchangeGainLossAmountloanAddition = function () {
+        var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat($scope.loanAddition.LoanSetOffAmount);
+        if (dramount > balance) {
+            $scope.loanAddition.LoanSetOffAmount = $scope.voucher.Balance;
+            ShowResult("Payment Amount should not exceed Loan Amount.", "failure");
+        }
+        else {
+            CloseShowResult();
+        }
+        if ($scope.voucher.PaymentSource == "Loan") {
+            if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.LoanSetOffAmount - $scope.loanAddition.Amount).toFixed(2);
                 $scope.voucher.ExchangeType = "ExchangeGain";
+            }
+            else if ($scope.loanAddition.Amount > $scope.loanAddition.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.loanAddition.Amount - $scope.loanAddition.LoanSetOffAmount).toFixed(2);
+                $scope.voucher.ExchangeType = "ExchangeLoss";
             }
             else {
                 $scope.voucher.ExchangeAmount = 0;

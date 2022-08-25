@@ -70,6 +70,10 @@
                                         <input ng-click="changeSourceFrom('Cash')" type="radio" name="source" ng-model="voucher.PaymentSource" value="Cash">
                                         <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Cash
                                     </label>
+                                    <label>
+                                        <input ng-click="changeSourceFrom('Loan')" type="radio" name="source" ng-model="voucher.PaymentSource" value="Loan">
+                                        <span class="cr" tabindex="21"><i class="cr-icon"></i></span>Loan
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -91,16 +95,6 @@
                                     <input type="text" maxlength="50" name="Doc Ref" ng-model="voucher.DocRefNo" class="form-control" tabindex="3" required autocomplete="off" capitalize>
                                 </div>
                             </div>
-                            @*<div class="form-group" ng-show="voucher.PaymentSource=='Bank'">
-                                    <label class="col-sm-3 control-label">Bank<sup>*</sup></label>
-                                    <div class="col-sm-9 show-message">
-                                        <div class="select-style">
-                                            <select name="Bank" class="form-control" submit-required="true" ng-model="voucher.BankMasterId" ng-options="item.Id as item.AccountTitle for item in bankMasterList">
-                                                <option value="">--Select--</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>*@
                             <div class="form-group" ng-show="voucher.PaymentSource=='Bank'">
                                 <label class="col-sm-3 control-label">Bank<sup>*</sup></label>
                                 <div class="col-sm-9 show-message">
@@ -120,6 +114,18 @@
                                         <select name="Cash" class="form-control" submit-required="true" ng-model="voucher.CashMasterId" ng-options="item.Id as item.UserName for item in cashMasterList">
                                             <option value="">--Select--</option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="voucher.PaymentSource=='Loan'">
+                                <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Loan<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <div class="input-group">
+                                        <input type="text" name="Code" ng-model="loanAddition.LoanDocRefNo" class="form-control" readonly>
+                                        <span class="input-group-btn">
+                                            <button ng-click="showAdditionloanPopUp();" class="btn single-small-btn"><i class="glyphicon glyphicon-search"></i></button>
+                                            <button ng-click="clearLoanData()" class="btn single-small-btn" tabindex="15"><i class="glyphicon glyphicon-refresh"></i></button>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -239,7 +245,7 @@
                                     </div>
                                     <label class="col-sm-3 control-label">Rate<sup>*</sup></label>
                                     <div class="col-sm-2 show-message">
-                                        <input type="text" maxlength="50" id="Rate" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4">
+                                        <input type="text" maxlength="50" id="Rate" name="Rate" ng-keyup="exchangeGainLossCal(voucher.CompanyCurrencyRate)" ng-model="voucher.CompanyCurrencyRate" class="form-control text-right" tabindex="6" autocomplete="off" n-decimals="4" ng-readonly="voucher.PaymentSource=='Loan'">
                                     </div>
                                 </div>
                                 <div class="form-group" id="div_qty" ng-show="voucher.ExchangeType">
@@ -252,6 +258,19 @@
                                         <input type="text" maxlength="50" readonly ng-model="voucher.ExchangeAmount" class="form-control text-right" tabindex="6" n-decimals="4">
                                     </div>
                                 </div>
+                                <div class="form-group" id="div_Additional_BooksAmount" ng-show="voucher.PaymentSource=='Loan'">
+                                    <label class="col-sm-6 control-label">Additional Books Amount<sup>*</sup></label>
+                                    <div class="col-sm-5 show-message">
+                                        <input type="text" tabindex="19" ng-model="loanAddition.Amount" ng-keyup="exchangeGainLossAmountloanAddition()" n-decimals="2" class="form-control text-right">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="div_Setoff_BooksAmount" ng-show="voucher.PaymentSource=='Loan'">
+                                    <label class="col-sm-6 control-label">Setoff Books Amount<sup>*</sup></label>
+                                    <div class="col-sm-5 show-message">
+                                        <input type="text" maxlength="50" ng-model="loanAddition.LoanSetOffAmount" ng-keyup="exchangeGainLossAmountloanAddition()" class="form-control text-right" tabindex="19" n-decimals="2">
+                                    </div>
+                                </div>
+
 
                             </fieldset>
                         </div>
@@ -286,9 +305,9 @@
                                         <span class="cr" tabindex="15"><i class="cr-icon"></i></span>Taken
                                     </label>
                                     @*<label>
-                                        <input type="radio" name="Transaction Type ML" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="voucherML.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
-                                        <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
-                                    </label>*@
+                                            <input type="radio" name="Transaction Type ML" ng-click="changeTransactionType('@Library.Model.Enums.TransactionType.LoanGiven.ToString()')" ng-model="voucherML.TransactionType" value="@Library.Model.Enums.TransactionType.LoanGiven.ToString()">
+                                            <span class="cr" tabindex="14"><i class="cr-icon"></i></span>Given
+                                        </label>*@
 
                                 </div>
                             </div>
@@ -331,7 +350,7 @@
                                 <label class="col-sm-4 control-label">Settlement/Dr. Bank<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select id="bankId" class="form-control" name="Bank" ng-model="voucherML.BankId"  tabindex="5">
+                                        <select id="bankId" class="form-control" name="Bank" ng-model="voucherML.BankId" tabindex="5">
                                             <option value="">--Select--</option>
                                             <option ng-repeat="option in loanBankList" value="{{option.Value}}">{{option.Text}}</option>
                                         </select>
@@ -513,7 +532,7 @@
 
                                 </fieldset>
                             </div>
-                          
+
                         </div>
 
                         <div class="common-btn">
@@ -527,6 +546,43 @@
                 </div>
 
 
+            </div>
+        </div>
+    </div>
+    <div class="modal fade site-modal in" id="additionLoanPopUp" role="dialog" data-backdrop="static">
+        <div class="modal-dialog modal-lg modellgModify">
+            <div class="modal-content">
+                <div class="modal-header"> Loan List <button type="button" class="close" ng-click="closeAdditionloanPopUp();">&times;</button></div>
+                <div class="modal-body form-elements form-horizontal">
+                    <div class="col-md-12">
+                        <div class="content-container-fluid">
+                            <div style="color:black;" id="LoanGridAdditionloan" ej-grid e-datasource="loanDataList" e-recorddoubleclick="closeAdditionloanPopUpSelected"
+                                 e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
+                                 e-filtersettings-filterType="excel" e-enabletouch="true" e-allowselection="true">
+                                <div e-columns>
+                                    <div e-column e-field="VoucherNo" e-headertext="VoucherNo" e-width="80" e-filter="false"></div>
+                                    <div e-column e-field="FinancingId" e-headertext="Financing No" e-width="80"></div>
+                                    <div e-column e-field="BankName" e-headertext="Bank Name" e-width="130"></div>
+                                    <div e-column e-field="Particulars" e-headertext="Particulars" e-width="130"></div>
+                                    <div e-column e-field="PartyPlantName" e-headertext="PartyPlantName" e-width="60"></div>
+                                    <div e-column e-field="PartyType" e-headertext="PartyType" e-width="60"></div>
+                                    <div e-column e-field="PostingDateNew" e-headertext="Posting Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                                    <div e-column e-field="DocRefNo" e-headertext="Doc Ref No" e-width="80"></div>
+                                    <div e-column e-field="DocDate" e-headertext="Doc Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+
+                                    <div e-column e-field="CurrencyCode" e-headertext="Currency" e-width="50"></div>
+                                    <div e-column e-field="LoanAmount" e-headertext="Amount" e-width="80" textAlign='Right'></div>
+                                    <div e-column e-field="InterestAmount" e-headertext="Interest Amount" e-width="80" e-type='string'></div>
+                                    <div e-column e-field="LoanPayment" e-headertext="SetOff" e-width="80" textAlign='Right'></div>
+                                    <div e-column e-field="Balance" e-headertext="Balance" e-width="80" textAlign='Right'></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="common-btn list-inline text-right">
+                        <li><button ng-click="closeAdditionloanPopUpSelected();" class="btn"> Close</button></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
