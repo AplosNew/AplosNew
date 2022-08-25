@@ -1069,6 +1069,7 @@ upanelApp.controller("FiveSZoneMasterController", FiveSZoneMasterController)
 upanelApp.controller("ProductionSummaryWCController", ProductionSummaryWCController)
 upanelApp.controller("StockRegisterController", StockRegisterController)
 upanelApp.controller("ProductionReportWithParameterController", ProductionReportWithParameterController)
+upanelApp.controller("ProcessWiseMaterialAllocationController", ProcessWiseMaterialAllocationController)
 
 
 upanelApp.config(AccessControllerConfig);

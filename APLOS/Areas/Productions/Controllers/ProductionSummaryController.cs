@@ -694,7 +694,14 @@ namespace Aplos.Areas.Productions.Controllers
                         DataRow drmo = dv[0].Row;
 
                         drmo.BeginEdit();
-                        drmo["Value"] = sFormulaResult;
+                        if (sFormulaResult=="")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
                         drmo.EndEdit();
 
                     }

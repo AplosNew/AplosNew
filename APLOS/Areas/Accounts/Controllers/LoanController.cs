@@ -8,6 +8,7 @@ using Library.Data.Sql;
 using Library.Model.Enums;
 using Library.Model.Finances;
 using Library.Model.Parties;
+using Library.Model.Payments;
 using Library.Service.Currencies;
 using Library.Service.Enums;
 using Library.Service.Finances;
@@ -233,7 +234,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpPost]
-        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
+        public JsonResult InsertLoanPayment(VoucherViewModel voucherVM, VoucherViewModel loanAdditionVM, IEnumerable<FinancingScheduleViewModel> loanRepaymentSchedulelist)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             voucherVM.CompanyGroupId = identity.CompanyGroupId;
@@ -272,7 +273,19 @@ namespace Aplos.Areas.Accounts.Controllers
                     throw new CustomException("Please Input  No Of Installment!");
             }
 
-            return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+            if(voucherVM.PaymentSource== PaymentSource.Loan.ToString())
+            {
+                if (voucherVM.FinancingId == loanAdditionVM.FinancingId)
+                    throw new CustomException("Please Select  Different Loan!");
+                if (loanAdditionVM.Amount < 0 || loanAdditionVM.Amount == 0 || loanAdditionVM.LoanSetOffAmount < 0 || loanAdditionVM.LoanSetOffAmount == 0)
+                    throw new CustomException("Please Input Books Amount !");
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOffLoanAddition(voucherVM, loanAdditionVM, loanRepaymentSchedulelist)) });
+            }
+            else
+            {
+                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+            }
+            
         }
 
 

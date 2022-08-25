@@ -90,35 +90,14 @@ namespace Aplos.Areas.Materials.Controllers
 		{
 			return View();
 		}
-
-        
-
-        [Authorize, HttpPost]
-		public JsonResult GetMaterialLedger(string fromDate,string toDate)
-        {
-			DateTime fDate = DateTime.Parse(fromDate);
-			DateTime tDate = DateTime.Parse(toDate);
-			if (fromDate == null || fromDate == "")
-			{
-				throw new CustomException("Select From Date");
-			}
-			else if (toDate == null || toDate == "")
-			{
-				throw new CustomException("Select To Date");
-			}
-			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-			var jsondata= Json(_inventoryReceiveService.GetMaterialLedger(fromDate,toDate), JsonRequestBehavior.AllowGet);
-			jsondata.MaxJsonLength = int.MaxValue;
-			return jsondata;
-		}
-        
+      
         [HttpPost, Authorize]
-        public ActionResult StockRegisterData(string PlantId, string ToDate, string FromDate)
+        public ActionResult StockRegisterData(string ToDate, string FromDate,int Days,string Type)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate,Days,Type));
                 var jsondata = Json(new { NewData, Message = AplosMessage.Success });
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -129,12 +108,20 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate)
+        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate,int Days,string Type)
         {
             try
             {
-                var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
-							,IsRegular =case when MM.IsRegular=1 then 'Yes' else 'No' end
+				var tempquery = "";
+				if (FromDate ==null)
+				{ tempquery = "AND convert(Date,IR.GRNDate) >  '" + ToDate + "'"; }
+                else
+                {
+					tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
+				}
+				
+				var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
+							,IsRegular =case when MM.IsRegular=1 then 'Regular' else 'Irregular' end
 							,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName
 						,IM.MaterialMasterId
@@ -213,10 +200,10 @@ namespace Aplos.Areas.Materials.Controllers
 					LEFT JOIN EmployeeInformation EMRM ON EMRM.SystemId=MRM.AddedBy
 					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
 					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
-					WHERE  IR.PlantId='" + PlantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '"+ FromDate + "' AND '"+ ToDate + @"'
-						--AND IR.GRNType IN('GRNBYPO') 
-					AND (IRD.BaseQty-IRD.IssueQty)>0 and MRM.Id<>''
-						) x";
+					WHERE  IR.PlantId='" + PlantId + "' "+tempquery+ @"
+						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' 
+					AND (IRD.BaseQty-IRD.IssueQty)>0  
+						) x where x.StockInDays >= " + Days+ " AND x.IsRegular='"+Type+"'";
                 return _sqlRepository.GetDataTable(str);
 
             }

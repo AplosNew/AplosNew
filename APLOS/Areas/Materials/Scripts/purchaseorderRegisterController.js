@@ -177,9 +177,37 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             ShowResult('Select To Date', 'failure');
             return false;
         }
+
+        var dataList = [];
+        var g = $("#GridPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        var ids = "";
+		if (baseService.arrayLength(dataList) > 0) {
+			for (var i = 0; i < dataList.length; i++) {
+				if (ids == "") {
+                    ids = "'','" + dataList[i].SLNo + "'";
+				}
+				else {
+					ids += ",'" + dataList[i].SLNo + "'";
+				}
+			}
+		}
+		else {
+            for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
+				if (ids == "") {
+                    ids = "'','" + $scope.PurchaseRegisterLst[i].SLNo + "'";
+				}
+				else {
+                    ids += ",'" + $scope.PurchaseRegisterLst[i].SLNo + "'";
+				}
+			}
+		}
+
+
         try {
             var Excel;
-            var file_src = 'Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock;
+            var file_src = 'Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Qty=' + $scope.choice1 + '&Amount=' + $scope.choice2 + '&RcptIssue=' + $scope.productNew.RcptIssue + '&Asset=' + $scope.productNew.WithStock + '&Inventory=' + $scope.productNew.WithoutStock + '&POId=' + ids;
             $rootScope.report(file_src);
 
         } catch (e) {

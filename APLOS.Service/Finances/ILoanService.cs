@@ -13,6 +13,7 @@ namespace Library.Service.Finances
         string InsertLoan(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> existingLoanList, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList, IEnumerable<FinancingMasterOrderViewModel> financingMasterOrderlist);
 
         string InsertLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);
+        string InsertLoanWriteOffLoanAddition(VoucherViewModel voucherVM, VoucherViewModel loanAdditionVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);
         string InsertMultiLoanWriteOff(VoucherViewModel voucherVM, IEnumerable<VoucherViewModel> loanRepaymentlist);
         string InsertLoanInterestPayable(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);
         string InsertLoanInterestPayableReverse(VoucherViewModel voucherVM, IEnumerable<FinancingScheduleViewModel> financingScheduleVMList);

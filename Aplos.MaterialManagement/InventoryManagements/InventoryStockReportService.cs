@@ -3861,8 +3861,8 @@ namespace Library.MaterialManagement.InventoryManagements
 							,TUoM.UserName UOM,  opbal.IsAsset
 							
                              --Opening Balance
-                            ,isnull(opbal.TransactionQty,0)-isnull(PurchaseReturnOBData.Qty,0) As OpeningBalance	
-							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) -isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) AS OpeningBalanceAmount
+                            ,isnull(opbal.TransactionQty,0) As OpeningBalance	
+							,isnull(opbal.TotalMaterialBooksCurrencyAmount,0) AS OpeningBalanceAmount
 						    --Receive
 
 							,isnull(opbal2.TransactionQty,0) ReceivedForThePeriod
@@ -3900,8 +3900,8 @@ namespace Library.MaterialManagement.InventoryManagements
 					        ,0 InventorySalesReturnForThePeriodAmount
 					
 							--Balance    
-							,(((((((isnull(opbal.TransactionQty,0)-isnull(PurchaseReturnOBData.Qty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
-							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0)- isnull(PurchaseReturnOBData.PurchaseReturnAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
+							,(((((((isnull(opbal.TransactionQty,0) + isnull(opbal2.TransactionQty,0))-isnull(IFD1.IssueQty,0)-isnull(PurchaseReturnData.Qty,0))-isnull(AdjustmentData.Qty,0))+isnull(IssueReturnData.Qty,0))-isnull(InventorySalesData.Qty,0))-isnull(InventoryScrapData.Qty,0))-isnull(InventoryTransferData.Qty,0)) Closing 
+							,(((((((isnull(opbal.TotalMaterialBooksCurrencyAmount,0) + isnull(opbal2.TotalMaterialBooksCurrencyAmount,0))-isnull(IFD1.PolicyAmount,0)-isnull(AdjustmentData.AdjustmentAmount,0))-isnull(PurchaseReturnData.PurchaseReturnAmount,0))+isnull(IssueReturnData.IssueReturnAmount,0)-isnull(InventorySalesData.InventorySalesAmount,0))-isnull(InventoryScrapData.InventoryScrapAmount,0))-isnull(InventoryTransferData.InventoryTransferAmount,0))) ClosingAmount
 
 
 						from TRN.InventoryMaterial AS IM
@@ -3917,7 +3917,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.CharacteristicsValue AS TCV ON IM.ThirdCharacteristicsValueId=TCV.Id
 						left join( 
 			                        SELECT IRD.InventoryMaterialId
-                                    ,IRD.IsAsset,Sum(IRD.BaseQty)- sum(isnull(II.IssueQty,0))-SUM(isnull(ISD.Qty,0)) AS TransactionQty, Sum(IRD.TotalMaterialBooksCurrencyAmount)-sum(II.PolicyAmount)-SUM(ISD.InventorySalesAmount) TotalMaterialBooksCurrencyAmount
+                                    ,IRD.IsAsset,Sum(IRD.BaseQty)- sum(isnull(II.IssueQty,0))-SUM(isnull(ISD.Qty,0))-sum(PurReturnOBData.Qty) AS TransactionQty
+, Sum(IRD.TotalMaterialBooksCurrencyAmount)-sum(II.PolicyAmount)-SUM(ISD.InventorySalesAmount)-sum(PurReturnOBData.PurchaseReturnAmount) TotalMaterialBooksCurrencyAmount
 			                        FROM [TRN].[InventoryReceiveDetail] IRD
 			                        LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
                                     -- InventoryIssue OB
@@ -3937,7 +3938,13 @@ namespace Library.MaterialManagement.InventoryManagements
 									 --Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
 									 WHERE convert(Date,Ins.SalesDate) <= '" + fromDate + @"' AND Ins.PlantId='" + plantId + @"' GROUP BY ISD.InventoryMaterialId,ISH.InventoryReceiveDetailId
 								        ) ISD ON ISD.InventoryReceiveDetailId=IRD.Id
-
+                                    Left join (select IH.InventoryReceiveDetailId,IH.InventoryMaterialId,sum(IH.TransactionQty) Qty
+								, (sum(IH.TransactionQty*IRD.MaterialTranRate)) PurchaseReturnAmount 
+					                 from trn.PurchaseReturnDetail IH
+									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
+									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
+									 	WHERE convert(Date,II.[POReturnDate]) <= '" + fromDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryReceiveDetailId,IH.InventoryMaterialId
+								 )PurReturnOBData ON PurReturnOBData.InventoryReceiveDetailId=IRD.Id
 			                        where convert(Date,IR.GRNDate) <= '" + fromDate + @"' AND IR.OpeningBalanceId IS NOT NULL  " + assetInvStatus + @"
 									group By IRD.InventoryMaterialId ,IRD.IsAsset
 
@@ -4004,14 +4011,6 @@ namespace Library.MaterialManagement.InventoryManagements
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
 									 	WHERE convert(Date,II.[POReturnDate]) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId
 								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id
-
-                        --Purchase return OB
-						 Left join (select IH.InventoryMaterialId,sum(IH.TransactionQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty)*sum(IRD.MaterialTranRate)) PurchaseReturnAmount 
-					                 from trn.PurchaseReturnDetail IH
-									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
-									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
-									 	WHERE convert(Date,II.[POReturnDate]) < '" + fromDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId
-								 )PurchaseReturnOBData ON PurchaseReturnOBData.InventoryMaterialId=IM.Id
 
                        -- Adjustment
 						Left join (select psad.InventoryMaterialId,sum(IH.Qty) Qty,sum(IH.Rate) Rate, (sum(IH.Qty)*sum(IH.Rate)) AdjustmentAmount 

@@ -717,7 +717,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
             sales.CompanyGroupId = identity.CompanyGroupId;
             sales.CompanyId = identity.CompanyId;
             sales.PlantId = identity.PlantId;
-            
+            //if (packing.PackingId == null)
+            //    throw new CustomException("Packing List are not yet tag in Sales!!.");
+            if (PackingDetailVMList==null)
+                throw new CustomException("Packing JV is missing!!.");
             if (salesDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != salesDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
                 throw new CustomException("Dr Cr Amount not equal");
             if (PackingDetailVMList.Where(a => a.TrnType == "Dr").Sum(r => r.Amount) != PackingDetailVMList.Where(a => a.TrnType == "Cr").Sum(r => r.Amount))
