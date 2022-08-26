@@ -178,6 +178,10 @@ namespace Aplos.Areas.Productions.Controllers
             int ColRate = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "ExchangeRate", 12, ExcelHAlign.HAlignCenter);
+            int ColExRate = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Dispatch Qty", 12, ExcelHAlign.HAlignCenter);
             int ColDis = COL;
             COL++;
@@ -229,6 +233,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColComm].Text = data.Rows[i]["CommitmentDate"].ToString();
                 sheet[ROW, ColSOCat].Text = data.Rows[i]["SOCategory"].ToString();
                 sheet[ROW, ColRate].Number = clsStaticInfo.dbl(data.Rows[i]["Rates"].ToString());
+                sheet[ROW, ColExRate].Number = clsStaticInfo.dbl(data.Rows[i]["ExchangeRate"].ToString());
                 sheet[ROW, ColDis].Number = clsStaticInfo.dbl(data.Rows[i]["DispatchQty"].ToString());
                 sheet[ROW, ColBal].Number = clsStaticInfo.dbl(data.Rows[i]["BalanceToDispatch"].ToString());
                 sheet[ROW, ColAll].Number = clsStaticInfo.dbl(data.Rows[i]["AllotedStock"].ToString());
@@ -290,7 +295,7 @@ namespace Aplos.Areas.Productions.Controllers
                             where pl.Id = moi.ProductLibraryId 
                             and s.WorkDate <= GetDate()
                             and sc.Booked = 0 and  (MMM.PurposeId <> 'MP7' AND MMM.PurposeId <> 'MP8' AND MMM.PurposeId <> 'MP9' AND MMM.PurposeId <> 'MP12')) as AllotedStock
-                            , mor.ExchangeRate * so.Rate as Rates
+                            , so.Rate as Rates, mor.ExchangeRate
                             from trn.SalesOrder so
                             left join trn.MasterOrderItem moi on moi.Id = so.MasterOrderItemId
                             left join trn.MasterOrder mo on mo.Id = moi.MasterOrderId
