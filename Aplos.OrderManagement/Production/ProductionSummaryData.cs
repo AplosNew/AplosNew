@@ -1861,7 +1861,7 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
             {
                 var sql = "";
                     sql = @"
-SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
 										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift,
 										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
@@ -1870,7 +1870,7 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
 										left join ORG.Department D on D.Id=MMT.DepartmentId
 										left join DetentionMaster DM on DM.Id=MMT.DetentionId
 										left join HKP.Process P on P.Id=MMT.ProcessId
-										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left join MST.CompliedShiftGrouping SD on SD.Id=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
                 where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "' and MMT.ShiftId = '" + shiftId + "' and MMT.Date = '" + productionDate + "' and MMT.WorkCenterId = '" + workcenter + "'";
@@ -1931,7 +1931,14 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
                         dvLocal.RowFilter = "ProductionBookingParameterId = '" + strTemp.Trim() + "'";
                         if (dvLocal.Count > 0)
                         {
-                            strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                            if (dvLocal[0]["Amount"].ToString().Trim() == "")
+                            {
+                                strTemp = "0";
+                            }
+                            else
+                            {
+                                strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                            }
                         }
                     }
 

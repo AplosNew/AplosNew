@@ -10,7 +10,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlWC = $scope.path + 'createWC';
-    $scope.saveUrlWCParaList = $scope.path + 'createWCParaList';
+    $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
     $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
     $scope.updateUrl = $scope.path + 'edit';
@@ -1112,7 +1112,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
-
+   
     $scope.SaveMasterWC = function () {
         try {
    
@@ -1375,7 +1375,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
-        $scope.NewObject = data.data;
+        $scope.NewObjectDetention = data.data;
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
@@ -1406,6 +1406,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             }
                         }
                         $scope.GetDetentionList();
+                        $scope.GetDetentionTypeList();
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1427,7 +1428,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionList = response.data;
         });
     }
-  /*  $scope.GetDetentionList();*/
     $scope.DetentionTypeList = [];
     $scope.GetDetentionTypeList = function () {
         $http({
@@ -1437,5 +1437,97 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionTypeList = response.data;
         });
     }
-    /*$scope.GetDetentionTypeList();*/
+    $scope.selectDepartment = function () {
+        $scope.getsD();
+        angular.element(document.querySelector('#DepartmentPop')).modal('show');
+    }
+
+    $scope.DepartmentList = [];
+    $scope.getsD = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/getDepartment',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DepartmentList = resp.data;
+        });
+    }
+
+    $scope.doubleDepartment = function (e) {
+        $scope.NewObjectDetention.DepartmentId = e.data.DepartmentId;
+        $scope.NewObjectDetention.Department = e.data.DepartmentName;
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+    
+    $scope.closeDepartmentPopUp = function () {
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+
+    $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetentionWorkCenter });
+    };
+    function CheckBoxSelectAllDetentionWorkCenter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#ProductionSummaryDetentionWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                $scope.ProcessDetentionLists[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.SaveDetentionWC = function () {
+        try {
+
+            $scope.DetentionSaveList = [];
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                if ($scope.ProcessDetentionLists[i].Flag == true) {
+                    $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
+                    $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
+                    $scope.ProcessDetentionLists[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
+                    $scope.ProcessDetentionLists[i].ShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.workCenter;
+                    $scope.ProcessDetentionLists[i].DetentionId = $scope.NewObjectDetention.DetentionId;
+                    $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlDetentionWC,
+                data: {
+                    "DataList": $scope.DetentionSaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getProcessDetentionPopupPoPUp();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
 }
