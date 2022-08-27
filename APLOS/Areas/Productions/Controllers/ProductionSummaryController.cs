@@ -689,7 +689,15 @@ namespace Aplos.Areas.Productions.Controllers
                     DataRow dtValueRow = dtValue.NewRow();
 
                     dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
-                    dtValueRow["Amount"] = sFormulaResult;
+                    
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
 
                     dtValue.Rows.Add(dtValueRow);
 
@@ -700,7 +708,7 @@ namespace Aplos.Areas.Productions.Controllers
                         DataRow drmo = dv[0].Row;
 
                         drmo.BeginEdit();
-                        if (sFormulaResult=="")
+                        if (sFormulaResult == "" || sFormulaResult == "∞")
                         {
                             drmo["Value"] = 0;
                         }

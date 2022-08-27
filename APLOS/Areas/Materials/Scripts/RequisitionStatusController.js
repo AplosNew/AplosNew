@@ -1,7 +1,7 @@
 ﻿'use strict';
-StockRegisterController.$inject = ['fileReader', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'cboService', '$window', '$controller'];
-function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
-	$rootScope.title = "Stock Register Report";
+RequisitionStatusController.$inject = ['fileReader', 'commonMessage', '$scope', '$rootScope', 'baseService', '$http', '$filter', 'cboService', '$window', '$controller'];
+function RequisitionStatusController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
+	$rootScope.title = "Requisition Status";
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
@@ -14,7 +14,47 @@ function StockRegisterController(fileReader, commonMessage, $scope, $rootScope, 
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
 	$scope.RowColor = "";
 	$scope.isAlternative = -1;
+	$controller("employeeBaseController", { $scope: $scope, $http: $http });
 
+
+	$scope.showEmployeeListPopUp = function () {
+		
+		baseService.setCurrentPage('employeeList');
+		$scope.getEmployeeData = function (pageno) {
+			var url = null;
+			if (baseService.isUndefinedOrNull($scope.employeeUrl)) {
+				url = 'employees/EmployeeInformation/GetEmployeeListByPlant';
+			}
+			else {
+				url = $scope.employeeUrl;
+			}
+			baseService.paginationBase(url, pageno, $scope.employeeParameters)
+				.then(function (result) {
+					$scope.employeeList = result.Rows;
+					$scope.employeeParameters.total_count = result.Total;
+				}, function () {
+					ShowResult(commonMessage.NetworkError, 'failure');
+				}).finally(function () {
+				});
+		};
+		angular.element(document.querySelector('#employeePopUp')).modal('show');
+		$scope.getEmployeeData();
+	};
+	
+	$scope.EmployeeId = null,
+	$scope.EmployeeName = null,
+
+	$scope.closeEmployeePopUp = function () {
+		if ($scope.employeeIndex !== -1) {
+			var employee = $scope.employeeList[$scope.employeeIndex];
+			$scope.EmployeeId = employee.SystemId;
+			$scope.EmployeeName = employee.EmployeeName;
+		}
+		$scope.hideEmployeePopUp();
+	};
+	$scope.hideEmployeePopUp = function () {
+		angular.element(document.querySelector("#employeePopUp")).modal("hide");
+	};
 
 	$window.onresize = function (event) {
 
