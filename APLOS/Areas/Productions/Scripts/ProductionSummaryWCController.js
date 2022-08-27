@@ -10,7 +10,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlWC = $scope.path + 'createWC';
-    $scope.saveUrlWCParaList = $scope.path + 'createWCParaList';
+    $scope.saveUrlDetentionWC = $scope.path + 'createDetentionWC';
     $scope.saveDetailUrl = $scope.path + 'createDetail';
     $scope.saveSecondDetailUrl = $scope.path + 'createSecondDetail';
     $scope.updateUrl = $scope.path + 'edit';
@@ -1112,7 +1112,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
-
+   
     $scope.SaveMasterWC = function () {
         try {
    
@@ -1350,5 +1350,184 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.ProductionSummaryDetail = [];
         $scope.wcList = [];
     }
-   
+
+    $scope.ProcessDetentionList = {
+        Id: null,
+        EntityId: null,
+        ProcessId: null,
+        ShiftId: null,
+        Date: null,
+        WorkCenterMasterId: null,
+        DepartmentId: null,
+        DetentionId: null,
+        ResponsiblePersonId: null,
+        WorkCenter: null,
+        Detention: null,
+        DetentionType: null,
+        FromTime: null,
+        ToTime: null,
+        Department: null,
+        ResponsiblePerson: null,
+        Remark: null,
+        ToTime: null,
+        Minute: null
+    };
+
+    $scope.ProcessDetentionLists = [];
+    $scope.getProcessDetentionPopupPoPUp = function (data) {
+        $scope.NewObjectDetention = data.data;
+        var processid = $scope.productionSummaryNew.ProcessId;
+        var entityid = $scope.productionSummaryNew.EntityId;
+        var productiondate = $scope.productionSummaryNew.ProductionDate;
+        var shiftid = $scope.productionSummaryNew.ProductionShiftId;
+        $scope.productionSummaryNew = data.data;
+        $scope.productionSummaryNew.ProcessId = processid;
+        $scope.productionSummaryNew.EntityId = entityid;
+        $scope.productionSummaryNew.ProductionDate = productiondate;
+        $scope.productionSummaryNew.ProductionShiftId = shiftid;
+        $scope.productionSummaryNew.workCenter = data.data.WorkCenter;
+        try {
+            $scope.ProcessDetentionLists = [];
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
+                .then(
+                    function successCallback(response) {
+                        $scope.ProcessDetentionLists = response.data;
+                        if ($scope.ProcessDetentionLists.length == 0)
+                        {
+                            for (var i = 1; i < 6; i++)
+                            {
+                                var obj = angular.copy($scope.ProcessDetentionList);
+                                obj.ProcessId = processid;
+                                obj.EntityId = entityid;
+                                obj.ProductionDate = productiondate;
+                                obj.ProductionShiftId = shiftid;
+                                obj.workCenter = data.data.WorkCenter;
+                                $scope.ProcessDetentionLists.push(obj);
+                            }
+                        }
+                        $scope.GetDetentionList();
+                        $scope.GetDetentionTypeList();
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            angular.element(document.querySelector('#articlePoUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
+
+    $scope.DetentionList = [];
+    $scope.GetDetentionList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionList'
+        }).then(function successCallback(response) {
+            $scope.DetentionList = response.data;
+        });
+    }
+    $scope.DetentionTypeList = [];
+    $scope.GetDetentionTypeList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
+        }).then(function successCallback(response) {
+            $scope.DetentionTypeList = response.data;
+        });
+    }
+    $scope.selectDepartment = function () {
+        $scope.getsD();
+        angular.element(document.querySelector('#DepartmentPop')).modal('show');
+    }
+
+    $scope.DepartmentList = [];
+    $scope.getsD = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/getDepartment',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.DepartmentList = resp.data;
+        });
+    }
+
+    $scope.doubleDepartment = function (e) {
+        $scope.NewObjectDetention.DepartmentId = e.data.DepartmentId;
+        $scope.NewObjectDetention.Department = e.data.DepartmentName;
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+    
+    $scope.closeDepartmentPopUp = function () {
+        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+    }
+
+    $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetentionWorkCenter });
+    };
+    function CheckBoxSelectAllDetentionWorkCenter(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#ProductionSummaryDetentionWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.wcList.length; i++) {
+                $scope.ProcessDetentionLists[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
+    $scope.SaveDetentionWC = function () {
+        try {
+
+            $scope.DetentionSaveList = [];
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                if ($scope.ProcessDetentionLists[i].Flag == true) {
+                    $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
+                    $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
+                    $scope.ProcessDetentionLists[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
+                    $scope.ProcessDetentionLists[i].ShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.workCenter;
+                    $scope.ProcessDetentionLists[i].DetentionId = $scope.NewObjectDetention.DetentionId;
+                    $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlDetentionWC,
+                data: {
+                    "DataList": $scope.DetentionSaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getProcessDetentionPopupPoPUp();
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
 }

@@ -295,6 +295,11 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_productionSummaryData.GetProcessParaData(processId, masterId, ProductionOrderId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
+        {
+            return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public ActionResult GetTotalProductionQty(string wcid, string workdate)
@@ -358,7 +363,13 @@ namespace Aplos.Areas.Productions.Controllers
             _ProductionSummaryService.SaveMasterWC(DataList);
             return Json(new { Message = AplosMessage.Success });
         }
-
+        [HttpPost]
+        public JsonResult createDetentionWC(List<Dictionary<string, object>> DataList)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            _ProductionSummaryService.SaveDetentionWC(DataList);
+            return Json(new { Message = AplosMessage.Success });
+        }
         private void SaveMasterOrderItemCostingRateData(List<Dictionary<string, object>> data, string masterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -673,7 +684,7 @@ namespace Aplos.Areas.Productions.Controllers
                 if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
                 {
                     _productionSummaryData.ReLoadFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
-                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+                     sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
 
                     DataRow dtValueRow = dtValue.NewRow();
 

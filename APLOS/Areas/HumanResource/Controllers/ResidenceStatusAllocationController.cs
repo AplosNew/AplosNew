@@ -809,7 +809,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             for (int i = 0; i < data.Rows.Count; i++)
             {
 
-                sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
+                //sheet[ROW, ColId].Text = data.Rows[i]["Id"].ToString();
                 sheet[ROW, ColEmpCategory].Text = data.Rows[i]["Employee Category"].ToString();
                 sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["Residence Group"].ToString();
                 sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
@@ -1055,6 +1055,244 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
 
+        #region Detail Residence Status
+        [Authorize, HttpPost]
+        public ActionResult XlsDetailResidenceStatus(string PartialVacantFullyOccupied)
+        {
+            try
+            {
+                var workbook = DetailResidenceStatus(PartialVacantFullyOccupied);
 
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "DetailResidenceStatus.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+        [HttpPost]
+        private IWorkbook DetailResidenceStatus(string PartialVacantFullyOccupied)
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsl.detailResidenceStatusReport(PartialVacantFullyOccupied);
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Detail Residence Status";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Id", 12, ExcelHAlign.HAlignCenter);
+            int ColId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Location", 12, ExcelHAlign.HAlignCenter);
+            int ColLocation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 12, ExcelHAlign.HAlignCenter);
+            int ColResidentType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Category", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 12, ExcelHAlign.HAlignCenter);
+            int ColBlock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Floor", 12, ExcelHAlign.HAlignCenter);
+            int ColFloor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vacancy", 12, ExcelHAlign.HAlignCenter);
+            int ColVacancy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Occupied", 12, ExcelHAlign.HAlignCenter);
+            int ColOccupied = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Available", 12, ExcelHAlign.HAlignCenter);
+            int ColAvailable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 26, ExcelHAlign.HAlignCenter);
+            int ColEmployeeName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEmpCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSubSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 12, ExcelHAlign.HAlignCenter);
+            int ColDesignation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Activity", 12, ExcelHAlign.HAlignCenter);
+            int ColActivity = COL;
+            COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
+            int ColDOJ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DOS", 12, ExcelHAlign.HAlignCenter);
+            int ColDOS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Current Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCurrentStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 12, ExcelHAlign.HAlignCenter);
+            int ColSkill = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
+            int ColProcess = COL;
+            COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Legal Designation", 12, ExcelHAlign.HAlignCenter);
+            //int ColLegalDesignation = COL;
+            //COL++;
+
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceGroup = COL;
+            COL++;
+
+            //report.SetHeaderText(ref sheet, ROW, COL, "Residence Category", 12, ExcelHAlign.HAlignCenter);
+            //int ColResidenceCategory = COL;
+            //COL++;
+
+           
+
+            
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColId].Text = data.Rows[i]["ResidenceId"].ToString();
+                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
+                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
+                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
+                sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
+                sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
+               
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+                sheet[ROW, ColVacancy].Text = data.Rows[i]["Vacancy"].ToString();
+                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
+                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+                
+                sheet[ROW, ColOccupied].Text = data.Rows[i]["Occupied"].ToString();
+                sheet[ROW, ColAvailable].Text = data.Rows[i]["Available"].ToString();
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
+                sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+           
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+       
+        #endregion Detail Residence Status
     }
 }

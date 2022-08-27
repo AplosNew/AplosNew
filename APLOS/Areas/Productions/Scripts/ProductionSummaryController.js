@@ -1304,7 +1304,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                         }
                     }
                     if (response.data.NewData[i].IsProduction == true) {
-                        $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
+                        $scope.productionSummaryNew.Quantity = response.data.NewData[i].Value;
                     }
                 }
             }, function errorCallback(response) {
