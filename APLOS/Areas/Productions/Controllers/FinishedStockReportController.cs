@@ -155,6 +155,7 @@ namespace Aplos.Areas.Productions.Controllers
 
             double[] arr = new double[3];
 
+
             for (int i = 0; i < data.Rows.Count; i++)
             {
                 if (Article != data.Rows[i]["StandardName"].ToString())
@@ -162,6 +163,8 @@ namespace Aplos.Areas.Productions.Controllers
 
                     Article = data.Rows[i]["StandardName"].ToString();
                     sheet[ROW, ColArt].Text = data.Rows[i]["StandardName"].ToString();
+                    ProdDetails = data.Rows[i]["ProdDetails"].ToString();
+                    sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
 
                     if (i != 0 && ArtRow != (ROW - 1))
                     {
@@ -172,10 +175,9 @@ namespace Aplos.Areas.Productions.Controllers
                 }
 
                 // Product Detail
-                if(ProdDetails != data.Rows[i]["ProdDetails"].ToString()  && Article != data.Rows[i]["StandardName"].ToString())
+               else if(ProdDetails != data.Rows[i]["ProdDetails"].ToString())
                 {
                     ProdDetails = data.Rows[i]["ProdDetails"].ToString();
-                    Article = data.Rows[i]["StandardName"].ToString();
                     sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
 
                     if (i != 0 && LotRow != (ROW - 1))
