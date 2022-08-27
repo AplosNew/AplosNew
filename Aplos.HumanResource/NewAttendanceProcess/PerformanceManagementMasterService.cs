@@ -2244,12 +2244,58 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 throw ex;
             }
         }
+
+        #region Detail Residence Status Report
+        public DataTable detailResidenceStatusReport()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+                var sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
+, RM.Vacancy, O.Occupied,
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+D.UserName Department,
+S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
+ FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
+
+							from dbo.ResidenceAllocatedEmployees rae
+                            left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
+                            left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
+                            left join dbo.ResidenceMaster RM on RM.Id = rae.ResidenceId
+                            left join dbo.ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                            left join org.Section S on S.Id = ei.SectionId
+                            left join org.SubSection SS on SS.Id = ei.SubSectionId
+                            left join org.Department D on D.Id = ei.DepartmentId
+							left join MST.ManpowerBudget MPB on MPB.Id=ei.BudgetCode
+                            left join org.Entity E on E.Id =MPB.EntityId
+							left join ORG.Position P on P.Id=ei.PositionID
+							left join HKP.Process PR on PR.Id = P.ProcessId
+
+							LEFT JOIN (
+							SELECT dm.DesignationId,ec.Id EmployeeCategoryId,ec.UserName EmployeeCategory FROM MST.DesignationMaster AS dm
+							LEFT JOIN HKP.EmployeeCategory AS ec ON ec.Id=dm.EmployeeCategoryId
+							) DGM ON DGM.DesignationId=ei.GivenDesignationId
+							LEFT JOIN(
+									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
+									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
+									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
+";
+
+
+                return _sqlRepository.GetDataTable(sql);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion Detail Residence Status Report
     }
 
-
-
-
     #endregion Residence Status Location
+
 }
 
 

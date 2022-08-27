@@ -1,6 +1,6 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
+function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -125,6 +125,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     };
     $scope.selectDoubleClick = function (data) {
         $scope.model = data;
+        $scope.MaterialHSNCodeId = data.HSNCodeId;
         getAttribute();
         getArticle();
         $scope.closePopUp();
@@ -158,6 +159,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         , Code: null
         , ShortName: null
         , StandardName: null
+        , HSNCodeId: null
         , MaterialMasterArticleValues: []
     };
     $scope.articleNew = Object.assign({}, $scope.article);
@@ -169,6 +171,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             , Code: null
             , ShortName: null
             , StandardName: null
+            , HSNCodeId: null
             , MaterialMasterArticleValues: []
         };
         getAttribute();
@@ -411,11 +414,14 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             , Code: null
             , ShortName: null
             , StandardName: null
+            , HSNCodeId: null
             , MaterialMasterArticleValues: []
         };
         $scope.index = -1;
     }
-
+    cboService.getHNSCbo(function (response) {
+        $scope.hsnCodeList = response;
+    });
     function articleFieldValidation(field, fieldName) {
         try {
             if (baseService.isUndefinedOrNull(field)) {
@@ -483,6 +489,10 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         $scope.articleNew.Code = data.Code;
         $scope.articleNew.ShortName = data.ShortName;
         $scope.articleNew.StandardName = data.StandardName;
+        if (baseService.isUndefinedOrNull(data.HSNCodeId))
+            $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
+        else
+            $scope.articleNew.HSNCodeId = data.HSNCodeId;
         $scope.index = index;
         $http({
             method: 'GET',
@@ -517,12 +527,14 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                 articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
+            articleFieldValidation($scope.articleNew.HSNCodeId, 'HSNCodeId');
 
             uniqueCheckInArticleList($scope.articleList, $scope.articleNew);
 
             $scope.articleList[$scope.index].Code = $scope.articleNew.Code;
             $scope.articleList[$scope.index].ShortName = $scope.articleNew.ShortName;
             $scope.articleList[$scope.index].StandardName = $scope.articleNew.StandardName;
+            $scope.articleList[$scope.index].HSNCodeId = $scope.articleNew.HSNCodeId;
 
             for (var i = 0; i < $scope.attributeList.length; i++) {
                 var _invalid = $scope.IsMandatoryButNull($scope.attributeList[i].IsMandatory, $scope.attributeList[i].MaterialAttributeValueFreeText);

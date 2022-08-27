@@ -214,10 +214,9 @@ namespace Aplos.Areas.Materials.Controllers
 			var reportFileName = "Material Stock Balance" + fromDate + "To" + toDate + "";
           
             Library.MaterialManagement.InventoryManagements.InventoryReceiveService obj = new Library.MaterialManagement.InventoryManagements.InventoryReceiveService();
-            var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
-            
-            //var workbook = _materialMasterService.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory,Country);
-			switch (reportFormat)
+                var workbook = obj.CreateMaterialStockBalanceSheet(identity.CompanyId, plantId, fromDate, toDate, Qty, Amount, RcptIssue, Asset, Inventory, Country, materialStorage);
+
+            switch (reportFormat)
 			{
 				case ReportFormat.Pdf:
 					return RenderReportAsPdf(workbook, reportFileName);
@@ -709,14 +708,14 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult PurchaseOrderRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type)
+        public ActionResult PurchaseOrderRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type,string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             plantId = identity.PlantId;
             var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
             Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
             // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
-            var workbook = obj.CreatePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type);
+            var workbook = obj.CreatePurchaseOrderRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type, POId);
             switch (reportFormat)
             {
                 case ReportFormat.Pdf:

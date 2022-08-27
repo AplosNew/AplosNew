@@ -36,15 +36,23 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
             var tempsql = "";
-            if (!string.IsNullOrEmpty(ContractId))
+            if (!string.IsNullOrEmpty(ContractId) && string.IsNullOrEmpty(VendorId))
             {
                 tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
-                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) AND
-                                    (isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='"+ VendorId + @"')";
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId WHERE(isnull(MOI.ContractId, '') = '' OR isnull(MOI.ContractId, null) = '"+ ContractId + @"') ) ";
+            }
+            if (string.IsNullOrEmpty(ContractId) && !string.IsNullOrEmpty(VendorId))
+            {
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
+                                    WHERE (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             else
             {
-                tempsql = @"(isnull(b.VendorId,'')='' OR isnull(b.VendorId,'')='" + VendorId + @"')";
+                tempsql = @"b.Id in ( SELECT B.ID FROM boq B JOIN trn.SalesOrder SO ON SO.CostingBOQMasterId=b.CostingBOQMasterId
+                                    JOIN trn.MasterOrderItem MOI ON MOI.Id = SO.MasterOrderItemId 
+                                    WHERE (isnull(MOI.ContractId, null) = '" + ContractId + @"')
+                                    AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             var sql = "";
             sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
@@ -138,7 +146,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
-                        LEFT JOIN CostingBOQItems CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId
+                        LEFT JOIN CostingBOQItems CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId AND so.Id=CBI.SalesOrderId
 						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
@@ -1997,7 +2005,7 @@ namespace Library.MaterialManagement.InventoryManagements
             }
         }
 
-        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type)
+        public IWorkbook CreatePurchaseOrderRegisterReportSheet(string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             try
             {
@@ -2007,7 +2015,7 @@ namespace Library.MaterialManagement.InventoryManagements
                 var workbook = report.GetWorkbook(ref excelEngine, 2);
                 var sheet1 = workbook.Worksheets[0];
                 var Head = "Purchase Order Register";// + " " + fromDate + " " + "To" + " " + toDate ;
-                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
+                CreatePurchaseOrderRegisterReportSheets(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type, POId);
                 workbook.Version = ExcelVersion.Excel2016;
                 return workbook;
             }
@@ -2651,7 +2659,7 @@ namespace Library.MaterialManagement.InventoryManagements
 
         }
 
-        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type)
+        private void CreatePurchaseOrderRegisterReportSheets(ref IWorksheet sheet1, ReportUtility report, string sheet1Name, string sheet2Name, string companyId, string plantId, string fromDate, string toDate, string Type, string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             var cmdText = "";
