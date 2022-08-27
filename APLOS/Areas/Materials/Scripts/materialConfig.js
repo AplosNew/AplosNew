@@ -280,6 +280,10 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/StockRegister/StockRegister',
             controller: 'StockRegisterController'
         })
+        .when('/requisition-status', {
+            templateUrl: 'materials/StockRegister/RequisitionStatus',
+            controller: 'RequisitionStatusController'
+        })
         .when('/process-wise-material-allocation', {
             templateUrl: 'materials/ProcessWiseMaterialAllocation/Aplos',
             controller: 'ProcessWiseMaterialAllocationController'
