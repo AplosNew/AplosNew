@@ -204,7 +204,7 @@
             <label class="col-sm-4 control-label">Process<sup>*</sup></label>
             <div class="col-sm-8 show-message">
                 <div class="select-style">
-                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                    <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="getProdLevel();GetShiftList();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
                         <option value=""></option>
                     </select>
                 </div>
@@ -223,7 +223,7 @@
         <div class="form-group">
             <div class="common-btn">
                 <ul class="list-inline text-right">
-                    <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
+                    <li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId,productionSummaryNew.ProductionShiftId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i> GO</button></li>
                     <li> <button ng-click="SetBack(false);" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-left"></i> Back</button>
                 </ul>
             </div>
