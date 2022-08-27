@@ -2185,6 +2185,14 @@ SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Id, MMT
             return _sqlRepository.GetDataCollection(sql);
         }
 
+        public IEnumerable<object> GetShiftList(string processId)
+        {
+            string sql = @"SELECT  sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
+WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='"+ processId + "')";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
         #region Packing Content & Dispatch
 
         public IEnumerable<object> GetProductionOrderDataList()
