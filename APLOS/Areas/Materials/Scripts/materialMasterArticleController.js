@@ -1,6 +1,6 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService','$controller'];
+function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -10,6 +10,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.partyType = "Vendor";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
+
 
     $scope.model = {
         Id: null
@@ -521,6 +524,43 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         angular.element(document.querySelector('#articlePoUp')).modal('show');
     };
 
+    $scope.ArticleAliasData = function (data, index) {
+        $scope.attributeList = [];
+        $scope.articleNew.Code = data.Code;
+        $scope.articleNew.ShortName = data.ShortName;
+        $scope.articleNew.StandardName = data.StandardName;
+        //if (baseService.isUndefinedOrNull(data.HSNCodeId))
+        //    $scope.articleNew.HSNCodeId = $scope.MaterialHSNCodeId;
+        //else
+        //    $scope.articleNew.HSNCodeId = data.HSNCodeId;
+        $scope.index = index;
+        $http({
+            method: 'GET',
+            url: 'Materials/materialmaster/getmaterialmasterattributelist?materialMasterId=' + $scope.model.Id
+        }).then(function successCallback(response) {
+            //if (baseService.arrayLength(response.data) === 0)
+            //    return ShowResult('This material has no attribute', 'failure', 'articlePoUp');
+            $scope.attributeList = response.data;
+            for (var i = 0; i < $scope.attributeList.length; i++) {
+                for (var t = 0; t < baseService.arrayLength(data.MaterialMasterArticleValues); t++) {
+                    if (data.MaterialMasterArticleValues[t].MaterialAttributeId === $scope.attributeList[i].MaterialAttributeId) {
+                        $scope.attributeList[i].Id = data.MaterialMasterArticleValues[t].Id;
+                        $scope.attributeList[i].MaterialMasterArticleId = data.MaterialMasterArticleValues[t].MaterialMasterArticleId;
+                        $scope.attributeList[i].MaterialAttributeId = data.MaterialMasterArticleValues[t].MaterialAttributeId;
+                        $scope.attributeList[i].MaterialAttributeValueId = data.MaterialMasterArticleValues[t].MaterialAttributeValueId;
+                        $scope.attributeList[i].MaterialAttributeValueFreeText = data.MaterialMasterArticleValues[t].MaterialAttributeValueFreeText;
+                        $scope.attributeList[i].MaterialMasterAttributeId = data.MaterialMasterArticleValues[t].MaterialMasterAttributeId;
+                        $scope.attributeList[i].MaterialMasterAttributeValueId = data.MaterialMasterArticleValues[t].MaterialMasterAttributeValueId;
+                    }
+                }
+                $scope.searchFreeField = $scope.attributeList[i].MaterialAttributeValueFreeText !== null ? true : false;
+                var isFree = $scope.attributeList[i].IsFreeField;
+                $scope.attributeList[i].FlagDisable = $scope.IsFreeFieldOrNot(isFree);
+            }
+        });
+        angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
+    };
+
     $scope.updateArticle = function () {
         try {
             if (!baseService.isUndefinedOrNull($scope.articleNew.Id) && !baseService.isUndefinedOrNull(id.startsWith('n-')))
@@ -844,4 +884,49 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             });
         }
     };
+
+    $scope.articleAliasModel = {
+        Id: null
+        , Code: null
+        , VendorId: null
+        , VendorName: null
+        , UserGroup: null
+        , Remark: null
+    };
+    $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+       
+        $scope.articleAlias.VendorName = party.UserName;
+        $scope.articleAlias.VendorId = party.Id;
+         
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.SaveArticleAlias = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateArticleAlias',
+            data: {'datas': $scope.articleAlias,},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.Clear();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
+    $scope.Clear = function () {
+        $scope.Action = 'Save';
+        $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+        return true;
+    };
+
 }
