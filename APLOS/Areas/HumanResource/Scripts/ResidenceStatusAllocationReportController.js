@@ -585,11 +585,16 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 ////-----------------------------------------------------------------------------------
 
     //----------------------------------Written By Nitesh------------------------------------
+    $scope.ModelTemp = {
+        PartialVacantFullyOccupied: null
+
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     $scope.detailResidenceStatusReport = function () {
         $http({
             method: 'POST',
             url: $scope.path + "XlsDetailResidenceStatus",
-            //data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            data: { 'PartialVacantFullyOccupied': $scope.ModelNew.PartialVacantFullyOccupied },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -609,7 +614,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
         $http({
             method: 'POST',
             url: $scope.path + "XlsAllResidenceMaterReport",
-            data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -624,5 +629,30 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 
     };
 
+    
+
+    $scope.VacancyListN = []
+    $scope.getVacancyData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getVacancyData",
+            data: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.VacancyListN = response.data
+        })
+    }
+   // $scope.getVacancyData();
+
+    $scope.OccupiedList = []
+    $scope.getOccupiedData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getOccupiedData",
+            data: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.OccupiedList = response.data
+        })
+    }
+  //  $scope.getOccupiedData();
     //----------------------------------Written By Nitesh End------------------------------------ 
 }

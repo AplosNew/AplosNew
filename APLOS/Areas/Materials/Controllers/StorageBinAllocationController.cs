@@ -158,6 +158,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [Authorize]
         public ActionResult selectIDs(string materialType, string materialGroup, string material, string storagelevel) 
         {
             try

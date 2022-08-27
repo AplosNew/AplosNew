@@ -85,46 +85,56 @@
                                 <label class="col-sm-2 control-label">Partial Vacant</label>
                                 <div class="col-sm-6 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-model="EmployeeNew.EmployeeCurrentStatus" required name="Type" tabindex="2">
+                                        <select class="form-control" ng-model="ModelNew.PartialVacantFullyOccupied" required name="Type" tabindex="2">
                                             <option value="">--Select--</option>
-                                            <option ng-repeat="option in EmployeeStatusList" value="{{option.EmployeeCurrentStatus}}">{{option.EmployeeCurrentStatus}}</option>
+                                            <option value="PartialVacant">Partial Vacant</option>
+                                            <option value="FullyOccupied">Fully Occupied</option>
+                                            <option value="All">All</option>
+                                            @*<option ng-repeat="option in VacancyListN" value="{{option.Vacancy}}">{{option.Vacancy}}</option>*@
                                         </select>
                                     </div>
                                 </div>
                             </div>
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li> <button ng-click="detailResidenceStatusReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Download</button></li>
 
+                                </ul>
+
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-2 control-label">Fully Occupied</label>
-                                <div class="col-sm-6 show-message">
-                                    <div class="select-style">
-                                        <select class="form-control" ng-model="EmployeeNew.EmployeeCurrentStatus" required name="Type" tabindex="2">
-                                            <option value="">--Select--</option>
-                                            <option ng-repeat="option in EmployeeStatusList" value="{{option.EmployeeCurrentStatus}}">{{option.EmployeeCurrentStatus}}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+                            @*<div class="form-group" show-errors>
+                <label class="col-sm-2 control-label">Fully Occupied</label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" required name="Type" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in OccupiedList" value="{{option.isOccupied}}">{{option.isOccupied}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>*@
 
                         </div>
+                       
 
-                        <div class="common-btn">
-                            <ul class="list-inline text-right">
-                                <li> <button ng-click="gridViewResidenceMAster();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
+                        @*<div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="gridViewResidenceMAster();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
 
-                                <li> <button ng-click="ResidenceMasterReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
+                <li> <button ng-click="ResidenceMasterReport();" style="margin-top:10px" class="btn" tabindex="9"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
 
 
-                            </ul>
+            </ul>
 
-                        </div>
+        </div>*@
                     </div>
                     </div>
                     <div class="row">
 
 
-                        <div class="col-xs-12" style="margin-top:20px">
+                        @*<div class="col-xs-12" style="margin-top:20px">
                             <div class="table-responsive" id="EGSGrid">
                                 <div id="designationTab" ej-grid style="z-index:3;"
                                      e-datasource="ResidenceMasterList"
@@ -171,7 +181,7 @@
                             </div>
 
 
-                        </div>
+                        </div>*@
 
 
                     </div>

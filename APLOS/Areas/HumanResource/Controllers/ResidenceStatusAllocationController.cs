@@ -1057,11 +1057,11 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region Detail Residence Status
         [Authorize, HttpPost]
-        public ActionResult XlsDetailResidenceStatus()
+        public ActionResult XlsDetailResidenceStatus(string PartialVacantFullyOccupied)
         {
             try
             {
-                var workbook = DetailResidenceStatus();
+                var workbook = DetailResidenceStatus(PartialVacantFullyOccupied);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "DetailResidenceStatus.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1077,7 +1077,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
         [HttpPost]
-        private IWorkbook DetailResidenceStatus()
+        private IWorkbook DetailResidenceStatus(string PartialVacantFullyOccupied)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -1085,7 +1085,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsl.detailResidenceStatusReport();
+            var data = rsl.detailResidenceStatusReport(PartialVacantFullyOccupied);
 
 
             var sheet = workbook.Worksheets[0];
@@ -1284,12 +1284,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
+           
 
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+
+       
         #endregion Detail Residence Status
     }
 }
