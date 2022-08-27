@@ -1364,11 +1364,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         WorkCenter: null,
         Detention: null,
         DetentionType: null,
-        FromTime: null,
-        ToTime: null,
         Department: null,
         ResponsiblePerson: null,
         Remark: null,
+        FromTime: null,
         ToTime: null,
         Minute: null
     };
@@ -1437,7 +1436,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionTypeList = response.data;
         });
     }
-    $scope.selectDepartment = function () {
+    $scope.selectDepartment = function (data) {
+    $scope.Newobject = data.data;
         $scope.getsD();
         angular.element(document.querySelector('#DepartmentPop')).modal('show');
     }
@@ -1452,10 +1452,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DepartmentList = resp.data;
         });
     }
-
+    
     $scope.doubleDepartment = function (e) {
-        $scope.NewObjectDetention.DepartmentId = e.data.DepartmentId;
-        $scope.NewObjectDetention.Department = e.data.DepartmentName;
+        $scope.Newobject.DepartmentId = e.data.DepartmentId;
+        $scope.Newobject.DepartmentName = e.data.DepartmentName;
         var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
     }
@@ -1492,15 +1492,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
             $scope.DetentionSaveList = [];
             for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                if ($scope.ProcessDetentionLists[i].Flag == true) {
+                //if ($scope.ProcessDetentionLists[i].Flag == true)
+                //{
                     $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
                     $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
-                    $scope.ProcessDetentionLists[i].ProductionDate = $scope.productionSummaryNew.ProductionDate;
-                    $scope.ProcessDetentionLists[i].ShiftId = $scope.productionSummaryNew.ProductionShiftId;
-                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.workCenter;
-                    $scope.ProcessDetentionLists[i].DetentionId = $scope.NewObjectDetention.DetentionId;
+                    $scope.ProcessDetentionLists[i].Date = $scope.productionSummaryNew.ProductionDate;
+                    $scope.ProcessDetentionLists[i].ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.WorkCenterMasterId;
                     $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
-                }
+               /* }*/
             }
 
 
@@ -1530,4 +1530,35 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     };
 
+    $scope.getMinute = function () {
+        try {
+            $scope.MinuteUrl = 'IE/MachineMasterTransaction/GetMinute/'
+            $http({
+                method: 'POST',
+                url: $scope.MinuteUrl,
+                data: { 'data': $scope.Newobject.Minute },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.Newobject.Minute = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+    $scope.shiftList = [];
+    $scope.GetShiftList = function () {
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
 }
