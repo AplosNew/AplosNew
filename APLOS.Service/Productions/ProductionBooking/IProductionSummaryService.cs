@@ -45,6 +45,7 @@ namespace Library.Service.Productions
         IEnumerable<ComboModel> GetShiftGroupCbo(string plantId);
         void SaveMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveMasterWC(List<Dictionary<string, object>> DataList);
+        void SaveDetentionWC(List<Dictionary<string, object>> DataList);
         void SaveInOutMaster(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd, string companyGroupId);
         void SaveDetail(string psid, IEnumerable<ProductionSummaryDetail> psd);
 

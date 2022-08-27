@@ -661,4 +661,6 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         })
     };
     $scope.employeeCurrentStatus();
+
+   
 }
