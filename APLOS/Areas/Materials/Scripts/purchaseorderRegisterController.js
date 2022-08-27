@@ -144,7 +144,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 				response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterLst[i].GRNEntryDate);
 			}
 
-			$scope.load();
 		});
 
     };
@@ -163,9 +162,40 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             ShowResult('Select To Date', 'failure');
             return false;
         }
+
+        var dataList = [];
+        var g = $("#GridPrint").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterLst;
+        }
+
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].POId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].POId + "'";
+                }
+            }
+        }
+        else {
+            for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
+                }
+            }
+        }
+
         var reportFormat = "Pdf";
         //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank');
+        $window.open('Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank' + '&POId=' + ids);
     };
 
     $scope.PurchaseOrderReportExcel = function (reportFormat) {
@@ -182,28 +212,33 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
         var g = $("#GridPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
 
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterLst;
+        }
+
+
         var ids = "";
 		if (baseService.arrayLength(dataList) > 0) {
 			for (var i = 0; i < dataList.length; i++) {
 				if (ids == "") {
-                    ids = "'','" + dataList[i].SLNo + "'";
+                    ids = "'','" + dataList[i].POId + "'";
 				}
 				else {
-					ids += ",'" + dataList[i].SLNo + "'";
+                    ids += ",'" + dataList[i].POId + "'";
 				}
 			}
 		}
 		else {
             for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
 				if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterLst[i].SLNo + "'";
+                    ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
 				}
 				else {
-                    ids += ",'" + $scope.PurchaseRegisterLst[i].SLNo + "'";
+                    ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
 				}
 			}
 		}
-
+      
 
         try {
             var Excel;
@@ -307,8 +342,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
             for (var i = 0; i < $scope.ServiceAcknowledgementLst.length; i++) {
                 response.data[i].GRNEntryDate = new Date($scope.ServiceAcknowledgementLst[i].GRNEntryDate);
             }
-
-            $scope.load();
         });
 
     };
