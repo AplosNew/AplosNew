@@ -9,6 +9,7 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
     $scope.saveUrl = $scope.path + 'Save';
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrl = 'GridReports/Download';
 
     // Tab Change
     $scope.tab = 1;
@@ -19,12 +20,20 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
         return $scope.tab === tabNum;
     };
 
-    $scope.tab2 = 1;
+    $scope.tab2 ;
     $scope.setTab2 = function (newTab) {
         $scope.tab2 = newTab;
     };
     $scope.isSet2 = function (tabNum) {
         return $scope.tab2 === tabNum;
+    };
+
+    $scope.tab3;
+    $scope.setTab3 = function (newTab) {
+        $scope.tab3 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab3 === tabNum;
     };
 
 
@@ -574,4 +583,76 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 //        $('#myModal').modal('show');
 //    }
 ////-----------------------------------------------------------------------------------
+
+    //----------------------------------Written By Nitesh------------------------------------
+    $scope.ModelTemp = {
+        PartialVacantFullyOccupied: null
+
+    };
+    $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
+    $scope.detailResidenceStatusReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsDetailResidenceStatus",
+            data: { 'PartialVacantFullyOccupied': $scope.ModelNew.PartialVacantFullyOccupied },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.allResidenceMasterReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsAllResidenceMaterReport",
+            
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    
+
+    $scope.VacancyListN = []
+    $scope.getVacancyData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getVacancyData",
+            data: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.VacancyListN = response.data
+        })
+    }
+   // $scope.getVacancyData();
+
+    $scope.OccupiedList = []
+    $scope.getOccupiedData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getOccupiedData",
+            data: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.OccupiedList = response.data
+        })
+    }
+  //  $scope.getOccupiedData();
+    //----------------------------------Written By Nitesh End------------------------------------ 
 }

@@ -2791,7 +2791,7 @@ namespace Library.MaterialManagement.InventoryManagements
 											group By InventoryReceiveId
 											)servicetax ON servicetax.InventoryReceiveId=IM.InventoryReceiveId
 					
-			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
+			where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.Id in (" + POId + @")
 			UNION ALL
 			SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo
 					'ServicePO' POType
@@ -2908,7 +2908,7 @@ namespace Library.MaterialManagement.InventoryManagements
 					left join(select ServicePOMasterId,sum(TaxAmount) TaxAmount from trn.[ServicePOTax] where ServicePOMasterId is null
 					group By ServicePOMasterId
 					)servicetax ON servicetax.ServicePOMasterId=IM.ServicePOMasterId
-					where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
+					where  IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.PODate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"' AND IR.Id in (" + POId + @")";
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
 
             var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();

@@ -80,6 +80,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetShiftList(string processId)
+        {
+            return Json(_productionSummaryData.GetShiftList(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCharacteristicsValueCbo(string soid)
         {
             return Json(_ProductionSummaryService.GetCharacteristicsValueCbo(soid), JsonRequestBehavior.AllowGet);
@@ -106,10 +112,10 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCbo(string processid, string entityId)
+        public JsonResult GetWCProcessCbo(string processid, string entityId, string shiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId, shiftId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetWCProcessCboNew(string processid, string entityId,string productionDate,string shiftId)
@@ -689,7 +695,15 @@ namespace Aplos.Areas.Productions.Controllers
                     DataRow dtValueRow = dtValue.NewRow();
 
                     dtValueRow["ProductionBookingParameterId"] = dsOpenHead.Tables[0].Rows[i]["ProductionBookingParameterId"].ToString().Trim();
-                    dtValueRow["Amount"] = sFormulaResult;
+                    
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
 
                     dtValue.Rows.Add(dtValueRow);
 
@@ -700,7 +714,7 @@ namespace Aplos.Areas.Productions.Controllers
                         DataRow drmo = dv[0].Row;
 
                         drmo.BeginEdit();
-                        if (sFormulaResult=="")
+                        if (sFormulaResult == "" || sFormulaResult == "∞")
                         {
                             drmo["Value"] = 0;
                         }

@@ -2288,8 +2288,8 @@ function cboService($http, $window, $rootScope, baseService) {
         base('Productions/RecipeGlobalMaster/GetEntityProductionProcessCbo?entityid=' + entityId, callback);
     }
 
-    function GetWCProcessCbo(processid, entityId, callback) {
-        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId, callback);
+    function GetWCProcessCbo(processid, entityId, shiftId, callback) {
+        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId + '&shiftId=' + shiftId, callback);
     }
 
     function GetProductionShiftCbo(callback) {

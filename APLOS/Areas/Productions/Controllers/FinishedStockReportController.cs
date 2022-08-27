@@ -108,13 +108,15 @@ namespace Aplos.Areas.Productions.Controllers
             int ColArt = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Product Details", 40, ExcelHAlign.HAlignCenter);
+            int ColProdDet = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Lot No", 13, ExcelHAlign.HAlignCenter);
             int ColLot = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Product Details", 40, ExcelHAlign.HAlignCenter);
-            int ColProdDet = COL;
-            COL++;
+           
 
             report.SetHeaderText(ref sheet, ROW, COL, "Bag Size", 13, ExcelHAlign.HAlignCenter);
             int ColBagSize = COL;
@@ -144,10 +146,15 @@ namespace Aplos.Areas.Productions.Controllers
 
             string Article = "";
             string LotNum = "";
+            string ProdDetails = "";
+            //string roduct = "";
             int ArtRow = 0;
             int LotRow = 0;
+            
+            int ProdDetailsRow = 0;
 
             double[] arr = new double[3];
+
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
@@ -156,6 +163,8 @@ namespace Aplos.Areas.Productions.Controllers
 
                     Article = data.Rows[i]["StandardName"].ToString();
                     sheet[ROW, ColArt].Text = data.Rows[i]["StandardName"].ToString();
+                    ProdDetails = data.Rows[i]["ProdDetails"].ToString();
+                    sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
 
                     if (i != 0 && ArtRow != (ROW - 1))
                     {
@@ -165,18 +174,36 @@ namespace Aplos.Areas.Productions.Controllers
                     ArtRow = ROW;
                 }
 
+                // Product Detail
+               else if(ProdDetails != data.Rows[i]["ProdDetails"].ToString())
+                {
+                    ProdDetails = data.Rows[i]["ProdDetails"].ToString();
+                    sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
+
+                    if (i != 0 && LotRow != (ROW - 1))
+                    {
+                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
+                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                       
+                    }
+                    ProdDetailsRow = ROW;
+                }
+                // Product Detail End
+
                 if (LotNum != data.Rows[i]["LotNo"].ToString())
                 {
 
                     LotNum = data.Rows[i]["LotNo"].ToString();
+                    
                     sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
-                    sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
+                    
                     if (i != 0 && LotRow != (ROW - 1))
                     {
+                        //sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
+                        //sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].Merge();
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
-                        sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        
                     }
                     LotRow = ROW;
                 }

@@ -193,8 +193,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     $scope.wcList = [];
-    $scope.loadWC = function (processid, entityId) {
-        cboService.GetWCProcessCbo(processid, entityId, function (result) {
+    $scope.loadWC = function (processid, entityId, shiftId) {
+        cboService.GetWCProcessCbo(processid, entityId, shiftId, function (result) {
             $scope.wcList = result;
             //if (baseService.arrayLength(result) === 1) {
             //    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
@@ -308,12 +308,17 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     };
 
     $scope.shiftList = [];
-    cboService.GetProductionShiftCbo(function (result) {
-        $scope.shiftList = result;
-        if (baseService.arrayLength(result) === 1) {
-            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
-        }
-    });
+    $scope.GetShiftList = function () {
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     function CheckField(fieldname, field) {
         try {
@@ -1304,7 +1309,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                         }
                     }
                     if (response.data.NewData[i].IsProduction == true) {
-                        $scope.productionSummaryNew.Quantity += response.data.NewData[i].Value;
+                        $scope.productionSummaryNew.Quantity = response.data.NewData[i].Value;
                     }
                 }
             }, function errorCallback(response) {

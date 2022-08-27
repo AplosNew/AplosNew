@@ -33,7 +33,7 @@ namespace Library.Service.Productions
         IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid);
         IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid);
         IEnumerable<object> Query(string plantId);
-        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId);
+        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId);
         IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId,string productionDate,string shiftId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);

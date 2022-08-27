@@ -90,8 +90,11 @@ namespace Aplos.Areas.Materials.Controllers
 		{
 			return View();
 		}
-      
-        [HttpPost, Authorize]
+		public ActionResult RequisitionStatus()
+		{
+			return View();
+		}
+		[HttpPost, Authorize]
         public ActionResult StockRegisterData(string ToDate, string FromDate,int Days,string Type)
         {
             try
@@ -113,8 +116,8 @@ namespace Aplos.Areas.Materials.Controllers
             try
             {
 				var tempquery = "";
-				if (FromDate ==null)
-				{ tempquery = "AND convert(Date,IR.GRNDate) >  '" + ToDate + "'"; }
+				if (FromDate ==null || FromDate=="")
+				{ tempquery = "AND convert(Date,IR.GRNDate) <  '" + ToDate + "'"; }
                 else
                 {
 					tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
