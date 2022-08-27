@@ -1219,6 +1219,9 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                     if (baseService.isUndefinedOrNull($scope.companyPartyList[i].CurrencyId)) {
                         throw "Select Currency.";
                     }
+                    if (baseService.isUndefinedOrNull($scope.companyPartyList[i].PaymentTermId)) {
+                        throw "Select PaymentTerm.";
+                    }
                 }
             }
             Validation();

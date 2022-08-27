@@ -4284,6 +4284,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									,HS.Code HSNCode
 									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
+								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 
@@ -4309,6 +4310,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
 						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+						LEFT JOIN [TRN].[ProductDefinition] PD ON PD.MaterialMasterId=MM.Id
+						LEFT JOIN MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+						LEFT JOIN HKP.ProductCategory PDC ON PDC.Id=PM.ProductCategoryId
+						LEFT JOIN HKP.ProductSubCategory PDSC ON PDSC.Id=PM.ProductSubCategoryId
 						LEFT JOIN HKP.HSNCode HS ON HS.Id=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
@@ -4449,7 +4454,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,'' HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+								,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
@@ -4517,7 +4522,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
 								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-								union ALL
+								UNION ALL
 
 								SELECT 
 								'InventorySales' ItemType,IID.Id SalesMaterialId
@@ -4579,7 +4584,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,HSNC.Code HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left join ORG.Company COMP on COMP.Id=II.CompanyId
@@ -4612,6 +4617,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						--Left Join [HKP].[Party] Par As Par.Id=II.P
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [TRN].[ProductDefinition] PD ON PD.MaterialMasterId=MM.Id
+						LEFT JOIN MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+						LEFT JOIN HKP.ProductCategory PDC ON PDC.Id=PM.ProductCategoryId
+						LEFT JOIN HKP.ProductSubCategory PDSC ON PDSC.Id=PM.ProductSubCategoryId
 						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
@@ -4733,7 +4742,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						,'' HSNCode
 						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+						,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId
