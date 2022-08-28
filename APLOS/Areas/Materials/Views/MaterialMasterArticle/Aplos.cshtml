@@ -270,7 +270,7 @@
                                 <label class="col-sm-2 control-label">Code<sup>*</sup></label>
                                 <label class="col-sm-3 control-label">Vendor<sup>*</sup></label>
                                 <label class="col-sm-3 control-label">User Group<sup>*</sup></label>
-                                <label class="col-sm-2 control-label">Remark<sup>*</sup></label>
+                                <label class="col-sm-2 control-label">Remark</label>
                                 <label class="col-sm-2 control-label"></label>
                             </div>
                         </div>
@@ -309,12 +309,13 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li><button ng-click="SaveArticleAlias();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{Action}}</button></li>
-                                @*<li><button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i>Delete</button></li>*@
-                                <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+                                <li><button ng-click="articleAliasClear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
                             </ul>
                         </div>
                     </div>
 
+                </div>
+                <div class="modal-footer">
                     <div class="col-md-12 table-responsive modal-table">
                         <table class="table table-striped">
                             <thead>
@@ -323,20 +324,23 @@
                                     <th>Vendor</th>
                                     <th>User Group</th>
                                     <th>Remark</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr ng-repeat="x in articleList">
-                                   
+                                <tr ng-repeat="x in aliasList" ng-dblclick="GetArticleAlias(x)">
+
                                     <td>{{x.Code}}</td>
-                                    <td>{{x.Vendor}}</td>
+                                    <td>{{x.VendorName}}</td>
                                     <td>{{x.UserGroup}}</td>
                                     <td>{{x.Remark}}</td>
+                                    <td>
+                                        <button ng-click="deleteArticleAlias(x)" class="btn btn-action tooltip-here" data-placement="top" title="Delete"><i class="glyphicon glyphicon-trash"></i></button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-
 
                 </div>
             </div>
@@ -348,4 +352,5 @@
 @Html.Partial("~/Areas/Materials/Views/Shared/_AttributeValuePopUp.cshtml")
 @Html.Partial("~/Areas/Parties/Views/Party/_VendorPopUpNew.cshtml")
 <confirm-archive-generic modalid="deleteModal" title="Confirmation" message={{articleMessage}} data-ng-click-right-button="removeArticleRow()"></confirm-archive-generic>
+<confirm-archive-generic modalid="deleteArticleAlias" title="Confirmation" message={{articleMessage}} data-ng-click-right-button="removeArticlAliaseRow()"></confirm-archive-generic>
 <!-- #endregion -->
