@@ -98,7 +98,7 @@
                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                 <div class="col-sm-8 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="Process" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="changeProcess();"
+                        <select class="form-control" id="Process" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="changeProcess();GetShiftList();"
                                 name="FromId" ng-options="item.FromId as item.UserName for item in listFromProcessOrSFGInventory" required>
                             <option value=""></option>
                         </select>

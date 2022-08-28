@@ -2626,6 +2626,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
+					
 
 					int endCol = COL;
 					worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 10f;
@@ -2727,7 +2728,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								worksheet[ROW, colPartyCategory].Text = dtInventorySalesReportList.Rows[i]["PartyCategory"].ToString();
 								worksheet[ROW, colPartySubCategory].Text = dtInventorySalesReportList.Rows[i]["PartySubCategory"].ToString();
 								worksheet[ROW, colPartyAccountGroup].Text = dtInventorySalesReportList.Rows[i]["PartyAccountGroup"].ToString();
-
+								
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -3739,7 +3740,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			var sheet = workbook.Worksheets[0];
 
 			#region sheet1
-			sheet.Name = "Purchase Report Register Party Wise";
+			sheet.Name = "Purchase Report Register Item Wise";
 
 			int ROW = 7;
 			int endCol = 1;
@@ -4021,6 +4022,19 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Up Charge", 11, ExcelHAlign.HAlignLeft);
 			int ColUpCharge = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Proudct Category", 18, ExcelHAlign.HAlignLeft);
+			int colProudctCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Proudct Sub Category", 18, ExcelHAlign.HAlignLeft);
+			int colProudctSubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Product Group", 18, ExcelHAlign.HAlignLeft);
+			int colProductGroup = COL;
+
 
 			endCol = COL;
 			#endregion Headers
@@ -4147,7 +4161,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColUpCharge].Number = clsStaticInfo.dbl(data.Rows[i]["UpCharge"].ToString());
 				sheet[ROW, ColUpCharge].NumberFormat = "#,##0.00;(#,##0.00)";
 
-				
+				sheet[ROW, colProudctCategory].Text = data.Rows[i]["ProudctCategory"].ToString(); 
+				sheet[ROW, colProudctSubCategory].Text = data.Rows[i]["ProudctSubCategory"].ToString();
+				sheet[ROW, colProductGroup].Text = data.Rows[i]["ProductGroup"].ToString();
+
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
@@ -4284,6 +4301,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 									,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 									,HS.Code HSNCode
 									,So.Rate,So.SalesExpense,So.Discount,So.CM,So.DirectMaterialCost,So.DirectProcessCost,So.Commission,So.ValueLoss,So.Other,So.UpCharge
+								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM TRN.SalesMaterial AS SM 
 								LEFT JOIN TRN.Sales AS SA ON SA.Id=SM.SalesId
 
@@ -4309,6 +4327,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						LEFT JOIN [TRN].[CustomerPO] AS PO ON SO.CustomerPOId = PO.Id
 						LEFT JOIN [MST].[Destination] AS DT ON DT.Id=SO.DestinationId
 						LEFT JOIN MST.MaterialMaster AS MM ON MM.Id=SM.MaterialMasterId
+						LEFT JOIN [TRN].[ProductDefinition] PD ON PD.MaterialMasterId=MM.Id
+						LEFT JOIN MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+						LEFT JOIN HKP.ProductCategory PDC ON PDC.Id=PM.ProductCategoryId
+						LEFT JOIN HKP.ProductSubCategory PDSC ON PDSC.Id=PM.ProductSubCategoryId
 						LEFT JOIN HKP.HSNCode HS ON HS.Id=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN MST.MaterialMasterArticle AS ART ON SM.ArticleId=ART.Id
@@ -4449,7 +4471,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,'' HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+								,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 								from trn.SalesService AS ISs
 								LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 								left jOIN [TRN].[Sales] AS IR ON IR.Id=ISs.SalesId
@@ -4517,7 +4539,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						) TAxInfo6 ON TAxInfo6.SalesServiceId=ISs.Id AND TAxInfo6.SalesServiceId IS NOT NULL
 
 								WHERE IR.PlantId='" + identity.PlantId + "' AND convert(Date,IR.InvoiceDate) BETWEEN  '" + FromDate + @"' AND '" + ToDate + @"' 
-								union ALL
+								UNION ALL
 
 								SELECT 
 								'InventorySales' ItemType,IID.Id SalesMaterialId
@@ -4579,7 +4601,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 								,HSNC.Code HSNCode
 								,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+								,PDC.UserName ProudctCategory,PDSC.UserName ProudctSubCategory,PM.UserName ProductGroup
 								FROM [TRN].[InventorySalesDetail] AS IID
 								left outer join [TRN].[InventorySales] AS II on II.Id=IID.InventorySalesId
 								left join ORG.Company COMP on COMP.Id=II.CompanyId
@@ -4612,6 +4634,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						--Left Join [HKP].[Party] Par As Par.Id=II.P
 						LEFT JOIN TRN.InventoryMaterial AS IM ON IM.Id=IID.InventoryMaterialId
 						left JOIN MST.MaterialMaster AS MM ON IM.MaterialMasterId=MM.Id
+						LEFT JOIN [TRN].[ProductDefinition] PD ON PD.MaterialMasterId=MM.Id
+						LEFT JOIN MST.ProductMaster PM ON PM.Id=PD.ProductMasterId
+						LEFT JOIN HKP.ProductCategory PDC ON PDC.Id=PM.ProductCategoryId
+						LEFT JOIN HKP.ProductSubCategory PDSC ON PDSC.Id=PM.ProductSubCategoryId
 						LEFT JOIN [HKP].[HSNCode] AS HSNC ON HSNC.ID=MM.HSNCodeId
 						LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
 						LEFT JOIN [HKP].[MaterialType] AS MT On MGM.MaterialTypeId=MT.Id			
@@ -4733,7 +4759,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 						,PG.UserName PartyGroup,PC.UserName PartyCategory,PSC.UserName PartySubCategory,PAG.UserName PartyAccountGroup
 						,'' HSNCode
 						,0 Rate,0 SalesExpense,0 Discount,0 CM,0 DirectMaterialCost,0 DirectProcessCost,0 Commission,0 ValueLoss,0 Other,0 UpCharge
-
+						,'' ProudctCategory,''ProudctSubCategory,'' ProductGroup
 						from trn.InventoryService AS ISS
 						LEFT JOIN [HKP].[ServiceMaster] SM ON SM.Id=ISs.ServiceMasterId
 						left jOIN [TRN].[InventorySales] AS IR ON IR.Id=ISs.InventoryReceiveId

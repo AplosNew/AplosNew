@@ -1,10 +1,15 @@
 ﻿using Aplos.Controllers;
 using Aplos.Properties;
 using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Model.Materials;
+using Library.Security.Core;
 using Library.Service.Materials;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Threading;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
 
@@ -141,6 +146,69 @@ namespace Aplos.Areas.Materials.Controllers
             _baseService.Delete(id);
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpPost,Authorize]
+        public ActionResult CreateArticleAlias(Dictionary<string, object> datas)
+        {
+            try
+            {
+                SaveArticleAlias(datas);
+
+                return Json(new { Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public void SaveArticleAlias(Dictionary<string, object> datas)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMaster;
+            try
+            {
+                string sql = "SELECT * FROM ArticleAlias WHERE Id ='" + datas["Id"] + "' ";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr = dsMaster.Tables[0].NewRow();
+
+                    string sID = string.Empty;
+                    bplib.clsGenID objGenID = new bplib.clsGenID();
+                    objGenID.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "ArticleAlias", out sID);
+                    dr["Id"] = sID;
+                    
+                    dr["AddedBy"] = identity.Name;
+                    dr["AddedDate"] = DateTime.Now;
+                    dr["AddedFromIP"] = identity.IPAddress;
+                    dsMaster.Tables[0].Rows.Add(dr);
+                }
+                else
+                {
+                    DataRow dr = dsMaster.Tables[0].DefaultView[0].Row;
+                    dr.BeginEdit();
+                     
+                    dr["UpdatedBy"] = identity.Name;
+                    dr["UpdatedDate"] = System.DateTime.Now.ToString();
+                    dr["UpdatedFromIP"] = identity.IPAddress;
+                    dr.EndEdit();
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         #endregion -- Operations
     }
 }

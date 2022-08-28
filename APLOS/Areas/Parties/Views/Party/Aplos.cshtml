@@ -612,7 +612,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active">
+                                    <select id="PaymentTermId" class="form-control" name="Payment Term" ng-model="c.PaymentTermId" ng-disabled="!c.Active" >
                                         <option value="">--Select--</option>
                                         <option ng-repeat="option in customerpaymentTermList" value="{{option.Value}}">{{option.Text}}</option>
                                     </select>

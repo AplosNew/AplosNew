@@ -180,9 +180,7 @@ function StorageBinAllocationController(cboService, commonMessage, $scope, $root
         $http({
             method: 'POST',
             url: $scope.path + 'Save',
-            data: {
-                'datas': $scope.ModelNew,               
-            },
+            data: {'datas': $scope.ModelNew,},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
