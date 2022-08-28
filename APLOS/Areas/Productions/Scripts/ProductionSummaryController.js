@@ -107,7 +107,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
                 $scope.getProdLevel();
                 //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId);
             }
         });
     };

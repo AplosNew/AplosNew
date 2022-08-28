@@ -67,6 +67,9 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
     var bWEChart;
     var bWEChart2;
     var chartType = 'bar';
+    $scope.report = {
+        IsAsset: false
+    };
 
     var now = new Date();
     $scope.dateRange = {};
@@ -304,6 +307,7 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                 'ValueOrNumber': $scope.Isregulardata,
                 'queryString': queryString,
                 'queryStringProcess': queryStringProcess,
+                'IsAsset': $scope.report.IsAsset,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -430,6 +434,7 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                         'ValueOrNumber': $scope.Isregulardata,
                         'queryString': queryString,
                         'queryStringProcess': queryStringProcess,
+                        'IsAsset': $scope.report.IsAsset,
                     },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
@@ -548,7 +553,8 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                     'Companywiseplantdata': $scope.Companywiseplantdata,
                     'CompanyId': $scope.CompanyId,
                     'PlantId': $scope.PlantId,
-                    'ValueOrNumber': $scope.Isregulardata
+                    'ValueOrNumber': $scope.Isregulardata,
+                    'IsAsset': $scope.report.IsAsset,
                     
                 },
                 dataType: 'JSON'
@@ -891,7 +897,8 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                 'toDate': $scope.dateRange.toDate,
                 'groupName': $scope.groupName,
                 'Companywiseplantdata': $scope.Companywiseplantdata,
-                'ValueOrNumber': $scope.Isregulardata
+                'ValueOrNumber': $scope.Isregulardata,
+                'IsAsset': $scope.report.IsAsset,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -1171,6 +1178,7 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                     'companyId': data.CompanyId,
                     'PlantId': data.PlantId,
                     'ValueOrNumber': $scope.Isregulardata,
+                    'IsAsset': $scope.report.IsAsset,
                 },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -1218,6 +1226,7 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                 'companyId': x.data.CompanyId,
                 'PlantId': x.data.PlantId,
                 'ValueOrNumber': $scope.Isregulardata,
+                'IsAsset': $scope.report.IsAsset,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -1265,6 +1274,7 @@ function materialAgeingDashboardController(cboService, commonMessage, $scope, $r
                 'companyId': x.data.CompanyId,
                 'PlantId': x.data.PlantId,
                 'ValueOrNumber': $scope.Isregulardata,
+                'IsAsset': $scope.report.IsAsset,
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
