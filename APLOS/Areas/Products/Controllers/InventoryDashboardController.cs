@@ -113,7 +113,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public JsonResult MaterialAgeingStatusDashboard(string companyGroupId, string companyId, string factDate, string fromDate, string toDate, string groupName, bool ValueOrNumber, string queryString, string queryStringProcess)
+		public JsonResult MaterialAgeingStatusDashboard(string companyGroupId, string companyId, string factDate, string fromDate, string toDate, string groupName, bool ValueOrNumber, string queryString, string queryStringProcess, bool IsAsset)
 		{
 			string paramters = "";
 			if (queryString != "")
@@ -143,6 +143,15 @@ namespace Aplos.Areas.Products.Controllers
 				else
 				{
 					ValueOrNumber1 = 1;
+				}
+				var IsAsset1 = 0;
+				if (IsAsset == false)
+				{
+					IsAsset1 = 0;
+				}
+				else
+				{
+					IsAsset1 = 1;
 				}
 
 				//if (groupName == "groupName")
@@ -205,7 +214,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 0 AND 30
-								AND MT.UserName <> ''      AND MM.IsRegular='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> ''      AND MM.IsRegular='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 							UNION ALL
 							SELECT			               
@@ -248,7 +257,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 31 AND 45
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 
 							UNION ALL
@@ -292,7 +301,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 46 AND 60
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 
 							UNION ALL
@@ -336,7 +345,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 61 AND 120
-								AND MT.UserName <> ''  AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> ''  AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 
 							UNION ALL
@@ -380,7 +389,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 121 AND 365
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 
 							UNION ALL
@@ -424,7 +433,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 365 AND 900000
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName
 							)x
 							where  IsRegular='" + ValueOrNumber1 + @"'
@@ -489,7 +498,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 0 AND 30
-								AND MT.UserName <> ''      AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> ''      AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 							UNION ALL
 							SELECT			               
@@ -532,7 +541,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 31 AND 45
-								AND MT.UserName <> ''      AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> ''      AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 
 							UNION ALL
@@ -576,7 +585,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 46 AND 60
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 
 							UNION ALL
@@ -620,7 +629,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 61 AND 120
-								AND MT.UserName <> ''  AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> ''  AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 
 							UNION ALL
@@ -664,7 +673,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 121 AND 365
-								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 
 							UNION ALL
@@ -708,7 +717,7 @@ namespace Aplos.Areas.Products.Controllers
 							LEFT JOIN [TRN].[InventoryReceive] AS IR ON IRD.InventoryReceiveId = IR.Id		            
 							LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between 365 AND 900000
-								AND MT.UserName <> '' AND MM.IsRegular='" + ValueOrNumber1 + @"'
+								AND MT.UserName <> '' AND MM.IsRegular='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							GROUP BY IM.CompanyId,isnull(MT.UserName, ''),mm.IsRegular,MT.Id,CMP.UserName,P.Id ,P.UserName 	
 							)x
 							where  " + paramters + " AND ISNULL(x.IsRegular,0)='" + ValueOrNumber1 + @"'
@@ -894,7 +903,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public JsonResult MaterialAgeingMGDataByType(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess)
+		public JsonResult MaterialAgeingMGDataByType(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess, bool IsAsset)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string fromDate = "";
@@ -924,7 +933,15 @@ namespace Aplos.Areas.Products.Controllers
 				{
 					ValueOrNumber1 = 1;
 				}
-
+				var IsAsset1 = 0;
+				if (IsAsset == false)
+				{
+					IsAsset1 = 0;
+				}
+				else
+				{
+					IsAsset1 = 1;
+				}
 
 				sql = @"SELECT   CMPGR.Id CompanyGroupid,CMPGR.UserName CompanyGroup
 									--,CMP.Id CompanyId,CMP.UserName CompanyName
@@ -964,7 +981,7 @@ namespace Aplos.Areas.Products.Controllers
 		            
 								LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 								WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between '" + fromDate + @"' And '" + toDate + @"'
-									AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+									AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 									AND MaterialTypeId='" + Id + @"'	
 									AND MaterialTypeId is not null
 									--AND CMP.Id='C20171' AND P.id='20171'
@@ -984,7 +1001,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public JsonResult MaterialAgeingMaterialataByMG(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess)
+		public JsonResult MaterialAgeingMaterialataByMG(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess, bool IsAsset)
 		{
 			var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 			string fromDate = "";
@@ -1010,7 +1027,15 @@ namespace Aplos.Areas.Products.Controllers
 				{
 					ValueOrNumber1 = 1;
 				}
-
+				var IsAsset1 = 0;
+				if (IsAsset == false)
+				{
+					IsAsset1 = 0;
+				}
+				else
+				{
+					IsAsset1 = 1;
+				}
 
 				sql = @"SELECT  
 							 CMP.Id CompanyId,CMP.UserName CompanyName
@@ -1048,7 +1073,7 @@ namespace Aplos.Areas.Products.Controllers
 						LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON MM.BaseUOMId = TUoM.Id
 							LEFT JOIN org.Plant P On P.Id=IM.PlantId
 						WHERE DATEDIFF(day, IR.GRNDate, getdate()) Between '" + Session["fromDateNew"] + @"' And '" + Session["toDateNew"] + @"'
-							AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+							AND MT.UserName <> '' AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"' AND MM.IsAsset='" + IsAsset1 + @"'
 							--AND MT.Id='MAT-201712'	
 							AND MaterialTypeId is not null
 							ANd MGM.Id='" + Id + @"'
@@ -1069,7 +1094,7 @@ namespace Aplos.Areas.Products.Controllers
 		}
 
 		[HttpPost, Authorize]
-		public JsonResult MaterialAgeingArticleDataByMaterial(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess)
+		public JsonResult MaterialAgeingArticleDataByMaterial(string Id, string days, string companyId, string PlantId, bool ValueOrNumber, string queryString, string queryStringProcess, bool IsAsset)
 		{
 
 
@@ -1097,7 +1122,15 @@ namespace Aplos.Areas.Products.Controllers
 				{
 					ValueOrNumber1 = 1;
 				}
-
+				var IsAsset1 = 0;
+				if (IsAsset == false)
+				{
+					IsAsset1 = 0;
+				}
+				else
+				{
+					IsAsset1 = 1;
+				}
 
 				sql = @"SELECT   CMPGR.Id CompanyGroupid,CMPGR.UserName CompanyGroup
 								,CMP.Id CompanyId,CMP.UserName CompanyName,CMP.UserName CompanyName
@@ -1141,7 +1174,7 @@ namespace Aplos.Areas.Products.Controllers
 								--ANd MGM.Id='2019275'
 								AND MM.Id='" + Id + @"'
 								AND MT.UserName <> '' 
-								AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'
+								AND ISNULL(MM.IsRegular,0)='" + ValueOrNumber1 + @"'  AND MM.IsAsset='" + IsAsset1 + @"'
 								--AND CMPGR.Id='CG20171' AND CMP.Id='C20171' AND P.id='20171'
 							GROUP BY 	MT.UserName,MT.Id,MGM.Id ,MGM.UserName,MG1.UserName	,MG2.UserName 
 							,MG3.UserName ,MM.Id ,mm.UserName ,ART.Id ,ART.StandardName, p.Id ,p.UserName, CMP.Id ,CMP.UserName, CMPGR.Id ,CMPGR.UserName,CMP.UserName ";
