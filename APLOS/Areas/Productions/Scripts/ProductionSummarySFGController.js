@@ -391,9 +391,12 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
     $scope.loadWC = function (processid) {
         $scope.wcList = [];
         if ($scope.Status === 'PROCESS') {
-            cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, function (result) {
-                $scope.wcList = result;
+            //cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, function (result) {
+            //    $scope.wcList = result;
 
+            //});
+            cboService.GetWCProcessCbo(processid, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId, function (result) {
+                $scope.wcList = result;
             });
         }
     };
