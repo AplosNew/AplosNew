@@ -2626,31 +2626,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 					worksheet[ROW, COL].CellStyle.Font.Bold = true;
 					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
 					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Proudct Category";
-					int colProudctCategory = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Proudct Sub Category";
-					int colProudctSubCategory = COL;
-					worksheet[ROW, COL].ColumnWidth = 20;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-					COL++;
-
-					worksheet[ROW, COL].Text = "Product Group";
-					int colProductGroup = COL;
-					worksheet[ROW, COL].ColumnWidth = 15;
-					worksheet[ROW, COL].CellStyle.Font.Bold = true;
-					worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
-					worksheet[ROW, COL].VerticalAlignment = ExcelVAlign.VAlignCenter;
-
+					
 
 					int endCol = COL;
 					worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 10f;
@@ -2752,10 +2728,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 								worksheet[ROW, colPartyCategory].Text = dtInventorySalesReportList.Rows[i]["PartyCategory"].ToString();
 								worksheet[ROW, colPartySubCategory].Text = dtInventorySalesReportList.Rows[i]["PartySubCategory"].ToString();
 								worksheet[ROW, colPartyAccountGroup].Text = dtInventorySalesReportList.Rows[i]["PartyAccountGroup"].ToString();
-								worksheet[ROW, colProudctCategory].Text = dtInventorySalesReportList.Rows[i]["PartyCategory"].ToString();
-								worksheet[ROW, colProudctSubCategory].Text = dtInventorySalesReportList.Rows[i]["PartySubCategory"].ToString();
-								worksheet[ROW, colProductGroup].Text = dtInventorySalesReportList.Rows[i]["PartyGroup"].ToString();
-
+								
 								worksheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 								worksheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Size = 8f;
@@ -3767,7 +3740,7 @@ namespace Aplos.MaterialManagement.MaterialQuery
 			var sheet = workbook.Worksheets[0];
 
 			#region sheet1
-			sheet.Name = "Purchase Report Register Party Wise";
+			sheet.Name = "Purchase Report Register Item Wise";
 
 			int ROW = 7;
 			int endCol = 1;
@@ -4049,6 +4022,19 @@ namespace Aplos.MaterialManagement.MaterialQuery
 
 			report.SetHeaderText(ref sheet, ROW, COL, "Up Charge", 11, ExcelHAlign.HAlignLeft);
 			int ColUpCharge = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Proudct Category", 18, ExcelHAlign.HAlignLeft);
+			int colProudctCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Proudct Sub Category", 18, ExcelHAlign.HAlignLeft);
+			int colProudctSubCategory = COL;
+			COL++;
+
+			report.SetHeaderText(ref sheet, ROW, COL, "Product Group", 18, ExcelHAlign.HAlignLeft);
+			int colProductGroup = COL;
+
 
 			endCol = COL;
 			#endregion Headers
@@ -4175,7 +4161,10 @@ namespace Aplos.MaterialManagement.MaterialQuery
 				sheet[ROW, ColUpCharge].Number = clsStaticInfo.dbl(data.Rows[i]["UpCharge"].ToString());
 				sheet[ROW, ColUpCharge].NumberFormat = "#,##0.00;(#,##0.00)";
 
-				
+				sheet[ROW, colProudctCategory].Text = data.Rows[i]["ProudctCategory"].ToString(); 
+				sheet[ROW, colProudctSubCategory].Text = data.Rows[i]["ProudctSubCategory"].ToString();
+				sheet[ROW, colProductGroup].Text = data.Rows[i]["ProductGroup"].ToString();
+
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
 				sheet.Range[ROW, ColSalesId, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
 
