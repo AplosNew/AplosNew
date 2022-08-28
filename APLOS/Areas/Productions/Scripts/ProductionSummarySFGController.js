@@ -258,6 +258,7 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
 
     $scope.shiftList = [];
     $scope.GetShiftList = function () {
+        $scope.shiftList = [];
         $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
