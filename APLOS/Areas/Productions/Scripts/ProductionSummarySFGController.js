@@ -248,13 +248,26 @@ function ProductionSummarySFGController(cboService, commonMessage, $scope, $root
         });
     };
 
+    //$scope.shiftList = [];
+    //cboService.GetProductionShiftCbo(function (result) {
+    //    $scope.shiftList = result;
+    //    if (baseService.arrayLength(result) === 1) {
+    //        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+    //    }
+    //});
+
     $scope.shiftList = [];
-    cboService.GetProductionShiftCbo(function (result) {
-        $scope.shiftList = result;
-        if (baseService.arrayLength(result) === 1) {
-            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
-        }
-    });
+    $scope.GetShiftList = function () {
+        $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.shiftList = response.data;
+                    if (baseService.arrayLength(response.data) === 1) {
+                        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+                    }
+                }
+            });
+    }
 
     function CheckField(fieldname, field) {
         try {
