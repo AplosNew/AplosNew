@@ -3162,7 +3162,7 @@ namespace Library.Service.Attendances
                                 drData = dicAttendance[_SystemId];
 
                                 sheet1[xlsRow, iGrossSalary].Number = clsStaticInfo.dbl(drData[0]["Gross"].ToString());
-                               
+
                                 foreach (DataRow item in drData)
                                 {
 
@@ -3660,6 +3660,7 @@ namespace Library.Service.Attendances
                 IWorksheet sheet1 = null;
                 DataView dvDaily = null;
                 DataSet dsCmp = null;
+                List<DataRow> drData = null;
                 //clsReport objRpt = null;
                 var objRpt = new clsReport();
 
@@ -3749,7 +3750,7 @@ namespace Library.Service.Attendances
                     #endregion Validation
 
 
-                    DataSet dsMonthlyAttnSumm = null;
+                    //DataSet dsMonthlyAttnSumm = null;
                     string _FLAG = "DAYSTATUS";
                     objm.FDate = dtFrmDt.ToString("dd-MMM-yyyy");
                     objm.TDate = dtEndDate.ToString("dd-MMM-yyyy");
@@ -3757,15 +3758,16 @@ namespace Library.Service.Attendances
                     Dictionary<string, List<DataRow>> dicAttendance = new Dictionary<string, List<DataRow>>();
 
                     //DataTable dtManPBSummary = GetMonthlyAttnSummaryRptForDetails(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
-                    DataTable dtManPBSummary = GetEOTSummarySql(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
+                    //DataTable dtManPBSummary = GetEOTSummarySql(objm, empParameters, out dsMonthlyAttnSumm, isActive, isSeperated, isMaternity);
 
-                    dicAttendance = objRpt.GetEOTMonthlyDailyAttendanceDic(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
+                    var data = objRpt.GetEOTMonthlyDailyAttendanceDT(_FLAG, plantId, dtFrmDt.ToString("dd-MMM-yyyy"), dtEndDate.ToString("dd-MMM-yyyy"), empParameters, isActive, isSeperated, isMaternity);
 
-                    if (dicAttendance.Count == 0)
+                    if (data.Rows.Count == 0)
                     {
                         throw new Exception("Data not found.");
 
                     }
+                   
 
 
                     excelEngine = new ExcelEngine();
@@ -3775,6 +3777,9 @@ namespace Library.Service.Attendances
                     sheet1 = workbook.Worksheets[0];
                     sheet1.IsGridLinesVisible = true;
 
+                    string _unit = string.Empty;
+                    string _dpt = string.Empty;
+                    string _sec = string.Empty;
 
                     string CmpName;
                     string FactoryName;
@@ -3786,25 +3791,11 @@ namespace Library.Service.Attendances
                     int cUnit = 0; int cTotalEmployee = 0; int cTotalGrossSalary; int cTotalOTHr = 0; int cTotalPayableAmount = 0; var cfdRemarks = 0; int cSection = 0; int cDepartment = 0; int cLine = 0;
                     #endregion
                     #region ColumnHeaders
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Division", ExcelHAlign.HAlignCenter); cDivision = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Unit", ExcelHAlign.HAlignCenter); cUnit = xlsCol; xlsCol++;
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Emp Category", ExcelHAlign.HAlignCenter); cEmpCategory = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Department", ExcelHAlign.HAlignCenter); cDepartment = xlsCol; xlsCol++;
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Section", ExcelHAlign.HAlignCenter); cSection = xlsCol; xlsCol++;
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Sub Section", ExcelHAlign.HAlignCenter); cSubSection = xlsCol; xlsCol++;
-                    //oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Designation", ExcelHAlign.HAlignCenter); cAttendancGroup = xlsCol; xlsCol++;
-                    //if (withLine)
-                    {
-                        oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
-                    }
+                    oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Line", ExcelHAlign.HAlignCenter); cLine = xlsCol; xlsCol++;
 
-                    string _SystemId = dtManPBSummary.Rows[0]["EmployeePK"].ToString().Trim();
-                    bool HasOUTtime = true;
-                    bool IsHalfLeave = false;
-                    bool IsManual = false;
-                    bool IsExtraAbsent = false;
-                    bool IsShortLeave = false;
-                    List<DataRow> drData = null;
 
                     int iGrossSalary = 0;
                     int iTotalEOTHour = 0;
@@ -3814,231 +3805,6 @@ namespace Library.Service.Attendances
                     double otRate = 0;
                     string _day_status = "";
                     double attdnStatus = 0;
-
-                    #region Attendance Data Plotting
-                    try
-                    {
-                        if (dicAttendance.ContainsKey(_SystemId))
-                        {
-
-
-                            drData = dicAttendance[_SystemId];
-
-                            sheet1[xlsRow, iGrossSalary].Number = clsStaticInfo.dbl(drData[0]["Gross"].ToString());
-                            sheet1[xlsRow, iOTRate].Number = clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
-                            otRate = clsStaticInfo.dbl(drData[0]["OTRate"].ToString());
-                            double totalOTHr = 0;
-
-                            foreach (DataRow item in drData)
-                            {
-
-                                HasOUTtime = true;
-                                IsHalfLeave = false;
-                                IsManual = false;
-                                IsExtraAbsent = false;
-                                IsShortLeave = false;
-                                int dcount = 0;
-                                int StartDayCol = xlsCol;
-
-
-                                try
-                                {
-                                    _day_status = "";
-                                    _day_status = item["DayStatus"].ToString();
-                                    if (_FLAG.ToUpper() == "DAYSTATUS")
-                                    {
-                                        if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
-                                        {
-                                            attdnStatus = clsStaticInfo.dbl(item["OTHr"].ToString());
-                                        }
-                                        else
-                                        {
-                                            attdnStatus = clsStaticInfo.dbl(item["OTHr"].ToString());
-                                        }
-                                    }
-                                    else if (_FLAG.ToUpper() == "ALLSTATUS")
-                                    {
-                                        if (item["DayCategory"].ToString().ToUpper() == "Leave".ToUpper())
-                                        {
-                                            attdnStatus = clsStaticInfo.dbl(item["OTHr"].ToString());
-
-                                        }
-
-                                    }
-                                    //if (item["TotalPresent"].ToString() == "1.00" && item["DayStatus"].ToString() == "WL" || item["DayStatus"].ToString() == "WP")
-                                    if (item["TotalPresent"].ToString() == "1.00" && item["DayStatus"].ToString() == "WL" || item["DayStatus"].ToString() == "WP" || item["DayStatus"].ToString() == "CWP" || item["DayStatus"].ToString() == "CWL" || item["DayStatus"].ToString() == "PW")
-                                    {
-                                        dcount++;
-                                    }
-
-
-
-                                    #region -- OT NCE JOB CARD --
-                                    ReportUtility oru = new ReportUtility();
-                                    string yot = string.Empty;//OTConsiderOn
-                                    string overstay = string.Empty;
-                                    int minutesadd = Convert.ToInt32(item["MaxOTPerDay"].ToString().Trim());
-
-
-                                    if (!string.IsNullOrEmpty(item["DayCategory"].ToString()))
-                                    {
-                                        if (item["DayCategory"].ToString() == "Present" || item["DayCategory"].ToString() == "Late")
-                                        {
-
-                                            if (item["OutTimeShow"].ToString() != "")
-                                            {
-                                                DateTime NewRealOutTime;
-                                                string TakeDate = Convert.ToDateTime(item["PDate"].ToString().Trim()).ToString("dd-MMM-yyyy");
-                                                string ot = Convert.ToDateTime(item["ShiftOutTime"].ToString().Trim()).ToString("hh:mm tt");
-
-                                                //check night shift
-                                                string _sOUTtime = TakeDate + " " + ot;
-                                                string _sINtime = TakeDate + " " + Convert.ToDateTime(item["ShiftInTime"].ToString().Trim()).ToString("hh:mm tt");
-                                                if (Convert.ToDateTime(_sOUTtime) < Convert.ToDateTime(_sINtime))
-                                                {
-                                                    TakeDate = Convert.ToDateTime(TakeDate).AddDays(1).ToString("dd-MMM-yyyy");
-                                                }
-
-                                                string TateandTime = TakeDate + " " + ot;
-
-                                                DateTime NewOutTime = Convert.ToDateTime(TateandTime).AddMinutes(minutesadd);
-                                                DateTime RealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
-                                                double totalMinutes;
-
-                                                if (Convert.ToDateTime(RealOutTime) > Convert.ToDateTime(NewOutTime) && (item["OriginalDayType"].ToString() != "H" && item["OriginalDayType"].ToString() != "W"))
-                                                {
-                                                    long WorkDateTickCount = Convert.ToDateTime(Convert.ToDateTime(item["PDate"].ToString()).ToString("dd-MMM-yyyy")).Ticks;
-                                                    int EmployeeSystemId = (int)Convert.ToInt64(item["SystemId"].ToString());
-                                                    WorkDateTickCount += EmployeeSystemId;
-
-                                                    Random rnd = new Random((int)(WorkDateTickCount));
-                                                    int RandomMinutes = rnd.Next(0, 15);
-                                                    NewRealOutTime = Convert.ToDateTime(NewOutTime).AddMinutes(RandomMinutes);
-                                                    DateTime RandomTime = Convert.ToDateTime(NewRealOutTime);
-                                                    DateTime ShiftTime = Convert.ToDateTime(TateandTime);
-                                                    TimeSpan span = RandomTime - ShiftTime;
-                                                    totalMinutes = span.TotalMinutes;
-                                                    oru.GetOT(item["OTConsiderOn"].ToString(), minutesadd.ToString(), out overstay);
-                                                    if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                    {
-                                                        overstay = "";
-                                                    }
-
-
-                                                }
-                                                else
-                                                {
-                                                    NewRealOutTime = Convert.ToDateTime(item["OutTimeShow"].ToString().Trim());
-                                                    oru.GetOT(item["OTConsiderOn"].ToString(), item["OverStay"].ToString(), out overstay);
-                                                    if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                                    {
-                                                        overstay = "";
-                                                    }
-                                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                                    {
-                                                        overstay = "";
-
-                                                    }
-
-
-                                                }
-
-                                            }
-                                        }
-                                    }
-
-
-                                    if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                    {
-                                        overstay = "";
-
-
-                                    }
-                                    else if (item["OriginalDayType"].ToString().Trim() == "W" && Convert.ToBoolean(item["IsNoPunchOnWeekOffForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                    {
-                                        overstay = "";
-
-
-
-                                    }
-                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == false)
-                                    {
-                                        overstay = "";
-
-
-
-                                    }
-                                    else if (item["OriginalDayType"].ToString().Trim() == "H" && Convert.ToBoolean(item["IsNoPunchOnHolidayForOTNotEntitle"].ToString().Trim()) == true && Convert.ToBoolean(item["IsOTEntitled"].ToString().Trim()) == true)
-                                    {
-                                        overstay = "";
-
-
-                                    }
-
-                                    else if (item["DayStatus"].ToString().Trim().Contains("LV") || item["DayStatus"].ToString().Trim() == "W" || item["DayStatus"].ToString().Trim() == "CWP" || item["DayStatus"].ToString().Trim() == "WP" || item["DayStatus"].ToString().Trim() == "CWL" || item["DayStatus"].ToString().Trim() == "WL" || item["DayStatus"].ToString().Trim() == "HP" || item["DayStatus"].ToString().Trim() == "HL")
-                                    {
-                                        overstay = "";
-
-                                    }
-
-
-                                    double os = clsStaticInfo.dbl(overstay) - 2;
-                                    if (os < 0)
-                                    {
-                                        os = 0;
-                                        sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = os;
-                                        totalOTHr += os;
-                                    }
-                                    else
-                                    {
-                                        sheet1[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].Number = os;
-                                        totalOTHr += os;
-                                    }
-
-                                    #endregion
-
-                                    sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                                    sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                                    sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle.Font.FontName = "Arial Narrow";
-                                    sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].CellStyle.Font.Size = 17;
-                                    sheet1.Range[xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString()), xlsRow, StartDayCol + (int)clsStaticInfo.dbl(item["D"].ToString())].BorderAround(ExcelLineStyle.Hair);
-                                }
-                                catch (Exception ex)
-                                {
-                                }
-                            }
-                            sheet1[xlsRow, iTotalEOTHour].Number = totalOTHr;
-                            sheet1[xlsRow, iNetEOTAmount].Number = Math.Round(totalOTHr * otRate);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                        throw ex;
-                    }
-                    #endregion
-
-
 
 
                     oRU.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Total Employee", 8, ExcelHAlign.HAlignCenter);
@@ -4060,268 +3826,57 @@ namespace Library.Service.Attendances
 
                     #endregion
 
-                    if (dtManPBSummary.Rows.Count > 0)
+                    for (int i = 0; i < data.Rows.Count; i++)
                     {
-
-
-                        #region New
-
-                        string _cgrp1 = string.Empty;
-                        string _grp1 = string.Empty;
-                        string _grp2 = string.Empty;
-                        string _grp3 = string.Empty;
-                        string _sgrp3 = string.Empty;
-                        string _grp4 = string.Empty;
-                        string _grp5 = string.Empty;
-
-
-
-                        var catFRow = xlsRow;
-                        var catcGrp2FRow = xlsRow;
-                        var catGrp2FRow = xlsRow;
-                        var catsGrp3FRow = xlsRow;
-                        var catGrp3FRow = xlsRow;
-                        var catGrp4FRow = xlsRow;
-                        var catGrp5FRow = xlsRow;
-
-                        ArrayList rowList = new ArrayList();
-                        var lastMPGroup = string.Empty;
-
-                        Dictionary<string, Combination> dicGroup = new Dictionary<string, Combination>();
-
-                        //string strGroupDivisionName = /*strGroupEmpCategory +*/ dtManPBSummary.Rows[0]["Division"].ToString();
-                        string strGroupUnitName = dtManPBSummary.Rows[0]["Unit"].ToString();
-                        //string strGroupEmpCategory = strGroupUnitName + dtManPBSummary.Rows[0]["EmployeeCategory"].ToString();
-                        string strGroupDepartment = strGroupUnitName + dtManPBSummary.Rows[0]["Department"].ToString();
-                        string strGroupSectionName = strGroupDepartment + dtManPBSummary.Rows[0]["Section"].ToString();
-                        string strGroupSubSectionName = strGroupSectionName + dtManPBSummary.Rows[0]["SubSection"].ToString();
-
-
-
-                        //dicGroup.Add("Division", new Combination { GroupKey = strGroupDivisionName, Row = xlsRow });
-                        dicGroup.Add("Unit", new Combination { GroupKey = strGroupUnitName, Row = xlsRow });
-                        //dicGroup.Add("EmployeeCategory", new Combination { GroupKey = strGroupEmpCategory, Row = xlsRow });
-                        dicGroup.Add("Department", new Combination { GroupKey = strGroupDepartment, Row = xlsRow });
-                        dicGroup.Add("Section", new Combination { GroupKey = strGroupSectionName, Row = xlsRow });
-                        dicGroup.Add("SubSection", new Combination { GroupKey = strGroupSubSectionName, Row = xlsRow });
-
-
-                        DataRow dr = dtManPBSummary.NewRow();
-                        dtManPBSummary.Rows.Add(dr);
-                        for (int i = 0; i < dtManPBSummary.Rows.Count; i++)
+                        if (_unit != data.Rows[i]["Unit"].ToString())
                         {
-                            var catLRow = xlsRow;
-                            if (i == 100)
-                            {
 
-                            }
-                            //strGroupDivisionName =/* strGroupEmpCategory +*/ dtManPBSummary.Rows[i]["Division"].ToString();
-                            strGroupUnitName = dtManPBSummary.Rows[i]["Unit"].ToString();
-                            //strGroupEmpCategory = strGroupUnitName + dtManPBSummary.Rows[i]["EmployeeCategory"].ToString();
-                            strGroupDepartment = strGroupUnitName + dtManPBSummary.Rows[i]["Department"].ToString();
-                            strGroupSectionName = strGroupDepartment + dtManPBSummary.Rows[i]["Section"].ToString();
-                            //strGroupSubSectionName = strGroupSectionName + dtManPBSummary.Rows[i]["SubSection"].ToString();
+                            _unit = data.Rows[i]["Unit"].ToString();
+                            sheet1[xlsRow, cUnit].Text = data.Rows[i]["Unit"].ToString();
+                            _dpt = data.Rows[i]["Department"].ToString();
+                            sheet1[xlsRow, cDepartment].Text = data.Rows[i]["Department"].ToString();
 
-                            //if (dicGroup["Division"].GroupKey != strGroupDivisionName)
-                            {
-                                rowList.Add(xlsRow);
-                                SetHeadText(sheet1, xlsRow, 6, " Subtotal:");
-                                sheet1.Range[xlsRow, cTotalEmployee].Formula = "=SUM(" + oRU.GetColumnNameForXls(cTotalEmployee) + catFRow + ":" + oRU.GetColumnNameForXls(cTotalEmployee) + (xlsRow - 1) + ")";
-                                sheet1.Range[xlsRow, cTotalEmployee].BorderAround(ExcelLineStyle.Hair);
-
-                                sheet1.Range[xlsRow, cTotalGrossSalary].Formula = "=SUM(" + oRU.GetColumnNameForXls(cTotalGrossSalary) + catFRow + ":" + oRU.GetColumnNameForXls(cTotalGrossSalary) + (xlsRow - 1) + ")";
-                                sheet1.Range[xlsRow, cTotalGrossSalary].BorderAround(ExcelLineStyle.Hair);
-
-                                sheet1.Range[xlsRow, cTotalOTHr].Formula = "=SUM(" + oRU.GetColumnNameForXls(cTotalOTHr) + catFRow + ":" + oRU.GetColumnNameForXls(cTotalOTHr) + (xlsRow - 1) + ")";
-                                sheet1.Range[xlsRow, cTotalOTHr].BorderAround(ExcelLineStyle.Hair);
-
-                                sheet1.Range[xlsRow, cTotalPayableAmount].Formula = "=SUM(" + oRU.GetColumnNameForXls(cTotalPayableAmount) + catFRow + ":" + oRU.GetColumnNameForXls(cTotalPayableAmount) + (xlsRow - 1) + ")";
-                                sheet1.Range[xlsRow, cTotalPayableAmount].BorderAround(ExcelLineStyle.Hair);
-
-
-                                sheet1.Range[xlsRow, cTotalGrossSalary, xlsRow, cTotalPayableAmount].CellStyle.Font.Bold = true;
-
-
-                                xlsRow++;
-
-
-                                //sheet1.Range[dicGroup["Division"].Row, cDivision, xlsRow - 1, cDivision].BorderAround(ExcelLineStyle.Hair);
-                                //sheet1.Range[dicGroup["Division"].Row, cDivision].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                                //sheet1.Range[dicGroup["Division"].Row, cDivision].VerticalAlignment = ExcelVAlign.VAlignTop;
-                                //sheet1.Range[dicGroup["Division"].Row, cDivision, xlsRow - 1, cDivision].Merge();
-
-
-                                //dicGroup["Division"].Row = xlsRow;
-                                //dicGroup["Division"].GroupKey = strGroupDivisionName;
-                            }
-
-
-
-                            sheet1.Range[xlsRow, cUnit].Text = dtManPBSummary.Rows[i]["Unit"].ToString();
-                            if (dicGroup["Unit"].GroupKey != strGroupUnitName)
-                            {
-                                sheet1.Range[dicGroup["Unit"].Row, cUnit, xlsRow - 1, cUnit].BorderAround(ExcelLineStyle.Hair);
-                                sheet1.Range[dicGroup["Unit"].Row, cUnit].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                                sheet1.Range[dicGroup["Unit"].Row, cUnit].VerticalAlignment = ExcelVAlign.VAlignTop;
-                                sheet1.Range[dicGroup["Unit"].Row, cUnit, xlsRow - 1, cUnit].Merge();
-                                dicGroup["Unit"].Row = xlsRow;
-                                dicGroup["Unit"].GroupKey = strGroupUnitName;
-                            }
-
-
-                            sheet1.Range[xlsRow, cDepartment].Text = dtManPBSummary.Rows[i]["Department"].ToString();
-                            if (dicGroup["Department"].GroupKey != strGroupDepartment)
-                            {
-                                sheet1.Range[dicGroup["Department"].Row, cDepartment, xlsRow - 1, cDepartment].BorderAround(ExcelLineStyle.Hair);
-                                sheet1.Range[dicGroup["Department"].Row, cDepartment].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                                sheet1.Range[dicGroup["Department"].Row, cDepartment].VerticalAlignment = ExcelVAlign.VAlignTop;
-                                sheet1.Range[dicGroup["Department"].Row, cDepartment, xlsRow - 1, cDepartment].Merge();
-                                dicGroup["Department"].Row = xlsRow;
-                                dicGroup["Department"].GroupKey = strGroupDepartment;
-                            }
-
-                            sheet1.Range[xlsRow, cSection].Text = dtManPBSummary.Rows[i]["Section"].ToString();
-                            if (dicGroup["Section"].GroupKey != strGroupSectionName)
-                            {
-                                sheet1.Range[dicGroup["Section"].Row, cSection, xlsRow - 1, cSection].BorderAround(ExcelLineStyle.Hair);
-                                sheet1.Range[dicGroup["Section"].Row, cSection].HorizontalAlignment = ExcelHAlign.HAlignJustify;
-                                sheet1.Range[dicGroup["Section"].Row, cSection].VerticalAlignment = ExcelVAlign.VAlignTop;
-                                sheet1.Range[dicGroup["Section"].Row, cSection, xlsRow - 1, cSection].Merge();
-                                dicGroup["Section"].Row = xlsRow;
-                                dicGroup["Section"].GroupKey = strGroupSectionName;
-                            }
-
-                            #endregion
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cLine, dtManPBSummary.Rows[i]["Line"].ToString());//
-
-
-
-
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cTotalEmployee, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalEmployee"].ToString()));
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cTotalGrossSalary, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["TotalGrossSalary"].ToString()));
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cTotalOTHr, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_PRESENT"].ToString()));//LegalDesignation
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cTotalPayableAmount, clsStaticInfo.dbl(dtManPBSummary.Rows[i]["SUM_Absent"].ToString()));//
-
-                            oRU.SetTextBorder(ref sheet1, xlsRow, cfdRemarks, "");//
-                            xlsRow++;
+                            //if (i != 0 && cUnit != (xlsRow - 1))
+                            //{
+                            //    sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
+                            //    sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                            //}
+                            cUnit = xlsRow;
                         }
-                        xlsRow += 1;
 
-
-                        SetHeadText(sheet1, xlsRow, 1, "Grand Total:");
-                        sheet1.Range[xlsRow, 1, xlsRow, (cTotalEmployee - 1)].Merge();
-                        sheet1.Range[xlsRow, cTotalEmployee].Formula = GetFormulaGrandTotal(rowList, cTotalEmployee);
-                        sheet1.Range[xlsRow, cTotalEmployee].Formula = GetFormulaGrandTotal(rowList, cTotalEmployee);
-                        sheet1.Range[xlsRow, cTotalGrossSalary].Formula = GetFormulaGrandTotal(rowList, cTotalGrossSalary);
-                        sheet1.Range[xlsRow, cTotalOTHr].Formula = GetFormulaGrandTotal(rowList, cTotalOTHr);
-                        sheet1.Range[xlsRow, cTotalPayableAmount].Formula = GetFormulaGrandTotal(rowList, cTotalPayableAmount);
-
-
-                        sheet1.Range[xlsRow, 1, xlsRow, (cTotalEmployee - 1)].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow, cTotalEmployee].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow, cTotalGrossSalary].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow, cTotalOTHr].BorderAround(ExcelLineStyle.Hair);
-                        sheet1.Range[xlsRow, cTotalPayableAmount].BorderAround(ExcelLineStyle.Hair);
-
-
-
-                        sheet1.Range[xlsRow, cTotalEmployee, xlsRow, cTotalPayableAmount].CellStyle.Font.Bold = true;
-
-                        #region UsedRange Alignment
-                        sheet1.UsedRange.WrapText = true;
-                        sheet1.UsedRange.CellStyle.Font.Size = 8;
-                        sheet1.Range["A1"].CellStyle.Font.Size = 14;
-                        sheet1.Range["A2"].CellStyle.Font.Size = 10;
-                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                        #endregion UsedRange Alignment
-
-
-                        #region Freeze Panes
-                        sheet1.IsDisplayZeros = false;
-                        //sheet1.UsedRange["A8"].FreezePanes();
-                        sheet1.FirstVisibleColumn = 1;
-                        sheet1.FirstVisibleRow = 6;
-
-                        #endregion
-
-
-                        objRpt.SelectedPlantWiseCompany(identity.PlantId, "", out dsCmp);
-                        xlsRow = 1;
-                        xlsCol = 1;
-
-                        FactoryName = string.Empty;
-
-                        var FactoryAddress = string.Empty;
-
-                        if (dsCmp.Tables[0].Rows.Count > 0)
+                        // Product Detail
+                        else if (_dpt != data.Rows[i]["Department"].ToString())
                         {
-                            CmpName = dsCmp.Tables[0].Rows[0]["CompanyName"].ToString();
+                            _dpt = data.Rows[i]["Department"].ToString();
+                            sheet1[xlsRow, cDepartment].Text = data.Rows[i]["Department"].ToString();
+
+                            //if (i != 0 && LotRow != (ROW - 1))
+                            //{
+                            //    sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
+                            //    sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+
+                            //}
+                            cDepartment = xlsRow;
                         }
-                        else
-                        {
-                            CmpName = "";
-                        }
-                        if (dsCmp.Tables[0].Rows.Count > 0)
-                        {
-                            FactoryName = dsCmp.Tables[0].Rows[0]["PlantName"].ToString();
-                        }
-                        else
-                        {
-                            FactoryName = "";
-                        }
-                        sheet1.Range[xlsRow, 1].Text = FactoryName;
-                        sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 20;
-                        sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                        sheet1.Range[xlsRow, 1, xlsRow, Convert.ToInt32(endXlsCol)].Merge();
-                        sheet1.Range[xlsRow, 1].RowHeight = 30;
-
-                        #region Plant Address
+                        // Product Detail End
 
 
-                        if (dsCmp.Tables[0].Rows.Count > 0)
-                        {
-                            FactoryAddress = dsCmp.Tables[0].Rows[0]["CompanyAddress"].ToString();
-                        }
-                        else
-                        {
-                            FactoryAddress = "";
-                        }
-                        //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].Text = FactoryAddress;
-                        //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].Merge();
-                        //sheet1.Range[xlsRow, 1].CellStyle.Font.Size = 18;
-
-                        //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        //sheet1.Range[xlsRow, Convert.ToInt32(endXlsCol / 2) + 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                        //sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 20;
-                        #endregion
-                        xlsRow += 1;
-                        sheet1.Range[xlsRow, xlsCol].Text = "EOT Summary" /*+ Convert.ToDateTime(workDate).ToString("dd-MMM-yyyy")*/;
-                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].Merge();
-                        sheet1.Range[xlsRow, xlsCol].CellStyle.Font.Size = 15;
-                        sheet1.Range[xlsRow, 1].CellStyle.Font.Bold = true;
-                        sheet1.Range[xlsRow, 1].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                        sheet1.Range[xlsRow, 1].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.Snow;
-                        sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 24;
 
 
-                        //#endregion *****************Report Header*****************
-                        #region Freeze Panes
-                        sheet1.UsedRange["A6"].FreezePanes();
-                        sheet1.FirstVisibleColumn = 1;
-                        sheet1.FirstVisibleRow = 5;
-                        #endregion
+                        //sheet[ROW, ColBagSize].Number = clsStaticInfo.dbl(data.Rows[i]["BagSize"].ToString());
+                        //sheet[ROW, ColBags].Number = clsStaticInfo.dbl(data.Rows[i]["Bags"].ToString());
+                        //sheet[ROW, ColNtWt].Number = clsStaticInfo.dbl(data.Rows[i]["NtWt"].ToString());
+                        //sheet[ROW, ColGWt].Number = clsStaticInfo.dbl(data.Rows[i]["GtWt"].ToString());
 
-                        #region UsedRange Alignment
-                        sheet1.UsedRange.WrapText = true;
-                        sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
-                        #endregion UsedRange Alignment
+                        //arr[0] += clsStaticInfo.dbl(data.Rows[i]["Bags"].ToString());
+                        //arr[1] += clsStaticInfo.dbl(data.Rows[i]["NtWt"].ToString());
+                        //arr[2] += clsStaticInfo.dbl(data.Rows[i]["GtWt"].ToString());
 
-                        oRU.PageSetup(ref sheet1, 5, ExcelPageOrientation.Portrait);
+                        //sheet1.Range[ROW, ColBagSize, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                        //sheet1.Range[ROW, ColBagSize, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
+
+                        xlsRow++;
+
                     }
 
                     var fileName = "EOT Summary" + DateTime.Now.ToString("yyMMdd") + ".xlsx";

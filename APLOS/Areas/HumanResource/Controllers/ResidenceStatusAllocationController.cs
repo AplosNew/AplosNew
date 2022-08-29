@@ -1249,9 +1249,9 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
                
                 sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
-                sheet[ROW, ColVacancy].Text = data.Rows[i]["Vacancy"].ToString();
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
-                sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
+                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
                 sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
                 sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
                 sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
@@ -1262,8 +1262,8 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
                 sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
                 
-                sheet[ROW, ColOccupied].Text = data.Rows[i]["Occupied"].ToString();
-                sheet[ROW, ColAvailable].Text = data.Rows[i]["Available"].ToString();
+                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
                 sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
                 sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
                 sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
@@ -1284,7 +1284,28 @@ namespace Aplos.Areas.HumanResource.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-           
+           for(int i = 0; i <= sheet.Range.Row; i++)
+            {
+                for (int j = 0; i <= sheet.Range.Column; j++)
+                {
+                    sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+                }
+            }
+
+            sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            
+            
+           // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
 
             ReportUtility reportUtility = new ReportUtility();
             reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);

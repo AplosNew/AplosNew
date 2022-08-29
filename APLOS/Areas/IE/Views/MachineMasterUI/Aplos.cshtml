@@ -516,6 +516,8 @@
                                     <tr>
                                         <th>Asset Name</th>
                                         <th>Entity</th>
+                                        <th>Work Center</th>
+                                        <th>Article</th>
                                         <th>Asset Detail</th>
                                         <th>Asset Code</th>
                                         <th>Asset Reference</th>
@@ -533,6 +535,8 @@
                                     <tr ng-repeat="x in assetList" ng-dblclick="Assetdoubleclick(x);" ng-class="{selected : x.Id==null}">
                                         <td>{{x.AssetName}}</td>
                                         <td>{{x.Entity}}</td>
+                                        <td>{{x.WorkCenterMaster}}</td>
+                                        <td>{{x.Article}}</td>
                                         <td>{{x.AssetDetail}}</td>
                                         <td>{{x.AssetCode}}</td>
                                         <td>{{x.AssetReference}}</td>

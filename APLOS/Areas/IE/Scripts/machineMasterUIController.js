@@ -691,15 +691,22 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
     $scope.workCenterList = [];
     $scope.GetWorkCenterList = function () {
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterUI/GetWorkCenterList'
-        }).then(function successCallback(res) {
-            $scope.workCenterList = res.data;
-        });
+        try {
+            if (baseService.isUndefinedOrNull($scope.modelNewA.EntityId)) {
+                throw "Entity is required.";
+            }
+            $http({
+                method: 'GET',
+                url: 'IE/MachineMasterUI/GetWorkCenterList?entityId=' + $scope.modelNewA.EntityId
+            }).then(function successCallback(res) {
+                $scope.workCenterList = res.data;
+            });
 
-        var eDialog = $("#workCenterPopUp").data("ejDialog");
-        eDialog.open();
+            var eDialog = $("#workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
     }
 
     $scope.SetworkCenter = function (data) {
