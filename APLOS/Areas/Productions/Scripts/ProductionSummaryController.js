@@ -200,6 +200,9 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             //    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
             //}
         });
+        if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+            $scope.GetShiftList();
+        }
     };
 
     $scope.productionSummaryNew.NewLotNumber = true;
