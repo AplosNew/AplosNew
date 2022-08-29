@@ -147,7 +147,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
                         LEFT JOIN CostingBOQItems CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId AND so.Id=CBI.SalesOrderId
-						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId
+						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPC.CostingItemId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
 						where " + tempsql + @"
