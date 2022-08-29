@@ -1038,6 +1038,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         try {
             $scope.detailModel.ArticleId = ob.Id;
             $scope.detailModel.ArticleName = ob.StandardName;
+            getTaxCategoryList(ob.HSNCodeId);
             manualValidation('div_ar', false);
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
         } catch (e) {

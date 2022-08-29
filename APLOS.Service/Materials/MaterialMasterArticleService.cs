@@ -79,11 +79,14 @@ namespace Library.Service.Materials
                 parameters.CmdText = @"SELECT DISTINCT  ART.Id, ART.MaterialMasterId, MM.UserName AS MaterialMasterName
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
+									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
-                       -- LEFT JOIN [HKP].[MaterialTypeNature] AS MN ON MM.MaterialTypeId = MN.MaterialTypeId
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
                         LEFT JOIN HKP.MaterialType AS MT ON MG.MaterialTypeId=MT.Id
+						LEFT JOIN HKP.HSNCode MHSN ON MHSN.Id=MM.HSNCodeId
+						LEFT JOIN HKP.HSNCode HSN ON HSN.Id=ART.HSNCodeId
                         WHERE  MaterialMasterId='" + materialMasterId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -106,10 +109,14 @@ namespace Library.Service.Materials
                 var sql1 = @"SELECT DISTINCT  ART.Id, ART.MaterialMasterId, MM.UserName AS MaterialMasterName
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
+									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
                         LEFT JOIN HKP.MaterialType AS MT ON MG.MaterialTypeId=MT.Id
+						LEFT JOIN HKP.HSNCode MHSN ON MHSN.Id=MM.HSNCodeId
+						LEFT JOIN HKP.HSNCode HSN ON HSN.Id=ART.HSNCodeId
                         WHERE " + sql;
                 return _sqlRepository.GetDataCollection(sql1);
             }
