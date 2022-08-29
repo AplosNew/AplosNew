@@ -753,7 +753,7 @@ namespace Aplos.Controllers
         [HttpGet, Authorize]
         public JsonResult GetMobileAppMenuEnumCbo()
         {
-            return Json(new SelectList(EnumService.GetEnumCbo<MobileAppMenuEnum>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
+            return Json(new SelectList(items: EnumService.GetEnumCbo<CostingSO>(), "Value", "Text"), JsonRequestBehavior.AllowGet);
         }
     }
 }
