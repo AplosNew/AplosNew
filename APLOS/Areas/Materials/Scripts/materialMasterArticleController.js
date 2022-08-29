@@ -1,6 +1,6 @@
 ﻿'use strict';
-materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService'];
-function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService) {
+materialMasterArticleController.$inject = ['commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', 'cboService','$controller'];
+function materialMasterArticleController(commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, cboService, $controller) {
     $rootScope.title = "Material Master Article";
     $scope.Action = 'Save';
     $scope.index = -1;
@@ -10,6 +10,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.saveUrl = $scope.path + 'create';
     $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.partyType = "Vendor";
+    $controller("partyBaseController", { $scope: $scope, $http: $http });
+
 
     $scope.model = {
         Id: null
@@ -303,16 +306,9 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                             });
                         });
 
-
-
                         $scope.article = Object.assign({}, $scope.articleNew);
 
                         $scope.articleList.push($scope.article);
-
-
-
-
-
 
                         CloseModalShowResult('articlePoUp');
                         articleClear();
@@ -520,6 +516,8 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
         });
         angular.element(document.querySelector('#articlePoUp')).modal('show');
     };
+
+   
 
     $scope.updateArticle = function () {
         try {
@@ -844,4 +842,116 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
             });
         }
     };
+
+    $scope.articleId = null;
+    $scope.ArticleAliasData = function (data, index) {
+        $scope.articleId = data.Id;
+        $scope.articleAliasModel = {
+            Id: null
+            , ArticleId: $scope.articleId
+            , Code: null
+            , VendorId: null
+            , VendorName: null
+            , UserGroup: null
+            , Remark: null
+        };
+        $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+      
+        $scope.GetArticleAliasDatas();
+        angular.element(document.querySelector('#ArticleAliasPoUp')).modal('show');
+    };
+
+    $scope.aliasList = [];
+    $scope.GetArticleAliasDatas = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getArticleAliaslist?articleId=' + $scope.articleId
+        }).then(function successCallback(response) {
+            $scope.aliasList = response.data;
+
+        });
+    }
+    $scope.articleAliasModel = {
+        Id: null
+        , Code: null
+        , VendorId: null
+        , VendorName: null
+        , UserGroup: null
+        , Remark: null
+    };
+    $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+
+    $scope.articleAliasClear = function () {
+        
+        $scope.articleAlias = Object.assign({}, $scope.articleAliasModel);
+    }
+
+    $scope.closePartyPopUp = function (x) {
+        var party = x.data;
+       
+        $scope.articleAlias.VendorName = party.UserName;
+        $scope.articleAlias.VendorId = party.Id;
+         
+        $scope.hidePartyPopUp();
+    };
+
+    $scope.GetArticleAlias = function (args) {
+
+        $scope.articleAlias = Object.assign({}, args);
+        $scope.GetArticleAliasDatas(args.Id);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+
+    $scope.SaveArticleAlias = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateArticleAlias',
+            data: {'data': $scope.articleAlias},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetArticleAliasDatas();
+                $scope.articleAliasClear();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
+
+    $scope.deleteArticleAlias = function (data) {
+        $scope.deleteArticleAliasId = data.Id;
+        $scope.articleMessage = 'Are you sure want to permanently delete ' + data.Code + '.?';
+        angular.element(document.querySelector('#deleteArticleAlias')).modal('show');
+    };
+
+    $scope.removeArticlAliaseRow = function ()
+    {
+            $http({
+                method: 'POST',
+                url: 'materials/materialmasterarticle/deleteArticleAliasData',
+                dataType: 'JSON',
+                data: { 'Id': $scope.deleteArticleAliasId }
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetArticleAliasDatas();
+                }
+            }, function errorCallback(response) {
+                ShowResult(response.status.Message, 'failure');
+            });
+            return true;
+    };
+
 }

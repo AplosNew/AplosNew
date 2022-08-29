@@ -70,6 +70,10 @@ function customerAdvanceController(cboService, baseService, factoryService, comm
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 

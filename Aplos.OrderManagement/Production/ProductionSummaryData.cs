@@ -1861,19 +1861,19 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
             {
                 var sql = "";
                     sql = @"
-SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
-,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
-										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift,
+SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute,SD.UserName Shift,
 										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
 										left join ORG.Department D on D.Id=MMT.DepartmentId
 										left join DetentionMaster DM on DM.Id=MMT.DetentionId
 										left join HKP.Process P on P.Id=MMT.ProcessId
-										left join MST.CompliedShiftGrouping SD on SD.Id=MMT.ShiftId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
-                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "' and MMT.ShiftId = '" + shiftId + "' and MMT.Date = '" + productionDate + "' and MMT.WorkCenterId = '" + workcenter + "'";
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.WorkCenterId = '" + workcenter + "'";
 
 
                 return _sqlRepository.GetDataCollection(sql, null);
@@ -2187,9 +2187,9 @@ SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Id, MMT
 
         public IEnumerable<object> GetShiftList(string processId)
         {
-            string sql = @"SELECT  sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
+            string sql = @"SELECT distinct sd.SystemID [Value],sd.UserName [Text] FROM [dbo].[WorkCenterWiseShift] WCS
 LEFT JOIN dbo.ShiftDefination AS sd ON sd.SystemID = WCS.ShiftDefinationID
-WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='"+ processId + "')";
+WHERE WorkCenterMasterId IN(SELECT Id FROM SCS.WorkCenterMaster AS wcm WHERE wcm.ProcessId='" + processId + "')";
             return _sqlRepository.GetDataCollection(sql);
         }
 

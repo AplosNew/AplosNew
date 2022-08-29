@@ -21,10 +21,10 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
     $scope.path = 'IE/MachineMasterUI/';//ControlerName
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
-    $scope.saveUrl = $scope.path + 'Create'; 
-    $scope.AssetSaveUrl = $scope.path + 'CreateAsset'; 
+    $scope.saveUrl = $scope.path + 'Create';
+    $scope.AssetSaveUrl = $scope.path + 'CreateAsset';
     $scope.EntityCapacitySaveUrl = $scope.path + 'CreateEntityCapacity';
-    $scope.updateUrl = $scope.path + 'Edit'; 
+    $scope.updateUrl = $scope.path + 'Edit';
     //$scope.updateAssetUrl = $scope.path + 'CreateAsset';
     $scope.deleteUrl = $scope.path + 'Delete/';
     $scope.saveUrl1 = $scope.path + 'CreateManpower';
@@ -60,7 +60,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.modelNew = Object.assign({}, $scope.model);
     $scope.modelA = {
         Id: null,
-        AssetName: null, 
+        AssetName: null,
         EntityId: null,
         Entity: null,
         AssetDetail: null,
@@ -393,7 +393,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.closeProcessPopUp();
     };
 
-   
+
 
     $scope.userProcessList = [];
     $scope.getMachineMasterProcess = function () {
@@ -441,7 +441,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         });
     };
 
-    
+
     $scope.Delete = function () {
 
         if (!baseService.isUndefinedOrNull($scope.modelNew.Id)) {
@@ -466,7 +466,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         else
             ShowResult('First delete all line item.', 'failure');
     };
-   
+
     $scope.Clear = function () {
         ClearFields($scope.GeneratSequenceNo());
         return true;
@@ -485,7 +485,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         $scope.assetList = [];
         $scope.entityCapacityList = [];
     }
-   
+
 
     //#endregion 
 
@@ -547,7 +547,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
     $scope.isSet = function (tabNum) {
         return $scope.tab === tabNum;
     };
-    
+
     // #region Process
 
     $scope.userProcessList = [];
@@ -644,7 +644,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         angular.element(document.querySelector('#processPopUp')).modal('hide');
     };
 
-   
+
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
         $scope.tab = newTab;
@@ -672,7 +672,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
     $scope.doubleEntity = function (e) {
 
-        if ($scope.tab==3) {
+        if ($scope.tab == 3) {
             $scope.modelNewA.EntityId = e.data.EntityId;
             $scope.modelNewA.Entity = e.data.EntityName;
             angular.element(document.querySelector('#EntityPop')).modal('hide');
@@ -682,11 +682,66 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
             $scope.modelEntityCapacity.Entity = e.data.EntityName;
             angular.element(document.querySelector('#EntityPop')).modal('hide');
         }
-        
+
     }
 
     $scope.closePopUp = function () {
         angular.element(document.querySelector('#EntityPop')).modal('hide');
+    }
+
+    $scope.workCenterList = [];
+    $scope.GetWorkCenterList = function () {
+        try {
+            if (baseService.isUndefinedOrNull($scope.modelNewA.EntityId)) {
+                throw "Entity is required.";
+            }
+            $http({
+                method: 'GET',
+                url: 'IE/MachineMasterUI/GetWorkCenterList?entityId=' + $scope.modelNewA.EntityId
+            }).then(function successCallback(res) {
+                $scope.workCenterList = res.data;
+            });
+
+            var eDialog = $("#workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SetworkCenter = function (data) {
+        $scope.modelNewA.WorkCenterMaster = data.data.UserName;
+        $scope.modelNewA.WorkCenterMasterId = data.data.WorkCenterMasterId;
+        $scope.CloseWorkCenter();
+    }
+
+    $scope.CloseWorkCenter = function () {
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.articleList = [];
+    $scope.GetArticleList = function () {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterUI/GetArticleList'
+        }).then(function successCallback(res) {
+            $scope.articleList = res.data;
+        });
+
+        var eDialog = $("#ArticleListPopUp").data("ejDialog");
+        eDialog.open();
+    }
+
+    $scope.SetArticle = function (data) {
+        $scope.modelNewA.Article = data.data.StandardName;
+        $scope.modelNewA.ArticleId = data.data.Id;
+        $scope.closeArticle();
+    }
+
+    $scope.closeArticle = function () {
+        var eDialog = $("#ArticleListPopUp").data("ejDialog");
+        eDialog.close();
     }
 
     $scope.AssetSave = function () {
@@ -694,27 +749,27 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         angular.copy($scope.modelNewA, $scope.modelA);
         $scope.$broadcast('show-errors-check-validity');
         try {
-                    $http({
-                        method: 'POST',
-                        url: $scope.AssetSaveUrl,
-                        data: { 'data': $scope.modelNewA, 'machineMasterId': $scope.modelNew.Id },
-                        dataType: 'JSON'
-                    }).then(function successCallback(response) {
-                        if (response.data.Error === true) {
-                            ShowResult(response.data.Message, 'failure');
-                            throw response.data.Message;
-                        }
-                        else {
-                            ShowResult(response.data.Message, 'success');
-                            $scope.Action = 'Save';
-                            $scope.getAssetMaster();
-                            $scope.ClearAsset();
-                        }
-                    }), function errorCallBack(response) {
-                        ShowResult(response.data.Message, 'failure');
+            $http({
+                method: 'POST',
+                url: $scope.AssetSaveUrl,
+                data: { 'data': $scope.modelNewA, 'machineMasterId': $scope.modelNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                    throw response.data.Message;
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.Action = 'Save';
+                    $scope.getAssetMaster();
+                    $scope.ClearAsset();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
 
-                    };
-              
+            };
+
         } catch (e) {
             ShowResult(e, 'failure');
         }
@@ -733,7 +788,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         });
     }
 
-    $scope.removeAssetRowModal = function (name,  tempId) {
+    $scope.removeAssetRowModal = function (name, tempId) {
         try {
             //$scope.popUpIndex = index;
             //$scope.listName = listName;
@@ -786,7 +841,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         };
     };
 
-    
+
     $scope.Assetdoubleclick = function (args) {
         $scope.modelNewA = Object.assign({}, args);
     };
