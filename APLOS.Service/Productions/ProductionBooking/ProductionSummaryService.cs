@@ -449,7 +449,13 @@ namespace Library.Service.Productions
             }
         }
 
-        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId)
+        public IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId)
+        {
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' AND Id IN(SELECT  WorkCenterMasterId FROM [dbo].[WorkCenterWiseShift] WHERE ShiftDefinationID='"+ shiftId + "') Order by Sequence";
+            return _sqlRepository.GetCombo(sql, "Id", "UserName");
+        }
+
+        public IEnumerable<ComboModel> GetToWCCbo(string plantId, string ProcessId, string entityId, string CompanyId)
         {
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");

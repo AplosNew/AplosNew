@@ -4947,7 +4947,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetReceiptPaymentStatusList();
+   // $scope.GetReceiptPaymentStatusList();
 
     $scope.exportgriddataUrl = 'GridReports/ExcelExport';
     $scope.downloadgriddataUrl = 'GridReports/Download';

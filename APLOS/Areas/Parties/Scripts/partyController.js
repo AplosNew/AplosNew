@@ -1220,7 +1220,7 @@ function PartyController(addressService, commonMessage, $scope, $rootScope, base
                         throw "Select Currency.";
                     }
                     if (baseService.isUndefinedOrNull($scope.companyPartyList[i].PaymentTermId)) {
-                        throw "Select Payment Term.";
+                        throw "Select PaymentTerm.";
                     }
                 }
             }

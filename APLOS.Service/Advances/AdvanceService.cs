@@ -536,6 +536,7 @@ namespace Library.Service.Advances
             parameters.CmdText = @"SELECT V.VoucherNo, A.Id, A.Id As AdvanceId,BC.Id AS BankChargeId, A.PartyId, P.Code AS PartyCode, P.UserName AS PartyName, A.PartyPlantId, PP.UserName AS PartyPlantName, A.EmployeeId, EI.EmployeeCode
                                  , EI.EmployeeName, EIR.EmployeeCode AS ResponsibleCode,EIR.EmployeeName AS ResponsibleName, A.VoucherId, A.PostingDate, A.DocDate, A.DocRefNo
                                  , A.CurrencyId, C.Code AS CurrencyCode, A.Amount, A.IsWrittenOff, A.WrittenOffAmount, A.IsPark, A.IsInterTransaction, A.IsPosted, AD.NetAmount
+                                 , Status = case when A.IsPark = 0 then 'Posted' else 'Parked' end
                                  FROM [TRN].[Advance] AS A
                                  LEFT JOIN [HKP].[Party] AS P ON P.Id=A.PartyId
                                  LEFT JOIN [HKP].[PartyPlant] AS PP ON PP.Id=A.PartyPlantId

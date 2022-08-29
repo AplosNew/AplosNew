@@ -14,7 +14,8 @@ namespace Library.Service.Productions
     {
         //IEnumerable<object> GetPOCust(string POId);
         //IEnumerable<object> GetSOCust(string SOId);
-        
+
+        IEnumerable<ComboModel> GetToWCCbo(string plantId, string ProcessId, string entityId, string CompanyId);
         IEnumerable<object> GetListAPIforProduction(string ProdnDate, string EntityId, string ProcessId, string ShiftId);
         IEnumerable<object> GetDetailProductionList(string ProdnDate, string EntityId, string ProcessId, string ShiftId, string WkCenterId, string ProductionOrderId);
         string Delete(IEnumerable<ProductionSummary> DataToDelete);
@@ -33,7 +34,7 @@ namespace Library.Service.Productions
         IEnumerable<ComboModel> GetCharacteristicsValueCbo(string soid);
         IEnumerable<ComboModel> GetCharacteristicsValueByPrOCbo(string soid);
         IEnumerable<object> Query(string plantId);
-        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId);
+        IEnumerable<ComboModel> GetCbo(string plantId, string ProcessId, string entityId, string CompanyId, string shiftId);
         IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId,string productionDate,string shiftId);
         void Save(ProductionSummary ps, IEnumerable<ProductionSummaryDetail> psd);
         void DeleteDetail(string masterid);

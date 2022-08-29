@@ -95,6 +95,7 @@ function cboService($http, $window, $rootScope, baseService) {
         , GetEntityProcessCbo: GetEntityProcessCbo
         , GetEntityProductionProcessCbo: GetEntityProductionProcessCbo
         , GetWCProcessCbo: GetWCProcessCbo
+        , GetToWCProcessCbo: GetToWCProcessCbo
         , GetProductionShiftCbo: GetProductionShiftCbo
         , getCboProductionEntityByCompanyGroup: getCboProductionEntityByCompanyGroup
         , getCboProductionEntityByCompany: getCboProductionEntityByCompany
@@ -2288,8 +2289,11 @@ function cboService($http, $window, $rootScope, baseService) {
         base('Productions/RecipeGlobalMaster/GetEntityProductionProcessCbo?entityid=' + entityId, callback);
     }
 
-    function GetWCProcessCbo(processid, entityId, callback) {
-        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId, callback);
+    function GetWCProcessCbo(processid, entityId, shiftId, callback) {
+        base('Productions/ProductionSummary/GetWCProcessCbo?processid=' + processid + '&entityId=' + entityId + '&shiftId=' + shiftId, callback);
+    }
+    function GetToWCProcessCbo(processid, entityId, callback) {
+        base('Productions/ProductionSummary/GetToWCProcessCbo?processid=' + processid + '&entityId=' + entityId, callback);
     }
 
     function GetProductionShiftCbo(callback) {

@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -6,12 +7,15 @@ using Library.Data.UnitOfWorks;
 using Library.Model.Materials;
 using Library.Service.Core;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Materials
 {
@@ -402,6 +406,47 @@ namespace Library.Service.Materials
                     _unitOfWork.Rollback();
             }
         }
+
+
+       
+        public IEnumerable<object> getArticleAliaslist(string articleId)
+        {
+            string sql = @"select AA.*,P.UserName VendorName 
+                            from [dbo].[ArticleAlias] AA
+                            left join [HKP].[Party] P on P.Id=AA.VendorId
+                            where ArticleId in ('" + articleId + @"')";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public void deleteArticleAliasData(string Id)
+        {
+            var flag = false;
+            try
+            {
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                connection.executeQuery("delete from [dbo].[ArticleAlias] where Id='" + Id + "'");
+                connection.CommitTransaction();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Material.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
 
         #region Validation
 

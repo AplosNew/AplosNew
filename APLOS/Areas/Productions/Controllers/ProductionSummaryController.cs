@@ -80,6 +80,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetShiftList(string processId)
+        {
+            return Json(_productionSummaryData.GetShiftList(processId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetCharacteristicsValueCbo(string soid)
         {
             return Json(_ProductionSummaryService.GetCharacteristicsValueCbo(soid), JsonRequestBehavior.AllowGet);
@@ -106,11 +112,19 @@ namespace Aplos.Areas.Productions.Controllers
 
         }
         [HttpGet, Authorize]
-        public JsonResult GetWCProcessCbo(string processid, string entityId)
+        public JsonResult GetWCProcessCbo(string processid, string entityId, string shiftId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            return Json(_ProductionSummaryService.GetCbo(identity.PlantId, processid, entityId, identity.CompanyId, shiftId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet, Authorize]
+        public JsonResult GetToWCProcessCbo(string processid, string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_ProductionSummaryService.GetToWCCbo(identity.PlantId, processid, entityId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet, Authorize]
         public JsonResult GetWCProcessCboNew(string processid, string entityId,string productionDate,string shiftId)
         {
