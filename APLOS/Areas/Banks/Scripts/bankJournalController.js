@@ -50,6 +50,10 @@ function bankJournalController(bankService, accountService, cboService, commonMe
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 
