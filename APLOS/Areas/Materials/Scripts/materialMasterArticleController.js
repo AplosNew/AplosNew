@@ -527,7 +527,7 @@ function materialMasterArticleController(commonMessage, $scope, $rootScope, base
                 articleFieldValidation($scope.articleNew.Code, 'Code');
             articleFieldValidation($scope.articleNew.ShortName, 'ShortName');
             articleFieldValidation($scope.articleNew.StandardName, 'StandardName');
-            articleFieldValidation($scope.articleNew.HSNCodeId, 'HSNCodeId');
+           
 
             uniqueCheckInArticleList($scope.articleList, $scope.articleNew);
 

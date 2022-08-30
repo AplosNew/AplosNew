@@ -67,6 +67,16 @@ namespace Aplos.Areas.IE.Controllers
         }
 
         [Authorize, HttpPost]
+        public ActionResult GetDetentionDepartment()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct DD.DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
+,D.UserName DepartmentName,D.Description,D.Remarks  from DetentionMasterDepartment DD
+left outer join ORG.Department D on D.id=DD.DepartmentId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
         public ActionResult GetShift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -119,6 +129,21 @@ namespace Aplos.Areas.IE.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionListWC(string Detentiontype,string Id)
+        {
+            var sql = "";
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (Detentiontype != "null")
+            {
+                sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster where Id='" + Detentiontype + "'";
+            }
+            else
+            {
+                sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+            }
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpGet]
         public JsonResult GetDetentionTypeList()
         {
