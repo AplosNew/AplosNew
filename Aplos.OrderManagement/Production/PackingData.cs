@@ -1161,7 +1161,7 @@ order by pk.Date  DESC";
                 {
                     loc = "AND R.ToStorageLocId = '" + Loc + "'";
                 }
-                var str = @"Select M.StandardName ,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
+                var str = @"Select M.StandardName , S.ProductCode, S.POId,  S.LotNo, Count(S.RefNo) as Bags, S.NetWeight as BagSize , Sum(S.NetWeight) as NtWt, Sum(S.GWeight) as GtWt,
                             (Select Stuff((
                             Select ' / ' + pla.ShortName + ' - ' + pla.AttributeValue
                             from dbo.ProductLibraryAttribute pla
@@ -1174,7 +1174,7 @@ order by pk.Date  DESC";
                             LEFT JOIN MST.MaterialMovementMaster R ON R.ID = S.LocMasterId 
                             WHERE s.booked = 'False' AND R.ToLocation <> 'JOB WORK LOCATION' AND R.ToLocation <> 'DyeHouse' AND R.ToLocation <> 'PACKING' AND R.ToLocation <> 'JW Sale-Dye' " + loc+ @"
                             and M.StandardName is not null
-                            group by  M.StandardName , S.LotNo, S.NetWeight , P.Id
+                            group by  M.StandardName , S.LotNo, S.NetWeight , P.Id, S.ProductCode, S.POId
                             order by M.StandardName , S.LotNo";
                 return _sqlRepository.GetDataTable(str);
             }

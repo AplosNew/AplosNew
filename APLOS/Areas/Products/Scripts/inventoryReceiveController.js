@@ -1201,6 +1201,7 @@ function inventoryReceiveController(accountService, addressService, $window, fac
 		try {
 			$scope.detailModel.ArticleId = ob.Id;
 			$scope.detailModel.ArticleName = ob.StandardName;
+			getTaxCategoryList(ob.HSNCodeId, ob.HSNCode);
 			manualValidation('div_ar', false);
 			angular.element(document.querySelector('#articleSearchPop')).modal('hide');
 		} catch (e) {

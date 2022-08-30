@@ -22032,19 +22032,36 @@ group by Id) O60 ON O60.Id=IV.Id
 
         public List<Dictionary<string, object>> GetReceiptPaymentStatusDataList()
         {
-            var sql = @"select P.Code CustomerCode,P.UserName Customer,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
-                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
-						                        ,DelayDay=DATEDIFF(DAY,I.BaseOnDueDate,IWO.PostingDate),C.Code Currency,IWOD.Amount
-						                        ,'' Commission,'' CashDiscount
-
+            var sql = @"select distinct P.Code CustomerCode,P.UserName Customer,S.InvoiceNo,format(S.InvoiceDate,'dd-MMM-yyyy')InvoiceDate
+                                                ,format(I.BaseOnDueDate,'dd-MMM-yyyy')BaseOnDueDate
+												,format(I.ActualDueDate,'dd-MMM-yyyy')MaturityDate,format(IWO.PostingDate,'dd-MMM-yyyy') ReceiveDate
+						                        ,DelayDay=DATEDIFF(DAY,I.ActualDueDate,IWO.PostingDate),C.Code Currency,IWOD.Amount
+						                        ,MO.Id,ISNULL(MOC.[Value],0) [Commission%] ,IWOD.Amount*ISNULL(MOC.[Value],0) CommissionAmount
+												,ISNULL(MOCD.[Value],0) [CashDiscount %],IWOD.Amount*ISNULL(MOCD.[Value],0) CDAmount
+												,(IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)+IWOD.Amount*ISNULL(MOCD.[Value],0)))[NetAmount_IfPaymet_Ontime]
+												,(IWOD.Amount-(IWOD.Amount*ISNULL(MOC.[Value],0)))[NetAmount_IfPaymet_Delay]
+												,0 ReceiveAgainstInvoice,0 BalancePaymentAgainstInvoice
 						                        from TRN.InvoiceWriteOffDetail IWOD
 						                        left join TRN.InvoiceWriteOff IWO on IWO.Id=IWOD.InvoiceWriteOffId
-						                        left join TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
+						                        JOIN TRN.InvoiceDetail IND on IND.Id=IWOD.InvoiceDetailId 
 						                        left join TRN.Invoice I on I.Id=IWOD.InvoiceId
+						                        left join SCS.Currency C on C.Id=I.CurrencyId
 						                        left join TRN.Sales S on S.VoucherId=I.VoucherId
-						                        left join SCS.Currency C on C.Id=S.CurrencyId
-						                        left join TRN.SalesOrderItem SI on SI.SalesId=S.Id
+						                        left join(select distinct SalesId,MasterOrderId from  TRN.SalesOrderItem )SI on SI.SalesId=S.Id
 						                        left join TRN.MasterOrder MO on MO.Id=SI.MasterOrderId
+												LEFT JOIN (
+														SELECT distinct MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Commission' 
+														) MOC ON MOC.MasterOrderId=MO.Id
+												LEFT JOIN (SELECT MI.MasterOrderId,MC.UserName,MC.[Value]
+														FROM  dbo.MasterOrderItemCostingRate MC 
+														LEFT JOIN dbo.OrderLineCostingItem OLC ON OLC.Id=MC.OrderLineCostingItemId
+														LEFT JOIN TRN.MasterOrderItem MI ON MI.Id=MC.MasterOrderItemId
+														WHERE OLC.SOItemName='Discount'
+														) MOCD ON MOCD.MasterOrderId=MO.Id
 						                        left join HKP.Party P on I.PartyId=P.Id
                                                 where IWO.SourceType = 'CustomerReceipt' and IWO.PartyType = 'Customer'";
             return _sqlRepository.GetDataCollection(sql);

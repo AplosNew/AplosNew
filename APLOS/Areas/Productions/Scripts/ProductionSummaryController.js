@@ -107,7 +107,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 $scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
                 $scope.getProdLevel();
                 //default
-                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+                $scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId, $scope.productionSummaryNew.ProductionShiftId);
             }
         });
     };
@@ -200,6 +200,11 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
             //    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
             //}
         });
+        if ($scope.shiftList.length == 0) {
+            if (!baseService.isUndefinedOrNull($scope.productionSummaryNew.ProcessId)) {
+                $scope.GetShiftList();
+            }
+        }
     };
 
     $scope.productionSummaryNew.NewLotNumber = true;
@@ -309,6 +314,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     $scope.shiftList = [];
     $scope.GetShiftList = function () {
+        $scope.shiftList = [];
         $http.get('Productions/Productionsummary/GetShiftList?processId=' + $scope.productionSummaryNew.ProcessId)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {

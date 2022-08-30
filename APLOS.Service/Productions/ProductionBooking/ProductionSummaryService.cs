@@ -454,6 +454,12 @@ namespace Library.Service.Productions
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' AND Id IN(SELECT  WorkCenterMasterId FROM [dbo].[WorkCenterWiseShift] WHERE ShiftDefinationID='"+ shiftId + "') Order by Sequence";
             return _sqlRepository.GetCombo(sql, "Id", "UserName");
         }
+
+        public IEnumerable<ComboModel> GetToWCCbo(string plantId, string ProcessId, string entityId, string CompanyId)
+        {
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE ProcessId='" + ProcessId + @"' AND PlantId='" + plantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + CompanyId + "' Order by Sequence";
+            return _sqlRepository.GetCombo(sql, "Id", "UserName");
+        }
         public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId)
         {
             var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,

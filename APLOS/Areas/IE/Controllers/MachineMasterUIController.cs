@@ -399,19 +399,45 @@ namespace Aplos.Areas.IE.Controllers
         [Authorize, HttpPost]
         public ActionResult GetAsset(string machineMasterId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
+            string sql = @"SELECT MMA.Id,MM.Id MachineMasterId,E.Id EntityId,E.UserName Entity,MMA.AssetCode,MMA.AssetName,MMA.AssetDetail,MMA.AssetReference
                                         ,MMA.IsOldCode,MMA.OldCode,CONVERT(NUMERIC(10,2),MMA.TargetUtilization) TargetUtilization
 										,CONVERT(NUMERIC(10,2),MMA.PlanUtilization) PlanUtilization,MMA.Remark,MMA.AssetCategory
                                         ,CONVERT(NUMERIC(10,2),MMA.RepairAndMaintanenceBudget) RepairAndMaintanenceBudget
-										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget
+										,CONVERT(NUMERIC(10,2),MMA.ConsumableBudget)ConsumableBudget,A.StandardName Article,wcm.UserName WorkCenterMaster
                                         from MachineMasterAsset MMA
                                         left join ORG.Entity E on E.Id=MMA.EntityId
                                         left join MST.MachineMaster MM on MM.Id=MMA.MachineMasterId
+                                        left join MST.MaterialMasterArticle A ON A.Id=MMA.ArticleId
+                                        left join SCS.WorkCenterMaster AS wcm ON wcm.Id = MMA.WorkCenterMasterId
 										where MMA.MachineMasterId='" + machineMasterId + @"'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpGet]
+        public ActionResult GetWorkCenterList(string entityId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT WCM.Id AS WorkCenterMasterId,e.UserName AS Entity,p.UserName AS Plant
+	                             , WCM.EntityId, WCM.Code, WCM.UserName
+                            FROM SCS.WorkCenterMaster AS WCM
+                            INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
+                            INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
+                            WHERE WCM.PlantId='"+identity.PlantId+ "' AND WCM.EntityId='"+ entityId + "' order by p.userName, e.UserName,WCM.sequence";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetArticleList()
+        {
+            string sql = @"SELECT * FROM MST.MaterialMasterArticle";
+            var jsondata = Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            jsondata.MaxJsonLength = int.MaxValue;
+            return jsondata;
+        }
+
+
         [Authorize, HttpPost]
         public ActionResult AssetDelete(string id)
         {

@@ -69,6 +69,10 @@ function vendorAdvanceController(bankService, cboService, baseService, commonMes
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 

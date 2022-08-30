@@ -208,6 +208,7 @@ namespace Library.Service.Advances
         {
             parameters.CmdText = @"SELECT V.VoucherNo, AW.Id, AWD.AdvanceId,P.Code AS PartyCode, P.UserName AS PartyName, EI.EmployeeCode, EI.EmployeeName, AW.PostingDate, AW.DocDate, AW.DocRefNo, C.Code AS CurrencyCode,AW.Amount
                                     , AW.VoucherId, AW.PartyPlantId, PP.UserName AS PartyPlantName, AW.IsPark,AW.SettlementType
+                                    ,Status = case when AW.IsPark = 0 then 'Posted' else 'Parked' end
                                     FROM [TRN].[AdvanceWriteOff] AS AW
 									LEFT JOIN [TRN].[AdvanceWriteOffDetail] AS AWD ON AWD.AdvanceWriteOffId=AW.Id
                                     LEFT JOIN [HKP].[Party] AS P ON P.Id=AW.PartyId

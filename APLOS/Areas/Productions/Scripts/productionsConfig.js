@@ -64,6 +64,10 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/PlanningTypes/Aplos',
             controller: 'planningTypesController'
         })
+        .when('/planning-typesNew', {
+            templateUrl: 'Productions/PlanningTypesNew/Aplos',
+            controller: 'planningTypesNewController'
+        })
         .when('/production-booking-period', {
             templateUrl: 'Productions/ProductionBookingPeriod/Aplos',
             controller: 'productionBookingPeriodController'

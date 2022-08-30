@@ -201,6 +201,10 @@ function customerAdvanceWriteOffController(cboService, commonMessage, $scope, $r
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
 

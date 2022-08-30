@@ -1,4 +1,5 @@
 ﻿using Library.Core;
+using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
@@ -6,12 +7,15 @@ using Library.Data.UnitOfWorks;
 using Library.Model.Materials;
 using Library.Service.Core;
 using Library.Service.Enums;
+using Library.Service.Extension;
 using Library.Service.Logs;
 using Library.Service.Systems;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace Library.Service.Materials
 {
@@ -75,11 +79,14 @@ namespace Library.Service.Materials
                 parameters.CmdText = @"SELECT DISTINCT  ART.Id, ART.MaterialMasterId, MM.UserName AS MaterialMasterName
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
+									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
-                       -- LEFT JOIN [HKP].[MaterialTypeNature] AS MN ON MM.MaterialTypeId = MN.MaterialTypeId
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
                         LEFT JOIN HKP.MaterialType AS MT ON MG.MaterialTypeId=MT.Id
+						LEFT JOIN HKP.HSNCode MHSN ON MHSN.Id=MM.HSNCodeId
+						LEFT JOIN HKP.HSNCode HSN ON HSN.Id=ART.HSNCodeId
                         WHERE  MaterialMasterId='" + materialMasterId + "'";
                 return _sqlRepository.GetGridData(parameters);
             }
@@ -102,10 +109,14 @@ namespace Library.Service.Materials
                 var sql1 = @"SELECT DISTINCT  ART.Id, ART.MaterialMasterId, MM.UserName AS MaterialMasterName
                                     , MM.Code AS MaterialCode, MG.UserName AS MaterialGroup
                                     , ART.Code, ART.ShortName, ART.StandardName
+									,HSNCodeId=CASE WHEN ART.HSNCodeId IS NULL THEN MM.HSNCodeId ELSE ART.HSNCodeId END
+									,HSNCode=CASE WHEN ART.HSNCodeId IS NULL THEN MHSN.Code ELSE HSN.Code END
                         FROM MST.MaterialMasterArticle AS ART
                         LEFT JOIN MST.MaterialMaster AS MM ON ART.MaterialMasterId=MM.Id 
                         LEFT JOIN MST.MaterialGroupMaster AS MG ON MM.MaterialGroupMasterId=MG.Id
                         LEFT JOIN HKP.MaterialType AS MT ON MG.MaterialTypeId=MT.Id
+						LEFT JOIN HKP.HSNCode MHSN ON MHSN.Id=MM.HSNCodeId
+						LEFT JOIN HKP.HSNCode HSN ON HSN.Id=ART.HSNCodeId
                         WHERE " + sql;
                 return _sqlRepository.GetDataCollection(sql1);
             }
@@ -402,6 +413,47 @@ namespace Library.Service.Materials
                     _unitOfWork.Rollback();
             }
         }
+
+
+       
+        public IEnumerable<object> getArticleAliaslist(string articleId)
+        {
+            string sql = @"select AA.*,P.UserName VendorName 
+                            from [dbo].[ArticleAlias] AA
+                            left join [HKP].[Party] P on P.Id=AA.VendorId
+                            where ArticleId in ('" + articleId + @"')";
+
+            return _sqlRepository.GetDataCollection(sql, null);
+        }
+
+        public void deleteArticleAliasData(string Id)
+        {
+            var flag = false;
+            try
+            {
+                ConnectionManager.clsConnection connection = new ConnectionManager.clsConnection();
+                connection.BeginTransaction();
+                connection.executeQuery("delete from [dbo].[ArticleAlias] where Id='" + Id + "'");
+                connection.CommitTransaction();
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Material.ToString()));
+            }
+            finally
+            {
+                if (flag)
+                    _unitOfWork.Rollback();
+            }
+        }
+
 
         #region Validation
 

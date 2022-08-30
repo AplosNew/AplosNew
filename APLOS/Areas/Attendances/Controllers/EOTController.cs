@@ -170,9 +170,7 @@ namespace Aplos.Areas.Attendances.Controllers
                 string fullPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + fileName;
                 var workbook = _monthlyAttendanceInformation.GetEOTSummaryReport(identity.CompanyId, identity.PlantId, Month, Year, identity.Name, DayStatus, empParameters,  includeCurrentDate, withSummary, isActive, isSeperated, isMaternity);
 
-                //workbook.Version = ExcelVersion.Excel97to2003;
-                //workbook.SaveAs(fullPath);
-                //return Json(new { FileName = fullPath, Error = false }, JsonRequestBehavior.AllowGet);
+                
                 return Json(new { FullPath = workbook, FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
 
