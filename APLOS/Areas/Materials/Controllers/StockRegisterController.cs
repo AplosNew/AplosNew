@@ -94,13 +94,14 @@ namespace Aplos.Areas.Materials.Controllers
 		{
 			return View();
 		}
-		[HttpPost, Authorize]
-        public ActionResult StockRegisterData(string ToDate, string FromDate,int Days,string Type)
+
+        [HttpPost, Authorize]
+        public ActionResult StockRegisterData(string ToDate, string FromDate, int Days, string Type)
         {
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate,Days,Type));
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetStockRegisterData(identity.PlantId, FromDate, ToDate, Days, Type));
                 var jsondata = Json(new { NewData, Message = AplosMessage.Success });
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
@@ -111,19 +112,19 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
-        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate,int Days,string Type)
+        public DataTable GetStockRegisterData(string PlantId, string FromDate, string ToDate, int Days, string Type)
         {
             try
             {
-				var tempquery = "";
-				if (FromDate ==null || FromDate=="")
-				{ tempquery = "AND convert(Date,IR.GRNDate) <  '" + ToDate + "'"; }
+                var tempquery = "";
+                if (FromDate == null || FromDate == "")
+                { tempquery = "AND convert(Date,IR.GRNDate) <  '" + ToDate + "'"; }
                 else
                 {
-					tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
-				}
-				
-				var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
+                    tempquery = "AND convert(Date,IR.GRNDate) BETWEEN  '" + FromDate + "' AND '" + ToDate + @"'";
+                }
+
+                var str = @"SELECT * FROM (SELECT   ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo  
 							,IsRegular =case when MM.IsRegular=1 then 'Regular' else 'Irregular' end
 							,MT.UserName MaterialType
 						,MGM.UserName AS MaterialGroupMasterName
@@ -203,10 +204,63 @@ namespace Aplos.Areas.Materials.Controllers
 					LEFT JOIN EmployeeInformation EMRM ON EMRM.SystemId=MRM.AddedBy
 					LEFT JOIN EmployeeInformation EMRM1 ON EMRM1.SystemId=MRM.CheckedBy
 					LEFT JOIN EmployeeInformation EMRM2 ON EMRM2.SystemId=MRM.AuthorizedBy
-					WHERE  IR.PlantId='" + PlantId + "' "+tempquery+ @"
+					WHERE  IR.PlantId='" + PlantId + "' " + tempquery + @"
 						AND (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' 
 					AND (IRD.BaseQty-IRD.IssueQty)>0  
-						) x where x.StockInDays >= " + Days+ " AND x.IsRegular='"+Type+"'";
+						) x where x.StockInDays >= " + Days + " AND x.IsRegular='" + Type + "'";
+                return _sqlRepository.GetDataTable(str);
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public ActionResult RequisitionStatusData(string employeeId, string requisitionBeforeDate, string requisitionStatus)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(GetRequisitionStatusData(employeeId, requisitionBeforeDate, requisitionStatus));
+                var jsondata = Json(new { NewData, Message = AplosMessage.Success });
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public DataTable GetRequisitionStatusData(string employeeId, string requisitionBeforeDate, string requisitionStatus)
+        {
+            try
+            {
+				var str = @"select RM.ReqEmpId,RM.RequisitionStatus,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName                     Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty,ISNULL(POD.POQty,0)POQty,ISNULL(POD.GRNQty,0)GRNQty,ISNULL(POD.IssueQty,0) IssueQty,ISNULL(POD.SalesQty,0) SalesQty,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks,'' RequiredDate,'' CommitmentDate
+                                            from  TRN.MaterialRequsitionMaster RM 
+                                            LEFT JOIN TRN.MaterialRequsitionDetails RMD ON RMD.MaterialReqqusitionMasterId=RM.Id
+                                            LEFT JOIN (
+	                                            select pd.RequisitionDetailId,sum(ISNULL(pd.TransactionQty,0)) POQty,sum(ISNULL(ird.GRNQty,0)) GRNQty,SUM(ISNULL(ird.IssueQty,0)) IssueQty,SUM(ISNULL(ird.SalesQty,0)) SalesQty
+		                                            from TRN.PurchaseOrderDetail pd
+		                                            LEFT JOIN (select ird.PODetailsId,sum(ird.TransactionQty) GRNQty ,SUM(II.Qty) IssueQty,SUM(ISD.SalesQty) SalesQty
+					                                            FROM TRN.InventoryReceiveDetail ird
+					                                            LEFT JOIN (SELECT iih.InventoryReceiveDetailId,sum(ISNULL(iih.Qty,0)) Qty 
+							                                            FROM trn.InventoryIssueHistory iih GROUP BY iih.InventoryReceiveDetailId) II ON II.InventoryReceiveDetailId=ird.Id
+					                                            LEFT JOIN (SELECT iih.InventoryReceiveDetailId,sum(ISNULL(iih.TransactionQty,0)) SalesQty 
+							                                            FROM trn.InventorySalesDetail iih GROUP BY iih.InventoryReceiveDetailId) ISD ON ISD.InventoryReceiveDetailId=ird.Id
+					                                            GROUP BY ird.PODetailsId
+					                                            ) IRD ON IRD.PODetailsId=pd.Id
+		                                            group by pd.RequisitionDetailId
+
+                                            ) POD ON POD.RequisitionDetailId=RMD.Id
+
+                                            LEFT JOIN MST.MaterialMaster AS MM ON RMD.MaterialMasterId=MM.Id
+                                            LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
+                                            LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
+                                            LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
+                                            where RMD.Id is not null AND RM.ReqEmpId= '" + employeeId + @"' AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
                 return _sqlRepository.GetDataTable(str);
 
             }
