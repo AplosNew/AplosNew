@@ -43,7 +43,6 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         return $scope.tab === tabNum;
     };
 
-
     $scope.planningTypes = {
         Id: null,
         CompanyGroupId: null,
@@ -51,7 +50,8 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         PlanningType: null,
         Description: null,
         CompanyId: null,
-        PlantId: null
+        PlantId: null,
+        SubProcessId: null
     };
     $scope.planningTypesNew = Object.assign({}, $scope.planningTypes);
 
@@ -78,11 +78,13 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     });
 
     $scope.subprocessList = [];
-    cboService.loadSubprocessCbo($scope.planningTypesNew.BaseProcessId,function (response) {
-        $scope.subprocessList = response;
-    });
-
-    
+    $scope.GetSubprocessCbo = function () {
+        $scope.subprocessList = [];
+        $http.get('Processes/CompanySubProcess/GetCbobyprocessid?processid=' + $scope.planningTypesNew.BaseProcessId + '&companyId=' + $scope.planningTypesNew.CompanyId)
+            .then(function (response) {
+                $scope.subprocessList = response.data;
+            });
+    }
 
     $scope.ChangeType = function () {
         if ($scope.planningTypes.PlanningType === 'PlanningType1') {
@@ -118,6 +120,8 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         else {
             $scope.planningTypes.Description = 'N/A';
         }
+        $scope.GetResponsibleEmployeeData();
+        if (!$rootScope.isCollapsed) $rootScope.toggle();
         $scope.Action = 'Update';
     };
 
@@ -215,4 +219,149 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.planningTypes = {};
         $scope.planningTypesNew = {};
     };
+
+    // #region  ResponsibleEmployee
+    $scope.popUpList = [];
+    $scope.SelectedEmpList = [];
+
+    $scope.employeeInformation = {
+        PlantId: $scope.planningTypesNew.PlantId
+        , EmployeeCode: null
+        , EmployeeName: null
+        , SystemId: null
+    };
+    $scope.popUpDataList = [];
+    $scope.popUp = function () {
+        try {
+            $scope.popUpDataList = [];
+            $http({
+                method: 'GET',
+                url: 'employees/authorizationconfig/getallemployeedata'
+
+            }).then(function successCallback(response) {
+                $scope.popUpDataList = response.data;
+            });
+            angular.element(document.querySelector('#popUp')).modal('show');
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWise });
+    };
+
+    function CheckBoxSelectAllEmolyeeWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+        var filtered = $("#GridPopUp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.popUpDataList.length; i++) {
+                $scope.popUpDataList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#popUp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.closePopUp = function () {
+        var obj = {};
+        for (var i = 0; i < $scope.popUpDataList.length; i++) {
+            if ($scope.popUpDataList[i].Flag) {
+                obj.Id = null;
+                obj.PlanningTypesId = $scope.planningTypesNew.Id;
+                obj.EmpSystemId = $scope.popUpDataList[i].SystemId;
+                obj.EmployeeCode = $scope.popUpDataList[i].EmployeeCode;
+                obj.EmployeeName = $scope.popUpDataList[i].EmployeeName;
+                obj.Company = $scope.popUpDataList[i].Company;
+                obj.Plant = $scope.popUpDataList[i].Plant;
+                obj.LegalDesignation = $scope.popUpDataList[i].LegalDesignation;
+                obj.Department = $scope.popUpDataList[i].Department;
+                obj.Section = $scope.popUpDataList[i].Section;
+                obj.SubSection = $scope.popUpDataList[i].SubSection;
+                obj.Line = $scope.popUpDataList[i].Line;
+
+                $scope.SelectedEmpList.push(obj);
+                obj = {};
+            }
+        }
+        $scope.SaveSelectedEmpList();
+        angular.element(document.querySelector('#popUp')).modal('hide');
+    };
+
+    $scope.onrowdatabound = function (e) {
+        if (e.data.EmployeeStatus === 'Separated')
+            e.row.css("background-color", "red");
+    };
+
+
+    $scope.SaveSelectedEmpList = function () {
+        try {
+            $http({
+                method: 'POST',
+                url: 'Productions/PlanningTypesNew/CreateResponsiblePersion',
+                data: { "data": $scope.SelectedEmpList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetResponsibleEmployeeData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
+    $scope.GetResponsibleEmployeeData = function () {
+       
+        $http.get('Productions/PlanningTypesNew/GetResponsibleEmployeeData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SelectedEmpList = response.data;
+                }
+            });
+    }
+
+    $scope.valuePassInRPModal = function (data) {
+        $scope.Id = data.data.Id;
+        if (baseService.isUndefinedOrNull($scope.Id))
+            $scope.message_confirmation = 'Are you sure want to delete this data....';
+        else
+            $scope.message_confirmation = 'Are you sure want to delete parmanently [ ' + data.data.EmployeeCode + ' ]';
+        angular.element(document.querySelector('#removeRPPopUp')).modal('show');
+    };
+
+    $scope.DeleteResponsibleEmployee = function () {
+        $http({
+            method: 'POST',
+            url: 'Productions/PlanningTypesNew/DeleteResponsibleEmployee?id=' + $scope.Id
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetResponsibleEmployeeData();
+            }
+        }, function () {
+            ShowResult(commonMessage.NetworkError, 'failure');
+        }).finally(function () {
+        });
+    };
+
+    // #endregion
+
 }

@@ -181,7 +181,7 @@ namespace Library.Service.Employees
         {
             try
             {
-               string  CmdText = @"SELECT E.SystemId
+               string  CmdText = @"SELECT CAST (0 AS bit) Flag,E.SystemId
 							    	,E.PlantId
 							    	,E.GroupID
 							    	,E.CompanyId
