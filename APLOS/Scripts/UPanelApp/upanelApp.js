@@ -45,6 +45,7 @@ upanelApp.controller("bankOpeningBalanceController", bankOpeningBalanceControlle
 upanelApp.controller("bankOpeningBalanceLedgerController", bankOpeningBalanceLedgerController);
 upanelApp.controller("bankReconcileReportController", bankReconcileReportController);
 upanelApp.controller("bankReconciliationController", bankReconciliationController);
+upanelApp.controller("bankReconciliationDataUploadController", bankReconciliationDataUploadController);
 upanelApp.controller("baseAttributeAndCharacteristicsValueController", baseAttributeAndCharacteristicsValueController);
 upanelApp.controller("baseInvoiceController", baseInvoiceController);
 upanelApp.controller("baseInvoiceWriteOffController", baseInvoiceWriteOffController);
