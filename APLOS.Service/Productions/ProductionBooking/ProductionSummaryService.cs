@@ -883,15 +883,23 @@ namespace Library.Service.Productions
 
                         if (dv.Count == 0)
                         {
-                            //bplib.clsGenID genid = new bplib.clsGenID();
-                            //genid.GenID(TableName, out _Id);
-                            //item["Id"] = "P" + _Id;
+                            DateTime d1 = Convert.ToDateTime(item["ToTime"]);
+                            DateTime d2 = d1.AddDays(1);
+                            var ts = d2.Subtract(Convert.ToDateTime(item["FromTime"]));
+                            item["ToTime"] = d2;
+                            item["Minute"] = ts;
                             item["Id"] = GetPK();
                             AddNewRow(dsProdBooked.Tables[0], item);
                         }
                         else
                         {
+
                             DataRow drpb = dv[0].Row;
+                            DateTime d1 = Convert.ToDateTime(item["ToTime"]);
+                            DateTime d2 = d1.AddDays(1);
+                            var ts = d2.Subtract(Convert.ToDateTime(item["FromTime"]));
+                            item["ToTime"] = d2;
+                            item["Minute"] = ts;
                             EditRow(drpb, item);
                         }
                         clsStaticInfo obj = new clsStaticInfo();
