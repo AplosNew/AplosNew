@@ -134,7 +134,7 @@ namespace Aplos.Areas.Productions.Controllers
 			try
 			{
 				var str = @"SELECT e2.UserName Entity,P.UserName Process,PSQ.Sequence ProcessSequence,FORMAT(PS.ProductionDate,'dd-MMM-yyyy')ProductionDate
-										,CSG.[Description] [Shift],WCM.UserName WorkCenterMaster,PS.ProductionOrderId,PS.LotNumber,E.EmployeeName ResponsiblePerson,E.EmployeeName Mentor
+										,CSG.UserName [Shift],WCM.UserName WorkCenterMaster,PS.ProductionOrderId,PS.LotNumber,E.EmployeeName ResponsiblePerson,E.EmployeeName Mentor
 										,PS.Remarks,'' MaterialMaster,''Article,''BuyerRefrence,''Productcode,PS.AddedBy,FORMAT(PS.AddedDate,'dd-MMM-yyyy')AddedDate,PS.UpdatedBy,FORMAT(PS.UpdatedDate,'dd-MMM-yyyy')UpdateDate
 										FROM [TRN].[ProductionSummary] PS
 										LEFT JOIN ORG.Entity AS e2 ON e2.Id = PS.EntityId
@@ -143,9 +143,9 @@ namespace Aplos.Areas.Productions.Controllers
 										LEFT JOIN EmployeeInformation E ON E.SystemId=PS.ResponsiblePersonId
 										LEFT JOIN EmployeeInformation M ON M.SystemId=PS.MentorId
 										LEFT JOIN SCS.WorkCenterMaster WCM ON WCM.Id=PS.WorkCenterMasterId
-										LEFT JOIN MST.CompliedShiftGrouping AS csg ON CSG.Id=PS.ProductionShiftId
+										LEFT JOIN dbo.ShiftDefination csg ON csg.SystemId=pp.ProductionShiftId
 										Where
-										PS.EntityId='"+ EntityId +@"' and
+										PS.EntityId='" + EntityId +@"' and
 										
 										PS.ProductionDate between '" + FromDate + "' AND '"+ ToDate + "'";
 				return _sqlRepository.GetDataTable(str);
