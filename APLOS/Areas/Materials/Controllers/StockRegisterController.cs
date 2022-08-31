@@ -238,7 +238,10 @@ namespace Aplos.Areas.Materials.Controllers
         {
             try
             {
-				var str = @"select RM.ReqEmpId,RM.RequisitionStatus,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName                     Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty,ISNULL(POD.POQty,0)POQty,ISNULL(POD.GRNQty,0)GRNQty,ISNULL(POD.IssueQty,0) IssueQty,ISNULL(POD.SalesQty,0) SalesQty,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks,'' RequiredDate,'' CommitmentDate
+				var str = @"SELECT * FROM (select RM.ReqEmpId,ReqStatus=case when MM.IsRegular=1 then 'Regular' else 'Irregular' end,format(RM.RequisitionDate,'dd-MMM-yyy')RequisitionDate,MM.IsRegular,RM.Id,RMD.Id ROWId,MM.UserName Material,ART.StandardName Article,TUoM.UserName UOM,ISNULL(RMD.TransactionQty,0) ReqQty
+                                            ,ISNULL(POD.POQty,0)POQty,ISNULL(POD.GRNQty,0)GRNQty,ISNULL(POD.IssueQty,0) IssueQty
+                                            ,ISNULL(POD.SalesQty,0) SalesQty,BalancePOQty=RMD.TransactionQty-POD.POQty,RM.Remarks
+
                                             from  TRN.MaterialRequsitionMaster RM 
                                             LEFT JOIN TRN.MaterialRequsitionDetails RMD ON RMD.MaterialReqqusitionMasterId=RM.Id
                                             LEFT JOIN (
@@ -260,7 +263,8 @@ namespace Aplos.Areas.Materials.Controllers
                                             LEFT JOIN MST.MaterialGroupMaster AS MGM ON MM.MaterialGroupMasterId=MGM.Id
                                             LEFT JOIN MST.MaterialMasterArticle AS ART ON RMD.ArticleId=ART.Id
                                             LEFT JOIN [SCS].[UnitOfMeasurement] AS TUoM ON RMD.TransactionUoMId=TUoM.Id	
-                                            where RMD.Id is not null AND RM.ReqEmpId= '" + employeeId + @"' AND RM.RequisitionDate < '" + requisitionBeforeDate + "'";
+                                            where RMD.Id is not null AND RM.ReqEmpId= '" + employeeId + @"' 
+                                            AND RM.RequisitionDate < '" + requisitionBeforeDate + "') x where x.ReqStatus='" + requisitionStatus + @"'";
                 return _sqlRepository.GetDataTable(str);
 
             }
