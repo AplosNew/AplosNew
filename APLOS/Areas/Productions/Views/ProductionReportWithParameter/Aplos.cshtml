@@ -131,7 +131,7 @@
                                 <label class="col-sm-4 control-label">Production Entity<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.EntityId" ng-change="loadProcessList(productionSummaryNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.EntityId" ng-change="loadProcessList(productionParameterSummaryNew.EntityId)" name="Entity" ng-options="item.Id as item.UserName for item in entityList" required>
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -140,14 +140,14 @@
                             <div class="form-group" show-errors id="div_FromDate">
                                 <label class="col-sm-4 control-label">From Date<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Form Date" ng-model="productionSummaryNew.ProductionFromDate" datepicker tabindex="2" class="form-control">
+                                    <input type="text" name="Form Date" ng-model="productionParameterSummaryNew.ProductionFromDate" datepicker tabindex="2" class="form-control">
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Shift<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.ProductionShiftId" name="Shift" ng-options="item.Value as item.Text for item in shiftList" required>
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -159,7 +159,7 @@
                                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
                                     <div class="select-style">
-                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionSummaryNew.ProcessId" ng-change="loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
+                                        <select class="form-control" ng-disabled="IsGo" ng-model="productionParameterSummaryNew.ProcessId" ng-change="loadWC(productionParameterSummaryNew.ProcessId,productionParameterSummaryNew.EntityId);getProdLevel();" name="ProcessId" ng-options="item.Value as item.Text for item in processList" required>
                                             <option value=""></option>
                                         </select>
                                     </div>
@@ -168,20 +168,14 @@
                             <div class="form-group" show-errors id="div_ToDate">
                                 <label class="col-sm-4 control-label">To Date<sup>*</sup></label>
                                 <div class="col-sm-8  show-message">
-                                    <input type="text" name="To Date" ng-model="productionSummaryNew.ProductionToDate" datepicker tabindex="3" class="form-control">
+                                    <input type="text" name="To Date" ng-model="productionParameterSummaryNew.ProductionToDate" datepicker tabindex="3" class="form-control">
                                 </div>
                             </div>
                         </div>
                         
-                        
-                        
-                        
-                       
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                @*<li><button ng-click="masterGo(true);loadWC(productionSummaryNew.ProcessId,productionSummaryNew.EntityId);" ng-disabled="disGo" class="btn" tabindex="9"><i class="glyphicon glyphicon-send"></i>View</button></li>*@
-
-                                <li><button ng-click="GetStockRegister();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                                <li><button ng-click="GetProductionParameter();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
                             </ul>
                         </div>
                     </fieldset>
@@ -195,7 +189,7 @@
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
 
-                    <div style="color:black;" id="GridStockRegister" ej-grid e-datasource="PurchaseRegisterList"
+                    <div style="color:black;" id="GridProductionParameter" ej-grid e-datasource="ProductionParameterList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">

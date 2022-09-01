@@ -605,7 +605,7 @@ namespace Library.Service.WorkCenters
             }
         }
 
-        public GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string[] subProcessIds)
+        public GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string WorkCenterMasterId, string[] subProcessIds)
         {
             try
             {
@@ -628,7 +628,7 @@ namespace Library.Service.WorkCenters
                                         $"FROM {DbSchema.HKP}.[{DbTable.SubProcess}] AS SP  " +
                                         $"LEFT OUTER JOIN HKP.[SubProcessCategory] AS SPC ON SP.SubProcessCategoryId=SPC.Id " +
                                         $"WHERE SP.CompanyGroupId='{CompanyGroupId}' AND SP.Archive=0 AND SP.ProcessId='{processId}' " +
-                                        $"AND SP.Id NOT IN (SELECT SubProcessId FROM [SCS].[WorkCenterMasterSubProcess])";
+                                        $"AND SP.Id NOT IN (SELECT SubProcessId FROM [SCS].[WorkCenterMasterSubProcess] Where WorkCenterMasterId='"+ WorkCenterMasterId + "')";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)

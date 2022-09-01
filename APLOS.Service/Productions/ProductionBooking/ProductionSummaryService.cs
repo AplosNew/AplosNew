@@ -773,6 +773,8 @@ namespace Library.Service.Productions
                 }
                 else
                 {
+                    
+
                     //ps.Id = ob_fromDB.Id;
                     ob_fromDB.ArticleId = ps.ArticleId;
                     ob_fromDB.MaterialMasterId = ps.MaterialMasterId;
@@ -794,6 +796,11 @@ namespace Library.Service.Productions
 
                     ob_fromDB.ModelState = ModelState.Modified;
                     AuditService.UpdatedLog(ob_fromDB);
+
+                    //if (ob_fromDB.AddedDate.AddDays(1) >)
+                    //{
+
+                    //}
                     base.Update(ob_fromDB);
                 }
                 if (psd != null)

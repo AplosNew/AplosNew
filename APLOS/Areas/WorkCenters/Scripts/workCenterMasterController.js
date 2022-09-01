@@ -1023,7 +1023,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: endDate
                 , EndDate: null
-                ,Hour:null
+                , Hour: null
             });
         }
         else
@@ -1032,7 +1032,7 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
                 , WorkCenterMasterId: $scope.masterId
                 , StartDate: new Date()
                 , EndDate: null
-                ,Hour:null
+                , Hour: null
             });
     }
     // #endregion
@@ -1379,9 +1379,8 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
     };
     $scope.companySubProcessList = [];
     $scope.SubProcessPopUp = function () {
-      
-        $scope.popUpUrl = 'WorkCenters/WorkCenterMaster/GetListForSubProcess/?processId=' + $scope.ProcessId
-            + '&subProcessIds=' + isProcessIdExistGrid($scope.companySubProcessList);
+
+        $scope.popUpUrl = 'WorkCenters/WorkCenterMaster/GetListForSubProcess/?processId=' + $scope.ProcessId + '&WorkCenterMasterId=' + $scope.masterId + '&subProcessIds=' + isProcessIdExistGrid($scope.companySubProcessList);
         $scope.getCompanySubProcessData = function (pageno) {
             $rootScope.parameters.processId = $scope.ProcessId;
             baseService.paginationBase($scope.popUpUrl, pageno, $scope.popUpParameters)
