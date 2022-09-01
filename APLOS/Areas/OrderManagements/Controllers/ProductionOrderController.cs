@@ -295,19 +295,22 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
                         if (dtTempStatus.Rows[0]["StandardName"].ToString().ToUpper() == productionOrderSchedulingParametersType1Controller.PlanningStatus.RUNNING.ToString())
                         {
 
-                            dtTempStatus = _sqlRepository.GetDataTable("SELECT * FROM trn.RunningOrderWorkCenter WHERE ProductionOrderId='" + master.Id + "'");
-                            if (dtTempStatus.Rows.Count == 0)
+                            if (workcenterlist==null)
                             {
-                                // now check whether plan has been simulated or not
-                                dtRunningOrderPreference = _sqlRepository.GetDataTable("SELECT DISTINCT ppt.WorkCenterMasterId FROM ProductionPlanningType1 AS ppt WHERE ppt.ProductionOrderID='" + master.Id + "'");
-                                if (dtRunningOrderPreference.Rows.Count == 0)
+                                dtTempStatus = _sqlRepository.GetDataTable("SELECT * FROM trn.RunningOrderWorkCenter WHERE ProductionOrderId='" + master.Id + "'");
+                                if (dtTempStatus.Rows.Count == 0)
                                 {
-                                    //no simulation found, now check for line preference for active order
-                                    dtRunningOrderPreference = _sqlRepository.GetDataTable("SELECT DISTINCT ppt.WorkCenterMasterId FROM trn.ProductionOrderWorkCenter AS ppt WHERE ppt.ProductionOrderID='" + master.Id + "'");
+                                    // now check whether plan has been simulated or not
+                                    dtRunningOrderPreference = _sqlRepository.GetDataTable("SELECT DISTINCT ppt.WorkCenterMasterId FROM ProductionPlanningType1 AS ppt WHERE ppt.ProductionOrderID='" + master.Id + "'");
                                     if (dtRunningOrderPreference.Rows.Count == 0)
-                                        throw new Exception("Please provide running order line preference as the production order has been marked as 'Running' and no plan data/line preference found to generate 'running line preference' for this order");
+                                    {
+                                        //no simulation found, now check for line preference for active order
+                                        dtRunningOrderPreference = _sqlRepository.GetDataTable("SELECT DISTINCT ppt.WorkCenterMasterId FROM trn.ProductionOrderWorkCenter AS ppt WHERE ppt.ProductionOrderID='" + master.Id + "'");
+                                        if (dtRunningOrderPreference.Rows.Count == 0)
+                                            throw new Exception("Please provide running order line preference as the production order has been marked as 'Running' and no plan data/line preference found to generate 'running line preference' for this order");
 
-                                }
+                                    }
+                                } 
                             }
 
                         }
@@ -2290,7 +2293,7 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
 
         #endregion
 
-      
+
 
         //tarek 
 

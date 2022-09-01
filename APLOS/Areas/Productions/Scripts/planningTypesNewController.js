@@ -483,6 +483,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
 
+    $scope.selectedShiftList = [];
     $scope.searchShiftList = [
         {
             'name': 'Shift Name',
