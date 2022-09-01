@@ -21,7 +21,7 @@ namespace Library.Service.OrderManagements
         IEnumerable<object> GetWorkCenterList(string[] entityIds,string processid);
 
         IEnumerable<object> GetProductionOrderWorkCenterList(string productionOrderId);
-
+        IEnumerable<object> GetWorkCenterListByEntity(string entityId);
         void InsertGraph(ProductionOrder master, IEnumerable<ProductionOrderDetail> detaillist
             , IEnumerable<ProductionOrderProcessSet> processSetlist
             , IEnumerable<ProductionOrderEntity> entitylist

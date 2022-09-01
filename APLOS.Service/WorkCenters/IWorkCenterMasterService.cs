@@ -8,7 +8,7 @@ namespace Library.Service.WorkCenters
     public interface IWorkCenterMasterService : IService<WorkCenterMaster>
     {
         GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs);
-        GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string[] subProcessIds);
+        GridModel GetListForSubProcess(GridParameter parameters, string CompanyGroupId, string processId, string WorkCenterMasterId, string[] subProcessIds);
         IEnumerable<object> GetWorkCenterWiseShiftList(string sGroupID, string sPlantID, string workCenterMasterId);
         IEnumerable<object> GetWorkCenterMasterSubProcessList(string workCenterMasterId);
         decimal GetAutoSequence();

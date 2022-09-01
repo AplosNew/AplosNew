@@ -310,13 +310,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    $scope.shiftList = [];
-    cboService.GetProductionShiftCbo(function (result) {
-        $scope.shiftList = result;
-        if (baseService.arrayLength(result) === 1) {
-            $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
-        }
-    });
+    //$scope.shiftList = [];
+    //cboService.GetProductionShiftCbo(function (result) {
+    //    $scope.shiftList = result;
+    //    if (baseService.arrayLength(result) === 1) {
+    //        $scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+    //    }
+    //});
 
     function CheckField(fieldname, field) {
         try {
@@ -1374,7 +1374,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
-        $scope.NewObjectDetention = data.data;
+        $scope.NewObject = data.data;
         var processid = $scope.productionSummaryNew.ProcessId;
         var entityid = $scope.productionSummaryNew.EntityId;
         var productiondate = $scope.productionSummaryNew.ProductionDate;
@@ -1385,6 +1385,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.ProductionDate = productiondate;
         $scope.productionSummaryNew.ProductionShiftId = shiftid;
         $scope.productionSummaryNew.workCenter = data.data.WorkCenter;
+        $scope.productionSummaryNew.workCenterId = data.data.WorkCenterMasterId;
         try {
             $scope.ProcessDetentionLists = [];
             $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
@@ -1404,8 +1405,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                 $scope.ProcessDetentionLists.push(obj);
                             }
                         }
-                        $scope.GetDetentionList();
                         $scope.GetDetentionTypeList();
+                        $scope.GetDetentionList();
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1418,15 +1419,18 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     };
 
-    $scope.DetentionList = [];
-    $scope.GetDetentionList = function () {
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetDetentionList'
-        }).then(function successCallback(response) {
-            $scope.DetentionList = response.data;
-        });
-    }
+    
+    $scope.LoadDetentionList = function () {
+        try {
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId)
+                .then(function (response) {
+                    $scope.ProcessDetentionLists = response.data;
+                });
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
+
     $scope.DetentionTypeList = [];
     $scope.GetDetentionTypeList = function () {
         $http({
@@ -1436,6 +1440,17 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionTypeList = response.data;
         });
     }
+    $scope.DetentionList = [];
+    $scope.GetDetentionList = function (data) {
+        $scope.NewObject = data.data;
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + $scope.NewObject.DetentionType + ''
+        }).then(function successCallback(response) {
+            $scope.DetentionList = response.data;
+        });
+    }
+    
     $scope.selectDepartment = function (data) {
     $scope.Newobject = data.data;
         $scope.getsD();
@@ -1446,7 +1461,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.getsD = function () {
         $http({
             method: 'POST',
-            url: 'IE/MachineMasterTransaction/getDepartment',
+            url: 'IE/MachineMasterTransaction/GetDetentionDepartment',
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.DepartmentList = resp.data;
@@ -1497,7 +1512,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
                     $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
                     $scope.ProcessDetentionLists[i].Date = $scope.productionSummaryNew.ProductionDate;
-                    $scope.ProcessDetentionLists[i].ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                    $scope.ProcessDetentionLists[i].shiftid = $scope.productionSummaryNew.ProductionShiftId;
                     $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.WorkCenterMasterId;
                     $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
                /* }*/
@@ -1518,7 +1533,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.getProcessDetentionPopupPoPUp();
+                    $scope.LoadDetentionList();
                     $scope.Action = 'Save';
                 }
 
@@ -1536,7 +1551,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $http({
                 method: 'POST',
                 url: $scope.MinuteUrl,
-                data: { 'data': $scope.Newobject.Minute },
+                data: { 'data': $scope.Newobject },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 $scope.Newobject.Minute = response.data;

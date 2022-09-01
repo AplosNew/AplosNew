@@ -57,7 +57,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"select r.Code,r.ShortName,r.StandardName,r.UserName,r.Active,r.[Description],r.Remarks,R.Id
+            string sql = @"select r.Code,r.ShortName,r.StandardName,r.UserName,r.Active,r.[Description],r.Remarks,R.Id,r.[From],r.[To],r.Totalkm
                             from [MST].[Route] r
                             where r.PlantId='" + identity.PlantId + "' and r.CompanyId='" + identity.CompanyId + "' ";
             var data = _sqlRepository.GetDataCollection(sql);
@@ -148,7 +148,10 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["ShortName"] = Route.ShortName;
                     dr["Description"] = Route.Description;
                     dr["Remarks"] = Route.Remarks;
+                    dr["Totalkm"] = Route.Totalkm;
                     dr["Active"] = Route.Active;
+                    dr["From"] = Route.From;
+                    dr["To"] = Route.To;
 
                     dr["AddedBy"] = identity.Name;
                     dr["AddedDate"] = DateTime.Now;
@@ -172,7 +175,10 @@ namespace Aplos.Areas.Employees.Controllers
                     dr["ShortName"] = Route.ShortName;
                     dr["Description"] = Route.Description;
                     dr["Remarks"] = Route.Remarks;
+                    dr["Totalkm"] = Route.Totalkm;
                     dr["Active"] = Route.Active;
+                    dr["From"] = Route.From;
+                    dr["To"] = Route.To;
 
                     dr["UpdatedBy"] = identity.Name;
                     dr["UpdatedDate"] = System.DateTime.Now.ToString();
@@ -342,7 +348,7 @@ namespace Aplos.Areas.Employees.Controllers
             dr.EndEdit();
         }
         [HttpPost, Authorize]
-        public JsonResult CreateChild(Dictionary<string, object> data, string RouteId)
+        public JsonResult CreateChild(Dictionary<string, object> data)
         {
             try
             {
@@ -360,7 +366,6 @@ namespace Aplos.Areas.Employees.Controllers
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "TransportDetail", out _Id);
 
                     data["Id"] = _Id;
-                    data["RouteId"] = RouteId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -387,17 +392,22 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [HttpPost, Authorize]
-        public JsonResult CreateRouteSchedule(Dictionary<string, object> data, string RouteId,string transportId)
+        public JsonResult CreateRouteSchedule(Dictionary<string, object> data,string RouteShChildId)
         {
             try
             {
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 DataRow dr;
-                DataSet dsMaster, dsTransport;
+                DataSet dsMaster, dsRouteShChild;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from RouteSchedule where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-                con.OpenDataSetThroughAdapter("select * from RouteScheduleTransport where RouteScheduleId ='" + data["Id"] + "'", out dsTransport, false, "1");
+                con.OpenDataSetThroughAdapter("select * from RouteSchedule where Id <>'" + data["Id"] + "' AND TripNo ='" + data["TripNo"] + "'", out dsMaster, false, "1");
+
+                con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where RouteScheduleId='" + data["Id"] + "'", out dsRouteShChild, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                    throw new Exception("Trip No already exists!!!");
 
                 string _Id = "";
 
@@ -408,7 +418,6 @@ namespace Aplos.Areas.Employees.Controllers
                     genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "RouteSchedule", out _Id);
 
                     data["Id"] = _Id;
-                    data["RouteId"] = RouteId;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -420,19 +429,19 @@ namespace Aplos.Areas.Employees.Controllers
 
                 #region Transport 
 
-                while (dsTransport.Tables[0].DefaultView.Count > 0)
-                    dsTransport.Tables[0].DefaultView[0].Delete();
+                while (dsRouteShChild.Tables[0].DefaultView.Count > 0)
+                    dsRouteShChild.Tables[0].DefaultView[0].Delete();
                 int count = 0;
-                if (dsTransport != null)
+                if (dsRouteShChild != null)
                 {
-                    string[] transports = transportId.Split(',');
+                    string[] transports = RouteShChildId.Split(',');
                     foreach (string item in transports)
                     {
-                        dr = dsTransport.Tables[0].NewRow();
+                        dr = dsRouteShChild.Tables[0].NewRow();
                         count++;
                         string pk = _Id + "_" + count;
                         dr["Id"] = pk;
-                        dr["TransportId"] = item;
+                        dr["RouteShChildId"] = item;
                         dr["RouteScheduleId"] = _Id;
 
                         dr["AddedBy"] = identity.Name;
@@ -442,36 +451,28 @@ namespace Aplos.Areas.Employees.Controllers
                         dr["UpdatedDate"] = System.DateTime.Now.ToString();
                         dr["UpdatedFromIP"] = identity.IPAddress;
 
-                        dsTransport.Tables[0].Rows.Add(dr);
+                        dsRouteShChild.Tables[0].Rows.Add(dr);
                     }
 
                     #endregion Transport 
 
-
                     clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsMaster, dsTransport);
-
-
-
+                    _info.SaveDataSets(dsMaster, dsRouteShChild);
                 }
-                    return Json(new { Error = false, Message = AplosMessage.Insert });
+                //clsStaticInfo _info = new clsStaticInfo();
+                //_info.SaveDataSets(dsMaster);
+                return Json(new { Error = false, Message = AplosMessage.Insert });
             }
             catch (Exception ex)
             {
-
                 return Json(new { Error = true, Message = ex.Message });
-
             }
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetTransportDetails(string RouteId)
+        public ActionResult GetTransportDetails()
         {
-            string sql = @"select TD.*,R.UserName Route,TD.DriverName 
-			                            from TransportDetail TD
-			                            left join MST.Route R on R.Id=TD.RouteId
-			                            --left join EmployeeInformation EI on EI.SystemId=TD.DriverId
-										where TD.RouteId='" + RouteId + @"'";
+            string sql = @"select * from TransportDetail";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -545,6 +546,15 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [Authorize, HttpGet]
+        public ActionResult GetRoute()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select Id,UserName from mst.Route";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpGet]
         public ActionResult GetShift()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -561,7 +571,7 @@ namespace Aplos.Areas.Employees.Controllers
         public ActionResult GetTransport()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select Id as Value,TransportUserName as Text from TransportDetail";
+            string str = @"select Id,TransportUserName as UserName from TransportDetail";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -580,16 +590,13 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpPost]
         public ActionResult GetRouteSchedule(string RouteId)
         {
-            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5)
-										,RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
-										,RS.TripNo,RS.[From],RS.[To],RS.UpDown,RS.Distance,RS.DistancePerUnit,RS.Remarks
-										,Stuff((Select ','+TD.TransportUserName
-										from dbo.RouteScheduleTransport RST 
-										left join TransportDetail TD on TD.Id=RST.TransportId
-										where RST.RouteScheduleId = RS.Id
-										for xml path('')
-										),1,1,'') as RouteScheduleTransport
+            string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],CONVERT(varchar(5),RS.StartTime,108) StartTime,CONVERT(VARCHAR(5), RS.EndTime, 108) EndTime 
+										,RS.TripNo,RS.UpDown,RS.Remarks
+										,R.Id RouteId,R.UserName Route,TD.Id TransportId,TD.TransportUserName Transport
+										
                                         from RouteSchedule RS
+                                        left join mst.[Route] R on R.Id=RS.RouteId
+										left join TransportDetail TD on TD.Id=RS.TransportId
                                         left join ShiftDefination SD on SD.SystemID=RS.ShiftId
                                         where RS.RouteId='" + RouteId + @"'";
 
@@ -638,8 +645,11 @@ namespace Aplos.Areas.Employees.Controllers
             public string ShortName { get; set; }
             public string Description { get; set; }
             public string Remarks { get; set; }
+            public decimal Totalkm { get; set; }
             public bool Active { get; set; }
             public string UpOrDown { get; set; }
+            public string From { get; set; }
+            public string To { get; set; }
 
             #endregion Scalar Properties
 

@@ -106,7 +106,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
         $scope.planningTypes = $scope.planningTypeses[$scope.index];
         $scope.planningTypesNew = Object.assign({}, $scope.planningTypes);
-
+        $scope.GetSubprocessCbo();
         if (!baseService.isUndefinedOrNull($scope.CompanyId)) {
             $scope.planningTypesNew.CompanyId = $scope.CompanyId;
         }
@@ -218,6 +218,8 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.Action = "Save";
         $scope.planningTypes = {};
         $scope.planningTypesNew = {};
+        $scope.SelectedEmpList = [];
+        $scope.SavedWCList = [];
     };
 
     // #region  ResponsibleEmployee
@@ -236,7 +238,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
-                url: 'employees/authorizationconfig/getallemployeedata'
+                url: 'Productions/PlanningTypesNew/GetAllActiveEmployeeData?PlanningTypesId=' + $scope.planningTypesNew.Id
 
             }).then(function successCallback(response) {
                 $scope.popUpDataList = response.data;
@@ -326,13 +328,15 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     };
 
     $scope.GetResponsibleEmployeeData = function () {
-       
+
         $http.get('Productions/PlanningTypesNew/GetResponsibleEmployeeData?PlanningTypesId=' + $scope.planningTypesNew.Id)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.SelectedEmpList = response.data;
                 }
+                $scope.GetSavedWCData();
             });
+
     }
 
     $scope.valuePassInRPModal = function (data) {
@@ -364,4 +368,274 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
     // #endregion
 
+    //#region WC       
+
+    $scope.modelWC = {
+        Id: null, WorkCenterMasterd: null, PlanningTypesId: $scope.planningTypesNew.Id, PlanCapacity: null, Capacity: null, UOM: null, PlanEfficiency: null, AverageLoadFactor: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    }
+    $scope.modelWCNew = Object.assign({}, $scope.modelWC);
+
+    $scope.workCenterList = [];
+    $scope.GetpopWCUp = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId
+            }).then(function successCallback(res) {
+                $scope.workCenterList = res.data;
+            });
+
+            var eDialog = $("#workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //$scope.refreshTemplateWC = function (args) {
+    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWC });
+    //};
+
+    //function CheckBoxSelectAllWC(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+    //    var filtered = $("#GridPopUp").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.workCenterList.length; i++) {
+    //            $scope.workCenterList[i].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#workCenterPopUp").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
+
+    $scope.SetworkCenter = function (data) {
+        $scope.modelWCNew.WorkCenterMaster = data.data.UserName;
+        $scope.modelWCNew.WorkCenterMasterId = data.data.WorkCenterMasterId;
+        $scope.modelWCNew.Capacity = data.data.Capacity;
+        $scope.modelWCNew.UOM = data.data.UOM;
+        $scope.modelWCNew.PlanCapacity = data.data.Capacity;
+        $scope.CloseWorkCenter();
+    }
+
+    $scope.CloseWorkCenter = function () {
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SaveWC = function () {
+        try {
+            $scope.modelWCNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelWCNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateWS',
+                data: { 'data': $scope.modelWCNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearWC();
+                    $scope.GetSavedWCData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearWC = function () {
+        $scope.modelWC = {
+            Id: null, WorkCenterMasterd: null, PlanningTypesId: $scope.planningTypesNew.Id, PlanCapacity: null, Capacity: null, UOM: null, PlanEfficiency: null, AvgeageLoadFactor: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        }
+        $scope.modelWCNew = Object.assign({}, $scope.modelWC);
+    }
+
+    $scope.SavedWCList = [];
+    $scope.GetSavedWCData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedWCData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedWCList = response.data;
+                }
+            });
+    }
+
+
+    //#endregion
+
+    //#region Shift       
+
+    $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
+
+    $scope.selectedShiftList = [];
+    $scope.searchShiftList = [
+        {
+            'name': 'Shift Name',
+            'value': 'ShiftDefinationName'
+        },
+        {
+            'name': 'Description',
+            'value': 'ShiftDefinationDescription'
+        },
+        {
+            'name': 'Shift Type',
+            'value': 'ShiftType'
+        }
+    ];
+    $scope.ShiftPopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'ShiftDefinationName',
+        searchBy: 'ShiftDefinationName',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.ShiftPopUp = function () {
+        $scope.ShiftPopUpList = [];
+        $scope.ShiftPopUpParameters.sort = 'ShiftDefinationName';
+        $scope.ShiftPopUpParameters.searchBy = 'ShiftDefinationName';
+        $scope.getShiftPopUpData = function (pageno) {
+
+            baseService.paginationBase('WorkCenters/workcentermaster/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList), pageno, $scope.ShiftPopUpParameters)
+                .then(function (result) {
+                    $scope.ShiftPopUpDataList = result.Rows;
+                    $scope.ShiftPopUpParameters.total_count = result.Total;
+
+                    for (var t = 0; t < baseService.arrayLength($scope.ShiftPopUpDataList); t++) {
+                        $scope.ShiftPopUpDataList[t].Flag = baseService.valueCheckInList($scope.tempList, 'ShiftDefinationID', $scope.ShiftPopUpDataList[t].ShiftDefinationID);
+                    }
+
+                    if (baseService.arrayLength($scope.ShiftPopUpList) == 0)
+                        baseService.getDDLSearchColumn(result.Rows, $scope.ShiftPopUpList);
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'ShiftPopUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#ShiftPopUpId')).modal('show');
+        $scope.getShiftPopUpData();
+    }
+
+    function isShiftDefinationIDExistGrid(list) {
+        $scope.ShiftDefinationIDs = [];
+        if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                $scope.ShiftDefinationIDs.push(list[i]['ShiftDefinationID']);
+            }
+        }
+        return JSON.stringify($scope.ShiftDefinationIDs);
+    }
+
+
+    $scope.tempList = [];
+    $scope.pushInTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.ShiftDefinationID) === false) {
+                    $scope.tempList.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.tempList); i++) {
+                        if ($scope.tempList[i].ShiftDefinationID === data.ShiftDefinationID) {
+                            $scope.tempList.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.tempList); t++) {
+                    if ($scope.tempList[t].ShiftDefinationID === data.ShiftDefinationID) {
+                        $scope.tempList.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+
+    $scope.SetShift = function (data) {
+        $scope.modelShiftNew.WorkCenterMaster = data.data.UserName;
+        $scope.modelShiftNew.WorkCenterMasterId = data.data.WorkCenterMasterId;
+        $scope.modelShiftNew.Capacity = data.data.Capacity;
+        $scope.modelShiftNew.UOM = data.data.UOM;
+        $scope.modelShiftNew.PlanCapacity = data.data.Capacity;
+        $scope.CloseShift();
+    }
+
+    $scope.CloseShift = function () {
+        var eDialog = $("#shiftPopUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SaveShift = function () {
+        try {
+            $scope.modelShiftNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelShiftNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateShift',
+                data: { 'data': $scope.modelShiftNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearShift();
+                    $scope.GetSavedShiftData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearShift = function () {
+        $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
+    }
+
+    $scope.SavedShiftList = [];
+    $scope.GetSavedShiftData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedShiftData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedShiftList = response.data;
+                }
+            });
+    }
+
+
+    //#endregion
 }

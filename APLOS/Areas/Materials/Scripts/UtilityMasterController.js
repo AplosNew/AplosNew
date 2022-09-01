@@ -269,6 +269,15 @@ function UtilityMasterController(cboService, commonMessage, $scope, $rootScope, 
     };
 
     $scope.Save = function () {
+        if ($scope.ModelNew.ResponsiblePersonName === null || $scope.ModelNew.ResponsiblePersonName === "") {
+            ShowResult('Select Responsible Person Name', 'failure');
+            return false;
+        }
+        else if ($scope.ModelNew.Admin === null || $scope.ModelNew.Admin === "") {
+            ShowResult('Select Admin', 'failure');
+            return false;
+        }
+
         $scope.$broadcast('show-errors-check-validity');
         if ($scope.ModelNewForm.$valid) {
             $http({
