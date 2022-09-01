@@ -106,7 +106,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
         $scope.planningTypes = $scope.planningTypeses[$scope.index];
         $scope.planningTypesNew = Object.assign({}, $scope.planningTypes);
-
+        $scope.GetSubprocessCbo();
         if (!baseService.isUndefinedOrNull($scope.CompanyId)) {
             $scope.planningTypesNew.CompanyId = $scope.CompanyId;
         }
@@ -218,6 +218,8 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.Action = "Save";
         $scope.planningTypes = {};
         $scope.planningTypesNew = {};
+        $scope.SelectedEmpList = [];
+        $scope.SavedWCList = [];
     };
 
     // #region  ResponsibleEmployee
@@ -236,7 +238,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
             $scope.popUpDataList = [];
             $http({
                 method: 'GET',
-                url: 'employees/authorizationconfig/getallemployeedata'
+                url: 'Productions/PlanningTypesNew/GetAllActiveEmployeeData?PlanningTypesId=' + $scope.planningTypesNew.Id
 
             }).then(function successCallback(response) {
                 $scope.popUpDataList = response.data;
@@ -326,13 +328,15 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     };
 
     $scope.GetResponsibleEmployeeData = function () {
-       
+
         $http.get('Productions/PlanningTypesNew/GetResponsibleEmployeeData?PlanningTypesId=' + $scope.planningTypesNew.Id)
             .then(function (response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.SelectedEmpList = response.data;
                 }
+                $scope.GetSavedWCData();
             });
+
     }
 
     $scope.valuePassInRPModal = function (data) {
@@ -363,5 +367,116 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     };
 
     // #endregion
+
+    //#region WC       
+
+    $scope.modelWC = {
+        Id: null, WorkCenterMasterd: null, PlanningTypesId: $scope.planningTypesNew.Id, PlanCapacity: null, Capacity: null, UOM: null, PlanEfficiency: null, AverageLoadFactor: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+    }
+    $scope.modelWCNew = Object.assign({}, $scope.modelWC);
+
+    $scope.workCenterList = [];
+    $scope.GetpopWCUp = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Productions/PlanningTypesNew/GetWorkCenterList?processId=' + $scope.planningTypesNew.BaseProcessId + '&subprocessId=' + $scope.planningTypesNew.SubProcessId
+            }).then(function successCallback(res) {
+                $scope.workCenterList = res.data;
+            });
+
+            var eDialog = $("#workCenterPopUp").data("ejDialog");
+            eDialog.open();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    //$scope.refreshTemplateWC = function (args) {
+    //    $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWC });
+    //};
+
+    //function CheckBoxSelectAllWC(e) {
+    //    var ChkOrUnchk = false;
+    //    if (e.model.checkState === "check") {
+    //        ChkOrUnchk = true;
+    //    }
+    //    var filtered = $("#GridPopUp").data("ejGrid").getFilteredRecords();
+    //    if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+    //        for (var i = 0; i < $scope.workCenterList.length; i++) {
+    //            $scope.workCenterList[i].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    else {
+    //        for (var j = 0; j < filtered.length; j++) {
+    //            filtered[j].Flag = ChkOrUnchk;
+    //        }
+    //    }
+    //    var gridObj = $("#workCenterPopUp").data("ejGrid");
+    //    gridObj.refreshContent();
+    //};
+
+    $scope.SetworkCenter = function (data) {
+        $scope.modelWCNew.WorkCenterMaster = data.data.UserName;
+        $scope.modelWCNew.WorkCenterMasterId = data.data.WorkCenterMasterId;
+        $scope.modelWCNew.Capacity = data.data.Capacity;
+        $scope.modelWCNew.UOM = data.data.UOM;
+        $scope.modelWCNew.PlanCapacity = data.data.Capacity;
+        $scope.CloseWorkCenter();
+    }
+
+    $scope.CloseWorkCenter = function () {
+        var eDialog = $("#workCenterPopUp").data("ejDialog");
+        eDialog.close();
+    }
+
+    $scope.SaveWC = function () {
+        try {
+            $scope.modelWCNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelWCNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateWS',
+                data: { 'data': $scope.modelWCNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearWC();
+                    $scope.GetSavedWCData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearWC = function () {
+        $scope.modelWC = {
+            Id: null, WorkCenterMasterd: null, PlanningTypesId: $scope.planningTypesNew.Id, PlanCapacity: null, Capacity: null, UOM: null, PlanEfficiency: null, AvgeageLoadFactor: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
+        }
+        $scope.modelWCNew = Object.assign({}, $scope.modelWC);
+    }
+
+    $scope.SavedWCList = [];
+    $scope.GetSavedWCData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedWCData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedWCList = response.data;
+                }
+            });
+    }
+
+
+    //#endregion
+
 
 }
