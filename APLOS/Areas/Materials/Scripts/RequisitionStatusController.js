@@ -55,29 +55,8 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 		angular.element(document.querySelector("#employeePopUp")).modal("hide");
 	};
 
-	//$window.onresize = function (event) {
 
-	//	$scope.actionCompleteSelected();
-
-	//};
-	//$scope.actionCompleteSelected = function (args) {
-	//	try {
-	//		if (args.requestType === "refresh") {
-	//			var gridObj = $("#GridPrint").ejGrid("instance");
-	//			var scrollerwidth = $("#PR").width();//Obtain the width of the container
-	//			gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300 } });//pass the obtainer width and height to gridmodel options
-	//			gridObj.windowonresize();
-	//		}
-	//	} catch (e) {
-	//	}
-
-	//};
-
-	//$scope.report.Days = 0,
-	//$scope.report.Type = 'Regular',
-	//$scope.report.ToDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'),
 	$scope.EmployeeId = null,
-	$scope.EmployeeName = null,
 	$scope.RequisitionBeforeDate = null,
 	$scope.RequisitionStatus = null,
 	$scope.RequisitionStatusList = [];
