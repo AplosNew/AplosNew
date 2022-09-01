@@ -809,12 +809,12 @@
                         <li><button ng-click="workCenterPopUp('PREFERENCE');" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Work Center</button></li>
                     </ul>
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                @*<div class="col-xs-12 col-sm-6 col-md-6">
                     <input type="radio" ng-model="model.WCPreferenceType" value="INCLUDE">
                     <span>INCLUDE</span>
                     <input type="radio" ng-model="model.WCPreferenceType" value="EXCLUDE">
                     <span>EXCLUDE</span>
-                </div>
+                </div>*@
                 <div class="col-md-12">
                     <div id="GridWorkCenter" ng-init="chkinit()" ej-grid e-datasource="productionWorkCenterList" e-rowdatabound="rowDataBoundWorkCenter"
                          e-allowpaging="true" e-enabletouch="false" e-responsive="true">
