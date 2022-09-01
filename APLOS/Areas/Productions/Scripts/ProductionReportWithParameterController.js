@@ -3,69 +3,54 @@ ProductionReportWithParameterController.$inject = ['fileReader', 'commonMessage'
 function ProductionReportWithParameterController(fileReader, commonMessage, $scope, $rootScope, baseService, $http, $filter, cboService, $window, $controller) {
 	$rootScope.title = "Stock Register Report";
 	$scope.Action = 'Save';
-	$scope.index = -1;
-	$scope.products = [];
 	$scope.path = 'Productions/ProductionReportWithParameter/';
-	$scope.path1 = 'Accounts/InventoryPayable/';
 	$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 	$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
 	$scope.downloadgriddataUrl = 'GridReports/Download';
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
-	$scope.RowColor = "";
-	$scope.isAlternative = -1;
-	$scope.rowDataBound = function rowDataBound(e) {
-
-		if ($scope.RowColor != e.data.Id) {
-			$scope.isAlternative = $scope.isAlternative * -1;
-			$scope.RowColor = e.data.Id;
-		}
-		if ($scope.isAlternative > 0)
-			e.row.css("background-color", '#D3D3D3');
-		else
-			e.row.css("background-color", '#ffffff');
-
-
-	}
-
+	
 	$scope.productionSummary = {
 		Id: null,
-		PlantId: null,
 		EntityId: null,
-		ProcessId: null,
-		MasterOrderNo: null,
-		SalesOrderId: null,
-		ProductionOrderId: null,
-		MaterialMasterId: null,
-		MaterialMaster: null,
-		ArticleId: null,
-		Article: null,
-		WorkCenterMasterId: null,
 		ProductionFromDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
 		ProductionToDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
 		ProductionShiftId: null,
-		ProductionGrade: 'A',
-		Quantity: 0,
-		UOM: 0,
-		MOQty: 0,
-		ExtraP: 0,
-		WastageP: 0,
-		CharCount: 0,
-		ProductionBookingLevel: null,
-		MentorId: null,
-		MentorName: null,
-		ResponsiblePersonId: null,
-		ResponsiblePersonName: null,
-		InTime: null,
-		OutTime: null,
-		ConsumeHour: 0,
-		ManPower: 0,
-		Remarks: null,
-		CheckedBy: null,
-		CheckedByName: null,
-		LotNumber: null
+		ProcessId: null,
 	};
-	$scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
+	$scope.productionParameterSummaryNew = Object.assign({}, $scope.productionSummary);
+
+	$scope.ProductionParameterList = [];
+	$scope.GetProductionParameter = function () {
+		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
+			ShowResult('Select From Date', 'failure');
+			return false;
+		}
+		else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
+			ShowResult('Select To Date', 'failure');
+			return false;
+		}
+		else if ($scope.report.ReportType === null || $scope.report.ReportType === "") {
+			ShowResult('Please select Report Type', 'failure');
+			return false;
+		}
+
+		$http({
+			method: 'POST',
+			url: 'Materials/StockRegister/ProductionParameterData',
+			data: {
+				EntityId: $scope.productionParameterSummaryNew.ToDate,
+				ProcessId: $scope.productionParameterSummaryNew.ProcessId,
+				FromDate: $scope.productionParameterSummaryNew.FromDate,
+				ToDate: $scope.productionParameterSummaryNew.ToDate,
+				ShiftId: $scope.productionParameterSummaryNew.ProductionShiftId
+			},
+			dataType: 'JSON'
+		}).then(function successCallback(response) {
+			$scope.ProductionParameterList = response.data.NewData;
+		});
+
+	};
 
 	$scope.entityList = [];
 	$scope.getAllEntities = function () {
@@ -75,9 +60,9 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 		}).then(function successCallback(response) {
 			$scope.entityList = response.data;
 			if (baseService.arrayLength(response.data) === 1) {
-				$scope.productionSummaryNew.EntityId = $scope.entityList[0].Value;
+				$scope.productionParameterSummaryNew.EntityId = $scope.entityList[0].Value;
 				//default
-				$scope.loadProcessList($scope.productionSummaryNew.EntityId);
+				$scope.loadProcessList($scope.productionParameterSummaryNew.EntityId);
 			}
 		});
 	}
@@ -87,10 +72,10 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 		cboService.GetEntityProcessCbo(entityid, function (result) {
 			$scope.processList = result;
 			if (baseService.arrayLength(result) === 1) {
-				$scope.productionSummaryNew.ProcessId = $scope.processList[0].Value;
+				$scope.productionParameterSummaryNew.ProcessId = $scope.processList[0].Value;
 				$scope.getProdLevel();
 				//default
-				$scope.loadWC($scope.productionSummaryNew.ProcessId, $scope.productionSummaryNew.EntityId);
+				$scope.loadWC($scope.productionParameterSummaryNew.ProcessId, $scope.productionParameterSummaryNew.EntityId);
 			}
 		});
 	};
@@ -99,46 +84,10 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 	cboService.GetProductionShiftCbo(function (result) {
 		$scope.shiftList = result;
 		if (baseService.arrayLength(result) === 1) {
-			$scope.productionSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
+			$scope.productionParameterSummaryNew.ProductionShiftId = $scope.shiftList[0].Value;
 		}
 	});
 
-	//$scope.IsGo = false;
-	//$scope.masterGo = function (isdisabled) {
-	//	try {
-	//		ValidationPreMaster();
-	//		$scope.SetGo(isdisabled);
-	//		//$scope.getLineGrid();
-	//	} catch (ex) {
-	//		ShowResult(ex, 'Info');
-	//	}
-	//};
-
-	//$scope.SetGo = function (isdisabled) {
-	//	$scope.IsGo = isdisabled;
-	//};
-
-	//function ValidationPreMaster() {
-	//	try {
-	//		CheckField("Entity", $scope.productionSummaryNew.EntityId);
-	//		CheckField("Process", $scope.productionSummaryNew.ProcessId);
-	//		CheckField("Productio From Date", $scope.productionSummaryNew.ProductionFromDate);
-	//		CheckField("Production To Date", $scope.productionSummaryNew.ProductionToDate);
-	//		CheckField("Shift", $scope.productionSummaryNew.ProductionShiftId);
-	//	} catch (ex) {
-	//		throw ex;
-	//	}
-	//}
-
-	//$scope.wcList = [];
-	//$scope.loadWC = function (processid, entityId) {
-	//	cboService.GetWCProcessCbo(processid, entityId, function (result) {
-	//		$scope.wcList = result;
-	//		//if (baseService.arrayLength(result) === 1) {
-	//		//    $scope.productionSummaryNew.WorkCenterMasterId = $scope.wcList[0].Value;
-	//		//}
-	//	});
-	//};
 
 	$scope.Print = function () {
 
@@ -227,50 +176,6 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 	};
 
 
-	$scope.PurchaseRegisterList = [];
-	$scope.PurchaseRegisterItemWiseList = [];
-	$scope.PurchaseRegisterPartyWiseList = [];
-	$scope.pivotTableFieldListID = [];
-
-	$scope.GetStockRegister = function () {
-		debugger;
-
-		if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-			ShowResult('Select From Date', 'failure');
-			return false;
-		}
-		else if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-			ShowResult('Select To Date', 'failure');
-			return false;
-		}
-		else if ($scope.report.ReportType === null || $scope.report.ReportType === "") {
-			ShowResult('Please select Report Type', 'failure');
-			return false;
-		}
-
-		$http({
-			method: 'POST',
-			url: 'Materials/StockRegister/StockRegisterData',
-			data: {
-				FromDate: $scope.productionSummaryNew.FromDate,
-				ToDate: $scope.productionSummaryNew.ToDate,
-				EntityId: $scope.productionSummaryNew.ToDate,
-				ShiftId: $scope.productionSummaryNew.ProductionShiftId,
-				ProcessId: $scope.productionSummaryNew.ProcessId
-			},
-			dataType: 'JSON'
-		}).then(function successCallback(response) {
-			$scope.PurchaseRegisterList = response.data.NewData;
-
-			for (var i = 0; i < $scope.PurchaseRegisterList.length; i++) {
-				response.data[i].GRNEntryDate = new Date($scope.PurchaseRegisterList[i].GRNEntryDate);
-			}
-
-			$scope.load();
-		});
-
-	};
-
 	$scope.PurchaseOrderGRNWiseReportExcel = function () {
 		if ($scope.report.FromDate === "" || $scope.report.FromDate === null || $scope.report.FromDate === undefined) {
 			ShowResult('Select From Date', 'failure');
@@ -282,7 +187,7 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 		}
 
 		//var dataList = [];
-		//var g = $("#GridStockRegister").data("ejGrid");
+		//var g = $("#GridProductionParameter").data("ejGrid");
 		//dataList = g.getFilteredRecords();
 		//var ids = "";
 		//if (baseService.arrayLength(dataList) > 0) {
@@ -305,7 +210,7 @@ function ProductionReportWithParameterController(fileReader, commonMessage, $sco
 		//		}
 		//	}
 		//}
-		var gridObjStockReg = $("#GridStockRegister").data("ejGrid");
+		var gridObjStockReg = $("#GridProductionParameter").data("ejGrid");
 		var dataStockReg = gridObjStockReg.model.dataSource();
 
 		$scope.fileName = 'Stock Register';
