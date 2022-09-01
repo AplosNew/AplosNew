@@ -289,7 +289,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateWS(Dictionary<string, object> data)
         {
             try
@@ -348,6 +348,73 @@ namespace Aplos.Areas.Productions.Controllers
                 string CmdText = @"SELECT PWC.*,WCM.UserName WorkCenterMaster,WCM.Capacity,WCM.UoMId,uom.Code UOM FROM [dbo].[PlanningTypesWorkCenter] PWC 
 LEFT JOIN SCS.WorkCenterMaster AS wcm ON wcm.Id=PWC.WorkCenterMasterId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
+WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateShift(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.PlanningTypesShift where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PlanningTypesShift", out _Id);
+
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedShiftData(string PlanningTypesId)
+        {
+            JsonResult json = Json(GetSavedShiftDataByPlanningType(PlanningTypesId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSavedShiftDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PWC.*,WCM.UserName Shift FROM [dbo].[PlanningTypesShift] PWC 
+LEFT JOIN dbo.ShiftDefination AS wcm ON wcm.SystemId=PWC.ShiftId
 WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
                 return _sqlRepository.GetDataCollection(CmdText);
             }

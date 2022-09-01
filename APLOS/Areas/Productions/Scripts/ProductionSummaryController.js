@@ -406,7 +406,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
+            $scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }

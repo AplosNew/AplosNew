@@ -247,11 +247,11 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
             return Json(_productionOrderService.GetProductionOrderEntityList(productionOrderId), JsonRequestBehavior.AllowGet);
         }
 
-        //[HttpGet, Authorize]
-        //public JsonResult GetWorkCenterList(string entityIds)
-        //{
-        //    return Json(_productionOrderService.GetWorkCenterList(new JavaScriptSerializer().Deserialize<string[]>(entityIds)), JsonRequestBehavior.AllowGet);
-        //}
+        [HttpGet, Authorize]
+        public JsonResult GetWorkCenterListByEntity(string entityId)
+        {
+            return Json(_productionOrderService.GetWorkCenterListByEntity(entityId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetProductionOrderWorkCenterList(string productionOrderId)
@@ -2289,6 +2289,8 @@ WHERE " + strkey + " ORDER BY  TEMP.ProductionGrouping,TEMP.MaterialMasterId,TEM
         #endregion
 
         #endregion
+
+      
 
         //tarek 
 
