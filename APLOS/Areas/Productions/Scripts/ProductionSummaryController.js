@@ -406,7 +406,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
-            //$scope.getLineGrid();
+            $scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
         }
@@ -1287,6 +1287,11 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 .then(
                     function successCallback(response) {
                         $scope.ProcessParaList = response.data;
+                        for (var i = 0; i < $scope.ProcessParaList.length; i++) {
+                            if (baseService.isUndefinedOrNull($scope.ProcessParaList[i].Id) && $scope.ProcessParaList[i].IsProduction==true) {
+                                $scope.ProcessParaList[i].Value = 0;
+                            }
+                        }
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1299,6 +1304,14 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
 
     };
 
+    $scope.isCalculated = true;
+    $scope.isChangeCalValue = true;
+
+    $scope.ChangeCalValue = function () {
+        $scope.isChangeCalValue = false;
+        $scope.isCalculated = true;
+    }
+
     $scope.Calculate = function () {
         try {
             $scope.productionSummaryNew.Quantity = 0;
@@ -1308,6 +1321,7 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
                 data: { 'OpenHeadNew': $scope.ProcessParaList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
+                $scope.isCalculated = false;
                 for (var i = 0; i < response.data.NewData.length; i++) {
                     for (var j = 0; j < $scope.ProcessParaList.length; j++) {
                         if (response.data.NewData[i].UserName == $scope.ProcessParaList[j].UserName) {
@@ -1333,6 +1347,8 @@ function ProductionSummaryController(cboService, commonMessage, $scope, $rootSco
     }
 
     function ClearFields() {
+        $scope.isCalculated = true;
+        $scope.isChangeCalValue = true;
         $scope.Action = "Save";
         $scope.productionSummary = {};
         $scope.productionSummaryNew = {};

@@ -6281,7 +6281,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                             pt1.SPT AS SAM,ord.Material,ord.Article,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,
                             ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
                             sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM,
- CPL.[Description] AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
+ CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
  wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
  PP.ProductionHours AS WorkingHours,SN.isBuildUp,
  pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
@@ -6349,7 +6349,7 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
       		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
                                   GROUP BY   ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
-                            LEFT JOIN MST.CompliedShiftGrouping CPL ON cpl.Id=pp.ProductionShiftId
+                            LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
                             LEFT OUTER JOIN ProductionOrderSchedulingParametersType1 AS PT1 ON pt1.ProductionOrderID=pp.ProductionOrderID
                             LEFT OUTER JOIN ProductionPlanningSnapshot2Type1 AS SN ON sn.ProductionOrderID=pp.ProductionOrderId AND sn.ProductionDate=pp.ProductionDate AND sn.WorkCenterMasterId=pp.WorkCenterMasterId AND sn.EntityID=pp.EntityId

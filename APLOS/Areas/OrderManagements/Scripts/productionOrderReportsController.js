@@ -13,8 +13,13 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
     $scope.productWorkCenterList = [];
 
     $scope.path = 'OrderManagements/productionOrderReports/';
-    $scope.FromDate = '';
-    $scope.ToDate = '';
+    var date = new Date(), y = date.getFullYear(), m = date.getMonth();
+    var firstDay = new Date(y, m, 1);
+
+    var last_date = new Date(y, m + 1, 0);
+
+    $scope.FromDate = $filter('dateFiltering')(firstDay);
+    $scope.ToDate = $filter('dateFiltering')(last_date);
     $scope.EntityId = '';
     $scope.prdProcessSetList = [];
     $scope.ProcessID = '';
@@ -42,14 +47,14 @@ function productionOrderReportsController(cboService, commonMessage, $scope, $ro
             $scope.Entities = response.data.Entities;
         });
 
-        $http({
-            method: 'GET',
-            url: $scope.path + "GetDateRange?entityid=" + $scope.EntityId
-        }).then(function successCallback(response) {
-            $scope.FromDate = response.data.FromDate;
-            $scope.ToDate = response.data.ToDate;
+        //$http({
+        //    method: 'GET',
+        //    url: $scope.path + "GetDateRange?entityid=" + $scope.EntityId
+        //}).then(function successCallback(response) {
+        //    $scope.FromDate = response.data.FromDate;
+        //    $scope.ToDate = response.data.ToDate;
 
-        });
+        //});
 
     };
     $scope.getProcessData();

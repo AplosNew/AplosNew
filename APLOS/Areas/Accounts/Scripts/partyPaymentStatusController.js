@@ -36,6 +36,8 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
         ToDate: $filter('dateFiltering')(Date.now()),
         VendorFromDate: $filter('dateFiltering')(Date.now()),
         VendorToDate: $filter('dateFiltering')(Date.now()),
+        CustomerFromDate: $filter('dateFiltering')(Date.now()),
+        CustomerToDate: $filter('dateFiltering')(Date.now()),
         GRNandAccPType: 'GRNPosted',
         DateType: 'PostingDate',
         IsOrderSpecific: true,
@@ -2655,7 +2657,10 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
             $http({
                 method: 'POST',
                 url: $scope.path + "GetFinancialDashboardCustomerReceiptMasterList",
-                data: { /*FromDate: $scope.reportParameters.FromDate, ToDate: $scope.reportParameters.ToDate */ },
+                data: {
+                    fromDate: "",
+                    toDate: $scope.material.CustomerToDate
+                },
                 dataType: 'JSON'
 
             }).then(function successCallback(response) {
@@ -2730,7 +2735,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 //throw 'Please enter to date';
 
             } else {
-                var file_src = $scope.path + "FinancialDashboardCustomerSummaryReport?masterCustomerSummaryList=" + NewMasterCustomerList;
+                var file_src = $scope.path + "FinancialDashboardCustomerSummaryReport?masterCustomerSummaryList=" + NewMasterCustomerList + '&fromDate=' + "" + '&toDate=' + $scope.material.CustomerToDate;
                 $rootScope.report(file_src);
             }
 
@@ -2762,7 +2767,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
                 ShowResult('Please select at least one Party', 'failure');
             }
             else {
-                var file_src = $scope.path + "FinancialDashboardCustomerReceiptAgingReport?masterCustomerReceiptAgingList=" + NewMasterCustomerAgingList;
+                var file_src = $scope.path + "FinancialDashboardCustomerReceiptAgingReport?masterCustomerReceiptAgingList=" + NewMasterCustomerAgingList + '&fromDate=' + "" + '&toDate=' + $scope.material.CustomerToDate;
                 $rootScope.report(file_src);
             }
 

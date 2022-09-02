@@ -570,11 +570,11 @@ namespace Aplos.Areas.Accounts.Controllers
         #region Customer Tab
 
         [HttpPost, Authorize]
-        public ActionResult GetFinancialDashboardCustomerReceiptMasterList()
+        public ActionResult GetFinancialDashboardCustomerReceiptMasterList(string fromDate, string toDate)
         {
             AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(new { DATA = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
+            return Json(new { DATA = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptMasterListData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate), Error = false }, JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetCustomerListForConfirmation(GridParameter parameters, string FromDate, string ToDate, string PaymentStatus)
@@ -585,7 +585,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult FinancialDashboardCustomerSummaryReport(string[] masterCustomerSummaryList)
+        public ActionResult FinancialDashboardCustomerSummaryReport(string[] masterCustomerSummaryList, string fromDate, string toDate)
         {
 
             try
@@ -614,7 +614,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
                 ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(excelEngine, masterCustomerReceiptList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId);
+                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptSummaryReport(excelEngine, masterCustomerReceiptList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, fromDate, toDate);
 
                 string strFileName = "CustomerReceivableSummary.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
@@ -631,7 +631,7 @@ namespace Aplos.Areas.Accounts.Controllers
         }
 
         [Authorize]
-        public ActionResult FinancialDashboardCustomerReceiptAgingReport(string masterCustomerReceiptAgingList)
+        public ActionResult FinancialDashboardCustomerReceiptAgingReport(string masterCustomerReceiptAgingList, string fromDate, string toDate)
         {
 
             try
@@ -643,7 +643,7 @@ namespace Aplos.Areas.Accounts.Controllers
                 AccountsStatusDashboardService accountsStatusDashboardService = new AccountsStatusDashboardService(_sqlRepository, _companyParallelCurrencyService);
 
                 ExcelEngine excelEngine = new ExcelEngine();
-                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptAgingReport(excelEngine, masterCustomerReceiptAgingList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name);
+                IWorkbook workbook = accountsStatusDashboardService.GetFinancialDashboardCustomerReceiptAgingReport(excelEngine, masterCustomerReceiptAgingList, identity.CompanyGroupId, identity.CompanyId, identity.PlantId, identity.Name, fromDate, toDate);
                 // return Json(new { DATA = _accountVoucherReportService.GetPartyPaymentStatusSummaryData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId), Error = false }, JsonRequestBehavior.AllowGet);
                 string strFileName = "CustomerReceivableAging.xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);

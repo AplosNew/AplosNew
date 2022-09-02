@@ -80,10 +80,10 @@ namespace Aplos.Areas.WorkCenters.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult GetListForSubProcess(GridParameter parameters, string processId, string subProcessIds)
+        public JsonResult GetListForSubProcess(GridParameter parameters, string processId, string WorkCenterMasterId, string subProcessIds)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_workcentermasterservice.GetListForSubProcess(parameters, identity.CompanyGroupId, processId, new JavaScriptSerializer().Deserialize<string[]>(subProcessIds)), JsonRequestBehavior.AllowGet);
+            return Json(_workcentermasterservice.GetListForSubProcess(parameters, identity.CompanyGroupId, processId, WorkCenterMasterId, new JavaScriptSerializer().Deserialize<string[]>(subProcessIds)), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost, Authorize]
