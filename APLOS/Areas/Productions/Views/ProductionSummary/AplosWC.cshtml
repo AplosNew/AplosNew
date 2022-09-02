@@ -166,7 +166,6 @@
              e-filtersettings-filterType="excel">
             <div e-columns>
                 <div e-column e-headertext="All" e-headertemplateid="#headerTemplateProductionSummaryWC" e-template="#checkboxTemplateProductionSummaryWC" e-textalign="center" e-width="30"></div>
-                <div e-column e-field="Id" e-headertext="Id" e-width="100" e-isprimarykey="true" e-visible="true"></div>
                 <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
                 <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200"></div>
                 <div e-column e-template="#ProductionOrderId" e-headertext="Production Order" e-width="200"></div>
@@ -175,8 +174,8 @@
                 <div e-column e-template="#ResponsiblePerson" e-headertext="Responsible Person" e-width="200"></div>
                 <div e-column e-template="#CheckedBy" e-headertext="CheckedBy" e-width="200"></div>
                 <div e-column e-template="#ProductionGrade" e-headertext="Grade" e-width="80"></div>
-                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="100"></div>
-                <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="200"></div>
+                <div e-column e-template="#Remarks" e-headertext="Remarks" e-width="200"></div>
+                <div e-column e-template="#Quantity" e-headertext="Quantity" e-width="100"></div>
                 <div e-column e-template="#Detention" e-headertext="Detention" e-width="200"></div>
             </div>
         </div>
@@ -225,11 +224,11 @@
         </script>
         <script type="text/template" id="Quantity">
             <div class="form-group" show-errors ng-show="IsGo===true">
-                <div class="col-sm-10" style="padding:0px;">
+                <div class="col-sm-7" style="padding:0px;">
                     @*<input type="text" name="Quantity" ng-model="data.Quantity" ng-disabled="data.IsParameterBased" class="form-control" maxlength="200">*@
                     <input type="text" class="form-control" ng-disabled="$parent.PQEnable" placeholder="Produced Quantity" ng-model="data.Quantity">
                 </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                     <div class="common-btn">
                         <ul class="list-inline text-left">
                             <li><button ng-click="$parent.getProcessParaPopupPoPUp(this);" ng-disabled="$parent.IsParameterBased===false" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
@@ -269,7 +268,7 @@
 <div class="clearfix"></div>
 <div class="common-btn">
     <ul class="list-inline text-right">
-        <li><button ng-click="SaveMasterWC();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
+        <li><button ng-click="SaveMasterWC();" ng-show="IsVisible" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
         <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
     </ul>
 </div>
@@ -331,7 +330,7 @@
                 </div>
                 <div>
                     <div class="col-xs-12">
-                        <div id="ProductionSummaryDetentionWC" ej-grid style="z-index:3;"
+                        <div ng-init="chkinit()" id="ProductionSummaryDetentionWC" ej-grid style="z-index:3;"
                              @*e-templaterefresh="refreshTemplateProductionSummaryWC"*@
                              e-datasource="ProcessDetentionLists"
                              e-rowdatabound="onactivedatabound"
@@ -351,7 +350,7 @@
                                 <div e-column e-field="Date" e-headertext="Date" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="ShiftId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="WorkCenterMasterId" e-headertext="Id" e-width="50" e-visible="false"></div>
-                                <div e-column e-field="DetentionId" e-headertext="Id" e-width="50" e-visible="false"></div>
+                                @*<div e-column e-field="DetentionId" e-headertext="Id" e-width="50" e-visible="false"></div>*@
                                 <div e-column e-field="ResponsiblePersonId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200" e-visible="false"></div>
                                 <div e-column e-template="#Department" e-headertext="Department" e-width="200"></div>
@@ -380,37 +379,29 @@
                         </script>
                         <script type="text/template" id="DetentionType">
                             <div class="select-style">
-                                <select class="form-control" ng-model="data.DetentionType" name="DetentionType" ng-change="$parent.GetDetentionList(this)">
-                                    <option value="">Select</option>
-                                    <option ng-repeat="option in $parent.DetentionTypeList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
+                                @*<select class="form-control" ng-model="data.DetentionType" name="DetentionType" ng-change="$parent.GetDetentionList(this)">
+            <option value="">Select</option>
+            <option ng-repeat="option in $parent.DetentionTypeList" value="{{option.Value}}">{{option.Text}}</option>
+        </select>*@
+                                <input ej-dropdownlist e-datasource="data.DetentionTypeList" e-value="data.DetentionType" e-fields-value="Value" e-fields-text="Text" e-change="$parent.GetDetentionList" e-width="100%" />
                             </div>
                         </script>
                         <script type="text/template" id="DetentionId">
                             <div class="select-style">
-                                <select class="form-control" ng-model="data.DetentionId" name="DetentionId">
-                                    @*<option value="">Select</option>*@
-                                    <option ng-repeat="option in $parent.DetentionList" value="{{option.Value}}">{{option.Text}}</option>
-                                </select>
+                                @*<select class="form-control" ng-model="data.DetentionId" name="DetentionId">
+                                <option value="">Select</option>
+                                <option ng-repeat="option in $parent.DetentionList" value="{{option.Value}}">{{option.Text}}</option>
+    </select>*@
+                                <input ej-dropdownlist e-datasource="data.DetentionList" e-value="data.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
 
                             </div>
                         </script>
 
                         <script type="text/template" id="fromtime">
                             <input type="text" ej-timepicker e-value="data.FromTime" e-change="getMinute" e-width="100%" />
-                            @*<div class="col-sm-10 input-group bootstrap-timepicker timepicker" style="padding:0px;">
-                    <input id="FromTime" type="text" class="form-control input-small" ng-model="data.FromTime" ng-change="$parent.getMinute();">
-                </div>
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                </div>*@
                         </script>
                         <script type="text/template" id="totime">
                             <input type="text" ej-timepicker e-value="data.ToTime" e-change="getMinute" e-width="100%" />
-                            @*<div class="col-sm-2 input-group bootstrap-timepicker timepicker" style="float:right">
-                    <input id="ToTime" type="text" class="form-control input-small" ng-model="data.ToTime" ng-change="$parent.getMinute();" style="margin-left:-10%; width:94%" tabindex="7">
-                    <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
-                </div>*@
                         </script>
 
                         <script type="text/template" id="ResponsiblePersonD">
@@ -435,7 +426,6 @@
                     <div class="clearfix common-btn" style="padding-right: 15px;">
                         <ul class="list-inline text-right">
                             <li><button ng-click="SaveDetentionWC();" class="btn"><i class="glyphicon glyphicon-floppy-disk"></i>{{Action}}</button></li>
-                            @*  <li><button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>*@
                         </ul>
                     </div>
                 </div>

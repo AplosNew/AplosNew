@@ -14,6 +14,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
     $scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
     $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
+    $scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
+    $scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
 
     $scope.detention = {
         Id: null
@@ -23,7 +25,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , DetentionUserName: null
         , DetentionType: null
         , DetentionCriticality: null
-        , ResponsiblePersion: null
+        , InchargePersonId: null
+        , InchargePerson:null
         , DetentionTarget: null
         , DetentionPlan: null
         , IsAvoidable: false
@@ -50,6 +53,66 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         )
     }
     $scope.LoadDetentionList();
+
+    $scope.employeeParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'EmployeeCode, FirstName, MiddleName, LastName ',
+        searchBy: 'EmployeeCode',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+
+    $scope.showEmployeeListPopUp = function (name) {
+        try {
+            $scope.Name = name;
+            baseService.setCurrentPage('employeeList');
+            $scope.searchEmployeeByList = [];
+            $scope.getEmployeeData = function (pageno) {
+                baseService.paginationBase($scope.employeeUrl, pageno, $scope.employeeParameters)
+                    .then(function (result) {
+                        $scope.employeeList = result.Rows;
+                        $scope.employeeParameters.total_count = result.Total;
+
+                        if (baseService.arrayLength($scope.searchEmployeeByList) === 0)
+                            baseService.getDDLSearchColumn(result.Rows, $scope.searchEmployeeByList);
+                    }, function () {
+                        ShowResult(commonMessage.NetworkError, 'failure');
+                    }).finally(function () {
+                    });
+            };
+            angular.element(document.querySelector('#employeePopUp')).modal('show');
+            $scope.getEmployeeData();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.selectEmployeePopUp = function (index, id) {
+        $scope.employeeIndex = index;
+        $scope.selectedEmployee = id;
+    };
+    $scope.DetentionTest = null;
+    $scope.closeEmployeePopUp = function () {
+        if ($scope.employeeIndex !== -1) {
+            var employee = $scope.employeeList[$scope.employeeIndex];
+            if ($scope.Name === 'ip') {
+                $scope.detentionNew.InchargePersonId = employee.SystemId;
+               /* $scope.detentionNew.InchargePerson = employee.EmployeeName;*/
+                $scope.DetentionTest = employee.EmployeeName;
+            }
+        }
+        $scope.hideEmployeePopUp();
+    };
+
+    $scope.hideEmployeePopUp = function () {
+        angular.element(document.querySelector('#employeePopUp')).modal('hide');
+        $scope.employeeIndex = -1;
+        $scope.selectedEmployee = null;
+    };
 
 
     $scope.Save = function () {
@@ -109,15 +172,17 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     };
     $scope.GetDetails = function (args) {
         $scope.DetentionMasterId = args.data.Id;
+       /* $scope.DetentionTest = args.data.InchargePerson;*/
         $http({
             method: 'Get',
             url: 'Materials/DetentionMaster/LoadEditData?DetentionID=' + args.data.Id
         }).then(function successCallback(response) {
             $scope.detentionNew = response.data.detention[0];
-           
+            $scope.DetentionTest = response.data.detention[0].InChargePerson;
             $scope.getDetentionMasterProcess();
             $scope.getDetentionMasterDepartment();
             $scope.getDetentionMasterMachine();
+            $scope.getDetentionMasterResponsible();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -169,14 +234,29 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.userMachineList = resp.data;
         });
     }
+
+    $scope.getDetentionMasterResponsible = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getResponsible',
+            data: { 'DetentionMasterId': $scope.DetentionMasterId },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.userResponsibleList = [];
+            $scope.userResponsibleList = resp.data;
+        });
+    }
+
     $scope.Clear = function () {
         DetentionClearFields();
         $scope.userDepartMentList = [];
         $scope.userProcessList = [];
         $scope.userMachineList = [];
+        $scope.userResponsibleList = [];
     };
     function DetentionClearFields() {
         $scope.Action = "Save";
+        $scope.DetentionTest = null;
         $scope.detentionNew = Object.assign({}, $scope.detention);
 
     }
@@ -263,6 +343,24 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         });
     };
     $scope.userMachineList = [];
+
+    $scope.ResponsiblePopUpList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/DetentionMaster/LoadResponsibleList'
+        }).then(function successCallback(response) {
+            $scope.ResponsibleDataList = response.data;
+            for (var i = 0; i < $scope.userResponsibleList.length; i++) {
+                for (var j = 0; j < $scope.ResponsibleDataList.length; j++) {
+                    if ($scope.userResponsibleList[i].ResponsibleMasterId === $scope.ResponsibleDataList[j].Id) {
+                        $scope.ResponsibleDataList[j].chk = true;
+                    }
+                }
+            }
+            angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('show');
+        });
+    };
+    $scope.userResponsibleList = [];
 
     $scope.closeProcessPopUp = function () {
         $scope.processUpUrl = null;
@@ -423,6 +521,61 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.closeMachinePopUp = function () {
         angular.element(document.querySelector('#MachinePopUp')).modal('hide');
     };
+
+    $scope.ResponsibleDataList = [];
+    $scope.SaveResponsible = function () {
+
+        try {
+
+            if (baseService.arrayLength($scope.ResponsibleDataList) > 0) {
+                angular.forEach($scope.ResponsibleDataList, function (a) {
+                    if (checkResponsibleExist($scope.userResponsibleList, a.Id) === false) {
+                        if (a.chk) {
+                            var ob = {};
+                            ob.Id = null;
+                            ob.ResponsibleMasterId = a.SystemId;
+                            ob.EmployeeCode = a.EmployeeCode;
+                            ob.EmployeeName = a.EmployeeName;
+                            ob.Department = a.Department;
+                            ob.Section = a.Section;
+                            ob.SubSection = a.SubSection;
+                            ob.LegalDesignation = a.LegalDesignation;
+                            $scope.userResponsibleList.push(ob);
+                            ob = {};
+                        }
+                    }
+
+                });
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.ResponsibleSaveUrl,
+                data: { 'data': $scope.userResponsibleList, 'DetentionMasterId': $scope.detentionNew.Id },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.getDetentionMasterResponsible();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        $scope.closeResponsiblePopUp();
+    };
+    $scope.closeResponsiblePopUp = function () {
+        angular.element(document.querySelector('#ResponsiblePersonPopUp')).modal('hide');
+    };
+
     function checkProcessExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].ProcessId === Id) {
@@ -442,6 +595,15 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     function checkMachineExist(list, Id) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].MachineMasterId === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkResponsibleExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].ResPonsibleMasterId === Id) {
                 return true;
             }
         }
@@ -497,6 +659,21 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             ShowResult(e, 'Error');
         }
     };
+
+    $scope.removeResponsibleRowModal = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to delete [" + name + "] permanently ?";
+            angular.element(document.querySelector('#confirmRemoveResponsiblePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
     $scope.removeRow = function () {
         $http({
             method: 'POST',
@@ -553,6 +730,26 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             }
         });
     };
+
+    $scope.removeResponsibleRow = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionMaster/ResponsibleDelete?id=' + $scope.tempDeptId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.getDetentionMasterResponsible();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
     $scope.DepartmentGridAllCheck = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
     };

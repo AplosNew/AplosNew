@@ -116,6 +116,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.LotNumberList = [];
     $scope.disGo = false;
+    $scope.IsVisible = true;
     $scope.PQEnable = true;
     $scope.LotNumberCapture = false;
     $scope.LotNumberMandatory = false;
@@ -398,6 +399,13 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         try {
             ValidationPreMaster();
             $scope.SetGo(isdisabled);
+            if ($scope.IsParameterBased == true) {
+                $scope.IsVisible = false;
+            }
+            else
+            {
+                $scope.IsVisible = true;
+            }
             //$scope.getLineGrid();
         } catch (ex) {
             ShowResult(ex, 'Info');
@@ -1402,11 +1410,14 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                 obj.ProductionDate = productiondate;
                                 obj.ProductionShiftId = shiftid;
                                 obj.workCenter = data.data.WorkCenter;
+                                obj.workCenter = data.data.WorkCenter;
+                                /*$scope.GetDetentionTypeList();*/
                                 $scope.ProcessDetentionLists.push(obj);
                             }
                         }
-                        $scope.GetDetentionTypeList();
-                        $scope.GetDetentionList();
+                        
+                       /* $scope.GetDetentionTypeList();*/
+                        /*$scope.GetDetentionList();*/
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1440,17 +1451,40 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionTypeList = response.data;
         });
     }
+  
+    //$scope.DetentionList = [];
+    //$scope.GetDetentionList = function (data) {
+    //    $scope.NewObject = data.data;
+    //    $http({
+    //        method: 'GET',
+    //        url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + $scope.NewObject.DetentionType + ''
+    //    }).then(function successCallback(response) {
+    //        $scope.DetentionList = response.data;
+    //    });
+    //}
+    //$scope.DetentionList = [];
+    //$scope.GetDetentionList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'IE/MachineMasterTransaction/GetDetentionList'
+    //    }).then(function successCallback(response) {
+    //        $scope.DetentionList = response.data;
+    //    });
+    //}
+
+    var currRow = null;
     $scope.DetentionList = [];
     $scope.GetDetentionList = function (data) {
-        $scope.NewObject = data.data;
+        var gridObj = $("#ProductionSummaryDetentionWC").ejGrid("instance");
+        currRow = gridObj.model.currentViewData[this.element.closest("tr").index()];
         $http({
             method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + $scope.NewObject.DetentionType + ''
+            url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + currRow.DetentionType
         }).then(function successCallback(response) {
-            $scope.DetentionList = response.data;
+            currRow.DetentionList = response.data;
         });
-    }
-    
+    };
+
     $scope.selectDepartment = function (data) {
     $scope.Newobject = data.data;
         $scope.getsD();
@@ -1471,10 +1505,27 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.doubleDepartment = function (e) {
         $scope.Newobject.DepartmentId = e.data.DepartmentId;
         $scope.Newobject.DepartmentName = e.data.DepartmentName;
-        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        $scope.Newobject.DetentionType = e.data.DetentionMasterId;
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
+        //$scope.data.DetentionTypeList = null;
+        //$scope.data.DetentionList = null;
+        $scope.getDetentionTypeListByDepartment($scope.Newobject.DetentionType);
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     }
+   
     
+    $scope.getDetentionTypeListByDepartment = function (detentionType) {
+            $http({
+            method: 'GET',
+                url: 'IE/MachineMasterTransaction/getDetentionTypeListByDepartment?detentiontype=' + detentionType
+        }).then(function successCallback(response) {
+            $scope.DetentionList = null;
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++)
+            {
+                $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
+            }
+        });
+    }
     $scope.closeDepartmentPopUp = function () {
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
     }
