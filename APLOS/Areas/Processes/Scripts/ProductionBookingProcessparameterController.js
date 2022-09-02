@@ -428,6 +428,8 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
                     $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
                     $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
 
+                    $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+                    $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
 
                 }
             });

@@ -12,6 +12,7 @@ using Library.Security.Core;
 using Library.Crosscutting.Security;
 using System;
 using System.Threading;
+using System.Web.Script.Serialization;
 
 #endregion
 
@@ -356,6 +357,15 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
                 throw ex;
             }
         }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetShiftList(GridParameter parameters, string ShiftDefinationIDs, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_planningTypesService.GetShiftList(parameters, identity.CompanyGroupId, plantId, new JavaScriptSerializer().Deserialize<string[]>(ShiftDefinationIDs)), JsonRequestBehavior.AllowGet);
+        }
+        
 
         [HttpPost,Authorize]
         public JsonResult CreateShift(Dictionary<string, object> data)

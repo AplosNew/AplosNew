@@ -3371,9 +3371,7 @@ FixedValue, SequenceNo,
 
             try
             {
-                strSql = @"SELECT * FROM SalaryInfoDefineMaster 
-                            WHERE EmpInfoSystemID = '" + sEmpSysID + @"' 
-                                  AND IsApproved = 1";
+                strSql = @"SELECT * FROM SalaryInfoDefineMaster WHERE EmpInfoSystemID = '" + sEmpSysID + @"' AND IsApproved = 1";
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
                 objCon.OpenDataSetThroughAdapter(strSql, out dsRef, false, "1");

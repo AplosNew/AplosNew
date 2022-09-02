@@ -515,7 +515,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.ShiftPopUpParameters.searchBy = 'ShiftDefinationName';
         $scope.getShiftPopUpData = function (pageno) {
 
-            baseService.paginationBase('WorkCenters/workcentermaster/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList), pageno, $scope.ShiftPopUpParameters)
+            baseService.paginationBase('Productions/PlanningTypesNew/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList) + '&plantId=' + $scope.planningTypesNew.PlantId, pageno, $scope.ShiftPopUpParameters)
                 .then(function (result) {
                     $scope.ShiftPopUpDataList = result.Rows;
                     $scope.ShiftPopUpParameters.total_count = result.Total;
@@ -580,17 +580,14 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
 
     $scope.SetShift = function (data) {
-        $scope.modelShiftNew.WorkCenterMaster = data.data.UserName;
-        $scope.modelShiftNew.WorkCenterMasterId = data.data.WorkCenterMasterId;
-        $scope.modelShiftNew.Capacity = data.data.Capacity;
-        $scope.modelShiftNew.UOM = data.data.UOM;
-        $scope.modelShiftNew.PlanCapacity = data.data.Capacity;
+        $scope.modelShiftNew.Shift = data.ShiftDefinationName;
+        $scope.modelShiftNew.ShiftId = data.ShiftDefinationID;
+        $scope.modelShiftNew.PlanningTypesId = $scope.planningTypesNew.Id;
         $scope.CloseShift();
     }
 
     $scope.CloseShift = function () {
-        var eDialog = $("#shiftPopUp").data("ejDialog");
-        eDialog.close();
+        angular.element(document.querySelector('#ShiftPopUpId')).modal('hide');
     }
 
     $scope.SaveShift = function () {
