@@ -17,6 +17,7 @@ using Library.Security.Core;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
+using System.Linq;
 
 #endregion
 
@@ -312,7 +313,71 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
         {
-            return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+            try
+            {
+                string sql = "";
+                string DetentionTypeListsql = "";
+                string DetentionListsql = "";
+                sql = @"
+SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute,SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
+
+
+                //return _sqlRepository.GetDataCollection(sql, null);
+
+                DetentionTypeListsql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+
+                DetentionListsql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+
+                List<Dictionary<string, object>> MainList = _sqlRepository.GetDataCollection(sql);
+                List<Dictionary<string, object>> detentiontypelist = _sqlRepository.GetDataCollection(DetentionTypeListsql);
+                List<Dictionary<string, object>> detentionList = _sqlRepository.GetDataCollection(DetentionListsql);
+                for (int i = 0; i < MainList.Count; i++)
+                {
+                    try
+                    {
+                        List<Dictionary<string, object>> k = detentiontypelist.ToList();
+                        MainList[i]["DetentionTypeList"] = k;
+
+                    }
+                    catch (Exception)
+                    {
+                       
+                    }
+
+                    try
+                    {
+                        List<Dictionary<string, object>> m = detentionList.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionId"])).ToList();
+
+
+                        MainList[i]["DetentionList"] = m;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                }
+                return Json(MainList, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]

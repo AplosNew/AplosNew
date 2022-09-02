@@ -1863,7 +1863,7 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                     sql = @"
 SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
-										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime + 1,'hh:mm tt') as ToTime,Convert(varchar(5),Minute,108) as Minute,SD.UserName Shift,
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute,SD.UserName Shift,
 										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId

@@ -135,10 +135,14 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         $scope.dataList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId
+            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
         }).then(function successCallback(response) {
             $scope.dataList = response.data;
+            
+            //$scope.getResidence();
+            
             $scope.UnallocationView();
+
         });
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
@@ -662,5 +666,33 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     };
     $scope.employeeCurrentStatus();
 
+    $scope.ResidedenceGroupId = null;
+    $scope.ResidenceGroupList = [];
+    $scope.getResidence = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getemployeeDataList?plantId=' + $scope.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
+        }).then(function successCallback(response) {
+            $scope.dataList = response.data;
+
+
+        });
+    }
+
+
+
+    $scope.ResidenceGroupList = [];
+    $scope.ResidenceGroupCbo = function () {
+        $http.get('employees/ResidenceGroup/GetCbo')
+            .then(function (response) {
+                $scope.ResidenceGroupList = response.data;
+
+                $scope.ResidedenceGroupId = $scope.ResidenceGroupList[0].Value;
+               
+
+            });
+    }
+   
+    $scope.ResidenceGroupCbo();
    
 }

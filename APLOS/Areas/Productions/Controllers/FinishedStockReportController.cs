@@ -186,6 +186,8 @@ namespace Aplos.Areas.Productions.Controllers
                     {
                         sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
                         sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
+                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
                     ArtRow = ROW;
                 }
@@ -198,8 +200,8 @@ namespace Aplos.Areas.Productions.Controllers
 
                     if (i != 0 && LotRow != (ROW - 1))
                     {
-                        sheet.Range[ProdDetailsRow, ColProdDet, ROW - 1, ColProdDet].Merge();
-                        sheet.Range[ProdDetailsRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                        sheet.Range[ProdDetailsRow, ColLot, ROW - 1, ColLot].Merge();
+                        sheet.Range[ProdDetailsRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                        
                     }
                     ProdDetailsRow = ROW;
@@ -212,7 +214,10 @@ namespace Aplos.Areas.Productions.Controllers
                     LotNum = data.Rows[i]["LotNo"].ToString();
                     
                     sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
-                    
+
+                    //ProdDetails = data.Rows[i]["ProdDetails"].ToString();
+                    //sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
+
                     if (i != 0 && LotRow != (ROW - 1))
                     {
                         //sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].Merge();
