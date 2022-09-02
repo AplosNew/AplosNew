@@ -71,6 +71,10 @@ function vendorAdvanceWriteOffController(cboService, commonMessage, $window,$sco
         {
             "name": "Currency",
             "value": "Currency"
+        },
+        {
+            "name": "Status",
+            "value": "Status"
         }
     ];
     $scope.getCboVoucherTypeAdvanceGivenWriteOffList = function () {

@@ -760,6 +760,7 @@
     <Compile Include="Areas\Productions\Controllers\GeneralDataMasterController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralDataOperationsController.cs" />
     <Compile Include="Areas\Productions\Controllers\GeneralWasteController.cs" />
+    <Compile Include="Areas\Productions\Controllers\PlanningTypesNewController.cs" />
     <Compile Include="Areas\Productions\Controllers\PrePackDefinitionController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWisCapacityPlaningController.cs" />
     <Compile Include="Areas\Productions\Controllers\ProcessWiseProductionBookingController.cs" />
@@ -1857,6 +1858,7 @@
     <Content Include="Areas\Attendances\Scripts\attendanceBonusPolicyController.js" />
     <Content Include="Areas\Attendances\Scripts\shiftTimeChangeController.js" />
     <Content Include="Areas\Attendances\Scripts\SandwichProcessController.js" />
+    <Content Include="Areas\Banks\Scripts\BankReconciliationDataUploadController.js" />
     <Content Include="Areas\Banks\Scripts\CurrentFundPositionController.js" />
     <Content Include="Areas\Banks\Scripts\bankSheetGenerationController.js" />
     <Content Include="Areas\Banks\Scripts\bankReconcileReportController.js" />
@@ -2169,6 +2171,7 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessWiseProductionBookingController.js" />
     <Content Include="Areas\Productions\Scripts\ProductionGeneralReportController.js" />
@@ -4257,6 +4260,8 @@
     <Content Include="Areas\Materials\Views\ProcessWiseMaterialAllocation\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessWisCapacityPlaning\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StockRegister\RequisitionStatus.cshtml" />
+    <Content Include="Areas\Productions\Views\PlanningTypesNew\Aplos.cshtml" />
+    <Content Include="Areas\Banks\Views\BankReconciliationDataUpload.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForUnAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\residenceSummarGrid.cshtml" />

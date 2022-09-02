@@ -1152,9 +1152,9 @@ namespace Library.Service.Finances
                             ToCurrencyId = companyCurrencyId,
                             ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                             ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailFrom.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                            DrAmount = voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount
+                            DrAmount = Math.Round((voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount), 2, MidpointRounding.AwayFromZero)
                         });
-                        totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount;
+                        totalCurrencyAmountDr += Math.Round((voucherVM.ToCurrencyRate * voucherDetailFrom.DrAmount), 2, MidpointRounding.AwayFromZero);
                     }
 
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTo, new VoucherDetailCurrency
@@ -1164,9 +1164,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount
+                        CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount), 2, MidpointRounding.AwayFromZero)
                     });
-                    totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount), 2, MidpointRounding.AwayFromZero);
                     //if (voucherVM.InterestPaymentAmount > 0)
                     //{
                     //    _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailLoanInterestPayable, new VoucherDetailCurrency
@@ -1210,9 +1210,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailFrom.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount
+                        CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount), 2, MidpointRounding.AwayFromZero)
                     });
-                    totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.CrAmount), 2, MidpointRounding.AwayFromZero);
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTo, new VoucherDetailCurrency
                     {
                         ParallelCurrencyId = companyCurrencyId,
@@ -1220,9 +1220,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailTo.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = voucherVM.ToCurrencyRate * voucherDetailTo.DrAmount
+                        DrAmount = Math.Round((voucherVM.ToCurrencyRate * voucherDetailTo.DrAmount), 2, MidpointRounding.AwayFromZero)
                     });
-                    totalCurrencyAmountDr += voucherVM.ToCurrencyRate * voucherDetailTo.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherVM.ToCurrencyRate * voucherDetailTo.DrAmount), 2, MidpointRounding.AwayFromZero);
                 }
 
                 //***********************Exchange Loss*************************************
@@ -1296,9 +1296,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherExpenses.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        CrAmount = voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount
+                        CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount), 2, MidpointRounding.AwayFromZero)
                     });
-                    totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount), 2, MidpointRounding.AwayFromZero);
 
                 }
                 //***********************Expenses *****************************************
@@ -1315,9 +1315,9 @@ namespace Library.Service.Finances
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherExpenses.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                        DrAmount = voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount
+                        DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount), 2, MidpointRounding.AwayFromZero)
                     });
-                    totalCurrencyAmountDr += voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherVM.CompanyCurrencyRate * voucherVM.ExpenseAmount), 2, MidpointRounding.AwayFromZero);
 
                 }
                 //*********************GLGeneralInfo Dr**********************************
@@ -1342,7 +1342,7 @@ namespace Library.Service.Finances
                             {
                                 BankMasterId = voucherDetailFrom.BankMasterId,
                                 CashMasterId = voucherDetailFrom.CashMasterId,
-                                DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount,
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailFrom.DrAmount), 2, MidpointRounding.AwayFromZero),
                                 SourceType = voucherDetailFrom.PaymentSource
                             });
                         }
@@ -1370,7 +1370,7 @@ namespace Library.Service.Finances
                         {
                             BankMasterId = voucherDetailTo.BankMasterId,
                             CashMasterId = voucherDetailTo.CashMasterId,
-                            CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount,
+                            CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTo.CrAmount), 2, MidpointRounding.AwayFromZero),
                             SourceType = voucherDetailTo.PaymentSource
                         });
                     }

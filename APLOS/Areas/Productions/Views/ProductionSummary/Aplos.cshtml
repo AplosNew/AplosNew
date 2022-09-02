@@ -971,7 +971,7 @@
                                     <tr ng-repeat="x in ProcessParaList">
                                         <td>{{x.UserName}}</td>
                                         <td>{{x.EntryState}} ({{x.ValueIN}})</td>
-                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" /></td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" ng-change="ChangeCalValue();" /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -983,8 +983,8 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
-                            <button ng-click="SaveMaster();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
+                            <button ng-click="Calculate();" ng-disabled="isChangeCalValue==true || isCalculated == false" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="SaveMaster();" ng-disabled="isCalculated == true" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>
                         </li>
                     </ul>
                 </div>

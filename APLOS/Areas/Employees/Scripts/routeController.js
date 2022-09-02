@@ -23,7 +23,10 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         UpDistanceFrom: null,
         DownDistanceFrom: null,
         Active: true,
-        UpOrDown: 'Up',      
+        UpOrDown: 'Up',
+        Totalkm: 0,
+        From: null,
+        To: null,
     };
     $scope.routeNew = Object.assign({}, $scope.route);
 
@@ -35,6 +38,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         TransportPort: null,
         Capacity: 0,
         DriverName: null,
+        SpeedPerkm: 0,
         Remarks: null
     };
     $scope.ModelChildNew = Object.assign({}, $scope.transport);
@@ -42,19 +46,27 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.schedule = {
         Id: null,
         TransportId: null,
+        Transport: null,
+        RouteId: null,
+        Route: null,
         TripNo: null,
         UpDown: null,
         ShiftId: null,
         Shift: null,
         StartTime: null,
         EndTime: null,
-        From: null,
-        To: null,
-        Distance: null,
-        DistancePerUnit: null,
         Remarks: null
     };
     $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
+
+    $scope.RouteShd = {
+        Id: null,
+        StartTime: null,
+        EndTime: null,
+        UpDown: null,
+        Remarks: null,
+    };
+    $scope.RouteSheduleChildModel = Object.assign({}, $scope.RouteShd);
 
     $scope.tab = 1;
     $scope.setTab = function (newTab) {
@@ -108,7 +120,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $http({
             method: 'POST',
             url: $scope.saveChildUrl,
-            data: { 'data': $scope.ModelChildNew, 'RouteId': $scope.routeNew.Id },
+            data: { 'data': $scope.ModelChildNew },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -126,14 +138,11 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     };
 
     $scope.SaveRouteSchedule = function () {
-        var DropDownListObj = $("#transportList").data("ejDropDownList");
-        var dayStatus = DropDownListObj.getSelectedValue();
-        $scope.transportId = dayStatus;
-
+       
         $http({
             method: 'POST',
             url: $scope.saveRouteSchedule,
-            data: { 'data': $scope.ModelRouteSchedule, 'RouteId': $scope.routeNew.Id, 'transportId': $scope.transportId},
+            data: { 'data': $scope.ModelRouteSchedule, 'RouteShChildId' : $scope.RouteSheduleChildModel},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -322,10 +331,9 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $http({
             method: 'POST',
             url: $scope.path + 'GetTransportDetails',
-            data: { 'RouteId': $scope.routeNew.Id },
+            //data: { 'RouteId': $scope.routeNew.Id },
             dataType: 'JSON'
         }).then(function succ(resp) {
-            //$scope.transportDetailsList = [];
             $scope.transportDetailsList = resp.data;
         });
     }
@@ -367,6 +375,18 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             }
         });
     };
+
+    $scope.RouteList = [];
+        $scope.selectRoute = function () {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetRoute',
+                dataType: 'JSON'
+            }).then(function succ(resp) {
+                $scope.RouteList = resp.data;
+            });
+        }
+        $scope.selectRoute();
 
     $scope.selectShift = function () {
         $scope.getsS();
@@ -414,7 +434,6 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             data: { 'RouteId': $scope.routeNew.Id },
             dataType: 'JSON'
         }).then(function succ(resp) {
-            //$scope.routeScheduleList = [];
             $scope.routeScheduleList = resp.data;
         });
     }

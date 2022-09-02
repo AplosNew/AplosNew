@@ -126,8 +126,8 @@
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border">Requisition Status</legend>
 
-                            <label class="col-sm-2 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
-                            <div class="col-sm-2 show-message">
+                            <label class="col-sm-1 control-label">@Library.Model.Parties.PartyType.Employee.ToString()<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
                                 <div class="input-group">
                                     <input tabindex="1" type="text" name="@Library.Model.Parties.PartyType.Employee.ToString()" ng-model="EmployeeName" class="form-control" readonly required>
                                     <span class="input-group-btn">
@@ -153,7 +153,7 @@
                    
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li><button ng-click="GetStockRegister();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
+                            <li><button ng-click="GetRequisitionStatus();" class="btn"><i class="glyphicon glyphicon-cloud-download"></i> View</button></li>
                         </ul>
                     </div>
                 </fieldset>
@@ -167,28 +167,26 @@
             <div id="PR">
                 <div class="content-container-fluid" style="color:black;">
 
-                    <div style="color:black;" id="GridStockRegister" ej-grid e-datasource="MaterialStockList"
+                    <div style="color:black;" id="GridRequisitionStatus" ej-grid e-datasource="RequisitionStatusList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowResizing="true"
                          e-filtersettings-filterType="excel" e-enabletouch="true" e-actioncomplete="actionCompleteSelected"
                          e-allowscrolling="true" e-showstackedheader="true" e-allowExcelExport='true' e-enableGroupingBar="true">
                         
                         <div e-columns>
-                            <div e-column e-field="Id" e-headertext="Id" e-width="90" textAlign='Left'></div>
+                            <div e-column e-field="Id" e-headertext="Id" e-width="80" textAlign='Left'></div>
                             <div e-column e-field="RequisitionDate" e-headertext="Requisition Date" e-width="90" e-format="{0:dd-MMM-yyyy}" e-type="date"></div>
-                            <div e-column e-field="RowId" e-headertext="Row Id" e-width="120"></div>
-                            <div e-column e-field="Material" e-headertext="Material" e-width="90"></div>
-                            <div e-column e-field="Article" e-headertext="Article" e-width="100"></div>
-                            <div e-column e-field="UOM" e-headertext="UOM" e-width="100"></div>
-                            <div e-column e-field="ReqQty" e-headertext="Req Qty" e-width="200" textAlign='Left'></div>
-                            <div e-column e-field="POQty" e-headertext="PO Qty" e-width="95"></div>
-                            <div e-column e-field="GRNQty" e-headertext="GRN Qty" e-width="130" textAlign='Left'></div>
-                            <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="110" textAlign='Right'></div>
-                            <div e-column e-field="SalesQty" e-headertext="Sales Qty" e-width="110" textAlign='Right'></div>
-                            <div e-column e-field="BalanceStock" e-headertext="Balance Stock" e-width="130" textAlign='Right'></div>
-                            <div e-column e-field="ReqStatus" e-headertext="Req Status" e-width="110" textAlign='Right'></div>
-                            <div e-column e-field="ReqRenarm" e-headertext="Req Renarm" e-width="110" textAlign='Right'></div>
-                            <div e-column e-field="RequiredDate" e-headertext="Required Date" e-width="110" textAlign='Right'></div>
-                            <div e-column e-field="CommitmentDate" e-headertext="Commitment Date" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="ROWId" e-headertext="Row Id" e-width="90"></div>
+                            <div e-column e-field="Material" e-headertext="Material" e-width="120"></div>
+                            <div e-column e-field="Article" e-headertext="Article" e-width="120"></div>
+                            <div e-column e-field="UOM" e-headertext="UOM" e-width="80"></div>
+                            <div e-column e-field="ReqQty" e-headertext="Req Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="POQty" e-headertext="PO Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="GRNQty" e-headertext="GRN Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="IssueQty" e-headertext="Issue Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="SalesQty" e-headertext="Sales Qty" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="BalancePOQty" e-headertext="Balance Stock" e-width="90" textAlign='Right'></div>
+                            <div e-column e-field="ReqStatus" e-headertext="Requisition Status" e-width="110" textAlign='Right'></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="110" textAlign='Right'></div>
                         </div>
 
                     </div>
@@ -200,7 +198,7 @@
         <div class="common-btn">
             <ul class="list-inline text-left">
                 <li>
-                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="StockRegisterReportExcel();" e-width="width">
+                    <div ej-tooltip e-showshadow="true" e-content="Export To Excel" ng-click="RequisitionStatusReportExcel();" e-width="width">
                         <button class="btn"><i class="glyphicon glyphicon-cloud-download"></i>Download</button>
                     </div>
                 </li>

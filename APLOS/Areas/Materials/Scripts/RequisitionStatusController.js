@@ -5,8 +5,7 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 	$scope.Action = 'Save';
 	$scope.index = -1;
 	$scope.products = [];
-	$scope.path = 'Materials/StockRegister/';
-	$scope.path1 = 'Accounts/InventoryPayable/';
+	$scope.path = 'Materials/RequisitionStatus/';
 	$scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 	$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
@@ -56,70 +55,44 @@ function RequisitionStatusController(fileReader, commonMessage, $scope, $rootSco
 		angular.element(document.querySelector("#employeePopUp")).modal("hide");
 	};
 
-	$window.onresize = function (event) {
 
-		$scope.actionCompleteSelected();
-
-	};
-	$scope.actionCompleteSelected = function (args) {
-		try {
-			if (args.requestType === "refresh") {
-				var gridObj = $("#GridPrint").ejGrid("instance");
-				var scrollerwidth = $("#PR").width();//Obtain the width of the container
-				gridObj.option({ allowScrolling: true, scrollSettings: { width: scrollerwidth - 20, height: 300 } });//pass the obtainer width and height to gridmodel options
-				gridObj.windowonresize();
-			}
-		} catch (e) {
-		}
-
-	};
-
-	$scope.report.Days = 0,
-	$scope.report.Type = 'Regular',
-	$scope.report.ToDate = $filter("date")(Date.now(), 'dd-MMM-yyyy'),
-
-	$scope.MaterialStockList = [];
-	$scope.GetStockRegister = function () {
-		debugger;
-
-		//if ($scope.report.FromDate === null || $scope.report.FromDate === "") {
-		//	ShowResult('Select From Date', 'failure');
-		//	return false;
-		//}
-		 if ($scope.report.ToDate === null || $scope.report.ToDate === "") {
-			ShowResult('Select To Date', 'failure');
+	$scope.EmployeeId = null,
+	$scope.RequisitionBeforeDate = null,
+	$scope.RequisitionStatus = null,
+	$scope.RequisitionStatusList = [];
+	$scope.GetRequisitionStatus = function () {
+		
+		if ($scope.RequisitionBeforeDate === null || $scope.RequisitionBeforeDate === "") {
+			ShowResult('Select Requisition Before Date', 'failure');
 			return false;
 		}
-		
 		$http({
 			method: 'POST',
-			url: 'Materials/StockRegister/StockRegisterData',
+			url: 'Materials/StockRegister/RequisitionStatusData',
 			data: {
-				fromDate: $scope.report.FromDate,
-				toDate: $scope.report.ToDate,
-				Days: $scope.report.Days,
-				Type: $scope.report.Type,
+				employeeId: $scope.EmployeeId,
+				requisitionBeforeDate: $scope.RequisitionBeforeDate,
+				requisitionStatus: $scope.RequisitionStatus,
 			},
 			dataType: 'JSON'
 		}).then(function successCallback(response) {
-			$scope.MaterialStockList = response.data.NewData;
+			$scope.RequisitionStatusList = response.data.NewData;
 		});
-
 	};
 
-	$scope.StockRegisterReportExcel = function () {
+	$scope.RequisitionStatusReportExcel = function () {
 		
 
 		var dataList = [];
-		var g = $("#GridStockRegister").data("ejGrid");
+		var g = $("#GridRequisitionStatus").data("ejGrid");
 		dataList = g.getFilteredRecords();
 
 		if (dataList.length == 0)
 		{
-			dataList = $scope.MaterialStockList;
+			dataList = $scope.RequisitionStatusList;
         }
 
-		$scope.fileName = 'Stock Register';
+		$scope.fileName = 'Requisition Status';
 
 		$http({
 			method: 'POST',

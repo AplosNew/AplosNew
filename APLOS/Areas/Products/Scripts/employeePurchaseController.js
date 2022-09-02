@@ -536,6 +536,7 @@ function employeePurchaseController(factoryService, cboService, commonMessage, $
         try {
             $scope.detailModel.ArticleId = ob.Id;
             $scope.detailModel.ArticleName = ob.StandardName;
+            getTaxCategoryList(ob.HSNCodeId);
             manualValidation('div_ar', false);
             angular.element(document.querySelector('#articleSearchPop')).modal('hide');
         } catch (e) {
@@ -699,6 +700,7 @@ function employeePurchaseController(factoryService, cboService, commonMessage, $
         }
     }
     function getTaxCategoryList(hsnCodeId) {
+        $scope.taxCategoryList=[];
         $http({
             method: 'GET',
             url: $scope.path + 'GetTaxCategoryList?receiveId=' + $scope.productNew.Id + '&hsnCodeId=' + hsnCodeId
