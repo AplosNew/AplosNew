@@ -4257,6 +4257,9 @@
     <Content Include="Areas\Materials\Views\ProcessWiseMaterialAllocation\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProcessWisCapacityPlaning\Aplos.cshtml" />
     <Content Include="Areas\Materials\Views\StockRegister\RequisitionStatus.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForAllocationGrid.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForUnAllocationGrid.cshtml" />
+    <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\residenceSummarGrid.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

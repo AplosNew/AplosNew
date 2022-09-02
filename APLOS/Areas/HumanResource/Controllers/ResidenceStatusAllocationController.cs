@@ -69,10 +69,17 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId)
+        public JsonResult getemployeeDataList(string plantId,string residenceGroupId)
         {
-            return Json(rsl.getemployeeDataList(plantId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getemployeeDataList(plantId, residenceGroupId), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost, Authorize]
+        public JsonResult getResidence()
+        {
+            return Json(rsl.getResidence(), JsonRequestBehavior.AllowGet);
+        }
+
 
         [HttpGet, Authorize]
         public JsonResult viewUnallocation(string PlantId)
@@ -618,10 +625,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
                 sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
                 sheet[ROW, ColNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
-                sheet[ROW, ColRooms].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
-                sheet[ROW, ColVacancy].Number = Library.Security.Core.clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
-                sheet[ROW, ColOccupied].Text = data.Rows[i]["Occupied"].ToString();
-                sheet[ROW, ColAvailable].Text = data.Rows[i]["Available"].ToString();
+                sheet[ROW, ColRooms].Number = clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
+                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
                 
                 
                
@@ -816,10 +823,10 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
                 sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
                 sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
-                sheet[ROW, ColResNmbr].Text = data.Rows[i]["ResidenceNumber"].ToString();
+                sheet[ROW, ColResNmbr].Number = clsStaticInfo.dbl(data.Rows[i]["ResidenceNumber"].ToString());
                 sheet[ROW, ColResSubCat].Text = data.Rows[i]["ResidenceSubCategory"].ToString();
                 sheet[ROW, ColResidenceType].Text = data.Rows[i]["ResidentType"].ToString();
-                sheet[ROW, ColVacancy].Text = data.Rows[i]["Vacancy"].ToString();
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
                 sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
                 sheet[ROW, ColEmployeeCode].Text = data.Rows[i]["EmployeeCode"].ToString();
                 sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
@@ -1061,7 +1068,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var workbook = DetailResidenceStatus(PartialVacantFullyOccupied);
+                ReportUtility oRU = null;
+                oRU = new ReportUtility();
+                var workbook = DetailResidenceStatus(PartialVacantFullyOccupied, oRU);
 
                 var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "DetailResidenceStatus.xlsx";
                 string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
@@ -1077,7 +1086,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
         [HttpPost]
-        private IWorkbook DetailResidenceStatus(string PartialVacantFullyOccupied)
+        private IWorkbook DetailResidenceStatus(string PartialVacantFullyOccupied, ReportUtility oRU)
         {
             var excelEngine = new ExcelEngine();
             var report = new ReportUtility();
@@ -1148,24 +1157,24 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColEmployeeName = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 12, ExcelHAlign.HAlignCenter);
+            int ColDesignation = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
             int ColEmpCategory = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
-            int ColDepartment = COL;
-            COL++;
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSubSection = COL;
 
+            COL++;
             report.SetHeaderText(ref sheet, ROW, COL, "Section", 12, ExcelHAlign.HAlignCenter);
             int ColSection = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
-            int ColSubSection = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 12, ExcelHAlign.HAlignCenter);
-            int ColDesignation = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
             COL++;
 
             report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
@@ -1176,11 +1185,14 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColActivity = COL;
             COL++;
 
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 12, ExcelHAlign.HAlignCenter);
-            int ColEmployeeStatus = COL;
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 12, ExcelHAlign.HAlignCenter);
+            int ColSkill = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
+            int ColProcess = COL;
+            COL++;
+            
             report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
             int ColDOJ = COL;
             COL++;
@@ -1189,17 +1201,15 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColDOS = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeStatus = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Employee Current Status", 12, ExcelHAlign.HAlignCenter);
             int ColEmployeeCurrentStatus = COL;
             COL++;
 
-            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 12, ExcelHAlign.HAlignCenter);
-            int ColSkill = COL;
-            COL++;
-
-            report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
-            int ColProcess = COL;
-            COL++;
+            
 
             //report.SetHeaderText(ref sheet, ROW, COL, "Legal Designation", 12, ExcelHAlign.HAlignCenter);
             //int ColLegalDesignation = COL;
@@ -1284,13 +1294,270 @@ namespace Aplos.Areas.HumanResource.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
-           for(int i = 0; i <= sheet.Range.Row; i++)
+
+            sheet.Range[startRow, COL].NumberFormat = oRU.NumberFormatDecimalTwo();
+            sheet.Range["A4" + ":" + oRU.GetColumnNameForXls(COL) + "4"].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range["A4" + ":" + oRU.GetColumnNameForXls(COL) + "4"].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+            oRU.PageSetup(ref sheet, 4, ExcelPageOrientation.Portrait);
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            //for(int i = 0; i <= sheet.Range.Row; i++)
+            // {
+            //     for (int j = 0; i <= sheet.Range.Column; j++)
+            //     {
+            //         sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //     }
+            // }
+
+            // sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            // sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+
+
+        #endregion Detail Residence Status
+
+        #region Pending for unallcation
+        [Authorize, HttpPost]
+        public ActionResult XlsPendingForUnallocation()
+        {
+            try
             {
-                for (int j = 0; i <= sheet.Range.Column; j++)
-                {
-                    sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-                }
+                var workbook = pendingForUnAllocationReport();
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PendingForUnAllocation.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        private IWorkbook pendingForUnAllocationReport()
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsl.pendingForUnAllocationReport();
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "PendingForUnallocation";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Id", 12, ExcelHAlign.HAlignCenter);
+            int ColId = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Location", 12, ExcelHAlign.HAlignCenter);
+            int ColLocation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 12, ExcelHAlign.HAlignCenter);
+            int ColBlock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Floor", 12, ExcelHAlign.HAlignCenter);
+            int ColFloor = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Number", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceNumber = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vacancy", 12, ExcelHAlign.HAlignCenter);
+            int ColVacancy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Occupied", 12, ExcelHAlign.HAlignCenter);
+            int ColOccupied = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Available", 12, ExcelHAlign.HAlignCenter);
+            int ColAvailable = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 26, ExcelHAlign.HAlignCenter);
+            int ColEmployeeName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 12, ExcelHAlign.HAlignCenter);
+            int ColDesignation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEmpCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSubSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+          
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Activity", 12, ExcelHAlign.HAlignCenter);
+            int ColActivity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 12, ExcelHAlign.HAlignCenter);
+            int ColSkill = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
+            int ColProcess = COL;
+            COL++;
+          
+            report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
+            int ColDOJ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DOS", 12, ExcelHAlign.HAlignCenter);
+            int ColDOS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Current Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCurrentStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 12, ExcelHAlign.HAlignCenter);
+            int ColResidentType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Category", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceCategory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceGroup = COL;
+            COL++;
+
+          
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+                sheet[ROW, ColId].Text = data.Rows[i]["ResidenceId"].ToString();
+                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
+                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
+                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
+                sheet[ROW, ColFloor].Text = data.Rows[i]["Floor"].ToString();
+                sheet[ROW, ColResidenceNumber].Text = data.Rows[i]["ResidenceNumber"].ToString();
+
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
+                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
+                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+
+                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
+                sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                sheet[ROW, ColResidenceCategory].Text = data.Rows[i]["ResidenceCategory"].ToString();
+
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            //for (int i = 0; i <= sheet.Range.Row; i++)
+            //{
+            //    for (int j = 0; i <= sheet.Range.Column; j++)
+            //    {
+            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //    }
+            //}
 
             sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
@@ -1302,9 +1569,9 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
-            
-            
-           // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
 
             ReportUtility reportUtility = new ReportUtility();
@@ -1313,7 +1580,460 @@ namespace Aplos.Areas.HumanResource.Controllers
             return workbook;
         }
 
-       
-        #endregion Detail Residence Status
+        #endregion Pending for unallcation
+
+        #region Residence Summary Report
+        [Authorize, HttpPost]
+        public ActionResult XlsResidenceSummary()
+        {
+            try
+            {
+                var workbook = ResidenceSummaryReport();
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "ResidenceSummary.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        private IWorkbook ResidenceSummaryReport()
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsl.ResidenceSummaryReport();
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Residence Summary Rport";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCtegory = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Location", 12, ExcelHAlign.HAlignCenter);
+            int ColLocation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Block", 12, ExcelHAlign.HAlignCenter);
+            int ColBlock = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 12, ExcelHAlign.HAlignCenter);
+            int ColResidentType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Vacancy", 12, ExcelHAlign.HAlignCenter);
+            int ColVacancy = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Occupied", 12, ExcelHAlign.HAlignCenter);
+            int ColOccupied = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Available", 12, ExcelHAlign.HAlignCenter);
+            int ColAvailable = COL;
+            //COL++;
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+            string EmpCategory = "";
+            string Location = "";
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            int EmpCateRow = 0;
+            int LocationRow = 0;
+            
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                if(EmpCategory != data.Rows[i]["EmpCategory"].ToString())
+                {
+                    EmpCategory = data.Rows[i]["EmpCategory"].ToString();
+
+                    sheet[ROW, ColEmployeeCtegory].Text = data.Rows[i]["EmpCategory"].ToString();
+
+                    if (i != 0 && EmpCateRow != (ROW - 1))
+                    {
+                        sheet.Range[EmpCateRow, ColEmployeeCtegory, ROW - 1, ColEmployeeCtegory].Merge();
+                        sheet.Range[EmpCateRow, ColEmployeeCtegory, ROW - 1, ColEmployeeCtegory].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    EmpCateRow = ROW;
+                }
+
+                if(Location != data.Rows[i]["Location"].ToString())
+                {
+                    Location = data.Rows[i]["Location"].ToString();
+                    sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+
+                    if(i != 0 && LocationRow != (ROW - 1))
+                    {
+                        sheet.Range[LocationRow, ColLocation, ROW - 1, ColLocation].Merge();
+                        sheet.Range[LocationRow, ColLocation, ROW - 1, ColLocation].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    }
+                    LocationRow = ROW;
+                }
+               
+                sheet[ROW, ColLocation].Text = data.Rows[i]["Location"].ToString();
+                sheet[ROW, ColEmployeeCtegory].Text = data.Rows[i]["EmpCategory"].ToString();
+               
+                sheet[ROW, ColBlock].Text = data.Rows[i]["Block"].ToString();
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+               
+               
+                sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
+               
+
+                sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Allotted"].ToString());
+                sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+
+
+                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
+                arr[1] += clsStaticInfo.dbl(data.Rows[i]["Allotted"].ToString());
+                arr[2] += clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+
+               
+                ROW++;
+
+            }
+
+            ROW++;
+            sheet[ROW, ColEmployeeCtegory].Text = "TOTAL";
+            sheet[ROW, ColVacancy].Number = arr[0];
+            sheet[ROW, ColOccupied].Number = arr[1];
+            sheet[ROW, ColAvailable].Number = arr[2];
+
+            sheet.Range[ROW, ColEmployeeCtegory, ROW, endCol].CellStyle.Font.Bold = true;
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            //for (int i = 0; i <= sheet.Range.Row; i++)
+            //{
+            //    for (int j = 0; i <= sheet.Range.Column; j++)
+            //    {
+            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //    }
+            //}
+
+            //sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceSmmaryReport", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        #endregion Residence Summary Report
+
+        #region Pending for allocation
+        [Authorize, HttpPost]
+        public ActionResult XlsPendingForAllocation()
+        {
+            try
+            {
+                var workbook = pendingForAllocationReport();
+
+                var strFileName = DateTime.Now.ToString("yy-MM-dd") + " " + "PendingForAllocation.xlsx";
+                string fullPath = Path.Combine(System.Web.Hosting.HostingEnvironment.MapPath("~/") + strFileName);
+                workbook.SaveAs(fullPath);
+
+
+                return Json(new { FileName = strFileName, Error = false }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        private IWorkbook pendingForAllocationReport()
+        {
+            var excelEngine = new ExcelEngine();
+            var report = new ReportUtility();
+            var workbook = report.GetWorkbook(ref excelEngine, 3);
+            workbook.Version = ExcelVersion.Excel2016;
+
+
+            var data = rsl.pendingForAllocationReport();
+
+
+            var sheet = workbook.Worksheets[0];
+
+
+            #region sheet1
+            sheet.Name = "Pending For Allocation";
+
+            int ROW = 6;
+            int endCol = 1;
+            int COL = 1;
+
+
+            #region Grid Headers
+            
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Code", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCode = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Name", 26, ExcelHAlign.HAlignCenter);
+            int ColEmployeeName = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Designation", 12, ExcelHAlign.HAlignCenter);
+            int ColDesignation = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Category", 12, ExcelHAlign.HAlignCenter);
+            int ColEmpCategory = COL;
+            COL++;
+
+            
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Sub Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSubSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Section", 12, ExcelHAlign.HAlignCenter);
+            int ColSection = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Department", 12, ExcelHAlign.HAlignCenter);
+            int ColDepartment = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Entity", 12, ExcelHAlign.HAlignCenter);
+            int ColEntity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Activity", 12, ExcelHAlign.HAlignCenter);
+            int ColActivity = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Skill", 12, ExcelHAlign.HAlignCenter);
+            int ColSkill = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Process", 12, ExcelHAlign.HAlignCenter);
+            int ColProcess = COL;
+            COL++;
+
+           
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DOJ", 12, ExcelHAlign.HAlignCenter);
+            int ColDOJ = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "DOS", 12, ExcelHAlign.HAlignCenter);
+            int ColDOS = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Employee Current Status", 12, ExcelHAlign.HAlignCenter);
+            int ColEmployeeCurrentStatus = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Resident Type", 12, ExcelHAlign.HAlignCenter);
+            int ColResidentType = COL;
+            COL++;
+
+            report.SetHeaderText(ref sheet, ROW, COL, "Residence Group", 12, ExcelHAlign.HAlignCenter);
+            int ColResidenceGroup = COL;
+            COL++;
+
+
+            ROW++;
+            endCol = COL;
+            #endregion Headers
+
+
+            var startRow = 0;
+            var endRow = 0;
+            int RowIndex = ROW;
+            startRow = ROW;
+
+            string Article = "";
+            string LotNum = "";
+            int ArtRow = 0;
+            int LotRow = 0;
+
+            double[] arr = new double[3];
+
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+
+               
+                sheet[ROW, ColEmpCategory].Text = data.Rows[i]["EmployeeCategory"].ToString();
+                sheet[ROW, ColResidenceGroup].Text = data.Rows[i]["ResidenceGroup"].ToString();
+               
+                sheet[ROW, ColEmployeeName].Text = data.Rows[i]["EmployeeName"].ToString();
+                sheet[ROW, ColEmployeeCode].Number = clsStaticInfo.dbl(data.Rows[i]["EmployeeCode"].ToString());
+                sheet[ROW, ColEmployeeStatus].Text = data.Rows[i]["EmployeeStatus"].ToString();
+                sheet[ROW, ColEmployeeCurrentStatus].Text = data.Rows[i]["EmployeeCurrentStatus"].ToString();
+                sheet[ROW, ColDOJ].Text = data.Rows[i]["DOJ"].ToString();
+                sheet[ROW, ColDOS].Text = data.Rows[i]["DOS"].ToString();
+                sheet[ROW, ColSection].Text = data.Rows[i]["Section"].ToString();
+                sheet[ROW, ColSubSection].Text = data.Rows[i]["SubSection"].ToString();
+                sheet[ROW, ColDesignation].Text = data.Rows[i]["Designation"].ToString();
+                //sheet[ROW, ColLegalDesignation].Text = data.Rows[i]["LegalDesignation"].ToString();
+                sheet[ROW, ColDepartment].Text = data.Rows[i]["Department"].ToString();
+               
+                sheet[ROW, ColEntity].Text = data.Rows[i]["Entity"].ToString();
+                sheet[ROW, ColActivity].Text = data.Rows[i]["Activity"].ToString();
+                sheet[ROW, ColSkill].Text = data.Rows[i]["Skill"].ToString();
+                sheet[ROW, ColProcess].Text = data.Rows[i]["Process"].ToString();
+                sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
+                
+                
+                ROW++;
+
+            }
+
+            ROW++;
+
+            endRow = ROW - 1;
+            endRow = ROW - 1;
+            #endregion sheet1
+
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            sheet.AutoFilters.FilterRange = sheet.Range[startRow - 1, 1, startRow, endCol];
+            //for (int i = 0; i <= sheet.Range.Row; i++)
+            //{
+            //    for (int j = 0; i <= sheet.Range.Column; j++)
+            //    {
+            //        sheet.Range[startRow, i, startRow, endCol][startRow, j, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //    }
+            //}
+
+            //sheet.Range[startRow, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 2, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 3, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 4, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 5, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 6, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 7, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 8, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 9, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+            //sheet.Range[startRow, 10, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
+
+
+            // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+
+
+            ReportUtility reportUtility = new ReportUtility();
+            reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
+            reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
+            return workbook;
+        }
+        #endregion Pending for allocation
+
+        #region grid view 
+        [HttpPost, Authorize]
+        public JsonResult detailResidenceStatusGrid(string PartialVacantFullyOccupied)
+        {
+            try
+            {
+                return Json(rsl.detailResidenceStatusGrid(PartialVacantFullyOccupied), JsonRequestBehavior.AllowGet);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult pendingForAllocationGrid()
+        {
+            try
+            {
+                var jsondata = Json(rsl.pendingForAllocationGrid(), JsonRequestBehavior.AllowGet);
+                jsondata.MaxJsonLength = int.MaxValue;
+                return jsondata;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult pendingForUnAllocationGrid()
+        {
+            try
+            {
+                return Json(rsl.pendingForUnAllocationGrid(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult residenceSummarGrid()
+        {
+            try
+            {
+                return Json(rsl.residenceSummarGrid(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion grid view 
     }
 }
