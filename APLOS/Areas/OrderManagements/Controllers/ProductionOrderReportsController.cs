@@ -4588,8 +4588,8 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 Dictionary<string, DateTime> allDates = new Dictionary<string, DateTime>();
                 foreach (KeyValuePair<string, List<DataRow>> item in dicActualData)
                     for (int i = 0; i < item.Value.Count; i++)
-                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString()) == false)
-                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
+                        if (allDates.ContainsKey(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString()) == false)
+                            allDates.Add(item.Value[i]["ActualDate"].ToString() + item.Value[i]["WorkCenterMasterId"].ToString() + item.Value[i]["Id"].ToString(), Convert.ToDateTime(item.Value[i]["ActualDate"].ToString()));
 
 
                 allDates.OrderBy(ee => ee.Value);
@@ -6277,11 +6277,14 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
         }
         private void getProductionData(string entityid, string fromDate, string toDate, out Dictionary<string, List<DataRow>> dtOrderMaster)
         {
-            string sql = @"SELECT  trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
-                            pt1.SPT AS SAM,ord.Material,ord.Article,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,
-                            ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
-                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM,
- CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
+            try
+            {
+
+                string sql = @"SELECT distinct PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+                            pt1.SPT AS SAM,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,pp.UserName Material,pp.StandardName Article                  
+                            ,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
+                            sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
+ ,CPL.UserName AS ProductionShift,so.Id AS SalesOrderIdBooking,so.[Description] AS SalesOrderDescBooking,
  wcm.StandardTimePerDay AS StandardWorkingHours,  wcm.NoOfWorkStation AS StandardWorkStations,wcm.DailyFixedCost,wcm.VariableCost AS VariableCostPerHour,
  PP.ProductionHours AS WorkingHours,SN.isBuildUp,
  pt1.TargetPerDay AS LineTargetPerDay,PT1.TargetPerHour AS PlanTargetPerHour,PT1.PlanWorkingHoursPerDay,
@@ -6343,11 +6346,13 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0) AS ActualMinutes,
                             ISNULL(pp.Quantity,0)*isnull(pt1.SPT,0)/(pt1.NoOfWorkStation*pp.ProductionHours*60) AS ActualEfficiency
 
-                            FROM (SELECT  ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
+                            FROM (SELECT  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId,  ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId,COUNT(*) AS ProductionHours,SUM(ps.Quantity) AS Quantity
                                     FROM trn.ProductionSummary AS ps 
+                                  left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
+                                  LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
       		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + entityid + @") 
       		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
-                                  GROUP BY   ps.ProcessId,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
+                                  GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
                             LEFT JOIN trn.SalesOrder AS so ON so.Id=pp.SalesOrderId
@@ -6389,27 +6394,32 @@ ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID
 
 
 
-                            ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence
+                          --  ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence
 ";
 
-            DataTable dt = _sqlRepository.GetDataTable(sql);
-            dtOrderMaster = new Dictionary<string, List<DataRow>>();
-            List<DataRow> drtemp = new List<DataRow>();
-            string _id = "";
-            foreach (DataRow item in dt.Rows)
-            {
-                if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString())
+                DataTable dt = _sqlRepository.GetDataTable(sql);
+                dtOrderMaster = new Dictionary<string, List<DataRow>>();
+                List<DataRow> drtemp = new List<DataRow>();
+                string _id = "";
+                foreach (DataRow item in dt.Rows)
                 {
-                    drtemp = new List<DataRow>();
-                    _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString();
-                    dtOrderMaster.Add(_id, drtemp);
+                    if (_id != item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString())
+                    {
+                        drtemp = new List<DataRow>();
+                        _id = item["ActualDate"].ToString() + item["WorkCenterMasterId"].ToString() + item["Id"].ToString();
+                        dtOrderMaster.Add(_id, drtemp);
 
 
+                    }
+
+                    drtemp.Add(item);
                 }
 
-                drtemp.Add(item);
             }
-
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
 
 
