@@ -123,10 +123,10 @@
 
                                     <tr ng-repeat="x in StopageListNew">
                                         @*<td ng-show="StopageListNew.length>1">
-                                            <span ng-show="!$first" ng-click="moveUp($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-top"></i></span>
-                                            <br />
-                                            <span ng-show="!$last" ng-click="moveDown($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
-                                        </td>*@
+                                                <span ng-show="!$first" ng-click="moveUp($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-top"></i></span>
+                                                <br />
+                                                <span ng-show="!$last" ng-click="moveDown($index,'StopageListNew')"><i class="glyphicon glyphicon-triangle-bottom"></i></span>
+                                            </td>*@
                                         <td>{{x.Sequence}}</td>
                                         <td>{{x.Code}}</td>
                                         <td>{{x.ShortName}}</td>
@@ -134,12 +134,12 @@
                                         <td>{{x.UserName}}</td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input n-decimals="2" ng-model="x.UpDistanceFrom" style="color:black;" class="form-control" tabindex="1009"/>
+                                                <input n-decimals="2" ng-model="x.UpDistanceFrom" style="color:black;" class="form-control" tabindex="1009" />
                                             </div>
                                         </td>
                                         <td>
                                             <div class="col-sm-10" style="padding:0px; width:100%;height:20px;">
-                                                <input n-decimals="2" ng-model="x.DownDistanceFrom" style="color:black;" class="form-control" tabindex="1010"/>
+                                                <input n-decimals="2" ng-model="x.DownDistanceFrom" style="color:black;" class="form-control" tabindex="1010" />
                                             </div>
                                         </td>
                                         <td class="text-right table-td">
@@ -174,11 +174,11 @@
                         <legend class="scheduler-border"></legend>
                         <div class="col-xs-12 col-sm-6 col-md-6">
                             @*<div class="form-group" show-errors>
-            <label class="col-sm-4 control-label">Transport Id<sup>*</sup></label>
-            <div class="col-sm-8 show-message">
-                <input type="text" name="Transport Id" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelChildNew.Id" class="form-control text-right" required tabindex="110">
-            </div>
-        </div>*@
+                                    <label class="col-sm-4 control-label">Transport Id<sup>*</sup></label>
+                                    <div class="col-sm-8 show-message">
+                                        <input type="text" name="Transport Id" ej-numerictextbox e-decimalplaces="0" e-minvalue="1" e-enablertl="false" e-value="ModelChildNew.Id" class="form-control text-right" required tabindex="110">
+                                    </div>
+                                </div>*@
 
                             <div class="form-group" show-errors>
                                 <label class="col-sm-4 control-label">Transport User Name<sup>*</sup></label>
@@ -237,7 +237,7 @@
                         </div>
                         <div class="common-btn">
                             <ul class="list-inline text-right">
-                                <li> <button ng-click="SaveChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="117"></i> {{Action}}</button></li>
+                                <li> <button ng-click="SaveChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="117"></i>{{ActionTransaction}}</button></li>
                                 <li> <button ng-click="ClearTransDetails();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="118"></i> Clear</button></li>
                             </ul>
                         </div>
@@ -306,30 +306,9 @@
                                     <div class="col-sm-8 show-message" tabindex="202">
                                         <input ej-dropdownlist e-datasource="RouteList" @*e-change="getUAstopageUpDropDownList"*@ e-value="ModelRouteSchedule.RouteId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
 
-                                       @* <input id="routeList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="RouteList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />*@
+                                        @* <input id="routeList" ej-dropdownlist e-enablefiltersearch="true" e-create="create" e-multiselectmode="visualmode" e-datasource="RouteList" e-fields-value="Value" e-fields-text="Text" e-width="100%" e-showcheckbox="true" />*@
                                     </div>
                                 </div>
-
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Start Time<sup>*</sup></label>
-                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right" tabindex="203">
-                                        <input id="StartTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.StartTime" style="margin-left:-10%; width:94%">
-                                        <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Up/Down</label>
-                                    <div class="col-sm-8 show-message ">
-                                        <div class="select-style">
-                                            <select id="UpDown" class="form-control" ng-model="ModelRouteSchedule.UpDown" name="UpDown<" tabindex="207" required>
-                                                <option value="Up">Up</option>
-                                                <option value="Down">Down</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
 
                             </div>
                             <div class="col-xs-12 col-sm-6 col-md-6">
@@ -352,25 +331,13 @@
                                         </div>
                                     </div>
                                 </div>
-                             
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">End Time<sup>*</sup></label>
-                                    <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right" tabindex="204">
-                                        <input id="EndTime" type="text" class="form-control input-small" ng-change="getDistance();" ng-model="ModelRouteSchedule.EndTime" style="margin-left:-10%; width:94%">
-                                        <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
-                                    </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label class="col-sm-4 control-label">Remarks</label>
-                                    <div class="col-sm-8 show-message">
-                                        <input type="text" name="Remark" ng-model="ModelRouteSchedule.Remarks" class="form-control" required tabindex="210">
-                                    </div>
-                                </div>
                             </div>
-                            <div class="common-btn">
+
+
+                            <div class="col-sm-12 common-btn">
                                 <ul class="list-inline text-right">
-                                    <li> <button ng-click="SaveRouteSchedule();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="212"></i> {{Action}}</button></li>
+                                    <li> <button ng-click="SaveRouteSchedule();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="212"></i> {{ActionRouteShd}}</button></li>
                                     <li> <button ng-click="ClearRouteSchedule();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="213"></i> Clear</button></li>
                                 </ul>
                             </div>
@@ -383,11 +350,7 @@
                                                 <th>Route</th>
                                                 <th>Transport</th>
                                                 <th>Shift</th>
-                                                <th>Start Time</th>
-                                                <th>EndTime</th>
-                                                <th>Up/Down</th>
-                                                <th>Remarks</th>
-                                                <th>Remove</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -396,17 +359,28 @@
                                                 <td>{{x.Route}}</td>
                                                 <td>{{x.Transport}}</td>
                                                 <td>{{x.Shift}}</td>
-                                                <td>{{x.StartTime}}</td>
-                                                <td>{{x.EndTime}}</td>
-                                                <td>{{x.UpDown}}</td>
-                                                <td>{{x.Remarks}}</td>
-                                                <td class="text-right table-td">
+                                                <td>
+                                                    <div class="col-sm-12" id="stopageId">
+                                                        <div class="common-btn">
+                                                            <ul class="list-inline text-left">
+                                                                <li> <button ng-click="GetRouteSheduleChildData(x.Id);" class="btn"><i class="glyphicon glyphicon-th-list" tabindex="1011"></i></button></li>
+                                                                <li>
+                                                                    <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove" tabindex="214"></i></button>
+                                                                </li>
+                                                            </ul>
+                                                           
+                                                        </div>
+                                                    </div>
+
+                                                </td>
+                                                @*<td class="text-right table-td">
                                                     <ul class="list-inline action-list">
                                                         <li>
                                                             <button ng-click="removeRouteScheduleRowModal(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove" tabindex="214"></i></button>
                                                         </li>
                                                     </ul>
-                                                </td>
+                                                </td>*@
+
                                             </tr>
                                         </tbody>
                                     </table>
@@ -529,7 +503,7 @@
     <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-12">
 
-            <div id="empInfoGrid" ej-grid e-datasource="StopageList" e-gridlines="vertical" 
+            <div id="empInfoGrid" ej-grid e-datasource="StopageList" e-gridlines="vertical"
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                  e-allowselection="true" e-filtersettings-filterType="excel">
 
@@ -561,6 +535,141 @@
 
 
 </ej-dialog>
+
+<div class="modal fade site-modal in" id="RouteScheduleChilPopUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Route Schedule Child Details<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <fieldset class="scheduler-border">
+                <div ng-form="routeSheduleChildForm" class="row">
+                    <div class="modal-body form-element-ctrl form-horizontal">
+                        @*<div class="col-xs-12 col-sm-12 col-md-12 form-element-ctrl form-horizontal" style="padding-left:0px;">*@
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Start Time<sup>*</sup></label>
+                                <div class="col-sm-8 input-group bootstrap-timepicker timepicker" style="float:left" tabindex="203">
+                                    <input id="StartTime" type="text" class="form-control input-small" ng-model="RouteSheduleChildModel.StartTime"  style="margin-left:-10%; width:94%">
+                                    <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Up/Down</label>
+                                <div class="col-sm-9 show-message ">
+                                    <div class="select-style">
+                                        <select id="UpDown" class="form-control" ng-model="RouteSheduleChildModel.UpDown" name="UpDown<" tabindex="207" required>
+                                            <option value="Up">Up</option>
+                                            <option value="Down">Down</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6 col-md-6">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">End Time<sup>*</sup></label>
+                                <div class="col-sm-8 input-group bootstrap-timepicker timepicker" style="float:left" tabindex="204">
+                                    <input id="EndTime" type="text" class="form-control input-small" ng-model="RouteSheduleChildModel.EndTime" style="margin-left:-10%; width:94%">
+                                    <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Remarks</label>
+                                <div class="col-sm-9 show-message">
+                                    <input type="text" name="Remark" ng-model="RouteSheduleChildModel.Remarks" class="form-control" required tabindex="210">
+                                </div>
+                            </div>
+                        </div>
+                        @*</div>*@
+
+
+                        <div class="clearfix common-btn" style="padding-right: 15px;">
+                            <div class="common-btn">
+                                <ul class="list-inline text-right">
+                                    <li><button ng-click="SaveRouteSheduleChild();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="10"></i> {{ActionRouteShdChild}}</button></li>
+                                    <li><button ng-click="RouteSheduleChildClear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="12"></i> Clear</button></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <div class="col-md-12 table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Up/Down</th>
+                                        <th>Remarks</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in RouteScheduleChildList" ng-dblclick="GetRouteScheduleChilddbl(x)">
+
+                                        <td>{{x.StartTime}}</td>
+                                        <td>{{x.EndTime}}</td>
+                                        <td>{{x.UpDown}}</td>
+                                        <td>{{x.Remarks}}</td>
+                                        <td>
+                                            <button ng-click="deleteRouteScheduleChildList(x.Id)" class="btn btn-action tooltip-here" data-placement="top" title="Delete"><i class="glyphicon glyphicon-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<confirm-archive-generic modalid="confirmRouteScheduleChildRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRouteScheduleChildRow();"></confirm-archive-generic>
+
+@*<ej-dialog id="RouteSheduleChildInfo"
+               title="Route Shedule Child Information"
+               e-enablemodal="true"
+               e-position-y="0"
+               e-showoninit="false"
+               e-close="onDialogClose"
+               e-minwidth="75%"
+               e-minheight="400" e-open="enableBtn">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-12">
+
+                <div id="routeSheduleChildGrid" ej-grid e-datasource="RouteSheduleChildList" e-gridlines="vertical"
+                     e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+                     e-allowselection="true" e-filtersettings-filterType="excel">
+
+                    <div e-columns>
+                        <div e-column e-field="StartTime" e-headertext="Start Time" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Sequence" e-headertext="Sequence" e-allowediting="false" e-width="50"></div>
+                        <div e-column e-field="ShortName" e-headertext="Short Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="StandardName" e-headertext="Standard Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="UserName" e-headertext="User Name" e-allowediting="false" e-width="80"></div>
+                        <div e-column e-field="Active" e-headertext="Active" e-allowediting="false" e-width="80"></div>
+
+                    </div>
+
+                </div>
+
+                <script type="text/template" id="checkboxTemplate">
+                    <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.CheckBoxSelect" />
+                </script>
+
+            </div>
+        </div>
+
+        <div class="common-btn">
+            <ul class="list-inline text-right" ng-show="true">
+                <li><button ng-click="OK();" class="btn"><i class="glyphicon glyphicon-floppy-disk" tabindex="9"></i> Ok </button></li>
+            </ul>
+        </div>
+    </ej-dialog>*@
+
 
 <confirm-archive-generic data-modalid="confirmgenericPopUp" title="Confirmation"
                          message={{message_confirmation}} data-ng-click-right-button="DeleteRow()">
