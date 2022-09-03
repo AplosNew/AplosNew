@@ -473,14 +473,15 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                     $scope.SavedWCList = response.data;
                 }
             });
+        $scope.GetSavedShiftData();
     }
 
 
     //#endregion
 
-    //#region Shift       
+    //#region Shift      
 
-    $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartTime: null, ProductionShiftEndTime: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
 
     $scope.selectedShiftList = [];
@@ -515,7 +516,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.ShiftPopUpParameters.searchBy = 'ShiftDefinationName';
         $scope.getShiftPopUpData = function (pageno) {
 
-            baseService.paginationBase('WorkCenters/workcentermaster/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList), pageno, $scope.ShiftPopUpParameters)
+            baseService.paginationBase('Productions/PlanningTypesNew/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList) + '&plantId=' + $scope.planningTypesNew.PlantId, pageno, $scope.ShiftPopUpParameters)
                 .then(function (result) {
                     $scope.ShiftPopUpDataList = result.Rows;
                     $scope.ShiftPopUpParameters.total_count = result.Total;
@@ -580,17 +581,33 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
 
     $scope.SetShift = function (data) {
-        $scope.modelShiftNew.WorkCenterMaster = data.data.UserName;
-        $scope.modelShiftNew.WorkCenterMasterId = data.data.WorkCenterMasterId;
-        $scope.modelShiftNew.Capacity = data.data.Capacity;
-        $scope.modelShiftNew.UOM = data.data.UOM;
-        $scope.modelShiftNew.PlanCapacity = data.data.Capacity;
+        $scope.modelShiftNew.Shift = data.ShiftDefinationName;
+        $scope.modelShiftNew.ShiftId = data.ShiftDefinationID;
+        $scope.modelShiftNew.PlanningTypesId = $scope.planningTypesNew.Id;
         $scope.CloseShift();
     }
 
     $scope.CloseShift = function () {
-        var eDialog = $("#shiftPopUp").data("ejDialog");
-        eDialog.close();
+        angular.element(document.querySelector('#ShiftPopUpId')).modal('hide');
+    }
+
+    $scope.getMinute = function () {
+        try {
+            $scope.MinuteUrl = 'Productions/PlanningTypesNew/GetMinute/'
+            $http({
+                method: 'POST',
+                url: $scope.MinuteUrl,
+                data: { 'data': $scope.modelShiftNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.modelShiftNew.ProductionTime = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
     }
 
     $scope.SaveShift = function () {
@@ -634,8 +651,136 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                     $scope.SavedShiftList = response.data;
                 }
             });
+        $scope.GetSavedWeekData();
     }
 
 
+    //#endregion
+
+    //#region Week
+    $scope.modelWeek = { Id: null, WeekDays: null, PlanningTypesId: $scope.planningTypesNew.Id, IsWorkingDays: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelWeekNew = Object.assign({}, $scope.modelWeek);
+
+    $scope.WeekDaysList = [
+        {
+            'Value': 'Saturday',
+            'Text': 'Saturday'
+        },
+        {
+            'Value': 'Sunday',
+            'Text': 'Sunday'
+        },
+        {
+            'Value': 'Monday',
+            'Text': 'Monday'
+        }
+        , {
+            'Value': 'Tuesday',
+            'Text': 'Tuesday'
+        },
+        {
+            'Value': 'Wednesday',
+            'Text': 'Wednesday'
+        },
+        {
+            'Value': 'Thursday',
+            'Text': 'Thursday'
+        },
+        {
+            'Value': 'Friday',
+            'Text': 'Friday'
+        }
+    ];
+
+    $scope.SaveWeek = function () {
+        try {
+            $scope.modelWeekNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelWeekNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateWeek',
+                data: { 'data': $scope.modelWeekNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearWeek();
+                    $scope.GetSavedWeekData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearWeek = function () {
+        $scope.modelWeek = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelWeekNew = Object.assign({}, $scope.modelShift);
+    }
+
+    $scope.SavedWeekList = [];
+    $scope.GetSavedWeekData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedWeekData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedWeekList = response.data;
+                }
+            });
+    }
+    //#endregion
+
+    //#region Holiday
+    $scope.modelHoliday = { Id: null, PlanningTypesId: $scope.planningTypesNew.Id, HolidayDate: null, HolidayName: null, Remark: null, IsWorking: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelHolidayNew = Object.assign({}, $scope.modelHoliday);
+
+    $scope.SaveHoliday = function () {
+        try {
+            $scope.modelHolidayNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelHolidayNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateHoliday',
+                data: { 'data': $scope.modelHolidayNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearHoliday();
+                    $scope.GetSavedHolidayData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearHoliday = function () {
+        $scope.modelHoliday = { Id: null, PlanningTypesId: $scope.planningTypesNew.Id, HolidayDate: null, HolidayName: null, Remark: null, IsWorking: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelHolidayNew = Object.assign({}, $scope.modelHoliday);
+    }
+
+    $scope.SavedHolidayList = [];
+    $scope.GetSavedHolidayData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedHolidayData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedHolidayList = response.data;
+                }
+            });
+    }
     //#endregion
 }

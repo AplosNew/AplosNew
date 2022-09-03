@@ -71,7 +71,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select distinct DD.DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
-,D.UserName DepartmentName,D.Description,D.Remarks  from DetentionMasterDepartment DD
+,D.UserName DepartmentName,D.Description,D.Remarks,DD.DetentionMasterId  from DetentionMasterDepartment DD
 left outer join ORG.Department D on D.id=DD.DepartmentId";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
@@ -130,7 +130,7 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetDetentionListWC(string Detentiontype,string Id)
+        public JsonResult GetDetentionListWC(string Detentiontype, string Id)
         {
             var sql = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -152,7 +152,15 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult getDetentionTypeListByDepartment(string detentiontype)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select distinct DM.DetentionType As Text, DM.Id As Value from DetentionMaster DM
+                        left join DetentionMasterDepartment DD ON DD.DetentionMasterId='"+ detentiontype + "'";
 
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public JsonResult GetAssetTypeList(string machineMasterId)
         {
@@ -278,8 +286,8 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
         public JsonResult GetMachineMasterTransaction()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-           
-                var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+
+            var sql = @"SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.MachineMasterId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.AssetId, MMT.ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName Department,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],MM.UserName MachineMaster,P.UserName Process
 										,CONVERT(varchar(5),MMT.FromTime,108)FromTime,CONVERT(VARCHAR(5), MMT.ToTime, 108) ToTime,MMT.Minute,SD.UserName Shift
 										,MMA.Id AssetId,MMA.AssetName Asset,EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark
@@ -292,7 +300,7 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
 										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
 										left join MachineMasterAsset MMA on MMA.Id=MMT.AssetId
 										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId";
-          
+
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         //Omar End
@@ -300,10 +308,10 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
         public JsonResult GetWCCbo(string entityId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        
+
             var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-            
+
         }
 
 
@@ -428,8 +436,8 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
             }
         }
 
-       
-       
+
+
     }
 
     public class MachineMasterTransaction
