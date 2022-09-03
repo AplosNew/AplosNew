@@ -17,6 +17,7 @@ using Library.Security.Core;
 using Syncfusion.XlsIO;
 using Library.Service.Helpers;
 using System.IO;
+using System.Linq;
 
 #endregion
 
@@ -99,17 +100,7 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public JsonResult GetLotNumberCbo(string SalesOrderId, string ProductionOrderId, string ProcessId, string productionLevel)
         {
-            var sql = "";
-            if (productionLevel != "ProductionOrder")
-            {
-                sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND SalesOrderId='" + SalesOrderId + "' AND ProcessId='" + ProcessId + "'";
-            }
-            else
-            {
-                sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND ProductionOrderId='" + ProductionOrderId + "' AND ProcessId='" + ProcessId + "'";
-            }
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-
+            return Json(_productionSummaryData.GetLotNumberCbo(SalesOrderId,ProductionOrderId,ProcessId,productionLevel), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetWCProcessCbo(string processid, string entityId, string shiftId)
@@ -134,108 +125,17 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult GetBookingLevel(string FromId, string ToId)
         {
-            string sql = @"SELECT ProductionBookingLevel FROM MST.SFGMovementEntity WHERE SFGMovementId = 
-                            (SELECT Id FROM MST.SFGMovement WHERE ISNULL(FromProcessId,FromSFGInventoryId) = '" + FromId + @"' AND 
-                            ISNULL(ToProcessId,ToSFGInventoryId)='" + ToId + "' AND ISNULL(ProductionBookingLevel,'')<>'')";
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetBookingLevel(FromId, ToId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetSFGMovementFromCbo(string entity)
         {
-            string sql;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (identity.IsSysAdmin || identity.IsControlAdmin)
-            {
-                sql = @"SELECT A.* FROM (
-                SELECT DISTINCT 'PROCESS' AS Status,  SFGM.FromProcessId AS FromId,  P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3          
-                FROM MST.SFGMovement AS SFGM
-                INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
-                LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
-                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
-                WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
-                UNION ALL
-                SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
-                FROM MST.SFGMovement AS SFGM 
-                INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
-                LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
-                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
-                WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
-                ) A  Order by A.Sequence";
-            }
-            else
-            {
-                sql = @"SELECT A.* FROM (
-                         SELECT DISTINCT 'PROCESS' AS Status, SFGM.FromProcessId AS FromId, P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3            
-                        FROM MST.SFGMovement AS SFGM
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
-                        LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
-                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
-                        LEFT JOIN SEC.UserProcess U on U.ProcessId= P.Id  AND U.UserId='" + identity.UserId + @"'
-						WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
-                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
-				        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId=SFGM.FromSFGInventoryId AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
-                        ) A Order by A.Sequence";
-            }
-            //return Json(_sqlRepository.GetGridData(new GridParameter { CmdText = sql }).Rows, JsonRequestBehavior.AllowGet);
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            return Json(_productionSummaryData.GetSFGMovementFromCbo(entity), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetSFGMovementToCbo(string FromId, string flag, string EntityId)
         {
-            string processId = string.Empty;
-            string inventoryId = string.Empty;
-
-            if (flag == "PROCESS")
-            {
-                processId = FromId;
-            }
-            else
-            {
-                inventoryId = FromId;
-            }
-
-            string sql;
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (identity.IsSysAdmin || identity.IsControlAdmin)
-            {
-                sql = @"SELECT A.* FROM (
-                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName
-                        FROM MST.SFGMovement AS SFGM  
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].Process P ON SFGM.ToProcessId = P.Id WHERE ISNULL(SFGM.ToProcessId,'')<>''
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY'as Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
-                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
-            }
-            else
-            {
-                sql = @"SELECT A.* FROM (
-                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName 
-                        FROM MST.SFGMovement AS SFGM  
-                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].Process p ON SFGM.ToProcessId = P.Id 
-                        LEFT JOIN SEC.UserProcess U on U.ProcessId= p.Id AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.ToProcessId,'')<>''
-                        UNION ALL
-                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
-                        FROM MST.SFGMovement AS SFGM 
-                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
-                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id 
-                        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId= SFGI.Id  AND U.UserId='" + identity.UserId + @"'
-                        WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
-                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
-            }
-            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
-
+            return Json(_productionSummaryData.GetSFGMovementToCbo(FromId,flag, EntityId), JsonRequestBehavior.AllowGet);
         }
         [HttpGet, Authorize]
         public JsonResult GetShiftGroupCbo()
@@ -312,7 +212,71 @@ namespace Aplos.Areas.Productions.Controllers
         [HttpGet, Authorize]
         public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
         {
-            return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
+            try
+            {
+                string sql = "";
+                string DetentionTypeListsql = "";
+                string DetentionListsql = "";
+                sql = @"
+SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
+,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute,SD.UserName Shift,
+										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
+			                            from MachineMasterTransaction MMT
+			                            left join ORG.Entity E on E.Id=MMT.EntityId
+										left join ORG.Department D on D.Id=MMT.DepartmentId
+										left join DetentionMaster DM on DM.Id=MMT.DetentionId
+										left join HKP.Process P on P.Id=MMT.ProcessId
+										left join ShiftDefination SD on SD.SystemID=MMT.ShiftId
+										left Join SCS.WorkCenterMaster WC on WC.id=MMT.WorkCenterId
+										left join EmployeeInformation EI on EI.SystemId=MMT.ResponsiblePersonId
+                where MMT.EntityId = '" + entityId + "' and MMT.ProcessId = '" + processId + "'  and MMT.Date = '" + productionDate + "' and MMT.ShiftId = '" + shiftId + "' and MMT.WorkCenterId = '" + workcenter + "'";
+
+
+                //return _sqlRepository.GetDataCollection(sql, null);
+
+                DetentionTypeListsql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+
+                DetentionListsql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+
+                List<Dictionary<string, object>> MainList = _sqlRepository.GetDataCollection(sql);
+                List<Dictionary<string, object>> detentiontypelist = _sqlRepository.GetDataCollection(DetentionTypeListsql);
+                List<Dictionary<string, object>> detentionList = _sqlRepository.GetDataCollection(DetentionListsql);
+                for (int i = 0; i < MainList.Count; i++)
+                {
+                    try
+                    {
+                        List<Dictionary<string, object>> k = detentiontypelist.ToList();
+                        MainList[i]["DetentionTypeList"] = k;
+
+                    }
+                    catch (Exception)
+                    {
+                       
+                    }
+
+                    try
+                    {
+                        List<Dictionary<string, object>> m = detentionList.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionId"])).ToList();
+
+
+                        MainList[i]["DetentionList"] = m;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
+
+                }
+                return Json(MainList, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            //return Json(_productionSummaryData.GetProcessDetentionData(processId, entityId, productionDate, shiftId, workcenter), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
