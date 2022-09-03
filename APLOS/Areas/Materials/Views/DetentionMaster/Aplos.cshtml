@@ -7,6 +7,7 @@
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="doc" role="tab" data-toggle="tab">Department</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" aria-controls="doc" role="tab" data-toggle="tab">Process</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" aria-controls="doc" role="tab" data-toggle="tab">Machine</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" aria-controls="doc" role="tab" data-toggle="tab">Responsible Person</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -73,9 +74,15 @@
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Responsible Person (Employee)<sup>*</sup></label>
+                                <label class="col-sm-4 control-label">Incharge Person (Employee)<sup>*</sup></label>
                                 <div class="col-sm-8 show-message">
-                                    <input type="text" name="Responsible Person" ng-model="detentionNew.ResponsiblePersion" class="form-control" required maxlength="100" autocomplete="off">
+                                    @*<input type="text" name="Responsible Person" ng-model="detentionNew.ResponsiblePersion" class="form-control" required maxlength="100" autocomplete="off">*@
+                                    <div class="col-sm-10" style="padding:0px;">
+                                        <input type="text" name="InchargePerson" ng-model="DetentionTest" ng-disabled="true" class="form-control" readonly>
+                                    </div>
+                                    <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                                        <button ng-click="showEmployeeListPopUp('ip');" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-group" show-errors>
@@ -154,7 +161,7 @@
                             </table>
                         </div>
                         @*</div>
-                            </div>*@
+                    </div>*@
                     </div>
                 </div>
             </div>
@@ -201,7 +208,7 @@
                             </table>
                         </div>
                         @*</div>
-                            </div>*@
+                    </div>*@
                     </div>
                 </div>
             </div>
@@ -246,7 +253,53 @@
                             </table>
                         </div>
                         @*</div>
-                            </div>*@
+                    </div>*@
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="common-btn">
+                            <ul class="list-inline text-left">
+                                <li><button ng-click="ResponsiblePopUpList();" ng-disabled="detentionNew.Id===null" class="btn"><i class="glyphicon glyphicon-plus"></i> Add Responsible Person</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="table-responsive modal-table" ng-show="userResponsibleList.length>0">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>EmployeeCode</th>
+                                        <th>EmployeeName</th>
+                                        <th>Department</th>
+                                        <th>Section</th>
+                                        <th>SubSection</th>
+                                        <th>LegalDesignation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in userResponsibleList" ng-class="{selected : x.Id==null}">
+                                        <td>{{x.EmployeeCode}}</td>
+                                        <td>{{x.EmployeeName}}</td>
+                                        <td>{{x.Department}}</td>
+                                        <td>{{x.Section}}</td>
+                                        <td>{{x.SubSection}}</td>
+                                        <td>{{x.LegalDesignation}}</td>
+                                        <td class="text-right table-td">
+                                            <ul class="list-inline action-list">
+                                                <li>
+                                                    <button ng-click="removeResponsibleRowModal(x.EmployeeName, $index, 'userResponsibleList', x.Id, 'ResponsibleMasterId')" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        @*</div>
+                    </div>*@
                     </div>
                 </div>
             </div>
@@ -265,7 +318,7 @@
             <div e-column e-field="DetentionUserName" e-headertext="Detention User Name" e-width="3"></div>
             <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="3"></div>
             <div e-column e-field="DetentionCriticality" e-headertext="Detention Criticality" e-width="3"></div>
-            <div e-column e-field="ResponsiblePersion" e-headertext="Responsible Persion" e-width="3"></div>
+            <div e-column e-field="InChargePerson" e-headertext="Incharge Person" e-width="3"></div>
             <div e-column e-field="DetentionTarget" e-headertext="Detention Target" e-width="3"></div>
             <div e-column e-field="DetentionPlan" e-headertext="Detention Plan" e-width="3"></div>
             <div e-column e-field="Avoidable" e-headertext="Is Avoidable" e-width="3"></div>
@@ -416,9 +469,114 @@
         </div>
     </div>
 </div>
+<div class="modal fade site-modal in" id="ResponsiblePersonPopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">Resposible Person<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div style="color:black;" id="GridDetentionMasterResponsible" ej-grid e-datasource="ResponsibleDataList"
+                         e-templaterefresh="DepartmentGridAllCheck"
+                         e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical" e-allowscrolling="true" e-showsummary="true"
+                         e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerTemplateResponsible" e-template="#checkboxTemplateResponsible" e-textalign="center" e-width="7"></div>
+                            <div e-column e-type="string" e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
+                            <div e-column e-type="string" e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                            <div e-column e-type="string" e-field="Department" e-headertext="Department" e-width="50"></div>
+                            <div e-column e-type="string" e-field="Section" e-headertext="Section" e-width="50"></div>
+                            <div e-column e-type="string" e-field="SubSection" e-headertext="Sub Section" e-width="50"></div>
+                            <div e-column e-type="string" e-field="LegalDesignation" e-headertext="Legal Designation" e-width="50"></div>
+                        </div>
+                    </div>
+                    <script type="text/x-jsrender" id="headerTemplateResponsible">
+                        <input type="checkbox" id="headchk" />
+                    </script>
+                    <script type="text/template" id="checkboxTemplateResponsible">
+                        <input type="checkbox" ej-checkbox class="nodetext" e-value="data.chk" e-checked="data.chk" />
+                    </script>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li><button type="button" class="btn btn-default" ng-click="SaveResponsible();">Add</button></li>
+                            <li><button type="button" class="btn btn-default" ng-click="closeResponsiblePopUp();">Cancel</button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade site-modal in" id="employeePopUp" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                Employee List
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="employeeParameters.searchBy">
+                                            <option ng-repeat="option in searchEmployeeByList" value="{{option.Value}}">{{option.Text}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="employeeParameters.search" ng-enter="getEmployeeData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getEmployeeData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Employee Code</th>
+                                <th>Employee Name</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>SubSection</th>
+                                <th>Legal Designation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in employeeList|itemsPerPage:employeeParameters.pageSize" total-items="employeeParameters.total_count"
+                                ng-click="selectEmployeePopUp($index, x.SystemId)" ng-class="{selected : x.SystemId == selectedEmployee}" ng-dblclick="closeEmployeePopUp();" pagination-id="metaData.name + 'employeeList'">
+                                <td>{{x.EmployeeCode}}</td>
+                                <td>{{x.EmployeeName}}</td>
+                                <td>{{x.Department}}</td>
+                                <td>{{x.Section}}</td>
+                                <td>{{x.SubSection}}</td>
+                                <td>{{x.LegalDesignation}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <dir-pagination-controls max-size="10"
+                                         pagination-id="metaData.name + 'employeeList'"
+                                         direction-links="true"
+                                         boundary-links="true"
+                                         on-page-change="getEmployeeData(newPageNumber)">
+                </dir-pagination-controls>
+            </div>
+            <div class="modal-footer common-btn">
+                <button ng-click="closeEmployeePopUp();" class="btn"><i class=""></i> Select</button>
+            </div>
+        </div>
+    </div>
+</div>
 <confirm-archive-generic modalid="confirmRemovePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveDeptPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeDeptRow();"></confirm-archive-generic>
 <confirm-archive-generic modalid="confirmRemoveMachinePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeMachineRow();"></confirm-archive-generic>
+<confirm-archive-generic modalid="confirmRemoveResponsiblePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="removeResponsibleRow();"></confirm-archive-generic>
 
 
 

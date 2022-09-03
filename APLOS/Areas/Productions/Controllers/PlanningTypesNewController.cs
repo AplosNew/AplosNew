@@ -12,6 +12,7 @@ using Library.Security.Core;
 using Library.Crosscutting.Security;
 using System;
 using System.Threading;
+using System.Web.Script.Serialization;
 
 #endregion
 
@@ -289,7 +290,7 @@ namespace Aplos.Areas.Productions.Controllers
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
+        [HttpPost, Authorize]
         public JsonResult CreateWS(Dictionary<string, object> data)
         {
             try
@@ -349,6 +350,242 @@ namespace Aplos.Areas.Productions.Controllers
 LEFT JOIN SCS.WorkCenterMaster AS wcm ON wcm.Id=PWC.WorkCenterMasterId
 LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
 WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+        [HttpGet, Authorize]
+        public ActionResult GetShiftList(GridParameter parameters, string ShiftDefinationIDs, string plantId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(_planningTypesService.GetShiftList(parameters, identity.CompanyGroupId, plantId, new JavaScriptSerializer().Deserialize<string[]>(ShiftDefinationIDs)), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpPost]
+        public ActionResult GetMinute(Dictionary<string, object> data)
+        {
+            var ts = Convert.ToDateTime(data["ProductionShiftEndTime"]).Subtract(Convert.ToDateTime(data["ProductionShiftStartTime"]));
+            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost,Authorize]
+        public JsonResult CreateShift(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.PlanningTypesShift where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+                DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
+                DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
+                DateTime NextDayDate = date2.AddDays(1);
+                TimeSpan ts = date2 - date1;
+                TimeSpan Nd = NextDayDate - date1;
+                int minutes = (int)ts.TotalMinutes;
+
+               
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PlanningTypesShift", out _Id);
+                    if (minutes >= 720 || minutes < 0)
+                    {
+                        data["ProductionShiftEndTime"] = NextDayDate;
+                        data["ProductionTime"] = Nd.TotalMinutes;
+                    }
+                    else
+                    {
+                        data["ProductionShiftEndTime"] = date2;
+                        data["ProductionTime"] = ts.TotalMinutes;
+                    }
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    if (minutes >= 720 || minutes < 0)
+                    {
+                        data["ProductionShiftEndTime"] = NextDayDate;
+                        data["ProductionTime"] = Nd.TotalMinutes;
+                    }
+                    else
+                    {
+                        data["ProductionShiftEndTime"] = date2;
+                        data["ProductionTime"] = ts.TotalMinutes;
+                    }
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedShiftData(string PlanningTypesId)
+        {
+            JsonResult json = Json(GetSavedShiftDataByPlanningType(PlanningTypesId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSavedShiftDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PWC.*,WCM.UserName Shift,ISNULL(format(PWC.ProductionShiftStartTime,'hh:mm tt'),'')StartTime,ISNULL(format(PWC.ProductionShiftEndTime,'hh:mm tt'),'') EndTime FROM [dbo].[PlanningTypesShift] PWC 
+LEFT JOIN dbo.ShiftDefination AS wcm ON wcm.SystemId=PWC.ShiftId
+WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateWeek(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.PlanningTypesWeekDays where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PlanningTypesWeekDays", out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedWeekData(string PlanningTypesId)
+        {
+            JsonResult json = Json(GetSavedWeekDataByPlanningType(PlanningTypesId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSavedWeekDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PWC.* FROM [dbo].[PlanningTypesWeekDays] PWC WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost, Authorize]
+        public JsonResult CreateHoliday(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("select * from dbo.PlanningTypesHoliday where Id='" + data["Id"] + "'", out dsMaster, false, "1");
+
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    bplib.clsGenID genid = new bplib.clsGenID();
+                    genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), "PlanningTypesHoliday", out _Id);
+                    data["Id"] = _Id;
+                    AddNewRow(dsMaster.Tables[0], data);
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedHolidayData(string PlanningTypesId)
+        {
+            JsonResult json = Json(GetSavedHolidayDataByPlanningType(PlanningTypesId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public IEnumerable<object> GetSavedHolidayDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string CmdText = @"SELECT PWC.*,FORMAT(PWC.HolidayDate,'dd-MMM-yyyy')HD FROM [dbo].[PlanningTypesHoliday] PWC WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
                 return _sqlRepository.GetDataCollection(CmdText);
             }
             catch (Exception ex)

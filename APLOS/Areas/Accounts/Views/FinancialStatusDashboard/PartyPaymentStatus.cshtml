@@ -305,6 +305,31 @@
 
                 <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                     <div class="row">
+                        <fieldset class="scheduler-border">
+                         @*<div class="col-xs-5 col-sm-5 col-md-5" id="div_FromDate">
+                            <label class="col-sm-3 control-label">From Date<sup>*</sup></label>
+                            <div class="col-sm-9 show-message">
+                                <input type="text" name="Form Date" ng-model="material.CustomerFromDate" datepicker tabindex="2" class="form-control">
+                            </div>
+                        </div>*@
+
+                            <div class="col-xs-5 col-sm-5 col-md-5" id="div_CustomerToDate">
+                                <label class="col-sm-3 control-label">TO Date<sup>*</sup></label>
+                                <div class="col-sm-9  show-message">
+                                    <input type="text" name="To Date" ng-model="material.CustomerToDate" datepicker tabindex="3" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-sm-2 col-md-2">
+                                <div class="common-btn">
+                                    <ul class="list-inline text-left">
+                                        <li><button ng-click="GetCustomerReceiptMasterList();" title="As On Date Range Wise values Change" class="btn"><i class="glyphicon glyphicon-refresh"></i>Go</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="row">
                         <div class="table-responsive modal-table aplos-grid-toggle">
                             <div class="content-container-fluid" style="color:black;overflow:scroll">
                                 <div style="color:black;" id="GridMasterCustomerReceipt" ej-grid e-datasource="CustomerReceiptMasterList" e-recorddoubleclick="getdata" e-templaterefresh="refreshTemplatecustomer"

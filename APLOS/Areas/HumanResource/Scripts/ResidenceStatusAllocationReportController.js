@@ -1,7 +1,7 @@
 ﻿'use strict';
 ResidenceStatusAllocationReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
 function ResidenceStatusAllocationReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
-    $rootScope.title = 'Residence Status/Allocation/Unallocation Report';
+    $rootScope.title = 'Residence Status Report';
     $scope.Action = 'Save';
     $scope.ModelList = [];
     $scope.path = 'HumanResource/ResidenceStatusAllocation/';
@@ -589,6 +589,26 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
         PartialVacantFullyOccupied: null
 
     };
+
+    $scope.detailResidenceStatusGrid = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "detailResidenceStatusGrid",
+            data: { 'PartialVacantFullyOccupied': $scope.ModelNew.PartialVacantFullyOccupied },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+    };
+
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
     $scope.detailResidenceStatusReport = function () {
         $http({
@@ -602,6 +622,66 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
             }
             else {
                 
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.pendingForUnAllocationReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsPendingForUnallocation",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.ResidenceSummaryReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsResidenceSummary",
+           
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.PendingForAllocation = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsPendingForAllocation",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+
                 $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
@@ -629,30 +709,59 @@ function ResidenceStatusAllocationReportController(cboService, commonMessage, $s
 
     };
 
-    
+   
 
-    $scope.VacancyListN = []
-    $scope.getVacancyData = function () {
+    $scope.DetailResidenceStatusList = []
+    $scope.detailResidenceStatusGrid = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getVacancyData",
-            data: 'JSON',
+            url: $scope.path + "detailResidenceStatusGrid",
+            data:
+            {
+                'PartialVacantFullyOccupied': $scope.ModelNew.PartialVacantFullyOccupied
+            },
+            dataType: 'JSON',
         }).then(function successCallback(response) {
-            $scope.VacancyListN = response.data
+            $scope.DetailResidenceStatusList = response.data
         })
-    }
-   // $scope.getVacancyData();
+    };
 
-    $scope.OccupiedList = []
-    $scope.getOccupiedData = function () {
+    $scope.PendingForAllocationList = [];
+    $scope.pendingForAllocationGrid = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getOccupiedData",
-            data: 'JSON',
+            url: $scope.path + "pendingForAllocationGrid",
+            
+            dataType: 'JSON',
         }).then(function successCallback(response) {
-            $scope.OccupiedList = response.data
+            $scope.PendingForAllocationList = response.data
         })
     }
-  //  $scope.getOccupiedData();
+
+    $scope.PendingForUnallocationList = [];
+    $scope.pendingForUnAllocationGrid = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "pendingForUnAllocationGrid",
+           
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.PendingForUnallocationList = response.data
+        })
+    }
+
+    $scope.ResidenceSummaryList = [];
+    $scope.residenceSummarGrid = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "residenceSummarGrid",
+            
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            $scope.ResidenceSummaryList = response.data
+            $scope.AvailablePopUpData(this);
+        })
+    }
+
     //----------------------------------Written By Nitesh End------------------------------------ 
 }

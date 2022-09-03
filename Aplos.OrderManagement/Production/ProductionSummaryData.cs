@@ -1863,7 +1863,7 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                     sql = @"
 SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
-										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime + 1,'hh:mm tt') as ToTime,Convert(varchar(5),Minute,108) as Minute,SD.UserName Shift,
+										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute,SD.UserName Shift,
 										EI.EmployeeName ResponsiblePerson,EI.EmployeeCode ResponsiblePersonCode,MMT.Remark,MMT.WorkCenterId,WC.UserName as WorkCenter
 			                            from MachineMasterTransaction MMT
 			                            left join ORG.Entity E on E.Id=MMT.EntityId
@@ -2828,7 +2828,133 @@ WHERE PS.ProcessId='" + processId + @"' AND PS.ProductionDate='" + productionDat
             dr.EndEdit();
         }
 
+        public IEnumerable<object> GetLotNumberCbo(string SalesOrderId, string ProductionOrderId, string ProcessId, string productionLevel)
+        {
+            try
+            {
+                var sql = "";
+                if (productionLevel != "ProductionOrder")
+                {
+                    sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND SalesOrderId='" + SalesOrderId + "' AND ProcessId='" + ProcessId + "'";
+                }
+                else
+                {
+                    sql = @"SELECT DISTINCT LotNumber [Value],LotNumber [Text] FROM TRN.ProductionSummary Where ISNULL(LotNumber,'')<>'' AND ProductionOrderId='" + ProductionOrderId + "' AND ProcessId='" + ProcessId + "'";
+                }
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
 
+                throw ex;
+            }
+
+        }
+
+        public IEnumerable<object> GetBookingLevel(string FromId, string ToId)
+        {
+            string sql = @"SELECT ProductionBookingLevel FROM MST.SFGMovementEntity WHERE SFGMovementId = 
+                            (SELECT Id FROM MST.SFGMovement WHERE ISNULL(FromProcessId,FromSFGInventoryId) = '" + FromId + @"' AND 
+                            ISNULL(ToProcessId,ToSFGInventoryId)='" + ToId + "' AND ISNULL(ProductionBookingLevel,'')<>'')";
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSFGMovementFromCbo(string entity)
+        {
+            string sql;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (identity.IsSysAdmin || identity.IsControlAdmin)
+            {
+                sql = @"SELECT A.* FROM (
+                SELECT DISTINCT 'PROCESS' AS Status,  SFGM.FromProcessId AS FromId,  P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3          
+                FROM MST.SFGMovement AS SFGM
+                INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
+                LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
+                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
+                WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
+                UNION ALL
+                SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
+                FROM MST.SFGMovement AS SFGM 
+                INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
+                LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
+                LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
+                WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
+                ) A  Order by A.Sequence";
+            }
+            else
+            {
+                sql = @"SELECT A.* FROM (
+                         SELECT DISTINCT 'PROCESS' AS Status, SFGM.FromProcessId AS FromId, P.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,P.IsFirst,P.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3            
+                        FROM MST.SFGMovement AS SFGM
+                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.FromProcessId AND E.EntityId='" + entity + @"'
+                        LEFT JOIN [HKP].Process P ON SFGM.FromProcessId = P.Id 
+                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.ProcessId=P.Id
+                        LEFT JOIN SEC.UserProcess U on U.ProcessId= P.Id  AND U.UserId='" + identity.UserId + @"'
+						WHERE ISNULL(SFGM.FromProcessId,'')<>'' 
+                        UNION ALL
+                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromSFGInventoryId AS FromId, SFGI.UserName, E.ProductionBookingLevel,PIS.Sequence,E.LotNumberCapture,E.LotNumberMandatory,SFGI.IsFirst,SFGI.IsCrossAllowed,E.IsSKU1,E.IsSKU2,E.IsSKU3        
+                        FROM MST.SFGMovement AS SFGM 
+                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.FromSFGInventoryId AND E.EntityId='" + entity + @"'
+                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.FromSFGInventoryId = SFGI.Id 
+                        LEFT JOIN [dbo].[ProcessAndInventorySequence] PIS ON PIS.SFGInventoryId =SFGI.Id
+				        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId=SFGM.FromSFGInventoryId AND U.UserId='" + identity.UserId + @"'
+                        WHERE ISNULL(SFGM.FromSFGInventoryId,'')<>''
+                        ) A Order by A.Sequence";
+            }
+            return _sqlRepository.GetDataCollection(sql);
+        }
+
+        public IEnumerable<object> GetSFGMovementToCbo(string FromId, string flag, string EntityId)
+        {
+            string processId = string.Empty;
+            string inventoryId = string.Empty;
+
+            if (flag == "PROCESS")
+            {
+                processId = FromId;
+            }
+            else
+            {
+                inventoryId = FromId;
+            }
+
+            string sql;
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            if (identity.IsSysAdmin || identity.IsControlAdmin)
+            {
+                sql = @"SELECT A.* FROM (
+                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName
+                        FROM MST.SFGMovement AS SFGM  
+                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
+                        LEFT JOIN [HKP].Process P ON SFGM.ToProcessId = P.Id WHERE ISNULL(SFGM.ToProcessId,'')<>''
+                        UNION ALL
+                        SELECT DISTINCT 'INVENTORY'as Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
+                        FROM MST.SFGMovement AS SFGM 
+                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
+                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
+                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
+            }
+            else
+            {
+                sql = @"SELECT A.* FROM (
+                        SELECT DISTINCT  'PROCESS' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToProcessId AS ToId,  P.UserName 
+                        FROM MST.SFGMovement AS SFGM  
+                        INNER JOIN  HKP.EntityProcessTag E on E.ProcessId=SFGM.ToProcessId AND E.EntityId='" + EntityId + @"'
+                        LEFT JOIN [HKP].Process p ON SFGM.ToProcessId = P.Id 
+                        LEFT JOIN SEC.UserProcess U on U.ProcessId= p.Id AND U.UserId='" + identity.UserId + @"'
+                        WHERE ISNULL(SFGM.ToProcessId,'')<>''
+                        UNION ALL
+                        SELECT DISTINCT 'INVENTORY' AS Status, SFGM.FromProcessId, SFGM.FromSFGInventoryId, SFGM.ToSFGInventoryId AS ToId, SFGI.UserName
+                        FROM MST.SFGMovement AS SFGM 
+                        INNER JOIN  MST.EntitySFGInventory E ON E.SFGInventoryId=SFGM.ToSFGInventoryId AND E.EntityId='" + EntityId + @"'
+                        LEFT JOIN [HKP].[SFGInventory] SFGI ON SFGM.ToSFGInventoryId = SFGI.Id 
+                        LEFT JOIN SEC.UserSFGInventory U on U.SFGInventoryId= SFGI.Id  AND U.UserId='" + identity.UserId + @"'
+                        WHERE ISNULL(SFGM.ToSFGInventoryId,'')<>''
+                        ) A WHERE A.FromProcessId = '" + processId + @"' OR A.FromSFGInventoryId = '" + inventoryId + @"' ";
+            }
+            return _sqlRepository.GetDataCollection(sql);
+
+        }
         #endregion
 
 

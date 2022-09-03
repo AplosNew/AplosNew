@@ -473,10 +473,314 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                     $scope.SavedWCList = response.data;
                 }
             });
+        $scope.GetSavedShiftData();
     }
 
 
     //#endregion
 
+    //#region Shift      
 
+    $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartTime: null, ProductionShiftEndTime: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
+
+    $scope.selectedShiftList = [];
+    $scope.searchShiftList = [
+        {
+            'name': 'Shift Name',
+            'value': 'ShiftDefinationName'
+        },
+        {
+            'name': 'Description',
+            'value': 'ShiftDefinationDescription'
+        },
+        {
+            'name': 'Shift Type',
+            'value': 'ShiftType'
+        }
+    ];
+    $scope.ShiftPopUpParameters = {
+        limit: 10,
+        offset: 0,
+        order: 'asc',
+        sort: 'ShiftDefinationName',
+        searchBy: 'ShiftDefinationName',
+        pageSize: 10,
+        total_count: 0,
+        search: null,
+        serverPagination: true
+    };
+    $scope.ShiftPopUp = function () {
+        $scope.ShiftPopUpList = [];
+        $scope.ShiftPopUpParameters.sort = 'ShiftDefinationName';
+        $scope.ShiftPopUpParameters.searchBy = 'ShiftDefinationName';
+        $scope.getShiftPopUpData = function (pageno) {
+
+            baseService.paginationBase('Productions/PlanningTypesNew/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList) + '&plantId=' + $scope.planningTypesNew.PlantId, pageno, $scope.ShiftPopUpParameters)
+                .then(function (result) {
+                    $scope.ShiftPopUpDataList = result.Rows;
+                    $scope.ShiftPopUpParameters.total_count = result.Total;
+
+                    for (var t = 0; t < baseService.arrayLength($scope.ShiftPopUpDataList); t++) {
+                        $scope.ShiftPopUpDataList[t].Flag = baseService.valueCheckInList($scope.tempList, 'ShiftDefinationID', $scope.ShiftPopUpDataList[t].ShiftDefinationID);
+                    }
+
+                    if (baseService.arrayLength($scope.ShiftPopUpList) == 0)
+                        baseService.getDDLSearchColumn(result.Rows, $scope.ShiftPopUpList);
+                }, function () {
+                    ShowResult(commonMessage.NetworkError, 'failure', 'ShiftPopUpId');
+                }).finally(function () {
+                });
+        };
+        angular.element(document.querySelector('#ShiftPopUpId')).modal('show');
+        $scope.getShiftPopUpData();
+    }
+
+    function isShiftDefinationIDExistGrid(list) {
+        $scope.ShiftDefinationIDs = [];
+        if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                $scope.ShiftDefinationIDs.push(list[i]['ShiftDefinationID']);
+            }
+        }
+        return JSON.stringify($scope.ShiftDefinationIDs);
+    }
+
+
+    $scope.tempList = [];
+    $scope.pushInTempList = function (event, data) {
+        try {
+            if (event.currentTarget.checked) {
+                if (checkExistTempList($scope.tempList, data.ShiftDefinationID) === false) {
+                    $scope.tempList.push(data);
+                }
+                else {
+                    for (var i = 0; i < baseService.arrayLength($scope.tempList); i++) {
+                        if ($scope.tempList[i].ShiftDefinationID === data.ShiftDefinationID) {
+                            $scope.tempList.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    $scope.tempList.push(data);
+                }
+            }
+            else {
+                for (var t = 0; t < baseService.arrayLength($scope.tempList); t++) {
+                    if ($scope.tempList[t].ShiftDefinationID === data.ShiftDefinationID) {
+                        $scope.tempList.splice(t, 1);
+                        break;
+                    }
+                }
+            }
+        } catch (e) {
+            event.currentTarget.checked = false;
+            ShowResult(e, "failure");
+        }
+    }
+
+
+    $scope.SetShift = function (data) {
+        $scope.modelShiftNew.Shift = data.ShiftDefinationName;
+        $scope.modelShiftNew.ShiftId = data.ShiftDefinationID;
+        $scope.modelShiftNew.PlanningTypesId = $scope.planningTypesNew.Id;
+        $scope.CloseShift();
+    }
+
+    $scope.CloseShift = function () {
+        angular.element(document.querySelector('#ShiftPopUpId')).modal('hide');
+    }
+
+    $scope.getMinute = function () {
+        try {
+            $scope.MinuteUrl = 'Productions/PlanningTypesNew/GetMinute/'
+            $http({
+                method: 'POST',
+                url: $scope.MinuteUrl,
+                data: { 'data': $scope.modelShiftNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                $scope.modelShiftNew.ProductionTime = response.data;
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    }
+
+    $scope.SaveShift = function () {
+        try {
+            $scope.modelShiftNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelShiftNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateShift',
+                data: { 'data': $scope.modelShiftNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearShift();
+                    $scope.GetSavedShiftData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearShift = function () {
+        $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
+    }
+
+    $scope.SavedShiftList = [];
+    $scope.GetSavedShiftData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedShiftData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedShiftList = response.data;
+                }
+            });
+        $scope.GetSavedWeekData();
+    }
+
+
+    //#endregion
+
+    //#region Week
+    $scope.modelWeek = { Id: null, WeekDays: null, PlanningTypesId: $scope.planningTypesNew.Id, IsWorkingDays: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelWeekNew = Object.assign({}, $scope.modelWeek);
+
+    $scope.WeekDaysList = [
+        {
+            'Value': 'Saturday',
+            'Text': 'Saturday'
+        },
+        {
+            'Value': 'Sunday',
+            'Text': 'Sunday'
+        },
+        {
+            'Value': 'Monday',
+            'Text': 'Monday'
+        }
+        , {
+            'Value': 'Tuesday',
+            'Text': 'Tuesday'
+        },
+        {
+            'Value': 'Wednesday',
+            'Text': 'Wednesday'
+        },
+        {
+            'Value': 'Thursday',
+            'Text': 'Thursday'
+        },
+        {
+            'Value': 'Friday',
+            'Text': 'Friday'
+        }
+    ];
+
+    $scope.SaveWeek = function () {
+        try {
+            $scope.modelWeekNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelWeekNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateWeek',
+                data: { 'data': $scope.modelWeekNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearWeek();
+                    $scope.GetSavedWeekData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearWeek = function () {
+        $scope.modelWeek = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartFrom: null, ProductionShiftStartTo: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelWeekNew = Object.assign({}, $scope.modelShift);
+    }
+
+    $scope.SavedWeekList = [];
+    $scope.GetSavedWeekData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedWeekData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedWeekList = response.data;
+                }
+            });
+    }
+    //#endregion
+
+    //#region Holiday
+    $scope.modelHoliday = { Id: null, PlanningTypesId: $scope.planningTypesNew.Id, HolidayDate: null, HolidayName: null, Remark: null, IsWorking: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelHolidayNew = Object.assign({}, $scope.modelHoliday);
+
+    $scope.SaveHoliday = function () {
+        try {
+            $scope.modelHolidayNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            if (baseService.isUndefinedOrNull($scope.modelHolidayNew.PlanningTypesId)) {
+                throw "PlanningType is required.";
+            }
+            $http({
+                method: 'POST',
+                url: '/Productions/PlanningTypesNew/CreateHoliday',
+                data: { 'data': $scope.modelHolidayNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.ClearHoliday();
+                    $scope.GetSavedHolidayData();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.ClearHoliday = function () {
+        $scope.modelHoliday = { Id: null, PlanningTypesId: $scope.planningTypesNew.Id, HolidayDate: null, HolidayName: null, Remark: null, IsWorking: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+        $scope.modelHolidayNew = Object.assign({}, $scope.modelHoliday);
+    }
+
+    $scope.SavedHolidayList = [];
+    $scope.GetSavedHolidayData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedHolidayData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedHolidayList = response.data;
+                }
+            });
+    }
+    //#endregion
 }

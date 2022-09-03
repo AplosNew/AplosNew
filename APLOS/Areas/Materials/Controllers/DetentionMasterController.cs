@@ -192,6 +192,24 @@ namespace Aplos.Areas.Materials.Controllers
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
+
+        [Authorize, HttpPost]
+        public ActionResult getResponsible(string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select DMR.Id,E.EmployeeCode,E.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
+  SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],E.SystemId ResponsibleMasterId,DMR.DetentionMasterId
+  from DetentionMasterResponsible AS DMR
+			                left join EmployeeInformation AS E ON E.SystemId=DMR.ResponsibleMasterId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=E.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+							where DMR.DetentionMasterId='" + DetentionMasterId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
         [Authorize, HttpPost]
         public ActionResult ProcessDelete(string id)
         {
@@ -248,11 +266,29 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [Authorize, HttpPost]
+        public ActionResult ResponsibleDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from DetentionMasterResponsible where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         [Authorize, HttpGet]
         public ActionResult LoadDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable
+            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -273,13 +309,29 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize, HttpGet]
+        public ActionResult LoadResponsibleList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string sql = @"SELECT convert(bit,0) AS chk,EI.SystemId,EI.EmployeeCode,EI.EmployeeName,DEP.UserName AS Department,S.UserName as Section,
+                            SS.UserName as SubSection,DEG.UserName AS [LegalDesignation]
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active' and EI.DepartmentId in (select distinct DepartmentId from DetentionMasterDepartment)";
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
 
         [Authorize, HttpGet]
         public ActionResult LoadEditData(string DetentionID)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string sql = @"select * from DetentionMaster where Id='" + DetentionID + @"'";
+            string sql = @"select *,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
+                            FROM DetentionMaster where Id='" + DetentionID + @"'";
             return Json(new { detention = _sqlRepository.GetDataCollection(sql, null) }, JsonRequestBehavior.AllowGet);
         }
 
@@ -472,6 +524,22 @@ namespace Aplos.Areas.Materials.Controllers
             }
 
         }
+
+        [HttpPost]
+        public JsonResult CreateResponsible(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            try
+            {
+                SaveResponsibleData(data, DetentionMasterId);
+
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, ex.Message });
+            }
+
+        }
         private void SaveMachineData(List<Dictionary<string, object>> data, string DetentionMasterId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -511,6 +579,73 @@ namespace Aplos.Areas.Materials.Controllers
             catch (Exception ex)
             {
                 throw (ex);
+            }
+        }
+
+        private void SaveResponsibleData(List<Dictionary<string, object>> data, string DetentionMasterId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM DetentionMasterResponsible WHERE DetentionMasterId ='" + DetentionMasterId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string DetentionMasterResponsibleId = "";
+
+                foreach (var item in data)
+                {
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("DetentionMasterResponsible", out DetentionMasterResponsibleId);
+
+                        item["Id"] = "DMR-" + DetentionMasterResponsibleId + "-" + (1);
+                        item["DetentionMasterId"] = DetentionMasterId;
+                        item["ResponsibleMasterId"] = item["ResponsibleMasterId"];
+
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetEmployeeListInChargePerson(GridParameter parameters)
+        {
+            try
+            {
+                parameters.CmdText = @"SELECT EI.SystemId, EI.PositionId AS PositionCode, EI.BudgetCode, EI.EmployeeCode, EI.FirstName, EI.MiddleName, EI.LastName
+                                    , EI.EmployeeName, EI.DOB, EI.EmployeeStatus, DEG.UserName AS [LegalDesignation], MB.EntityId
+                                    , EN.UserName AS EntityName, DEP.UserName AS Department, EI.EmploymentType,MB.Code MBCode,P.Code PCode,S.UserName as Section,SS.UserName as SubSection
+                            FROM dbo.EmployeeInformation AS EI
+                            LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=EI.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.Id=EI.DepartmentId
+                            LEFT JOIN [MST].[ManpowerBudget] AS MB ON MB.Id=EI.BudgetCode
+							LEFT OUTER JOIN org.Position P ON P.Id=ei.PositionID
+                            LEFT JOIN ORG.Entity AS EN ON EN.Id=MB.EntityId
+                            LEFT OUTER JOIN ORG.Section S ON S.Id=EI.SectionId
+							LEFT OUTER JOIN ORG.Section SS ON SS.Id=EI.SubSectionId
+                            WHERE EI.EmployeeStatus='Active'";
+
+                return Json(_sqlRepository.GetGridData(parameters), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

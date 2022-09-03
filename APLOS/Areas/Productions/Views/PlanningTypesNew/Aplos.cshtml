@@ -1,5 +1,8 @@
 ﻿@*<h3 class="site-heading"><span class="glyphicon glyphicon-info-sign"></span> Planning Type</h3>*@
 <togglable name="Planning Type"></togglable>
+<link href="~/Scripts/BootstrapTimePicker/css/bootstrap-timepicker.css" rel="stylesheet" />
+<script src="~/Scripts/BootstrapTimePicker/Scripts/bootstrap.js"></script>
+<script src="~/Scripts/BootstrapTimePicker/js/bootstrap-timepicker.js"></script>
 <div class="row" ng-form name="planningTypeForm" id="tarekcontainer">
     <div class="form-elements form-horizontal">
         <div class="col-xs-12 col-sm-6 col-md-6">
@@ -88,11 +91,10 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Responsible Persion</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Work Center</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Shift</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">Date</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">WeekOff</a></li>
-                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Holiday</a></li>
-                <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" data-toggle="tab">Item</a></li>
-                <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" data-toggle="tab">Planning Parameter</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">WeekOff</a></li>
+                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">Holiday</a></li>
+                <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Item</a></li>
+                <li role="presentation" ng-class="{ active: isSet(7) }"><a ng-click="setTab(7)" href="" data-toggle="tab">Planning Parameter</a></li>
             </ul>
         </div>
         <div class="tab-content">
@@ -140,7 +142,12 @@
                             </div>
                         </div>
                     </div>
-
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Work Center Group</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="WorkCenterGroup" ng-model="modelWCNew.WorkCenterGroup" class="form-control" tabindex="5">
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Capacity UoM</label>
                         <label class="col-sm-8 control-label">{{modelWCNew.UOM}}</label>
@@ -191,10 +198,167 @@
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Shift</label>
+                        <div class="col-sm-8 show-message">
+                            <div class="input-group">
+                                <input type="text" name="Mentor" ng-model="modelShiftNew.Shift" class="form-control" readonly>
+                                <span class="input-group-btn">
+                                    <button ng-click="ShiftPopUp();" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
+                                    <button ng-click="ClearShift()" class="btn single-small-btn" tabindex="6"><i class="glyphicon glyphicon-refresh"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Production Shift Start Time</label>
+                        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                            @*<input type="text" name="PlanCapacity" ng-model="modelShiftNew.ProductionShiftStartTime" n-decimals="2" class="form-control" tabindex="5">*@
+                            <input id="StartTime" type="text" class="form-control input-small" ng-change="getMinute();" ng-model="modelShiftNew.ProductionShiftStartTime" style="margin-left:-10%; width:94%">
+                            <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Production Time</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Description" disabled ng-model="modelShiftNew.ProductionTime" n-decimals="2" class="form-control" tabindex="5">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">IsException Applicable</label>
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="modelShiftNew.IsExceptionApplicable">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Production Shift End Time</label>
+                        <div class="col-sm-7 input-group bootstrap-timepicker timepicker" style="float:right">
+                            @*<input type="text" name="PlanCapacity" ng-model="modelShiftNew.ProductionShiftEndTime" n-decimals="2" class="form-control" tabindex="5">*@
+                            <input id="EndTime" type="text" class="form-control input-small" ng-change="getMinute();" ng-model="modelShiftNew.ProductionShiftEndTime" style="margin-left:-10%; width:94%">
+                            <span class="input-group-addon" style="float:left; width:12%"><i class="glyphicon glyphicon-time"></i></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remark</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Description" ng-model="modelShiftNew.Remark" class="form-control" tabindex="5">
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveShift();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                        <li> <button ng-click="ClearShift();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
+                    </ul>
+                </div>
+                <div id="GridSavedShift" ej-grid e-datasource="SavedShiftList"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                     e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="Shift" e-headertext="Shift" e-width="3"></div>
+                        <div e-column e-field="StartTime" e-headertext="Start Time" e-width="3"></div>
+                        <div e-column e-field="EndTime" e-headertext="End Time" e-width="2"></div>
+                        <div e-column e-field="IsExceptionApplicable" e-headertext="IsExceptionApplicable" e-width="5"></div>
+                    </div>
+
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Week Days</label>
+                        <div class="col-sm-8">
+                            <div class="select-style">
+                                <select ng-model="modelWeekNew.WeekDays" id="WeekDays" class="form-control" name="WeekDays" ng-options="item.Value as item.Text for item in WeekDaysList">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Working Day</label>
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="modelWeekNew.IsWorkingDay">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveWeek();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                        <li> <button ng-click="ClearWeek();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
+                    </ul>
+                </div>
+                <div id="GridSavedShift" ej-grid e-datasource="SavedWeekList"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                     e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="WeekDays" e-headertext="WeekDays" e-width="3"></div>
+                        <div e-column e-field="IsWorkingDay" e-headertext="IsWorkingDay" e-width="5"></div>
+                    </div>
+
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Holiday Date<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="modelHolidayNew.HolidayDate" datepicker class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Remark</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="Description" ng-model="modelHolidayNew.Remark" class="form-control" tabindex="5">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Holiday Name<sup>*</sup></label>
+                        <div class="col-sm-8">
+                            <input type="text" ng-model="modelHolidayNew.HolidayName" class="form-control" placeholder="dd-MM-yyyy" tabindex="9">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Is Working</label>
+                        <div class="checkbox-site">
+                            <label class="control-label">
+                                <input type="checkbox" ng-model="modelHolidayNew.IsWorking">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="SaveHoliday();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                        <li> <button ng-click="ClearHoliday();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="3"></i>Clear</button></li>
+                    </ul>
+                </div>
+                <div id="GridSavedHoliday" ej-grid e-datasource="SavedHolidayList"
+                     e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                     e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                    <div e-columns>
+                        <div e-column e-field="HolidayName" e-headertext="HolidayName" e-width="3"></div>
+                        <div e-column e-field="HD" e-headertext="HolidayDate" e-width="3"></div>
+                        <div e-column e-field="IsWorking" e-headertext="IsWorking" e-width="5"></div>
+                        <div e-column e-field="Remark" e-headertext="Remark" e-width="5"></div>
+                    </div>
+
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(6), active: isSet(6) }">
             </div>
@@ -316,5 +480,105 @@
     </div>
 </ej-dialog>
 
+<div class="modal fade site-modal in" id="ShiftPopUpId" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"> Shift<button type="button" class="close" data-dismiss="modal">&times;</button></div>
+            <div class="modal-body">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-sm-12 col-sm-12 ">
+                        <div class="search-form">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-3">
+                                    <div class="select-style">
+                                        <select ng-model="ShiftPopUpParameters.searchBy">
+                                            <option ng-repeat="option in searchShiftList" value="{{option.value}}">{{option.name}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-7 col-md-7">
+                                    <input type="text" class="form-control" placeholder="Search" ng-model="ShiftPopUpParameters.search" ng-enter="getShiftPopUpData()">
+                                </div>
+                                <div class="col-xs-12 col-sm-2 col-md-2">
+                                    <button type="button" ng-click="getShiftPopUpData()" class="btn"><i class="glyphicon glyphicon-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive modal-table">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                @*<th>Select</th>*@
+                                <th>Shift Name</th>
+                                <th>Description</th>
+                                <th>Shift Type</th>
+                                <th>In Time</th>
+                                <th>Out Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr dir-paginate="x in ShiftPopUpDataList |itemsPerPage:ShiftPopUpParameters.pageSize" pagination-id="metaData.name + 'ShiftPopUpDataList'" total-items="ShiftPopUpParameters.total_count" ng-dblclick="SetShift(x)">
+                                @*<td>
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input type="checkbox" ng-model="x.Flag" ng-checked="x.Flag" ng-click="pushInTempList($event,x);">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </td>*@
+                                <td>{{x.ShiftDefinationName}}</td>
+                                <td>{{x.ShiftDefinationDescription}}</td>
+                                <td>{{x.ShiftType}}</td>
+                                <td>{{x.InTime}}</td>
+                                <td>{{x.OutTime}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <dir-pagination-controls max-size="10"
+                                             pagination-id="metaData.name + 'ShiftPopUpDataList'"
+                                             direction-links="true"
+                                             boundary-links="true"
+                                             on-page-change="getShiftPopUpData(newPageNumber)">
+                    </dir-pagination-controls>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="closePopUp();" class="btn">Select</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <confirm-archive-generic modalid="removePopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="Delete();"></confirm-archive-generic>
 <confirm-archive-generic modalid="removeRPPopUp" title="Confirmation" message={{message_confirmation}} data-ng-click-right-button="DeleteResponsibleEmployee();"></confirm-archive-generic>
+<script type="text/javascript">
+    $('[id*=StartTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=StartTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+    $('[id*=EndTime]').timepicker({ showMeridian: false, defaultTime: false }).on('changeTime.timepicker', function (e) {
+        var hours = e.time.hours, //Returns a string
+            min = e.time.minutes
+        //merdian = e.time.meridian;
+
+        if (hours.length == 1) {
+            $('[id*=EndTime]').timepicker('setTime', '0' + hours + ':' + min);
+
+        }
+    });
+</script>
