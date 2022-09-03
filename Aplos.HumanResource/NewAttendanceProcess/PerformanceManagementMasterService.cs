@@ -1460,7 +1460,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                string sql = @"select * from ORG.Plant";
+                string sql = @"select Id as Value, UserName as Text from ORG.Plant";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1776,8 +1776,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                     Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
-                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOC,'dd-MMM-yyyy') DOC
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric
+                                        ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill
                                         FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -1790,6 +1790,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
                               Where EMP.PlantId ='" + plantId+ @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees Where isOccupied=1) AND ISNULL(EMP.ResidenceGroupId,'') = '"+ residenceGroupId + @"'
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
@@ -1824,12 +1825,14 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             ,S.UserName Section,SS.UserName SubSection,L.UserName Line,format(EI.DOJ,'dd-MMM-yyyy') DOJ
                                             ,RM.AssetName ResidenceName,RAE.isOccupied, FORMAT(EI.DOS, 'dd-MMM-yyyy')DOS, EI.EmployeeStatus,
 											EI.EmployeeCurrentStatus, RG.UserName ResidenceGroup, [RM].[Block], RM.ResidentType, 
-											RM.ResidenceNumber, EI.DOS, DEG.UserName GivenDesignation --, EC.UserName EmployeeCategory
+											RM.ResidenceNumber, EI.DOS, DEG.UserName GivenDesignation, PR.PaymentLink Skill --, EC.UserName EmployeeCategory
 
                                             from ResidenceAllocatedEmployees RAE
                                             left join ResidenceMaster RM on RM.Id=RAE.ResidenceId 
 											left join ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
                                             left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
+                                            LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                             left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
 											left join MST.DesignationMaster DM on DM.DesignationId = DM.Id
                                             left join ORG.Department D on D.Id=EI.DepartmentId
@@ -1838,8 +1841,9 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             left join ORG.Line L on L.Id=EI.LineId 
 											LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
                                 
-                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1
-                                AND EI.EmployeeStatus='Active' ";
+                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus
+                               -- AND EI.EmployeeStatus='Active' 
+";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
             }
@@ -2473,7 +2477,7 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
                  var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType,
-sum(rm.vacancy)Capacity, sum(cast(rae.Occupied as INT)) as Allotted, 
+sum(rm.vacancy)Capacity, sum(rm.Rooms)Rooms ,sum(cast(rae.Occupied as INT)) as Allotted, 
 case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) end  Balance
 
 from ResidenceMaster RM
@@ -2693,7 +2697,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType,
-sum(rm.vacancy)Capacity, sum(cast(rae.Occupied as INT)) as Allotted, 
+sum(rm.vacancy)Capacity, sum(rm.Rooms)Rooms ,sum(cast(rae.Occupied as INT)) as Allotted, 
 case when isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) = 0 then '0' else isnull(isnull(sum(rm.vacancy),0)-isnull(sum(rae.Occupied),0),0) end  Balance
 
 from ResidenceMaster RM
