@@ -9,36 +9,57 @@
             <div class="form-group">
                 <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-            </div>
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type" tabindex="2">
 
+                        <option value="">--Select--</option>
+                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+
+                    </select>
+
+                    </div>
+                    @*<input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
+                    <div class="col-sm-2">
+                        <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>*@
+                </div>
+                </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Location<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">
+                    @*<input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">*@
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type"
+                                tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Guest House">Guest House</option>
+                            <option value="Staff Colony">Staff Colony</option>
+                            <option value="Worker Family Colony">Worker Family Colony</option>
+                            <option value="Girls Hostel">Girls Hostel</option>
+                            <option value="Near HRD Center">Near HRD Center</option>
+                            <option value="New Worker Colony">New Worker Colony</option>
+                            <option value="Old Worker Colony">Old Worker Colony</option>
+                            <option value="Fitter Staff Colony">Fitter Staff Colony</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-
             <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Residence Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceSubCategory" required name="Residence Sub Category" tabindex="2">
+                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type"
+                                tabindex="2">
                             <option value="">--Select--</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Joint">Joint</option>
+                            <option value="Family">Family</option>
+                            <option value="Bechlor">Bachelor</option>
                         </select>
                     </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Block If Applicable<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Block<sup>*</sup></label>
                 <div class="col-sm-6">
                     <input type="text" name="Block" ng-model="ModalNew.Block" class="form-control" maxlength="200" tabindex="5">
 
@@ -93,110 +114,109 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-6">
-
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Residence" ng-model="Residence" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openResidencePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
+    
+    <div class="col-xs-12 col-sm-6 col-md-6">
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
+            <div class="col-sm-6">
+                <input type="text" name="Residence" ng-model="Residence" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
             </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Employee" ng-model="EmployeeUN" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-                </div>
-                <div class="col-sm-2">
-                    <button ng-click="openEmployeePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
+            <div class="col-sm-2">
+                <button ng-click="openResidencePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
-                </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
+            <div class="col-sm-6">
+                <input type="text" name="Employee" ng-model="EmployeeUN" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
             </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Residence Type<sup>*</sup></label>
-                <div class="col-sm-6 show-message">
-                    <div class="select-style">
-                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type"
-                                tabindex="2">
-                            <option value="">--Select--</option>
-                            <option value="Family">Family</option>
-                            <option value="Bechlor">Bachelor</option>
-                        </select>
-                    </div>
-                </div>
+            <div class="col-sm-2">
+                <button ng-click="openEmployeePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
             </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Remarks</label>
-                <div class="col-sm-6">
-                    <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <div class="select-style">
+                    <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceSubCategory" required name="Residence Sub Category" tabindex="2">
+                        <option value="">--Select--</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Joint">Joint</option>
+                    </select>
                 </div>
             </div>
         </div>
-        <div class="common-btn">
-            <ul class="list-inline text-right">
-                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
-                
-            </ul>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
+            <div class="col-sm-6">
+                <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
+            </div>
+        </div>
 
+   
+
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
+        <div class="col-sm-6">
+            <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
         </div>
     </div>
-    <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
-        <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
-             e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
-             e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
-            <div e-columns>
 
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
+        <div class="col-sm-6">
+            <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
+        </div>
+    </div>
 
-                <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
-                <div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>
-                <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
-                <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
-                <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-               @* <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>*@
-                <div e-column e-field="EmpServiceType" e-headertext="Emp Service Type" e-width="100"></div>
-                <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
-                <div e-column e-field="Block" e-headertext="Block" e-width="50"></div>
-                <div e-column e-field="Floor" e-headertext="Floor" e-width="50"></div>
-                <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="50"></div>
-                <div e-column e-field="Rooms" e-headertext="Rooms" e-width="50"></div>
-                <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="50"></div>
-                <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="50"></div>
-                <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="50"></div>
-                <div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
-                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
-                <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>
-
-            </div>
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Remarks</label>
+        <div class="col-sm-6">
+            <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
         </div>
     </div>
 </div>
+<div class="common-btn">
+    <ul class="list-inline text-right">
+        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+
+    </ul>
+
+</div>
+    </div>
+<div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
+    <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
+         e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
+         e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
+        <div e-columns>
+
+
+            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+            @*<div e-column e-field="Plant" e-headertext="Plant" e-width="50"></div>*@
+            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
+            <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
+            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+            @* <div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>*@
+            <div e-column e-field="EmpServiceType" e-headertext="Emp Service Type" e-width="100"></div>
+            <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>
+            <div e-column e-field="Block" e-headertext="Block" e-width="50"></div>
+            <div e-column e-field="Floor" e-headertext="Floor" e-width="50"></div>
+            <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="50"></div>
+            <div e-column e-field="Rooms" e-headertext="Rooms" e-width="50"></div>
+            <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="50"></div>
+            <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="50"></div>
+            <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="50"></div>
+            @*<div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>
+                <div e-column e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
+                <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>*@
+
+        </div>
+    </div>
+</div>
+@*</div>*@
 
 <!--POP UP SCREEN  FOR PLANT   -->
 <div class="modal fade site-modal in" id="PlantPop" role="dialog" data-backdrop="static">
@@ -324,7 +344,7 @@
                                 <div e-column e-field="Id" e-headertext="Id" e-width="30"></div>
                                 <div e-column e-field="Service" e-headertext="Service" e-width="50"></div>
                                 <div e-column e-field="Form" e-headertext="From" e-width="70"></div>
-                               
+
                             </div>
                         </div>
                     </div>
