@@ -93,7 +93,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
             var gridObj = $("#EmpGrid").data("ejGrid");
             gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            //gridObj.refreshTemplate();
         } catch (e) {
             ShowResult(e, "failure");
         }
@@ -145,7 +145,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
             var gridObj = $("#UnassignGrid").data("ejGrid");
             gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            //gridObj.refreshTemplate();
 
 
         } catch (e) {
@@ -351,47 +351,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             });
     };
 
-    //$scope.getstopageUpList = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    var gridObjRunning = $("#EmpGrid").ejGrid("instance");
-    //    var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
-
-    //    $http.get('employees/routeemployee/getUpStopage?RouteId=' + currRow.RouteUpGridId + '&UpOrDown=Up')
-    //        .then(function (response) {
-    //            for (var i = 0; i < $scope.dataList.length; i++) {
-    //                if ($scope.dataList[i].SystemID == currRow.SystemID) {
-    //                    response.data.unshift($scope.data);
-    //                    $scope.dataList[i]['StopageUpList'] = response.data;
-    //                    break;  //StopageUpList
-    //                }
-    //            }
-    //            var gridObj = $("#EmpGrid").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //        })
-    //};
-
-    //$scope.getstopageDownList = function (args) {
-    //    if (args.isInteraction == false)
-    //        return;
-    //    var gridObjRunning = $("#EmpGrid").ejGrid("instance");
-    //    var currRow = gridObjRunning.model.currentViewData[this.element.closest("tr").index()];
-    //    $http.get('employees/routeemployee/getDownStopage?RouteId=' + currRow.RouteDownGridId + '&UpOrDown=Down')
-    //        .then(function (response) {
-    //            for (var i = 0; i < $scope.dataList.length; i++) {
-    //                if ($scope.dataList[i].SystemID == currRow.SystemID) {
-    //                    response.data.unshift($scope.data);
-    //                    $scope.dataList[i]['StopageDownList'] = response.data;
-    //                    break;
-    //                }
-    //            }
-    //            var gridObj = $("#EmpGrid").data("ejGrid");
-    //            gridObj.refreshContent(true);
-    //            gridObj.refreshTemplate();
-    //        });
-    //};
-    
+   
     $scope.refreshTemplateemployeeTWO = function (args) {
         $("#headchkTWO").ejCheckBox({ "change": CheckBoxSelectAllEmolyeeWiseTWO });
     };
@@ -511,7 +471,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 var gridObj = $("#UnassignGrid").data("ejGrid");
                 gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
+                //gridObj.refreshTemplate();
             })
     };
 
@@ -531,7 +491,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 var gridObj = $("#UnassignGrid").data("ejGrid");
                 gridObj.refreshContent(true);
-                gridObj.refreshTemplate();
+                //gridObj.refreshTemplate();
             });
     };
 
@@ -547,8 +507,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
             $scope.UnassignEmpList = response.data;
             var gridObj = $("#UnassignGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            //gridObj.refreshContent(true);
+            //gridObj.refreshTemplate();
         });
     }
     $scope.getUnassignEmp();
@@ -568,10 +528,584 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             //}
             $scope.dataList = response.data;
             var gridObj = $("#EmpGrid").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
+            //gridObj.refreshContent(true);
+            //gridObj.refreshTemplate();
         });
     }
     $scope.getModalData_Employee();
 
+
+    //NEW
+    $scope.ModelList = [];
+    $scope.path = 'HumanResource/ResidenceStatusAllocation/';
+    $scope.getListUrl = $scope.path + 'getlist';
+    $scope.saveUrl = $scope.path + 'Save';
+    $scope.deleteUrl = $scope.path + 'delete/';
+    baseService.init($scope.getListUrl);
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+
+    // Tab Change
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
+    $scope.tab2 = 1;
+    $scope.setTab2 = function (newTab) {
+        $scope.tab2 = newTab;
+    };
+    $scope.isSet2 = function (tabNum) {
+        return $scope.tab2 === tabNum;
+    };
+
+
+    //#region The Filters 
+
+
+    //#endregion The Filters
+   
+    $scope.PlantId = null;
+    $scope.dataList = [];
+    $scope.availableNumber = null;
+    $scope.AvailablePopUpData = function (data) {
+        $scope.ResidenceId = data.data.ResidenceMasterId;
+        $scope.PlantId = data.data.PlantId;
+        $scope.availableNumber = data.data.Available;
+        $scope.dataList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
+        }).then(function successCallback(response) {
+            $scope.dataList = response.data;
+
+            //$scope.getResidence();
+
+            $scope.UnallocationView();
+
+        });
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
+    }
+
+    $scope.closeEmployeePopUps = function () {
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+
+    $scope.closeEmployeePopUp = function () {
+        MakeData();
+        $scope.SaveAllocation();
+        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
+    }
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPartyWise });
+    };
+
+    function CheckBoxSelectAllPartyWise(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.dataList.length; i++) {
+                $scope.dataList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEmp").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.saveList = [];
+    function MakeData() {
+        for (var i = 0; i < $scope.dataList.length; i++) {
+            if ($scope.dataList[i].isSelected == true) {
+                if (checkExists($scope.saveList, $scope.dataList[i].EmployeeCode) === false) {
+                    var ob = {};
+                    ob.Id = null;
+                    ob.EmployeeCode = $scope.dataList[i].EmployeeCode;
+                    ob.EmployeeName = $scope.dataList[i].EmployeeName;
+                    ob.EmployeeSystemId = $scope.dataList[i].SystemID;
+                    ob.ResidenceId = $scope.ResidenceId;
+                    ob.isOccupied = true;
+                    ob.Date = Date.now();
+                    $scope.saveList.push(ob);
+                }
+                else {
+                    ShowResult("This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.", 'failure');
+                }
+            }
+        }
+
+    }
+
+    function checkExists(list, id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].EmployeeCode === id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.SaveAllocation = function () {
+        try {
+            //if ($scope.availableNumber < $scope.saveList.length)
+            //{
+            //    throw "Selected Employee should not greater than Available.";
+            //}
+            $http({
+                method: 'POST',
+                url: $scope.path + 'residenceStatusSave',
+                data: { 'EmployeeList': $scope.saveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.UnallocationView();
+                    $scope.saveList = [];
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
+    $scope.ModelUnallocationList = [];
+    $scope.UnallocationView = function () {
+        if (baseService.isUndefinedOrNull($scope.PlantId)) {
+            $scope.PlantId = $window.plantId;
+        }
+        $http({
+            method: "Get",
+            url: $scope.path + 'viewUnallocation?PlantId=' + $scope.PlantId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelUnallocationList = response.data;
+            //$scope.SaveAllocation();
+        })
+    }
+    $scope.UnallocationView();
+
+    $scope.popupEmployeeList = [];
+    $scope.PopupEmployeeView = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'PopupEmployeeView',
+            data: {
+                'EmployeeCategorySystemID': $scope.selectedData.EmployeeCategoryId,
+                'fromDate': $scope.selectedData.fromDate,
+                'toDate': $scope.selectedData.toDate,
+            }
+
+        }).then(function successCallback(response) {
+            $scope.popupEmployeeList = response.data;
+            document.getElementById("EmpGrid").style.display = "block";
+        })
+    }
+
+    $scope.selResidenceMasterId = null;
+    $scope.selResidenceMaster = function (e) {
+        $scope.selResidenceMasterId = e.data.Id;
+        $scope.openChildGrid();
+        $scope.getResidenceStatusLocation();
+    }
+
+    $scope.openChildGrid = function () {
+        angular.element(document.querySelector('#EmpPop')).modal('show');
+    }
+    $scope.closeChildGrid = function () {
+        angular.element(document.querySelector('#EmpPop')).modal('hide');
+    }
+
+
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+    function ClearFields() {
+        $scope.Action = "Save";
+        $scope.PlantList = [];
+        $scope.LocationList = [];
+        $scope.ResidenceGroupIdList = [];
+        $scope.ResidenceCategoryList = [];
+        $scope.ResidenceSubCategoryList = [];
+        $scope.BlockList = [];
+        $scope.AssetNameList = [];
+        $scope.ResidentTypeList = [];
+        $scope.FloreList = [];
+        $scope.ResidenceNumberList = [];
+        $scope.EmployeeTypeIdList = [];
+        $scope.RoomList = [];
+        $scope.selectedData = {
+            Id: null,
+            PlantId: null,
+            ResidedenceGroupId: null,
+            EmployeeCategoryId: null,
+            Location: null,
+            AssetName: null,
+            ResidenceSubCategory: null,
+            ResidenceCategory: null,
+            Rooms: null,
+            Block: null,
+            ResidenceType: null,
+            Floor: null,
+            ResidenceType: null,
+            ResidenceNumber: null,
+            VacancyStatus: null,
+            isActive: 0,
+        };
+        $scope.ModelList = [];
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getEmployee',
+            data: {
+                'PlantId': $scope.selectedData.PlantId,
+                'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
+                'EmployeeCategoryId': $scope.selectedData.EmployeeCategoryId,
+            },
+        }).then(function success(resp) {
+            $scope.EmployeeList = resp.data;
+        });
+    }
+
+    $scope.selectEmpDetail = function () {
+        $scope.EmployeeIds = [];
+        $scope.SelEmpList = [];
+        for (var i = 0; i < $scope.EmployeeList.length; i++) {
+
+            if ($scope.EmployeeList[i].isSelected == true) {
+                $scope.SelEmpList.push($scope.EmployeeList[i]);
+            }
+        }
+
+        if ($scope.SelEmpList.length > $scope.selectedData.VacancyList) {
+            ShowResult('Selected Greater than vacancy allowed', 'failure');
+            throw ('Invalid Request');
+        }
+        else {
+            angular.element(document.querySelector('#EmpPop')).modal('hide');
+        }
+
+        $scope.getSelected();
+    }
+
+    $scope.EmpList = [];
+    $scope.getSelected = function () {
+        $scope.EmpList = $scope.SelEmpList;
+
+    }
+
+
+    // TAB - 2
+    // ALL POP UPs
+
+    // POP OPEN
+    $scope.selectEmployee = function () {
+
+        angular.element(document.querySelector('#EmployeePop')).modal('show');
+    }
+
+    $scope.openEmpCategoryPopup = function () {
+
+        angular.element(document.querySelector('#EmpCategoryPop')).modal('show');
+    }
+
+    // POP CLOSED
+    $scope.closeEmpPopUp = function () {
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+    }
+    // Select Emp
+    $scope.EmployeeSelectedName = null;
+    $scope.SelectedEmployeeId = null;
+    $scope.selEmp = function (e) {
+        $scope.SelectedEmployeeId = e.data.SystemId;
+        $scope.EmployeeId = e.data.EmployeeId;
+        $scope.SelEmployeeInfoList = e.data;
+        $scope.Employee = e.data.EmployeeName;
+
+        angular.element(document.querySelector('#EmployeePop')).modal('hide');
+
+
+    }
+
+    $scope.EmployeeList = [];
+    $scope.getAllEmployee = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getAllEmployee',
+            data: { 'EmpCategoryId': $scope.EmpCategoryId },
+        }).then(function success(resp) {
+            $scope.EmployeeList = resp.data;
+        })
+    }
+    //$scope.getAllEmployee();
+
+    $scope.openEmpCategoryPopup = function () {
+
+        angular.element(document.querySelector('#EmpCategoryPop')).modal('show');
+    }
+
+    $scope.EmployeeCategoryList = [];
+    $scope.getEmployeeCategory = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "getEmployeeCategory",
+            //data: { 'EmpId': $scope.SelectedEmployeeId},
+            dataType: 'JSON',
+        }).then(function successcallback(response) {
+            $scope.EmployeeCategoryList = response.data;
+
+        })
+    }
+    $scope.getEmployeeCategory();
+
+    $scope.EmpCategoryId = null;
+    $scope.EmpCategoryName = null;
+    $scope.selEmployeeCategory = function (e) {
+        $scope.EmpCategoryId = e.data.Id;
+        $scope.EmpCategoryName = e.data.UserName;
+        angular.element(document.querySelector('#EmpCategoryPop')).modal('hide');
+        //  $scope.getAllEmployee();
+    }
+
+
+    $scope.ResidenceMasterList = [];
+    $scope.getResidenceMaster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getResidenceMaster',
+
+        }).then(function success(resp) {
+            $scope.ResidenceMasterList = resp.data;
+        })
+    }
+
+
+
+    // Data Saved
+    $scope.selectedDataR = {
+        Id: null,
+        isOccupied: false,
+    };
+    $scope.ResidenceData = Object.assign({}, $scope.selectedDataR);
+
+    $scope.ResidenceStatusLocationList = [];
+    $scope.getResidenceStatusLocation = function () {
+        $http({
+            method: "POST",
+            url: $scope.path + "getResidenceStatusLocation",
+            data: {
+                'EmployeeId': $scope.SelectedEmployeeId,
+                'ResidenceMasterId': $scope.selResidenceMasterId,
+            },
+        }).then(function seccessCallback(response) {
+            $scope.ResidenceStatusLocationList = response.data
+        })
+
+    }
+
+    $scope.refreshTemplateemployee = function (args) {
+        $("#headcheck").ejCheckBox({ "change": CheckBoxSelectAllPartyWises });
+    };
+
+    function CheckBoxSelectAllPartyWises(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEUnallocation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
+                $scope.ModelUnallocationList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEUnallocation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveRSU = function () {
+        $scope.unallocationLoop = [];
+        for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
+
+            if ($scope.ModelUnallocationList[i].isSelected) {
+                $scope.unallocationLoop.push($scope.ModelUnallocationList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveRSUnallocation',
+            data: { 'employeeList': $scope.unallocationLoop },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.UnallocationView();
+            }
+        });
+    }
+
+    //-----------------------------------------------------------------------------------
+
+    function openModal() {
+        $('.confirm-delete').addClass('hide');
+        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
+        $('#myModal').modal('show');
+    }
+    //-----------------------------------------------------------------------------------
+
+    // REPORT DOWNLOAD
+    $scope.ResidenceAllocationReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsResidenceAllocationReport",
+            data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.ResidenceMasterReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsResidenceMaterReport",
+            data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                if (baseService.isUndefinedOrNull($scope.EmployeeNew.EmployeeCurrentStatus)) {
+                    ShowResult('Employee Current Statusus Required.', 'failure');
+                    throw "Invalid Request";
+                }
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.allResidenceMasterReport = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "XlsAllResidenceMaterReport",
+            data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+
+    $scope.ResidenceMasterList = [];
+    $scope.gridViewResidenceMAster = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + "gridViewResidenceMAster",
+
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ResidenceMasterList = response.data;
+        })
+    };
+
+    $scope.EmployeeNew = {
+        EmployeeCurrentStatus: null
+    };
+
+    $scope.EmployeeStatusList = [];
+    $scope.employeeCurrentStatus = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'employeeCurrrentStatus',
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+
+            $scope.EmployeeStatusList = response.data;
+        })
+    };
+    $scope.employeeCurrentStatus();
+
+    $scope.ResidedenceGroupId = null;
+    $scope.ResidenceGroupList = [];
+    $scope.getResidence = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getemployeeDataList?plantId=' + $scope.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
+        }).then(function successCallback(response) {
+            $scope.dataList = response.data;
+
+
+        });
+    }
+
+
+
+    $scope.ResidenceGroupList = [];
+    $scope.ResidenceGroupCbo = function () {
+        $http.get('employees/ResidenceGroup/GetCbo')
+            .then(function (response) {
+                $scope.ResidenceGroupList = response.data;
+
+                $scope.ResidedenceGroupId = $scope.ResidenceGroupList[0].Value;
+
+
+            });
+    }
+
+    $scope.ResidenceGroupCbo();
+
+
+    //End
 }
