@@ -37,9 +37,13 @@ namespace Aplos.Areas.Employees.Controllers
         {
             return View();
         }
+        public ActionResult Aplos1()
+        {
+            return View();
+        }
         #endregion
         #region -- Operations 
-       
+
         [HttpPost]
         public ActionResult delete(List<RouteEmployeeList> DeleteEmpList)
         {
