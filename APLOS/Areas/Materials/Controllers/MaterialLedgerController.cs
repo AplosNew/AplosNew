@@ -401,7 +401,6 @@ namespace Aplos.Areas.Materials.Controllers
         [Authorize, HttpPost]
         public JsonResult PurchaseRegisterItemWiseData(string fromDate, string toDate, string Type)
         {
-
             DateTime fDate = DateTime.Parse(fromDate);
             DateTime tDate = DateTime.Parse(toDate);
             if (fromDate == null || fromDate == "")
