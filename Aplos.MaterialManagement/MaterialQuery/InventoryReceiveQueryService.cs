@@ -4126,7 +4126,7 @@ namespace Aplos.MaterialManagement
 						LEFT JOIN trn.GateEntry  GE ON GE.Id=Ir.GateEntryNo					
 						LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=GE.PlantWiseGateId
 						LEFT JOIN(
-							   SELECT distinct PDAMAP.GRNId, IR.IsClosed,IR.PartyId, IR.POType
+							   SELECT distinct PDAMAP.GRNId,PDAMAP.PoDetailId, IR.IsClosed,IR.PartyId, IR.POType
 								,ContractId=STUFF((select distinct ','+xpo.ContractId from
 								trn.PurchaseOrder xpo
 								INNER JOin trn.POGGRNMap xPDAMAP on xpo.Id=xPDAMAP.POId
@@ -4170,8 +4170,8 @@ namespace Aplos.MaterialManagement
 							  LEFT JOIN [TRN].[PurchaseOrder] IR ON IR.Id = PDAMAP.POId
 							  LEFT JOIN dbo.[Contract] C ON C.Id=IR.ContractId
 							  left join dbo.[PurchaseLC] PLC On PLC.Id=IR.PurchaseLCId
-							  group by  PDAMAP.GRNId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
-							)PO ON PO.GRNId = IR.Id
+							  group by  PDAMAP.GRNId,PDAMAP.PoDetailId,IR.id, IR.IsClosed,IR.PartyId, IR.POType,IR.PurchaseLCId	,IR.ContractId,C.ContractNo,PLC.LCANo,LCDate
+							)PO ON PO.GRNId = IR.Id and PO.PoDetailId=IRD.PODetailsId
 						 where  IR.PlantId='" + plantId + "' AND convert(Date,IR.GRNDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'
 						--AND IR.GRNType<>'FG' AND IR.GRNType<>'GRNBYPO' AND IR.GRNType<>'InventorySalesReturn'
 						AND IR.GRNType IN('GRNBYPO','GRN','EMPGRN')

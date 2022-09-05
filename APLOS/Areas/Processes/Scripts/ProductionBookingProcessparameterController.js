@@ -363,10 +363,11 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
             if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                 $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelProcessPara.FormulaDesID += ' ' + $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                //$scope.ModelProcessPara.FormulaDesID += ' ' + $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
             } else {
                 $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
             }
         }
 
@@ -891,10 +892,10 @@ function ProductionBookingProcessparameterController(cboService, commonMessage, 
         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
             if (!baseService.isUndefinedOrNull($scope.ModelQualityParaNew.FormulaDes)) {
                 $scope.ModelQualityParaNew.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelQualityParaNew.FormulaDesID += ' ' + $scope.FormulaDetails[i].QualityProcessParameterHeadId;
+                $scope.ModelQualityParaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].QualityProcessParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].QualityProcessParameterHeadId);
             } else {
                 $scope.ModelQualityParaNew.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelQualityParaNew.FormulaDesID = $scope.FormulaDetails[i].QualityProcessParameterHeadId;
+                $scope.ModelQualityParaNew.FormulaDesID += ' ' + ($scope.FormulaDetails[i].QualityProcessParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].QualityProcessParameterHeadId);
             }
         }
 
