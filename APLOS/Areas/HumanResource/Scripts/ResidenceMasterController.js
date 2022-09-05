@@ -160,9 +160,11 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
        
         Location: null,
         Id: null,
-       // ResidenceCategory: null,
+        ResidenceCategory: null,
         ResidenceSubCategory: null,
-        
+        PlantId: null,
+        EmployeeCategoryId: null,
+        ResidenceGroupId:null,
         Block: null,
         Floor: null,
         ResidenceNumber: null,
@@ -272,4 +274,13 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         }
     });
     //$scope.GetSelectedValue();
+
+    //function dependency() {
+    //    if ($scope.ModalNew.ResidentType == "Family") {
+
+    //    }
+    //    else if ($scope.ModalNew.ResidentType == "Bachelor") {
+
+    //    }
+    //}
 }
