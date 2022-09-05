@@ -5,12 +5,18 @@ using Aplos.Properties;
 using Library.Accounting.Accounts;
 using Library.Core;
 using Library.Crosscutting.Security;
+using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Banks;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
+using Library.Service.Helpers;
+using Newtonsoft.Json;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -180,7 +186,127 @@ namespace Aplos.Areas.Banks.Controllers
             accountsBankReconcilliationService.DeleteBankreconciliation(bankReconciliationId);
             return Json(new { Message = AplosMessage.Deleted });
         }
+        [HttpPost, Authorize]
+        public JsonResult ImportData(FormCollection form)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
+                List<GLTransactionDetail> data = new List<GLTransactionDetail>();
+
+                var pre = form["modelNew"];
+                var file = Request.Files["file"];
+                var _objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(pre);
+                if (file != null)
+                {
+                    var extension = Path.GetExtension(file.FileName);
+                    if (extension.ToLower() == ".xlsx" || extension.ToLower() == ".xls")
+                    {
+
+                    }
+                    else
+                        throw new CustomException(Resources.ExcelUploadError);
+                }
+                string path = "";
+                if (file != null)
+                {
+                    path = Path.Combine(ResourcesPathReader.GetAttendanceRawData(), file.FileName);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                        file.SaveAs(path);
+                    }
+                    else
+                    {
+                        file.SaveAs(path);
+                    }
+                }
+                FileInfo docFile;
+
+                DataSet dsEmpInfo = null;
+                DataTable dtEmpInfo = null;
+                DataView dvEmpInfo = null;
+                string exception = "\r\n";
+                try
+                {
+                    try
+                    {
+                        string connString = string.Empty;
+                        ExcelEngine excelEngine = null;
+                        IApplication application = null;
+                        IWorkbook workbook = null;
+
+                        excelEngine = new ExcelEngine();
+                        application = excelEngine.Excel;
+                        workbook = excelEngine.Excel.Workbooks.Open(path);
+
+                        DataTable dt = workbook.Worksheets[0].ExportDataTable(workbook.Worksheets[0].UsedRange, ExcelExportDataTableOptions.ColumnNames);
+                        DataSet dsExcel = new DataSet();
+                        dsExcel.Tables.Add(dt);
+
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            exception += "\r\nTrying to delete";
+                            docFile.Delete();
+                        }
+
+                        if (dsExcel.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < dsExcel.Tables[0].Rows.Count; i++)
+                            {
+                                string drAmount = "0.0";
+                                string crAmount = "0.0";
+                                drAmount = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                crAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                GLTransactionDetail vm = new GLTransactionDetail();
+
+                                vm.DrAmount = Convert.ToDecimal(drAmount);
+                                vm.CrAmount = Convert.ToDecimal(crAmount);
+                                //vm.EmpInfoSystemID = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                //vm.PlantId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                //vm.PlantName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                //vm.EmployeeCode = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                data.Add(vm);
+                                
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Please Select File");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                        docFile = new FileInfo(path);
+                        if (docFile.Exists)
+                        {
+                            docFile.Delete();
+                        }
+                        throw (ex);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //throw ex;
+                }
+                finally
+                {
+                }
+                JsonResult json = Json(data, JsonRequestBehavior.AllowGet);
+                json.MaxJsonLength = int.MaxValue;
+                return json;
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+        }
         #endregion Operation
     }
 }

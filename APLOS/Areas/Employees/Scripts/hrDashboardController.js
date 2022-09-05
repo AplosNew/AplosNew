@@ -1931,9 +1931,11 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
 
         return SummaryList;
     }
+
+    $scope.dataGrid = "#probationEmpGrid";
     $scope.Print = function () {
         var gridObj = $($scope.dataGrid).data("ejGrid");
-        var data = gridObj.model.dataSource();
+        var data = gridObj.model.dataSource;
         $scope.fileName = 'Employee';
 
         $http({
@@ -1954,11 +1956,12 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
         var data = gridObj.model.dataSource;
         data = ej.DataManager(data).executeLocal(ej.Query().select(["EmployeeName", "EmployeeCode", "Designation", "DOJ", "IncrementEffectiveDate", "IncDaysToGO", "IncrementNextDueDate", "OperationCode", "CellPhnNo"]));
 
+        $scope.fileName="List of Employees"
         //data = ej.DataManager(data).executeLocal(ej.Query().select(["Department", "Designation", "EmployeeName", "EmployeeCode"]));
         $http({
             method: 'POST',
             url: $scope.exportgriddataUrl,
-            data: { 'data': data }
+            data: { 'data': data, 'reportFileName': $scope.fileName}
             // dataType: 'JSON'
             //, contentType: "application/json charset=utf-8"
         }).then(function successCallback(response) {

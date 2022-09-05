@@ -2676,7 +2676,7 @@ function partyPaymentStatusController(cboService, commonMessage, $scope, $rootSc
 
         }
     }
-    $scope.GetCustomerReceiptMasterList();
+    //$scope.GetCustomerReceiptMasterList();
 
     $scope.crAgingsummaryRows = [{
         title: "Total", summaryColumns: [{ summaryType: ej.Grid.SummaryType.Sum, displayColumn: "BooksGross", dataMember: "BooksGross", format: "{0:N2}" },

@@ -174,20 +174,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
             });
     };
 
-    $scope.ModelNew = {
-        Id: null,
-        FileName: null,
-        SalaryHeadId: null,
-        YearNo: null,
-        MonthNo: null
-
-    };
-    
-
     $scope.ShowSaveBtn = false;
-
-    $scope.ModelNew.YearNo = new Date().getFullYear().toString();
-    $scope.ModelNew.MonthNo = new Date().getMonth().toString();
 
     $scope.ImportData = function () {
         try {
@@ -195,18 +182,18 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
             if ($scope.ModelNewForm.$valid) {
                 var picData = new FormData();
                 if (!baseService.isUndefinedOrNull($scope.picdata)) {
-                    $scope.ModelNew.FileName = $scope.picdata.name;
+                    $scope.bankReconciliationNew.FileName = $scope.picdata.name;
                 }
 
-                if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.SalaryHeadId)) {
                     throw "Please Select Salary Head.";
                 }
 
-                if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.YearNo)) {
                     throw "Please Select Year.";
                 }
 
-                if (baseService.isUndefinedOrNull($scope.ModelNew.MonthNo)) {
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.MonthNo)) {
                     throw "Please Select Month.";
                 }
 
@@ -223,11 +210,9 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                         return picData;
                     },
                     data: {
-                        'modelNew': $scope.ModelNew
+                        'modelNew': $scope.bankReconciliationNew
                         , 'file': $scope.picdata
-                        //, 'pSalaryHeadId': $scope.ModelNew.SalaryHeadId 
-                        //, 'pYearNo': $scope.ModelNew.YearNo 
-                        //, 'pMonthNo': $scope.ModelNew.MonthNo 
+                       
                     }
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -277,15 +262,15 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
 
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.SalaryHeadId)) {
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.SalaryHeadId)) {
                 throw "Please Select Salary Head.";
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.YearNo)) {
                 throw "Please Select Year.";
             }
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.MonthNo)) {
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.MonthNo)) {
                 throw "Please Select Month.";
             }
 
@@ -294,9 +279,8 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                 url: $scope.path + 'SaveExternalData',
                 data: {
                     'data': $scope.AttdnRawData
-                    , 'SalaryHeadId': $scope.ModelNew.SalaryHeadId
-                    , 'YearNo': $scope.ModelNew.YearNo
-                    , 'MonthNo': $scope.ModelNew.MonthNo
+                    , 'SalaryHeadId': $scope.bankReconciliationNew.SalaryHeadId
+                   
                 },
                 dataType: "json",
                 success: function (response) {
@@ -397,79 +381,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         return kk;
     };
     $scope.ShowDiv = false;
-    $scope.edit = {
-        Id: null,
-        EmpCode: null,
-        SalaryHead: null,
-        EmpName: null,
-        Amount: null,
-    }
-    $scope.Edit = function (obj) {
-        $scope.edit.Id = obj.data.SystemID;
-        $scope.edit.EmpCode = obj.data.EmployeeCode;
-        $scope.edit.SalaryHead = obj.data.SalaryHead;
-        $scope.edit.EmpName = obj.data.EmployeeName;
-        $scope.edit.Amount = obj.data.EntryAmount;
-
-        $scope.salaryLockCheck(obj.data.EmpSystemId);
-
-    };
-    $scope.IsSalaryLock = false;
-    $scope.salaryLockCheck = function (EmpSystemId) {
-        try {
-            $http({
-                method: 'GET',
-                url: $scope.path + 'GetSalaryLock?EmpSystemId=' + EmpSystemId + '&MonthNo=' + $scope.ModelNew.MonthNo + '&YearNo=' + $scope.ModelNew.YearNo,
-            }).then(function successCallback(response) {
-                if (response.data.length != 0) {
-                    if (response.data[0].IsLocked == true) {
-                        ShowResult("Salary Locked for this Employee..", "failure");
-                    }
-                    else {
-                        $scope.ShowDiv = true;
-                        var eDialog = $("#Edit").data("ejDialog");
-                        $("#Edit").ejDialog("setTitle", " Edit");
-                        eDialog.open();
-                    }
-                }
-                else {
-
-                    /*if ($scope.IsSalaryLock == false) {*/
-                    $scope.ShowDiv = true;
-                    var eDialog = $("#Edit").data("ejDialog");
-                    $("#Edit").ejDialog("setTitle", " Edit");
-                    eDialog.open();
-                    //}
-                }
-            });
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
-    $scope.UpdateUpload = function () {
-        try {
-            $http({
-                method: 'POST',
-                url: $scope.path + "UpdateUpload",
-                data: { 'ExternalUploadUpdate': $scope.edit },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    var eDialog = $("#Edit").data("ejDialog");
-                    eDialog.close();
-                    $scope.LoadData();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+  
 }
 
 
