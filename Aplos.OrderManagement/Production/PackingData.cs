@@ -1148,6 +1148,37 @@ order by pk.Date  DESC";
 
         }
 
+        public DataTable GetScanDataReport(string packingId)
+        {
+            try
+            {
+                
+                var str = @"SELECT ROW_NUMBER() OVER (ORDER BY SP.SalesId) SR,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,
+Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
+,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
+,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pbt.UserName as ConsigneeBilltoName
+FROM dbo.ItemScanChild sc 
+LEFT JOIN TRN.POLotReference pol on pol.Id = sc.PackingId
+LEFT JOIN TRN.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
+LEFT JOIN ProductLibrary P ON P.Code = sc.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
+LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
+LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
+LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
+LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
+LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
+LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
+WHERE pli.PackingId = '"+ packingId + @"'
+GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pbt.UserName";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public DataTable getGroupFinishedStocksReport(string Loc)
         {
             try
