@@ -994,7 +994,7 @@ order by pk.Date  DESC";
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId                            
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
                              JOIN
@@ -1003,7 +1003,7 @@ order by pk.Date  DESC";
                             LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
                             LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             ) A ON A.PackingId=pk.PackingId                            
                             WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
