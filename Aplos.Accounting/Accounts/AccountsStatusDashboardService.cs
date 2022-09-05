@@ -2937,6 +2937,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
 				,ISNULL( SUM(X.Balance),0) Balance
+				,ISNULL( SUM(X.ActualBalance),0) ActualBalance
 
                 ,ISNULL( SUM(X.BooksGrossSales) ,0)BooksGrossSales
 				,ISNULL( SUM(X.BooksReceipts) ,0)BooksReceipts
@@ -2960,6 +2961,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Balance
+				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksReceipts
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
@@ -2986,7 +2988,7 @@ group by Id) O60 ON O60.Id=IV.Id
 							LEFT JOIN TRN.VoucherDetail VD ON VD.InvoiceWriteOffDetailId=iwd.Id
 							LEFT JOIN TRN.VoucherDetailCurrency VDC ON VDC.VoucherDetailId=VD.Id
 							 JOIN TRN.Voucher WV ON WV.Id=VD.VoucherId
-							WHERE WV.IsPark=0 --AND iw.PartyId='202017395'
+							WHERE WV.IsPark=0 AND ( convert(Date,WV.PostingDate) <= '" + toDate + @"' )
 							GROUP BY iwd.InvoiceDetailId,iw.PartyId
 							)AS IwV ON IwV.InvoiceDetailId=IDE.Id AND VD.PartyId=IwV.PartyId
 						WHERE VI.IsPark=0 --AND VD.PartyId='202017395'
@@ -3044,6 +3046,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 
                 WHERE  V.IsPark=0  AND IV.SourceType in ('CustomerInvoice','CustomerBanksReceipt','CustomerReceipt','SalesInvoice')
                 and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
+                and ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0)>0
                 UNION ALL
                 SELECT ISNULL( IV.PartyId,'') NoOfInvoice,ISNULL( IV.PartyId,'')PartyId
 				, ISNULL( IV.PartyPlantId,'')PartyPlantId,ISNULL( P.Code,'') PartyCode
@@ -3051,7 +3054,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			      ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -3150,7 +3153,7 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -3234,7 +3237,7 @@ group by Id) O60 ON O60.Id=IV.Id
                  and  IV.CompanyGroupId='" + companyGroupId + "'   AND IV.CompanyId='" + companyId + "' AND IV.PlantId='" + plantId + @"' " + searchDate + @"
                 
 				)
-				X where x.BooksGrossSales-x.BooksReceipts>0
+				X 
                 GROUP BY PartyId,PartyPlantId,PartyName,PartyPlantName,PartyCode,CurrencyCode
                 order by X.PartyName";
             return _sqlRepository.GetDataCollection(sql);
