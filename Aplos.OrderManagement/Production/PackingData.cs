@@ -1156,12 +1156,13 @@ order by pk.Date  DESC";
                 var str = @"SELECT ROW_NUMBER() OVER (ORDER BY SP.SalesId) SR,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,
 Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
 ,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
-,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pbt.UserName as ConsigneeBilltoName
-FROM dbo.ItemScanChild sc 
-LEFT JOIN TRN.POLotReference pol on pol.Id = sc.PackingId
-LEFT JOIN TRN.PackingLineItem pli on pli.PackingLineItemId = pol.PackingLineItemId
-LEFT JOIN ProductLibrary P ON P.Code = sc.ProductCode 
-LEFT JOIN MST.MaterialMasterArticle M ON M.Id = P.ArticleId 
+,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName
+FROM trn.Packing as p  
+LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
+LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
+LEFT JOIN dbo.ItemScanChild sc ON sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo 
+LEFT JOIN ProductLibrary PL ON PL.Code = sc.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = PL.ArticleId 
 LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
 LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
 LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
@@ -1169,8 +1170,8 @@ LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
 LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
 LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
 LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
-WHERE pli.PackingId = '"+ packingId + @"'
-GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pbt.UserName";
+WHERE p.PackingId = '"+ packingId + @"'
+GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pc.UserName";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
