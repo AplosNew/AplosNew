@@ -159,7 +159,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
     };
 
 
-    $scope.AttdnRawData = [];
+    $scope.BankReconciliationUploadedData = [];
     $scope.picdata = null;
     $scope.ShowSaveBtn = false;
     $("#uploadImage").change(function () {
@@ -185,16 +185,16 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                     $scope.bankReconciliationNew.FileName = $scope.picdata.name;
                 }
 
-                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.SalaryHeadId)) {
-                    throw "Please Select Salary Head.";
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.BankMasterId)) {
+                    throw "Please Select Bank.";
                 }
 
-                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.YearNo)) {
-                    throw "Please Select Year.";
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.BankStatementNo)) {
+                    throw "Please Select Bank StatementNo.";
                 }
 
-                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.MonthNo)) {
-                    throw "Please Select Month.";
+                if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.EmployeeId)) {
+                    throw "Please Select By Whom.";
                 }
 
 
@@ -221,8 +221,8 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
 
                     }
                     else {
-                        $scope.AttdnRawData = [];
-                        $scope.AttdnRawData = response.data;
+                        $scope.BankReconciliationUploadedData = [];
+                        $scope.BankReconciliationUploadedData = response.data;
                         $scope.ShowSaveBtn = true;
                     }
                 }, function errorCallback(response) {
@@ -238,48 +238,40 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
     };
 
 
-    $scope.onrowdatabound = function (e) {
-        if (e.data.Remarks !== '') {
-            if (e.data.Remarks == 'Salary has been locked')
-                e.row.css("background-color", "yellow");
-            else
-                e.row.css("background-color", "red");
-        }
+    //$scope.onrowdatabound = function (e) {
+    //    if (e.data.Remarks !== '') {
+    //        if (e.data.Remarks == 'Salary has been locked')
+    //            e.row.css("background-color", "yellow");
+    //        else
+    //            e.row.css("background-color", "red");
+    //    }
 
-    };
+    //};
 
 
 
     $scope.save = function () {
 
         try {
-            for (var i = 0; i < $scope.AttdnRawData.length; i++) {
-
-                if ($scope.AttdnRawData[i].Remarks !== '') {
-                    if ($scope.AttdnRawData[i].Remarks !== 'Salary has been locked')
-                        throw "Please Upload valid data";
-                }
-
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.BankMasterId)) {
+                throw "Please Select Bank.";
             }
 
-            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.SalaryHeadId)) {
-                throw "Please Select Salary Head.";
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.BankStatementNo)) {
+                throw "Please Select Bank StatementNo.";
             }
 
-            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.YearNo)) {
-                throw "Please Select Year.";
-            }
-
-            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.MonthNo)) {
-                throw "Please Select Month.";
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.EmployeeId)) {
+                throw "Please Select By Whom.";
             }
 
             $.ajax({
                 type: "POST",
-                url: $scope.path + 'SaveExternalData',
+                url: $scope.path + 'SaveBankReconciliationUploadData',
                 data: {
-                    'data': $scope.AttdnRawData
-                    , 'SalaryHeadId': $scope.bankReconciliationNew.SalaryHeadId
+                    'bankReconciliationUploadvm': $scope.bankReconciliationNew
+                    ,'bankReconciliationUploadedDataList': $scope.BankReconciliationUploadedData
+                    
                    
                 },
                 dataType: "json",
@@ -292,7 +284,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                     }
                     else {
                         ShowResult(response.Message, 'success');
-                        $scope.AttdnRawData = [];
+                        $scope.BankReconciliationUploadedData = [];
                         $("#uploadImage").val(null);
                         $scope.ShowSaveBtn = false;
                     }
