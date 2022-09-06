@@ -167,9 +167,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
         var g = $("#GridPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.PurchaseRegisterLst;
-        }
 
         var ids = "";
         if (baseService.arrayLength(dataList) > 0) {
@@ -184,18 +181,20 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
         }
         else {
             for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
-                }
-                else {
-                    ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
+                if (dataList.length == 0) {
+                    if (ids == "") {
+                        ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
+                    }
+                    else {
+                        ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
+                    }
                 }
             }
         }
 
         var reportFormat = "Pdf";
         //if (baseService.isUndefinedOrNull(id)) return ShowResult('No Id found', 'failure');
-        $window.open('Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Type=' + $scope.productNew.Type, '_blank' + '&POId=' + ids);
+        $window.open('Materials/MaterialLedger/PurchaseOrderRegisterReport?reportFormat=' + reportFormat + '&fromDate=' + $scope.report.FromDate + '&toDate=' + $scope.report.ToDate + '&Inventory=' + $scope.productNew.WithoutStock + '&POId=' + ids);
     };
 
     $scope.PurchaseOrderReportExcel = function (reportFormat) {
@@ -212,11 +211,6 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
         var g = $("#GridPrint").data("ejGrid");
         dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.PurchaseRegisterLst;
-        }
-
-
         var ids = "";
 		if (baseService.arrayLength(dataList) > 0) {
 			for (var i = 0; i < dataList.length; i++) {
@@ -230,12 +224,14 @@ function purchaseorderRegisterController(fileReader, commonMessage, $scope, $roo
 		}
 		else {
             for (var i = 0; i < $scope.PurchaseRegisterLst.length; i++) {
-				if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
-				}
-				else {
-                    ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
-				}
+                if (dataList.length == 0) {
+                    if (ids == "") {
+                        ids = "'','" + $scope.PurchaseRegisterLst[i].POId + "'";
+                    }
+                    else {
+                        ids += ",'" + $scope.PurchaseRegisterLst[i].POId + "'";
+                    }
+                }
 			}
 		}
       

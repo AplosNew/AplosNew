@@ -1803,7 +1803,99 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
+        //Route Employee start
+        public IEnumerable<object> GetemployeeDataListRouteEmp(string plantId)
+        {
+            try
+            {
+                string CmdText = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+									,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
+									,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
+									,PL.UserName Plant,TG.UserName TransportGroup,'' StoppageId
+                                        FROM EmployeeInformation EMP
+                                        LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+                                        LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                        LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+                                        LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+                                        LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+                                        LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+                                        LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+                                        LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
+                                        LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+                                        LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
+                                        left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
+                              Where EMP.PlantId ='" + plantId + @"' AND EMP.EmployeeStatus='Active' AND EMP.EmployeeCurrentStatus is null
+							  and TG.IsTransportApplicable=1
+                              ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
+                return _sqlRepository.GetDataCollection(CmdText, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public void SaveEmployeeTransportAllocation(List<Dictionary<string, object>> EmployeeList)
+        {
+
+            try
+            {
+                //Master Table - PMSMaster
+                string TableName = "dbo.EmployeeTransportAllocation";
+                DataSet dsMaster = null;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+
+
+                string _Id = "";
+
+                #region data Master update
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                bplib.clsGenID genid = new bplib.clsGenID();
+                genid.GenID(TableName, out _Id);
+
+                int count = 0;
+                foreach (var item in EmployeeList)
+                {
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["EmployeeSystemId"] + "'", out dsMaster, false, "1");
+                    count++;
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        item["Id"] = _Id + "-" + count;
+                        item["AssignDate"] = DateTime.Now;
+                        item["TripId"] = item["TripId"];
+                        item["UnassignDate"] = DateTime.Now;
+                        item["AssignStatus"] = 1;
+                        AddNewRow(dsMaster.Tables[0], item);
+                    }
+                    else
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                        item["AssignStatus"] = 1;
+                        EditRow(drmo, item);
+                    }
+                }
+                #endregion data Master update
+
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                //return ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //Route Employee End
         public IEnumerable<object> getResidence()
         {
             try
@@ -1893,7 +1985,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             try
             {
                 //Master Table - PMSMaster
-                string TableName = "dbo.ResidenceAllocatedEmployees";
+                string TableName = "dbo.EmployeeTransportAllocation";
                 DataSet dsMaster=null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
