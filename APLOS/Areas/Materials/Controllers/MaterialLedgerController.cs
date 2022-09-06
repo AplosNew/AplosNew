@@ -707,10 +707,10 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult PurchaseOrderRegisterReport(ReportFormat reportFormat, string plantId, string fromDate, string toDate, string Type,string POId)
+        public ActionResult PurchaseOrderRegisterReport(ReportFormat reportFormat, string fromDate, string toDate, string Type,string POId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            plantId = identity.PlantId;
+            string plantId = identity.PlantId;
             var reportFileName = "Purchase Report Register" + fromDate + "To" + toDate + "";
             Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService obj = new Library.MaterialManagement.InventoryManagements.PurchaseOrderQueryService();
             // return Json(obj.CreatePurchaseRegisterReportSheet(identity.CompanyId, plantId, fromDate, toDate, Type), JsonRequestBehavior.AllowGet);
