@@ -11,6 +11,7 @@ using Library.Model.Banks;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
+using Library.ViewModel.Accounts;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
 using System;
@@ -193,7 +194,7 @@ namespace Aplos.Areas.Banks.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                List<BankReconciliationUploadedData> data = new List<BankReconciliationUploadedData>();
+                List<BankReconciliationUploadedDataViewModel> data = new List<BankReconciliationUploadedDataViewModel>();
 
                 var pre = form["modelNew"];
                 var file = Request.Files["file"];
@@ -261,11 +262,12 @@ namespace Aplos.Areas.Banks.Controllers
                                 string crAmount = "0.0";
                                 drAmount = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
                                 crAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                BankReconciliationUploadedData vm = new BankReconciliationUploadedData();
+                                BankReconciliationUploadedDataViewModel vm = new BankReconciliationUploadedDataViewModel();
 
                                 vm.DrAmount = Convert.ToDecimal(string.IsNullOrEmpty(drAmount) ? "0" : drAmount);
                                 vm.CrAmount = Convert.ToDecimal(string.IsNullOrEmpty(crAmount) ? "0" : crAmount);
-                                vm.Date = Convert.ToDateTime(dsExcel.Tables[0].Rows[i][0].ToString().Trim());
+                                vm.BankStatementDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                 vm.BankRefNo = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
                                 vm.Remarks = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 vm.OwnRefNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();

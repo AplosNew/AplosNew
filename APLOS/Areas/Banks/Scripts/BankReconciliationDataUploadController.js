@@ -279,12 +279,13 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
 
 
                     if (response.Error === true) {
-                        $scope.ShowSaveBtn = false;
+                        $scope.ShowSaveBtn = true;
                         ShowResult(response.Message, 'failure');
                     }
                     else {
                         ShowResult(response.Message, 'success');
                         $scope.BankReconciliationUploadedData = [];
+                        $scope.bankReconciliationNew = {};
                         $("#uploadImage").val(null);
                         $scope.ShowSaveBtn = false;
                     }

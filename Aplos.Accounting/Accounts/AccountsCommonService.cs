@@ -829,7 +829,7 @@ namespace Library.Accounting.Accounts
                     var bankReconciliationUploadedData = new BankReconciliationUploadedData
                     {
                         BankReconciliationUploadId = bankReconciliationUpload.Id,
-                        Date = item.Date,
+                        BankStatementDate = item.BankStatementDate,
                         BankRefNo = item.BankRefNo,
                         DrAmount = item.DrAmount,
                         CrAmount = item.CrAmount,
@@ -845,7 +845,7 @@ namespace Library.Accounting.Accounts
                 }
 
                 clsStaticInfo objApp = new clsStaticInfo();
-                objApp.SaveDataSets(_BankReconciliationUploadedData, _BankReconciliationUpload);
+                objApp.SaveDataSets( _BankReconciliationUpload, _BankReconciliationUploadedData);
             }
             catch (Exception ex)
             {
