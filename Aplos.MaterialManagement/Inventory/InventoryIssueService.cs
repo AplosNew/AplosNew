@@ -1940,7 +1940,7 @@ namespace Library.MaterialManagement.Inventory
             try
             {
                 
-                if (!string.IsNullOrEmpty(voucherId))
+                if ( voucherId!="null")
                 {
                     throw new CustomException("Posted voucher  have to delete first!");
                 }
