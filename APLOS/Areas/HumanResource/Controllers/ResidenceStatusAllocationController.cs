@@ -74,6 +74,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rsl.getemployeeDataList(plantId, residenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult getOccupiedemployeeDataList(string plantId, string residenceNumber)
+        {
+            return Json(rsl.getOccupiedemployeeDataList(plantId, residenceNumber), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult getResidence()
         {

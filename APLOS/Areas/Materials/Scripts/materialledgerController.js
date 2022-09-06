@@ -192,6 +192,11 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         var dataList = [];
         var g = $("#GridGRNWise").data("ejGrid");
         dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterList;
+        }
+
         var ids = "";
         if (baseService.arrayLength(dataList) > 0) {
             for (var i = 0; i < dataList.length; i++) {

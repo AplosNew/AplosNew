@@ -994,7 +994,7 @@ order by pk.Date  DESC";
                             LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId = pk.DispatchResponsiblePersonId
                             LEFT JOIN hkp.MaterialStorage ms on ms.Id = pk.StorageLocId
                             LEFT JOIN org.Entity en on en.Id = pk.EntityId                            
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=P.Id AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             LEFT JOIN [SCS].[Currency] AS C ON C.Id=CP.CurrencyId
                              JOIN
@@ -1003,7 +1003,7 @@ order by pk.Date  DESC";
                             LEFT JOIN TRN.SalesOrder SO ON SO.Id=PLI.SOId
                             LEFT JOIN TRN.MasterOrderItem MOI ON MOI.Id=SO.MasterOrderItemId
                             LEFT JOIN TRN.MasterOrder MO ON MO.Id=MOI.MasterOrderId
-                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId
+                            LEFT JOIN [HKP].[CompanyParty] AS CP ON CP.PartyId=MO.PartyId AND CP.PartyType='Customer'
                             LEFT JOIN [MST].[PaymentTerm] AS PT ON PT.Id=CP.PaymentTermId
                             ) A ON A.PackingId=pk.PackingId                            
                             WHERE Pk.PackingId NOT IN (Select PackingId from dbo.SalesPacking)";
@@ -1146,6 +1146,38 @@ order by pk.Date  DESC";
                 throw;
             }
 
+        }
+
+        public DataTable GetScanDataReport(string packingId)
+        {
+            try
+            {
+                
+                var str = @"SELECT ROW_NUMBER() OVER (ORDER BY SP.SalesId) SR,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,
+Count(sc.RefNo) as NoOfPackages, sc.ProductCode ,sc.POId , sc.LotNo
+,(sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,(sc.GWeight * Count(sc.RefNo)) as GrossWeight
+,SP.SalesId InvoiceNo,FORMAT(S.InvoiceDate,'dd-MMM-yyyy') InvoiceDate,pc.UserName as ConsigneeBilltoName
+FROM trn.Packing as p  
+LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
+LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
+LEFT JOIN dbo.ItemScanChild sc ON sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo 
+LEFT JOIN ProductLibrary PL ON PL.Code = sc.ProductCode 
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = PL.ArticleId 
+LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
+LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
+LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
+LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
+LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
+LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
+LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
+WHERE p.PackingId = '"+ packingId + @"'
+GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pc.UserName";
+                return _sqlRepository.GetDataTable(str);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public DataTable getGroupFinishedStocksReport(string Loc)

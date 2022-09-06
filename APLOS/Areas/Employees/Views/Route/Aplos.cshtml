@@ -228,6 +228,12 @@
                                     @*<input type="text" n-decimals="4" name="Capacity" ng-model="ModelChildNew.Capacity" class="form-control text-right" required tabindex="110">*@
                                 </div>
                             </div>
+                            <div class="form-group" show-errors>
+                                <label class="col-sm-4 control-label">Plan Capacity<sup>*</sup></label>
+                                <div class="col-sm-8 show-message">
+                                    <input type="number" name="PlanCapacity" ng-model="ModelChildNew.PlanCapacity" class="form-control" required tabindex="115">
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Remarks</label>
                                 <div class="col-sm-8 show-message">
@@ -254,6 +260,7 @@
 
                                             <th>Transport Port</th>
                                             <th>Capacity</th>
+                                            <th>Plan Capacity</th>
                                             <th>Speed Per km(In Minute)</th>
                                             <th>Remarks</th>
                                             <th>Remove</th>
@@ -268,6 +275,7 @@
                                             <td>{{x.TransportCategory}}</td>
                                             <td>{{x.TransportPort}}</td>
                                             <td>{{x.Capacity}}</td>
+                                            <td>{{x.PlanCapacity}}</td>
                                             <td>{{x.SpeedPerkm}}</td>
                                             <td>{{x.Remarks}}</td>
                                             <td class="text-right table-td">

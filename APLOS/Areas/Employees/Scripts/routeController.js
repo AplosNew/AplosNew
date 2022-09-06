@@ -40,6 +40,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         TransportNo: null,
         TransportPort: null,
         Capacity: 0,
+        PlanCapacity: 0,
         DriverName: null,
         SpeedPerkm: 0,
         Remarks: null

@@ -55,7 +55,7 @@ namespace Library.MaterialManagement.Inventory
         IWorkbook CreateOSIssueRegisterGRNIssueReport(string companyId, string plantId, string fromDate, string toDate, string Type);
 
 
-        void DeleteIssueDetail(string issueDetailId);
+        void DeleteIssueDetail(string issueDetailId, string voucherId);
         void DeleteSalesDetail(string issueDetailId); 
         
         void RequisitionIssueInsert(IEnumerable<InventoryMaterialViewModel> entities, IEnumerable<InventoryMaterialViewModel> specificStockList
