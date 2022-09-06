@@ -1860,10 +1860,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 int count = 0;
                 foreach (var item in EmployeeList)
                 {
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["EmployeeSystemId"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["SystemID"] + "'", out dsMaster, false, "1");
                     count++;
                     DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
+                    dv.RowFilter = "EmployeeSystemId='" + item["SystemId"] + "'";
 
 
                     if (dv.Count == 0)
@@ -1872,6 +1872,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                         item["AssignDate"] = DateTime.Now;
                         item["TripId"] = item["TripId"];
                         item["UnassignDate"] = DateTime.Now;
+                        item["StoppageId"] = item["StoppageId"];
                         item["AssignStatus"] = 1;
                         AddNewRow(dsMaster.Tables[0], item);
                     }
