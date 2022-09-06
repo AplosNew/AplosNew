@@ -1050,6 +1050,16 @@ function PackingController(cboService, commonMessage, $scope, $rootScope, baseSe
         }
     }
 
+    $scope.PackingListPDFReport = function (obj) {
+        try {
+            var file_src = $scope.path + "PackingListPDFReport?reportFormat=" + 'Pdf' +'&PackingId=' + obj.data.PackingId;
+            $rootScope.report(file_src);
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
 
 
     $scope.PackingIdForReport = "";

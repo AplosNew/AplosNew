@@ -71,8 +71,24 @@ namespace Aplos.Areas.IE.Controllers
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             string str = @"select distinct DD.DepartmentId,D.Code,D.Sequence,D.ShortName,D.StandardName
-,D.UserName DepartmentName,D.Description,D.Remarks,DD.DetentionMasterId  from DetentionMasterDepartment DD
+,D.UserName DepartmentName,D.Description,D.Remarks from DetentionMasterDepartment DD
 left outer join ORG.Department D on D.id=DD.DepartmentId";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult GetDetentionResponsible(string detentionId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select distinct E.SystemId as ResponsiblePersonId,E.EmployeeCode,E.EmployeeName as ResponsiblePerson,DEP.UserName AS Department,S.UserName as Section,
+  SS.UserName as SubSection,DEG.UserName AS [LegalDesignation],DR.DetentionMasterId from DetentionMasterResponsible DR
+left join EmployeeInformation AS E ON E.SystemId=DR.ResponsibleMasterId
+							LEFT JOIN HKP.LegalDesignation AS DEG ON DEG.Id=E.LegalDesignationId
+                            LEFT JOIN ORG.Department AS DEP ON DEP.id=E.DepartmentId
+							LEFT OUTER JOIN ORG.Section S ON S.Id=E.SectionId
+							LEFT OUTER JOIN ORG.SubSection SS ON SS.Id=E.SubSectionId
+where DetentionMasterId='" + detentionId + "'";
 
             return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
@@ -153,11 +169,12 @@ left outer join ORG.Department D on D.id=DD.DepartmentId";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
-        public JsonResult getDetentionTypeListByDepartment(string detentiontype)
+        public JsonResult getDetentionTypeListByDepartment(string departmentid)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select distinct DM.DetentionType As Text, DM.Id As Value from DetentionMaster DM
-                        left join DetentionMasterDepartment DD ON DD.DetentionMasterId='"+ detentiontype + "'";
+            var sql = @"select DM.DetentionType As Text, DM.Id As Value from DetentionMasterDepartment DD
+            left join DetentionMaster DM on DM.Id=DD.DetentionMasterId
+            where DepartmentId='" + departmentid + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
