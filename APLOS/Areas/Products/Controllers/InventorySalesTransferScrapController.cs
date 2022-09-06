@@ -274,7 +274,7 @@ namespace Aplos.Areas.Products.Controllers
         [HttpPost]
         public JsonResult Delete(string issueDetailId)
         {
-            _inventoryIssueService.DeleteIssueDetail(issueDetailId);
+            _inventoryIssueService.DeleteIssueDetail(issueDetailId,null);
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
