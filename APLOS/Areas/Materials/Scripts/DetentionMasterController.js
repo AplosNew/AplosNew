@@ -32,6 +32,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , IsAvoidable: false
         , IsAssetApplicable: false
         , IsWorkCenterApplicable: false
+        , IsMachineParaApplicable: false
     };
     $scope.detentionNew = Object.assign({}, $scope.detention);
 
