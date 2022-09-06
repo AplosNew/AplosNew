@@ -79,7 +79,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
             .then(function (response) {
 
                 $scope.bankReconciliationNew.FromDate = response.data.FromDate;
-                $scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
+                //$scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
                 $scope.bankReconciliationNew.ClosingBalance = null;
                 $scope.bankReconciliationNew.BankStatementNo = null;
                 if ($scope.bankReconciliationNew.FromDate == null)
