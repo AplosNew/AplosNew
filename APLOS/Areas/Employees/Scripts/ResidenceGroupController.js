@@ -37,6 +37,7 @@ function ResidenceGroupController(cboService, commonMessage, $scope, $rootScope,
         UserName: null,
         Description: null,
         Remarks: null,
+        IsResidenceApplicable: true,
         Active: true
     };
     $scope.ModelNew = Object.assign({}, $scope.ModelTemp);

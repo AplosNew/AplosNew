@@ -3,6 +3,9 @@ routeController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope'
 function routeController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Route';
     $scope.Action = 'Save';
+    $scope.ActionTransaction = 'Save';
+    $scope.ActionRouteShd = 'Save';
+    $scope.ActionRouteShdChild = 'Save';
     $scope.path = 'employees/route/';
     $scope.deleteUrl = $scope.path + 'delete/';
     $scope.saveUrl = $scope.path + 'Save';
@@ -61,6 +64,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.RouteShd = {
         Id: null,
+        RouteScheduleId: null,
         StartTime: null,
         EndTime: null,
         UpDown: null,
@@ -142,7 +146,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $http({
             method: 'POST',
             url: $scope.saveRouteSchedule,
-            data: { 'data': $scope.ModelRouteSchedule, 'RouteShChildId' : $scope.RouteSheduleChildModel},
+            data: { 'data': $scope.ModelRouteSchedule},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -158,6 +162,99 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         }
 
     };
+
+    // --Start Route Shedule Child Details--
+
+    $scope.GetRouteSheduleChildData = function (index) {
+        $scope.RouteShdChId = index;
+        $scope.RouteSheduleChildModel = Object.assign({}, $scope.RouteShd);
+
+        //$scope.GetArticleAliasDatas();
+        angular.element(document.querySelector('#RouteScheduleChilPopUp')).modal('show');
+    };
+
+    $scope.SaveRouteSheduleChild = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'CreateRouteSheduleChildDetails',
+            data: { 'RouteShChild': $scope.RouteSheduleChildModel, 'RouteScheduleId': $scope.RouteShdChId},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetRouteSheduleChild();
+                $scope.RouteSheduleChildClear();
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        };
+    };
+
+    $scope.RouteScheduleChildList = [];
+    $scope.GetRouteSheduleChild = function () {
+        $http({
+            method: 'GET',
+            url: $scope.path + 'GetRouteScheduleChilddata',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.RouteScheduleChildList = response.data;
+
+        });
+    }
+    $scope.GetRouteSheduleChild();
+
+    $scope.GetRouteScheduleChilddbl = function (args) {
+
+        $scope.RouteSheduleChildModel = Object.assign({}, args);
+        $scope.GetRouteSheduleChild(args.Id);
+        $scope.ActionRouteShdChild = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.RouteSheduleChildClear = function () {
+
+        $scope.RouteSheduleChildModel = Object.assign({}, $scope.RouteShd);
+        $scope.ActionRouteShdChild = 'Save';
+    }
+
+    $scope.deleteRouteScheduleChildList = function (RouteShdChId) {
+        try {
+            $scope.RouteShdChId = RouteShdChId;
+            $scope.message_confirmation = "Are you sure want to permanent delete ?";
+            angular.element(document.querySelector('#confirmRouteScheduleChildRemovePopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
+
+    $scope.removeRouteScheduleChildRow = function () {
+        $http({
+            method: 'POST',
+            url: 'employees/route/RouteScheduleChildDelete',
+            data: { 'Id': $scope.RouteShdChId },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.GetRouteSheduleChild();
+                $scope.RouteSheduleChildClear();
+            }
+            function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        });
+    };
+
+     // --End Route Shedule Child Details--
 
     function CheckField(fieldname, field) {
         try {
@@ -298,12 +395,11 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.Clear = function (obj) {
         ClearFields();
+        $scope.Action = 'Save';
     };
     function ClearFields() { 
         $scope.routeNew = Object.assign({}, $scope.route);
         $scope.StopageListNew = [];
-        $scope.transportDetailsList = [];
-        $scope.routeScheduleList = [];
     }
 
     $scope.Delete = function () {
@@ -340,10 +436,12 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.TransportDetailsdoubleclick = function (args) {
         $scope.ModelChildNew = Object.assign({}, args);
+        $scope.ActionTransaction = 'Update';
     };
 
     $scope.ClearTransDetails = function () {
         $scope.ModelChildNew = Object.assign({}, $scope.transport);
+        $scope.ActionTransaction = 'Save';
     }
 
     $scope.removeTransportDetailsRowModal = function (tempId) {
@@ -360,7 +458,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.removeTransportDetailsRow = function () {
         $http({
             method: 'POST',
-            url: 'employees/route/TransportDetailsDelete?id=' + $scope.tempId,
+            url: 'employees/route/TransportDetailsDelete',
+            data: { 'id': $scope.tempId},
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -441,13 +540,12 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.routeScheduledoubleclick = function (args) {
         $scope.ModelRouteSchedule = Object.assign({}, args);
-        var DropDownListObj = $("#transportList").data("ejDropDownList");
-        DropDownListObj.uncheckAll();
         $scope.GetRouteScheduleTransport(args.Id);
-        $scope.getDistance();
+        $scope.ActionRouteShd = 'Update';
     };
     $scope.ClearRouteSchedule = function () {
         $scope.ModelRouteSchedule = Object.assign({}, $scope.schedule);
+        $scope.ActionRouteShd = 'Save';
     }
 
     $scope.removeRouteScheduleRowModal = function (tempId) {
@@ -503,21 +601,21 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 });
     };
 
-    $scope.getDistance = function () {
-        try {
-            $scope.DistanceUrl = 'employees/route/GetDistance/'
-            $http({
-                method: 'POST',
-                url: $scope.DistanceUrl,
-                data: { 'data': $scope.ModelRouteSchedule },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                $scope.ModelRouteSchedule.DistancePerUnit = response.data;
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            }
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    }
+    //$scope.getDistance = function () {
+    //    try {
+    //        $scope.DistanceUrl = 'employees/route/GetDistance/'
+    //        $http({
+    //            method: 'POST',
+    //            url: $scope.DistanceUrl,
+    //            data: { 'data': $scope.ModelRouteSchedule },
+    //            dataType: 'JSON'
+    //        }).then(function successCallback(response) {
+    //            $scope.ModelRouteSchedule.DistancePerUnit = response.data;
+    //        }), function errorCallBack(response) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //    } catch (e) {
+    //        ShowResult(e, 'failure');
+    //    }
+    //}
 }

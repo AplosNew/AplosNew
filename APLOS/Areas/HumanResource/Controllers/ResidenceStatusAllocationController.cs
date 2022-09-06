@@ -74,6 +74,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             return Json(rsl.getemployeeDataList(plantId, residenceGroupId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public JsonResult getOccupiedemployeeDataList(string plantId, string residenceNumber)
+        {
+            return Json(rsl.getOccupiedemployeeDataList(plantId, residenceNumber), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost, Authorize]
         public JsonResult getResidence()
         {
@@ -649,7 +655,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "Residence Status Allocation", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "Residence Status Allocation", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -853,7 +859,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceMaster", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceMaster", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -1043,7 +1049,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             sheet.UsedRange.CellStyle.Font.Size = 8;
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceMaster", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceMaster", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -1325,7 +1331,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -1575,7 +1581,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "DetailResidenceStatus", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -1644,6 +1650,10 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ColResidentType = COL;
             COL++;
 
+            report.SetHeaderText(ref sheet, ROW, COL, "Rooms", 12, ExcelHAlign.HAlignCenter);
+            int ColRooms = COL;
+            COL++;
+
             report.SetHeaderText(ref sheet, ROW, COL, "Vacancy", 12, ExcelHAlign.HAlignCenter);
             int ColVacancy = COL;
             COL++;
@@ -1673,7 +1683,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int LocationRow = 0;
             
 
-            double[] arr = new double[3];
+            double[] arr = new double[4];
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
@@ -1711,6 +1721,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColResidentType].Text = data.Rows[i]["ResidentType"].ToString();
                
                
+                sheet[ROW, ColRooms].Number = clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
                 sheet[ROW, ColVacancy].Number = clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
                
 
@@ -1721,6 +1732,7 @@ namespace Aplos.Areas.HumanResource.Controllers
                 arr[0] += clsStaticInfo.dbl(data.Rows[i]["Capacity"].ToString());
                 arr[1] += clsStaticInfo.dbl(data.Rows[i]["Allotted"].ToString());
                 arr[2] += clsStaticInfo.dbl(data.Rows[i]["Balance"].ToString());
+                arr[3] += clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
 
                
                 ROW++;
@@ -1728,10 +1740,12 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
 
             ROW++;
-            sheet[ROW, ColEmployeeCtegory].Text = "TOTAL";
+            
+            sheet[ROW, ColEmployeeCtegory].Text = "Grand Total";
             sheet[ROW, ColVacancy].Number = arr[0];
             sheet[ROW, ColOccupied].Number = arr[1];
             sheet[ROW, ColAvailable].Number = arr[2];
+            sheet[ROW, ColRooms].Number = arr[3];
 
             sheet.Range[ROW, ColEmployeeCtegory, ROW, endCol].CellStyle.Font.Bold = true;
             endRow = ROW - 1;
@@ -1766,7 +1780,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceSmmaryReport", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "ResidenceSmmaryReport", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
@@ -1974,7 +1988,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
 
             ReportUtility reportUtility = new ReportUtility();
-            reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
+            //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
