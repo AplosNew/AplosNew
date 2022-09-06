@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounts\BankReconciliationUploadedDataViewModel.cs" />
     <Compile Include="HR\Attendance\JobcardVM.cs" />
     <Compile Include="HR\LeaveTransactionVM.cs" />
     <Compile Include="HR\SalaryFixationVM.cs" />
