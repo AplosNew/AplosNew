@@ -462,12 +462,15 @@ namespace Library.Service.Productions
         }
         public IEnumerable<object> GetCboWC(string plantId, string ProcessId, string entityId, string productionDate, string shiftId)
         {
-            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (0 AS bit) Flag,'' Id,wc.UserName as WorkCenter,
-                        pw.ProductionOrderId,pw.LotNumber,'' as Mentor,'' as ResponsiblePerson,
-                        '' as CheckedByName,0 Quantity,pw.ProductionGrade,'' Remarks
+            var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
+                        pw.ProductionOrderId,pw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as ResponsiblePerson,
+                        C.EmployeeName as CheckedByName,pw.Quantity,pw.ProductionGrade,pw.Remarks
                         FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
                         AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"'                   
+                        LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
+                        LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
+                        LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
                         where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' ";
             return _sqlRepository.GetDataCollection(sql);
         }
@@ -884,61 +887,68 @@ namespace Library.Service.Productions
                     {
                         objCon.OpenDataSetThroughAdapter("SELECT * FROM " + TableName + "  where  Id='" + item["Id"] + "'", out dsProdBooked, false, "1");
                         DataView dv = new DataView(dsProdBooked.Tables[0]);
-                        if (item["FromTime"] == null && item["ToTime"] == null)
+                        if (item["FromTime"] == null)
                         {
-                            throw new CustomException("From time and To Time is required!");
+                            throw new CustomException("From time is required!");
 
                         }
                         else
-                        { 
-                            if (dv.Count == 0)
+                        {
+                            if (item["ToTime"] == null)
                             {
-                                DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                DateTime NextDayDate = date2.AddDays(1);
-                                TimeSpan ts = date2 - date1;
-                                TimeSpan Nd = NextDayDate - date1;
-                                int minutes = (int)ts.TotalMinutes;
-
-                                if (minutes >= 720 || minutes < 0)
-                                {
-                                    item["ToTime"] = NextDayDate;
-                                    item["Minute"] = Nd.TotalMinutes;
-                                }
-                                else
-                                {
-                                    item["ToTime"] = date2;
-                                    item["Minute"] = ts.TotalMinutes;
-                                }
-
-                                item["Id"] = GetPK();
-                                AddNewRow(dsProdBooked.Tables[0], item);
+                                throw new CustomException("To Time is required!");
                             }
                             else
                             {
-
-                                DataRow drpb = dv[0].Row;
-                                DateTime date1 = Convert.ToDateTime(item["FromTime"]);
-                                DateTime date2 = Convert.ToDateTime(item["ToTime"]);
-                                DateTime NextDayDate = date2.AddDays(1);
-                                TimeSpan ts = date2 - date1;
-                                TimeSpan Nd = NextDayDate - date1;
-                                int minutes = (int)ts.TotalMinutes;
-
-                                if (minutes >= 720 || minutes < 0)
+                                if (dv.Count == 0)
                                 {
-                                    item["ToTime"] = NextDayDate;
-                                    item["Minute"] = Nd.TotalMinutes;
+                                    DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                    DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                    DateTime NextDayDate = date2.AddDays(1);
+                                    TimeSpan ts = date2 - date1;
+                                    TimeSpan Nd = NextDayDate - date1;
+                                    int minutes = (int)ts.TotalMinutes;
+
+                                    if (minutes >= 720 || minutes < 0)
+                                    {
+                                        item["ToTime"] = NextDayDate;
+                                        item["Minute"] = Nd.TotalMinutes;
+                                    }
+                                    else
+                                    {
+                                        item["ToTime"] = date2;
+                                        item["Minute"] = ts.TotalMinutes;
+                                    }
+
+                                    item["Id"] = GetPK();
+                                    AddNewRow(dsProdBooked.Tables[0], item);
                                 }
                                 else
                                 {
-                                    item["ToTime"] = date2;
-                                    item["Minute"] = ts.TotalMinutes;
+
+                                    DataRow drpb = dv[0].Row;
+                                    DateTime date1 = Convert.ToDateTime(item["FromTime"]);
+                                    DateTime date2 = Convert.ToDateTime(item["ToTime"]);
+                                    DateTime NextDayDate = date2.AddDays(1);
+                                    TimeSpan ts = date2 - date1;
+                                    TimeSpan Nd = NextDayDate - date1;
+                                    int minutes = (int)ts.TotalMinutes;
+
+                                    if (minutes >= 720 || minutes < 0)
+                                    {
+                                        item["ToTime"] = NextDayDate;
+                                        item["Minute"] = Nd.TotalMinutes;
+                                    }
+                                    else
+                                    {
+                                        item["ToTime"] = date2;
+                                        item["Minute"] = ts.TotalMinutes;
+                                    }
+                                    EditRow(drpb, item);
                                 }
-                                EditRow(drpb, item);
+                                clsStaticInfo obj = new clsStaticInfo();
+                                obj.SaveDataSets(dsProdBooked);
                             }
-                            clsStaticInfo obj = new clsStaticInfo();
-                            obj.SaveDataSets(dsProdBooked);
                         }
                     }
                 }

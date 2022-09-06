@@ -10,7 +10,7 @@
                 <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
-                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type" tabindex="2">
+                        <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Residence Type" tabindex="2">
 
                         <option value="">--Select--</option>
                         <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
@@ -119,65 +119,77 @@
         <div class="form-group">
             <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
             <div class="col-sm-6">
-                <input type="text" name="Residence" ng-model="Residence" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-            </div>
-            <div class="col-sm-2">
-                <button ng-click="openResidencePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
-            <div class="col-sm-6">
-                <input type="text" name="Employee" ng-model="EmployeeUN" class="form-control" maxlength="200" tabindex="5" ng-disabled="true  ">
-            </div>
-            <div class="col-sm-2">
-                <button ng-click="openEmployeePop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
-            <div class="col-sm-6 show-message">
                 <div class="select-style">
-                    <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceSubCategory" required name="Residence Sub Category" tabindex="2">
+                    <select class="form-control" id="ResidenceGroup" ng-model="ModalNew.ResidenceGroupId" required name="Residence Type" tabindex="2">
+
                         <option value="">--Select--</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Joint">Joint</option>
+                        <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+
                     </select>
+                </div>
+               
+            </div>
+           
+        </div>  
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
+                <div class="col-sm-6">
+                    
+                    <div class="select-style">
+                        <select class="form-control" id="EmployeeType" ng-model="ModalNew.EmployeeCategoryId" required name="Residence Type" tabindex="4">
+
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+                </div>
+               
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
+                <div class="col-sm-6 show-message">
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Sub Category" tabindex="2">
+                            <option value="">--Select--</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Joint">Joint</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Remarks</label>
+                <div class="col-sm-6">
+                    <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
                 </div>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Rooms<sup>*</sup></label>
-            <div class="col-sm-6">
-                <input type="number" name="Rooms" ng-model="ModalNew.Rooms" class="form-control" maxlength="200" tabindex="5">
-            </div>
-        </div>
-
-   
-
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Vacancy<sup>*</sup></label>
-        <div class="col-sm-6">
-            <input type="number" name="Vacancy" ng-model="ModalNew.Vacancy" class="form-control" maxlength="200" tabindex="5">
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Asset Name<sup>*</sup></label>
-        <div class="col-sm-6">
-            <input type="text" name="Asset Name" ng-model="ModalNew.AssetName" class="form-control" maxlength="200" tabindex="5">
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label class="col-sm-4 control-label">Remarks</label>
-        <div class="col-sm-6">
-            <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
-        </div>
-    </div>
-</div>
 <div class="common-btn">
     <ul class="list-inline text-right">
         <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

@@ -151,6 +151,8 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
 
+
+
     $scope.closeEmployeePopUp = function () {
         MakeData();
         $scope.SaveAllocation();
@@ -680,7 +682,6 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     }
 
 
-
     $scope.ResidenceGroupList = [];
     $scope.ResidenceGroupCbo = function () {
         $http.get('employees/ResidenceGroup/GetCbo')
@@ -694,5 +695,90 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     }
    
     $scope.ResidenceGroupCbo();
+
+    /*
+     *      Pop up screen for occupied employee
+     */
+
+    $scope.refreshTemplateOccupiedEmployee = function (args) {
+        $("#Occupiedheadcheck").ejCheckBox({ "change": CheckBoxSelectAllOccupiedWises });
+    };
+
+    function CheckBoxSelectAllOccupiedWises(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#GridEOccupiedUnallocation").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.OccupiedEmployeeList.length; i++) {
+                $scope.OccupiedEmployeeList[i].isSelected = ChkOrUnchk;
+            }
+        }
+        else {
+
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].isSelected = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridEOccupiedUnallocation").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.SaveOccupiedRSU = function () {
+        $scope.unallocationLoop = [];
+        for (var i = 0; i < $scope.OccupiedEmployeeList.length; i++) {
+
+            if ($scope.OccupiedEmployeeList[i].isSelected) {
+                $scope.unallocationLoop.push($scope.OccupiedEmployeeList[i]);
+            }
+        }
+        $http({
+            method: 'POST',
+            url: $scope.path + 'SaveRSUnallocation',
+            data: { 'employeeList': $scope.unallocationLoop },
+            dataType: 'JSON',
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                ShowResult(response.data.Message, 'success');
+                $scope.closeOccupiedEmployeePopUps();
+               /// $scope.OccupiedAvailablePopUpData();
+                $scope.view();
+            }
+        });
+    }
+
+    $scope.ResidenceNumberN = null
+    $scope.getResidenceNumber = function (e) {
+        $scope.ResidenceNumberN = e.data.ResidenceNumber;
+    }
+
+    $scope.OccupiedEmployeeList = [];
+    $scope.OccupiedAvailablePopUpData = function (data) {
+        $scope.ResidenceId = data.data.ResidenceMasterId;
+        $scope.PlantId = data.data.PlantId;
+        $scope.availableNumber = data.data.Available;
+        $scope.dataList = [];
+        $http({
+            method: 'GET',
+            url: $scope.path + 'getOccupiedemployeeDataList?plantId=' + data.data.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId + '&residenceNumber=' + $scope.ResidenceNumberN
+        }).then(function successCallback(response) {
+            $scope.OccupiedEmployeeList = response.data;
+
+            //$scope.getResidence();
+
+            //$scope.UnallocationView();
+
+        });
+        angular.element(document.querySelector('#OccupiedemployeeNewPopUp')).modal('show');
+    }
+
+    $scope.closeOccupiedEmployeePopUps = function () {
+        angular.element(document.querySelector('#OccupiedemployeeNewPopUp')).modal('hide');
+    }
    
 }

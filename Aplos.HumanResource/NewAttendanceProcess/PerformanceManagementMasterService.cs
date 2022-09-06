@@ -1473,7 +1473,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                string sql = @"select * from dbo.ResidenceGroup where Active = 1";
+                string sql = @"select Id as Value, UserName as Text from dbo.ResidenceGroup where Active = 1";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1486,7 +1486,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                string sql = @"select * from hkp.EmployeeCategory";
+                string sql = @"select Id as value, UserName as Text from hkp.EmployeeCategory";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -1864,6 +1864,47 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     count++;
                     DataView dv = new DataView(dsMaster.Tables[0]);
                     dv.RowFilter = "EmployeeSystemId='" + item["EmployeeSystemId"] + "'";
+
+        public IEnumerable<object> getOccupiedemployeeDataList(string plantId, string residenceNumber)
+        {
+            try
+            {
+                var Today = DateTime.Now;
+                string FirstDayOfTheMonth = "01-" + Convert.ToDateTime(Today).ToString("MMM") + "-" + Convert.ToDateTime(Today).ToString("yyyy");
+                string LastDayOfTheMonth = Convert.ToDateTime(FirstDayOfTheMonth).AddMonths(1).AddDays(-1).ToString("dd-MMM-yyyy");
+
+                string CmdText = @"select RAE.Id,EI.EmployeeCode,EI.SystemId EmployeeId,EI.EmployeeName,D.UserName Department,DE.UserName Designation
+                                            ,S.UserName Section,SS.UserName SubSection,L.UserName Line,format(EI.DOJ,'dd-MMM-yyyy') DOJ
+                                            ,RM.AssetName ResidenceName,RAE.isOccupied, FORMAT(EI.DOS, 'dd-MMM-yyyy')DOS, EI.EmployeeStatus,
+											EI.EmployeeCurrentStatus, RG.UserName ResidenceGroup, [RM].[Block], RM.ResidentType, 
+											RM.ResidenceNumber, EI.DOS, DEG.UserName GivenDesignation, PR.PaymentLink Skill --, EC.UserName EmployeeCategory
+
+                                            from ResidenceAllocatedEmployees RAE
+                                            left join ResidenceMaster RM on RM.Id=RAE.ResidenceId 
+											left join ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
+                                            left join EmployeeInformation EI on EI.SystemId=RAE.EmployeeSystemId
+                                            LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
+                                            LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+                                            left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
+											left join MST.DesignationMaster DM on DM.DesignationId = DM.Id
+                                            left join ORG.Department D on D.Id=EI.DepartmentId
+                                            left join ORG.Section S on S.Id=EI.SectionId
+                                            left join ORG.SubSection SS on SS.Id=EI.SubSectionId
+                                            left join ORG.Line L on L.Id=EI.LineId 
+											LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+                                
+                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 and RM.ResidenceNumber = '"+ residenceNumber + @"' order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus
+                               -- AND EI.EmployeeStatus='Active'";
+
+                return _sqlRepository.GetDataCollection(CmdText, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
                     if (dv.Count == 0)
                     {
@@ -2518,7 +2559,8 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-									where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
+									--where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
+                                    where ei.EmployeeCurrentStatus in ('TBS', 'LONG ABSENTEEISM') or ei.EmployeeStatus in ('Active', 'Separated', '')
 									";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2772,7 +2814,8 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-									where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
+									--where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
+                                    where ei.EmployeeCurrentStatus in ('TBS', 'LONG ABSENTEEISM') or ei.EmployeeStatus in ('Active', 'Separated', '')
 									";
                 return _sqlRepository.GetDataCollection(sql);
             }
