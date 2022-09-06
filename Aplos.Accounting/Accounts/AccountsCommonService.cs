@@ -3,6 +3,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Repositories;
 using Library.Data.Sql;
+using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Employees;
 using Library.Model.FixedAssets;
@@ -791,6 +792,94 @@ namespace Library.Accounting.Accounts
                 con.getDataSet("Select * from [TRN].[VoucherGLUpdateLog] where 1=2", out dsData);
             }
             AddNewRow<VoucherGLUpdateLog>(dsData.Tables[0], voucherGLUpdateLog);
+
+        }
+
+        #endregion
+
+        #region Bank Reconciliation Data Upload
+        public void SaveBankReconciliationUploadData(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
+        {
+            try
+            {
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                DataSet _BankReconciliationUploadedData = null;
+                DataSet _BankReconciliationUpload = null;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var bankReconciliationUpload = new BankReconciliationUpload
+                {
+                    BankMasterId = bankReconciliationUploadvm.BankMasterId,
+                    OpeningBlance = bankReconciliationUploadvm.OpeningBlance,
+                    ClosingBalance = bankReconciliationUploadvm.ClosingBalance,
+                    BankStatementNo = bankReconciliationUploadvm.BankStatementNo,
+                    FromDate = bankReconciliationUploadvm.FromDate,
+                    ToDate = bankReconciliationUploadvm.ToDate,
+                    EmployeeId = bankReconciliationUploadvm.EmployeeId,
+                    Remarks = bankReconciliationUploadvm.Remarks,
+                    CompanyGroupId = identity.CompanyGroupId,
+                    CompanyId = identity.CompanyId,
+                    PlantId = identity.PlantId,
+
+                };
+
+                InserBankReconciliationUpload(bankReconciliationUpload, ref _BankReconciliationUpload);
+
+                foreach (var item in bankReconciliationUploadedDataList)
+                {
+                    var bankReconciliationUploadedData = new BankReconciliationUploadedData
+                    {
+                        BankReconciliationUploadId = bankReconciliationUpload.Id,
+                        BankStatementDate = item.BankStatementDate,
+                        BankRefNo = item.BankRefNo,
+                        DrAmount = item.DrAmount,
+                        CrAmount = item.CrAmount,
+                        Remarks = item.Remarks,
+                        OwnRefNo = item.OwnRefNo,
+                        CompanyGroupId = identity.CompanyGroupId,
+                        CompanyId = identity.CompanyId,
+                        PlantId = identity.PlantId,
+
+                    };
+
+                    InserBankReconciliationUploadedData(bankReconciliationUploadedData, ref _BankReconciliationUploadedData);
+                }
+
+                clsStaticInfo objApp = new clsStaticInfo();
+                objApp.SaveDataSets( _BankReconciliationUpload, _BankReconciliationUploadedData);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+        }
+        public void InserBankReconciliationUpload(BankReconciliationUpload bankReconciliationUpload, ref DataSet dsData)
+        {
+            bankReconciliationUpload.Id = GetAutoNumber(nameof(BankReconciliationUpload), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationUpload.AddedBy))
+                AuditService.AddedLog(bankReconciliationUpload);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationUpload] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationUpload>(dsData.Tables[0], bankReconciliationUpload);
+
+        }
+        public void InserBankReconciliationUploadedData(BankReconciliationUploadedData bankReconciliationUploadedData, ref DataSet dsData)
+        {
+            bankReconciliationUploadedData.Id = GetAutoNumber(nameof(BankReconciliationUploadedData), PKGeneratorEnum.Yearly, null, DateTime.Now);
+
+            if (string.IsNullOrEmpty(bankReconciliationUploadedData.AddedBy))
+                AuditService.AddedLog(bankReconciliationUploadedData);
+            if (dsData == null || dsData.Tables.Count == 0)
+            {
+                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
+                con.getDataSet("Select * from [TRN].[BankReconciliationUploadedData] where 1=2", out dsData);
+            }
+            AddNewRow<BankReconciliationUploadedData>(dsData.Tables[0], bankReconciliationUploadedData);
 
         }
 

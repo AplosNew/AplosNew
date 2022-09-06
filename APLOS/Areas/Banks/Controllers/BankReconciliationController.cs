@@ -11,6 +11,7 @@ using Library.Model.Banks;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
+using Library.ViewModel.Accounts;
 using Newtonsoft.Json;
 using Syncfusion.XlsIO;
 using System;
@@ -193,7 +194,7 @@ namespace Aplos.Areas.Banks.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-                List<GLTransactionDetail> data = new List<GLTransactionDetail>();
+                List<BankReconciliationUploadedDataViewModel> data = new List<BankReconciliationUploadedDataViewModel>();
 
                 var pre = form["modelNew"];
                 var file = Request.Files["file"];
@@ -207,6 +208,10 @@ namespace Aplos.Areas.Banks.Controllers
                     }
                     else
                         throw new CustomException(Resources.ExcelUploadError);
+                }
+                else
+                {
+                    throw new CustomException(Resources.ExcelUploadError);
                 }
                 string path = "";
                 if (file != null)
@@ -223,10 +228,6 @@ namespace Aplos.Areas.Banks.Controllers
                     }
                 }
                 FileInfo docFile;
-
-                DataSet dsEmpInfo = null;
-                DataTable dtEmpInfo = null;
-                DataView dvEmpInfo = null;
                 string exception = "\r\n";
                 try
                 {
@@ -261,14 +262,15 @@ namespace Aplos.Areas.Banks.Controllers
                                 string crAmount = "0.0";
                                 drAmount = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
                                 crAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
-                                GLTransactionDetail vm = new GLTransactionDetail();
+                                BankReconciliationUploadedDataViewModel vm = new BankReconciliationUploadedDataViewModel();
 
-                                vm.DrAmount = Convert.ToDecimal(drAmount);
-                                vm.CrAmount = Convert.ToDecimal(crAmount);
-                                //vm.EmpInfoSystemID = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                //vm.PlantId = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                //vm.PlantName = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                //vm.EmployeeCode = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.DrAmount = Convert.ToDecimal(string.IsNullOrEmpty(drAmount) ? "0" : drAmount);
+                                vm.CrAmount = Convert.ToDecimal(string.IsNullOrEmpty(crAmount) ? "0" : crAmount);
+                                vm.BankStatementDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
+                                vm.BankRefNo = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
+                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
                                 data.Add(vm);
                                 
                             }
@@ -306,6 +308,14 @@ namespace Aplos.Areas.Banks.Controllers
 
                 return Json(new { Error = true, Message = ex.Message });
             }
+        }
+        [HttpPost]
+        public ActionResult SaveBankReconciliationUploadData(BankReconciliationUpload bankReconciliationUploadvm, IEnumerable<BankReconciliationUploadedData> bankReconciliationUploadedDataList)
+        {
+            AccountsCommonService accountsCommonService = new AccountsCommonService(_sqlRepository);
+            accountsCommonService.SaveBankReconciliationUploadData(bankReconciliationUploadvm, bankReconciliationUploadedDataList);
+
+            return Json(new { Message = AplosMessage.Insert });
         }
         #endregion Operation
     }
