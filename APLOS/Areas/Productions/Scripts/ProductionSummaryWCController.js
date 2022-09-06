@@ -1120,7 +1120,29 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
         var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
-   
+    $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllWorkCenterDetention });
+    };
+    function CheckBoxSelectAllWorkCenterDetention(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        var filtered = $("#ProductionSummaryDetentionWC").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                $scope.ProcessDetentionLists[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
+
     $scope.SaveMasterWC = function () {
         try {
    
@@ -1359,7 +1381,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.wcList = [];
     }
 
-    $scope.ProcessDetentionList = {
+    $scope.ProcessDetention = {
         Id: null,
         EntityId: null,
         ProcessId: null,
@@ -1370,7 +1392,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         DetentionId: null,
         ResponsiblePersonId: null,
         WorkCenter: null,
-        Detention: null,
+        //Detention: null,
         DetentionType: null,
         Department: null,
         ResponsiblePerson: null,
@@ -1396,28 +1418,52 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.workCenterId = data.data.WorkCenterMasterId;
         try {
             $scope.ProcessDetentionLists = [];
+            for (var i = 1; i < 6; i++) {
+                var obj = angular.copy($scope.ProcessDetention);
+                obj.Id = null;
+                obj.ProcessId = $scope.productionSummaryNew.ProcessId;
+                obj.EntityId = $scope.productionSummaryNew.EntityId;
+                obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
+                obj.ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                obj.workCenter = $scope.productionSummaryNew.workCenterId;
+                obj.Sequence = i;
+                $scope.ProcessDetentionLists.push(obj);
+            }
+        
             $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + data.data.WorkCenterMasterId)
                 .then(
                     function successCallback(response) {
-                        $scope.ProcessDetentionLists = response.data;
-                        if ($scope.ProcessDetentionLists.length == 0)
+                        /*$scope.ProcessDetentionLists = response.data;*/
+                        if (response.data.length > 0)
                         {
-                            for (var i = 1; i < 6; i++)
+
+                            for (var j = 0; j < response.data.length; j++)
                             {
-                                var obj = angular.copy($scope.ProcessDetentionList);
-                                obj.ProcessId = processid;
-                                obj.EntityId = entityid;
-                                obj.ProductionDate = productiondate;
-                                obj.ProductionShiftId = shiftid;
-                                obj.workCenter = data.data.WorkCenter;
-                                obj.workCenter = data.data.WorkCenter;
-                                /*$scope.GetDetentionTypeList();*/
-                                $scope.ProcessDetentionLists.push(obj);
+                                for (var k = 0; k < $scope.ProcessDetentionLists.length; k++)
+                                {
+                                    if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence)
+                                    {
+                                        $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
+                                        $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
+                                        $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
+                                        $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
+                                        $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
+                                        $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
+                                        $scope.ProcessDetentionLists[k].DetentionType = response.data[j].DetentionType;
+                                        $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
+                                        $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
+                                        $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
+                                        $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
+                                        $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
+                                    }
+                                }
                             }
+
                         }
-                        
-                       /* $scope.GetDetentionTypeList();*/
-                        /*$scope.GetDetentionList();*/
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1430,6 +1476,65 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     };
 
+    $scope.getProcessDetention = function () {
+        try {
+            $scope.ProcessDetentionLists = [];
+            for (var i = 1; i < 6; i++) {
+                var obj = angular.copy($scope.ProcessDetention);
+                obj.Id = null;
+                obj.ProcessId = $scope.productionSummaryNew.ProcessId;
+                obj.EntityId = $scope.productionSummaryNew.EntityId;
+                obj.ProductionDate = $scope.productionSummaryNew.ProductionDate;
+                obj.ProductionShiftId = $scope.productionSummaryNew.ProductionShiftId;
+                obj.workCenter = $scope.productionSummaryNew.workCenterId;
+                obj.Sequence = i;
+                $scope.ProcessDetentionLists.push(obj);
+            }
+
+            $http.get('Productions/ProductionSummary/GetProcessDetentionData?processId=' + $scope.productionSummaryNew.ProcessId + '&entityId=' + $scope.productionSummaryNew.EntityId + '&productionDate=' + $scope.productionSummaryNew.ProductionDate + '&shiftId=' + $scope.productionSummaryNew.ProductionShiftId + '&workcenter=' + $scope.productionSummaryNew.workCenterId)
+                .then(
+                    function successCallback(response) {
+                        if (response.data.length > 0)
+                        {
+
+                            for (var j = 0; j < response.data.length; j++)
+                            {
+                                for (var k = 0; k < $scope.ProcessDetentionLists.length; k++)
+                                {
+                                    if ($scope.ProcessDetentionLists[k].Sequence == response.data[j].Sequence)
+                                    {
+                                        $scope.ProcessDetentionLists[k].Flag = response.data[j].Flag;
+                                        $scope.ProcessDetentionLists[k].Id = response.data[j].Id;
+                                        $scope.ProcessDetentionLists[k].workCenter = response.data[j].WorkCenter;
+                                        $scope.ProcessDetentionLists[k].DepartmentId = response.data[j].DepartmentId;
+                                        $scope.ProcessDetentionLists[k].DepartmentName = response.data[j].DepartmentName;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
+                                        $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
+                                        $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
+                                        $scope.ProcessDetentionLists[k].DetentionType = response.data[j].DetentionType;
+                                        $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
+                                        $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
+                                        $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
+                                        $scope.ProcessDetentionLists[k].Minute = response.data[j].Minute;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePersonId = response.data[j].ResponsiblePersonId;
+                                        $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
+                                        $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
+                                    }
+                                }
+                            }
+
+                        }
+                       
+                    },
+                    function errorCallback(response) {
+                        ShowResult(response, 'failure');
+                    });
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+
+    };
     
     $scope.LoadDetentionList = function () {
         try {
@@ -1451,26 +1556,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             $scope.DetentionTypeList = response.data;
         });
     }
-  
-    //$scope.DetentionList = [];
-    //$scope.GetDetentionList = function (data) {
-    //    $scope.NewObject = data.data;
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + $scope.NewObject.DetentionType + ''
-    //    }).then(function successCallback(response) {
-    //        $scope.DetentionList = response.data;
-    //    });
-    //}
-    //$scope.DetentionList = [];
-    //$scope.GetDetentionList = function () {
-    //    $http({
-    //        method: 'GET',
-    //        url: 'IE/MachineMasterTransaction/GetDetentionList'
-    //    }).then(function successCallback(response) {
-    //        $scope.DetentionList = response.data;
-    //    });
-    //}
+
 
     var currRow = null;
     $scope.DetentionList = [];
@@ -1481,7 +1567,20 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             method: 'GET',
             url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + currRow.DetentionType
         }).then(function successCallback(response) {
-            currRow.DetentionList = response.data;
+            if (response.data.length > 0)
+            {
+                currRow.DetentionList = response.data;
+                for (i = 0; i < response.data.length; i++)
+                {
+                    if (response.data[i].Value == currRow.DetentionId)
+                    {
+                        currRow.DetentionId = response.data[i].Value;
+
+                        break;
+                    }
+                }
+            }
+            var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
         });
     };
 
@@ -1505,30 +1604,58 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.doubleDepartment = function (e) {
         $scope.Newobject.DepartmentId = e.data.DepartmentId;
         $scope.Newobject.DepartmentName = e.data.DepartmentName;
-        $scope.Newobject.DetentionType = e.data.DetentionMasterId;
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
-        //$scope.data.DetentionTypeList = null;
-        //$scope.data.DetentionList = null;
-        $scope.getDetentionTypeListByDepartment($scope.Newobject.DetentionType);
-        var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+        $scope.getDetentionTypeListByDepartment($scope.Newobject.DepartmentId);
     }
-   
-    
-    $scope.getDetentionTypeListByDepartment = function (detentionType) {
-            $http({
-            method: 'GET',
-                url: 'IE/MachineMasterTransaction/getDetentionTypeListByDepartment?detentiontype=' + detentionType
-        }).then(function successCallback(response) {
-            $scope.DetentionList = null;
-            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++)
-            {
-                $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
-            }
-        });
-    }
+
     $scope.closeDepartmentPopUp = function () {
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
     }
+   
+    $scope.selectResponsible = function (data) {
+        $scope.Newobject = data.data;
+        $scope.Newobject.DetentionId = data.data.DetentionId;
+        $scope.getsR();
+        angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
+    }
+
+    $scope.ResponsibleList = [];
+    $scope.getsR = function () {
+        $http({
+            method: 'POST',
+            url: 'IE/MachineMasterTransaction/GetDetentionResponsible?detentionId=' + $scope.Newobject.DetentionId,
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.ResponsibleList = resp.data;
+        });
+    }
+
+    $scope.doubleResponsible = function (e) {
+        $scope.Newobject.ResponsiblePersonId = e.data.ResponsiblePersonId;
+        $scope.Newobject.ResponsiblePerson = e.data.ResponsiblePerson;
+        angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
+    }
+
+    $scope.closeResponsiblePopUp = function () {
+        angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
+    }
+
+    $scope.getDetentionTypeListByDepartment = function (departmentid) {
+            $http({
+            method: 'GET',
+                url: 'IE/MachineMasterTransaction/getDetentionTypeListByDepartment?departmentid=' + departmentid
+        }).then(function successCallback(response) {
+            //$scope.DetentionList = null;
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++)
+            {
+                if ($scope.ProcessDetentionLists[i].DetentionId == null)
+                {
+                    $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
+                }
+            }
+        });
+    }
+    
 
     $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetentionWorkCenter });
@@ -1558,15 +1685,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
             $scope.DetentionSaveList = [];
             for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                //if ($scope.ProcessDetentionLists[i].Flag == true)
-                //{
+                if ($scope.ProcessDetentionLists[i].Flag == true)
+                {
                     $scope.ProcessDetentionLists[i].EntityId = $scope.productionSummaryNew.EntityId;
                     $scope.ProcessDetentionLists[i].ProcessId = $scope.productionSummaryNew.ProcessId;
                     $scope.ProcessDetentionLists[i].Date = $scope.productionSummaryNew.ProductionDate;
                     $scope.ProcessDetentionLists[i].shiftid = $scope.productionSummaryNew.ProductionShiftId;
                     $scope.ProcessDetentionLists[i].WorkCenterId = $scope.productionSummaryNew.WorkCenterMasterId;
                     $scope.DetentionSaveList.push($scope.ProcessDetentionLists[i]);
-               /* }*/
+                }
             }
 
 
@@ -1584,8 +1711,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    $scope.LoadDetentionList();
+                    //$scope.LoadDetentionList();
                     $scope.Action = 'Save';
+                    $scope.getProcessDetention();
                 }
 
             }), function errorCallBack(response) {
