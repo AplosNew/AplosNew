@@ -10,6 +10,8 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     $scope.deleteUrl = $scope.path + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     // Tab Change
     $scope.tab = 1;
@@ -655,10 +657,24 @@ function ResidenceStatusAllocationController(cboService, $window,commonMessage, 
     // REPORT DOWNLOAD
     $scope.ResidenceAllocationReport = function () {
         $scope.filterComplete();
+        $scope.fileName = 'To Unassign List';
+        var dataList = [];
+        var g = $("#GridEdit").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ModelList;
+        }
+
         $http({
             method: 'POST',
-            url: $scope.path + "XlsResidenceAllocationReport",
-            data: { 'parameters': $scope.parameters },
+            url: $scope.exportgriddataUrl,
+            //url: $scope.path + "XlsResidenceAllocationReport",
+            //data: { 'parameters': $scope.parameters },
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
