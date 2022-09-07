@@ -525,8 +525,99 @@ namespace Library.OrderManagement.Sales
         }
 
 
+        public List<Dictionary<string, object>> GetPostedSalesList(string companyGroupId, string companyId)
+        {
+            try
+            {
+                var cmdText = @"SELECT CAST(0 AS BIT) Flag,S.Id AS SalesId, S.PartyId, P.Code AS PartyCode, P.UserName AS PartyName,P.Code Tracenent, S.CurrencyId, C.Code AS CurrencyCode
+									, DocRefNo=case when S.SourceType='MasterOrderSales' then 'MS-'+ S.DocRefNo WHEN S.SourceType='Packing' THEN 'PS-'+S.DocRefNo else 'S-'+ S.DocRefNo end
+									, ISNULL(SM.Amount,0) + ISNULL(SS.Amount,0) AS Amount,
+									Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') InvoiceDate,Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') DocDate,
+									Replace(CONVERT(VARCHAR(11), S.EntryDate, 106), ' ', '-') VoucherDate, Replace(CONVERT(VARCHAR(11), S.InvoiceDate, 106), ' ', '-') PostingDate
+                                    , S.RowState, S.DeliveryPartyPlantId, S.InvoicingPartyPlantId AS PartyPlantId, S.InvoicingPartyPlantId, S.EntityId, S.PaymentTermId
+									, Replace(CONVERT(VARCHAR(11), S.MatureDate, 106), ' ', '-')  MatureDate, Replace(CONVERT(VARCHAR(11), S.BaseOnDueDate, 106), ' ', '-') BaseOnDueDate,S.BaseNoOfDays
+									, InvoiceNo=case when S.SourceType='MasterOrderSales' then 'MS-'+ S.InvoiceNo WHEN S.SourceType='Packing' THEN 'PS-'+S.InvoiceNo else 'S-'+ S.InvoiceNo end
+									, PPI.UserName AS BillTo, AM.StateId AS InvoicingStateId, ST.UserName AS InvoicingState, PPI.GSTIN AS InvoicingGSTIN
+									, PPD.UserName AS ShipTo, STD.UserName AS DeliveryState, PPD.GSTIN AS DeliveryGSTIN, S.InvoicingByAddress, S.DeliveryByAddress, S.ToCurrencyRate
+									, S.ToCurrencyRate AS CompanyCurrencyRate, S.Narration, S.PartyType, S.VoucherId, AMP.StateId AS PlantStateId
+                                    , CASE  WHEN S.RowState='Parked' THEN 1 ELSE 0 END AS IsPark, CP.TaxApplicable,CP.PartyAccountGroupId,CP.IsPaymentTermChangeable
+									, S.SourceType--,SP.Id SalesPackingId
+									FROM [TRN].[Sales] AS S
+                                    JOIN [HKP].[Party] AS P ON P.Id=S.PartyId
+                                    LEFT JOIN HKP.CompanyParty CP ON CP.PartyId=P.Id AND S.PlantId=CP.PlantId AND CP.PartyType='Customer'
+									LEFT JOIN [HKP].[PartyPlant] AS PPI ON PPI.Id=S.InvoicingPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AM ON AM.Id=PPI.AddressMasterId
+									LEFT JOIN [SCS].[State] AS ST ON ST.Id=AM.StateId
+									LEFT JOIN [HKP].[PartyPlant] AS PPD ON PPD.Id=S.DeliveryPartyPlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMD ON AMD.Id=PPD.AddressMasterId
+									LEFT JOIN [SCS].[State] AS STD ON STD.Id=AMD.StateId
+                                    LEFT JOIN [SCS].[Currency] AS C ON C.Id=S.CurrencyId
+									LEFT JOIN [ORG].[Plant] AS PT ON PT.Id=S.PlantId
+									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
+									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
+                                    WHERE S.CompanyGroupId='"+companyGroupId+"' AND S.CompanyId='"+companyId+"' and S.SourceType in ('MasterOrderSales','Packing') AND S.RowState='Posted'";
+                return _sqlRepository.GetDataCollection(cmdText);
 
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
+        public IEnumerable<object> GetSalesMaterialList(string Ids)
+        {
+            try
+            {
+                var sql = @"SELECT CAST(0 AS BIT) Active,sm.Id SalesMaterialId,'B2B'SupplyTypeCode,'No'ReverseCharge,''eCommGSTIN,''IgstOnIntra,''DocumentType,S.Id DocumentNumber,FORMAT(s.InvoiceDate,'dd-MMM-yyyy')DocumentDate
+,p.TINNO BuyerGSTIN,P.UserName BuyerLegalName,''BuyerTradeName,ST.UserName BuyerPOS,am.Address1 BuyerAddr1
+,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
+,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
+,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
+,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,sm.TransactionRate UnitPrice,sm.TransactionAmount GrossAmount,'' Discount,''PreTaxValue
+,sm.TransactionAmount Taxablevalue,TAxInfo1.Percentage GSTRate,TAxInfo1.Amount IgstAmt,TAxInfo2.Amount SgstAmt,TAxInfo3.Amount CgstAmt,'' CessRate,''CessAmtAdval
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,sm.NetAmount ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,sm.NetAmount TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
+,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorList
+  FROM TRN.Sales S
+LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
+LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
+LEFT JOIN HKP.HSNCode AS h ON h.Id = mm.HSNCodeId
+LEFT JOIN MST.MaterialMasterArticle AS mma ON sm.ArticleId=mma.Id
+LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = sm.BaseUOMId
+LEFT JOIN hkp.Party P ON P.Id = S.PartyId
+LEFT JOIN MST.AddressMaster AS am ON am.Id = P.AddressMasterId
+LEFT JOIN SCS.[State] ST ON ST.Id = am.StateId 
+LEFT JOIN (
+SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage,A.Amount,hs.Code HSCode 
+FROM TRN.SalesTax A
+LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+WHERE B.Code='IGST' AND SalesServiceId IS NULL
+) TAxInfo1	ON TAxInfo1.SalesMaterialId=sm.Id 
+LEFT JOIN (
+SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage,A.Amount,hs.Code HSCode 
+FROM TRN.SalesTax A
+LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+WHERE B.Code='SGST' AND SalesServiceId IS NULL
+) TAxInfo2	ON TAxInfo2.SalesMaterialId=sm.Id
+LEFT JOIN (
+SELECT A.SalesMaterialId, B.UserName TaxCategoryName,B.Code  ,A.Percentage,A.Amount,hs.Code HSCode 
+FROM TRN.SalesTax A
+LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id 
+left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
+WHERE B.Code='CGST' AND SalesServiceId IS NULL
+) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
+WHERE s.RowState='Posted' AND s.Id " + Ids + "";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
     }
 
 
