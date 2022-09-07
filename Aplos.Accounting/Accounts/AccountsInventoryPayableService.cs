@@ -2573,7 +2573,7 @@ UNION
 		             JOIN [TRN].[PurchaseReturn] AS B ON A.PurchaseReturnId=B.Id WHERE B.PlantId='" + plantId + @"' GROUP BY A.PurchaseReturnId) AS IRD ON IRD.PurchaseReturnId=PR.Id
                   
                     WHERE PR.PlantId='" + plantId + @"' AND ISNULL(PR.[Status],'')<>'Posting' AND PR.VoucherId IS NULL  AND PR.FixedAssetOrInventory='Inventory' AND PR.OpeningBalanceId IS NULL 
-					AND PR.IsApproved=1
+					AND PR.IsApproved=1 AND IR.VoucherId<>''
                     order by IR.GRNDate desc";
                 return _sqlRepository.GetDataCollection(sql);
             }

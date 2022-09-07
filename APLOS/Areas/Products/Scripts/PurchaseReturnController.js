@@ -120,8 +120,7 @@ function PurchaseReturnController(addressService, $window, factoryService, cboSe
 			$scope.product = $scope.products[$scope.index];
 			$scope.productNew = Object.assign({}, $scope.product);
 			$scope.productNew = x.data;
-			$scope.GRNDate = $filter("dateFiltering")(Date.now());
-
+			$scope.productNew.GRNDate = x.data.GRNDate1;
 			$scope.productNew.CheckedBy = "";
 			
 			getPartyPlantList();
