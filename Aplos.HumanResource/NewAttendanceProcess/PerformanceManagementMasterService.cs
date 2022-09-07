@@ -1629,7 +1629,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
     }
     #endregion RESIDENCE MASTER SERVICE
 
-    #region Residence Status Location
+    #region Residence Status Allocation
     public class ResidenceStatusLocationService
     {
         SqlRepository _sqlRepository;
@@ -1701,10 +1701,11 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
-        public IEnumerable<object> GetViewData(Dictionary<string,string> parameters)
+        public IEnumerable<object> GetViewData(Dictionary<string, string> parameters)
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var _sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId
                                     ,EC.UserName EmployeeType,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
 									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate,'dd-MMM-yyyy')AddedDate
@@ -1719,11 +1720,9 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 									LEFT JOIN(
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
-									Where A.isOccupied=1 and EI.PlantId in(" + parameters["PlantId"] + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where RM.Id in(" + parameters["ResidenceMasterId"] + @")
-                                        AND RG.Id in(" + parameters["ResidenceGroupId"] + @")
-                                        AND P.Id in(" + parameters["PlantId"] + @")
-                                        AND EC.Id in(" + parameters["EmployeeTypeId"] + @")";
+									Where A.isOccupied=1 and EI.PlantId in(" +identity.PlantId+ @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
+                                    ";
+              
 
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -1764,7 +1763,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         }
 
-        public IEnumerable<object> getemployeeDataList(string plantId,string residenceGroupId)
+        public IEnumerable<object> getemployeeDataList(string plantId,string residenceGroupId, string EmployeeTypeId)
         {
             try
             {
@@ -1777,8 +1776,9 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
-                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill
-                                        FROM EmployeeInformation EMP
+                                        ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
+                                        ,RM.Location
+										FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                         LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
@@ -1790,8 +1790,16 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         LEFT JOIN ORG.Line L ON L.Id=EMP.LineId
                                         LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
                                         LEFT JOIN HKP.LegalDesignation LDEG ON EMP.LegalDesignationId=LDEG.Id
-                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId
-                              Where EMP.PlantId ='" + plantId+ @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees Where isOccupied=1) AND ISNULL(EMP.ResidenceGroupId,'') = '"+ residenceGroupId + @"'
+                                        LEFT JOIN ResidenceGroup RG on RG.Id = EMP.ResidenceGroupId 
+										LEFT JOIN ResidenceAllocatedEmployees RAE on RAE.EmployeeSystemId = EMP.SystemId
+										LEFT JOIN ResidenceMaster RM on RM.Id = RAE.ResidenceId
+										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
+										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
+										
+                              Where EMP.PlantId ='"+plantId+@"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId 
+							  NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees  Where isOccupied = 1) 
+								
+							  AND RG.IsResidenceApplicable = 'true' and EC.Id = '"+ EmployeeTypeId + @"'
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
@@ -1862,12 +1870,12 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-                string CmdText = @"select RAE.Id,EI.EmployeeCode,EI.SystemId EmployeeId,EI.EmployeeName,D.UserName Department,DE.UserName Designation
+                string CmdText = @"select RAE.Id,EI.EmployeeCode,EI.SystemId EmployeeId,EI.EmployeeName,D.UserName Department,DEG.UserName Designation
                                             ,S.UserName Section,SS.UserName SubSection,L.UserName Line,format(EI.DOJ,'dd-MMM-yyyy') DOJ
                                             ,RM.AssetName ResidenceName,RAE.isOccupied, FORMAT(EI.DOS, 'dd-MMM-yyyy')DOS, EI.EmployeeStatus,
 											EI.EmployeeCurrentStatus, RG.UserName ResidenceGroup, [RM].[Block], RM.ResidentType, 
 											RM.ResidenceNumber, EI.DOS, DEG.UserName GivenDesignation, PR.PaymentLink Skill --, EC.UserName EmployeeCategory
-
+                                            ,EC.UserName EmployeeCategory, RM.Location
                                             from ResidenceAllocatedEmployees RAE
                                             left join ResidenceMaster RM on RM.Id=RAE.ResidenceId 
 											left join ResidenceGroup RG on RG.Id = RM.ResidenceGroupId
@@ -1875,15 +1883,24 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             LEFT JOIN MST.ManpowerBudget PMB ON EI.BudgetCode=PMB.Id
                                             LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
                                             left join HKP.Designation DE on DE.Id=EI.DesignationSystemID
-											left join MST.DesignationMaster DM on DM.DesignationId = DM.Id
+											
                                             left join ORG.Department D on D.Id=EI.DepartmentId
                                             left join ORG.Section S on S.Id=EI.SectionId
                                             left join ORG.SubSection SS on SS.Id=EI.SubSectionId
                                             left join ORG.Line L on L.Id=EI.LineId 
 											LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+											left join MST.DesignationMaster DM on DM.DesignationId = DEG.Id
+											LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
                                 
-                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus
-                               -- AND EI.EmployeeStatus='Active' 
+                                
+                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 
+                               order by case
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active'then 4								
+								else 5
+								end, EmployeeCurrentStatus
 ";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
@@ -2067,9 +2084,9 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
+            //dr["UpdatedBy"] = identity.Name;
+            //dr["UpdatedDate"] = System.DateTime.Now.ToString();
+            //dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
@@ -2148,6 +2165,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var str = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId
                                     , EC.UserName EmployeeType, EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType
 									,RM.ResidenceNumber,RM.AssetName,RM.Remarks,RM.AddedBy,format(RM.AddedDate, 'dd-MMM-yyyy')AddedDate
@@ -2174,10 +2192,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                  left
                                                                                        join EmployeeInformation EI on EI.SystemId = A.EmployeeSystemId
                                                   
-                                                                                      Where A.isOccupied = 1 and EI.PlantId in (" + parameters["PlantId"] + @") Group BY ResidenceId) O ON O.ResidenceId = RM.Id
+                                                                                      Where A.isOccupied = 1 and EI.PlantId in ( " + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId = RM.Id
                                     where RM.Id in(" + parameters["ResidenceMasterId"] + @")
                                         AND RG.Id in(" + parameters["ResidenceGroupId"] + @")
-                                        AND P.Id in(" + parameters["PlantId"] + @")
+                                       AND P.Id in(" + parameters["PlantId"] + @")
                                         AND EC.Id in(" + parameters["EmployeeTypeId"] + @")";
 
 
@@ -2762,7 +2780,7 @@ group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
 
 
 
-    #endregion Residence Status Location
+    #endregion Residence Status Allocation
 
 }
 

@@ -15,20 +15,21 @@
             <input type="hidden" name="Id" ng-model="ResidenceData.Id">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
-                <div id="filters">
-                </div>
+                @*<div id="filters">
+                </div>*@
 
                 <div class="row">
                     <input type="hidden" name="Id" ng-model="ResidenceData.Id">
 
 
-                    <div class="common-btn">
+                    @*<div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
                             <li> <button data-toggle="modal" ng-click="ResidenceAllocationReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
+                        
                         </ul>
 
-                    </div>
+                    </div>*@
                 </div>
                 <div class="table-responsive" id="EGSGrid">
                     <div id="GridEdit" ej-grid style="z-index:3;"
@@ -60,9 +61,9 @@
                             <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
                             <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="80"></div>
                             @*<div e-column e-field="VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>*@
-                            <div e-column e-template="#OccupiedtemplateAvailable" e-type="string" e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
+                            <div e-column e-template="#OccupiedtemplateAvailable"  e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
                             @*<div e-column e-field="Available" e-headertext="Available" e-width="100"></div>*@
-                            <div e-column e-template="#templateAvailable" e-type="string" e-field="Available" e-headertext="Available" e-width="70"></div>
+                            <div e-column e-template="#templateAvailable"  e-field="Available" e-headertext="Available" e-width="70"></div>
                             @*<div e-column e-headertext="Allocation" ng-click="openChildGrid()" e-headertemplateid="#headerTemplate" e-template="#AllocationTemplate" e-textalign="center" e-width="100"></div>*@
                             @*<div e-column e-field="Allocation" e-headertext="Allocation" e-width="100"></div>*@
 
@@ -98,6 +99,9 @@
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 @* <li> <button ng-click="ResidenceStatusSave();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>*@
+                                <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
+                                <li> <button data-toggle="modal" ng-click="ResidenceAllocationReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
+
                                 <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
                             </ul>
 
@@ -242,22 +246,32 @@
                                     <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
                                     <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
                                     <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
-                                    <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
                                     <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                                    <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                                    <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                                    <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                                    <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                                    <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
-
-                                    <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                                    <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
-                                    <div e-column e-field="Line" e-headertext="Line" e-width="100"></div>
-                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
                                     <div e-column e-field="ResidenceName" e-headertext="Residence Name" e-width="100"></div>
                                     <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
                                     <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>
+                                    <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
                                     <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
+                                    @*<div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>*@
+
+
+
+                                    @*<div e-column e-field="Line" e-headertext="Line" e-width="100"></div>*@
+
+
+
+
+
+                                   @* <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>*@
 
                                     @*<div e-column e-field="isOccupied" e-headertext="Occupied" e-width="60"></div>*@
                                 </div>
@@ -384,22 +398,42 @@
                          e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="80"></div>
-                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Crt Sts" e-width="80"></div>
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
-                            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
-                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
+                            @*<div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="80"></div>
+        <div e-column e-field="EmployeeCurrentStatus" e-headertext="Crt Sts" e-width="80"></div>
+        <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
+        <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
+        <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+        <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
+        <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
+        <div e-column e-field="EmployeeName" e-headertext="Name" e-width="80"></div>
+        <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
 
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-                            <div e-column e-field="ResidenceGroup" e-headertext="ResidenceGroup" e-width="80"></div>
+        <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
+        <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
+        <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
+        <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
+        <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
+        <div e-column e-field="ResidenceGroup" e-headertext="ResidenceGroup" e-width="80"></div>*@
+
+                            <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
+                            <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
+                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-field="LegalDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                                @*<div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
+                                <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
+                                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>*@
+                            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+                            <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
+
+
                         </div>
                     </div>
                 </div>
@@ -433,31 +467,39 @@
                     <div style="color:black;" id="GridEOccupiedUnallocation" ej-grid e-datasource="OccupiedEmployeeList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateOccupiedEmployee">
                        
-                            <div e-columns>
-                                <div e-column e-headertext="" e-headertemplateid="#headerOccupiedUnallocationTemplate" e-template="#checkboxOccupiedUnallocationTemplate" e-textalign="center" e-width="30"></div>
+                        <div e-columns>
+                            <div e-column e-headertext="" e-headertemplateid="#headerOccupiedUnallocationTemplate" e-template="#checkboxOccupiedUnallocationTemplate" e-textalign="center" e-width="30"></div>
 
-                                <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
-                                <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
-                                <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
-                                <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
-                                <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                                <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
-                                <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
-                                <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
-                                <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Cr. St." e-width="100"></div>
+                            <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                            <div e-column e-field="EmployeeCategory" e-headertext="Employee Category" e-width="100"></div>
+                            <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
+                            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="100"></div>
+                            <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
+                            <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
+                            <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>
+                            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+                            <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
+                            <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
 
-                                <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
-                                <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
-                                <div e-column e-field="Line" e-headertext="Line" e-width="100"></div>
-                                <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
-                                <div e-column e-field="ResidenceName" e-headertext="Residence Name" e-width="100"></div>
-                                <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                                <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
-                                <div e-column e-field="ResidentType" e-headertext="Resident Type" e-width="100"></div>
-                                <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>
 
-                                @*<div e-column e-field="isOccupied" e-headertext="Occupied" e-width="60"></div>*@
-                            </div>
+                            @*<div e-column e-field="Line" e-headertext="Line" e-width="100"></div>
+
+                            <div e-column e-field="ResidenceName" e-headertext="Residence Name" e-width="100"></div>
+
+
+
+                            <div e-column e-field="ResidenceGroup" e-headertext="Residence Group" e-width="100"></div>*@
+
+                            @*<div e-column e-field="isOccupied" e-headertext="Occupied" e-width="60"></div>*@
+                        </div>
                             <script type="text/template" id="checkboxOccupiedUnallocationTemplate">
                                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.isSelected" />
                             </script>
