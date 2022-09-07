@@ -760,13 +760,13 @@ namespace Library.Service.Invoices
                         ToCurrencyId = companyCurrencyId,
                         ToCurrencyRate = voucherDetailVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailDr.CurrencyId, companyCurrencyId, voucherDetailVM.CompanyCurrencyRate),
-                        DrAmount = voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount
+                        DrAmount = Math.Round((voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount), 3, MidpointRounding.AwayFromZero)
                     });
 
                     totalAmountDr += voucherDetailDr.DrAmount;
-                    totalCurrencyAmountDr += voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount;
+                    totalCurrencyAmountDr += Math.Round((voucherDetailVM.CompanyCurrencyRate * voucherDetailDr.DrAmount), 3, MidpointRounding.AwayFromZero);
                     totalAmountCr += voucherDetailDr.CrAmount;
-                    totalCurrencyAmountCr += voucherVM.CompanyCurrencyRate * voucherDetailDr.CrAmount;
+                    totalCurrencyAmountCr += Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailDr.CrAmount), 3, MidpointRounding.AwayFromZero);
 
                     if (voucherDetailVM.ExchangeType == "ExchangeLoss" && voucherDetailVM.ExchangeAmount > 0)
                     {
@@ -1037,7 +1037,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = companyCurrencyId,
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount), 3, MidpointRounding.AwayFromZero),
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
@@ -1085,7 +1085,7 @@ namespace Library.Service.Invoices
 
                         if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                         {
-                            voucherVM.BankBookAmount = voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate;
+                            voucherVM.BankBookAmount = Math.Round((voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                         }
 
@@ -1112,10 +1112,10 @@ namespace Library.Service.Invoices
 
                             voucherDetailCurrencyCr.CrAmount = voucherVM.BankBookAmount;
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                         }
 
                         _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
@@ -1164,7 +1164,7 @@ namespace Library.Service.Invoices
                             if (cashMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
                                 glTransactionDetail.CrAmount = voucherDetailCr.CrAmount;
                             else
-                                glTransactionDetail.CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount;
+                                glTransactionDetail.CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailCr.CrAmount), 3, MidpointRounding.AwayFromZero);
                         }
 
                         // INSRT INTO GLTransactionDetail
@@ -1190,18 +1190,18 @@ namespace Library.Service.Invoices
 
                             voucherDetailCurrencyCr.CrAmount = voucherVM.BankBookAmount;
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                         }
                         if (!string.IsNullOrEmpty(voucherVM.CashMasterId))
                         {
                             if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount - (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount - Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                             else if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount + (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                                voucherDetailCurrencyCr.CrAmount = voucherVM.Amount + Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                             else if (voucherVM.ExchangeType == "ExchangeLoss")
                                 voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
                             else if (voucherVM.ExchangeType == "ExchangeGain")
@@ -1275,10 +1275,10 @@ namespace Library.Service.Invoices
                     };
                     voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                        voucherDetailCurrencyCr.CrAmount -= (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                        voucherDetailCurrencyCr.CrAmount += (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount += Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 
                     _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailCr, voucherDetailCurrencyCr);
                     totalCurrencyAmountCr += voucherDetailCurrencyCr.CrAmount;
@@ -1306,7 +1306,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ParallelCurrencyId = companyCurrencyId,
                                 FromCurrencyId = companyCurrencyId,
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount,
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailTax.CrAmount), 3, MidpointRounding.AwayFromZero),
                                 ToCurrencyConversion = 1 / voucherVM.CompanyCurrencyRate
                             };
                             _voucherService.InsertVoucherDetailCompanyCurrency(voucherDetailTax, voucherDetailCurrencyTax);
@@ -1365,9 +1365,9 @@ namespace Library.Service.Invoices
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate)
                     };
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
-                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr - (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr - Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     else if (invoiceWriteOff.RoundingType == RoundingType.RoundUp.ToString())
-                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr + (voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate);
+                        voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr + Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     else if (voucherVM.ExchangeType == "ExchangeLoss")
                         voucherDetailCurrencyCr.CrAmount = totalCurrencyAmountDr;
                     else if (voucherVM.ExchangeType == "ExchangeGain")
@@ -1410,7 +1410,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                DrAmount = voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.DrAmount
+                                DrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.DrAmount), 3, MidpointRounding.AwayFromZero)
                             });
                             totalCurrencyAmountDr += voucherDetailCurrencyRoundingDr.DrAmount;
                         }
@@ -1439,7 +1439,7 @@ namespace Library.Service.Invoices
                                 ToCurrencyId = companyCurrencyId,
                                 ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                                 ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailRoundingDr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate),
-                                CrAmount = voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.CrAmount
+                                CrAmount = Math.Round((voucherVM.CompanyCurrencyRate * voucherDetailRoundingDr.CrAmount), 3, MidpointRounding.AwayFromZero)
                             });
                             totalCurrencyAmountCr += voucherDetailCurrencyRoundingDr.CrAmount;
                         }

@@ -2614,6 +2614,7 @@
     <Content Include="Areas\QMS\Scripts\documentTypeController.js" />
     <Content Include="Areas\QMS\Scripts\qmsConfig.js" />
     <Content Include="Areas\QMS\Scripts\StockKeepingUnitController.js" />
+    <Content Include="Areas\SalesManagements\Scripts\EInvoiceController.js" />
     <Content Include="Areas\SalesManagements\Scripts\salesPackingPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesPostController.js" />
     <Content Include="Areas\SalesManagements\Scripts\masterOrderSalesController.js" />
@@ -4325,6 +4326,8 @@
     <Content Include="Areas\Products\Views\SalesRegister\SalesRegister.cshtml" />
     <Content Include="Areas\QMS\Views\QualityProcess\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionReportWithParameter\Aplos.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\EInvoice.cshtml" />
+    <Content Include="Areas\SalesManagements\Views\_postedSalesPopUp.cshtml" />
     <None Include="Areas\Securities\Views\MenuUserCode\Aplos.cshtml" />
     <Content Include="POPResources\Templates\InOutGatePass20171.docx" />
     <Content Include="POPResources\Templates\Check\ODYSSEYCheck.docx" />

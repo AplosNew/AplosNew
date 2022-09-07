@@ -69,9 +69,9 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId,string residenceGroupId)
+        public JsonResult getemployeeDataList(string plantId,string residenceGroupId, string EmployeeTypeId)
         {
-            return Json(rsl.getemployeeDataList(plantId, residenceGroupId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getemployeeDataList(plantId, residenceGroupId, EmployeeTypeId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -125,7 +125,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         }
 
         [HttpPost, Authorize]
-        public ActionResult GetViewData(Dictionary<string,string> parameters)
+        public ActionResult GetViewData(Dictionary<string, string> parameters)
         {
             return Json(rsl.GetViewData(parameters), JsonRequestBehavior.AllowGet);
         }
@@ -615,7 +615,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             int ArtRow = 0;
             int LotRow = 0;
 
-            double[] arr = new double[3];
+            double[] arr = new double[4];
 
             for (int i = 0; i < data.Rows.Count; i++)
             {
@@ -636,15 +636,26 @@ namespace Aplos.Areas.HumanResource.Controllers
                 sheet[ROW, ColOccupied].Number = clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
                 sheet[ROW, ColAvailable].Number = clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
                 
-                
-               
+                arr[0] += clsStaticInfo.dbl(data.Rows[i]["Rooms"].ToString());
+                arr[1] += clsStaticInfo.dbl(data.Rows[i]["Vacancy"].ToString());
+                arr[2] += clsStaticInfo.dbl(data.Rows[i]["Occupied"].ToString());
+                arr[3] += clsStaticInfo.dbl(data.Rows[i]["Available"].ToString());
+
 
                 ROW++;
 
 
             }
 
-            ROW++;
+            //ROW++;
+
+            sheet[ROW, ColLocation].Text = "Grand Total";
+            sheet[ROW, ColRooms].Number = arr[0];
+            sheet[ROW, ColVacancy].Number = arr[1];
+            sheet[ROW, ColOccupied].Number = arr[2];
+            sheet[ROW, ColAvailable].Number = arr[3];
+
+            sheet.Range[ROW, ColLocation, ROW, endCol].CellStyle.Font.Bold = true;
 
             endRow = ROW - 1;
             endRow = ROW - 1;
