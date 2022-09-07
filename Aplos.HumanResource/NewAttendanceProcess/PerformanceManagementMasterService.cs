@@ -1863,7 +1863,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["SystemID"] + "'", out dsMaster, false, "1");
                     count++;
                     DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "EmployeeSystemId='" + item["SystemId"] + "'";
+                    dv.RowFilter = "EmployeeSystemId='" + item["SystemID"] + "'";
 
 
                     if (dv.Count == 0)
@@ -1871,6 +1871,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                         item["Id"] = _Id + "-" + count;
                         item["AssignDate"] = DateTime.Now;
                         item["TripId"] = item["TripId"];
+                        item["EmployeeSystemId"] = item["SystemID"];
                         item["UnassignDate"] = DateTime.Now;
                         item["StoppageId"] = item["StoppageId"];
                         item["AssignStatus"] = 1;
@@ -1897,6 +1898,93 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
+        public IEnumerable<object> getviewUnassign(string plantId)
+        {
+            try
+            {
+                string CmdText = @"select EI.SystemId EmployeeId,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
+							                    ,TD.TransportUserName Transport,SD.UserName [Shift],R.[From],R.[To],RS.Id TripId,RS.TripNo,PR.PaymentLink Skill
+							                    ,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant
+												,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus,ETA.UnassignDate,ETA.AssignDate
+
+							                    from EmployeeTransportAllocation ETA
+							                    left join EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
+							                    LEFT JOIN MST.ManpowerBudget PMB ON PMB.Id=EI.BudgetCode
+							                    LEFT JOIN ORG.Position PR ON PR.Id=PMB.PositionId
+							                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+							                    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+							                    LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+							                    LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+							                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+							                    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+							                    left join RouteSchedule RS on RS.Id = ETA.TripId
+							                    left join MST.Route R on R.Id = RS.RouteId
+							                    left join TransportDetail TD on TD.Id = RS.TransportId
+							                    left join ShiftDefination SD on SD.SystemID=RS.ShiftId
+							                    left join HKP.Stoppage ST on ST.Id=ETA.StoppageId
+                                
+                                Where EI.PlantId='" + plantId + @"' and ETA.AssignStatus = 1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus";
+              
+                return _sqlRepository.GetDataCollection(CmdText, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public void SaveUnassignData(List<Dictionary<string, object>> employeeList)
+        {
+            try
+            {
+                var id = "";
+                foreach (var item in employeeList)
+                {
+                    if (id == "")
+                        id = "'" + item["EmployeeId"] + "'";
+                    else
+                        id = id + ",'" + item["EmployeeId"] + "'";
+                }
+
+                //Master Table - PMSMaster
+                string TableName = "dbo.EmployeeTransportAllocation";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId In (" + id + ")", out dsMaster, false, "1");
+
+                //string _Id = "";
+
+                #region data Master update
+
+                foreach (var item in employeeList)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeId"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["AssignStatus"] = 0;
+                        item["UnassignDate"] = DateTime.Now;
+                        EditRow(drmo, item);
+                    }
+
+                }
+                #endregion data Master update
+
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                //return ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         //Route Employee End
 
         public IEnumerable<object> getOccupiedemployeeDataList(string plantId, string residenceNumber)
@@ -1977,9 +2065,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                             left join ORG.Line L on L.Id=EI.LineId 
 											LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
                                 
-                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus
-                               -- AND EI.EmployeeStatus='Active' 
-";
+                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
             }
