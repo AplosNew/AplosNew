@@ -2077,15 +2077,6 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                 
                                 
                                 Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus";
-                                Where EI.PlantId='" + plantId + @"' and rae.isOccupied=1 
-                               order by case
-								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
-								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
-								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
-								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active'then 4								
-								else 5
-								end, EmployeeCurrentStatus
-";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
             }
