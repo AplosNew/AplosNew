@@ -2126,7 +2126,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             try
             {
                 //Master Table - PMSMaster
-                string TableName = "dbo.EmployeeTransportAllocation";
+                string TableName = "dbo.ResidenceAllocatedEmployees";
                 DataSet dsMaster=null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
