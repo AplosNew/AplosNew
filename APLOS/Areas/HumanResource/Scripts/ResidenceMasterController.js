@@ -275,12 +275,32 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     });
     //$scope.GetSelectedValue();
 
-    //function dependency() {
-    //    if ($scope.ModalNew.ResidentType == "Family") {
+    $scope.residenceCategoryList = [];
+    $scope.dependency = function () {
+        var residentType = document.getElementById("ResidenceType").value;
+        if ($scope.ModalNew.ResidentType == "Family") {
 
-    //    }
-    //    else if ($scope.ModalNew.ResidentType == "Bachelor") {
+            $scope.residenceCategoryList = [
+                {
+                    'Value': 'Joint',
+                    'Text': 'Joint'
+                }
+               
+            ];
+        }
+        if ($scope.ModalNew.ResidentType == "Bachelor") {
 
-    //    }
-    //}
+            $scope.residenceCategoryList = [
+                {
+                    'Value': 'Male',
+                    'Text': 'Male'
+                },
+                {
+                    'Value': 'Female',
+                    'Text': 'Female'
+                }
+               
+            ];
+        }
+    }
 }

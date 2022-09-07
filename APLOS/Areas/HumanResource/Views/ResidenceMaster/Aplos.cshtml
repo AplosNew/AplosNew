@@ -48,11 +48,11 @@
                 <label class="col-sm-4 control-label">Residence Type<sup>*</sup></label>
                 <div class="col-sm-6 show-message">
                     <div class="select-style">
-                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type"
+                        <select class="form-control" id="ResidenceType" ng-change="dependency()" ng-model="ModalNew.ResidentType" required name="Residence Type"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="Family">Family</option>
-                            <option value="Bechlor">Bachelor</option>
+                            <option value="Bachelor">Bachelor</option>
                         </select>
                     </div>
                 </div>
@@ -153,9 +153,10 @@
                     <div class="select-style">
                         <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Sub Category" tabindex="2">
                             <option value="">--Select--</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Joint">Joint</option>
+                            <option ng-repeat="option in residenceCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                            @*<option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Joint">Joint</option>*@
                         </select>
                     </div>
                 </div>

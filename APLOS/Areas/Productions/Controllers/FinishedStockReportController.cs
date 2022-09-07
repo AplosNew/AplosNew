@@ -124,7 +124,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ColLot = COL;
             COL++;
 
-           
+
 
             report.SetHeaderText(ref sheet, ROW, COL, "Bag Size", 13, ExcelHAlign.HAlignCenter);
             int ColBagSize = COL;
@@ -142,9 +142,9 @@ namespace Aplos.Areas.Productions.Controllers
             int ColGWt = COL;
             COL++;
 
-            
 
-           
+
+
 
             ROW++;
             endCol = COL;
@@ -165,7 +165,7 @@ namespace Aplos.Areas.Productions.Controllers
             int ArtRow = 0;
             int LotRow = 0;
             int ProductCodeRow = 0;
-            
+
             int ProdDetailsRow = 0;
             int POIdRow = 0;
 
@@ -186,23 +186,21 @@ namespace Aplos.Areas.Productions.Controllers
                     {
                         sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
                         sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].Merge();
-                        sheet.Range[ArtRow, ColArt, ROW - 1, ColArt].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                     }
                     ArtRow = ROW;
                 }
 
                 // Product Detail
-               else if(ProdDetails != data.Rows[i]["ProdDetails"].ToString())
+                else if (ProdDetails != data.Rows[i]["ProdDetails"].ToString())
                 {
                     ProdDetails = data.Rows[i]["ProdDetails"].ToString();
                     sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
 
                     if (i != 0 && LotRow != (ROW - 1))
                     {
-                        sheet.Range[ProdDetailsRow, ColLot, ROW - 1, ColLot].Merge();
-                        sheet.Range[ProdDetailsRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-                       
+                        sheet.Range[ProdDetailsRow, ColProdDet, ROW - 1, ColProdDet].Merge();
+                        sheet.Range[ProdDetailsRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
+
                     }
                     ProdDetailsRow = ROW;
                 }
@@ -212,11 +210,8 @@ namespace Aplos.Areas.Productions.Controllers
                 {
 
                     LotNum = data.Rows[i]["LotNo"].ToString();
-                    
-                    sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
 
-                    //ProdDetails = data.Rows[i]["ProdDetails"].ToString();
-                    //sheet[ROW, ColProdDet].Text = data.Rows[i]["ProdDetails"].ToString();
+                    sheet[ROW, ColLot].Text = data.Rows[i]["LotNo"].ToString();
 
                     if (i != 0 && LotRow != (ROW - 1))
                     {
@@ -224,13 +219,13 @@ namespace Aplos.Areas.Productions.Controllers
                         //sheet.Range[LotRow, ColProdDet, ROW - 1, ColProdDet].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].Merge();
                         sheet.Range[LotRow, ColLot, ROW - 1, ColLot].CellStyle.VerticalAlignment = ExcelVAlign.VAlignCenter;
-                        
+
                     }
                     LotRow = ROW;
 
                     // PRODUCT ID
 
-                    if(POId != data.Rows[i]["POId"].ToString())
+                    if (POId != data.Rows[i]["POId"].ToString())
                     {
                         POId = data.Rows[i]["POId"].ToString();
 
@@ -262,7 +257,7 @@ namespace Aplos.Areas.Productions.Controllers
                 sheet[ROW, ColBags].Number = clsStaticInfo.dbl(data.Rows[i]["Bags"].ToString());
                 sheet[ROW, ColNtWt].Number = clsStaticInfo.dbl(data.Rows[i]["NtWt"].ToString());
                 sheet[ROW, ColGWt].Number = clsStaticInfo.dbl(data.Rows[i]["GtWt"].ToString());
-                
+
 
                 arr[0] += clsStaticInfo.dbl(data.Rows[i]["Bags"].ToString());
                 arr[1] += clsStaticInfo.dbl(data.Rows[i]["NtWt"].ToString());
@@ -399,6 +394,7 @@ namespace Aplos.Areas.Productions.Controllers
             reportUtility.PageSetup(ref sheet1, 6, ExcelPageOrientation.Landscape);
             return workbook;
         }
+      
 
     }   
 }

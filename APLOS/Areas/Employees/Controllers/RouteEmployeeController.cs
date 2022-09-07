@@ -638,9 +638,9 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId)
+        public JsonResult getemployeeDataList(string plantId, string residenceGroupId, string EmployeeTypeId)
         {
-            return Json(rsl.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getemployeeDataList(plantId, residenceGroupId, EmployeeTypeId), JsonRequestBehavior.AllowGet);
         }
 
         //Route Emp end

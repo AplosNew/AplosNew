@@ -302,7 +302,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             url: "accounts/Advance/GetPartyWiseOutstandingAdvance?partyId=" + id
         }).then(function successCallback(response) {
             $scope.partyWiseOutstandingAdvanceList = response.data;
-            $scope.TotalAdvanceAmount = Math.round($filter("sumByKey")($filter("filter")($scope.partyWiseOutstandingAdvanceList), "Balance") * 10000 + Number.EPSILON) / 10000;
+            $scope.TotalAdvanceAmount = Math.round($filter("sumByKey")($filter("filter")($scope.partyWiseOutstandingAdvanceList), "Balance") * 1000 + Number.EPSILON) / 1000;
             if ($scope.partyWiseOutstandingAdvanceList.length > 0) {
                 angular.element(document.querySelector("#partyAdvanceAmountPopUp")).modal("show");
             }
@@ -368,7 +368,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
             url: "accounts/Advance/GetPartyWiseOutstandingDebitNote?partyId=" + id
         }).then(function successCallback(response) {
             $scope.partyWiseOutstandingDebitNoteList = response.data;
-            $scope.TotalDebitNoteAmount = Math.round($filter("sumByKey")($filter("filter")($scope.partyWiseOutstandingDebitNoteList), "Balance") * 10000 + Number.EPSILON) / 10000;
+            $scope.TotalDebitNoteAmount = Math.round($filter("sumByKey")($filter("filter")($scope.partyWiseOutstandingDebitNoteList), "Balance") * 1000 + Number.EPSILON) / 1000;
 
             if ($scope.partyWiseOutstandingDebitNoteList.length > 0) {
                 angular.element(document.querySelector("#partyDebitNotePopUp")).modal("show");
@@ -540,20 +540,20 @@ function vendorPaymentController(bankService, accountService, cboService, common
                     data.Amount = data.Balance;
                     $scope.voucher.EntityId = data.EntityId;
                     if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-                        data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+                        data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
                         data.ExchangeType = "ExchangeLoss";
-                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
 
                     }
                     else if (data.CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-                        data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+                        data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
                         data.ExchangeType = "ExchangeGain";
-                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
 
                     }
                     else {
                         data.ExchangeAmount = 0;
-                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                        data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
                         data.ExchangeType = null;
                     }
                     $scope.voucherDetailList.push(data);
@@ -634,7 +634,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calPayableBaseAmount = function () {
         if ($scope.voucherDetailList.length) {
             $scope.BaseAmountObj.Type = 'A/P';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -652,7 +652,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calDiscountAmount = function () {
         if ($scope.voucher.PaymentSource == 'Discount') {
             $scope.BaseAmountObj.Type = 'Discount';
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
@@ -661,7 +661,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calCreditNoteVendorAmount = function () {
         if ($scope.voucher.PaymentSource == 'Vendor') {
             $scope.BaseAmountObj.Type = 'Vendor';
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
@@ -670,7 +670,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calExchangeGainBaseAmount = function () {
         if ($scope.voucherDetailList.length) {
             $scope.BaseAmountObj.Type = 'Exchange Gain';
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeGain" }), "ExchangeAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeGain" }), "ExchangeAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -681,7 +681,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calExchangeLossBaseAmount = function () {
         if ($scope.voucherDetailList.length) {
             $scope.BaseAmountObj.Type = 'Exchange Loss';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeLoss" }), "ExchangeAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList, { ExchangeType: "ExchangeLoss" }), "ExchangeAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -709,23 +709,23 @@ function vendorPaymentController(bankService, accountService, cboService, common
 
     $scope.calBankAmount = function () {
         if ($scope.voucher.BankMasterId != null) {
-            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
                     $scope.voucher.BankBookAmount = $scope.voucher.Amount
                 $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
-                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) + $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
-                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 10000 + Number.EPSILON) / 10000;
+                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000
                 $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
             }
         }
@@ -734,7 +734,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         if ($scope.voucher.BankMasterId != null) {
             $scope.BaseAmountObj.Type = 'Bank';
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
-                $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.BankBookAmount * $scope.voucher.CompanyCurrencyRate;
+                $scope.BaseAmountObj.BaseCrAmount = Math.round(($scope.voucher.BankBookAmount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
             }
             else {
 
@@ -750,7 +750,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calCashBaseAmount = function () {
         if ($scope.voucher.CashMasterId != null) {
             $scope.BaseAmountObj.Type = 'Cash';
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "BaseDrAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -760,7 +760,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calBankChargesBaseAmount = function () {
         if ($scope.bankChargesList.length == 1) {
             $scope.BaseAmountObj.Type = 'BankCharges';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             if ($scope.BaseAmountObj.BaseDrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -768,7 +768,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         }
         else if ($scope.bankChargesList.length > 1) {
             $scope.BaseAmountObj.Type = 'BankCharges';
-            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseDrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseCrAmount = null;
             for (var i = 0; i < $scope.BaseAmountList.length; i++) {
                 if ($scope.BaseAmountList[i].Type == 'BankCharges') {
@@ -787,7 +787,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         if ($scope.TDSList.length > 0) {
             $scope.BaseAmountObj.Type = 'Tax';
             //$scope.BaseAmountObj.BaseCrAmount = parseFloat($filter("sumByKey")($filter("filter")($scope.TDSList), "TaxAmount")).toFixed(4);
-            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 10000 + Number.EPSILON) / 10000;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             $scope.BaseAmountList.push($scope.BaseAmountObj);
             $scope.BaseAmountObj = {};
@@ -808,7 +808,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.calGLBaseAmount = function () {
         if ($scope.glList.length) {
             $scope.BaseAmountObj.Type = 'GL';
-            $scope.BaseAmountObj.BaseCrAmount = (Math.round($filter("sumByKey")($filter("filter")($scope.glList), "Amount") * 100 + Number.EPSILON) / 100) * $scope.voucher.CompanyCurrencyRate;
+            $scope.BaseAmountObj.BaseCrAmount = Math.round(((Math.round($filter("sumByKey")($filter("filter")($scope.glList), "Amount") * 1000 + Number.EPSILON) / 1000) * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
             $scope.BaseAmountObj.BaseDrAmount = null;
             if ($scope.BaseAmountObj.BaseCrAmount > 0)
                 $scope.BaseAmountList.push($scope.BaseAmountObj);
@@ -826,19 +826,19 @@ function vendorPaymentController(bankService, accountService, cboService, common
             CloseShowResult();
         }
         if (data.CompanyCurrencyRate < $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+            data.ExchangeAmount = Math.round((data.Amount * ($scope.voucher.CompanyCurrencyRate - data.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
             data.ExchangeType = "ExchangeLoss";
-            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
 
         }
         else if (data.CompanyCurrencyRate > $scope.voucher.CompanyCurrencyRate) {
-            data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 10000 + Number.EPSILON) / 10000;
+            data.ExchangeAmount = Math.round((data.Amount * (data.CompanyCurrencyRate - $scope.voucher.CompanyCurrencyRate)) * 1000 + Number.EPSILON) / 1000;
             data.ExchangeType = "ExchangeGain";
-            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
         }
         else {
             data.ExchangeAmount = 0;
-            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+            data.BaseDrAmount = Math.round((data.Amount * data.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
             data.ExchangeType = null;
         }
         $scope.calBaseAmount();
@@ -847,11 +847,11 @@ function vendorPaymentController(bankService, accountService, cboService, common
     $scope.exchangeGainLossCal = function (rate) {
         for (var i = 0; i < $scope.voucherDetailList.length; i++) {
             if ($scope.voucherDetailList[i].CompanyCurrencyRate < rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * (rate - $scope.voucherDetailList[i].CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeLoss";
             }
             else if ($scope.voucherDetailList[i].CompanyCurrencyRate > rate) {
-                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate) * 10000 + Number.EPSILON) / 10000;
+                $scope.voucherDetailList[i].ExchangeAmount = Math.round($scope.voucherDetailList[i].Amount * ($scope.voucherDetailList[i].CompanyCurrencyRate - rate) * 1000 + Number.EPSILON) / 1000;
                 $scope.voucherDetailList[i].ExchangeType = "ExchangeGain";
             }
             else {
@@ -874,7 +874,7 @@ function vendorPaymentController(bankService, accountService, cboService, common
         if ($scope.voucher.BankMasterId != null) {
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
 
-                $scope.voucher.BankBookAmount = Math.round(($scope.voucher.BankAmount * $scope.voucher.CompanyCurrencyRate) * 10000 + Number.EPSILON) / 10000;
+                $scope.voucher.BankBookAmount = Math.round(($scope.voucher.BankAmount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 $scope.voucher.BankBookAmount = $scope.voucher.BankAmount;
