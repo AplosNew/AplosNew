@@ -449,7 +449,7 @@ namespace Library.MaterialManagement.Inventory
 		                        , IM.SecondCharacteristicsId, CH2.UserName AS SecondCharacteristics, IM.SecondCharacteristicsValueId, CHV2.UserName AS SecondCharacteristicText--SecondCharacteristicsValue
 		                        , IM.ThirdCharacteristicsId, CH3.UserName AS ThirdCharacteristics, IM.ThirdCharacteristicsValueId, CHV3.UserName AS ThirdCharacteristicText--ThirdCharacteristicsValue
 		                        , IID.TransactionQty, IID.BaseUOMId, UoM.UserName AS TransactionUoM, IID.AvgRate, IID.AvgAmount, IID.PolicyRate, IID.PolicyAmount, IID.[Policy]
-                                ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId
+                                ,CC.UserName CostCenter,C.UserName CountryName,c.Id CountryId,II.VoucherId
                         FROM [TRN].[InventoryIssueDetail] AS IID
                         LEFT JOIN [TRN].[InventoryIssue] AS II ON IID.InventoryIssueId=II.Id
                         LEFT JOIN [TRN].[InventoryMaterial] AS IM ON IID.InventoryMaterialId=IM.Id

@@ -11,25 +11,25 @@
         </div>
 
         <div class="tab-content">
-            <input type="hidden" name="Id" ng-model="ResidenceData.Id">
+            @*<input type="hidden" name="Id" ng-model="ResidenceData.Id">*@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
                 <div class="row">
-                    <input type="hidden" name="Id" ng-model="ResidenceData.Id">
+                    @*<input type="hidden" name="Id" ng-model="ResidenceData.Id">*@
 
 
                     <div class="common-btn">
                         <ul class="list-inline text-right">
-                            <li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
+                            @*<li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>*@
                             <li> <button data-toggle="modal" ng-click="ResidenceAllocationReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
                         </ul>
 
                     </div>
                 </div>
-                <div class="table-responsive" id="EGSGrid">
-                    <div id="GridEdit" ej-grid style="z-index:3;"
+                <div class="table-responsive" id="REGrid">
+                    <div id="GridRouteEmp" ej-grid style="z-index:3;"
                          e-datasource="ModelList"
-                         e-rowdatabound="onactivedatabound"
+                         @*e-rowdatabound="onactivedatabound"*@
                          e-allowfiltering="true"
                          e-allowpaging="true"
                          e-allowsorting="true"
@@ -37,48 +37,33 @@
                          e-responsive="true"
                          e-allowselection="true"
                          e-filtersettings-filterType="excel">
-
-                        @*<div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
-                            <div id="GridEdit" ej-grid e-datasource="ModelList" style="width:100vw !important" e-allowpaging="true">*@
                         <div e-columns>
-
-                            @*<div e-column e-field="Id" e-headertext="Id" e-width="30"></div>*@
-                            <div e-column e-field="EmployeeType" e-headertext="Employee Category" e-width="100"></div>
-                            <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-
-                            @* <div e-column e-field="ResidenceCategory" e-headertext="Residence Category" e-width="100"></div>*@
-                            @*<div e-column e-field="ResidenceSubCategory" e-headertext="Residence Sub Category" e-width="100"></div>*@
-                            <div e-column e-field="ResidentType" e-headertext="Residence Type" e-width="100"></div>
-                            <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                            <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
-                            <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
-                            <div e-column e-field="Rooms" e-headertext="Rooms" e-width="100"></div>
-                            <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="80"></div>
-                            @*<div e-column e-field="VacancyStatus" e-headertext="Vacancy Status" e-width="100" id="gridVacancyStatus"></div>*@
-                            <div e-column e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
-                            @*<div e-column e-field="Available" e-headertext="Available" e-width="100"></div>*@
-                            <div e-column e-template="#templateAvailable" e-type="string" e-field="Available" e-headertext="Available" e-width="70"></div>
+                            <div e-column e-field="Route" e-headertext="Route" e-width="100"></div>
+                            <div e-column e-field="Transport" e-headertext="Transport" e-width="100"></div>
+                             <div e-column e-field="TripId" e-headertext="Trip Id" e-width="100"></div>
+                            <div e-column e-field="TripNo" e-headertext="Trip No" e-width="100"></div>
+                            <div e-column e-field="UpDown" e-headertext="Up/Down" e-width="100"></div>
+                            <div e-column e-field="From" e-headertext="From" e-width="100"></div>
+                            <div e-column e-field="To" e-headertext="To" e-width="100"></div>
+                            <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
+                            <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="100"></div>
+                            <div e-column e-field="PlanCapacity" e-headertext="Plan" e-width="80"></div>
+                            <div e-column e-field="Alloted" e-headertext="Alloted" e-width="100"></div>
+                            <div e-column e-template="#templateBalance" e-type="string" e-field="Balance" e-headertext="Balance" e-width="70"></div>
                             @*<div e-column e-headertext="Allocation" ng-click="openChildGrid()" e-headertemplateid="#headerTemplate" e-template="#AllocationTemplate" e-textalign="center" e-width="100"></div>*@
-                            @*<div e-column e-field="Allocation" e-headertext="Allocation" e-width="100"></div>*@
-
-
-                            @* <div e-column e-field="AssetName" e-headertext="Asset Name" e-width="50"></div>*@
-                            @* <div e-column e-field="Remarks" e-headertext="Remarks" e-width="50"></div>*@
-                            @*<div e-column e-field="AddedBy" e-headertext="Added By" e-width="80"></div>
-                                <div e-column e-field="AddedDate" e-headertext="Added Date" e-width="80"></div>*@
-
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                         </div>
                     </div>
-                    <script type="text/template" id="AllocationTemplate">
+                    @*<script type="text/template" id="AllocationTemplate">
                         <div class="common-btn">
                             <ul class="list-inline text-right">
                                 <li> <button class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>
                             </ul>
                         </div>
-                    </script>
-                    <script type="text/template" id="templateAvailable">
+                    </script>*@
+                    <script type="text/template" id="templateBalance">
                         <div class="text-left" style="width:100%">
-                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.Available}}</a>
+                            <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.Balance}}</a>
                         </div>
                     </script>
                 </div>
@@ -362,28 +347,22 @@
                 <button type="button" class="close" ng-click="closeEmployeePopUps();">&times;</button>
             </div>
             <div class="modal-body">
-               
+
                 <div class="content-container-fluid" style="color:black;">
                     <div style="color:black;" id="GridEmp" ej-grid e-datasource="dataList" e-gridlines="vertical" e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true"
                          e-allowselection="true" e-filtersettings-filterType="excel" e-templaterefresh="refreshTemplateemployee">
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="80"></div>
-                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Crt Sts" e-width="80"></div>
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="80"></div>
-                            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="80"></div>
+                            <div e-column e-template="#stoppageTemplate" e-type="string" e-field="Stoppage" e-headertext="Stoppage" e-width="90"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
+                            <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-width="100"></div>
+                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
                             <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                            <div e-column e-field="SystemID" e-headertext="SystemID" e-headertext-color="black" e-textalign="left" e-width="75" e-visible="false">  </div>
-                            <div e-column e-field="EmployeeCode" e-headertext="Code" e-width="80"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Name" e-width="80"></div>
-                            <div e-column e-field="LegalDesignation" e-headertext="Designation" e-width="80"></div>
-
-                            <div e-column e-field="Department" e-headertext="Department" e-width="80"></div>
-                            <div e-column e-field="Section" e-headertext="Section" e-width="80"></div>
-                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="80"></div>
-                            <div e-column e-field="Line" e-headertext="Line" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="80"></div>
-                            <div e-column e-field="ResidenceGroup" e-headertext="ResidenceGroup" e-width="80"></div>
+                            <div e-column e-field="GivenDesignation" e-headertext="Given Designation" e-width="100"></div>
+                            <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
+                            <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
+                            <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
+                            <div e-column e-field="EntityName" e-headertext="Entity" e-width="100"></div>
                         </div>
                     </div>
                 </div>
@@ -392,6 +371,21 @@
                 </script>
                 <script type="text/x-jsrender" id="headerTemplate">
                     <input type="checkbox" id="headchk" />
+                </script>
+
+                <script type="text/template" id="templateBalance">
+                    <div class="text-left" style="width:100%">
+                        <a style="text-decoration: underline; color: blue; cursor: pointer;" ng-click="$parent.AvailablePopUpData(this);">{{data.Balance}}</a>
+                    </div>
+                </script>
+
+                <script type="text/template" id="stoppageTemplate">
+                    <div class="text-left" style="width:100%">
+                        <div class="select-style">
+                                <input ej-dropdownlist e-datasource="$parent.StopageDataList" e-value="data.StoppageId" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />
+                            @*<input ej-dropdownlist e-datasource="StopageDataList" e-value="Stoppage" e-fields-value="Id" e-fields-text="UserName" e-width="100%" />*@
+                        </div>
+                    </div>
                 </script>
             </div>
             <div class="modal-footer common-btn">

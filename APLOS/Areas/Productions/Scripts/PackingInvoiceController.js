@@ -262,7 +262,6 @@ function PackingInvoiceController(cboService, commonMessage, $scope, $rootScope,
             url: "Productions/PackingInvoice/GetPackingSOData?PackingId=" + $scope.sqlInStatement
         }).then(function (response) {
             $scope.salesOrderNewList = response.data;
-            console.log($scope.salesOrderNewList);
 
             angular.element(document.querySelector('#salesOrderItemPopUp')).modal('show');
         });

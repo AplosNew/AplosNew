@@ -26,5 +26,9 @@ function salesManagementConfig($routeProvider) {
             templateUrl: "SalesManagements/Sales/SalesPackingPost",
             controller: "salesPackingPostController"
         })
+        .when("/einvoice", {
+            templateUrl: "SalesManagements/Sales/EInvoice",
+            controller: "EInvoiceController"
+        })
         ;
 }
