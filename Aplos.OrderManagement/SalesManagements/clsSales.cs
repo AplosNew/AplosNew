@@ -527,7 +527,7 @@ namespace Library.OrderManagement.Sales
         }
 
 
-        public List<Dictionary<string, object>> GetPostedSalesList(string companyGroupId, string companyId)
+        public List<Dictionary<string, object>> GetParkedSalesList(string companyGroupId, string companyId)
         {
             try
             {
@@ -558,7 +558,7 @@ namespace Library.OrderManagement.Sales
 									LEFT JOIN [MST].[AddressMaster] AS AMP ON AMP.Id=PT.AddressMasterId
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesMaterial] M GROUP BY M.SalesId) AS SM ON SM.SalesId=S.Id
 									LEFT JOIN (SELECT M.SalesId,SUM(M.NetAmount) AS Amount FROM [TRN].[SalesService] M GROUP BY M.SalesId) AS SS ON SS.SalesId=S.Id
-                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' and S.SourceType in ('MasterOrderSales','Packing') AND S.RowState='Posted'";
+                                    WHERE S.CompanyGroupId='" + companyGroupId + "' AND S.CompanyId='" + companyId + "' and S.SourceType in ('MasterOrderSales','Packing') AND S.RowState='Parked'";
                 return _sqlRepository.GetDataCollection(cmdText);
 
             }

@@ -762,10 +762,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetPostedSalesList()
+        public ActionResult GetParkedSalesList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            JsonResult json = Json(clsSales.GetPostedSalesList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            JsonResult json = Json(clsSales.GetParkedSalesList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
             json.MaxJsonLength = int.MaxValue;
             return json;
 

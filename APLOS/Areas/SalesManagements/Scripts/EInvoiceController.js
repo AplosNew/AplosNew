@@ -8,7 +8,7 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
     $scope.SearchInvoiceData = function () {
         $http({
             method: 'GET'
-            , url: 'SalesManagements/Sales/GetPostedSalesList'
+            , url: 'SalesManagements/Sales/GetParkedSalesList'
             , dataType: 'JSON'
         }).then(function (response) {
             $scope.postedSalesList = response.data;
