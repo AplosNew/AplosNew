@@ -196,6 +196,29 @@ namespace Aplos.Areas.Employees.Controllers
             return Json(rsl.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetTransportSummaryData()
+        {
+            try
+            {
+                var sql = @"select R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo,TD.Capacity Vacancy
+											,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+											
+					                        from RouteSchedule RS
+					                        left join [MST].[Route] R on R.Id=RS.RouteId 
+					                        left join TransportDetail TD on TD.Id=RS.TransportId
+					                        left join RouteScheduleChild RSD on RSD.RouteScheduleId=RS.Id
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId from dbo.EmployeeTransportAllocation A
+									                        Group BY TripId) O ON O.TripId=RS.Id";
+
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         //Route Emp end
 
         [HttpGet, Authorize]

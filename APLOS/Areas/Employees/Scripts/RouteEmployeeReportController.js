@@ -1,6 +1,6 @@
 ﻿'use strict';
-RouteEmployeeReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+RouteEmployeeReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter', '$window'];
+function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Route Employee Report';
     $scope.Action = 'Save';
     $scope.path = 'Employees/RouteEmployee/';
@@ -83,68 +83,95 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
 
     };
 
+    $scope.UnassignReport = function () {
+        $scope.fileName = 'To Unassign List';
+        var dataList = [];
+        var g = $("#GridEUnassign").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-    $scope.PlantId = null;
-    $scope.dataList = [];
-    $scope.PlantId = null;
-    $scope.routeId = null;
-    $scope.AvailablePopUpData = function (data) {
-        $scope.TripId = data.data.TripId;
-        $scope.PlantId = data.data.PlantId;
-        $scope.routeId = data.data.RouteId;
-        $scope.dataList = [];
+        if (dataList.length == 0) {
+            dataList = $scope.ModelUnassignList;
+        }
         $http({
-            method: 'GET',
-            url: $scope.path + 'getemployeeDataListRouteEmp?plantId=' + data.data.PlantId
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.dataList = response.data;
-            $scope.GetStopageInformation();
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
         });
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
-    }
 
-    $scope.closeEmployeePopUps = function () {
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    }
-
-    $scope.closeEmployeePopUp = function () {
-        MakeData();
-        $scope.view();
-        angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
-    }
-
-    $scope.refreshTemplateemployee = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPartyWise });
     };
 
-    function CheckBoxSelectAllPartyWise(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
+
+    $scope.ModelUnassignList = [];
+    $scope.UnassignView = function () {
+        if (baseService.isUndefinedOrNull($scope.PlantId)) {
+            $scope.PlantId = $window.plantId;
+        }
+        $http({
+            method: "Get",
+            url: $scope.path + 'viewUnassign?PlantId=' + $scope.PlantId,
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelUnassignList = response.data;
+        })
+    }
+    $scope.UnassignView();
+
+    $scope.ModelTransportSummaryList = [];
+    $scope.viewTransportSummary = function () {
+        $http({
+            method: "Get",
+            url: $scope.path + 'GetTransportSummaryData',
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelTransportSummaryList = response.data;
+        })
+    }
+    $scope.viewTransportSummary();
+
+    $scope.TransportSummaryReport = function () {
+        $scope.fileName = 'Transport Summary Report';
+
+        var dataList = [];
+        var g = $("#GridTranSummary").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ModelTransportSummaryList;
         }
 
-        var filtered = $("#GridEmp").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.dataList.length; i++) {
-                $scope.dataList[i].isSelected = ChkOrUnchk;
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
             }
-        }
-        else {
-
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].isSelected = ChkOrUnchk;
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
-        }
-        var gridObj = $("#GridEmp").data("ejGrid");
-        gridObj.refreshContent();
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
     };
-
-
-    $scope.Clear = function () {
-        $scope.Action = "Save";
-        $scope.ModelList = [];
-    };
-
 
     //Route Emp End
 
