@@ -178,83 +178,83 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
 
     //#region The Filters 
 
-    $scope.Reportfilters = [];
-    $scope.getResidenceStatusReportFilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getResidenceReportFilters',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.Reportfilters = response.data;
-            var columnList = [
-                { field: 'EmployeeId', width: 20, headerText: "Employee Id", type: "string" },
-                { field: 'Designation', width: 20, headerText: "EmployeeGiven/LegalDesignation", type: "string" },
-                { field: 'EmployeeName', width: 20, headerText: "Name", type: "string" },
-                { field: 'Section', width: 20, headerText: "Section", type: "string" },
-                { field: 'SubSection', width: 20, headerText: "Sub Section", type: "string" },
-                { field: 'Department', width: 20, headerText: "Department", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'ResidenceGroup', width: 20, headerText: "Residence Group", type: "string" },
-                { field: 'ResidenceId', width: 20, headerText: "Residence Id", type: "string" },
-                { field: 'ResidenceNumber', width: 20, headerText: "Residence Number", type: "string" },
-                { field: 'Block', width: 20, headerText: "Block", type: "string" },
-                { field: 'ResidentType', width: 20, headerText: "Resident Type", type: "string" },
-                //{ field: 'ResidenceCategory', width: 20, headerText: "Residence Category", type: "string" },
-                { field: 'ResidenceSubCategory', width: 20, headerText: "Sub Category", type: "string" }
+    //$scope.Reportfilters = [];
+    //$scope.getResidenceStatusReportFilters = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: $scope.path + 'getResidenceReportFilters',
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        $scope.Reportfilters = response.data;
+    //        var columnList = [
+    //            { field: 'EmployeeId', width: 20, headerText: "Employee Id", type: "string" },
+    //            { field: 'Designation', width: 20, headerText: "EmployeeGiven/LegalDesignation", type: "string" },
+    //            { field: 'EmployeeName', width: 20, headerText: "Name", type: "string" },
+    //            { field: 'Section', width: 20, headerText: "Section", type: "string" },
+    //            { field: 'SubSection', width: 20, headerText: "Sub Section", type: "string" },
+    //            { field: 'Department', width: 20, headerText: "Department", type: "string" },
+    //            { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
+    //            { field: 'ResidenceGroup', width: 20, headerText: "Residence Group", type: "string" },
+    //            { field: 'ResidenceId', width: 20, headerText: "Residence Id", type: "string" },
+    //            { field: 'ResidenceNumber', width: 20, headerText: "Residence Number", type: "string" },
+    //            { field: 'Block', width: 20, headerText: "Block", type: "string" },
+    //            { field: 'ResidentType', width: 20, headerText: "Resident Type", type: "string" },
+    //            //{ field: 'ResidenceCategory', width: 20, headerText: "Residence Category", type: "string" },
+    //            { field: 'ResidenceSubCategory', width: 20, headerText: "Sub Category", type: "string" }
 
-            ];
-            $("#Reportfilters").ejGrid({
-                dataSource: $scope.Reportfilters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
-            });
+    //        ];
+    //        $("#Reportfilters").ejGrid({
+    //            dataSource: $scope.Reportfilters,
+    //            minWidth: 450, minHeight: 400,
+    //            allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
+    //            filterSettings: { filterType: "excel" },
+    //            columns: columnList
+    //        });
 
-            var gridObj = $("#Reportfilters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-            $("#Reportfilters").children('.e-pager.e-js.e-pager').hide();
-            $("#Reportfilters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#Reportfilters").children('.e-gridcontent').hide();
-        });
-    }
-    $scope.getResidenceStatusReportFilters();
-
-
-
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
-
-        var g = $("#Reportfilters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.Reportfilters;
-        }
+    //        var gridObj = $("#Reportfilters").data("ejGrid");
+    //        gridObj.refreshContent(true);
+    //        gridObj.refreshTemplate();
+    //        $("#Reportfilters").children('.e-pager.e-js.e-pager').hide();
+    //        $("#Reportfilters").children('.e-gridcontent.e-droppable.e-js').hide();
+    //        $("#Reportfilters").children('.e-gridcontent').hide();
+    //    });
+    //}
+    //$scope.getResidenceStatusReportFilters();
 
 
-        var parameters = [];
-        parameters.push({ "Key": "EmployeeId", "Value": getString(fl, "EmployeeId") });
-        //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
-        //parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
-        //parameters.push({ "Key": "EmployeeTypeId", "Value": getString(fl, "EmployeeTypeId") });
-        //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
+
+    //$scope.parameters = [];
+    //$scope.filterComplete = function () {
+
+    //    var g = $("#Reportfilters").data("ejGrid");
+    //    var fl = g.getFilteredRecords();
+    //    if (fl.length == 0) {
+    //        fl = $scope.Reportfilters;
+    //    }
+
+
+    //    var parameters = [];
+    //    parameters.push({ "Key": "EmployeeId", "Value": getString(fl, "EmployeeId") });
+    //    //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
+    //    //parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
+    //    //parameters.push({ "Key": "EmployeeTypeId", "Value": getString(fl, "EmployeeTypeId") });
+    //    //parameters.push({ "Key": "ResidenceGroupId", "Value": getString(fl, "ResidenceGroupId") });
        
-        $scope.parameters = parameters;
-    }
+    //    $scope.parameters = parameters;
+    //}
 
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
+    //var getString = function (data, column) {
+    //    var string = "''";
+    //    var collection = [];
 
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
-            }
-        }
-        return string;
-    }
+    //    for (var i = 0; i < data.length; i++) {
+    //        if (collection.includes(data[i][column]) == false) {
+    //            string += ",'" + data[i][column] + "'";
+    //            collection.push(data[i][column]);
+    //        }
+    //    }
+    //    return string;
+    //}
 
   
 
