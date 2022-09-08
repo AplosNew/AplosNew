@@ -1935,6 +1935,7 @@
     <Content Include="Areas\Employees\Scripts\multipleResignationApprovalNewController.js" />
     <Content Include="Areas\Employees\Scripts\ResidenceGroupController.js" />
     <Content Include="Areas\Employees\Scripts\EmployeeCodeTypeController.js" />
+    <Content Include="Areas\Employees\Scripts\RouteEmployeeReportController.js" />
     <Content Include="Areas\Employees\Scripts\TransportGroupController.js" />
     <Content Include="Areas\Employees\Scripts\empActiveInActiveNewController.js" />
     <Content Include="Areas\Employees\Scripts\employeeBaseMultipleController.js" />
@@ -4266,7 +4267,7 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForUnAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\residenceSummarGrid.cshtml" />
-    <Content Include="Areas\Employees\Views\RouteEmployee\Aplos1.cshtml" />
+    <Content Include="Areas\Employees\Views\RouteEmployee\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
@@ -6935,7 +6936,7 @@
     <Content Include="Areas\Employees\Views\Route\Aplos.cshtml" />
     <Content Include="Areas\Attendances\Views\AccessControllerList\Aplos.cshtml" />
     <Content Include="Areas\Products\Views\ProductDefinition\Aplos.cshtml" />
-    <Content Include="Areas\Employees\Views\RouteEmployee\Aplos.cshtml" />
+    <Content Include="Areas\Employees\Views\RouteEmployee\Report.cshtml" />
     <Content Include="Areas\Employees\Views\PostRecruitmentDocumentByDepartment\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\ResignationRecruitmentPlanning\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\ComplianceDocument\Aplos.cshtml" />
