@@ -45,7 +45,6 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
     $scope.sqlInStatement = [];
     $scope.selectedpostedSalesList = [];
     $scope.closePSPopUp = function () {
-        $scope.selectedpostedSalesList = [];
         for (var i = 0; i < $scope.postedSalesList.length; i++) {
             if ($scope.postedSalesList[i].Flag) {
                 if (checkExistInvoice($scope.selectedpostedSalesList, $scope.postedSalesList[i].SalesId)) {
@@ -63,7 +62,9 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
             }
             $scope.sqlInStatement = wcEmpCode;
         }
-        GetSalesMaterialList($scope.sqlInStatement);
+        if ($scope.sqlInStatement.length > 0) {
+            GetSalesMaterialList($scope.sqlInStatement);
+        }
         angular.element(document.querySelector('#PostedSalespopUp')).modal('hide');
     }
 
@@ -75,12 +76,17 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
 
 
     function checkExistInvoice(list, SalesId) {
-        for (var i = 0; i < list.length; i++) {
-            if (list[i].SalesId !== SalesId) {
-                return false;
+        if (list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].SalesId !== SalesId) {
+                    return true;
+                }
             }
+            return false;
         }
-        return true;
+        else {
+            return true;
+        }
     }
 
     $scope.salesMaterialList = [];
@@ -91,38 +97,55 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
             url: "SalesManagements/Sales/GetSalesMaterialList?Ids=" + Ids
         }).then(function (response) {
             $scope.salesMaterialList = response.data;
-
         });
     }
 
-    $scope.salesMaterialList = [];
-    $scope.refreshTemplateMaterial = function (args) {
-        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllMaterial });
-    };
-    function CheckBoxSelectAllMaterial(e) {
-        var ChkOrUnchk = false;
-        if (e.model.checkState === "check") {
-            ChkOrUnchk = true;
-        }
-
-        var filtered = $("#SMGrid").data("ejGrid").getFilteredRecords();
-        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.salesMaterialList.length; i++) {
-                $scope.salesMaterialList[i].Active = ChkOrUnchk;
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.reportFormat = "Excel";
+    $scope.PrintExcel = function () {
+        var dataList = [];
+        var g = $("#SMGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+        var ids = "";
+        if (baseService.arrayLength(dataList) > 0) {
+            for (var i = 0; i < dataList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + dataList[i].SalesMaterialId + "'";
+                }
+                else {
+                    ids += ",'" + dataList[i].SalesMaterialId + "'";
+                }
             }
         }
         else {
-            for (var j = 0; j < filtered.length; j++) {
-                filtered[j].Active = ChkOrUnchk;
+            for (var i = 0; i < $scope.salesMaterialList.length; i++) {
+                if (ids == "") {
+                    ids = "'','" + $scope.salesMaterialList[i].SalesMaterialId + "'";
+                }
+                else {
+                    ids += ",'" + $scope.salesMaterialList[i].SalesMaterialId + "'";
+                }
             }
         }
-        //var gridObj = $("#PSGrid").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-    };
 
 
-    $scope.onShowReportMOS = function () {
-        if (baseService.isUndefinedOrNull($scope.modelNew.Id)) return ShowResult('No Id found', 'failure');
-        $window.open('SalesManagements/Sales/SalesReport?reportFormat=' + 'Pdf' + '&&salesId=' + $scope.modelNew.Id, '_blank');
-    };
+        $http({
+            method: 'POST',
+            url: 'SalesManagements/Sales/GetEInvoiceSaveReports',
+            data: { reportFormat: $scope.reportFormat, issueIds: ids, 'data': $scope.selectedpostedSalesList},
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error == true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+
+    }
 
 }
