@@ -85,6 +85,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.AccountTitle = autoLoandata.AccountTitle;
         $scope.voucher.Amount = autoLoandata.Amount;
         $scope.voucher.CurrencyId = autoLoandata.CurrencyId;
+        $scope.voucher.BankCurrencyId = autoLoandata.CurrencyId;
         $scope.voucher.DocRefNo = autoLoandata.LoanNo;
         $scope.voucher.PostingDate = $filter("dateFiltering")(autoLoandata.LoanDate);
         $scope.voucher.DocDate = $filter("dateFiltering")(autoLoandata.LoanDate);
@@ -98,6 +99,7 @@ function autoLoanPostController(accountService, bankService, cboService, commonM
         $scope.voucher.BudgetMasterId = autoLoandata.BudgetMasterId;
         $scope.voucher.ActivityId = autoLoandata.ActivityId;
         $scope.voucher.CompanyCurrencyRate = autoLoandata.CompanyCurrencyRate;
+        $scope.voucher.BankBookAmount = Math.round((autoLoandata.Amount * autoLoandata.CompanyCurrencyRate) * 100 + Number.EPSILON) / 100;
         $scope.voucher.InvoiceId = autoLoandata.InvoiceId;
         $scope.voucher.InvoiceDetailId = autoLoandata.InvoiceDetailId;
         $scope.voucher.LoanAgainstAcceptanceId = autoLoandata.LoanAgainstAcceptanceId;
