@@ -380,6 +380,7 @@
                     <th>Description</th>
                     <th>User Define Name</th>
                     <th>Base Process(Production)</th>
+                    <th>SubProcess</th>
                     <th>Delete</th>
                 </tr>
             </thead>
@@ -395,6 +396,7 @@
                     <td>{{x.Description}}</td>
                     <td>{{x.UserName}}</td>
                     <td>{{x.BaseProcess}}</td>
+                    <td>{{x.SubProcess}}</td>
                     <td class="text-right table-td">
                         <ul class="list-inline action-list">
                             <li><button ng-click="valuePass($index,x);" class="btn btn-action tooltip-here" tooltip data-placement="top" title="Delete"><i class="glyphicon glyphicon-trash"></i></button></li>

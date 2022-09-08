@@ -212,7 +212,7 @@ namespace Library.Service.Productions
             }
         }
 
-        public GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs)
+        public GridModel GetShiftList(GridParameter parameters, string sGroupID, string sPlantID, string[] ShiftDefinationIDs, string wcids)
         {
             try
             {
@@ -221,7 +221,7 @@ namespace Library.Service.Productions
                                         InTimeStartMargin, LateMargin, AbsentEndMargin, CONVERT(VARCHAR(10), OutTime, 108) AS OutTime,
                                         OutTimeEndMargin, OTStartTime, CONVERT(VARCHAR(10), BreakStratTime, 108) AS BreakStratTime,
                                         CONVERT(VARCHAR(10), BreakEndTime, 108) AS BreakEndTime, BreakPeriod, WorkingHour, IsActive, DefaultShift, IsGapInclude
-                                FROM ShiftDefination WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"' AND SystemID NOT IN (" + ReturnStringArray(ShiftDefinationIDs) + ")";
+                                FROM ShiftDefination WHERE GroupID = '" + sGroupID + @"' AND PlantID = '" + sPlantID + @"' AND SystemID NOT IN (" + ReturnStringArray(ShiftDefinationIDs) + ") AND SystemID IN(SELECT  ShiftDefinationId FROM WorkCenterWiseShift WHERE WorkCenterMasterId IN("+ wcids + "))";
                 return _sqlRepository.GetGridData(parameters);
             }
             catch (Exception ex)
