@@ -1073,6 +1073,7 @@ upanelApp.controller("ProductionReportWithParameterController", ProductionReport
 upanelApp.controller("ProcessWiseMaterialAllocationController", ProcessWiseMaterialAllocationController)
 upanelApp.controller("RequisitionStatusController", RequisitionStatusController)
 upanelApp.controller("EInvoiceController", EInvoiceController)
+upanelApp.controller("RouteEmployeeReportController", RouteEmployeeReportController)
 
 
 upanelApp.config(AccessControllerConfig);

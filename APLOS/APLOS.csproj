@@ -4269,7 +4269,6 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForUnAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\residenceSummarGrid.cshtml" />
-    <Content Include="Areas\Employees\Views\RouteEmployee\Aplos1.cshtml" />
     <Content Include="Areas\IE\Views\DetentionType\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\RouteEmployee\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
