@@ -638,9 +638,9 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId)
+        public JsonResult getemployeeDataList(string plantId, string residenceGroupId, string EmployeeTypeId)
         {
-            return Json(rsl.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getemployeeDataList(plantId, residenceGroupId, EmployeeTypeId), JsonRequestBehavior.AllowGet);
         }
 
         //Route Emp end
@@ -652,10 +652,10 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 
 
         [HttpGet, Authorize]
-        public JsonResult viewUnallocation(string PlantId)
+        public JsonResult viewUnassign(string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(rsl.getviewUnallocation(PlantId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -730,13 +730,13 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 
 
         [Authorize, HttpPost]
-        public JsonResult SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
+        public JsonResult SaveUnassignData(List<Dictionary<string, object>> employeeList)
         {
 
             try
             {
 
-                rsl.SaveRSUnallocation(employeeList);
+                rsl.SaveUnassignData(employeeList);
                 return Json(new { Data = employeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }

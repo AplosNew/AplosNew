@@ -688,6 +688,7 @@
     <Compile Include="Areas\IE\Controllers\AdditionalElementCodeSettingsController.cs" />
     <Compile Include="Areas\IE\Controllers\BartackCodeController.cs" />
     <Compile Include="Areas\IE\Controllers\BulletinReportController.cs" />
+    <Compile Include="Areas\IE\Controllers\DetentionTypeController.cs" />
     <Compile Include="Areas\IE\Controllers\ElementCodeController.cs" />
     <Compile Include="Areas\IE\Controllers\GaugeFolderController.cs" />
     <Compile Include="Areas\IE\Controllers\LineLayoutForProductionBulletinController.cs" />
@@ -2114,6 +2115,7 @@
     <Content Include="Areas\IE\Scripts\AdditionalElementCodeSettingsController.js" />
     <Content Include="Areas\IE\Scripts\bartackCodeController.js" />
     <Content Include="Areas\IE\Scripts\bulletinReportController.js" />
+    <Content Include="Areas\IE\Scripts\DetentionTypeController.js" />
     <Content Include="Areas\IE\Scripts\elementCodeController.js" />
     <Content Include="Areas\IE\Scripts\LineLayoutForProductionBulletinController.js" />
     <Content Include="Areas\IE\Scripts\MachineMapController.js" />
@@ -4267,6 +4269,7 @@
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\pendingForUnAllocationGrid.cshtml" />
     <Content Include="Areas\HumanResource\Views\ResidenceStatusAllocation\residenceSummarGrid.cshtml" />
     <Content Include="Areas\Employees\Views\RouteEmployee\Aplos1.cshtml" />
+    <Content Include="Areas\IE\Views\DetentionType\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />

@@ -349,7 +349,7 @@
                                 <div e-column e-field="ResponsiblePersonId" e-headertext="Id" e-width="50" e-visible="false"></div>
                                 <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="200" e-visible="false"></div>
                                 <div e-column e-template="#Department" e-headertext="Department" e-width="200"></div>
-                                <div e-column e-template="#DetentionType" e-headertext="Detention Type" e-width="100"></div>
+                                <div e-column e-template="#DetentionTypeId" e-headertext="Detention Type" e-width="100"></div>
                                 <div e-column e-template="#DetentionId" e-headertext="Detention" e-width="100"></div>
                                 <div e-column e-template="#fromtime" e-headertext="From Time" e-width="120"></div>
                                 <div e-column e-template="#totime" e-headertext="To Time" e-width="120"></div>
@@ -372,9 +372,9 @@
                                 <button ng-click="$parent.selectDepartment(this);" class="btn single-small-btn" tabindex="6"><i class="cr-icon glyphicon glyphicon-search"></i></button>
                             </div>
                         </script>
-                        <script type="text/template" id="DetentionType">
+                        <script type="text/template" id="DetentionTypeId">
                             <div class="select-style">
-                                <input ej-dropdownlist e-datasource="data.DetentionTypeList" e-value="data.DetentionType" e-fields-value="Value" e-fields-text="Text" e-change="$parent.GetDetentionList" e-width="100%" />
+                                <input ej-dropdownlist e-datasource="data.DetentionTypeList" e-value="data.DetentionTypeId" e-fields-value="Value" e-fields-text="Text" e-change="$parent.GetDetentionList" e-width="100%" />
                             </div>
                         </script>
                         <script type="text/template" id="DetentionId">
@@ -712,7 +712,7 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li>
-                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate</button>
+                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate And Save</button>
                             @*<button ng-click="SaveMasterWCParaList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>*@
                         </li>
                     </ul>

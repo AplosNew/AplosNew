@@ -8,6 +8,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.saveUrl = $scope.path + 'Save';
     $scope.UAsaveUrl = $scope.path + 'SaveUnAssign';
     $scope.ApplyForAllUrl = $scope.path + 'SaveApplyForAll';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     //#region Tab
     $scope.tabh = 11;
@@ -592,8 +594,6 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         }).then(function successCallback(response) {
             $scope.dataList = response.data;
             $scope.GetStopageInformation();
-
-            //$scope.UnallocationView();
         });
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
@@ -636,27 +636,14 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.saveList = [];
     function MakeData() {
+        $scope.saveList = [];
         for (var i = 0; i < $scope.dataList.length; i++) {
             if ($scope.dataList[i].isSelected == true) {
                 $scope.dataList[i].TripId = $scope.TripId;
                 $scope.dataList[i].AssignStatus = true;
                 $scope.dataList[i].AssignDate = Date.now();
+                $scope.dataList[i].UnassignDate = null;
                 $scope.saveList.push($scope.dataList[i]);
-
-                //if (checkExists($scope.saveList, $scope.dataList[i].EmployeeCode) === false) {
-                //    var ob = {};
-                //    ob.Id = null;
-                //    ob.EmployeeSystemId = $scope.dataList[i].SystemID;
-                //    ob.TripId = $scope.TripId;
-                //    ob.StoppageId = $scope.dataList[i].StopageDataList;
-                //    ob.AssignStatus = true;
-                //    ob.AssignDate = Date.now();
-                //    ob.UnassignDate = Date.now();
-                //    $scope.saveList.push(ob);
-                //}
-                //else {
-                //    ShowResult("This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.", 'failure');
-                //}
             }
         }
         $scope.SaveEmployeeTransportAllocation();
@@ -673,6 +660,12 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.SaveEmployeeTransportAllocation = function () {
         try {
+            for (var i = 0; i < $scope.saveList.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.saveList[i].StoppageId)) {
+                        throw 'Stoppage is required !';
+                    }
+                
+            }
            
             $http({
                 method: 'POST',
@@ -685,8 +678,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.UnallocationView();
-                    $scope.saveList = [];
+                    $scope.view();
+                    $scope.UnassignView();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -715,21 +708,20 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     };
     
 
-    $scope.ModelUnallocationList = [];
-    $scope.UnallocationView = function () {
+    $scope.ModelUnassignList = [];
+    $scope.UnassignView = function () {
         if (baseService.isUndefinedOrNull($scope.PlantId)) {
             $scope.PlantId = $window.plantId;
         }
         $http({
             method: "Get",
-            url: $scope.path2 + 'viewUnallocation?PlantId=' + $scope.PlantId,
+            url: $scope.path + 'viewUnassign?PlantId=' + $scope.PlantId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ModelUnallocationList = response.data;
-            //$scope.SaveEmployeeTransportAllocation();
+            $scope.ModelUnassignList = response.data;
         })
     }
-    $scope.UnallocationView();
+    $scope.UnassignView();
 
     $scope.popupEmployeeList = [];
     $scope.PopupEmployeeView = function () {
@@ -949,8 +941,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
         var filtered = $("#GridEUnallocation").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
-                $scope.ModelUnallocationList[i].isSelected = ChkOrUnchk;
+            for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
+                $scope.ModelUnassignList[i].isSelected = ChkOrUnchk;
             }
         }
         else {
@@ -963,18 +955,18 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         gridObj.refreshContent();
     };
 
-    $scope.SaveRSU = function () {
-        $scope.unallocationLoop = [];
-        for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
+    $scope.SaveUnassignData = function () {
+        $scope.unassignLoop = [];
+        for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
 
-            if ($scope.ModelUnallocationList[i].isSelected) {
-                $scope.unallocationLoop.push($scope.ModelUnallocationList[i]);
+            if ($scope.ModelUnassignList[i].isSelected) {
+                $scope.unassignLoop.push($scope.ModelUnassignList[i]);
             }
         }
         $http({
             method: 'POST',
-            url: $scope.path2 + 'SaveRSUnallocation',
-            data: { 'employeeList': $scope.unallocationLoop },
+            url: $scope.path + 'SaveUnassignData',
+            data: { 'employeeList': $scope.unassignLoop },
             dataType: 'JSON',
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -982,26 +974,29 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.UnallocationView();
+                $scope.UnassignView();
+                $scope.view();
             }
         });
     }
+    $scope.AssignReport = function () {
+        $scope.fileName = 'To Assign List';
 
-    //-----------------------------------------------------------------------------------
+        var dataList = [];
+        var g = $("#GridRouteEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-    function openModal() {
-        $('.confirm-delete').addClass('hide');
-        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
-        $('#myModal').modal('show');
-    }
-    //-----------------------------------------------------------------------------------
+        if (dataList.length == 0) {
+            dataList = $scope.ModelList;
+        }
 
-    // REPORT DOWNLOAD
-    $scope.ResidenceAllocationReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path2 + "XlsResidenceAllocationReport",
-            data: { 'parameters': $scope.parameters },
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -1015,6 +1010,47 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         });
 
     };
+
+    $scope.UnassignReport = function () {
+        $scope.fileName = 'To Unassign List';
+        var dataList = [];
+        var g = $("#GridEUnallocation").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ModelUnassignList;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+    //-----------------------------------------------------------------------------------
+
+    function openModal() {
+        $('.confirm-delete').addClass('hide');
+        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
+        $('#myModal').modal('show');
+    }
+    //-----------------------------------------------------------------------------------
+
+    // REPORT DOWNLOAD
+  
 
     $scope.ResidenceMasterReport = function () {
         $http({
