@@ -274,7 +274,7 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
 
-        [HttpGet]
+        [Authorize, HttpGet]
         public ActionResult PackingListPDFReport(ReportFormat reportFormat, string packingId)
         {
             try
