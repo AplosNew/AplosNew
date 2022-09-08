@@ -30,10 +30,10 @@
     <div ng-show="salesMaterialList.length>0">
         <fieldset class="scheduler-border">
             <legend class="scheduler-border">Material List</legend>
-            <div style="color:black;" id="SMGrid" ej-grid e-datasource="salesMaterialList" e-allowscrolling="true" e-templaterefresh="refreshTemplateMaterial"
+            <div style="color:black;" id="SMGrid" ej-grid e-datasource="salesMaterialList" e-allowscrolling="true" @*e-templaterefresh="refreshTemplateMaterial"*@
                  e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-allowselection="false" e-filtersettings-filterType="excel">
                 <div e-columns>
-                    <div e-column e-headertext="" e-headertemplateid="#headerTemplateMaterial" e-template="#checkboxTemplateMaterial" e-textalign="center" e-width="30"></div>
+                    @*<div e-column e-headertext="" e-headertemplateid="#headerTemplateMaterial" e-template="#checkboxTemplateMaterial" e-textalign="center" e-width="30"></div>*@
                     <div e-column e-type="string" e-field="DocumentNumber" e-headertext="DocumentNumber" e-width="80"></div>
                     <div e-column e-type="string" e-field="DocumentDate" e-headertext="DocumentDate" e-width="80"></div>
                     <div e-column e-type="string" e-field="BuyerLegalName" e-headertext="BuyerLegalName" e-width="80"></div>
@@ -49,17 +49,17 @@
                     <div e-column e-type="number" e-format="{0:0.00}" e-field="ItemTotal" e-headertext="ItemTotal" e-textalign="right" e-width="80"></div>
                 </div>
             </div>
-            <script type="text/template" id="checkboxTemplateMaterial">
+            @*<script type="text/template" id="checkboxTemplateMaterial">
                 <input type="checkbox" ej-checkbox class="rowCheckbox" e-checked="data.Active" />
             </script>
             <script type="text/x-jsrender" id="headerTemplateMaterial">
                 <input type="checkbox" id="headchk" />
-            </script>
+            </script>*@
         </fieldset>
     </div>
-    <div class="common-btn">
+    <div class="common-btn" ng-show="salesMaterialList.length>0">
         <ul class="list-inline text-left">
-            <li><button ng-click="GetReport();" class="btn"><i class="glyphicon glyphicon-download"></i>Report</button></li>
+            <li><button ng-click="PrintExcel();" class="btn"><i class="glyphicon glyphicon-download"></i>Report</button></li>
         </ul>
     </div>
 

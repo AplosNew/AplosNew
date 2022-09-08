@@ -332,41 +332,42 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     function ValidationMaster() {
         try {
-            CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
+            //CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
 
-            if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
-                CheckField("Lot Number", $scope.productionSummaryNew.LotNumber);
-            }
+            //if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
+            //    CheckField("Lot Number", $scope.productionSummaryNew.LotNumber);
+            //}
 
-            if ($scope.productionSummaryNew.ProductionBookingLevel === "ProductionOrder") {
+            /*  if ($scope.productionSummaryNew.ProductionBookingLevel === "ProductionOrder") {*/
+                if ($scope.productionSummaryNew.ProductionOrderId == null) {
                 CheckField("Production Order", $scope.productionSummaryNew.ProductionOrderId);
-                CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
+                /*CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);*/
                 //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
             }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
-                CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
-                CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-                CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-                CheckField("Article", $scope.productionSummaryNew.ArticleId);
-                CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            }
-            else if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
-                CheckField("Master Order Item", $scope.productionSummaryNew.MasterOrderItemId);
-                CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-                CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-                CheckField("Article", $scope.productionSummaryNew.ArticleId);
-                CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            }
-            else {
-                CheckField("Product Code", $scope.productionSummaryNew.ProductLibraryId);
-                CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
-                CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
-                CheckField("Article", $scope.productionSummaryNew.ArticleId);
-                CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
-                //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
-            }
+            //else if ($scope.productionSummaryNew.ProductionBookingLevel === "SalesOrder") {
+            //    CheckField("Sales Order", $scope.productionSummaryNew.SalesOrderId);
+            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
+            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
+            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
+            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
+            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+            //}
+            //else if ($scope.productionSummaryNew.ProductionBookingLevel === "MasterOrderItem") {
+            //    CheckField("Master Order Item", $scope.productionSummaryNew.MasterOrderItemId);
+            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
+            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
+            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
+            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
+            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+            //}
+            //else {
+            //    CheckField("Product Code", $scope.productionSummaryNew.ProductLibraryId);
+            //    CheckField("Master Order No", $scope.productionSummaryNew.MasterOrderNo);
+            //    CheckField("MaterialMaster", $scope.productionSummaryNew.MaterialMasterId);
+            //    CheckField("Article", $scope.productionSummaryNew.ArticleId);
+            //    CheckField("Production Grade", $scope.productionSummaryNew.ProductionGrade);
+            //    //CheckField("Quantity", $scope.productionSummaryNew.Quantity);
+            //}
         } catch (ex) {
             throw ex;
         }
@@ -1071,7 +1072,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     $scope.SaveMaster = function () {
         try {
-            
+            ValidationMaster();
             $http({
                 method: 'POST',
                 url: $scope.saveUrl,
@@ -1349,7 +1350,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                         $scope.NewObject.Quantity += response.data.NewData[i].Value;
                     }
                 }
-                $scope.SaveMaster();
+                    $scope.SaveMaster();
                 var gridObj = $("#ProductionSummaryWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
             }, function errorCallback(response) {
                 $scope.ShowResultCustom(response.status.Message, "failure");
@@ -1392,8 +1393,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         DetentionId: null,
         ResponsiblePersonId: null,
         WorkCenter: null,
-        //Detention: null,
+        Detention: null,
         DetentionType: null,
+        DetentionTypeId: null,
         Department: null,
         ResponsiblePerson: null,
         Remark: null,
@@ -1451,7 +1453,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
                                         $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
                                         $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
-                                        $scope.ProcessDetentionLists[k].DetentionType = response.data[j].DetentionType;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
                                         $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
                                         $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
                                         $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
@@ -1511,7 +1513,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].DetentionTypeList = response.data[j].DetentionTypeList;
                                         $scope.ProcessDetentionLists[k].DetentionList = response.data[j].DetentionList;
                                         $scope.ProcessDetentionLists[k].DetentionId = response.data[j].DetentionId;
-                                        $scope.ProcessDetentionLists[k].DetentionType = response.data[j].DetentionType;
+                                        $scope.ProcessDetentionLists[k].DetentionTypeId = response.data[j].DetentionTypeId;
                                         $scope.ProcessDetentionLists[k].Detention = response.data[j].Detention;
                                         $scope.ProcessDetentionLists[k].FromTime = response.data[j].FromTime;
                                         $scope.ProcessDetentionLists[k].ToTime = response.data[j].ToTime;
@@ -1547,15 +1549,15 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         }
     };
 
-    $scope.DetentionTypeList = [];
-    $scope.GetDetentionTypeList = function () {
-        $http({
-            method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
-        }).then(function successCallback(response) {
-            $scope.DetentionTypeList = response.data;
-        });
-    }
+    //$scope.DetentionTypeList = [];
+    //$scope.GetDetentionTypeList = function () {
+    //    $http({
+    //        method: 'GET',
+    //        url: 'IE/MachineMasterTransaction/GetDetentionTypeList'
+    //    }).then(function successCallback(response) {
+    //        $scope.DetentionTypeList = response.data;
+    //    });
+    //}
 
 
     var currRow = null;
@@ -1565,22 +1567,24 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         currRow = gridObj.model.currentViewData[this.element.closest("tr").index()];
         $http({
             method: 'GET',
-            url: 'IE/MachineMasterTransaction/GetDetentionListWC?Detentiontype=' + currRow.DetentionType
+            url: 'IE/MachineMasterTransaction/GetDetentionListWC?DetentiontypeId=' + currRow.DetentionTypeId
         }).then(function successCallback(response) {
-            if (response.data.length > 0)
-            {
-                currRow.DetentionList = response.data;
-                for (i = 0; i < response.data.length; i++)
-                {
-                    if (response.data[i].Value == currRow.DetentionId)
-                    {
-                        currRow.DetentionId = response.data[i].Value;
+            currRow.DetentionList = response.data;
+            //if (response.data.length > 0)
+            //{
+            //    currRow.DetentionList = response.data;
+            //    for (i = 0; i < response.data.length; i++)
+            //    {
+            //        if (response.data[i].Value == currRow.DetentionId)
+            //        {
+            //            currRow.DetentionId = response.data[i].Value;
 
-                        break;
-                    }
-                }
-            }
+            //            break;
+            //        }
+            //    }
+            //}
             var gridObj = $("#ProductionSummaryDetentionWC").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+            
         });
     };
 
@@ -1714,6 +1718,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                     //$scope.LoadDetentionList();
                     $scope.Action = 'Save';
                     $scope.getProcessDetention();
+
                 }
 
             }), function errorCallBack(response) {

@@ -1162,8 +1162,9 @@ LEFT JOIN TRN.PackingLineItem pli on pli.PackingId=p.PackingId
 LEFT JOIN TRN.POLotReference plr on plr.PackingLineItemId= pli.PackingLineItemId
 LEFT JOIN dbo.ItemScanChild sc ON sc.LotNo = plr.LotNo and sc.ProductCode = plr.ProductCode and sc.POId = plr.PONo 
 LEFT JOIN ProductLibrary PL ON PL.Code = sc.ProductCode 
-LEFT JOIN MST.MaterialMasterArticle M ON M.Id = PL.ArticleId 
 LEFT JOIN dbo.SalesPacking SP on SP.PackingId=pli.PackingId
+LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=sp.SalesId
+LEFT JOIN MST.MaterialMasterArticle M ON M.Id = sm.ArticleId 
 LEFT JOIN TRN.Sales S on S.Id=SP.SalesId
 LEFT JOIN TRN.SalesOrder as so on so.Id=pli.SOId
 LEFT JOIN TRN.MasterOrderItem as moi on moi.id=so.MasterOrderItemId
@@ -1171,7 +1172,8 @@ LEFT JOIN dbo.[contract] as c on c.id = moi.contractId
 LEFT JOIN HKP.Party as pc on pc.Id=c.CustomerId
 LEFT JOIN HKP.PartyPlant as pbt on pbt.Id=c.InvoicingPartyPlantId
 WHERE p.PackingId = '"+ packingId + @"'
-GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pc.UserName";
+GROUP BY  sc.ProductCode,sc.POId,sc.LotNo,sc.netWeight,sc.GWeight,sc.RefNo,M.StandardName,SP.SalesId,S.InvoiceDate,pc.UserName
+ORDER BY M.StandardName";
                 return _sqlRepository.GetDataTable(str);
             }
             catch (Exception e)
