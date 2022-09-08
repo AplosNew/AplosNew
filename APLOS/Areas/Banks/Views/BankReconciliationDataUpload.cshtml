@@ -122,7 +122,7 @@
                     </div>
                 </div>
                 <div class="form-group" show-errors>
-                    <label class="col-sm-4 control-label">Employee<sup>*</sup></label>
+                    <label class="col-sm-4 control-label">By Whom<sup>*</sup></label>
                     <div class="col-sm-8 show-message">
                         <div class="input-group">
                             <input type="text" name="EmployeeName" ng-model="bankReconciliationNew.EmployeeName" class="form-control" readonly>
@@ -183,9 +183,9 @@
                 <div class="col-sm-12">
                     <div id="GridWorkCenterProduct"
                          ng-init="chkinit()"
-                         ej-grid e-datasource="AttdnRawData"
-                         e-recorddoubleclick="selectSignleEmployee"
-                         e-rowdatabound="onrowdatabound"
+                         ej-grid e-datasource="BankReconciliationUploadedData"
+                         @*e-recorddoubleclick="selectSignleEmployee"
+                         e-rowdatabound="onrowdatabound"*@
                          e-allowfiltering="true"
                          e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
                          e-allowscrolling="true" @* e-minwidth="1100" e-minheight="500"*@
@@ -193,21 +193,12 @@
                          @*e-allowselection="true"*@
                          e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="120"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="60"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="60"></div>
-                            <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
-                            <div e-column e-field="HeadType" e-headertext="Head Type" e-width="80"></div>
-                            @*<div e-column e-field="ExistCurrency" e-headertext="Exist Currency" e-width="80"></div>
-                                <div e-column e-field="ExistAmount" e-headertext="Exist Amount" e-width="80"></div>*@
-                            <div e-column e-field="EntryCurrency" e-headertext="Entry Currency" e-width="100"></div>
-                            <div e-column e-field="EntryAmount" e-headertext="Entry Amount" e-width="100"></div>
-                            @*<div e-column e-field="DefinitionCurrency" e-headertext="Definition Currency" e-width="100"></div>
-                                <div e-column e-field="DefineAmount" e-headertext="Define Amount" e-width="100"></div>*@
+                            <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
+                            <div e-column e-field="BankRefNo" e-headertext="Bank Ref No" e-width="100"></div>
+                            <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
+                            <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
-
+                            <div e-column e-field="OwnRefNo" e-headertext="Own RefNo" e-width="100"></div>
                         </div>
                     </div>
                 </div>
@@ -251,17 +242,16 @@
                          @*e-allowselection="true"*@
                          e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="50"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Employee Name" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="DOJ" e-width="60"></div>
-                            <div e-column e-field="DOS" e-headertext="DOS" e-width="60"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="Status" e-width="60"></div>
-                            <div e-column e-field="SalaryHead" e-headertext="Salary Head" e-width="80"></div>
-                            <div e-column e-field="HeadType" e-headertext="Head Type" e-width="80"></div>
-                            <div e-column e-field="Currency" e-headertext="Currency" e-width="100"></div>
-                            <div e-column e-field="EntryAmount" e-headertext="Entry Amount" e-width="100"></div>
-                            @*<div e-column e-headertext="Details" e-template="#DetailsButtons" e-width="40"></div>*@
-                            <div e-column e-field="isLocked" e-headertext="Locked Salary" e-width="40"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Id" e-width="50"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="Bank" e-width="80"></div>
+                            <div e-column e-field="DOJ" e-headertext="From Date" e-width="60"></div>
+                            <div e-column e-field="DOS" e-headertext="To Date" e-width="60"></div>
+                            <div e-column e-field="EmployeeStatus" e-headertext="By Whom" e-width="60"></div>
+                            <div e-column e-field="SalaryHead" e-headertext="Opening Balance" e-width="80"></div>
+                            <div e-column e-field="HeadType" e-headertext="Closing Balance" e-width="80"></div>
+                            <div e-column e-field="Currency" e-headertext="Statement Ref No" e-width="100"></div>
+                            <div e-column e-field="EntryAmount" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-field="isLocked" e-headertext="Currency" e-width="40"></div>
 
                         </div>
                     </div>
@@ -273,13 +263,13 @@
                             </button>
                         </div>
                     </script>*@
-                <div class="col-xs-12 col-sm-12 col-md-12 ">
+                @*<div class="col-xs-12 col-sm-12 col-md-12 ">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button ng-click="DownloadReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Report</button></li>
                         </ul>
                     </div>
-                </div>
+                </div>*@
             </div>
         </div>
     </div>

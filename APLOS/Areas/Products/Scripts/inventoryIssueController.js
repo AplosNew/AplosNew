@@ -10,7 +10,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 	$scope.saveUrl = $scope.path + 'create';
 	$scope.updateUrl = $scope.path + 'UpdateIssueMaster';
 	//$scope.updateUrl = $scope.path + 'edit';
-	$scope.deleteUrl = $scope.path + 'delete/';
+	$scope.deleteUrl = $scope.path + 'IssueDetailDelete/';
 	$scope.currentDate = new Date(Date.now());
 	$scope.ispostDisable = false;
 	$controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -888,7 +888,7 @@ function inventoryIssueController($window, cboService, commonMessage, $scope, $r
 		if (!baseService.isUndefinedOrNull($scope.delData.Id)) {
 			$http({
 				method: 'POST'
-				, url: $scope.deleteUrl + '?issueDetailId=' + $scope.delData.Id
+				, url: $scope.deleteUrl + '?issueDetailId=' + $scope.delData.Id + '&voucherId=' + $scope.delData.VoucherId
 				, dataType: 'JSON'
 			}).then(function (response) {
 				if (response.data.Error === true)

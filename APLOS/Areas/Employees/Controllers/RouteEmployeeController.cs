@@ -609,32 +609,25 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         {
             return View();
         }
-
+        //Route Emp start
         [HttpGet, Authorize]
-        public ActionResult getResidenceFilters()
+        public ActionResult GetRouteEmployeesData()
         {
             try
             {
-                var sql = @"select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
-									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
-									,VacancyStatus = 'Occupied'
+                var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
+					                        ,RSD.UpDown,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
+					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
+					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+					                        ,R.Remarks
 
-									from ResidenceMaster RM
-									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
-									left join ORG.Plant P on P.Id=RM.PlantId
-									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
-									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId
-
-                union all
-                select RM.Id ResidenceMasterId,RG.Id ResidenceGroupId,RG.UserName ResidenceGroup,P.Id PlantId,P.UserName Plant,RM.[Location],EC.Id EmployeeTypeId,EC.UserName EmployeeType
-									,EST.[Service] ServiceType,RM.Rooms,RM.[Block],RM.ResidenceSubCategory,RM.[Floor],RM.ResidentType,RM.ResidenceNumber,RM.AssetName
-									,VacancyStatus = 'All'
-
-									from ResidenceMaster RM
-									left join ResidenceGroup RG on RG.Id=RM.ResidenceGroupId 
-									left join ORG.Plant P on P.Id=RM.PlantId
-									left join HKP.EmployeeCategory EC on EC.Id=RM.EmployeeCategoryId
-									left join EmpServiceType EST on EST.Id=RM.EmpServiceTypeId";
+					                        from RouteSchedule RS
+					                        left join [MST].[Route] R on R.Id=RS.RouteId 
+					                        left join TransportDetail TD on TD.Id=RS.TransportId
+					                        left join RouteScheduleChild RSD on RSD.RouteScheduleId=RS.Id
+					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId from dbo.EmployeeTransportAllocation A
+									                        Group BY TripId) O ON O.TripId=RS.Id";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -645,11 +638,12 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
         }
 
         [HttpGet, Authorize]
-        public JsonResult getemployeeDataList(string plantId, string residenceGroupId)
+        public JsonResult getemployeeDataList(string plantId, string residenceGroupId, string EmployeeTypeId)
         {
-            return Json(rsl.getemployeeDataList(plantId, residenceGroupId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getemployeeDataList(plantId, residenceGroupId, EmployeeTypeId), JsonRequestBehavior.AllowGet);
         }
 
+        //Route Emp end
         [HttpPost, Authorize]
         public JsonResult getResidence()
         {
@@ -658,10 +652,10 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 
 
         [HttpGet, Authorize]
-        public JsonResult viewUnallocation(string PlantId)
+        public JsonResult viewUnassign(string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(rsl.getviewUnallocation(PlantId), JsonRequestBehavior.AllowGet);
+            return Json(rsl.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -708,12 +702,12 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
 
         #region Save Operations
         [HttpPost]
-        public JsonResult residenceStatusSave(List<Dictionary<string, object>> EmployeeList)
+        public JsonResult employeeTransportAllocationSave(List<Dictionary<string, object>> EmployeeList)
         {
 
             try
             {
-                rsl.Save(EmployeeList);
+                rsl.SaveEmployeeTransportAllocation(EmployeeList);
                 return Json(new { Data = EmployeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
@@ -723,14 +717,26 @@ AND EMP.SystemId  in (select EmployeeId from [TRN].[RouteEmployee] where Active=
             }
         }
 
+        [HttpGet, Authorize]
+        public ActionResult GetStopageInformation(string routeId)
+        {
+            string sql = @"select S.Id,S.UserName
+                                        from [MST].[RouteStoppage] RS
+                                        left join [HKP].[Stoppage] S on S.Id=RS.StoppageId
+                                        where RS.RouteId ='"+routeId+"'";
+            var data = _sqlRepository.GetDataCollection(sql);
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
+
         [Authorize, HttpPost]
-        public JsonResult SaveRSUnallocation(List<Dictionary<string, object>> employeeList)
+        public JsonResult SaveUnassignData(List<Dictionary<string, object>> employeeList)
         {
 
             try
             {
 
-                rsl.SaveRSUnallocation(employeeList);
+                rsl.SaveUnassignData(employeeList);
                 return Json(new { Data = employeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }

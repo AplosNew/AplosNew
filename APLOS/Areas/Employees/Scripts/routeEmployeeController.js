@@ -8,6 +8,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.saveUrl = $scope.path + 'Save';
     $scope.UAsaveUrl = $scope.path + 'SaveUnAssign';
     $scope.ApplyForAllUrl = $scope.path + 'SaveApplyForAll';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
+    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
 
     //#region Tab
     $scope.tabh = 11;
@@ -537,10 +539,10 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     //NEW
     $scope.ModelList = [];
-    $scope.path = 'HumanResource/ResidenceStatusAllocation/';
-    $scope.getListUrl = $scope.path + 'getlist';
-    $scope.saveUrl = $scope.path + 'Save';
-    $scope.deleteUrl = $scope.path + 'delete/';
+    $scope.path2 = 'HumanResource/ResidenceStatusAllocation/';
+    $scope.getListUrl = $scope.path2 + 'getlist';
+    $scope.saveUrl = $scope.path2 + 'Save';
+    $scope.deleteUrl = $scope.path2 + 'delete/';
     baseService.init($scope.getListUrl);
     $scope.downloadgriddataUrl = 'GridReports/Download';
 
@@ -563,28 +565,35 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
 
     //#region The Filters 
+    $scope.view = function () {
+        $http({
+            method: "Get",
+            url: $scope.path + 'GetRouteEmployeesData',
+            //data: { 'parameters': $scope.parameters },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            $scope.ModelList = response.data;
+        })
+    }
 
-
+    $scope.view();
     //#endregion The Filters
    
     $scope.PlantId = null;
     $scope.dataList = [];
-    $scope.availableNumber = null;
+    $scope.PlantId = null;
+    $scope.routeId = null;
     $scope.AvailablePopUpData = function (data) {
-        $scope.ResidenceId = data.data.ResidenceMasterId;
+        $scope.TripId =  data.data.TripId;
         $scope.PlantId = data.data.PlantId;
-        $scope.availableNumber = data.data.Available;
+        $scope.routeId = data.data.RouteId;
         $scope.dataList = [];
         $http({
             method: 'GET',
-            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
+            url: $scope.path + 'getemployeeDataList?plantId=' + data.data.PlantId 
         }).then(function successCallback(response) {
             $scope.dataList = response.data;
-
-            //$scope.getResidence();
-
-            $scope.UnallocationView();
-
+            $scope.GetStopageInformation();
         });
         angular.element(document.querySelector('#employeeNewPopUp')).modal('show');
     }
@@ -595,7 +604,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.closeEmployeePopUp = function () {
         MakeData();
-        $scope.SaveAllocation();
+        $scope.view();
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
 
@@ -627,25 +636,17 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     $scope.saveList = [];
     function MakeData() {
+        $scope.saveList = [];
         for (var i = 0; i < $scope.dataList.length; i++) {
             if ($scope.dataList[i].isSelected == true) {
-                if (checkExists($scope.saveList, $scope.dataList[i].EmployeeCode) === false) {
-                    var ob = {};
-                    ob.Id = null;
-                    ob.EmployeeCode = $scope.dataList[i].EmployeeCode;
-                    ob.EmployeeName = $scope.dataList[i].EmployeeName;
-                    ob.EmployeeSystemId = $scope.dataList[i].SystemID;
-                    ob.ResidenceId = $scope.ResidenceId;
-                    ob.isOccupied = true;
-                    ob.Date = Date.now();
-                    $scope.saveList.push(ob);
-                }
-                else {
-                    ShowResult("This Employee " + $scope.dataList[i].EmployeeCode + " is already taken.", 'failure');
-                }
+                $scope.dataList[i].TripId = $scope.TripId;
+                $scope.dataList[i].AssignStatus = true;
+                $scope.dataList[i].AssignDate = Date.now();
+                $scope.dataList[i].UnassignDate = null;
+                $scope.saveList.push($scope.dataList[i]);
             }
         }
-
+        $scope.SaveEmployeeTransportAllocation();
     }
 
     function checkExists(list, id) {
@@ -657,15 +658,18 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         return false;
     }
 
-    $scope.SaveAllocation = function () {
+    $scope.SaveEmployeeTransportAllocation = function () {
         try {
-            //if ($scope.availableNumber < $scope.saveList.length)
-            //{
-            //    throw "Selected Employee should not greater than Available.";
-            //}
+            for (var i = 0; i < $scope.saveList.length; i++) {
+                    if (baseService.isUndefinedOrNull($scope.saveList[i].StoppageId)) {
+                        throw 'Stoppage is required !';
+                    }
+                
+            }
+           
             $http({
                 method: 'POST',
-                url: $scope.path + 'residenceStatusSave',
+                url: $scope.path + 'employeeTransportAllocationSave',
                 data: { 'EmployeeList': $scope.saveList },
                 dataType: 'JSON'
             }).then(function successCallback(response) {
@@ -674,8 +678,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.UnallocationView();
-                    $scope.saveList = [];
+                    $scope.view();
+                    $scope.UnassignView();
                 }
             }), function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
@@ -685,29 +689,45 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             ShowResult(e, 'failure');
         }
     };
+    $scope.StopageDataList = [];
+    $scope.GetStopageInformation = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: $scope.path + 'GetStopageInformation?routeId=' +$scope.routeId ,
+            }).then(function successCallback(response) {
+                $scope.StopageDataList = response.data;
+                for (var i = 0; i < $scope.dataList.length; i++) {
+                    $scope.dataList[i].StopageDataList = $scope.StopageDataList;
+                }
+            });
 
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+    
 
-    $scope.ModelUnallocationList = [];
-    $scope.UnallocationView = function () {
+    $scope.ModelUnassignList = [];
+    $scope.UnassignView = function () {
         if (baseService.isUndefinedOrNull($scope.PlantId)) {
             $scope.PlantId = $window.plantId;
         }
         $http({
             method: "Get",
-            url: $scope.path + 'viewUnallocation?PlantId=' + $scope.PlantId,
+            url: $scope.path + 'viewUnassign?PlantId=' + $scope.PlantId,
             dataType: 'JSON'
         }).then(function successCallback(response) {
-            $scope.ModelUnallocationList = response.data;
-            //$scope.SaveAllocation();
+            $scope.ModelUnassignList = response.data;
         })
     }
-    $scope.UnallocationView();
+    $scope.UnassignView();
 
     $scope.popupEmployeeList = [];
     $scope.PopupEmployeeView = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'PopupEmployeeView',
+            url: $scope.path2 + 'PopupEmployeeView',
             data: {
                 'EmployeeCategorySystemID': $scope.selectedData.EmployeeCategoryId,
                 'fromDate': $scope.selectedData.fromDate,
@@ -755,32 +775,14 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ResidenceNumberList = [];
         $scope.EmployeeTypeIdList = [];
         $scope.RoomList = [];
-        $scope.selectedData = {
-            Id: null,
-            PlantId: null,
-            ResidedenceGroupId: null,
-            EmployeeCategoryId: null,
-            Location: null,
-            AssetName: null,
-            ResidenceSubCategory: null,
-            ResidenceCategory: null,
-            Rooms: null,
-            Block: null,
-            ResidenceType: null,
-            Floor: null,
-            ResidenceType: null,
-            ResidenceNumber: null,
-            VacancyStatus: null,
-            isActive: 0,
-        };
-        $scope.ModelList = [];
+ 
     }
 
     $scope.EmployeeList = [];
     $scope.getEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getEmployee',
+            url: $scope.path2 + 'getEmployee',
             data: {
                 'PlantId': $scope.selectedData.PlantId,
                 'ResidenceGroupId': $scope.selectedData.ResidenceGroupId,
@@ -855,7 +857,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getAllEmployee = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getAllEmployee',
+            url: $scope.path2 + 'getAllEmployee',
             data: { 'EmpCategoryId': $scope.EmpCategoryId },
         }).then(function success(resp) {
             $scope.EmployeeList = resp.data;
@@ -872,7 +874,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getEmployeeCategory = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "getEmployeeCategory",
+            url: $scope.path2 + "getEmployeeCategory",
             //data: { 'EmpId': $scope.SelectedEmployeeId},
             dataType: 'JSON',
         }).then(function successcallback(response) {
@@ -896,7 +898,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getResidenceMaster = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'getResidenceMaster',
+            url: $scope.path2 + 'getResidenceMaster',
 
         }).then(function success(resp) {
             $scope.ResidenceMasterList = resp.data;
@@ -916,7 +918,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getResidenceStatusLocation = function () {
         $http({
             method: "POST",
-            url: $scope.path + "getResidenceStatusLocation",
+            url: $scope.path2 + "getResidenceStatusLocation",
             data: {
                 'EmployeeId': $scope.SelectedEmployeeId,
                 'ResidenceMasterId': $scope.selResidenceMasterId,
@@ -939,8 +941,8 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
         var filtered = $("#GridEUnallocation").data("ejGrid").getFilteredRecords();
         if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
-            for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
-                $scope.ModelUnallocationList[i].isSelected = ChkOrUnchk;
+            for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
+                $scope.ModelUnassignList[i].isSelected = ChkOrUnchk;
             }
         }
         else {
@@ -953,18 +955,18 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         gridObj.refreshContent();
     };
 
-    $scope.SaveRSU = function () {
-        $scope.unallocationLoop = [];
-        for (var i = 0; i < $scope.ModelUnallocationList.length; i++) {
+    $scope.SaveUnassignData = function () {
+        $scope.unassignLoop = [];
+        for (var i = 0; i < $scope.ModelUnassignList.length; i++) {
 
-            if ($scope.ModelUnallocationList[i].isSelected) {
-                $scope.unallocationLoop.push($scope.ModelUnallocationList[i]);
+            if ($scope.ModelUnassignList[i].isSelected) {
+                $scope.unassignLoop.push($scope.ModelUnassignList[i]);
             }
         }
         $http({
             method: 'POST',
-            url: $scope.path + 'SaveRSUnallocation',
-            data: { 'employeeList': $scope.unallocationLoop },
+            url: $scope.path + 'SaveUnassignData',
+            data: { 'employeeList': $scope.unassignLoop },
             dataType: 'JSON',
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -972,26 +974,29 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.UnallocationView();
+                $scope.UnassignView();
+                $scope.view();
             }
         });
     }
+    $scope.AssignReport = function () {
+        $scope.fileName = 'To Assign List';
 
-    //-----------------------------------------------------------------------------------
+        var dataList = [];
+        var g = $("#GridRouteEmp").data("ejGrid");
+        dataList = g.getFilteredRecords();
 
-    function openModal() {
-        $('.confirm-delete').addClass('hide');
-        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
-        $('#myModal').modal('show');
-    }
-    //-----------------------------------------------------------------------------------
+        if (dataList.length == 0) {
+            dataList = $scope.ModelList;
+        }
 
-    // REPORT DOWNLOAD
-    $scope.ResidenceAllocationReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "XlsResidenceAllocationReport",
-            data: { 'parameters': $scope.parameters },
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
             dataType: 'JSON'
         }).then(function successCallback(response) {
             if (response.data.Error === true) {
@@ -1006,10 +1011,51 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
 
     };
 
+    $scope.UnassignReport = function () {
+        $scope.fileName = 'To Unassign List';
+        var dataList = [];
+        var g = $("#GridEUnallocation").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.ModelUnassignList;
+        }
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
+    //-----------------------------------------------------------------------------------
+
+    function openModal() {
+        $('.confirm-delete').addClass('hide');
+        $('#myModal .modal-header, .modal-footer, .modal-body').removeClass('hide');
+        $('#myModal').modal('show');
+    }
+    //-----------------------------------------------------------------------------------
+
+    // REPORT DOWNLOAD
+  
+
     $scope.ResidenceMasterReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "XlsResidenceMaterReport",
+            url: $scope.path2 + "XlsResidenceMaterReport",
             data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -1032,7 +1078,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.allResidenceMasterReport = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "XlsAllResidenceMaterReport",
+            url: $scope.path2 + "XlsAllResidenceMaterReport",
             data: { 'empCurrentStatus': $scope.EmployeeNew.EmployeeCurrentStatus },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -1052,7 +1098,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.gridViewResidenceMAster = function () {
         $http({
             method: 'POST',
-            url: $scope.path + "gridViewResidenceMAster",
+            url: $scope.path2 + "gridViewResidenceMAster",
 
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -1068,7 +1114,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.employeeCurrentStatus = function () {
         $http({
             method: 'POST',
-            url: $scope.path + 'employeeCurrrentStatus',
+            url: $scope.path2 + 'employeeCurrrentStatus',
             dataType: 'JSON',
         }).then(function successCallback(response) {
 
@@ -1082,7 +1128,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.getResidence = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'getemployeeDataList?plantId=' + $scope.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
+            url: $scope.path2 + 'getemployeeDataList?plantId=' + $scope.PlantId + '&residenceGroupId=' + $scope.ResidedenceGroupId
         }).then(function successCallback(response) {
             $scope.dataList = response.data;
 

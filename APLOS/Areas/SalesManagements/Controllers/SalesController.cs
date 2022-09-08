@@ -62,7 +62,10 @@ namespace Aplos.Areas.SalesManagements.Controllers
         {
             return View("~/Areas/SalesManagements/Views/Sales.cshtml");
         }
-
+        public ActionResult EInvoice()
+        {
+            return View("~/Areas/SalesManagements/Views/EInvoice.cshtml");
+        }
         [HttpGet, Authorize]
         public ActionResult GetMaterialSalesList(GridParameter parameters)
         {
@@ -754,5 +757,24 @@ namespace Aplos.Areas.SalesManagements.Controllers
             _salesService.DeleteSale(invoiceId, voucherId);
             return Json(new { Message = AplosMessage.Deleted });
         }
+
+        [HttpGet, Authorize]
+        public ActionResult GetPostedSalesList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            JsonResult json = Json(clsSales.GetPostedSalesList(identity.CompanyGroupId, identity.CompanyId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult GetSalesMaterialList(string Ids)
+        {
+            JsonResult json=Json(clsSales.GetSalesMaterialList(Ids), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
     }
 }

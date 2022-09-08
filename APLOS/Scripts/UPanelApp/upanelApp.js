@@ -1072,6 +1072,7 @@ upanelApp.controller("StockRegisterController", StockRegisterController)
 upanelApp.controller("ProductionReportWithParameterController", ProductionReportWithParameterController)
 upanelApp.controller("ProcessWiseMaterialAllocationController", ProcessWiseMaterialAllocationController)
 upanelApp.controller("RequisitionStatusController", RequisitionStatusController)
+upanelApp.controller("EInvoiceController", EInvoiceController)
 
 
 upanelApp.config(AccessControllerConfig);

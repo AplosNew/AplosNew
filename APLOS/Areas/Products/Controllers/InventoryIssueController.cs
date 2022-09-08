@@ -385,9 +385,9 @@ namespace Aplos.Areas.Products.Controllers
         }
 
         [Authorize, HttpPost]
-        public JsonResult Delete(string issueDetailId)
+        public JsonResult IssueDetailDelete(string issueDetailId,string voucherId)
         {
-            _inventoryIssueService.DeleteIssueDetail(issueDetailId);
+            _inventoryIssueService.DeleteIssueDetail(issueDetailId, voucherId);
             return Json(new { Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
         }
 
@@ -1517,7 +1517,7 @@ namespace Aplos.Areas.Products.Controllers
             }
         }
 
-        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Delete))]
+        [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(IssueDetailDelete))]
         public JsonResult ServiceChargesDelete(string serviceId)
         {
             _inventoryIssueService.ServiceChargesDelete(serviceId);

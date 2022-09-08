@@ -1934,11 +1934,16 @@ namespace Library.MaterialManagement.Inventory
             }
         }
 
-        public void DeleteIssueDetail(string issueDetailId)
+        public void DeleteIssueDetail(string issueDetailId,string voucherId)
         {
             var flag = false;
             try
             {
+                
+                if ( voucherId!="null")
+                {
+                    throw new CustomException("Posted voucher  have to delete first!");
+                }
                 _unitOfWork.BeginTransaction();
                 flag = true;
                 var builder = new System.Text.StringBuilder();
@@ -1950,6 +1955,8 @@ namespace Library.MaterialManagement.Inventory
                 sql = @"UPDATE A SET  A.BaseIssueQty=A.BaseIssueQty-B.Qty FROM [TRN].[InventoryReceiveDetail] AS A JOIN [TRN].[InventoryIssueHistory] AS B ON B.InventoryReceiveDetailId=A.Id WHERE B.InventoryIssueDetailId='" + issueDetailId + "'";
                 builder.Append(sql);
                 sql = @"DELETE [TRN].[InventoryIssueHistory] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
+                builder.Append(sql);
+                sql = @"DELETE [TRN].[IssueDetailAndIssueRequestMap] WHERE InventoryIssueDetailId='" + issueDetailId + "'";
                 builder.Append(sql);
                 sql = @"DELETE [TRN].[InventoryIssueDetail]  WHERE Id='" + issueDetailId + "'";
                 builder.Append(sql);
