@@ -218,7 +218,7 @@ namespace Aplos.Areas.Productions.Controllers
                 string DetentionTypeListsql = "";
                 string DetentionListsql = "";
                 sql = @"
-SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Sequence,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, 
+SELECT CAST (CASE WHEN MMT.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,MMT.Sequence,MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionTypeId, MMT.ProcessId, MMT.DepartmentId, MMT.ShiftId, MMT.ResponsiblePersonId as ResponsiblePersonId, 
 MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.UpdatedDate, MMT.UpdatedFromIP
 ,E.UserName Entity,D.UserName DepartmentName,DM.DetentionUserName Detention,FORMAT(MMT.Date,'dd-MMM-yyyy')[Date],P.UserName Process
 										,format(MMT.FromTime,'hh:mm tt') as FromTime,format(MMT.ToTime,'hh:mm tt') as ToTime,MMT.Minute as [Minute],SD.UserName Shift,
@@ -236,11 +236,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 //return _sqlRepository.GetDataCollection(sql, null);
 
-                DetentionTypeListsql = @"select distinct DM.DetentionType As Text, DM.Id As Value ,DD.DepartmentId from DetentionMasterDepartment DD
-                                         left outer join ORG.Department D on D.id=DD.DepartmentId
-                                         left outer join DetentionMaster DM on DM.id=DD.DetentionMasterId";
+                DetentionTypeListsql = @"select DT.UserName As Text, DT.Id As Value from MachineMasterTransaction MMT 
+                                         left outer join hkp.DetentionType DT ON DT.id=MMT.DetentionTypeId";
 
-                DetentionListsql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+                DetentionListsql = @"Select DM.DetentionUserName As Text, DM.Id As Value,DM.IsAssetApplicable,DM.IsWorkCenterApplicable from MachineMasterTransaction MMT 
+                                     left outer join  DetentionMaster DM ON DM.id=MMT.DetentionId";
 
                 List<Dictionary<string, object>> MainList = _sqlRepository.GetDataCollection(sql);
                 List<Dictionary<string, object>> detentiontypelist = _sqlRepository.GetDataCollection(DetentionTypeListsql);
@@ -250,7 +250,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     try
                     {
                         //List<Dictionary<string, object>> k = detentiontypelist.ToList();
-                        List<Dictionary<string, object>> k = detentiontypelist.Where(ee => clsStaticInfo.nullrecorder(ee["DepartmentId"]) == clsStaticInfo.nullrecorder(MainList[i]["DepartmentId"])).ToList();
+                        List<Dictionary<string, object>> k = detentiontypelist.Where(ee => clsStaticInfo.nullrecorder(ee["Value"]) == clsStaticInfo.nullrecorder(MainList[i]["DetentionTypeId"])).ToList();
                         MainList[i]["DetentionTypeList"] = k;
 
                     }
@@ -690,7 +690,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                         DataRow drmo = dv[0].Row;
 
                         drmo.BeginEdit();
-                        if (sFormulaResult == "" || sFormulaResult == "∞")
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
                         {
                             drmo["Value"] = 0;
                         }

@@ -146,25 +146,25 @@ where DetentionMasterId='" + detentionId + "'";
         }
 
         [Authorize, HttpGet]
-        public JsonResult GetDetentionListWC(string Detentiontype, string Id)
+        public JsonResult GetDetentionListWC(string DetentiontypeId)
         {
             var sql = "";
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            if (Detentiontype != "null")
-            {
-                sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster where Id='" + Detentiontype + "'";
-            }
-            else
-            {
-                sql = @"Select DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
-            }
+            //if (Detentiontype != "null")
+            //{
+                sql = @"Select distinct DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster where DetentionTypeId='" + DetentiontypeId + "'";
+            //}
+            //else
+            //{
+            //    sql = @"Select distinct DetentionUserName As Text, Id As Value,IsAssetApplicable,IsWorkCenterApplicable from DetentionMaster";
+            //}
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetDetentionTypeList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"Select DetentionType As Text, Id As Value from DetentionMaster";
+            var sql = @"Select DT.UserName As Text, DT.Id As Value from hkp.DetentionType DT";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -172,8 +172,9 @@ where DetentionMasterId='" + detentionId + "'";
         public JsonResult getDetentionTypeListByDepartment(string departmentid)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"select DM.DetentionType As Text, DM.Id As Value from DetentionMasterDepartment DD
-            left join DetentionMaster DM on DM.Id=DD.DetentionMasterId
+            var sql = @"select distinct DT.UserName As Text, DT.Id As Value from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+                        left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
             where DepartmentId='" + departmentid + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
