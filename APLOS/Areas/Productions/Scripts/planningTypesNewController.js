@@ -368,7 +368,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
     // #endregion
 
-    //#region WC       
+    //#region WC
 
     $scope.modelWC = {
         Id: null, WorkCenterMasterd: null, PlanningTypesId: $scope.planningTypesNew.Id, PlanCapacity: null, Capacity: null, UOM: null, PlanEfficiency: null, AverageLoadFactor: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null
@@ -479,7 +479,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
 
     //#endregion
 
-    //#region Shift      
+    //#region Shift
 
     $scope.modelShift = { Id: null, ShiftId: null, PlanningTypesId: $scope.planningTypesNew.Id, ProductionShiftStartTime: null, ProductionShiftEndTime: null, ProductionTime: null, Remark: null, IsExceptionApplicable: false, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
     $scope.modelShiftNew = Object.assign({}, $scope.modelShift);
@@ -511,12 +511,23 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         serverPagination: true
     };
     $scope.ShiftPopUp = function () {
+        var wcids = "";
+        for (var i = 0; i < $scope.SavedWCList.length; i++) {
+            if (wcids == "") {
+                wcids = "'','" + $scope.SavedWCList[i].WorkCenterMasterId + "'";
+            }
+            else {
+                wcids += ",'" + $scope.SavedWCList[i].WorkCenterMasterId + "'";
+            }
+        }
+
+
         $scope.ShiftPopUpList = [];
         $scope.ShiftPopUpParameters.sort = 'ShiftDefinationName';
         $scope.ShiftPopUpParameters.searchBy = 'ShiftDefinationName';
         $scope.getShiftPopUpData = function (pageno) {
 
-            baseService.paginationBase('Productions/PlanningTypesNew/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList) + '&plantId=' + $scope.planningTypesNew.PlantId, pageno, $scope.ShiftPopUpParameters)
+            baseService.paginationBase('Productions/PlanningTypesNew/GetShiftList?ShiftDefinationIDs=' + isShiftDefinationIDExistGrid($scope.selectedShiftList) + '&plantId=' + $scope.planningTypesNew.PlantId + '&wcids=' + wcids, pageno, $scope.ShiftPopUpParameters)
                 .then(function (result) {
                     $scope.ShiftPopUpDataList = result.Rows;
                     $scope.ShiftPopUpParameters.total_count = result.Total;

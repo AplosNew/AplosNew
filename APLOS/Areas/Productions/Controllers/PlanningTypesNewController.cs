@@ -360,10 +360,10 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
 
 
         [HttpGet, Authorize]
-        public ActionResult GetShiftList(GridParameter parameters, string ShiftDefinationIDs, string plantId)
+        public ActionResult GetShiftList(GridParameter parameters, string ShiftDefinationIDs, string plantId, string wcids)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_planningTypesService.GetShiftList(parameters, identity.CompanyGroupId, plantId, new JavaScriptSerializer().Deserialize<string[]>(ShiftDefinationIDs)), JsonRequestBehavior.AllowGet);
+            return Json(_planningTypesService.GetShiftList(parameters, identity.CompanyGroupId, plantId, new JavaScriptSerializer().Deserialize<string[]>(ShiftDefinationIDs), wcids), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost]
         public ActionResult GetMinute(Dictionary<string, object> data)
