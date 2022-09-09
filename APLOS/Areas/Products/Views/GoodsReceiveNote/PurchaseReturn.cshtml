@@ -813,10 +813,10 @@
 			<div class="site-tab">
 				<ul class="nav nav-tabs" role="tablist">
 					<li role="presentation" ng-class="{ active: isSetGRNList(1) }"><a ng-click="setTabGRNList(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Purchase Return List</a></li>
-					<li role="presentation" ng-class="{ active: isSetCheckedHoldReject(2) }"><a ng-click="setTabCheckedHoldReject(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked (Hold / Reject)</a></li>
+					@*<li role="presentation" ng-class="{ active: isSetCheckedHoldReject(2) }"><a ng-click="setTabCheckedHoldReject(2)" href="" aria-controls="general" role="tab" data-toggle="tab">Checked (Hold / Reject)</a></li>
 					<li role="presentation" ng-class="{ active: isSetNotApprovedChecked(3) }"><a ng-click="setTabNotApprovedChecked(3)" href="" aria-controls="general" role="tab" data-toggle="tab">Not Approved (Checked)</a></li>
 					<li role="presentation" ng-class="{ active: isSetApprovedHoldReject(4) }"><a ng-click="setTabApprovedHoldReject(4)" href="" aria-controls="general" role="tab" data-toggle="tab">Approved (Hold / Reject)</a></li>
-					<li role="presentation" ng-class="{ active: isSetApprovedNotPosted(5) }"><a ng-click="setTabApprovedNotPosted(5)" href="" aria-controls="general" role="tab" data-toggle="tab"> Approved (Not Posted)</a></li>
+					<li role="presentation" ng-class="{ active: isSetApprovedNotPosted(5) }"><a ng-click="setTabApprovedNotPosted(5)" href="" aria-controls="general" role="tab" data-toggle="tab"> Approved (Not Posted)</a></li>*@
 					<li role="presentation" ng-class="{ active: isSetPosted(6) }"><a ng-click="setTabPosted(6)" href="" aria-controls="address" role="tab" data-toggle="tab">Posted</a></li>
 				</ul>
 
@@ -842,6 +842,7 @@
                                         <div e-column e-field="PartyName" e-headertext="Vendor" e-width="80"></div>
                                         <div e-column e-field="PartyAccountGroupName" e-headertext="Account Group" e-width="80"></div>
                                         <div e-column e-field="Id" e-headertext="Purchase Return No" e-width="80"></div>
+                                        <div e-column e-field="InventoryReceiveId" e-headertext="GRN No" e-width="80"></div>
                                         <div e-column e-field="GRNDate1" e-headertext="Purchase Return Date" e-width="80"></div>
                                         @*<div e-column e-field="POID" e-headertext="PONo" e-width="80"></div>*@
                                         <div e-column e-field="DocRefNo" e-headertext="Vendor DocNo" e-width="80"></div>

@@ -168,6 +168,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
 					                        ,RSD.UpDown,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
 					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
@@ -179,8 +180,12 @@ namespace Aplos.Areas.Employees.Controllers
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
 					                        left join RouteScheduleChild RSD on RSD.RouteScheduleId=RS.Id
 					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
-					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId from dbo.EmployeeTransportAllocation A
-									                        Group BY TripId) O ON O.TripId=RS.Id";
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EI.EmployeeStatus,EI.PlantId,EI.EmployeeCurrentStatus,TG.IsTransportApplicable from dbo.EmployeeTransportAllocation A
+															left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
+															left join [dbo].[TransportGroup] TG on TG.Id=EI.TransportGroupId
+									                        Group BY TripId,EmployeeStatus,PlantId,EmployeeCurrentStatus,IsTransportApplicable) O ON O.TripId=RS.Id
+											Where O.PlantId ='"+identity.PlantId+@"' AND O.EmployeeStatus='Active' AND O.EmployeeCurrentStatus is null
+							  and O.IsTransportApplicable=1";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

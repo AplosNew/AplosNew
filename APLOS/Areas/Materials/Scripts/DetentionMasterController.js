@@ -801,4 +801,461 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     }
     $scope.GetDetentionTypeList();
 
+    // #ProcessParameter region
+
+    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
+
+    $scope.setCheckedValue = function (name) {
+        if (name === 'ValueinPercentage') {
+            $scope.ModelProcessPara.ValueinPercentage = true;
+            $scope.ModelProcessPara.ValueinDecimal = false;
+        }
+        if (name === 'ValueinDecimal') {
+            $scope.ModelProcessPara.ValueinDecimal = true;
+            $scope.ModelProcessPara.ValueinPercentage = false;
+        }
+    }
+
+    $scope.setCheckedEntry = function (name) {
+        if (name === 'Entry') {
+            $scope.ModelProcessPara.EntryState = 'Entry';
+            $scope.ModelProcessPara.Formula = null;
+            $scope.ModelProcessPara.FormulaId = null;
+            $scope.ModelProcessPara.FormulaDes = null;
+            $scope.ModelProcessPara.FormulaDesID = null;
+            $scope.ModelProcessPara.SalaryHeadFormula = null;
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        }
+    }
+
+    $scope.GetSequence = function () {
+        $http.get("Processes/ProductionBookingProcessparameter/getautosequence?masterId=" + $scope.masterId)
+            .then(
+                function successCallback(response) {
+                    $scope.ModelProcessPara.Sequence = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+
+
+    };
+    $scope.GetSequence();
+
+    $scope.ModelProcessPara.FormulaDes = null;
+    $scope.ModelProcessPara.FormulaDesID = null;
+    $scope.ModelProcessPara.SalaryHeadFormula = null;
+    $scope.ModelProcessPara.FormulaDescription = null;
+    $scope.FormulaArray = [];
+    $scope.FormulaIdArray = [];
+
+    $scope.checkFormula = function (List, lastvalue) {
+        var available = false;
+        for (var i = 0; i < List.length; i++) {
+            if (List[i].Text === lastvalue) {
+                available = true;
+                break;
+            }
+        }
+        return available;
+    }
+
+    $scope.FormulaDetails = [];
+    $scope.SetFormula = function (formula) {
+        try {
+            var formulaObj = {};
+
+            if (formula === 'SHead') {
+
+                formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                formulaObj.ProductionBookingParameterHeadId = $scope.ModelProcessPara.HeadIdFormula;
+                formulaObj.SalaryHead = $("#HeadFormula option:selected").text();
+                formulaObj.Component = null;
+                $scope.FormulaDetails.push(formulaObj);
+
+                $scope.ModelProcessPara.FormulaDes = '';
+                $scope.ModelProcessPara.FormulaDesID = '';
+
+                $scope.ModelProcessPara.FormulaDescription = '';
+                $scope.ModelProcessPara.FormulaIDDescription = '';
+
+                for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                    } else {
+                        $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                    }
+                }
+
+                $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+
+            }
+            else if (formula === 'Operator') {
+                if ($scope.FormulaDetails.length != 0) {
+                    if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Operator)) {
+
+
+                        formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                        formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                        formulaObj.ProductionBookingParameterHeadId = null;
+                        formulaObj.Component = $scope.ModelProcessPara.Operator;
+                        formulaObj.SalaryHead = $scope.ModelProcessPara.Operator;;
+
+                        $scope.FormulaDetails.push(formulaObj);
+
+                        $scope.ModelProcessPara.FormulaDes = '';
+                        $scope.ModelProcessPara.FormulaDesID = '';
+
+                        $scope.ModelProcessPara.FormulaDescription = '';
+                        $scope.ModelProcessPara.FormulaIDDescription = '';
+
+                        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                            $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+
+                        }
+
+                        $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                        $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                    }
+                }
+                else {
+                    throw "First select Head or input value.";
+                }
+
+            }
+            else if (formula === 'Precedence') {
+
+
+                if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Precedence)) {
+
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.SalaryHead = $scope.ModelProcessPara.Precedence;
+                    formulaObj.Component = $scope.ModelProcessPara.Precedence;
+                    $scope.FormulaDetails.push(formulaObj);
+
+
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
+
+                    $scope.ModelProcessPara.FormulaDescription = '';
+                    $scope.ModelProcessPara.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+
+                    }
+
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                }
+
+
+            }
+
+            else if (formula === 'Value') {
+
+                if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Value)) {
+
+                    formulaObj.Sequence = $scope.FormulaDetails.length + 1;
+                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.SalaryHead = $scope.ModelProcessPara.Value;
+                    formulaObj.Component = $scope.ModelProcessPara.Value;
+                    $scope.FormulaDetails.push(formulaObj);
+
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
+
+                    $scope.ModelProcessPara.FormulaDescription = '';
+                    $scope.ModelProcessPara.FormulaIDDescription = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+
+                    }
+
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.RemoveFormula = function () {
+
+        var maxseq = Math.max.apply(Math, $scope.FormulaDetails.map(function (o) { return o.Sequence; }))
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (maxseq === $scope.FormulaDetails[i].Sequence) {
+                $scope.FormulaDetails.splice(i, 1);
+                break;
+            }
+        }
+
+        $scope.ModelProcessPara.FormulaDes = '';
+        $scope.ModelProcessPara.FormulaDesID = '';
+
+        $scope.ModelProcessPara.FormulaDescription = '';
+        $scope.ModelProcessPara.FormulaIDDescription = '';
+
+        for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+            if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+                //$scope.ModelProcessPara.FormulaDesID += ' ' + $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+            } else {
+                $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+            }
+        }
+
+        $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+        $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+    }
+
+    $scope.Get = function (args) {
+        $scope.ModelNew = Object.assign({}, args.data);
+        $scope.masterId = $scope.ModelNew.Id;
+        $scope.GetSequence();
+        $scope.GetProcessParameterData();
+        $scope.GetQualityProcessList();
+        $scope.GetOrderLineCostingItemCbo();
+        $scope.Action = 'Update';
+        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara.EntryState = 'Entry';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+        }
+    };
+
+    $scope.GetProcessPara = function (obj) {
+        $scope.ProductionAction = 'Update';
+
+        $scope.FormulaDetails = [];
+        $scope.ModelProcessPara.HeadIdFormula = null;
+        $scope.ModelProcessPara.Operator = null;
+        $scope.ModelProcessPara.Precedence = null;
+        $scope.ModelProcessPara.Value = null;
+
+        $scope.objectData = obj.data;
+        $scope.ModelProcessPara = Object.assign({}, $scope.objectData);
+        if ($scope.ModelProcessPara.EntryState == "Calculate") {
+
+            $http({
+                method: 'GET',
+                url: "Processes/ProductionBookingProcessparameter/GetDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
+            }).then(function successCallback(response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.FormulaDetails = response.data;
+
+                    $scope.ModelProcessPara.FormulaDes = '';
+                    $scope.ModelProcessPara.FormulaDesID = '';
+
+                    for (var i = 0; i < $scope.FormulaDetails.length; i++) {
+
+                        if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
+                            $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
+
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        } else {
+                            $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
+                            $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                        }
+                    }
+
+                    $scope.ModelProcessPara.FormulaDescription = $scope.ModelProcessPara.FormulaDes;
+                    $scope.ModelProcessPara.FormulaIDDescription = $scope.ModelProcessPara.FormulaDesID;
+
+                    $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+                    $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
+
+                }
+            });
+        }
+
+
+        var value = null;
+
+        $scope.GetOrderLineCostingItemCbo();
+
+    };
+
+
+
+    function CheckField(fieldValue, fieldName) {
+        try {
+            if (baseService.isUndefinedOrNull(fieldValue) || fieldValue === '') {
+                throw ('[' + fieldName + '] is required...');
+            }
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    $scope.modelValidation = function (divId, modelName, fieldName, message) {
+        var msg = fieldName + ' is required.';
+        msg = baseService.isUndefinedOrNull(message) ? msg : message;
+        var str = fieldName;
+        if (baseService.isUndefinedOrNull($scope[modelName][str.replace(/\s/g, '')]))
+            throw manualValidation(divId, true, msg);
+        else if (isNaN($scope[modelName][str.replace(/\s/g, '')]))
+            throw manualValidation(divId, true, msg);
+        else
+            return manualValidation(divId, false);
+    };
+    $scope.masterId = null;
+    $scope.Save = function () {
+        try {
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.modelNewForm.$valid) {
+                if ($scope.ModelNew.InPutOutPutRatio <= -1) {
+                    return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't less than -1 or -1.");
+
+                }
+                if ($scope.ModelNew.InPutOutPutRatio > 1) {
+                    return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't greater than 1.");
+                }
+
+                $http({
+                    method: 'POST',
+                    url: $scope.saveUrl,
+                    data: { 'data': $scope.ModelNew },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.ModelNew.Id = response.data.Id;
+                        $scope.masterId = response.data.Id;
+                        $scope.GetData();
+
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                };
+            }
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.ProcessParameterList = [];
+    $scope.GetProcessParameterData = function () {
+        $scope.ProcessParameterList = [];
+        $http.get("Processes/ProductionBookingProcessParameter/GetProcessParameterList?masterId=" + $scope.masterId)
+            .then(
+                function successCallback(response) {
+                    $scope.ProcessParameterList = response.data;
+                },
+                function errorCallback(response) {
+                    ShowResult(response, 'failure');
+                });
+    };
+
+    $scope.AddEditRow = function () {
+        try {
+            $scope.ModelProcessPara.FormulaDes = $scope.ModelProcessPara.FormulaDescription;
+            $scope.ModelProcessPara.FormulaDesID = $scope.ModelProcessPara.FormulaIDDescription;
+
+            $scope.ModelProcessPara.Formula = $scope.ModelProcessPara.FormulaDescription;
+            $scope.ModelProcessPara.FormulaId = $scope.ModelProcessPara.FormulaIDDescription;
+
+            $scope.ModelProcessPara.SalaryHead = $("#SH option:selected").text();
+
+            $scope.Row = 'Add Row';
+            $scope.ModelProcessPara.FormulaDescription = null;
+            $scope.ModelProcessPara.FormulaIDDescription = null;
+
+            $scope.ModelProcessPara.HeadIdFormula = null;
+            $scope.ModelProcessPara.Operator = null;
+            $scope.ModelProcessPara.Precedence = null;
+            $scope.ModelProcessPara.Value = null;
+
+            $scope.FormulaArray = [];
+            $scope.FormulaIdArray = [];
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    }
+
+    $scope.SaveProcessParameter = function () {
+        try {
+            $scope.ModelProcessPara.ProductionBookingProcessParameterId = $scope.masterId;
+            CheckField($scope.ModelProcessPara.ProductionBookingProcessParameterId, "Master");
+            CheckField($scope.ModelProcessPara.UserName, "User Name");
+            CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
+            $scope.AddEditRow();
+
+            $http({
+                method: 'POST',
+                url: $scope.saveProcessParameterUrl,
+                data: { 'data': $scope.ModelProcessPara, 'details': $scope.FormulaDetails },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.GetSequence();
+                    $scope.GetProcessParameterData();
+                    $scope.Clear();
+                    $scope.FormulaDetails = [];
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, "failure");
+        }
+    };
+
+    $scope.ProductionAction = 'Save';
+    $scope.Clear = function () {
+        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
+        $scope.ProductionAction = 'Save';
+        $scope.GetSequence();
+        $scope.ModelProcessPara.EntryState = 'Entry';
+        $scope.ModelProcessPara.FormulaDescription = null;
+        $scope.ModelProcessPara.FormulaIDDescription = null;
+        $scope.ModelProcessPara.FormulaDes = null;
+        $scope.ModelProcessPara.FormulaDesID = null;
+        $scope.ModelProcessPara.Formula = null;
+        $scope.ModelProcessPara.FormulaId = null;
+        $scope.ModelProcessPara.HeadIdFormula = null;
+        $scope.ModelProcessPara.Operator = null;
+        $scope.ModelProcessPara.Precedence = null;
+        $scope.ModelProcessPara.Value = null;
+        $scope.FormulaArray = [];
+        $scope.FormulaIdArray = [];
+    }
+
 }
