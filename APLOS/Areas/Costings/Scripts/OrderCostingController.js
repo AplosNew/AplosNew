@@ -2483,15 +2483,15 @@ function OrderCostingController(cboService, commonMessage, $scope, $rootScope, b
                     $scope.DirectMaterialList[i].MaterialMasterId = null;
                     $scope.DirectMaterialList[i].ArticleId = null;
                 }
-                if ($scope.DirectMaterialList[i].Consumption == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Consumption) || $scope.DirectMaterialList[i].Consumption == 'NaN') {
-                    ShowResult("Consumption is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
-                    return false;
-                }
+                //if ($scope.DirectMaterialList[i].Consumption == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Consumption) || $scope.DirectMaterialList[i].Consumption == 'NaN') {
+                //    ShowResult("Consumption is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                //    return false;
+                //}
 
-                if ($scope.DirectMaterialList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Rate) || $scope.DirectMaterialList[i].Rate == 'NaN') {
-                    ShowResult("Rate is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
-                    return false;
-                }
+                //if ($scope.DirectMaterialList[i].Rate == 0 || baseService.isUndefinedOrNull($scope.DirectMaterialList[i].Rate) || $scope.DirectMaterialList[i].Rate == 'NaN') {
+                //    ShowResult("Rate is required for '" + $scope.DirectMaterialList[i].UserName + "'.", 'failure');
+                //    return false;
+                //}
 
             }
         }

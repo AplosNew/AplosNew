@@ -288,7 +288,8 @@ namespace Aplos.Areas.Materials.Controllers
         public ActionResult LoadDetentionList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson
+            string sql = @"SELECT *,CASE IsAvoidable WHEN 1 THEN 'Yes' ELSE 'No' END Avoidable,(select EmployeeName from EmployeeInformation where SystemId=InChargePersonId) as InChargePerson,
+                            (select UserName from [HKP].[DetentionType] where Id=DetentionTypeId) as DetentionType
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
@@ -647,6 +648,15 @@ namespace Aplos.Areas.Materials.Controllers
             {
                 throw ex;
             }
+        }
+
+        [Authorize, HttpGet]
+        public JsonResult GetDetentionTypeList()
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"Select  UserName As Text, Id As Value from [HKP].[DetentionType]";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
     }
 }
