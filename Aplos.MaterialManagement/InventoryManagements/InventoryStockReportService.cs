@@ -584,7 +584,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
-                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
+                                    --AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
                                     GROUP BY IRD.InventoryMaterialId
                                     ) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
          
@@ -755,7 +755,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	<= '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
-                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
+                                    --AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
                                     GROUP BY IRD.InventoryMaterialId, IRD.MaterialStorageId) AS opbal2 
                                         ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' and opbal2.MaterialStorageId=IRS.MaterialStorageId
          
@@ -3994,7 +3994,7 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"'  " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
-                           AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject' 
+                           --AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject' 
                            GROUP BY IRD.InventoryMaterialId
                         ) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"'
          
@@ -4214,7 +4214,6 @@ namespace Library.MaterialManagement.InventoryManagements
 									FROM  [TRN].[InventoryReceiveDetail] IRD
 									LEFT JOIN [TRN].[InventoryReceive] IR ON IR.Id=IRD.InventoryReceiveId
 									where convert(Date,IR.GRNDate)	BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' " + assetInvStatus + @" AND IR.OpeningBalanceId IS  NULL 
-                                    AND (ISNULL(IR.AuthorizedByStatus,'')!='Reject') AND   ISNULL(IR.CheckedByStatus,'')!='Reject'
 									group By IRD.InventoryMaterialId ,IRD.MaterialStorageId,IRD.IsAsset) AS opbal2 ON opbal2.InventoryMaterialId=IM.Id AND IM.PlantId='" + plantId + @"' 
                             and opbal2.MaterialStorageId=IRS.MaterialStorageId
 
@@ -4235,12 +4234,13 @@ namespace Library.MaterialManagement.InventoryManagements
 										GROUP BY IH.InventoryMaterialId,II.MaterialStorageId
 								 )IssueReturnData ON IssueReturnData.InventoryMaterialId=IM.Id and IssueReturnData.MaterialStorageId=IRS.MaterialStorageId
 					    --Purchase return
-                       Left join (select IH.InventoryMaterialId,sum(IH.TransactionQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty*IRD.MaterialTranRate)) PurchaseReturnAmount 
+                       Left join (select IH.InventoryMaterialId,II.MaterialStorageId,sum(IH.TransactionQty) Qty,sum(IRD.MaterialTranRate) MaterialTranRate, (sum(IH.TransactionQty*IRD.MaterialTranRate)) PurchaseReturnAmount 
 					                 from trn.PurchaseReturnDetail IH
 									 Left join trn.PurchaseReturn II ON II.Id=IH.PurchaseReturnId
 									 Left join trn.InventoryReceiveDetail IRD ON IRD.Id=IH.InventoryReceiveDetailId
-									 	WHERE convert(Date,II.[POReturnDate]) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND II.PlantId='" + plantId + @"' GROUP BY IH.InventoryMaterialId
-								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id
+									 	WHERE convert(Date,II.[POReturnDate]) BETWEEN  '" + fromDate + @"' AND  '" + toDate + @"' AND II.PlantId='" + plantId + @"' 
+                                GROUP BY IH.InventoryMaterialId,II.MaterialStorageId
+								 )PurchaseReturnData ON PurchaseReturnData.InventoryMaterialId=IM.Id AND PurchaseReturnData.MaterialStorageId=IRS.MaterialStorageId
 
                       
                        -- Adjustment
