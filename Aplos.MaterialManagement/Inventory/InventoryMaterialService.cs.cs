@@ -1784,7 +1784,7 @@ namespace Library.MaterialManagement.Inventory
 				var _sql = "";
 				var MaterialMasterIda = MaterialMasterId;
 				
-				_sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + inveReveiveId + @"'
+				_sql = @"DECLARE @inventoryReceiveId VARCHAR(10)='" + InventoryReceiveId + @"'
 				                               , @totalReceiveAmount DECIMAL(18, 4)=0
 				                               , @totalServiceAmount DECIMAL(18, 4)=0
 				                               , @totalSvcTaxAmount DECIMAL(18, 4)=0
