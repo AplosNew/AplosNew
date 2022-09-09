@@ -334,9 +334,9 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         try {
             //CheckField("Work Center Master", $scope.productionSummaryNew.WorkCenterMasterId);
 
-            //if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
-            //    CheckField("Lot Number", $scope.productionSummaryNew.LotNumber);
-            //}
+            if ($scope.LotNumberCapture && $scope.LotNumberMandatory) {
+                CheckField("Lot Number", $scope.NewObject.LotNumber);
+            }
 
             /*  if ($scope.productionSummaryNew.ProductionBookingLevel === "ProductionOrder") {*/
                 if ($scope.productionSummaryNew.ProductionOrderId == null) {
@@ -1419,6 +1419,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.productionSummaryNew.workCenter = data.data.WorkCenter;
         $scope.productionSummaryNew.workCenterId = data.data.WorkCenterMasterId;
         try {
+            ValidationMaster();
             $scope.ProcessDetentionLists = [];
             for (var i = 1; i < 6; i++) {
                 var obj = angular.copy($scope.ProcessDetention);
