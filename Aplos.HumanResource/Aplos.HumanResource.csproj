@@ -172,6 +172,7 @@
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Employee\AbsentismReasoningMasterService.cs" />
     <Compile Include="Employee\EmployeeLastPunchService.cs" />
+    <Compile Include="Employee\EmployeeTransport.cs" />
     <Compile Include="Employee\FactoryVisitorService.cs" />
     <Compile Include="Employee\FiveSZoneService.cs" />
     <Compile Include="Employee\FurniturePolicyService.cs" />
@@ -196,6 +197,7 @@
     <Compile Include="NewAttendanceProcess\NewAttendanceProcessService.cs" />
     <Compile Include="NewAttendanceProcess\NewHRDashboardService.cs" />
     <Compile Include="NewAttendanceProcess\PerformanceManagementMasterService.cs" />
+    <Compile Include="NewAttendanceProcess\ResidenceAllocationService.cs" />
     <Compile Include="NewAttendanceProcess\ResignationNewService.cs" />
     <Compile Include="NewAttendanceProcess\AttdnRawDataUploadService.cs" />
     <Compile Include="NewAttendanceProcess\NewAttdnProcessPlantLockService.cs" />
