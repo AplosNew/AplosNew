@@ -570,11 +570,15 @@ namespace Aplos.Areas.Commercial.Controllers
             try
             {
                 #region Validation
-                if (DataList.Count == 0)
+                if (DataList==null)
                 {
                     throw new Exception("Select from Invoice list ");
                 }
-                for (int i = 0; i < DataList.Count; i++)
+				if (DataList.Count == 0)
+				{
+					throw new Exception("Select from Invoice list ");
+				}
+				for (int i = 0; i < DataList.Count; i++)
                 {
                     if (DataList[i]["PartyId"].ToString() != LcData["VendorId"].ToString())
                     {
@@ -594,6 +598,10 @@ namespace Aplos.Areas.Commercial.Controllers
 					if (string.IsNullOrEmpty(LcData["LoanDate"].ToString()))
 					{
 						throw new Exception("Enter Loan Date");
+					}
+					if (string.IsNullOrEmpty(LcData["LoanAmount"].ToString()) || Convert.ToDecimal(LcData["LoanAmount"])==0)
+					{
+						throw new Exception("Enter Loan Amount");
 					}
 				}
 				#endregion
