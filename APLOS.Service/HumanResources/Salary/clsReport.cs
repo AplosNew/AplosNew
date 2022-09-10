@@ -8572,12 +8572,12 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
             }
         }
 
-        public DataTable GetEOTMonthlyDailyAttendanceDT(string IsDayStatus, string plantId, string fromDate, string toDate, Dictionary<string, string> parameters, bool isActive, bool isSeperated, bool isMaternity)
+        public DataTable GetEOTMonthlyDailyAttendanceDT(string plantId, string fromDate, string toDate)
         {
             try
             {
-                var strSql = @"SELECT A.* FROM
-	                                (SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
+                var strSql = @"SELECT A.Unit,A.Department,A.Section,A.Line,COUNT(A.EmpSystemId) TotalEmployee,SUM(A.Gross) TotalGross,SUM(A.OTHr) TotalOTHour,SUM(A.Total) Total FROM
+(SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
                                             U.UserName Unit,D.UserName Department,S.UserName Section,L.UserName Line,
 											REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
                                             AD.DayStatus, FORMAT(ad.InTime, 'hh.mm tt') InTime,  FORMAT(ad.OutTime, 'hh.mm tt') OutTime
@@ -8600,6 +8600,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
 											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
 											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,MaxOTPerDay=240,AD.OTHr OverStay,E.SystemId
                                             ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle,AD.IsOTEntitled
+                                            ,(GS.DefineAmount*cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))) Total
                                     FROM dbo.EmployeeInformation E
                                      LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
                                      LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
@@ -8620,7 +8621,7 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                                 LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id												
 											    left join (SELECT t.EmpSystemID,d.WorkDate,d.LeaveDuration FROM LeaveTransaction t
                                 left join LeaveTransactionDetails d on d.LvTrnsSystemID = t.SystemID
-                                where d.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' 
+                                where d.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
                                 and d.IsAvailed = 1 
                                 and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
                                                 LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
@@ -8634,36 +8635,9 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
                                                 LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
                                                 LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
                                                 Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
-                                    WHERE --E.PlantID = '" + plantId + @"' AND
-                                        AD.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND AD.IsOTEntitled=1
-                                    AND (E.DOS is null or E.DOS >= '" + fromDate + @"')									
-									";
-                if (parameters.Count > 0)
-                {
-                    if (parameters.Keys.ElementAt(0) != "")
-                    {
-                        strSql += @" AND E.SystemID IN(" + parameters["EmpSystemId"] + ")";
-                    }
-                }
-                strSql += ") A ORDER BY EmpSystemId";
-                DataTable dt = _sqlRepository.GetDataTable(strSql);
-
-                //Dictionary<string, List<DataRow>> dicShift = new Dictionary<string, List<DataRow>>();
-                //List<DataRow> _data = new List<DataRow>();
-                //string empId = "";
-                //for (int i = 0; i < dt.Rows.Count; i++)
-                //{
-                //    if (empId != dt.Rows[i]["EmpSystemId"].ToString())
-                //    {
-                //        _data = new List<DataRow>();
-                //        dicShift.Add(dt.Rows[i]["EmpSystemId"].ToString(), _data);
-                //    }
-                //    _data.Add(dt.Rows[i]);
-
-                //    empId = dt.Rows[i]["EmpSystemId"].ToString();
-                //}
-
-                return dt;
+                                    WHERE E.PlantID = '"+ plantId + @"' AND AD.WorkDate BETWEEN '" + fromDate+@"' AND '"+toDate+@"' AND AD.IsOTEntitled=1 AND (E.DOS is null or E.DOS >= '"+fromDate+ @"')) A
+GROUP BY A.Unit,A.Department,A.Section,A.Line ORDER BY A.Unit,A.Department,A.Section";
+                return _sqlRepository.GetDataTable(strSql);
             }
             catch (Exception ex)
             {
