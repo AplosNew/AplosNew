@@ -2533,11 +2533,11 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, 
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+ , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2559,7 +2559,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0";
+                                    --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
+                                      where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus
+";
 
 
                 }
@@ -2568,11 +2577,11 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,  
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+ , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2594,7 +2603,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0";
+                                    --where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0
+                                       where rae.isOccupied > 0 and RM.Vacancy > o.Occupied and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus
+";
 
 
 
@@ -2605,11 +2623,11 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, 
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+ , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2631,7 +2649,14 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-";
+                                    where rae.isOccupied = 1 and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus";
 
 
                     
@@ -2718,12 +2743,12 @@ LEFT JOIN HKP.EmployeeCategory ec ON ec.Id = DM.EmployeeCategoryId
 where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.EmployeeStatus = 'Active'
 ";*/
                 var sql = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
-                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName Entity,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
-                                        ,RM.Location
+                                        ,RM.Location, PR.Activity, RM.ResidenceCategory
 										FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
@@ -2742,7 +2767,7 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
 										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
-                              Where EMP.PlantId ='"+ identity.PlantId + @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId 
+                              Where EMP.PlantId ='" + identity.PlantId + @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId 
 							  NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees  Where isOccupied = 1) 
 								
 							  AND RG.IsResidenceApplicable = 'true' 
@@ -2791,11 +2816,11 @@ group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+ , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2817,7 +2842,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0";
+                                    --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
+                                    where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus
+";
 
 
                 }
@@ -2826,11 +2860,11 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,  
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+ , EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2852,7 +2886,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0";
+                                    --where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0
+                                    where rae.isOccupied > 0 and RM.Vacancy > o.Occupied and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus
+";
 
 
 
@@ -2863,11 +2906,11 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
                 {
                     sql = @"select RM.Id ResidenceId, RM.[Location], RM.ResidentType, RM.ResidenceCategory, RM.Block, RM.Floor, RM.ResidenceNumber
 , RM.Vacancy, O.Occupied,
-Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName, DGM.EmployeeCategory,  
+Available=isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0), ei.EmployeeCode,  ei.EmployeeName,   
 D.UserName Department,
 S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName Entity, P.Activity, ei.EmployeeStatus,
  FORMAT(ei.DOJ, 'dd-MMM-yyyy') DOJ, FORMAT(ei.DOS, 'dd-MMM-yyyy')DOS, ei.EmployeeCurrentStatus,  P.PaymentLink Skill, PR.UserName Process, RG.UserName ResidenceGroup
-
+, EmployeeCategory
 							from dbo.ResidenceAllocatedEmployees rae
                             left join dbo.EmployeeInformation ei on ei.SystemId = rae.EmployeeSystemId 
                             left join HKP.Designation DE on DE.Id=ei.GivenDesignationId
@@ -2889,6 +2932,14 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
+                                    where rae.isOccupied = 1 and P.Id <> 989 order by case
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+									else 5
+									end,
+									EmployeeCurrentStatus
 ";
 
 
@@ -2928,12 +2979,12 @@ LEFT JOIN HKP.EmployeeCategory ec ON ec.Id = DM.EmployeeCategoryId
 where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.EmployeeStatus = 'Active'
 ";*/
                 var sql = @"SELECT isSelected=(CAST(0 as bit)), Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode, Emp.EmployeeStatus, Emp.EmployeeCurrentStatus,
-                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName EntityName,D.UserName Designation,
+                                    Emp.DOS,EMP.EmpPicPath,EMP.BudgetCode,E.UserName Entity,D.UserName Designation,
                                     
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
-                                        ,RM.Location
+                                        ,RM.Location, RM.ResidentType, PR.Activity, RM.ResidenceCategory
 										FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
