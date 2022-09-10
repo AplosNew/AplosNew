@@ -334,67 +334,67 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
             }
         });
     }
-    $scope.AssignReport = function () {
-        $scope.fileName = 'To Assign List';
+    //$scope.AssignReport = function () {
+    //    $scope.fileName = 'To Assign List';
 
-        var dataList = [];
-        var g = $("#GridRouteEmp").data("ejGrid");
-        dataList = g.getFilteredRecords();
+    //    var dataList = [];
+    //    var g = $("#GridEmp").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ModelList;
-        }
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.dataList;
+    //    }
 
-        $http({
-            method: 'POST',
-            url: $scope.exportgriddataUrl,
-            data: {
-                'reportFileName': $scope.fileName,
-                'data': dataList
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrl,
+    //        data: {
+    //            'reportFileName': $scope.fileName,
+    //            'data': dataList
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
 
-    };
+    //};
 
-    $scope.UnassignReport = function () {
-        $scope.fileName = 'To Unassign List';
-        var dataList = [];
-        var g = $("#GridEUnassign").data("ejGrid");
-        dataList = g.getFilteredRecords();
+    //$scope.UnassignReport = function () {
+    //    $scope.fileName = 'To Unassign List';
+    //    var dataList = [];
+    //    var g = $("#GridEUnassign").data("ejGrid");
+    //    dataList = g.getFilteredRecords();
 
-        if (dataList.length == 0) {
-            dataList = $scope.ModelUnassignList;
-        }
-        $http({
-            method: 'POST',
-            url: $scope.exportgriddataUrl,
-            data: {
-                'reportFileName': $scope.fileName,
-                'data': dataList
-            },
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            if (response.data.Error === true) {
-                ShowResult(response.data.Message, 'failure');
-            }
-            else {
-                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
-            }
-        }, function errorCallback(response) {
-            ShowResult(response.data.Message, 'failure');
-        });
+    //    if (dataList.length == 0) {
+    //        dataList = $scope.ModelUnassignList;
+    //    }
+    //    $http({
+    //        method: 'POST',
+    //        url: $scope.exportgriddataUrl,
+    //        data: {
+    //            'reportFileName': $scope.fileName,
+    //            'data': dataList
+    //        },
+    //        dataType: 'JSON'
+    //    }).then(function successCallback(response) {
+    //        if (response.data.Error === true) {
+    //            ShowResult(response.data.Message, 'failure');
+    //        }
+    //        else {
+    //            $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+    //        }
+    //    }, function errorCallback(response) {
+    //        ShowResult(response.data.Message, 'failure');
+    //    });
 
-    };
+    //};
 
     //End
 }
