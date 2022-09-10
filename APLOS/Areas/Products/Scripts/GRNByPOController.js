@@ -3639,19 +3639,31 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         angular.element(document.querySelector('#ValueSet')).modal('hide');
     }
 
+    $scope.requisitionDetailList = [];
+    $scope.ViewRequisitionDetail = function (poDatailId) {
+        $scope.requisitionDetailList = [];
+        $http.get($scope.path + 'GetRequisitionDetailByPODetail?podetailId=' + poDatailId)
+            .then(function (response) {
+                $scope.requisitionDetailList = response.data;
+            });
+        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
+
+    }
+    $scope.CloseRequisitionPopUP = function () {
+        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
+
+    }
     $scope.GRNAllowcationForSO = function (x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID) {
         $scope.Action1 = 'Update'
         GRNAllowcationForSOList(x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID);
         angular.element(document.querySelector('#ListOfSo')).modal('show');
-
-
     };
 
     $scope.GRNAllowcationForSOInSavingTime = function (x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID) {
         $scope.Action1 = 'Save'
 
         GRNAllowcationForSOList1(x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID);
-        angular.element(document.querySelector('#ListOfSo')).modal('show');
+        angular.element(document.querySelector('#ListOfRequisition')).modal('show');
 
 
     };

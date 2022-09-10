@@ -443,6 +443,13 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
+        [Authorize, HttpGet]
+        public JsonResult GetRequisitionDetailByPODetail(string podetailId)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(inventoryReceiveQueryService.GetRequisitionDetailByPODetail(identity.PlantId, podetailId), JsonRequestBehavior.AllowGet);
+        }
         #endregion GRN-By-PO
 
         #region GRN-BOQ-PO
