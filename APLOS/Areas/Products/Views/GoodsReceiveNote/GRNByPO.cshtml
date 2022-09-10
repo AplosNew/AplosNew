@@ -1172,6 +1172,7 @@
                                         @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
                                         @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                         @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
+                                        <li><button ng-click="ViewRequisitionDetail(x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="View Requisition Detail" ng-hide="x.PurchaseDocumentAcceptanceId!=null">View Requisition Detail</button></li>
                                     </ul>
                                 </td>
                                 <td></td>
@@ -3371,6 +3372,43 @@
                 <div class="common-btn">
                     <ul class="list-inline text-right">
                         <li> <button ng-click="CloseContractPopUp();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Done</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade site-modal in" id="ListOfRequisitionPopUP" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Requisition Detail</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="content-container-fluid" style="color:black;overflow:scroll">
+                        <div style="color:black;" id="Grid" ej-grid e-datasource="requisitionDetailList" 
+                             e-allowfiltering="true" e-allowpaging="true" e-gridlines="vertical"
+                             e-filtersettings-filterType="excel" e-enabletouch="false" e-allowselection="false">
+                            <div e-columns>
+                                <div e-column e-field="RequisitionNo" e-headertext="RequisitionNo" e-width="80"></div>
+                                <div e-column e-field="RowId" e-headertext="RowId" e-width="150"></div>
+                                <div e-column e-field="Material" e-headertext="Material" e-width="80"></div>
+                                <div e-column e-field="Articel" e-headertext="Articel" e-width="80"></div>
+                                <div e-column e-field="TransactionQty" e-headertext="TransactionQty" e-width="80"></div>
+                                <div e-column e-field="UOM" e-headertext="UOM" e-width="40"></div>
+                                <div e-column e-field="RequisitionBy" e-headertext="Requisition By" e-width="100"></div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li> <button ng-click="CloseRequisitionPopUP();" class="btn"><i class="glyphicon glyphicon-folder-close"></i> Close</button></li>
                     </ul>
                 </div>
             </div>
