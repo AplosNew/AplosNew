@@ -23,7 +23,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , DetentionSubCategory: null
         , DetentionStandaredName: null
         , DetentionUserName: null
-        , DetentionType: null
+        , DetentionTypeId: null
         , DetentionCriticality: null
         , InchargePersonId: null
         , InchargePerson:null
@@ -790,6 +790,15 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         gridObj.refreshContent();
     };
 
-
+    $scope.DetentionTypeList = [];
+    $scope.GetDetentionTypeList = function () {
+        $http({
+            method: 'GET',
+            url: 'Materials/DetentionMaster/GetDetentionTypeList'
+        }).then(function successCallback(response) {
+            $scope.DetentionTypeList = response.data;
+        });
+    }
+    $scope.GetDetentionTypeList();
 
 }

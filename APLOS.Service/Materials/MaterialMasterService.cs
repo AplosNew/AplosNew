@@ -8537,7 +8537,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
 
 
             cmdText = @"select 						
-				     IRD.Id
+				     Id=Case when (isnull(ir.AuthorizedByStatus,'')='Reject' OR   isnull(ir.CheckedByStatus,'')='Reject') then  IRD.Id+'-'+IR.AuthorizedByStatus else IRD.Id end
 ,MS.UserName MaterialStorage
                      ,isnull(MM.UserName,'') MaterialMasterName	
 					,MM.id MId
@@ -8790,7 +8790,7 @@ LEFT JOIN [SCS].[BusinessProcess] AS BP ON MBP.BusinessProcessId = BP.Id
                                      )main on main.InventoryReceiveDetailId=IRD.Id			
                                      									 
 						where  	IM.PlantId='" + plantId + @"' AND MM.Id='" + MaterialId + @"' AND Art.Id='" + ArticleId + @"' AND
-                        (isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' AND 
+                        --(isnull(ir.AuthorizedByStatus,'')!='Reject') and   isnull(ir.CheckedByStatus,'')!='Reject' AND 
 						Convert(date ,IR.GRNDate) between '" + fromDate + @"' AND '" + toDate + @"'  
                         " + Sku + @" ";
 

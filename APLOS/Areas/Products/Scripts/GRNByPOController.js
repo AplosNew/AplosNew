@@ -3798,18 +3798,18 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
     };
 
-    $scope.GRNAllowcationForRequisition = function (x, MaterialMasterId, InventoryReceiveDetailId) {
+    $scope.GRNAllowcationForRequisition = function (x,  InventoryReceiveDetailId) {
         $scope.Action1 = 'Update'
-        GRNAllowcationForRequisitionList(x, MaterialMasterId, InventoryReceiveDetailId);
+        GRNAllowcationForRequisitionList(x,  InventoryReceiveDetailId);
         angular.element(document.querySelector('#ListOfRequisition')).modal('show');
     };
     $scope.GRNAllowcationForRequisitionLst = [];
-    function GRNAllowcationForRequisitionList(inveReveiveId, MaterialMasterId, InventoryReceiveDetailId) {
+    function GRNAllowcationForRequisitionList(data,  InventoryReceiveDetailId) {
         $scope.totalGRNVal = '';
         $scope.RejectionQty = '';
         $scope.Action1 = 'Save';
-        $scope.masterId = inveReveiveId;
-        $http.get($scope.path + 'GetInventoryMaterialListForPOUpdate?inveReveiveId=' + inveReveiveId + '&InventoryReceiveId=' + $scope.productNew.Id + '&MaterialMasterId=' + MaterialMasterId + '&InventoryReceiveDetailId=' + InventoryReceiveDetailId)
+        $scope.masterId = data.POId;
+        $http.get($scope.path + 'GetInventoryMaterialListForPOUpdate?inveReveiveId=' + data.POId + '&InventoryReceiveId=' + $scope.productNew.Id + '&MaterialMasterId=' + data.MaterialMasterId + '&InventoryReceiveDetailId=' + InventoryReceiveDetailId)
             .then(function (response) {
                 $scope.GRNAllowcationForRequisitionLst = response.data;
                 $scope.totalGRNVal = $scope.GRNAllowcationForRequisitionLst[0].GRNQty;

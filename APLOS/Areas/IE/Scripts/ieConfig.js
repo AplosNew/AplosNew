@@ -64,6 +64,11 @@ function IEConfig($routeProvider, $locationProvider) {
             controller: 'MachineMasterTransactionReportController'
         })
 
+        .when('/detention-type', {
+            templateUrl: 'IE/DetentionType/Aplos',
+            controller: 'DetentionTypeController'
+        })
+
         .when('/skill-grouping', {
             templateUrl: 'IE/SkillGrouping/aplos',
             controller: 'skillGroupingController'
