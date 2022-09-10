@@ -664,7 +664,7 @@ namespace Library.Service.WorkCenters
             try
             {
 
-                string CmdText = @"SELECT WSP.Id, SP.Code, SP.UserName SubProcessName, SP.Sequence,SP.Active, SP.Archive, SPC.UserName AS SubProcessCategoryName
+                string CmdText = @"SELECT WSP.*, SP.Code, SP.UserName SubProcessName, SP.Sequence,SP.Active, SP.Archive, SPC.UserName AS SubProcessCategoryName
 FROM [SCS].[WorkCenterMasterSubProcess] WSP
 LEFT JOIN HKP.[SubProcess] AS SP ON SP.Id = WSP.SubProcessId  
 LEFT OUTER JOIN HKP.[SubProcessCategory] AS SPC ON SP.SubProcessCategoryId=SPC.Id

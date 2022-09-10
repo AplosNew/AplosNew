@@ -357,6 +357,7 @@ namespace Aplos.Areas.Productions.Controllers
             sheet.Range[ROW, COL + 3].Text = data.Rows[0]["ConsigneeBilltoName"].ToString();
             sheet.Range[ROW, COL + 3, ROW, COL + 4].VerticalAlignment = ExcelVAlign.VAlignCenter;
             sheet.Range[ROW, COL + 3, ROW, COL + 4].Merge();
+            sheet.Range[ROW, COL + 3, ROW, COL + 4].WrapText = true;
             sheet.Range[ROW, COL + 3, ROW, COL + 4].BorderAround(ExcelLineStyle.Thin);
             ROW++;
 
@@ -415,6 +416,7 @@ namespace Aplos.Areas.Productions.Controllers
                     }
                     sheet[ArtRow, 1, ArtRow, 5].Text = data.Rows[i]["StandardName"].ToString();
                     sheet.Range[ArtRow, 1, ArtRow, 5].Merge();
+                    sheet.Range[ArtRow, 1, ArtRow, 5].WrapText = true;
                     sheet.Range[ArtRow, 1, ArtRow, 5].VerticalAlignment = ExcelVAlign.VAlignCenter;
                     sheet.Range[ArtRow, 1, ArtRow, 5].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet.Range[ArtRow, 1, ArtRow, 5].BorderAround(ExcelLineStyle.Thin);

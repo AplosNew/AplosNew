@@ -1,4 +1,5 @@
-﻿using Library.Crosscutting.Security;
+﻿#region lib
+using Library.Crosscutting.Security;
 using Library.Data.Sql;
 using OTSBD;
 using System;
@@ -10,1433 +11,17 @@ using Library.Data;
 using Library.Service.Logs;
 using Library.Service.Enums;
 using System.Reflection;
+#endregion lib
 
 namespace Library.HumanResource.NewAttendanceProcess
 {
-    public class PerformanceManagementMasterService
-    {
-        private readonly SqlRepository _sqlRepository;
-
-        #region Constructor
-        public PerformanceManagementMasterService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-        #endregion Constructor
-
-        public IEnumerable<object> getperformanceGroup()
-        {
-            try
-            {
-                var str = @"select * from HKP.PerformanceGroup";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-
-            }
-        }
-
-        public IEnumerable<object> GetMaster(string Id)
-        {
-            try
-            {
-                var str = @"select * from dbo.PMSMaster where Id = '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> GetChild(string Id)
-        {
-            try
-            {
-                var str = @"select pc.Id,pc.PMSMasterId,pc.PerformanceGroupId,pg.Username 
-                from PMSChild pc
-			    left join hkp.PerformanceGroup pg on pg.Id=pc.PerformanceGroupId
-                where pg.PMSMasterId= '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> GetList()
-        {
-            try
-            {
-                string sql = @"select * from dbo.PMSMaster";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public Dictionary<string, object> Create(Dictionary<string, object> data, List<string> Employee)
-        {
-            try
-            {
-                //Master Table - PMSMaster
-                string TableName = "dbo.PMSMaster";
-                DataSet dsMaster;
-
-                if (Employee == null)
-                {
-                    throw new Exception("Please Select Performance Group !!");
-                }
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where StandardName = '" + data["StandardName"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same StandardName already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName = '" + data["Username"] + "' AND  Id <> '" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same UserName already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Master update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "PM" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                // Child table - PMSChild
-
-                DataSet dsChild;
-                ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
-                conC.OpenDataSetThroughAdapter("select * from dbo.PMSChild where PMSMasterId = '" + data["Id"].ToString() + "'", out dsChild, false, "1");
-
-                while (dsChild.Tables[0].DefaultView.Count > 0)
-                {
-                    dsChild.Tables[0].DefaultView[0].Delete();
-                }
-
-                string _IdC = "";
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                #region data Child update
-
-                for (int i = 0; i < Employee.Count; i++)
-                {
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID("dbo.PMSChild", out _IdC);
-
-                    dr["Id"] = "PMC" + _IdC;
-                    dr["PMSMasterId"] = data["Id"].ToString();
-                    dr["PerformanceGroupId"] = Employee[i].ToString();
-                    dr["AddedBy"] = identity.Name;
-                    dr["AddedDate"] = DateTime.Now.ToString();
-                    dr["AddedFromIP"] = identity.IPAddress;
-                    dr["UpdatedBy"] = identity.Name;
-                    dr["UpdatedDate"] = DateTime.Now.ToString();
-                    dr["UpdatedFromIP"] = identity.IPAddress;
-                    dsChild.Tables[0].Rows.Add(dr);
-                }
-
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsChild);
-
-                return data;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void Delete(string id)
-        {
-            try
-            {
-                string TableName = "dbo.PMSMaster";
-
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
-                conC.BeginTransaction();
-                conC.executeQuery("delete from dbo.PMSChild where PMSMasterId ='" + id + "'");
-                conC.CommitTransaction();
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-
-            }
-        }
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM PMSMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-    }
-
-    public class PerformanceModel
-    {
-        public string Sequence { get; set; }
-        public string Category { get; set; }
-        public string SubCategory { get; set; }
-        public string StandardName { get; set; }
-        public string Username { get; set; }
-
-        public string ShortName { get; set; }
-
-        public string Code { get; set; }
-        public string Active { get; set; }
-
-        public DateTime Date { get; set; }
-        public string AddedBy { get; set; }
-        public DateTime AddedDate { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedDate { get; set; }
-        public string AddedFromIP { get; set; }
-        public string UpdatedFromIP { get; set; }
-
-    }
-
-    #region PerformancePeriodMasterService
-    public class PerformancePeriodMasterService
-    {
-
-        SqlRepository _sqlRepository;
-
-        public PerformancePeriodMasterService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-        public IEnumerable<object> GetList()
-        {
-            try
-            {
-                string sql = @"select Id,Active,PerformanceYearName,
-                FORMAT(StartDate,'dd-MMM-yyyy')StartDate,
-                FORMAT(EndDate,'dd-MMM-yyyy')EndDate
-                from dbo.PerformancePeriod ";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> getEmployeetype()
-        {
-            try
-            {
-                //var str = @"select Id,Username,StandardName from hkp.employeecategory";
-                var str = @"select Id,Username,StandardName from hkp.PerformanceGroup";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-
-            }
-        }
-        public Dictionary<string, object> Create(Dictionary<string, object> Data)
-        {
-            try
-            {
-                string TableName = "dbo.PerformancePeriod";
-
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where PerformanceYearName = '" + Data["PerformanceYearName"] + "' AND  Id <> '" + Data["Id"] + "'", out DataSet dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Performance Year Name already exists!!!");
-
-                TimeSpan ts = Convert.ToDateTime(Data["EndDate"]).Subtract(Convert.ToDateTime(Data["StartDate"]));
-                if (ts.Days >= 0)
-                {
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + Data["Id"] + "'", out dsMaster, false, "1");
-
-                    #region data update
-                    string _Id = "";
-                    if (dsMaster.Tables[0].Rows.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID(TableName, out _Id);
-
-                        Data["Id"] = "PP" + _Id;
-                        AddNewRow(dsMaster.Tables[0], Data);
-                    }
-                    else
-                    {
-                        _Id = Data["Id"].ToString();
-                        EditRow(dsMaster.Tables[0].Rows[0], Data);
-                    }
-                    #endregion data update
-
-                    clsStaticInfo _info = new clsStaticInfo();
-                    _info.SaveDataSets(dsMaster);
-                }
-                else
-                {
-                    throw new Exception("Please Choose a Valid Date Range !!");
-                }
-                return Data;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        public void Delete(string Id)
-        {
-            try
-            {
-                string TableName = "dbo.PerformancePeriod";
-
-                if (string.IsNullOrEmpty(Id))
-                    throw new Exception("Select entry first");
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where Id='" + Id + "'");
-                con.CommitTransaction();
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-    }
-    #endregion PerformancePeriodMasterService
-
-    #region Performance Group Service
-    public class PerformanceGroupService
-    {
-        ISqlRepository _sqlRepository;
-        public PerformanceGroupService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-        public IEnumerable<object> GetCbo()
-        {
-            try
-            {
-                string TableName = "HKP.PerformanceGroup";
-                string sql = "SELECT Id as Value,UserName AS Text FROM " + TableName + "";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
-
-        public IEnumerable<object> Get(string Id)
-        {
-            try
-            {
-                var sql = "select * from HKP.PerformanceGroup where Id = '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetList(string column, string value)
-        {
-            try
-            {
-                string TableName = "HKP.PerformanceGroup";
-                string strkey = "1=1";
-                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey + " order by sequence";
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-
-        public string Create(Dictionary<string, object> data)
-        {
-            try
-            {
-                string TableName = "HKP.PerformanceGroup";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Code='" + data["Code"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same Code already exists!!!");
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where UserName='" + data["UserName"] + "' AND  Id<>'" + data["Id"] + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                    throw new Exception("Same User Name already exists!!!");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "PG" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-
-        public string Delete(string id)
-        {
-            try
-            {
-
-                string TableName = "HKP.PerformanceGroup";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-
-
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-
-    }
-    #endregion Performance Group Service
-
-    #region PERFORMANCE ATTRIBUTE MASTER SERVICE
-    public class PerformanceAttributeMasterService
-    {
-        ISqlRepository _sqlRepository;
-        public PerformanceAttributeMasterService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-
-        public IEnumerable<object> Get(string Id)
-        {
-            try
-            {
-                var sql = "select * from dbo.PerformanceAttributeMaster where Id = '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetList(string column, string value)
-        {
-            try
-            {
-                string TableName = "dbo.PerformanceAttributeMaster";
-                string strkey = "1=1";
-                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey;
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public string Create(Dictionary<string, object> data)
-        {
-            try
-            {
-                string TableName = "dbo.PerformanceAttributeMaster";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "PAM" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-        public string Delete(string id)
-        {
-            try
-            {
-
-                string TableName = "dbo.PerformanceAttributeMaster";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-
-
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceAttributeMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
-    }
-    #endregion PERFORMANCE ATTRIBUTE MASTER SERVICE
-
-    #region Performance Grade Master Service
-    public class PerformanceGradeMasterService
-    {
-        ISqlRepository _sqlRepository;
-        public PerformanceGradeMasterService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-
-        public IEnumerable<object> Get(string Id)
-        {
-            try
-            {
-                var sql = "select * from dbo.PerformanceGradeMaster where Id = '" + Id + "' ";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetList(string column, string value)
-        {
-            try
-            {
-                string TableName = "dbo.PerformanceGradeMaster";
-                string strkey = "1=1";
-                if (string.IsNullOrEmpty(column) == false && string.IsNullOrEmpty(value) == false)
-                    strkey = column + " like '%" + value + "%'";
-
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                string sql = @"select * from (SELECT * FROM " + TableName + ") AS TEMP WHERE " + strkey;
-                return _sqlRepository.GetDataCollection(sql, null);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public string Create(Dictionary<string, object> data)
-        {
-            try
-            {
-                string TableName = "dbo.PerformanceGradeMaster";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id='" + data["Id"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data update
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-                    bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    data["Id"] = "PGM" + _Id;
-                    AddNewRow(dsMaster.Tables[0], data);
-                }
-                else
-                {
-                    _Id = data["Id"].ToString();
-                    EditRow(dsMaster.Tables[0].Rows[0], data);
-                }
-                #endregion data update
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster);
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-        public string Delete(string id)
-        {
-            try
-            {
-
-                string TableName = "dbo.PerformanceGradeMaster";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-
-
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-
-        public double GetSequence()
-        {
-            DataTable dt = _sqlRepository.GetDataTable("SELECT  isnull(Max(Sequence),0) AS Sequence FROM dbo.PerformanceGradeMaster");
-            if (dt.Rows.Count > 0)
-                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
-
-            return 1;
-        }
-
-    }
-    #endregion Performance Grade Master Service
-
-    #region EmployeeGoalSetting
-    public class EmployeeGoalSetting
+    #region Residence Master
+    public class ResidenceAllocationService
     {
         SqlRepository _sqlRepository;
-        public EmployeeGoalSetting()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-        public IEnumerable<object> GetEGList()
-        {
-            try
-            {
-                string sql = @"select eg.SystemId, eg.EmployeeId, eg.PerformanceYearId, eg.ConfirmationStatus from dbo.EmployeeGoalSetting eg";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> getSelectedEmployee(string SelectedEmployeeId)
-        {
-            try
-            {
-
-                var str = @"select ei.EmployeeName from dbo.EmployeeInformation ei
-                            left join org.Department dep on dep.Id = ei.DepartmentId
-                            left join org.Section sec on sec.Id = ei.SectionId
-                            left join org.SubSection ss on ss.Id = ei.SubSectionId where SystemId =  '" + SelectedEmployeeId + "'";
-
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> getSelectedEmployeeName(string SelectedEmployeeId)
-        {
-            try
-            {
-
-                var str = @"select ei.SystemId, ei.EmployeeName from dbo.EmployeeGoalSetting egs
-                left join dbo.EmployeeInformation ei on ei.SystemId = egs.EmployeeId where ei.SystemId =  '" + SelectedEmployeeId + "'";
-
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> getPerformancePeriod()
-        {
-            try
-            {
-                string sql = @"select pp.Id as Value , pp.PerformanceYearName as Text from dbo.PerformancePeriod pp";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> getEmployee()
-        {
-            try
-            {
-                var str = @"select ei.SystemId, ei.EmployeeName, ei.EmployeeId , FORMAT(ei.DOJ, 'dd-MMM-yyyy') as DOJ, 
-                            FORMAT(ei.DOB, 'dd-MMM-yyyy') as DOB ,ei.EmployeeCode, DP.UserName as Department ,
-                            LDSG.StandardName as Designation, SC.UserName as Section,
-                            SBC.UserName as SubSection from dbo.EmployeeInformation ei
-                            LEFT JOIN MST.ManpowerBudget MBGT ON MBGT.Id = ei.BudgetCode
-                            LEFT JOIN ORG.POSITION POS ON POS.ID = MBGT.POSITIONID
-                            left join MST.ManpowerBudgetDetail MBD ON MBD.ManpowerBudgetId = MBGT.ID
-                            left join ORG.Entity UN on UN.Id = MBGT.EntityId
-                            left join ORG.Department DP on DP.ID = POS.DepartmentId
-                            left join ORG.Section SC on SC.Id = POS.SectionId
-                            left join ORG.SubSection SBC on SBC.Id = POS.SubSectionId
-                            LEFT JOIN HKP.DesignationGroup EDSGG on EDSGG.id=ei.DesignationGroupId
-                            LEFT JOIN hkp.Designation LDSG on LDSG.id = POS.DesignationId
-                            LEFT JOIN HKP.LegalDesignation GDSG on GDSG.Id=ei.LegalDesignationId
-                            left join mst.DesignationMaster dm on dm.DesignationId = LDSG.Id
-                            left join hkp.EmployeeCategory x on x.Id=dm.EmployeeCategoryId
-                            left join ShiftDefination sd on sd.systemid = mbgt.shiftdefinationid
-                            left join SalaryRuleMaster SRM on srm.systemid = ei.salaryrulemastersystemid
-                            left join ResidenceGroup RG on RG.Id = ei.ResidenceGroupId
-                            left join TransportGroup TG on TG.Id = ei.TransportGroupId          
-                            where ei.EmployeeStatus = 'Active'";
-                return _sqlRepository.GetDataCollection(str);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        #region
-        public IEnumerable<object> getPMSMaster(string SystemId)
-        {
-            var str = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
-                        pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
-                        left join PMSChild pc on pms.Id=pc.PMSMasterId
-                        left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
-                        left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
-                        left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
-                        left join EmployeeInformation e on e.BudgetCode=mp.Id
-                        where e.SystemId = '" + SystemId + "' ";
-            return _sqlRepository.GetDataCollection(str);
-        }
-        #endregion
-
-        #region
-        /* public IEnumerable<object> getEGSList(string Id)
-         {
-             try
-             {
-                 var str = @"select egc.ObjectiveName, egc.ObjectiveDetail, egc.CostSaving,
-                             egc.Value, egc.Attachment, egc.AssesmentDate, egc.ObjNameClosingDate,
-                             egc.MaxStoryPoints, egc.Remarks from dbo.EmployeeGoalSettingChild egc                            
-                              where egc.Id ='" + Id + "' ";
-
-                 DataTable dtChild = _sqlRepository.GetDataTable(str);
-
-
-                 if (dtChild.Rows.Count > 0)
-                 {
-                     return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
-                 }
-                 else
-                 {
-                     var sql = @"select pms.Id as PMSId,pms.Category,pms.SubCategory,pms.Username,
-                         pg.UserName as PerFormanceGroup from dbo.PMSMaster pms                        
-                         left join PMSChild pc on pms.Id=pc.PMSMasterId
-                         left join HKP.PerformanceGroup pg on pg.Id = pc.PerformanceGroupId
-                         left join ORG.Position pos on pos.PerformanceGroupId = pg.Id
-                         left join mst.ManpowerBudget mp on mp.PositionId = pos.Id
-                         left join EmployeeInformation e on e.BudgetCode=mp.Id
-                         where pms.Id ='" + Id + "' ";
-                     DataTable dtSkill = _sqlRepository.GetDataTable(sql);
-
-                     for (int i = 0; i < dtSkill.Rows.Count; i++)
-                     {
-                         for (int j = 1; j <= 6; j++)
-                         {
-                             DataRow dr = dtChild.NewRow();
-                             dr["ObjectiveName"] = null;                            
-                             dr["Value"] = 0;                           
-                             dr["ObjectiveDetail"] = null;
-                             dr["Attachment"] = null;
-                             dr["AssesmentDate"] = null;
-                             dr["ObjNameClosingDate"] = null;
-                             dr["MaxStoryPoints"] = 0.0;
-                             dr["Remarks"] = null;
-
-                             dtChild.Rows.Add(dr);
-                         }
-                     }
-                 }
-
-                 return Library.Service.Helpers.DataTableExtensions.DataTableToJson(dtChild);
-
-             }
-             catch (Exception ex)
-             {
-                 throw ex;
-             }
-         }*/
-        #endregion
-        #region Save Process
-        public Dictionary<string, object> Create(Dictionary<string, object> datas, string SelectedEmployeeId, string EGSetting, string PMSId)
+        public ResidenceAllocationService()
         {
 
-            try
-            {
-
-                // Upload File
-                #region File Upload
-
-                #endregion File Upload
-
-                //Master Table - PMSMaster
-                string TableName = "dbo.EmployeeGoalSetting";
-                DataSet dsMaster;
-                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
-
-                if (SelectedEmployeeId == null)
-                {
-                    throw new Exception("Please Select Employee !!");
-                }
-
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where SystemId ='" + datas["SystemId"] + "'", out dsMaster, false, "1");
-
-                string _Id = "";
-
-                #region data Master update
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                bplib.clsGenID genid = new bplib.clsGenID();
-                if (dsMaster.Tables[0].Rows.Count == 0)
-                {
-
-
-                    //bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(TableName, out _Id);
-
-                    datas["SystemId"] = "EGS" + _Id;
-                    datas["EmployeeId"] = SelectedEmployeeId;
-                    AddNewRow(dsMaster.Tables[0], datas);
-
-
-                }
-                else
-                {
-                    _Id = datas["SystemId"].ToString();
-                    datas["EmployeeId"] = SelectedEmployeeId;
-                    EditRow(dsMaster.Tables[0].Rows[0], datas);
-                }
-                #endregion data Master update
-                #region child
-                string ChildTableName = "dbo.EmployeeGoalSettingChild";
-                DataSet dsChild;
-                ConnectionManager.DAL.ConManager conC = new ConnectionManager.DAL.ConManager("1");
-                con.OpenDataSetThroughAdapter("select * from " + ChildTableName + " where Id ='" + datas["Id"] + "'", out dsChild, false, "1");
-
-                /*while (dsChild.Tables[0].DefaultView.Count > 0)
-                {
-                   dsChild.Tables[0].DefaultView[0].Delete();
-                }*/
-
-                string _IdC = "";
-                //var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                #region data update
-                if (dsChild.Tables[0].Rows.Count == 0)
-                {
-                    DataRow dr = dsChild.Tables[0].NewRow();
-                    //bplib.clsGenID genid = new bplib.clsGenID();
-                    genid.GenID(ChildTableName, out _Id);
-
-                    datas["Id"] = "EGC" + _Id;
-                    datas["EGSettingId"] = datas["SystemId"].ToString();
-                    datas["PMSMasterId"] = PMSId;
-                    AddNewRow(dsChild.Tables[0], datas);
-                }
-                else
-                {
-                    _Id = datas["Id"].ToString();
-                    EditRow(dsChild.Tables[0].Rows[0], datas);
-                    datas["PMSMasterId"] = PMSId;
-                    datas["EGSettingId"] = EGSetting;
-
-                }
-                #endregion data update
-                #endregion child
-
-                clsStaticInfo _info = new clsStaticInfo();
-                _info.SaveDataSets(dsMaster, dsChild);
-
-                return datas;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-
-
-        public string Delete(string id)
-        {
-            try
-            {
-
-                string TableName = "dbo.EmployeeGoalSettingChild";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-        #region EMPLOYEE GOAL CHILD 
-
-        #region GET FUNCTION
-        public IEnumerable<object> GetEGChild(string SelectedEmployeeId, string PerformanceYearId)
-        {
-            try
-            {
-                string sql = @"select egc.* , eg.* from  EmployeeGoalSettingChild egc
-                               left join dbo.EmployeeGoalSetting eg  on eg.SystemId  = egc.EGSettingId
-                               where eg.EmployeeId = '" + SelectedEmployeeId + "' and eg.PerformanceYearId = '" + PerformanceYearId + "' and eg.ConfirmationStatus = '" + 1 + "'";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-        #endregion GET FUNCTION
-
-        #region Save EG Child
-
-        public string DeleteChild(string id)
-        {
-            try
-            {
-
-                string TableName = "dbo.EmployeeGoalSettingChild";
-                if (string.IsNullOrEmpty(id))
-                    throw new Exception("Select entry first");
-
-                ConnectionManager.clsConnection con = new ConnectionManager.clsConnection();
-                con.BeginTransaction();
-                con.executeQuery("delete from " + TableName + " where Id='" + id + "'");
-                con.CommitTransaction();
-
-                return "Success";
-
-            }
-            catch (Exception ex)
-            {
-
-                return ex.Message;
-
-            }
-        }
-
-        #endregion save EG Child
-
-        #endregion EMPLOYEE GOAL CHILD 
-
-        #region Add & Edit Row
-        private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            DataRow dr = dt.NewRow();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["AddedBy"] = identity.Name;
-            dr["AddedDate"] = System.DateTime.Now.ToString();
-            dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-
-            dt.Rows.Add(dr);
-        }
-
-        private void EditRow(DataRow dr, Dictionary<string, object> sourceData)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            dr.BeginEdit();
-
-            foreach (var item in sourceData.Keys)
-            {
-                try
-                {
-                    dr[item] = sourceData[item];
-                }
-                catch (Exception)
-                {
-                }
-            }
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
-            dr.EndEdit();
-        }
-        #endregion Add & Edit Row
-        #endregion Save Process
-
-
-    }
-    #endregion EmployeeGoalSetting
-
-    #region Goal Setting Approval
-    public class GoalSettingApprovalService
-    {
-        SqlRepository _sqlRepository;
-        public GoalSettingApprovalService()
-        {
-            _sqlRepository = new SqlRepository();
-        }
-
-        public IEnumerable<object> getPerformancePeriod()
-        {
-            try
-            {
-                string sql = @"select pp.* from dbo.PerformancePeriod pp";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> getMenPower()
-        {
-            try
-            {
-                string sql = @"select mp.* from MST.ManpowerBudget mp";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-
-        public IEnumerable<object> GetROPP(string ROBudget, string PPId)
-        {
-            try
-            {
-                string sql = @"select eg.EmployeeId,e.EmployeeName,s.UserName as Section,ss.UserName as SubSection,
-                                d.UserName as Department,u.UserName as Unit,p.PerformanceYearName,egc.*
-                                from employeegoalsetting eg 
-                                left join employeegoalsettingchild egc on eg.SystemId=egc.EGSettingId
-                                left join EmployeeInformation e on e.SystemId=eg.EmployeeId
-                                left join PMSMaster pms on pms.Id=egc.PMSMasterId
-                                left join mst.ManpowerBudget mb on mb.Id=e.BudgetCode
-                                left join PerformancePeriod p on p.Id=eg.PerformanceYearid
-                                left join org.Department d on d.Id=e.DepartmentId
-                                left join org.Unit u on u.Id=e.UnitId
-                                left join org.Section s on s.Id=e.SectionId
-                                left join org.SubSection ss on ss.Id=e.SubSectionId
-                                where mb.ROBudgetCode='" + ROBudget + "' and p.Id='" + PPId + "'";
-
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public IEnumerable<object> GetEmployeeGoalData()
-        {
-            try
-            {
-                string sql = @"select eg.* from dbo.EmployeeGoalSetting eg where isApproved = '" + 0 + "'";
-                return _sqlRepository.GetDataCollection(sql);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-    }
-
-
-
-
-    #endregion Goal Setting Approval
-
-    #region RESIDENCE MASTER SERVICE
-    public class ResidenceMaseterService
-    {
-        SqlRepository _sqlRepository;
-        public ResidenceMaseterService()
-        {
             _sqlRepository = new SqlRepository();
         }
 
@@ -1624,22 +209,23 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             dr.EndEdit();
         }
         #endregion Add & Edit Row
-
-       
     }
-    #endregion RESIDENCE MASTER SERVICE
+    #endregion Residence Master
 
     #region Residence Status Allocation
-    public class ResidenceStatusLocationService
+    public class ResidenceStausAllocationService
     {
         SqlRepository _sqlRepository;
-        public ResidenceStatusLocationService()
+
+        #region constructor
+        public ResidenceStausAllocationService()
         {
+
             _sqlRepository = new SqlRepository();
         }
+        #endregion constructor
 
-   
-
+        #region Actions
         public IEnumerable<object> getData()
         {
             try
@@ -1720,9 +306,9 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 									LEFT JOIN(
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
-									Where A.isOccupied=1 and EI.PlantId in(" +identity.PlantId+ @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
+									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     ";
-              
+
 
                 return _sqlRepository.GetDataCollection(_sql, null);
             }
@@ -1768,7 +354,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         }
 
-        public IEnumerable<object> getemployeeDataList(string plantId,string residenceGroupId, string EmployeeTypeId)
+        public IEnumerable<object> getemployeeDataList(string plantId, string residenceGroupId, string EmployeeTypeId)
         {
             try
             {
@@ -1801,10 +387,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 										LEFT JOIN MST.DesignationMaster DM on DM.DesignationId = D.Id
 										LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
 										
-                              Where EMP.PlantId ='"+plantId+@"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId 
+                              Where EMP.PlantId ='" + plantId + @"' AND EMP.EmployeeStatus='Active' AND EMP.SystemId 
 							  NOT IN(Select EmployeeSystemId from dbo.ResidenceAllocatedEmployees  Where isOccupied = 1) 
 								
-							  AND RG.IsResidenceApplicable = 'true' and EC.Id = '"+ EmployeeTypeId + @"'
+							  AND RG.IsResidenceApplicable = 'true' and EC.Id = '" + EmployeeTypeId + @"'
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric";
 
                 return _sqlRepository.GetDataCollection(CmdText, null);
@@ -1816,7 +402,99 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
             }
         }
-       
+        //Route Employee start
+        
+
+        
+
+        public IEnumerable<object> getviewUnassign(string plantId)
+        {
+            try
+            {
+                string CmdText = @"select EI.SystemId EmployeeId,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
+							                    ,TD.TransportUserName Transport,SD.UserName [Shift],R.[From],R.[To],RS.Id TripId,RS.TripNo,PR.PaymentLink Skill
+							                    ,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant
+												,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus,ETA.UnassignDate,ETA.AssignDate
+
+							                    from EmployeeTransportAllocation ETA
+							                    left join EmployeeInformation EI on EI.SystemId = ETA.EmployeeSystemId
+							                    LEFT JOIN MST.ManpowerBudget PMB ON PMB.Id=EI.BudgetCode
+							                    LEFT JOIN ORG.Position PR ON PR.Id=PMB.PositionId
+							                    LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+							                    LEFT JOIN HKP.Designation DEG ON EI.GivenDesignationId=DEG.Id
+							                    LEFT JOIN ORG.Section S ON S.Id=EI.SectionId
+							                    LEFT JOIN ORG.SubSection SS ON SS.Id=EI.SubSectionId
+							                    LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+							                    LEFT JOIN ORG.Plant PL ON PL.Id=EI.PlantId
+							                    left join RouteSchedule RS on RS.Id = ETA.TripId
+							                    left join MST.Route R on R.Id = RS.RouteId
+							                    left join TransportDetail TD on TD.Id = RS.TransportId
+							                    left join ShiftDefination SD on SD.SystemID=RS.ShiftId
+							                    left join HKP.Stoppage ST on ST.Id=ETA.StoppageId
+                                
+                                Where EI.PlantId='" + plantId + @"' and ETA.AssignStatus = 1 order by  EI.EmployeeStatus desc, case when EI.EmployeeCurrentStatus is not null then 0 else 1 end, EmployeeCurrentStatus";
+
+                return _sqlRepository.GetDataCollection(CmdText, null);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
+
+        public void SaveUnassignData(List<Dictionary<string, object>> employeeList)
+        {
+            try
+            {
+                var id = "";
+                foreach (var item in employeeList)
+                {
+                    if (id == "")
+                        id = "'" + item["EmployeeId"] + "'";
+                    else
+                        id = id + ",'" + item["EmployeeId"] + "'";
+                }
+
+                //Master Table - PMSMaster
+                string TableName = "dbo.EmployeeTransportAllocation";
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId In (" + id + ")", out dsMaster, false, "1");
+
+                //string _Id = "";
+
+                #region data Master update
+
+                foreach (var item in employeeList)
+                {
+                    DataView dv = new DataView(dsMaster.Tables[0]);
+                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeId"] + "'";
+
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+                        item["AssignStatus"] = 0;
+                        item["UnassignDate"] = DateTime.Now;
+                        EditRow(drmo, item);
+                    }
+
+                }
+                #endregion data Master update
+
+                OTSBD.clsStaticInfo obj = new OTSBD.clsStaticInfo();
+                obj.SaveDataSets(dsMaster);
+
+                //return ;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        //Route Employee End
 
         public IEnumerable<object> getOccupiedemployeeDataList(string plantId, string residenceNumber)
         {
@@ -1869,7 +547,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 var str = @"select Id Value, UserName Text from dbo.ResidenceGroup";
                 return _sqlRepository.GetDataCollection(str);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -1963,10 +641,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             {
                 //Master Table - PMSMaster
                 string TableName = "dbo.ResidenceAllocatedEmployees";
-                DataSet dsMaster=null;
+                DataSet dsMaster = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-              
+
 
                 string _Id = "";
 
@@ -2030,12 +708,12 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In ("+ id +")", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
 
                 string _Id = "";
 
                 #region data Master update
-                
+
                 foreach (var item in employeeList)
                 {
                     DataView dv = new DataView(dsMaster.Tables[0]);
@@ -2047,7 +725,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                         item["isOccupied"] = 0;
                         EditRow(drmo, item);
                     }
-                   
+
                 }
                 #endregion data Master update
 
@@ -2062,19 +740,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             }
         }
 
-        #region delete
-        /* public void delete(string id)
-         {
-             ConnectionManager.DAL.ConManager objCon;
-
-             objCon = new ConnectionManager.DAL.ConManager("1");
-             objCon.BeginTransaction();
-             objCon.ExecuteNonQueryWrapper("delete FROM dbo.ResidenceStatusLocation where Id='" + id + "'", true, "1");
-
-             objCon.CommitTransaction();
-
-         }*/
-        #endregion delete
+       
 
         #region Add & Edit Row
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
@@ -2251,8 +917,8 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         {
             try
             {
-               
-                   var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
+
+                var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
                             ,RM.Floor, RM.ResidenceNumber, RM.ResidenceSubCategory, RM.ResidentType, RM.Vacancy, EMP.EmployeeName,
                             EMP.EmployeeCode, EMP.EmployeeStatus, 
                             case when  EMP.EmployeeCurrentStatus is null then 'Regular' else EMP.EmployeeCurrentStatus end as EmployeeCurrentStatus ,
@@ -2277,11 +943,11 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                             left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId
 
                             where EMP.EmployeeCurrentStatus = '" + empCurrentStatus + "'";
-                    return _sqlRepository.GetDataTable(sql);
-                
-                
-                
-                
+                return _sqlRepository.GetDataTable(sql);
+
+
+
+
             }
             catch (Exception ex)
             {
@@ -2292,13 +958,13 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         public IEnumerable<object> employeeCurrrentStatus()
         {
-            try 
+            try
             {
                 var sql = @"select distinct EmployeeCurrentStatus from EmployeeInformation where EmployeeCurrentStatus is not null";
                 return _sqlRepository.GetDataCollection(sql);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -2306,7 +972,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 
         public IEnumerable<object> gridViewResidenceMAster()
         {
-            try 
+            try
             {
                 var sql = @"select RM.Id,ec.UserName 'Employee Category', RG.UserName 'Residence Group', RM.[Location], RM.ResidenceCategory, RM.Block
                             ,RM.Floor, RM.ResidenceNumber, RM.ResidenceSubCategory, RM.ResidentType, RM.Vacancy, EMP.EmployeeName,
@@ -2333,11 +999,26 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                             left join hkp.EmployeeCategory ec on ec.Id=dm.EmployeeCategoryId";
                 return _sqlRepository.GetDataCollection(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
+        #endregion Actions
+
+    }
+    #endregion Residence Status Allocation
+
+    #region Residence Status Report
+    public class ResudeceStatusReportService
+    {
+        SqlRepository _sqlRepository;
+        #region constructor
+        public ResudeceStatusReportService()
+        {
+            _sqlRepository = new SqlRepository();
+        }
+        #endregion constructor
 
         #region Detail Residence Status Report
         // Detail Residence Status Report
@@ -2477,7 +1158,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									EmployeeCurrentStatus";
 
 
-                    
+
                 }
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -2528,7 +1209,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 ";
                 return _sqlRepository.GetDataTable(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -2537,7 +1218,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
         // Pending For Allocation
         public DataTable pendingForAllocationReport()
         {
-            try 
+            try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 /*var sql = @"select ei.EmployeeCode,  ei.EmployeeName, EC.UserName EmployeeCategory,  
@@ -2593,7 +1274,7 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
 ";
                 return _sqlRepository.GetDataTable(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -2604,7 +1285,7 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
         {
             try
             {
-                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
                 var sql = @"select EC.UserName EmpCategory,  RM.[Location], RM.Block, RM.ResidentType,
 sum(rm.vacancy)Capacity, sum(rm.Rooms)Rooms ,sum(cast(rae.Occupied as INT)) as Allotted, 
@@ -2617,11 +1298,15 @@ left join HKP.EmployeeCategory EC on EC.Id = RM.EmployeeCategoryId
 group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
                 return _sqlRepository.GetDataTable(sql);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
+
+
+
+        #endregion Detail Residence Status Report
 
         #region Residence Grid View
         public IEnumerable<object> detailResidenceStatusGrid(string PartialVacantFullyOccupied)
@@ -2827,7 +1512,7 @@ where ei.ResidenceGroupId = 'RG221' and RAM.EmployeeSystemId is null and ei.Empl
 							  AND RG.IsResidenceApplicable = 'true' 
                               ORDER BY EmployeeCodePreFix,EmployeeCodeNumeric
 ";
-                
+
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -2906,19 +1591,9 @@ group by EC.UserName,  RM.[Location], RM.Block, RM.ResidentType";
             }
         }
         #endregion Residence Grid View
-
-        #endregion Detail Residence Status Report
     }
-
-
-
-    #endregion Residence Status Allocation
+    #endregion Residence Status Report
 
 }
-
-
-
-
-
 
 

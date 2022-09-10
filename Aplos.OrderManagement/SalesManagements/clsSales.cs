@@ -612,7 +612,7 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
-WHERE s.RowState='Posted' AND s.Id " + Ids + "";
+WHERE s.RowState='Parked' AND s.Id " + Ids + "";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -665,7 +665,7 @@ LEFT JOIN  [MST].[TaxCategory] B ON A.TaxCategoryId=B.Id
 left join hkp.HSNCode HS on HS.Id=A.HSNCodeId
 WHERE B.Code='CGST' AND SalesServiceId IS NULL
 ) TAxInfo3	ON TAxInfo3.SalesMaterialId=sm.Id
-WHERE s.RowState='Posted' AND sm.Id IN(" + Ids + ")";
+WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 return _sqlRepository.GetDataTable(sql);
             }
             catch (Exception ex)

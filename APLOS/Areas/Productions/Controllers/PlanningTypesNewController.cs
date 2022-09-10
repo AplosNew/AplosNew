@@ -368,8 +368,14 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         [Authorize, HttpPost]
         public ActionResult GetMinute(Dictionary<string, object> data)
         {
-            var ts = Convert.ToDateTime(data["ProductionShiftEndTime"]).Subtract(Convert.ToDateTime(data["ProductionShiftStartTime"]));
-            return Json(ts.TotalMinutes, JsonRequestBehavior.AllowGet);
+            //var ts = Convert.ToDateTime(data["ProductionShiftEndTime"]).Subtract(Convert.ToDateTime(data["ProductionShiftStartTime"]));
+
+            DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
+            DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
+            TimeSpan ts = date2 - date1;
+            int minutes = (int)ts.TotalMinutes;
+
+            return Json(minutes, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost,Authorize]
