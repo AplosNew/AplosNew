@@ -484,9 +484,28 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                DataSet dsRouteShChild;
+                DataSet dsRouteShChild, dsRouteUp, dsRouteDown;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id='" + RouteShChild["Id"] + "'", out dsRouteShChild, false, "1");
+
+                if (RouteShChild["UpDown"].ToString()=="Up")
+                {
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Up'", out dsRouteUp, false, "1");
+
+                    if (dsRouteUp.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Up is already exists!");
+                    }
+                }
+                if (RouteShChild["UpDown"].ToString() == "Down")
+                {
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Down'", out dsRouteDown, false, "1");
+                    if (dsRouteDown.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Down is already exists!");
+                    }
+                }
+
                 
                 string Id = "";
 
@@ -500,14 +519,7 @@ namespace Aplos.Areas.Employees.Controllers
                     DataRow dr;
                     dr = dsRouteShChild.Tables[0].NewRow();
 
-                    while (dsRouteShChild.Tables[0].DefaultView.Count > 0)
-                        dsRouteShChild.Tables[0].DefaultView[0].Delete();
-
-                    int count = 0;
-                    count++;
-                    string pk = RouteScheduleId + "_" + count;
-
-                    dr["Id"] = pk;
+                    dr["Id"] = Id;
                     dr["RouteScheduleId"] = RouteScheduleId;
                     dr["StartTime"] = RouteShChild["StartTime"];
                     dr["EndTime"] = RouteShChild["EndTime"];
@@ -570,8 +582,9 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpGet]
         public ActionResult GetRouteScheduleChilddata()
         {
-            string sql = @"select RSC.Id,format(RSC.StartTime,'dd-MMM-yyyy') StartTime,format(RSC.EndTime,'dd-MMM-yyyy') EndTime,RSC.UpDown,RSC.Remarks
-										from RouteScheduleChild RSC";
+            string sql = @"select RSC.Id,RSC.UpDown,RSC.Remarks,ISNULL(format(RSC.StartTime,'hh:mm tt'),'')StartTime,ISNULL(format(RSC.EndTime,'hh:mm tt'),'') EndTime
+										from RouteScheduleChild RSC
+										order by RSC.AddedDate";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
