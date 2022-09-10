@@ -172,6 +172,7 @@
     <Compile Include="Attendance\DownloadApi.cs" />
     <Compile Include="Employee\AbsentismReasoningMasterService.cs" />
     <Compile Include="Employee\EmployeeLastPunchService.cs" />
+    <Compile Include="Employee\EmployeeTransport.cs" />
     <Compile Include="Employee\FactoryVisitorService.cs" />
     <Compile Include="Employee\FiveSZoneService.cs" />
     <Compile Include="Employee\FurniturePolicyService.cs" />
