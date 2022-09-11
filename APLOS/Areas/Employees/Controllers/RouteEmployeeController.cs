@@ -228,14 +228,17 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var sql = @"select R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo,TD.Capacity Vacancy
 											,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											
+											,O.EmployeeCode,O.EmployeeName
+
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
-					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EMP.EmployeeName,EMP.EmployeeCode
+															 
 															from dbo.EmployeeTransportAllocation A
+															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
 															where A.AssignStatus=1
-									                        Group BY TripId) O ON O.TripId=RS.Id";
+									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode) O ON O.TripId=RS.Id";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
