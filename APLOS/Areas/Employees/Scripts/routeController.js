@@ -155,8 +155,8 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getRouteScheduleMaster();
                 $scope.ClearRouteSchedule();
+                $scope.getRouteScheduleMaster();
             }
         }), function errorCallBack(response) {
             ShowResult(response.data.Message, 'failure');
@@ -531,7 +531,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         $http({
             method: 'POST',
             url: $scope.path + 'GetRouteSchedule',
-            data: { 'RouteId': $scope.routeNew.Id },
+            //data: { 'RouteId': $scope.routeNew.Id },
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.routeScheduleList = resp.data;
