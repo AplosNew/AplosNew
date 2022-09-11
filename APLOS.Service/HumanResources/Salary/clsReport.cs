@@ -8577,65 +8577,36 @@ Dp.UserName Department, ad.seq,ad.ds,FORMAT(CAST(sd.InTime AS datetime2), N'hh:m
             try
             {
                 var strSql = @"SELECT A.Unit,A.Department,A.Section,A.Line,COUNT(A.EmpSystemId) TotalEmployee,SUM(A.Gross) TotalGross,SUM(A.OTHr) TotalOTHour,SUM(A.Total) Total FROM
-(SELECT E.systemId EmpSystemId,E.EmployeeCode, E.EmployeeName, REPLACE(CONVERT(VARCHAR(11), E.DOJ, 113), ' ', '-') DOJ, 
-                                            U.UserName Unit,D.UserName Department,S.UserName Section,L.UserName Line,
-											REPLACE(CONVERT(VARCHAR(11), AD.WorkDate, 113), ' ', '-') PDate,
-                                            AD.DayStatus, FORMAT(ad.InTime, 'hh.mm tt') InTime,  FORMAT(ad.OutTime, 'hh.mm tt') OutTime
-                                            ,OTHr=CASE WHEN (CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)-120)/60 END											 
-                                            , LT.ShortName LvShortName
-											,AD.WorkDate, DATEPART(day,ad.WorkDate) AS D,DT.Category DayCategory,SD.UserName ShiftName,LT.Code LeaveCode
-											, LTD.LeaveDuration
-                                            ,MANUALStatus = CASE WHEN  AD.IsManualDayStatus=1 THEN 'MANUAL'
-                                            WHEN AD.IsManualInTime = 1 THEN 'MANUAL'
-                                            WHEN AD.IsManualOutTime = 1 THEN 'MANUAL'
-											ELSE '' END,AD.CountedShortLeave
-                                    ,TotalPresent = CASE WHEN DT.Category = 'Present' and LTSystemID is null THEN 1
-											WHEN DT.Category = 'Present' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
-											WHEN DT.Category = 'Late' and LTSystemID is null THEN 1
-											WHEN DT.Category = 'Leave' and LTSystemID is not null and lTD.LeaveDuration<1 THEN (1-lTD.LeaveDuration)
-											WHEN DT.Category = 'Half Day' and LTSystemID is not null THEN (1-lTD.LeaveDuration)
-											WHEN DT.Category = 'Half Day' and LTSystemID is null THEN 0.5
-											ELSE 0 END,GS.DefineAmount Gross,OTRate=cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))
-                                   ,ShiftOutTime = CASE WHEN cs.OutTime IS NULL THEN CONVERT(varchar(15),CAST(SD.OutTime AS TIME),100) ELSE CONVERT(VARCHAR(15), CASt(cs.OutTime AS TIME), 100)END 
-											,ShiftInTime = Format(AD.WorkDate, 'yyyy-MM-dd') + ' ' + CASE WHEN cs.InTime IS NULL THEN CONVERT(VARCHAR(15), CAST(SD.InTime AS TIME), 100)  ELSE CONVERT(VARCHAR(15), CASt(cs.InTime AS TIME), 100) END
-											, AD.InTime InTimeShow, AD.OutTime as OutTimeShow,DT.OriginalDayType, HR.OTConsiderOn,MaxOTPerDay=240,AD.OTHr OverStay,E.SystemId
-                                            ,CAS.IsNoPunchOnHolidayForOTEntitle,CAS.IsNoPunchOnHolidayForOTNotEntitle,CAS.IsNoPunchOnWeekOffForOTEntitle,CAS.IsNoPunchOnWeekOffForOTNotEntitle,AD.IsOTEntitled
-                                            ,(GS.DefineAmount*cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))) Total
-                                    FROM dbo.EmployeeInformation E
-                                     LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
-                                     LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
-                                     LEFT JOIN [ORG].[Unit] U ON U.Id = EN.UnitId
-                                     LEFT JOIN [ORG].[Department] D ON D.Id = E.DepartmentId
-                                        LEFT JOIN [ORG].[Section] S ON S.Id = E.SectionId
-                                        LEFT JOIN [ORG].[Line]L ON L.Id = mpb.LineId
-                                                INNER JOIN dbo.AttdnProcessData AD ON E.SystemID = AD.EmpSystemID
-                                                LEFT JOIN PlantWiseHRMSSetting hr on HR.PlantID=E.PlantId
-                                                left join [dbo].[ComplianceAttendanceSetting] CAS ON cas.PlantId=e.PlantId
-                                                left join EmpDateWiseShiftAssign es on es.EmpSystemID = E.SystemId AND AD.WorkDate = ES.WorkDate
-												left join(
-                                SELECT  m.ShiftDefinationID, c.ShiftDate, m.InTime, m.SystemID,m.OutTime  FROM[ShiftTimeChgMaster] m
-                                left join[ShiftTimeChgChild] c on m.SystemID = c.STCMasterSystemID
-                                         ) CS on cs.ShiftDefinationID = es.ShiftSystemID and cs.ShiftDate = AD.WorkDate
-                                                Left JOIN dbo.DayType DT ON DT.DayType = AD.DayStatus                                              
-											    LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = E.SystemId AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)                                                
-                                                LEFT JOIN dbo.LeaveType LT ON AD.LTSystemID = LT.Id												
-											    left join (SELECT t.EmpSystemID,d.WorkDate,d.LeaveDuration FROM LeaveTransaction t
-                                left join LeaveTransactionDetails d on d.LvTrnsSystemID = t.SystemID
-                                where d.WorkDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"'
-                                and d.IsAvailed = 1 
-                                and d.LeaveDuration = 0.5) lTD on LTD.WorkDate = AD.WorkDate AND LTD.EmpSystemID = AD.EmpSystemID                                            
-                                                LEFT JOIN dbo.ShiftDefination SD ON AD.ShiftSystemID = SD.SystemID                                            
-                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
-                                                FROM SalaryInfoDefine SPC
-                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
-                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                                                Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
-                                            LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
-                                                FROM SalaryInfoDefine SPC
-                                                LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
-                                                LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
-                                                Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
-                                    WHERE E.PlantID = '"+ plantId + @"' AND AD.WorkDate BETWEEN '" + fromDate+@"' AND '"+toDate+@"' AND AD.IsOTEntitled=1 AND (E.DOS is null or E.DOS >= '"+fromDate+ @"')) A
+(
+SELECT E.systemId EmpSystemId,U.UserName Unit,D.UserName Department,S.UserName Section,L.UserName Line,O.OTHr
+                    ,(O.OTHr*cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))) Total
+                    ,GS.DefineAmount Gross,OTRate=cast(round((BS.DefineAmount/208)*2,2) as numeric(36,2))
+            FROM dbo.EmployeeInformation E
+                LEFT OUTER JOIN MST.ManpowerBudget mpb on mpb.Id=e.BudgetCode
+                LEFT OUTER JOIN ORG.Entity EN ON mpb.EntityId=EN.Id
+                LEFT JOIN [ORG].[Unit] U ON U.Id = EN.UnitId
+                LEFT JOIN [ORG].[Department] D ON D.Id = E.DepartmentId
+                LEFT JOIN [ORG].[Section] S ON S.Id = E.SectionId
+                LEFT JOIN [ORG].[Line]L ON L.Id = mpb.LineId
+                INNER JOIN 
+                (
+                SELECT SUM(CASE WHEN (CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)<121 THEN 0 ELSE ((CASE WHEN FinalOT.TotalOTHr>240 THEN 240 ELSE FinalOT.TotalOTHr END)-120)/60 END) OTHr,FinalOT.EmpSystemID FROM dbo.AttdnProcessData AD                                                                                         
+				LEFT JOIN dbo.FinalOT FinalOT ON  FinalOT.EmpSystemID = AD.EmpSystemID AND Convert(Date,AD.WorkDate) = Convert(Date,FinalOT.WorkDate)
+                WHERE AD.WorkDate BETWEEN '"+fromDate+@"' AND '"+toDate+@"' AND AD.IsOTEntitled=1
+                GROUP BY FinalOT.EmpSystemID                                                
+                ) O ON E.SystemID = O.EmpSystemID                                         
+                    LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                        FROM SalaryInfoDefine SPC
+                        LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        Where  sh.HeadCategory='GROSS') GS ON GS.EmpInfoSystemID=E.SystemId
+                    LEFT JOIN (SELECT SPC.EntryAmount, SPC.DefineAmount,SPM.EmpInfoSystemID,sh.SalaryHead, sh.HeadCategory, sh.HeadType
+                        FROM SalaryInfoDefine SPC
+                        LEFT JOIN SalaryInfoDefineMaster SPM ON SPC.SalaryID=SPM.SystemID
+                        LEFT JOIN SalaryHead sh on sh.SalaryHeadID=spc.SalaryHeadID
+                        Where  sh.HeadCategory='BASIC') BS ON BS.EmpInfoSystemID=E.SystemId
+            WHERE E.PlantID = '"+plantId+@"'  AND (E.DOS is null or E.DOS >= '"+fromDate+@"')
+) A
 GROUP BY A.Unit,A.Department,A.Section,A.Line ORDER BY A.Unit,A.Department,A.Section";
                 return _sqlRepository.GetDataTable(strSql);
             }

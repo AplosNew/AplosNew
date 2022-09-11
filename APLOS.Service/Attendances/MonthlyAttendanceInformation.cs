@@ -3816,6 +3816,7 @@ namespace Library.Service.Attendances
                                     sheet1.Range[xlsRow, cTotalOTHr].Formula = "=SUM(" + ru.GetColumnNameForXls(cTotalOTHr) + catFRow + ":" + ru.GetColumnNameForXls(cTotalOTHr) + (xlsRow - 1) + ")";
                                     sheet1.Range[xlsRow, cTotalPayableAmount].Formula = "=SUM(" + ru.GetColumnNameForXls(cTotalPayableAmount) + catFRow + ":" + ru.GetColumnNameForXls(cTotalPayableAmount) + (xlsRow - 1) + ")";
                                     sheet1.Range[xlsRow, cTotalEmployee, xlsRow, cTotalPayableAmount].CellStyle.Font.Bold = true;
+
                                     xlsRow++;
                                 }
                                 #endregion
@@ -3849,10 +3850,14 @@ namespace Library.Service.Attendances
                             }
 
                             SetCellText(sheet1, xlsRow, cTotalEmployee, Convert.ToDouble(data.Rows[i]["TotalEmployee"].ToString()));
+                            sheet1.Range[xlsRow, cTotalEmployee].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                             SetCellText(sheet1, xlsRow, cTotalGrossSalary, Convert.ToDouble(data.Rows[i]["TotalGross"].ToString()));
+                            sheet1.Range[xlsRow, cTotalGrossSalary].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                             SetCellText(sheet1, xlsRow, cTotalOTHr, Convert.ToDouble(data.Rows[i]["TotalOTHour"].ToString()));
+                            sheet1.Range[xlsRow, cTotalOTHr].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                             SetCellText(sheet1, xlsRow, cTotalPayableAmount, Convert.ToDouble(data.Rows[i]["Total"].ToString()));
-
+                            sheet1.Range[xlsRow, cTotalPayableAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                            sheet1.Range[xlsRow, cTotalEmployee, xlsRow, cTotalPayableAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
                             xlsRow++;
                         }//for emp count
 
@@ -3876,7 +3881,8 @@ namespace Library.Service.Attendances
                         sheet1.Range[xlsRow, cTotalEmployee].Formula = GetFormulaGrandTotal(al, cTotalEmployee);
                         sheet1.Range[xlsRow, cTotalGrossSalary].Formula = GetFormulaGrandTotal(al, cTotalGrossSalary);
                         sheet1.Range[xlsRow, cTotalOTHr].Formula = GetFormulaGrandTotal(al, cTotalOTHr);
-                        sheet1.Range[xlsRow, cTotalPayableAmount, xlsRow, cTotalPayableAmount].CellStyle.Font.Bold = true;
+                        sheet1.Range[xlsRow, cTotalPayableAmount].Formula = GetFormulaGrandTotal(al, cTotalPayableAmount);
+                        sheet1.Range[xlsRow, cTotalEmployee, xlsRow, cTotalPayableAmount].CellStyle.Font.Bold = true;
 
                         #endregion
 
