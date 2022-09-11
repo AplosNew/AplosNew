@@ -700,15 +700,14 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetRouteSchedule(string RouteId)
+        public ActionResult GetRouteSchedule()
         {
             string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],RS.TripNo,R.Id RouteId,R.UserName [Route],TD.Id TransportId,TD.TransportUserName Transport
 										
                                         from RouteSchedule RS
                                         left join mst.[Route] R on R.Id=RS.RouteId
                                         left join TransportDetail TD on TD.Id=RS.TransportId
-										left join ShiftDefination SD on SD.SystemID=RS.ShiftId
-                                        where RS.RouteId='" + RouteId + @"'";
+										left join ShiftDefination SD on SD.SystemID=RS.ShiftId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

@@ -1128,7 +1128,6 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 40;
-
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Interior.Color = System.Drawing.Color.LightYellow;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                 sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].VerticalAlignment = ExcelVAlign.VAlignCenter;

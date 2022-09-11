@@ -98,7 +98,7 @@ namespace Aplos.HumanResource
         {
             try
             {
-                string CmdText = @"select EI.SystemId EmployeeId,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
+                string CmdText = @"select ETA.Id ETAId,EI.SystemId EmployeeId,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
 							                    ,TD.TransportUserName Transport,SD.UserName [Shift],R.[From],R.[To],RS.Id TripId,RS.TripNo,PR.PaymentLink Skill
 							                    ,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant
 												,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus,format(ETA.UnassignDate,'dd-MMM-yyyy') UnassignDate
@@ -143,23 +143,21 @@ namespace Aplos.HumanResource
                 DataSet dsMaster = null;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-
-
                 string _Id = "";
 
                 #region data Master update
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 bplib.clsGenID genid = new bplib.clsGenID();
                 genid.GenID(TableName, out _Id);
-
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where AssignStatus <> 0", out dsMaster, false, "1");
                 int count = 0;
                 foreach (var item in EmployeeList)
                 {
-                    con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId='" + item["SystemID"] + "'", out dsMaster, false, "1");
+                    
                     count++;
                     DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "EmployeeSystemId='" + item["SystemID"] + "'";
-
+                    dv.RowFilter = "EmployeeSystemId='" + item["SystemID"] + "' ";
+                   
 
                     if (dv.Count == 0)
                     {
@@ -167,18 +165,17 @@ namespace Aplos.HumanResource
                         item["AssignDate"] = DateTime.Now;
                         item["TripId"] = item["TripId"];
                         item["EmployeeSystemId"] = item["SystemID"];
-                        item["UnassignDate"] = DateTime.Now;
                         item["StoppageId"] = item["StoppageId"];
                         item["AssignStatus"] = 1;
                         AddNewRow(dsMaster.Tables[0], item);
                     }
-                    else
-                    {
-                        DataRow drmo = dv[0].Row;
-                        item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
-                        item["AssignStatus"] = 1;
-                        EditRow(drmo, item);
-                    }
+                    //else
+                    //{
+                    //    DataRow drmo = dv[0].Row;
+                    //    item["Id"] = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+                    //    item["AssignStatus"] = 1;
+                    //    EditRow(drmo, item);
+                    //}
                 }
                 #endregion data Master update
 
@@ -251,9 +248,9 @@ namespace Aplos.HumanResource
                 foreach (var item in employeeList)
                 {
                     if (id == "")
-                        id = "'" + item["EmployeeId"] + "'";
+                        id = "'" + item["ETAId"] + "'";
                     else
-                        id = id + ",'" + item["EmployeeId"] + "'";
+                        id = id + ",'" + item["ETAId"] + "'";
                 }
 
                 //Master Table - PMSMaster
@@ -261,7 +258,7 @@ namespace Aplos.HumanResource
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where EmployeeSystemId In (" + id + ")", out dsMaster, false, "1");
+                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id In (" + id + ")", out dsMaster, false, "1");
 
                 //string _Id = "";
 
@@ -270,7 +267,7 @@ namespace Aplos.HumanResource
                 foreach (var item in employeeList)
                 {
                     DataView dv = new DataView(dsMaster.Tables[0]);
-                    dv.RowFilter = "EmployeeSystemId='" + item["EmployeeId"] + "'";
+                    dv.RowFilter = "Id='" + item["ETAId"] + "'";
 
                     if (dv.Count > 0)
                     {
