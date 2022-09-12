@@ -10,26 +10,26 @@
                 <label class="col-sm-4 control-label">Plant<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
-                        <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Residence Type" tabindex="2">
+                        <select class="form-control" id="Plant" ng-model="ModalNew.PlantId" required name="Residence Type" tabindex="0">
 
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in PlantList" value="{{option.Value}}">{{option.Text}}</option>
 
-                    </select>
+                        </select>
 
                     </div>
                     @*<input type="text" name="Plant" ng-model="Plant" class="form-control" maxlength="200" tabindex="5" ng-disabled="true">
-                    <div class="col-sm-2">
-                        <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
-                    </div>*@
+                        <div class="col-sm-2">
+                            <button ng-click="openPlantPop()" class="btn"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>*@
                 </div>
-                </div>
+            </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Location<sup>*</sup></label>
                 <div class="col-sm-6">
                     @*<input type="text" name="Location" ng-model="ModalNew.Location" class="form-control" maxlength="200" tabindex="5">*@
                     <div class="select-style">
-                        <select class="form-control" id="ResidenceType" ng-model="ModalNew.ResidentType" required name="Residence Type"
+                        <select class="form-control" id="Location" ng-model="ModalNew.Location" required name="Residence Type"
                                 tabindex="2">
                             <option value="">--Select--</option>
                             <option value="Guest House">Guest House</option>
@@ -114,38 +114,38 @@
                 </div>
             </div>
         </div>
-    
-    <div class="col-xs-12 col-sm-6 col-md-6">
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
-            <div class="col-sm-6">
-                <div class="select-style">
-                    <select class="form-control" id="ResidenceGroup" ng-model="ModalNew.ResidenceGroupId" required name="Residence Type" tabindex="2">
 
-                        <option value="">--Select--</option>
-                        <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Residence Group<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <select class="form-control" id="ResidenceGroup" ng-model="ModalNew.ResidenceGroupId" required name="Residence Group" tabindex="2">
 
-                    </select>
+                            <option value="">--Select--</option>
+                            <option ng-repeat="option in ResidenceGroupList" value="{{option.Value}}">{{option.Text}}</option>
+
+                        </select>
+                    </div>
+
                 </div>
-               
+
             </div>
-           
-        </div>  
+
+            
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Employee Type<sup>*</sup></label>
                 <div class="col-sm-6">
-                    
                     <div class="select-style">
-                        <select class="form-control" id="EmployeeType" ng-model="ModalNew.EmployeeCategoryId" required name="Residence Type" tabindex="4">
-
+                        <select class="form-control" id="EmployeeCategoryId" ng-model="ModalNew.EmployeeCategoryId" required name="Residence Type" tabindex="4">
                             <option value="">--Select--</option>
-                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.Value}}">{{option.Text}}</option>
+                            <option ng-repeat="option in EmployeeCategoryList" value="{{option.value}}">{{option.Text}}</option>
 
                         </select>
                     </div>
                 </div>
-               
+
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">Residence Category<sup>*</sup></label>
@@ -154,9 +154,7 @@
                         <select class="form-control" id="ResidenceSubCategory" ng-model="ModalNew.ResidenceCategory" required name="Residence Sub Category" tabindex="2">
                             <option value="">--Select--</option>
                             <option ng-repeat="option in residenceCategoryList" value="{{option.Value}}">{{option.Text}}</option>
-                            @*<option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Joint">Joint</option>*@
+
                         </select>
                     </div>
                 </div>
@@ -191,15 +189,16 @@
                 </div>
             </div>
         </div>
-<div class="common-btn">
-    <ul class="list-inline text-right">
-        <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
-        <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
+        <div class="common-btn">
+            <ul class="list-inline text-right">
+                <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+                <li> <button ng-click="Clear();" class="btn" tabindex="11"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
 
-    </ul>
+            </ul>
 
-</div>
+        </div>
     </div>
+</div>
 <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
     <div id="GridEdit" ej-grid e-datasource="ModelList" e-recorddoubleclick="Get" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
