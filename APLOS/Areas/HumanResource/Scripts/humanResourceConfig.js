@@ -806,5 +806,10 @@ function HumanResourceConfig($routeProvider, $locationProvider) {
             templateUrl: 'humanResource/FiveSZoneMaster/Aplos',
             controller: 'FiveSZoneMasterController'
         })
+
+        .when('/survey-and-feedback', {
+            templateUrl: 'humanResource/SurveyandFeedback/Aplos',
+            controller: 'SurveyandFeedbackController'
+        })
         ;
 }

@@ -103,11 +103,11 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                if (PlantId == null)
+                if (data["PlantId"] == null)
                 {
                     throw new Exception("Please Select Plant Id !!");
                 }
-                if (ResidenceGroupId == null)
+                if (data["ResidenceGroupId"] == null)
                 {
                     throw new Exception("Please SelectResidenceGroup Id!!");
                 }
@@ -128,10 +128,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RM" + _Id;
-                    data["PlantId"] = PlantId;
-                    data["ResidenceGroupId"] = ResidenceGroupId;
-                    data["EmployeeCategoryId"] = Emp;
-                    data["EmpServiceTypeId"] = ServiceTypeId;
+                    //data["PlantId"] = PlantId;
+                    //data["ResidenceGroupId"] = ResidenceGroupId;
+                    //data["EmployeeCategoryId"] = Emp;
+                    //data["EmpServiceTypeId"] = ServiceTypeId;
                     AddNewRow(dsMaster.Tables[0], data);
 
 

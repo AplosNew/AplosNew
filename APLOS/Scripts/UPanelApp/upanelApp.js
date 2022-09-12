@@ -1074,6 +1074,7 @@ upanelApp.controller("ProcessWiseMaterialAllocationController", ProcessWiseMater
 upanelApp.controller("RequisitionStatusController", RequisitionStatusController)
 upanelApp.controller("EInvoiceController", EInvoiceController)
 upanelApp.controller("RouteEmployeeReportController", RouteEmployeeReportController)
+upanelApp.controller("SurveyandFeedbackController", SurveyandFeedbackController)
 
 
 upanelApp.config(AccessControllerConfig);
