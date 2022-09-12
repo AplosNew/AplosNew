@@ -13,14 +13,14 @@
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
 
-                <div class="row">
+                <!--<div class="row">
                     <div class="common-btn">
-                        <ul class="list-inline text-right">
+                        <ul class="list-inline text-right">-->
                             @*<li> <button ng-click="view();" class="btn" tabindex="9"><i class="glyphicon glyphicon-arrow-down "></i>View</button></li>*@
-                            <li> <button data-toggle="modal" ng-click="AssignReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
+                            <!--<li> <button data-toggle="modal" ng-click="AssignReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Report</button></li>
                         </ul>
                     </div>
-                </div>
+                </div>-->
                 <div class="table-responsive" id="REGrid">
                     <div id="GridRouteEmp" ej-grid style="z-index:3;"
                          e-datasource="ModelList"
@@ -34,9 +34,10 @@
                         <div e-columns>
                             <div e-column e-field="Route" e-headertext="Route" e-width="100"></div>
                             <div e-column e-field="Transport" e-headertext="Transport" e-width="100"></div>
-                             <div e-column e-field="TripId" e-headertext="Trip Id" e-width="100"></div>
+                            <div e-column e-field="TripId" e-headertext="Trip Id" e-width="100"></div>
                             <div e-column e-field="TripNo" e-headertext="Trip No" e-width="100"></div>
-                            <div e-column e-field="UpDown" e-headertext="Up/Down" e-width="100"></div>
+                            <div e-column e-field="UpStart" e-headertext="Up Start" e-width="100"></div>
+                            <div e-column e-field="DownStart" e-headertext="Down Start" e-width="100"></div>
                             <div e-column e-field="From" e-headertext="From" e-width="100"></div>
                             <div e-column e-field="To" e-headertext="To" e-width="100"></div>
                             <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
@@ -72,13 +73,13 @@
                
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
-                <div class="row">
+                @*<div class="row">
                     <div class="common-btn">
                         <ul class="list-inline text-right">
                             <li> <button data-toggle="modal" ng-click="UnassignReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i> Get Report</button></li>
                         </ul>
                     </div>
-                </div>
+                </div>*@
                 <div class="table-responsive" id="EGSGrid" style="margin-top:20px;">
                     <div id="GridEUnassign" ej-grid e-datasource="ModelUnassignList"
                          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
@@ -86,7 +87,7 @@
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerUnassignTemplate" e-template="#checkboxUnassignTemplate" e-textalign="center" e-width="30"></div>
 
-                            <div e-column e-field="EmployeeId" e-headertext="Employee Id" e-width="100"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
                             <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
                             <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-width="100"></div>
                             <div e-column e-field="Stoppage" e-headertext="Stoppage" e-width="100"></div>
@@ -94,6 +95,7 @@
                             <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
                             <div e-column e-field="Route" e-headertext="Route" e-width="100"></div>
                             <div e-column e-field="Transport" e-headertext="Transport" e-width="100"></div>
+                            <div e-column e-field="TransportGroup" e-headertext="Transport Group" e-width="100"></div>
                             <div e-column e-field="Shift" e-headertext="Shift" e-width="100"></div>
                             <div e-column e-field="From" e-headertext="From" e-width="100"></div>
                             <div e-column e-field="To" e-headertext="To" e-width="100"></div>
@@ -144,7 +146,7 @@
                         <div e-columns>
                             <div e-column e-headertext="" e-headertemplateid="#headerTemplate" e-template="#checkboxTemplate" e-textalign="center" e-width="30"></div>
                             <div e-column e-template="#stoppageTemplate" e-type="string" e-field="Stoppage" e-headertext="Stoppage" e-width="90"></div>
-                            <div e-column e-field="SystemID" e-headertext="Employee Id" e-width="100"></div>
+                            <div e-column e-field="EmployeeCode" e-headertext="Employee Code" e-width="100"></div>
                             <div e-column e-field="EmployeeStatus" e-headertext="Employee Status" e-width="100"></div>
                             <div e-column e-field="EmployeeCurrentStatus" e-headertext="Employee Current Status" e-width="100"></div>
                             <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
@@ -154,6 +156,7 @@
                             <div e-column e-field="SubSection" e-headertext="SubSection" e-width="100"></div>
                             <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                             <div e-column e-field="EntityName" e-headertext="Entity" e-width="100"></div>
+                            <div e-column e-field="TransportGroup" e-headertext="Transport Group" e-width="100"></div>
                         </div>
                     </div>
                 </div>
@@ -185,3 +188,6 @@
         </div>
     </div>
 </div>
+
+
+

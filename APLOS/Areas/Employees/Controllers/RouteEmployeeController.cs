@@ -1,5 +1,6 @@
 ﻿#region Using
 using Aplos.Controllers;
+using Aplos.HumanResource;
 using Aplos.Properties;
 using Library.Core;
 using Library.Crosscutting.Security;
@@ -26,7 +27,7 @@ namespace Aplos.Areas.Employees.Controllers
         #region Constructor
         private readonly IRouteEmployeeService _routeEmployeeService;
         private readonly ISqlRepository _sqlRepository;
-        ResidenceStatusLocationService rsl = new ResidenceStatusLocationService();
+        EmployeeTransport ET = new EmployeeTransport();
         public RouteEmployeeController(
               IRouteEmployeeService routeEmployeeService,
               ISqlRepository sqlRepository
@@ -170,22 +171,35 @@ namespace Aplos.Areas.Employees.Controllers
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
-					                        ,RSD.UpDown,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
+					                        --,RSD.UpDown
+											,REPLACE(REPLACE(
+                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
+                                                        RouteScheduleChild A
+                                                            
+                                                            where A.RouteScheduleId=RS.Id and A.UpDown='Up'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
+															)
+                                                                    ,'&amp;','&'), 'amp;', '') UpStart
+											,REPLACE(REPLACE(
+                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
+                                                        RouteScheduleChild A
+                                                            
+                                                            where A.RouteScheduleId=RS.Id and A.UpDown='Down'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
+															)
+                                                                    ,'&amp;','&'), 'amp;', '') DownStart
+											,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
 					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
 					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
 					                        ,R.Remarks
-
+											
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
-					                        left join RouteScheduleChild RSD on RSD.RouteScheduleId=RS.Id
 					                        left join ShiftDefination SD on SD.SystemID=RS.ShiftId
-					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EI.EmployeeStatus,EI.PlantId,EI.EmployeeCurrentStatus,TG.IsTransportApplicable from dbo.EmployeeTransportAllocation A
-															left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
-															left join [dbo].[TransportGroup] TG on TG.Id=EI.TransportGroupId
-									                        Group BY TripId,EmployeeStatus,PlantId,EmployeeCurrentStatus,IsTransportApplicable) O ON O.TripId=RS.Id
-											Where O.PlantId ='"+identity.PlantId+@"' AND O.EmployeeStatus='Active' AND O.EmployeeCurrentStatus is null
-							  and O.IsTransportApplicable=1";
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
+															from dbo.EmployeeTransportAllocation A
+															where A.AssignStatus=1
+									                        Group BY TripId) O ON O.TripId=RS.Id
+											Where R.PlantId ='" + identity.PlantId+"'";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -198,7 +212,13 @@ namespace Aplos.Areas.Employees.Controllers
         [HttpGet, Authorize]
         public JsonResult getemployeeDataListRouteEmp(string plantId)
         {
-            return Json(rsl.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
+            return Json(ET.GetemployeeDataListRouteEmp(plantId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public JsonResult getemployeeListRoute(string plantId)
+        {
+            return Json(ET.GetemployeeListRoute(plantId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
@@ -206,15 +226,39 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                var sql = @"select R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo,TD.Capacity Vacancy
-											,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											
+                var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
+											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
+											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.InTime
+
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
-					                        left join RouteScheduleChild RSD on RSD.RouteScheduleId=RS.Id
-					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId from dbo.EmployeeTransportAllocation A
-									                        Group BY TripId) O ON O.TripId=RS.Id";
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EMP.EmployeeName,EMP.EmployeeCode
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
+															,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
+															,PL.UserName Plant,TG.UserName TransportGroup,A.AssignStatus,ST.UserName Stoppage
+															,FORMAT(apd.InTime,'hh:mm:tt') InTime
+															from dbo.EmployeeTransportAllocation A
+															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
+															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+															LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+															LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+															LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
+                                                            left join HKP.Stoppage ST on ST.Id=A.StoppageId
+															LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EMP.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
+									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,emp.DOJ,PR.PaymentLink,DEG.UserName
+															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
+															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime) O ON O.TripId=RS.Id
+															where O.AssignStatus=1 ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
@@ -230,7 +274,7 @@ namespace Aplos.Areas.Employees.Controllers
         public JsonResult viewUnassign(string PlantId)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(rsl.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
+            return Json(ET.getviewUnassign(PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -241,7 +285,7 @@ namespace Aplos.Areas.Employees.Controllers
 
             try
             {
-                rsl.SaveEmployeeTransportAllocation(EmployeeList);
+                ET.SaveEmployeeTransportAllocation(EmployeeList);
                 return Json(new { Data = EmployeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }
@@ -270,7 +314,7 @@ namespace Aplos.Areas.Employees.Controllers
             try
             {
 
-                rsl.SaveUnassignData(employeeList);
+                ET.SaveUnassignData(employeeList);
                 return Json(new { Data = employeeList, Message = AplosMessage.Insert });
                 //return Json(new { Error = "No", Data = rsl.Save( EmployeeList, ResidenceMasterId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
             }

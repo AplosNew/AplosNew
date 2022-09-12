@@ -5,17 +5,17 @@
     <div class="tab-design" id="tab_show">
         <div class="site-tab">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Status/Allocation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Detail Residence Status</a></li>
-                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For Allocation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For UnAllocation</a></li>
-                <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Residence Summary Report</a></li>
+               @* <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Employee Status/Allocation</a></li>*@
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Detail Residence Status</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For Allocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Pending For UnAllocation</a></li>
+                <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4);UnallocationView()" href="" aria-controls="doc" role="tab" data-toggle="tab">Residence Summary Report</a></li>
             </ul>
         </div>
 
         <div class="tab-content">
             @* <input type="hidden" name="Id" ng-model="ResidenceData.Id">*@
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+            @*<div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="form-elements form-horizontal" ng-form name="">
                     <div class="tab-design" id="tab_show">
 
@@ -78,8 +78,8 @@
                     </div>
                 </div>
 
-            </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+            </div>*@
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
                 <div class="form-elements form-horizontal" ng-form name="EmployeeNewForm">
                     <div class=" row">
                         <div class="col-md-6">
@@ -128,34 +128,42 @@
                                  e-filtersettings-filterType="excel">
                                 <div e-columns>
 
-
-                                    <div e-column e-field="ResidenceId" e-headertext="Residence Id" e-width="100"></div>
-                                    <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
-                                    <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
-                                    <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
-                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
-                                    <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="100"></div>
-                                    <div e-column e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
-
-                                    <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
                                     <div e-column e-field="EmployeeStatus" e-headertext="Emp Status" e-width="100"></div>
                                     <div e-column e-field="EmployeeCurrentStatus" e-headertext="Emp Ct Sts" e-width="100"></div>
-                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
                                     <div e-column e-field="DOS" e-headertext="DOS" e-width="100"></div>
-                                    <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
-                                    <div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
-                                    <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+                                    <div e-column e-field="DOJ" e-headertext="DOJ" e-width="100"></div>
+                                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
                                     <div e-column e-field="Skill" e-headertext="Skill" e-width="100"></div>
-                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>
+
                                     <div e-column e-field="Designation" e-headertext="Designation" e-width="100"></div>
                                     <div e-column e-field="SubSection" e-headertext="Sub Section" e-width="100"></div>
                                     <div e-column e-field="Section" e-headertext="Section" e-width="100"></div>
                                     <div e-column e-field="Department" e-headertext="Department" e-width="100"></div>
                                     <div e-column e-field="EmployeeCode" e-headertext="Emp Code" e-width="100"></div>
                                     <div e-column e-field="EmployeeName" e-headertext="Emp Name" e-width="100"></div>
+                                    <div e-column e-field="ResidenceNumber" e-headertext="Residence Number" e-width="100"></div>
+                                    <div e-column e-field="Block" e-headertext="Block" e-width="100"></div>
+                                    @*<div e-column e-field="ResidenceId" e-headertext="Residence Id" e-width="100"></div>*@
+                                    <div e-column e-field="Location" e-headertext="Location" e-width="100"></div>
+
+                                    <div e-column e-field="Floor" e-headertext="Floor" e-width="100"></div>
+
+                                    <div e-column e-field="Vacancy" e-headertext="Vacancy" e-width="100"></div>
+                                    <div e-column e-field="Occupied" e-headertext="Occupied" e-width="100"></div>
+
+                                    <div e-column e-field="Available" e-headertext="Available" e-width="100"></div>
+
+                                    @*<div e-column e-field="Process" e-headertext="Process" e-width="100"></div>
+                                    <div e-column e-field="Activity" e-headertext="Activity" e-width="100"></div>
+
+                                    <div e-column e-field="Entity" e-headertext="Entity" e-width="100"></div>*@
+                                    <div e-column e-field="ResidenceGroup" e-headertext="Res Group" e-width="100"></div>
+
+
+
 
                                     @*<div e-column e-field="Legal Designation" e-headertext="Legal Designation" e-width="100"></div>*@
-                                    <div e-column e-field="EmployeeCategory" e-headertext="Emp Category" e-width="100"></div>
+
 
 
 
@@ -189,7 +197,7 @@
                 </div>
 
             </div>
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
                 <div class=" row">
                     <div class="col-md-12">
                         @{ Html.RenderPartial("pendingForAllocationGrid");}
@@ -201,7 +209,7 @@
                 </div>
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(3), active: isSet(3) }">
                 <div class=" row">
                     <div class="col-md-12">
 
@@ -212,7 +220,7 @@
                 </div>
             </div>
 
-            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(5), active: isSet(5) }">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(4), active: isSet(4) }">
                 <div class=" row">
                     <div class="col-md-12">
 

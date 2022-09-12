@@ -19,7 +19,9 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class ResidenceStatusAllocationController : Controller
     {
-        ResidenceStatusLocationService rsl = new ResidenceStatusLocationService();
+        //ResidenceStatusLocationService rsl = new ResidenceStatusLocationService();
+        ResidenceStausAllocationService rsl = new ResidenceStausAllocationService();
+        ResudeceStatusReportService rsr = new ResudeceStatusReportService();
         private readonly ISqlRepository _sqlRepository;
         public ResidenceStatusAllocationController(ISqlRepository R)
         {
@@ -1111,7 +1113,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsl.detailResidenceStatusReport(PartialVacantFullyOccupied);
+            var data = rsr.detailResidenceStatusReport(PartialVacantFullyOccupied);
 
 
             var sheet = workbook.Worksheets[0];
@@ -1381,7 +1383,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsl.pendingForUnAllocationReport();
+            var data = rsr.pendingForUnAllocationReport();
 
 
             var sheet = workbook.Worksheets[0];
@@ -1630,7 +1632,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsl.ResidenceSummaryReport();
+            var data = rsr.ResidenceSummaryReport();
 
 
             var sheet = workbook.Worksheets[0];
@@ -1828,7 +1830,7 @@ namespace Aplos.Areas.HumanResource.Controllers
             workbook.Version = ExcelVersion.Excel2016;
 
 
-            var data = rsl.pendingForAllocationReport();
+            var data = rsr.pendingForAllocationReport();
 
 
             var sheet = workbook.Worksheets[0];
@@ -2011,7 +2013,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(rsl.detailResidenceStatusGrid(PartialVacantFullyOccupied), JsonRequestBehavior.AllowGet);
+                return Json(rsr.detailResidenceStatusGrid(PartialVacantFullyOccupied), JsonRequestBehavior.AllowGet);
             }
             catch(Exception ex)
             {
@@ -2024,7 +2026,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                var jsondata = Json(rsl.pendingForAllocationGrid(), JsonRequestBehavior.AllowGet);
+                var jsondata = Json(rsr.pendingForAllocationGrid(), JsonRequestBehavior.AllowGet);
                 jsondata.MaxJsonLength = int.MaxValue;
                 return jsondata;
             }
@@ -2039,7 +2041,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(rsl.pendingForUnAllocationGrid(), JsonRequestBehavior.AllowGet);
+                return Json(rsr.pendingForUnAllocationGrid(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -2052,7 +2054,7 @@ namespace Aplos.Areas.HumanResource.Controllers
         {
             try
             {
-                return Json(rsl.residenceSummarGrid(), JsonRequestBehavior.AllowGet);
+                return Json(rsr.residenceSummarGrid(), JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

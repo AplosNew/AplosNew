@@ -1,0 +1,158 @@
+﻿<h3 class="site-heading">
+    <span aria-hidden="true" class="glyphicon glyphicon-th-list"></span> {{title}}
+</h3>
+<div class="form-elements form-horizontal" ng-form name="ModelNewForm">
+    <fieldset class="scheduler-border">
+        <legend class="scheduler-border">Survey and Feedback</legend>
+        <input type="hidden" ng-model="ModelNew.Id">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6 col-md-6">
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Short Name<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input type="text" name="User Name" ng-model="ModelNew.ShortName" class="form-control" required tabindex="5" maxlength="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">User Name<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input type="text" name="User Name" ng-model="ModelNew.ShortName" class="form-control" required tabindex="5" maxlength="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Effective Date<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input type="text" name="From Date" ng-model="FromDate" datepicker class="form-control" tabindex="4">
+
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" style="margin-top:-5px !important"> Active</label>
+                    <div class="col-sm-8">
+                        <div class="checkbox-site" id="">
+                            <label>
+                                <input type="checkbox" name="is Active" ng-model="ModalNew.isActive" tabindex="8" style="margin-top:10px !important">
+                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--
+             //** ----------------------------------------------------  **//
+            -->
+
+            <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Standard Name<sup>*</sup></label>
+                    <div class="col-sm-6 show-message">
+                        <input type="text" name="User Name" ng-model="ModelNew.StandardName" class="form-control" required tabindex="5" maxlength="30">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Importance</label>
+                    <div class="col-sm-6 show-message">
+                        <div class="select-style">
+                            <select class="form-control" ng-model="ModelNew.Importance" required name="Access Type" tabindex="2">
+                                <option value="">--Select--</option>
+                                <option value="Critical">Critical</option>
+                                <option value="Important">Important</option>
+                                <option value="Normal">Normal</option>
+
+
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Remarks</label>
+                    <div class="col-sm-6">
+                        <textarea class="form-control" rows="3" ng-model="ModelNew.Remarks" tabindex="7" maxlength="250"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="common-btn">
+                <div class="col-xs-12 col-lg-3 col-md-3">
+
+                    <ul class="list-inline text-right">
+
+                        @* <li> <button ng-click="selectIDs()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>*@
+
+                    </ul>
+
+                </div>
+                <div class="col-xs-12 col-lg-3 col-md-3"></div>
+                <ul class="list-inline text-right">
+
+                    <li> <button ng-click="selectIDs()" class="btn" tabindex="11"><i class="glyphicon glyphicon-chevron-down"></i> View</button></li>
+
+                </ul>
+               
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="tab-design">
+        <div class="site-tab">
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" aria-controls="general" role="tab" data-toggle="tab">Issue Item</a></li>
+                <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" aria-controls="Service" role="tab" data-toggle="tab">Responsible Person</a></li>
+
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(1), active: isSet(1) }">
+               
+            </div>
+            <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(2), active: isSet(2) }">
+                
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!--*************************************************************************************-->
+<style>
+    .modellgModify1 {
+        width: 1300px;
+    }
+
+    .cmn-btn {
+        background: #3e445a none repeat scroll 0 0;
+        border: 1px solid #3e445a;
+        border-radius: unset;
+        color: #fff;
+        font-size: 15px;
+        /* font-weight: 600; */
+        letter-spacing: 0.65px;
+        line-height: normal;
+        padding: 6px 15px;
+        text-transform: none;
+        transition: all 0.3s linear 0s;
+    }
+
+        .cmn-btn:hover {
+            background: #EA6153 none repeat scroll 0 0;
+            border: 1px solid #EA6153;
+            color: #fff !important;
+            outline: none;
+        }
+</style>
+
+
+
+
+
+

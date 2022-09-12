@@ -5560,7 +5560,7 @@ namespace Library.MaterialManagement.Inventory
                     LEFT JOIN HKP.PartyPlant DPARTYPL ON DPARTYPL.Id = PO.DeliveryPartyPlantId
                     LEFT JOIN TRN.PurchaseOrderDetail POD ON PO.Id = POD.InventoryReceiveId
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
-                    LEFT JOIN trn.MasterOrder AS mo ON mo.Id=cno.MasterOrderId
+                    LEFT JOIN trn.MasterOrderItem AS mo ON mo.ContractId=cno.Id
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                     LEFT JOIN SCS.Country POCountry ON POD.CountryId = POCountry.Id

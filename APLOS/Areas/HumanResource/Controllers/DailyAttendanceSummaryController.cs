@@ -3128,7 +3128,7 @@ AND OnRoleEmployee.LineId = LeaveEmployee.LineId AND OnRoleEmployee.GenderID = L
                             _Subsection = dtAttdnSummary.Rows[i]["SubSection"].ToString(); SetCellText(sheet1, xlsRow, colSubSec, _Subsection);
                             _DesignationGroup = dtAttdnSummary.Rows[i]["DesignationGroup"].ToString(); SetCellText(sheet1, xlsRow, ColDesigGrp, _DesignationGroup);
                         }
-                        else if (_section != dtAttdnSummary.Rows[i]["SubSection"].ToString())
+                        else if (_Subsection != dtAttdnSummary.Rows[i]["SubSection"].ToString())
                         {
 
                             _Subsection = dtAttdnSummary.Rows[i]["SubSection"].ToString(); SetCellText(sheet1, xlsRow, colSubSec, _Subsection);

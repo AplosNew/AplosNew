@@ -484,9 +484,28 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                DataSet dsRouteShChild;
+                DataSet dsRouteShChild, dsRouteUp, dsRouteDown;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
                 con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id='" + RouteShChild["Id"] + "'", out dsRouteShChild, false, "1");
+
+                if (RouteShChild["UpDown"].ToString()=="Up")
+                {
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Up'", out dsRouteUp, false, "1");
+
+                    if (dsRouteUp.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Up is already exists!");
+                    }
+                }
+                if (RouteShChild["UpDown"].ToString() == "Down")
+                {
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Down'", out dsRouteDown, false, "1");
+                    if (dsRouteDown.Tables[0].Rows.Count > 0)
+                    {
+                        throw new Exception("Down is already exists!");
+                    }
+                }
+
                 
                 string Id = "";
 
@@ -500,14 +519,7 @@ namespace Aplos.Areas.Employees.Controllers
                     DataRow dr;
                     dr = dsRouteShChild.Tables[0].NewRow();
 
-                    while (dsRouteShChild.Tables[0].DefaultView.Count > 0)
-                        dsRouteShChild.Tables[0].DefaultView[0].Delete();
-
-                    int count = 0;
-                    count++;
-                    string pk = RouteScheduleId + "_" + count;
-
-                    dr["Id"] = pk;
+                    dr["Id"] = Id;
                     dr["RouteScheduleId"] = RouteScheduleId;
                     dr["StartTime"] = RouteShChild["StartTime"];
                     dr["EndTime"] = RouteShChild["EndTime"];
@@ -570,8 +582,9 @@ namespace Aplos.Areas.Employees.Controllers
         [Authorize, HttpGet]
         public ActionResult GetRouteScheduleChilddata()
         {
-            string sql = @"select RSC.Id,format(RSC.StartTime,'dd-MMM-yyyy') StartTime,format(RSC.EndTime,'dd-MMM-yyyy') EndTime,RSC.UpDown,RSC.Remarks
-										from RouteScheduleChild RSC";
+            string sql = @"select RSC.Id,RSC.UpDown,RSC.Remarks,ISNULL(format(RSC.StartTime,'hh:mm tt'),'')StartTime,ISNULL(format(RSC.EndTime,'hh:mm tt'),'') EndTime
+										from RouteScheduleChild RSC
+										order by RSC.AddedDate";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -581,6 +594,18 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from routeschedule where TransportId = '" + id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already used in Route Schedule!!!");
+                }
+
+
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from TransportDetail where Id ='" + id + "'");
@@ -627,6 +652,16 @@ namespace Aplos.Areas.Employees.Controllers
             DataSet dsExceptionEmployeeList;
             try
             {
+                DataSet dsMaster;
+                string sqlr = @"select * from routeschedule where RouteId = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count>0)
+                {
+                    throw new Exception("Already used in Route Schedule!!!");
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sqlStopage = @"delete from [MST].[RouteStoppage]  WHERE RouteId='" + Id + @"'";
                 string sql = @"delete from [MST].[Route] WHERE Id='" + Id + @"'";
@@ -687,15 +722,14 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetRouteSchedule(string RouteId)
+        public ActionResult GetRouteSchedule()
         {
             string sql = @"select RS.Id,RS.ShiftId,SD.UserName [Shift],RS.TripNo,R.Id RouteId,R.UserName [Route],TD.Id TransportId,TD.TransportUserName Transport
 										
                                         from RouteSchedule RS
                                         left join mst.[Route] R on R.Id=RS.RouteId
                                         left join TransportDetail TD on TD.Id=RS.TransportId
-										left join ShiftDefination SD on SD.SystemID=RS.ShiftId
-                                        where RS.RouteId='" + RouteId + @"'";
+										left join ShiftDefination SD on SD.SystemID=RS.ShiftId";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -704,6 +738,17 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from EmployeeTransportAllocation where TripId = '" + id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already used in Employee Transport Allocation!!!");
+                }
+
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from RouteScheduleTransport where RouteScheduleId ='" + id + "'");
