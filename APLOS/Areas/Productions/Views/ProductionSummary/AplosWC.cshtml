@@ -248,7 +248,10 @@
         </script>
         <script type="text/template" id="Detention">
             <div class="form-group">
-                <div class="col-sm-2 text-left" style="padding:0px;padding-left:2px">
+                <div class="col-sm-7" style="padding:0px;">
+                    <input type="text" class="form-control" ng-model="data.SumMin">
+                </div>
+                <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
                     <div class="common-btn">
                         <ul class="list-inline text-left">
                             <li><button ng-click="$parent.getProcessDetentionPopupPoPUp(this);" class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
