@@ -84,7 +84,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
     $scope.Save = function () {
         try {
-            ValidationMaster();
+            ValidationMasterRoute();
 
             var StopageList = [];
             for (var i = 0; i < $scope.StopageListNew.length; i++) {
@@ -268,7 +268,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
         }
     };
 
-    function ValidationMaster() {
+    function ValidationMasterRoute() {
         try {
             CheckField("Code", $scope.routeNew.Code);
             CheckField("Short Name", $scope.routeNew.ShortName);

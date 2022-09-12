@@ -594,6 +594,18 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from routeschedule where TransportId = '" + id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already used in Route Schedule!!!");
+                }
+
+
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from TransportDetail where Id ='" + id + "'");
@@ -640,6 +652,16 @@ namespace Aplos.Areas.Employees.Controllers
             DataSet dsExceptionEmployeeList;
             try
             {
+                DataSet dsMaster;
+                string sqlr = @"select * from routeschedule where RouteId = '" + Id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count>0)
+                {
+                    throw new Exception("Already used in Route Schedule!!!");
+                }
+
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 string sqlStopage = @"delete from [MST].[RouteStoppage]  WHERE RouteId='" + Id + @"'";
                 string sql = @"delete from [MST].[Route] WHERE Id='" + Id + @"'";
@@ -716,6 +738,17 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
+                ConnectionManager.DAL.ConManager objCon;
+                DataSet dsMaster;
+                string sqlr = @"select * from EmployeeTransportAllocation where TripId = '" + id + @"'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(sqlr, out dsMaster, false, "1");
+
+                if (dsMaster.Tables[0].Rows.Count > 0)
+                {
+                    throw new Exception("Already used in Employee Transport Allocation!!!");
+                }
+
                 ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
                 conC.BeginTransaction();
                 conC.executeQuery("delete from RouteScheduleTransport where RouteScheduleId ='" + id + "'");
