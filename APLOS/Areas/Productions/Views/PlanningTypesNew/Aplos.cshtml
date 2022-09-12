@@ -91,6 +91,7 @@
                 <li role="presentation" ng-class="{ active: isSet(1) }"><a ng-click="setTab(1)" href="" data-toggle="tab">Responsible Persion</a></li>
                 <li role="presentation" ng-class="{ active: isSet(2) }"><a ng-click="setTab(2)" href="" data-toggle="tab">Work Center</a></li>
                 <li role="presentation" ng-class="{ active: isSet(3) }"><a ng-click="setTab(3)" href="" data-toggle="tab">Shift</a></li>
+                <li role="presentation" ng-class="{ active: isSet(8) }"><a ng-click="setTab(8)" href="" data-toggle="tab">Date</a></li>
                 <li role="presentation" ng-class="{ active: isSet(4) }"><a ng-click="setTab(4)" href="" data-toggle="tab">WeekOff</a></li>
                 <li role="presentation" ng-class="{ active: isSet(5) }"><a ng-click="setTab(5)" href="" data-toggle="tab">Holiday</a></li>
                 <li role="presentation" ng-class="{ active: isSet(6) }"><a ng-click="setTab(6)" href="" data-toggle="tab">Item</a></li>
@@ -365,6 +366,39 @@
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(7), active: isSet(7) }">
             </div>
             <div role="tabpanel" class="tab-pane fade" ng-class="{ 'in':isSet(8), active: isSet(8) }">
+                <div class="row" ng-form="dateform">
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" id="fDate">From Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="From Date" ng-model="modelDateNew.FromDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6 col-md-6">
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label" id="fDate">To Date<sup>*</sup></label>
+                            <div class="col-sm-8  show-message">
+                                <input type="text" name="From Date" ng-model="modelDateNew.ToDate" datepicker class="form-control" placeholder="dd-MM-yyyy" required tabindex="2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button ng-click="SaveDate();" class="btn"><i class="glyphicon glyphicon-plus" tabindex="3"></i>Save</button></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-4">
+                        <div id="GridSavedDate" ej-grid e-datasource="SavedDateList"
+                             e-allowfiltering="true" e-allowpaging="true" e-enabletouch="true" e-responsive="true"
+                             e-allowscrolling="true" e-allowselection="false" e-filtersettings-filterType="excel">
+                            <div e-columns>
+                                <div e-column e-field="PlanningDate" e-headertext="PlanningDate" e-width="3"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
