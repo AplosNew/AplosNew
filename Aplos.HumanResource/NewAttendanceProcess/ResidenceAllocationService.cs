@@ -103,11 +103,11 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                 DataSet dsMaster;
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
-                if (PlantId == null)
+                if (data["PlantId"] == null)
                 {
                     throw new Exception("Please Select Plant Id !!");
                 }
-                if (ResidenceGroupId == null)
+                if (data["ResidenceGroupId"] == null)
                 {
                     throw new Exception("Please SelectResidenceGroup Id!!");
                 }
@@ -128,10 +128,10 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                     genid.GenID(TableName, out _Id);
 
                     data["Id"] = "RM" + _Id;
-                    data["PlantId"] = PlantId;
-                    data["ResidenceGroupId"] = ResidenceGroupId;
-                    data["EmployeeCategoryId"] = Emp;
-                    data["EmpServiceTypeId"] = ServiceTypeId;
+                    //data["PlantId"] = PlantId;
+                    //data["ResidenceGroupId"] = ResidenceGroupId;
+                    //data["EmployeeCategoryId"] = Emp;
+                    //data["EmpServiceTypeId"] = ServiceTypeId;
                     AddNewRow(dsMaster.Tables[0], data);
 
 
@@ -1059,7 +1059,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                      where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+                                      where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1346,7 +1346,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                    where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+                                    where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3

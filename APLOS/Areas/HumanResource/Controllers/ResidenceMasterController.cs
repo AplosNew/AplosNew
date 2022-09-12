@@ -14,7 +14,8 @@ namespace Aplos.Areas.HumanResource.Controllers
 {
     public class ResidenceMasterController : Controller
     {
-        ResidenceMaseterService rm = new ResidenceMaseterService();
+        //ResidenceMaseterService rm = new ResidenceMaseterService();
+        ResidenceAllocationService rm = new ResidenceAllocationService();
         public ActionResult Aplos()
         {
             return View();
