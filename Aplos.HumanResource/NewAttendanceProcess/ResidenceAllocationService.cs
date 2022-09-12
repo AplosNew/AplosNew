@@ -1059,7 +1059,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                      where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+                                      where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1346,7 +1346,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                    where rae.isOccupied > 0 and (RM.Vacancy - O.Occupied) = 0 and P.Id <> 989 order by case
+                                    where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
