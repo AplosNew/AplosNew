@@ -178,14 +178,14 @@ namespace Aplos.Areas.Employees.Controllers
                                                             
                                                             where A.RouteScheduleId=RS.Id and A.UpDown='Up'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
 															)
-                                                                    ,'&amp;','&'), 'amp;', '') StartTime
+                                                                    ,'&amp;','&'), 'amp;', '') UpStart
 											,REPLACE(REPLACE(
-                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.EndTime,'hh:mm tt'),'')StartTime from
+                                                    STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
                                                         RouteScheduleChild A
                                                             
                                                             where A.RouteScheduleId=RS.Id and A.UpDown='Down'  for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, ''
 															)
-                                                                    ,'&amp;','&'), 'amp;', '') EndTime
+                                                                    ,'&amp;','&'), 'amp;', '') DownStart
 											,R.[From],R.[To],SD.UserName [Shift],TD.Capacity Vacancy,TD.PlanCapacity
 					                        ,isnull(O.Alloted,0)Alloted,R.PlantId
 					                        ,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
@@ -226,12 +226,11 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                var sql = @"select O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
-											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.TransportGroup,O.Stoppage
-
-											,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
+                var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
 											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
-											
+											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
+											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.InTime
+
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
@@ -240,7 +239,7 @@ namespace Aplos.Areas.Employees.Controllers
 															,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
 															,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
 															,PL.UserName Plant,TG.UserName TransportGroup,A.AssignStatus,ST.UserName Stoppage
-
+															,FORMAT(apd.InTime,'hh:mm:tt') InTime
 															from dbo.EmployeeTransportAllocation A
 															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
 															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
@@ -253,12 +252,12 @@ namespace Aplos.Areas.Employees.Controllers
 															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
 															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
                                                             left join HKP.Stoppage ST on ST.Id=A.StoppageId
-
+															LEFT JOIN dbo.AttdnProcessData apd on apd.EmpSystemID=EMP.SystemId AND apd.WorkDate=FORMAT(GetDate(),'dd-MMM-yyyy')
 									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode
 															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
 															,emp.DOJ,PR.PaymentLink,DEG.UserName
 															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
-															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName) O ON O.TripId=RS.Id
+															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName,apd.InTime) O ON O.TripId=RS.Id
 															where O.AssignStatus=1 ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
