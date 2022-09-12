@@ -2304,6 +2304,17 @@ namespace Library.MaterialManagement.Inventory
             try
             {
 
+                ConnectionManager.DAL.ConManager objCon1;
+                DataSet dsMaster1 = null;
+                string purchaseReturnSql = @"SELECT pr.InventoryReceiveId from trn.PurchaseReturn pr 
+                                        JOIN trn.InventoryReceive ir on ir.Id=pr.InventoryReceiveId where pr.InventoryReceiveId  = '" + GRNNo + "'";
+                objCon1 = new ConnectionManager.DAL.ConManager("1");
+                objCon1.OpenDataSetThroughAdapter(purchaseReturnSql, out dsMaster1, false, "1");
+
+                if (dsMaster1.Tables[0].Rows.Count > 0)
+                {
+                    throw new CustomException("Approved not allow of GRN No "+ GRNNo + " ,  Purchase Return  Occured against this GRN !");
+                }
 
                 bool IsApproved;
                 var Status = "";
