@@ -226,16 +226,40 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                var sql = @"select R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo,TD.Capacity Vacancy
-											,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
+                var sql = @"select O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
+											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.TransportGroup,O.Stoppage
+
+											,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
+											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
 											
 					                        from RouteSchedule RS
 					                        left join [MST].[Route] R on R.Id=RS.RouteId 
 					                        left join TransportDetail TD on TD.Id=RS.TransportId
-					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId
+					                        LEFT JOIN(select COUNT(A.EmployeeSystemId) Alloted,A.TripId,EMP.EmployeeName,EMP.EmployeeCode
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
+															,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
+															,PL.UserName Plant,TG.UserName TransportGroup,A.AssignStatus,ST.UserName Stoppage
+
 															from dbo.EmployeeTransportAllocation A
-															where A.AssignStatus=1
-									                        Group BY TripId) O ON O.TripId=RS.Id";
+															left join EmployeeInformation EMP on EMP.SystemId=A.EmployeeSystemId
+															LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
+															LEFT JOIN ORG.Entity E ON PMB.EntityId=E.Id
+															LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id
+															LEFT JOIN ORG.Department DEPT ON PR.DepartmentId=DEPT.Id
+															LEFT JOIN HKP.Designation DEG ON EMP.GivenDesignationId=DEG.Id
+															LEFT JOIN ORG.Section S ON S.Id=EMP.SectionId
+															LEFT JOIN ORG.SubSection SS ON SS.Id=EMP.SubSectionId
+															LEFT JOIN ORG.Plant PL ON PL.Id=EMP.PlantId
+															left join [dbo].[TransportGroup] TG on TG.Id=EMP.TransportGroupId
+                                                            left join HKP.Stoppage ST on ST.Id=A.StoppageId
+
+									                        Group BY TripId,Emp.SystemID,EMP.EmployeeName,EMP.EmployeeCode
+															,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+															,emp.DOJ,PR.PaymentLink,DEG.UserName
+															,S.UserName,SS.UserName,DEPT.UserName,E.UserName
+															,PL.UserName,TG.UserName,A.AssignStatus,ST.UserName) O ON O.TripId=RS.Id
+															where O.AssignStatus=1 ";
 
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }
