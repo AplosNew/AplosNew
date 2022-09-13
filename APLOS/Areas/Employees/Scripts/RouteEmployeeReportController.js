@@ -52,7 +52,7 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
     $scope.view();
 
     $scope.AssignReport = function () {
-        $scope.fileName = 'To Assign List';
+        $scope.fileName = 'Summary List';
 
         var dataList = [];
         var g = $("#GridRouteEmp").data("ejGrid");
@@ -190,7 +190,7 @@ function RouteEmployeeReportController(cboService, commonMessage, $scope, $rootS
     $scope.viewTransportSummary();
 
     $scope.TransportSummaryReport = function () {
-        $scope.fileName = 'Transport Summary Report';
+        $scope.fileName = 'Transport Status Detail';
 
         var dataList = [];
         var g = $("#GridTranSummary").data("ejGrid");

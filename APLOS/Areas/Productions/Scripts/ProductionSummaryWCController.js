@@ -18,6 +18,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
     $scope.TotalSalesOrderQty = 0;
     $scope.TotalProductionBookingQty = 0;
     $scope.RemainQty = 0;
+    $scope.DetentionSum = 0;
+
     $scope.gradeList = [
         {
             'Value': 'A',
@@ -67,7 +69,8 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Remarks: null,
         CheckedBy: null,
         CheckedByName: null,
-        LotNumber: null
+        LotNumber: null,
+        DetentionSum:0
     };
     $scope.productionSummaryNew = Object.assign({}, $scope.productionSummary);
 
@@ -1401,9 +1404,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         Remark: null,
         FromTime: null,
         ToTime: null,
-        Minute: null
+        Minute: null,
     };
 
+    $scope.productionSummaryNew.DetentionSum = 0;
     $scope.ProcessDetentionLists = [];
     $scope.getProcessDetentionPopupPoPUp = function (data) {
         $scope.NewObject = data.data;
@@ -1463,6 +1467,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                                         $scope.ProcessDetentionLists[k].ResponsiblePerson = response.data[j].ResponsiblePerson;
                                         $scope.ProcessDetentionLists[k].Remark = response.data[j].Remark;
                                     }
+                                    
                                 }
                             }
 
@@ -1479,6 +1484,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
 
     };
 
+    
     $scope.getProcessDetention = function () {
         try {
             $scope.ProcessDetentionLists = [];
@@ -1527,7 +1533,6 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                             }
 
                         }
-                       
                     },
                     function errorCallback(response) {
                         ShowResult(response, 'failure');
@@ -1716,9 +1721,10 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
                 else {
 
                     ShowResult(response.data.Message, 'success');
-                    //$scope.LoadDetentionList();
                     $scope.Action = 'Save';
                     $scope.getProcessDetention();
+                    $scope.loadWC();
+
 
                 }
 

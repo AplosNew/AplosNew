@@ -121,6 +121,9 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
             $scope.planningTypes.Description = 'N/A';
         }
         $scope.GetResponsibleEmployeeData();
+        $scope.GetSavedHolidayData();
+        $scope.GetLatestPlanDate();
+        $scope.GetSavedDateData();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         $scope.Action = 'Update';
     };
@@ -220,6 +223,10 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.planningTypesNew = {};
         $scope.SelectedEmpList = [];
         $scope.SavedWCList = [];
+        $scope.SavedDateList = [];
+        $scope.SavedShiftList = [];
+        $scope.SavedHolidayList = [];
+        $scope.SavedWeekList = [];
     };
 
     // #region  ResponsibleEmployee
@@ -793,5 +800,81 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
                 }
             });
     }
+    //#endregion
+
+    //#region Date
+    $scope.modelDate = { Id: null, PlanningTypesId: $scope.planningTypesNew.Id, FromDate: null, ToDate: null, PlanningDate: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null }
+    $scope.modelDateNew = Object.assign({}, $scope.modelDate);
+    $scope.LatestDate = null;
+
+    $scope.GetLatestPlanDate = function () {
+        $http.get('Productions/PlanningTypesNew/GetLatestPlanDate?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.modelDateNew.FromDate = response.data[0].FromDate;
+                    $scope.LatestDate = response.data[0].FromDate;
+
+                    if (baseService.isUndefinedOrNull($scope.modelDateNew.FromDate)) {
+                        $scope.modelDateNew.FromDate = $filter('dateFiltering')(new Date());
+                    }
+                } 
+            });
+    }
+
+
+    $scope.SaveDate = function () {
+        try {
+            if (!baseService.isUndefinedOrNull($scope.LatestDate)) {
+                if (new Date($scope.modelDateNew.FromDate) < new Date($scope.LatestDate)) {
+                    throw "From date must be greater than to LatestDate";
+                }
+            }
+
+            if (new Date($scope.modelDateNew.FromDate) > new Date($scope.modelDateNew.ToDate)) {
+                throw "From date must be below or equal to To Date";
+            }
+            if (new Date($scope.modelDateNew.ToDate) < new Date($scope.modelDateNew.FromDate)) {
+                throw "To date must be above or equal to From Date.";
+            }
+
+            $scope.modelDateNew.PlanningTypesId = $scope.planningTypesNew.Id;
+            angular.copy($scope.modelDateNew, $scope.modelDate);
+            $scope.$broadcast('show-errors-check-validity');
+            if ($scope.dateform.$valid) {
+                $scope.modelDateNew.PlanningTypesId = $scope.planningTypesNew.Id;
+                $scope.modelDate.PlanningTypesId = $scope.planningTypesNew.Id;
+                $http({
+                    method: 'POST',
+                    url: '/Productions/PlanningTypesNew/CreateDate',
+                    data: { 'data': $scope.modelDate },
+                    dataType: 'JSON'
+                }).then(function successCallback(response) {
+                    if (response.data.Error === true) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                    else {
+                        ShowResult(response.data.Message, 'success');
+                        $scope.GetSavedDateData();
+                        $scope.GetLatestPlanDate();
+                    }
+                }), function errorCallBack(response) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.SavedDateList = [];
+    $scope.GetSavedDateData = function () {
+        $http.get('Productions/PlanningTypesNew/GetSavedDateData?PlanningTypesId=' + $scope.planningTypesNew.Id)
+            .then(function (response) {
+                if (baseService.arrayLength(response.data) > 0) {
+                    $scope.SavedDateList = response.data;
+                }
+            });
+    }
+
     //#endregion
 }
