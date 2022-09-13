@@ -1329,7 +1329,7 @@ namespace Library.Service.Employees
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Gross").ToUpper()
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("CTC").ToUpper()
                             && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Total Gross").ToUpper()
-                            && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Net Pay").ToUpper()
+                            && dvr[ROW]["SalaryHead"].ToString().ToUpper() != ("Net Payable").ToUpper()
                             && dvr[ROW]["HeadType"].ToString() == "E")
                         {
                             totalOthers += Convert.ToDouble(dvr[ROW]["EntryAmount"].ToString());
@@ -1340,7 +1340,7 @@ namespace Library.Service.Employees
                         table1.Replace("{EffectiveDate}", GetFormatedDate(dvr[ROW]["EffectiveDate"].ToString(), tempId), false, true);
 
                     }
-                    table1.Replace("{Others}", cnDgt(totalOthers.ToString(), tempId), false, true);
+                    table1.Replace("{Gross}", cnDgt(totalOthers.ToString(), tempId), false, true);
 
                 }
 

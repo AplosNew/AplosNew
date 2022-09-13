@@ -170,7 +170,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.GetRouteSheduleChildData = function (index) {
         $scope.RouteShdChId = index;
         $scope.RouteSheduleChildModel = Object.assign({}, $scope.RouteShd);
-
+        $scope.GetRouteSheduleChild();
         //$scope.GetArticleAliasDatas();
         angular.element(document.querySelector('#RouteScheduleChilPopUp')).modal('show');
     };
@@ -199,14 +199,14 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
     $scope.GetRouteSheduleChild = function () {
         $http({
             method: 'GET',
-            url: $scope.path + 'GetRouteScheduleChilddata',
+            url: $scope.path + 'GetRouteScheduleChilddata?tripId=' + $scope.RouteShdChId ,
             dataType: 'JSON'
         }).then(function successCallback(response) {
             $scope.RouteScheduleChildList = response.data;
 
         });
     }
-    $scope.GetRouteSheduleChild();
+   
 
     $scope.GetRouteScheduleChilddbl = function (args) {
 

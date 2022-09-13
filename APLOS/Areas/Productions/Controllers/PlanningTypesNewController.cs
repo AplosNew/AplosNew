@@ -601,6 +601,90 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         }
 
 
+      
+        [HttpPost, Authorize]
+        public JsonResult CreateDate(Dictionary<string, object> data)
+        {
+            try
+            {
+                DataSet dsMaster;
+                ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+                con.OpenDataSetThroughAdapter("SELECT * FROM dbo.PlanningTypesDate Where Id='"+data["Id"]+"'", out dsMaster, false, "1");
+                DateTime sdate = Convert.ToDateTime(data["FromDate"]);
+                DateTime edate = Convert.ToDateTime(data["ToDate"]);
+                string _Id = "";
+
+                #region data update
+                if (dsMaster.Tables[0].Rows.Count == 0)
+                {
+                    while (sdate <= edate)
+                    {
+                        long n = long.Parse(sdate.ToString("yyyyMMddHHmmss"));
+                        _Id = n.ToString();
+                        data["Id"] = n.ToString(); 
+                        data["PlanningDate"] = sdate; 
+                        AddNewRow(dsMaster.Tables[0], data);
+                        sdate = sdate.AddDays(1);
+                    }
+                   
+                }
+                else
+                {
+                    _Id = data["Id"].ToString();
+                    EditRow(dsMaster.Tables[0].Rows[0], data);
+                }
+                #endregion data update
+
+
+                clsStaticInfo _info = new clsStaticInfo();
+                _info.SaveDataSets(dsMaster);
+
+
+                return Json(new { Message = AplosMessage.Success });
+
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+
+            }
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetSavedDateData(string PlanningTypesId)
+        {
+            JsonResult json = Json(GetSavedDateDataByPlanningType(PlanningTypesId), JsonRequestBehavior.AllowGet);
+            json.MaxJsonLength = int.MaxValue;
+            return json;
+        }
+
+        public ActionResult GetLatestPlanDate(string PlanningTypesId)
+        {
+            try
+            {
+                string sql = @"SELECT FORMAT(DATEADD(day, 1, MAX(PlanningDate)),'dd-MMM-yyyy') FromDate FROM dbo.PlanningTypesDate AS pt  WHERE PlanningTypesId='" + PlanningTypesId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> GetSavedDateDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string CmdText = @"SELECT [Id],[PlanningTypesId],FORMAT([PlanningDate],'dd-MMM-yyyy')PlanningDate,[AddedBy],[AddedDate],[AddedFromIP],[UpdatedBy],[UpdatedDate],[UpdatedFromIP] FROM [dbo].[PlanningTypesDate] WHERE PlanningTypesId='" + PlanningTypesId + "'";
+                return _sqlRepository.GetDataCollection(CmdText);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         private void AddNewRow(DataTable dt, Dictionary<string, object> sourceData)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;

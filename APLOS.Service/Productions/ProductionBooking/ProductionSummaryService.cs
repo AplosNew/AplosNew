@@ -464,13 +464,15 @@ namespace Library.Service.Productions
         {
             var sql = @"SELECT distinct wc.Id as WorkCenterMasterId,CAST (CASE WHEN pw.Id IS NULL THEN 0 ELSE 1 END AS bit) Flag,pw.Id,wc.UserName as WorkCenter,
                         pw.ProductionOrderId,pw.LotNumber,M.EmployeeName as Mentor,R.EmployeeName as ResponsiblePerson,
-                        C.EmployeeName as CheckedByName,pw.Quantity,pw.ProductionGrade,pw.Remarks
+                        C.EmployeeName as CheckedByName,pw.Quantity,pw.ProductionGrade,pw.Remarks,isnull(SM.SumMinute,0) as SumMin
                         FROM  SCS.WorkCenterMaster wc 
                         LEFT JOIN TRN.ProductionSummary pw ON pw.WorkCenterMasterId=wc.Id AND pw.ProcessId = '" + ProcessId + @"' 
                         AND  pw.EntityId='" + entityId + @"' AND PW.ProductionDate='" + productionDate + @"'  AND PW.ProductionShiftId='" + shiftId + @"'                   
                         LEFT JOIN EmployeeInformation R ON PW.ResponsiblePersonId=R.SystemId
                         LEFT JOIN EmployeeInformation M ON PW.MentorId=M.SystemId
                         LEFT JOIN EmployeeInformation C ON PW.CheckedBy=C.SystemId
+						LEFT JOIN (select ISNULL(sum(Minute),0) as SumMinute,WorkCenterId from MachineMasterTransaction MT where MT.ProcessId='" + ProcessId + @"' and MT.EntityId = '" + entityId + @"' AND MT.Date='" + productionDate + @"'  AND MT.ShiftId='" + shiftId + @"' 
+						group by WorkCenterId) SM ON SM.WorkCenterId=wc.Id
                         where wc.ProcessId = '" + ProcessId + @"' and wc.EntityId = '" + entityId + @"' ";
             return _sqlRepository.GetDataCollection(sql);
         }
