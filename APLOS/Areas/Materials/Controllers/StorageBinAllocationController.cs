@@ -134,6 +134,7 @@ namespace Aplos.Areas.Materials.Controllers
             return Json(JsonRequestBehavior.AllowGet);
         }
 
+        [Authorize]
         public ActionResult viewBinHead(string materialType, string materialGroup, string material, string materialArticle)
         {
             try
@@ -145,7 +146,7 @@ namespace Aplos.Areas.Materials.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
         }
-
+        [Authorize]
         public ActionResult viewBinAllocation(string storagelocation, string storagesublocation, string AccessType)
         {
             try
@@ -171,6 +172,7 @@ namespace Aplos.Areas.Materials.Controllers
             }
         }
 
+        [Authorize]
         public ActionResult selectBinIDs(string storagelocation, string storagesublocation, string AccessType)
         {
             try

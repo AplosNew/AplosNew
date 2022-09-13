@@ -169,12 +169,12 @@ namespace Library.Service.Finances
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
                     FinancingTypeId = voucherVM.FinancingTypeId,
-                    BankMasterId = voucherVM.BankMasterId,
-                    OtherBankMasterId = voucherVM.OtherBankMasterId,
+                    //BankMasterId = voucherVM.BankMasterId,
+                    OtherBankMasterId = voucherVM.BankMasterId,
                     CashMasterId = voucherVM.CashMasterId,
                     EmployeeId = voucherVM.EmployeeId,
-                    PartyId = voucherVM.PartyId,
-                    PartyType = voucherVM.PartyType,
+                    //PartyId = voucherVM.PartyId,
+                    PartyType = "Bank",
                     PostingDate = voucherVM.PostingDate,
                     DocDate = voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
@@ -195,7 +195,7 @@ namespace Library.Service.Finances
                     VoucherDate = DateTime.Now,
                     VoucherTypeId = voucherVM.VoucherTypeId,
                     IsPark = voucherVM.IsPark,
-                    PartyPlantId = voucherVM.PartyPlantId,
+                    //PartyPlantId = voucherVM.PartyPlantId,
                     TransactionType = voucherVM.TransactionType,
                     IsSchedule = voucherVM.IsSchedule,
                     LoanAgainstAcceptanceId = voucherVM.LoanAgainstAcceptanceId
@@ -209,43 +209,7 @@ namespace Library.Service.Finances
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                string sql1 = "SELECT * FROM [trn].[FinancingSubsequentTransaction] WHERE Id='" + voucherVM.Id + "'";
-
-                objCon.OpenDataSetThroughAdapter(sql1, out dsMasterFSTran, false, "1");
-
-                if (dsMasterFSTran.Tables[0].Rows.Count == 0)
-                {
-                    DataRow dr1 = dsMasterFSTran.Tables[0].NewRow();
-                    dr1["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                    dr1["CompanyId"] = voucherVM.CompanyId;
-                    dr1["PlantId"] = voucherVM.PlantId;
-                    dr1["EntityId"] = voucherVM.EntityId;
-                    dr1["VoucherTypeId"] = voucherVM.VoucherTypeId;
-                    dr1["FinancingId"] = financing.Id;
-                    dr1["PartyId"] = voucherVM.PartyId;
-                    dr1["PartyPlantId"] = voucherVM.PartyPlantId;
-                    dr1["PartyType"] = voucherVM.PartyType;
-                    dr1["CurrencyId"] = voucherVM.CurrencyId;
-                    dr1["Amount"] = voucherVM.Amount;
-                    dr1["VoucherDate"] = voucherVM.VoucherDate;
-                    dr1["PostingDate"] = voucherVM.PostingDate;
-                    dr1["DocDate"] = voucherVM.DocDate;
-                    dr1["DocRefNo"] = voucherVM.DocRefNo;
-                    dr1["TransactionType"] = LoanTransactionType.Loan.ToString();
-                    dr1["Narration"] = voucherVM.Narration;
-                    dr1["SourceType"] = voucherVM.SourceType.ToString();
-                    dr1["IsPark"] = voucherVM.IsPark;
-                    dr1["IsPosted"] = false;
-                    dr1["Archive"] = false;
-                    dr1["Id"] = "SL" + GetLoanInterestPayablePK();
-                    dr1["VoucherId"] = voucher.Id;
-                    dr1["AddedBy"] = voucher.AddedBy;
-                    dr1["AddedDate"] = voucher.AddedDate;
-                    dr1["AddedFromIP"] = voucher.AddedFromIP;
-                    dsMasterFSTran.Tables[0].Rows.Add(dr1);
-                }
-
-               
+                
                     string sql = "SELECT * FROM LoanAgainstAcceptanceMaster WHERE Id='" + voucherVM.LoanAgainstAcceptanceId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
                     objCon.OpenDataSetThroughAdapter(sql, out dsMaster, false, "1");
@@ -259,17 +223,17 @@ namespace Library.Service.Finances
                         //dr["PurchaseDocAcceptanceId"] = voucherVM.PurchaseDocAcceptanceId;
                         dr["VoucherId"] = voucher.Id;
                         //dr["BankMasterId"] = voucherVM.BankMasterId;
-                        dr["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                        dr["CompanyId"] = voucherVM.CompanyId;
-                        dr["PlantId"] = voucherVM.PlantId;
-                        dr["CurrencyId"] = voucherVM.CurrencyId;
-                        dr["PartyType"] = "Vendor";
-                        dr["PartyId"] = voucherVM.PartyId;
-                        dr["PartyPlantId"] = voucherVM.PartyPlantId;
-                        dr["Amount"] = voucherVM.Amount;
-                        dr["PaymentSource"] = "Bank";
-                        dr["TransactionType"] = "LoanTaken";
-                        dr["IsPark"] = true;
+                        //dr["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                        //dr["CompanyId"] = voucherVM.CompanyId;
+                        //dr["PlantId"] = voucherVM.PlantId;
+                        //dr["CurrencyId"] = voucherVM.CurrencyId;
+                        //dr["PartyType"] = "Vendor";
+                        //dr["PartyId"] = voucherVM.PartyId;
+                        //dr["PartyPlantId"] = voucherVM.PartyPlantId;
+                        //dr["Amount"] = voucherVM.Amount;
+                        //dr["PaymentSource"] = "Bank";
+                        //dr["TransactionType"] = "LoanTaken";
+                        //dr["IsPark"] = true;
                         dr["UpdatedBy"] = voucher.AddedBy;
                         dr["UpdatedDate"] = voucher.AddedDate;
                         dr["UpdatedFromIP"] = voucher.AddedFromIP;
@@ -484,7 +448,42 @@ namespace Library.Service.Finances
                         _financingService.InsertFinancingSchedule(financing, financingSchedule);
                     }
                 }
+                string sql1 = "SELECT * FROM [trn].[FinancingSubsequentTransaction] WHERE Id='" + voucherVM.Id + "'";
 
+                objCon.OpenDataSetThroughAdapter(sql1, out dsMasterFSTran, false, "1");
+
+                if (dsMasterFSTran.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr1 = dsMasterFSTran.Tables[0].NewRow();
+                    dr1["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                    dr1["CompanyId"] = voucherVM.CompanyId;
+                    dr1["PlantId"] = voucherVM.PlantId;
+                    dr1["EntityId"] = voucherVM.EntityId;
+                    dr1["VoucherTypeId"] = voucherVM.VoucherTypeId;
+                    dr1["FinancingId"] = financing.Id;
+                    //dr1["PartyId"] = voucherVM.PartyId;
+                    //dr1["PartyPlantId"] = voucherVM.PartyPlantId;
+                    dr1["PartyType"] = "Bank";
+                    dr1["CurrencyId"] = voucherVM.CurrencyId;
+                    dr1["Amount"] = voucherVM.Amount;
+                    dr1["VoucherDate"] = voucherVM.VoucherDate;
+                    dr1["PostingDate"] = voucherVM.PostingDate;
+                    dr1["DocDate"] = voucherVM.DocDate;
+                    dr1["DocRefNo"] = voucherVM.DocRefNo;
+                    dr1["TransactionType"] = LoanTransactionType.Loan.ToString();
+                    dr1["Narration"] = voucherVM.Narration;
+                    dr1["SourceType"] = voucherVM.SourceType.ToString();
+                    dr1["IsPark"] = voucherVM.IsPark;
+                    dr1["IsPosted"] = false;
+                    dr1["Archive"] = false;
+                    dr1["Id"] = "SL" + GetLoanInterestPayablePK();
+                    dr1["VoucherId"] = voucher.Id;
+                    dr1["VoucherDetailId"] = voucherDetailFrom.Id;
+                    dr1["AddedBy"] = voucher.AddedBy;
+                    dr1["AddedDate"] = voucher.AddedDate;
+                    dr1["AddedFromIP"] = voucher.AddedFromIP;
+                    dsMasterFSTran.Tables[0].Rows.Add(dr1);
+                }
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
 
@@ -539,12 +538,12 @@ namespace Library.Service.Finances
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
                     FinancingTypeId = voucherVM.FinancingTypeId,
-                    BankMasterId = voucherVM.BankMasterId,
-                    OtherBankMasterId = voucherVM.OtherBankMasterId,
+                    //BankMasterId = voucherVM.BankMasterId,
+                    OtherBankMasterId = voucherVM.BankMasterId,
                     CashMasterId = voucherVM.CashMasterId,
                     EmployeeId = voucherVM.EmployeeId,
-                    PartyId = voucherVM.PartyId,
-                    PartyType = voucherVM.PartyType,
+                    //PartyId = voucherVM.PartyId,
+                    PartyType = "Bank",
                     PostingDate = voucherVM.PostingDate,
                     DocDate = voucherVM.DocDate,
                     DocRefNo = voucherVM.DocRefNo,
@@ -565,7 +564,7 @@ namespace Library.Service.Finances
                     VoucherDate = DateTime.Now,
                     VoucherTypeId = voucherVM.VoucherTypeId,
                     IsPark = voucherVM.IsPark,
-                    PartyPlantId = voucherVM.PartyPlantId,
+                    //PartyPlantId = voucherVM.PartyPlantId,
                     TransactionType = voucherVM.TransactionType,
                     IsSchedule = voucherVM.IsSchedule,
                     InvoiceTaggingWithLCMasterId = voucherVM.LoanAgainstAcceptanceId
@@ -579,45 +578,7 @@ namespace Library.Service.Finances
                 var invoiceWriteOff = InsertInvoiceWriteOff(voucherVM);
 
                 objCon = new ConnectionManager.DAL.ConManager("1");
-                string sql1 = "SELECT * FROM [trn].[FinancingSubsequentTransaction] WHERE Id='" + voucherVM.Id + "'";
-
-                objCon.OpenDataSetThroughAdapter(sql1, out dsMasterFSTran, false, "1");
-
-                if (dsMasterFSTran.Tables[0].Rows.Count == 0)
-                {
-                    DataRow dr1 = dsMasterFSTran.Tables[0].NewRow();
-                    dr1["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                    dr1["CompanyId"] = voucherVM.CompanyId;
-                    dr1["PlantId"] = voucherVM.PlantId;
-                    dr1["EntityId"] = voucherVM.EntityId;
-                    dr1["VoucherTypeId"] = voucherVM.VoucherTypeId;
-                    dr1["FinancingId"] = financing.Id;
-                    dr1["PartyId"] = voucherVM.PartyId;
-                    dr1["PartyPlantId"] = voucherVM.PartyPlantId;
-                    dr1["PartyType"] = voucherVM.PartyType;
-                    dr1["CurrencyId"] = voucherVM.CurrencyId;
-                    dr1["Amount"] = voucherVM.Amount;
-                    dr1["VoucherDate"] = voucherVM.VoucherDate;
-                    dr1["PostingDate"] = voucherVM.PostingDate;
-                    dr1["DocDate"] = voucherVM.DocDate;
-                    dr1["DocRefNo"] = voucherVM.DocRefNo;
-                    dr1["TransactionType"] = LoanTransactionType.Loan.ToString();
-                    dr1["Narration"] = voucherVM.Narration;
-                    dr1["SourceType"] = voucherVM.SourceType.ToString();
-                    dr1["IsPark"] = voucherVM.IsPark;
-                    dr1["IsPosted"] = false;
-                    dr1["Archive"] = false;
-                    dr1["Id"] = "SL" + GetLoanInterestPayablePK();
-                    dr1["VoucherId"] = voucher.Id;
-                    dr1["AddedBy"] = voucher.AddedBy;
-                    dr1["AddedDate"] = voucher.AddedDate;
-                    dr1["AddedFromIP"] = voucher.AddedFromIP;
-                    dsMasterFSTran.Tables[0].Rows.Add(dr1);
-                }
-
-                
-                  
-                
+               
                
                     string sql = "SELECT * FROM InvoiceTaggingWithLCMaster WHERE Id='" + voucherVM.LoanAgainstAcceptanceId + "'";
                     objCon = new ConnectionManager.DAL.ConManager("1");
@@ -631,14 +592,14 @@ namespace Library.Service.Finances
                         drInvoice.BeginEdit();
 
                         drInvoice["VoucherId"] = voucher.Id;
-                        drInvoice["BankMasterId"] = voucherVM.BankMasterId;
-                        drInvoice["CompanyGroupId"] = voucherVM.CompanyGroupId;
-                        drInvoice["CompanyId"] = voucherVM.CompanyId;
-                        drInvoice["PlantId"] = voucherVM.PlantId;
-                        drInvoice["CurrencyId"] = voucherVM.CurrencyId;
-                        drInvoice["PartyId"] = voucherVM.PartyId;
-                        drInvoice["PartyPlantId"] = voucherVM.PartyPlantId;
-                        drInvoice["Amount"] = voucherVM.Amount;
+                        //drInvoice["BankMasterId"] = voucherVM.BankMasterId;
+                        //drInvoice["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                        //drInvoice["CompanyId"] = voucherVM.CompanyId;
+                        //drInvoice["PlantId"] = voucherVM.PlantId;
+                        //drInvoice["CurrencyId"] = voucherVM.CurrencyId;
+                        //drInvoice["PartyId"] = voucherVM.PartyId;
+                        //drInvoice["PartyPlantId"] = voucherVM.PartyPlantId;
+                        //drInvoice["Amount"] = voucherVM.Amount;
                         drInvoice["UpdatedBy"] = voucher.AddedBy;
                         drInvoice["UpdatedDate"] = voucher.AddedDate;
                         drInvoice["UpdatedFromIP"] = voucher.AddedFromIP;
@@ -852,6 +813,42 @@ namespace Library.Service.Finances
                         _financingService.InsertFinancingSchedule(financing, financingSchedule);
                     }
                 }
+                string sql1 = "SELECT * FROM [trn].[FinancingSubsequentTransaction] WHERE Id='" + voucherVM.Id + "'";
+
+                objCon.OpenDataSetThroughAdapter(sql1, out dsMasterFSTran, false, "1");
+
+                if (dsMasterFSTran.Tables[0].Rows.Count == 0)
+                {
+                    DataRow dr1 = dsMasterFSTran.Tables[0].NewRow();
+                    dr1["CompanyGroupId"] = voucherVM.CompanyGroupId;
+                    dr1["CompanyId"] = voucherVM.CompanyId;
+                    dr1["PlantId"] = voucherVM.PlantId;
+                    dr1["EntityId"] = voucherVM.EntityId;
+                    dr1["VoucherTypeId"] = voucherVM.VoucherTypeId;
+                    dr1["FinancingId"] = financing.Id;
+                    //dr1["PartyId"] = voucherVM.PartyId;
+                    //dr1["PartyPlantId"] = voucherVM.PartyPlantId;
+                    dr1["PartyType"] = "Bank";
+                    dr1["CurrencyId"] = voucherVM.CurrencyId;
+                    dr1["Amount"] = voucherVM.Amount;
+                    dr1["VoucherDate"] = voucherVM.VoucherDate;
+                    dr1["PostingDate"] = voucherVM.PostingDate;
+                    dr1["DocDate"] = voucherVM.DocDate;
+                    dr1["DocRefNo"] = voucherVM.DocRefNo;
+                    dr1["TransactionType"] = LoanTransactionType.Loan.ToString();
+                    dr1["Narration"] = voucherVM.Narration;
+                    dr1["SourceType"] = voucherVM.SourceType.ToString();
+                    dr1["IsPark"] = voucherVM.IsPark;
+                    dr1["IsPosted"] = false;
+                    dr1["Archive"] = false;
+                    dr1["Id"] = "SL" + GetLoanInterestPayablePK();
+                    dr1["VoucherId"] = voucher.Id;
+                    dr1["VoucherDetailId"] = voucherDetailFrom.Id;
+                    dr1["AddedBy"] = voucher.AddedBy;
+                    dr1["AddedDate"] = voucher.AddedDate;
+                    dr1["AddedFromIP"] = voucher.AddedFromIP;
+                    dsMasterFSTran.Tables[0].Rows.Add(dr1);
+                }
 
                 if (totalAmountDr != totalAmountCr)
                     throw new CustomException("Dr and Cr amount is not equal.");
@@ -907,8 +904,8 @@ namespace Library.Service.Finances
                     EntityId = voucherVM.EntityId,
                     CurrencyId = voucherVM.CurrencyId,
                     FinancingTypeId = voucherVM.FinancingTypeId,
-                    BankMasterId = voucherVM.BankMasterId,
-                    OtherBankMasterId = voucherVM.OtherBankMasterId,
+                    //BankMasterId = voucherVM.BankMasterId,
+                    OtherBankMasterId = voucherVM.BankMasterId,
                     CashMasterId = voucherVM.CashMasterId,
                     EmployeeId = voucherVM.EmployeeId,
                     //PartyId = voucherVM.PartyId,
