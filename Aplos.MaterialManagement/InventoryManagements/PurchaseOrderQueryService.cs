@@ -55,7 +55,7 @@ namespace Library.MaterialManagement.InventoryManagements
                                     AND (isnull(b.VendorId,'')='" + VendorId + @"'))";
             }
             var sql = "";
-            sql = @"SELECT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
+            sql = @"SELECT DISTINCT NULL AS uoMList, b.Id BOQId,b.CostingItemId,b.POCriteria
                         ,GroupId=CASE WHEN isnull(b.POCriteria,'CostingItem')='CostingItem' THEN b.CostingItemId ELSE b.Id END
                         ,b.Sequence Sequence1
 						,b.MasterOrderItemId
@@ -84,8 +84,8 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.OrderQty,b.PlanOrderQty,b.Consumption,b.WastagePer,
 						b.BOMQty,C.Id
 						,null CheckedStatus   ,null TaxList,MM.HSNCodeId	,MM.IsOriginApplicable
-						,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
-						,ISNULL(cpo.PONumber,'') PONumber
+						--,REPLACE(CONVERT(CHAR(11), so.DeliveryDate, 106),' ','-') AS DeliveryDate 
+						--,ISNULL(cpo.PONumber,'') PONumber
 						,b.RequiredQty
 						,uom.UserName BOQUOM
 						,b.POUoMId FromPoUomId
@@ -94,8 +94,10 @@ namespace Library.MaterialManagement.InventoryManagements
 						,b.RequiredQtyPO RequiredQtyPOOrginal
 						,TransactionUoMId=CASE WHEN b.POUoMId IS NULL THEN b.UoMId ELSE b.POUoMId END
                         ,TransactionUoM=CASE WHEN b.POUoMId IS NULL THEN uom.UserName ELSE Tuom.UserName END 
-						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  ,ISNULL(DE.UserName,'') Destination
-						,mm.BaseUOMId,Isnull(OPC.Rate,0) TransactionRate,Isnull(OPC.Rate,0) TransactionRateBOQ
+						,RefferenceNo=ISNULL(moi.BuyerReferenceNo,'')  
+						--,ISNULL(DE.UserName,'') Destination
+						,mm.BaseUOMId,Isnull(OPC.Rate,0) TransactionRate
+						,Isnull(OPC.Rate,0) TransactionRateBOQ
                         ,ISNULL(POBoqMap.MapQty,0) OtherMapQty
                         , TransactionQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
                         , BalanceQty=Round(Round(ISNULL(b.RequiredQtyPO,0),4),4)-ISNULL(POBoqMap.MapQty,0)
@@ -115,9 +117,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						   ELSE CONCAT(POWN.UserName,'(',EOWN.UserName,')') END AS ProductionAuthority,c.Id ContractId,ISNULL(b.ItemRefNo,'') BOQItemRefNo
 						   ,ISNULL(CI.UserName,'') CostingItemName,ISNULL(b.SKUDesc,'')SKUDesc,ISNULL(b.RMDescription,'')RMDescription
 						   ,ISNULL(b.RMVendorSpec,'')RMVendorSpec,ISNULL(b.RMCustomerSpec,'')RMCustomerSpec
-                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',de.UserName,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
+                   ,b.BOQCriteria  , CriteriaDetail= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',v1.UserName,' ',v2.UserName)),b.OwnReferenceNo BOQOwnReferenceNo
 ,b.Rate*b.BOMQty AS BOMAmount ,b.Rate*b.RequiredQty AS PlanAmount ,  mm.Code AS MaterialCode,mma.Code AS ArticleCode,V1.UserName SKU1,v2.UserName SKU2
-, SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',DE.UserName,' ',v1.UserName,' ',v2.UserName))
+, SKUDescConcat= ISNULL(b.SKUDesc,CONCAT(b.SalesOrderId,' ',v1.UserName,' ',v2.UserName))
    ,b.RequiredQty,b.BOMQty-b.RequiredQty AS BalanceToPurchase,b.CostingItemId,b.Remark,b.[FileName]
 						FROM BOQ AS b
 						LEFT OUTER JOIN mst.MaterialMaster AS mm ON mm.Id=b.MaterialMasterId
@@ -126,10 +128,9 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT OUTER JOIN scs.UnitOfMeasurement AS uom ON uom.Id=b.UoMId
                         LEFT OUTER JOIN scs.UnitOfMeasurement AS Tuom ON Tuom.Id=b.POUoMId
 						LEFT OUTER JOIN HKP.Party P ON p.Id=b.VendorId
-						LEFT OUTER JOIN trn.SalesOrder AS so ON so.Id=b.SalesOrderId
+						LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId --AND so.Id=CBI.SalesOrderId
 						LEFT OUTER JOIN trn.MasterOrderItem AS moi ON moi.Id=b.MasterOrderItemId
 						LEFT OUTER JOIN trn.MasterOrder AS mo ON mo.Id=moi.MasterOrderId
-						left outer join [TRN].[CustomerPO] cpo On cpo.Id=so.CustomerPOId
 
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V1 ON v1.Id=b.FGFirstCharacteristicsValueId
 						LEFT OUTER JOIN [HKP].[CharacteristicsValue] V2 ON v2.Id=b.FGSecondCharacteristicsValueId
@@ -138,7 +139,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN HKP.Characteristics AS FC ON FC.Id=V1.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS SC ON SC.Id=V2.CharacteristicsId
 						LEFT JOIN HKP.Characteristics AS TC ON TC.Id=V3.CharacteristicsId
-                        left outer join mst.Destination DE ON DE.Id=so.DestinationId
+                        --left outer join mst.Destination DE ON DE.Id=so.DestinationId
 						LEFT JOIN [dbo].[Contract] C ON C.Id=moi.ContractId
 						LEFT JOIN org.Entity AS EOUT ON EOUT.Id=ISNULL(moi.EntityIdWithinCompany,moi.EntityIdWithinGroup)
 						LEFT JOIN org.Plant AS POUT ON POUT.Id=EOUT.PlantId
@@ -146,8 +147,7 @@ namespace Library.MaterialManagement.InventoryManagements
 						LEFT JOIN org.Plant AS POWN ON POWN.Id=MO.PlantId
 						LEFT JOIN org.Entity AS EOWN ON EOWN.Id=MO.EntityId
                         LEFT JOIN HKP.CostingItem CI ON CI.Id=b.CostingItemId
-                        LEFT JOIN CostingBOQItems CBI on CBI.CostingBOQMasterId=b.CostingBOQMasterId AND CBI.CostingItemId=b.CostingItemId AND so.Id=CBI.SalesOrderId
-						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPC.CostingItemId
+						LEFT JOIN OrderProcurementCostingDirectMaterial OPC on OPC.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPC.CostingItemId AND b.CostingItemId=OPC.CostingItemId
                         LEFT JOIN (SELECT SUM(ISNULL(TransactionQty,0)) MapQty,BOQDetailId FROM TRN.POBOQMAP GROUP BY BOQDetailId) 
 									AS POBoqMap ON POBoqMap.BOQDetailId=B.Id
 						where " + tempsql + @"
