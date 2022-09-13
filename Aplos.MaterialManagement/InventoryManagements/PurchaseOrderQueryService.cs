@@ -1544,9 +1544,9 @@ namespace Library.MaterialManagement.InventoryManagements
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             try
             {
-                var _sql = @"SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo
-							POType= CASE WHEN IR.POType='PO' Then 'Individual PO' ELSE 'Requisition Based PO' END
-						,IR.Id POId
+                var _sql = @"SELECT --ROW_NUMBER() OVER(ORDER BY IRD.Id ASC) AS SLNo,
+							IR.Id PONo
+                            ,POType= CASE WHEN IR.POType='PO' Then 'Individual PO' ELSE 'Requisition Based PO' END
 							, HSNCode=case when TAxInfo.HSCode<>'' then TAxInfo.HSCode
 													when TAxInfo1.HSCode<>'' then TAxInfo1.HSCode
 													when TAxInfo2.HSCode<>'' then TAxInfo2.HSCode
