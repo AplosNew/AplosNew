@@ -580,7 +580,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
 											LEFT JOIN HKP.EmployeeCategory EC on EC.Id = DM.EmployeeCategoryId
                                 
                                 
-                                Where EI.PlantId='" + plantId + @"' and  rae.isOccupied=1 and PR.Id <> '989' order by  
+                                Where EI.PlantId='" + plantId + @"' and  rae.isOccupied=1 order by  
                                 case 
 								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
@@ -1204,8 +1204,9 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
 									--where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
                                     --where ei.EmployeeCurrentStatus in ('TBS', 'LONG ABSENTEEISM') or ei.EmployeeStatus in ('Active', 'Separated', '')
-									where RAE.isOccupied = 1 and P.Id <> '989' and (EI.EmployeeStatus <> 'Active' 
-								   or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+									--where RAE.isOccupied = 1 and P.Id <> '989' and (EI.EmployeeStatus <> 'Active' 
+								   --or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+                                where RAE.isOccupied = 1 and EI.EmployeeStatus <> 'Active' or RAE.isOccupied = 1 and EI.EmployeeCurrentStatus <> null
 ";
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -1554,10 +1555,10 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-									--where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
-                                    --where ei.EmployeeCurrentStatus in ('TBS', 'LONG ABSENTEEISM') or ei.EmployeeStatus in ('Active', 'Separated', '')
-									where RAE.isOccupied = 1 and P.Id <> '989' and (EI.EmployeeStatus <> 'Active' 
-								   or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+									
+									--where RAE.isOccupied = 1 and P.Id <> '989' and (EI.EmployeeStatus <> 'Active' 
+								   --or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+                       where RAE.isOccupied = 1 and EI.EmployeeStatus <> 'Active' or RAE.isOccupied = 1 and EI.EmployeeCurrentStatus <> null
 
 ";
                 return _sqlRepository.GetDataCollection(sql);

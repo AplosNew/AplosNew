@@ -177,6 +177,7 @@
     <Compile Include="Employee\FiveSZoneService.cs" />
     <Compile Include="Employee\FurniturePolicyService.cs" />
     <Compile Include="Employee\StorageBinMasterService.cs" />
+    <Compile Include="Employee\SurveyAndFeedbackService.cs" />
     <Compile Include="Employee\ZoneMasterService.cs" />
     <Compile Include="Employee\FuguaiTransactionService.cs" />
     <Compile Include="Employee\TrainingMasterService.cs" />
