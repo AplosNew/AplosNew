@@ -580,11 +580,12 @@ namespace Aplos.Areas.Employees.Controllers
         }
 
         [Authorize, HttpGet]
-        public ActionResult GetRouteScheduleChilddata()
+        public ActionResult GetRouteScheduleChilddata(string tripId)
         {
             string sql = @"select RSC.Id,RSC.UpDown,RSC.Remarks,ISNULL(format(RSC.StartTime,'hh:mm tt'),'')StartTime,ISNULL(format(RSC.EndTime,'hh:mm tt'),'') EndTime
 										from RouteScheduleChild RSC
-										order by RSC.AddedDate";
+                                        where RSC.RouteScheduleId='" + tripId + @"'
+                                        order by RSC.AddedDate";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

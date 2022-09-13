@@ -170,7 +170,7 @@ namespace Aplos.Areas.Employees.Controllers
             try
             {
                 var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-                var sql = @"select RS.Id TripId,RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
+                var sql = @"select RS.TripNo,R.Id RouteId,R.StandardName Route,TD.Id TransportId,TD.TransportUserName Transport 
 					                        --,RSD.UpDown
 											,REPLACE(REPLACE(
                                                     STUFF((select distinct ','+A.UpDown +':'+ISNULL(format(A.StartTime,'hh:mm tt'),'')StartTime from
@@ -226,7 +226,7 @@ namespace Aplos.Areas.Employees.Controllers
         {
             try
             {
-                var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.Id TripId,RS.TripNo
+                var sql = @"select O.TransportGroup,O.Stoppage,R.StandardName Route,TD.Id TransportId,TD.TransportNo,TD.TransportUserName Transport,RS.TripNo
 											,TD.Capacity Vacancy,TD.PlanCapacity,isnull(O.Alloted,0)Alloted,Balance=TD.PlanCapacity-isnull(O.Alloted,0)
 											,O.EmployeeCode,O.EmployeeName,O.EmployeeStatus, O.EmployeeCurrentStatus,O.DOJ,O.Skill,O.GivenDesignation
 											,O.Section,O.SubSection,O.Department,O.EntityName,O.Plant,O.InTime
