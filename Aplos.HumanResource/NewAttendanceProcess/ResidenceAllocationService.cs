@@ -1059,7 +1059,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                      where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
+                                      where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1103,7 +1103,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0
-                                       where rae.isOccupied > 0 and RM.Vacancy > o.Occupied and P.Id <> 989 order by case
+                                       where rae.isOccupied > 0 and RM.Vacancy > o.Occupied order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1148,7 +1148,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where rae.isOccupied = 1 and P.Id <> 989 order by case
+                                    where rae.isOccupied = 1 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1204,7 +1204,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
 									--where ei.EmployeeCurrentStatus = 'TBS' or ei.EmployeeStatus = 'Separated'
                                     --where ei.EmployeeCurrentStatus in ('TBS', 'LONG ABSENTEEISM') or ei.EmployeeStatus in ('Active', 'Separated', '')
-									--where RAE.isOccupied = 1 and P.Id <> '989' and (EI.EmployeeStatus <> 'Active' 
+									--where RAE.isOccupied = 1 and (EI.EmployeeStatus <> 'Active' 
 								   --or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
                                 where RAE.isOccupied = 1 and EI.EmployeeStatus <> 'Active' or RAE.isOccupied = 1 and EI.EmployeeCurrentStatus <> null
 ";
@@ -1347,7 +1347,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   O.Occupied > 0 and isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) = 0
-                                    where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied and P.Id <> 989 order by case
+                                    where rae.isOccupied > 0 and RM.Vacancy <= o.Occupied order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1391,7 +1391,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
                                     --where   isnull(isnull(RM.Vacancy,0)-isnull(O.Occupied,0),0) > 0 and O.Occupied > 0
-                                    where rae.isOccupied > 0 and RM.Vacancy > o.Occupied and P.Id <> 989 order by case
+                                    where rae.isOccupied > 0 and RM.Vacancy > o.Occupied order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
@@ -1436,7 +1436,7 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									select COUNT(A.EmployeeSystemId)Occupied,A.ResidenceId from dbo.ResidenceAllocatedEmployees A
 									 left join EmployeeInformation EI on EI.SystemId=A.EmployeeSystemId
 									Where A.isOccupied=1 and EI.PlantId in(" + identity.PlantId + @") Group BY ResidenceId) O ON O.ResidenceId=RM.Id
-                                    where rae.isOccupied = 1 and P.Id <> 989 order by case
+                                    where rae.isOccupied = 1 order by case
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
 									when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
 									when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
