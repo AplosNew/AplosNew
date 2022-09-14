@@ -745,6 +745,7 @@
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionReportController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityTransactionController.cs" />
     <Compile Include="Areas\Materials\Controllers\UtilityMasterController.cs" />
+    <Compile Include="Areas\Materials\Controllers\DetentionLogController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingReports.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingAgendaController.cs" />
     <Compile Include="Areas\MeetingManagement\Controllers\MeetingPointsController.cs" />
@@ -2145,6 +2146,7 @@
     <Content Include="Areas\Leave\Scripts\NewSystemEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\NewEarnLeaveReportController.js" />
     <Content Include="Areas\Leave\Scripts\LeaveYearDefinationController.js" />
+    <Content Include="Areas\Materials\Scripts\DetentionLogController.js" />
     <Content Include="Areas\Materials\Scripts\FabricRollsController.js" />
     <Content Include="Areas\Materials\Scripts\DetentionMasterController.js" />
     <Content Include="Areas\Materials\Scripts\ProcessWiseMaterialAllocationController.js" />
@@ -4276,6 +4278,7 @@
     <Content Include="Areas\Employees\Views\RouteEmployee\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SurveyandFeedback\Aplos.cshtml" />
     <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
+    <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
     <Content Include="POPResources\Templates\IssueWithReqPOGRNReport20181.docx" />
