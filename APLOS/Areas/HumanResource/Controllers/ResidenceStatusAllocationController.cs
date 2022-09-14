@@ -1999,7 +1999,7 @@ namespace Aplos.Areas.HumanResource.Controllers
 
             // sheet.Range[startRow, 1, startRow, endCol].HorizontalAlignment = ExcelHAlign.HAlignCenter;
 
-
+            sheet.Range[startRow - 1, 1, startRow, endCol].CellStyle.VerticalAlignment = ExcelVAlign.VAlignTop;
             ReportUtility reportUtility = new ReportUtility();
             //reportUtility.CompanyHeader(ref sheet, endCol, "PendingForAllocation", identity.CompanyId);
             reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
