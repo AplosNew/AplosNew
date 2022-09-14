@@ -2178,6 +2178,7 @@
     <Content Include="Areas\Productions\Scripts\GeneralDataOperationsController.js" />
     <Content Include="Areas\Productions\Scripts\GeneralWasteController.js" />
     <Content Include="Areas\Productions\Scripts\FinishedStockReportController.js" />
+    <Content Include="Areas\Productions\Scripts\ProductionSummaryReportController.js" />
     <Content Include="Areas\Productions\Scripts\planningTypesNewController.js" />
     <Content Include="Areas\Productions\Scripts\PrePackDefinitionController.js" />
     <Content Include="Areas\Productions\Scripts\ProcessWiseProductionBookingController.js" />
@@ -4276,6 +4277,7 @@
     <Content Include="Areas\IE\Views\DetentionType\Aplos.cshtml" />
     <Content Include="Areas\Employees\Views\RouteEmployee\Aplos.cshtml" />
     <Content Include="Areas\HumanResource\Views\SurveyandFeedback\Aplos.cshtml" />
+    <Content Include="Areas\Productions\Views\ProductionSummary\Report.cshtml" />
     <Content Include="Areas\Materials\Views\DetentionLog\Aplos.cshtml" />
     <None Include="Areas\Products\Views\InventoryReceive\Aplos.cshtml" />
     <Content Include="Areas\Accounts\Views\SalaryDisbursement\Aplos.cshtml" />
