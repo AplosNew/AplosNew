@@ -1205,6 +1205,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									
 									where RAE.isOccupied = 1 and (EI.EmployeeStatus <> 'Active' 
 								   or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+ order by 
+								   case 
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+							
+								else
+								5
+								 end ASC
                                 --where RAE.isOccupied = 1 and EI.EmployeeStatus <> 'Active' or RAE.isOccupied = 1 and EI.EmployeeCurrentStatus <> null
 ";
                 return _sqlRepository.GetDataTable(sql);
@@ -1559,6 +1569,16 @@ S.UserName Section, SS.UserName SubSection, DE.UserName Designation, E.UserName 
 									
 									where RAE.isOccupied = 1 and (EI.EmployeeStatus <> 'Active' 
 								   or EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' or EI.EmployeeCurrentStatus = 'TBS')
+ order by 
+								   case 
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Separated' then 1
+								when EI.EmployeeCurrentStatus = 'TBS' and EI.EmployeeStatus = 'Active' then 2
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Separated' then 3
+								when EI.EmployeeCurrentStatus = 'LONG ABSENTEEISM' and EI.EmployeeStatus = 'Active' then 4
+							
+								else
+								5
+								 end ASC
                        --where RAE.isOccupied = 1 and EI.EmployeeStatus <> 'Active' or RAE.isOccupied = 1 and EI.EmployeeCurrentStatus <> null
 
 ";

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace Aplos.Areas.Materials
+namespace Aplos.Areas.Materials.Controllers
 {
     public class DetentionLogController : BaseController
     {

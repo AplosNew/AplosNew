@@ -319,7 +319,7 @@ var epanelApp = angular.module('epanelApp', ['ngRoute', 'ngCookies', 'angularUti
                 controller: 'FuguaiReportController'
             })
             .when('/detention-log', {
-                templateUrl: 'materials/DetentionLog/Aplos',
+                templateUrl: 'Materials/DetentionLog/Aplos',
                 controller: 'DetentionLogController'
             })
             //#endregion
