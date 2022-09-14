@@ -2346,7 +2346,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
-                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
                             ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
                             ,CC1.UserName CLevel1,CC2.UserName CLevel2,CC3.UserName CLevel3,CC4.UserName CLevel4
                         FROM trn.InventoryIssue II
@@ -2384,6 +2384,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
 						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is not null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }
@@ -2420,7 +2421,7 @@ namespace Library.MaterialManagement.Inventory
 	                        ,IID.Policy
 	                        ,IID.BaseQty ,IID.InventoryReceiveId ,IID.InventoryReceiveDetailId
                            
-                            ,CC.UserName CostCenterName ,EI.EmployeeName
+                            ,CC.UserName CostCenterName ,EI.EmployeeName,D.UserName DepartmentName
 							,ISNULL(IGL.AccountCode,'') AS GLCode
 							,ISNULL(IGL.UserName,'') AS GL
 							,isnull(B.UserName,'') AS Budget
@@ -2474,6 +2475,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
 						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is null ANd II.PlantId='" + identity.PlantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
                 }
@@ -3123,22 +3125,12 @@ namespace Library.MaterialManagement.Inventory
                 var Head = "";
                 if (Type == "Posted")
                 {
-
                     Head = "Stores Issue Register(Posted)";
-
-
                 }
-
-                else if (Type == "NonPosted")
+                else 
                 {
-
                     Head = "Stores Issue Register(Non-Posted)";
-
-
                 }
-
-
-
 
                 CreateIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
@@ -4080,7 +4072,7 @@ namespace Library.MaterialManagement.Inventory
 							,isnull(IA1.UserName,'') AS CActivity
 							,isnull(B1.UserName,'') AS CBUdget
                             ,isnull(IBM1.RefNo,'') AS CBudgetRefNo
-                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
                             ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
                             ,CC1.UserName CRLevel1,CC2.UserName CRLevel2,CC3.UserName CRLevel3,CC4.UserName CRLevel4
                             ,format(V.PostingDate,'dd-MMM-yyyy') PostingDate,U.FullName PostedBy
@@ -4124,6 +4116,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel3 CC3 ON CC3.Id=IGL1.COALevel3Id
 						LEFT JOIN HKP.COALevel4 CC4 ON CC4.Id=IGL1.COALevel4Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is not null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
 
             }
@@ -4151,8 +4144,8 @@ namespace Library.MaterialManagement.Inventory
 	                        --,VoucherNo=CASE WHEN II.EmployeeId <> '' Then V1.VoucherNo else V.VoucherNo END
 	                        ,v.VoucherNo,V.IsPark
 	                        --,Posted=CASE WHEN II.Status <>'' then 'Yes' else 'No' END						
-	                        --,PostingDate= CASE WHEN II.EmployeeId <> '' Then REPLACE(CONVERT(CHAR(11), ep.PostingDate, 106),' ','-')   else REPLACE(CONVERT(CHAR(11), I.PostingDate, 106),' ','-')  END 
-	                        --,PostedBy=CASE WHEN II.EmployeeId <> '' Then ep.AddedBy else I.AddedBy END,II.EmployeeId
+	                        ,'' PostingDate  
+	                        ,'' PostedBy
 	                        ,IID.Id IssueDetailId
 	                        ,IID.InventoryIssueId
 	                        --,IID.InventoryMaterialId
@@ -4201,7 +4194,7 @@ namespace Library.MaterialManagement.Inventory
 							,ISNULL(IGL.UserName,'') AS GL
 							,ISNULL(IA.UserName,'') Activity
 							,isnull(B.UserName,'') AS Budget,ISNULL(IBM.RefNo,'') BudgetRefNo
-                            ,CC.UserName CostCenterName,EI.EmployeeName
+                            ,CC.UserName CostCenterName,EI.EmployeeName,D.UserName DepartmentName
                             ,C1.UserName Level1,C2.UserName Level2,C3.UserName Level3,C4.UserName Level4
                             ,IIH.CGLCode
 							,IIH.CGL
@@ -4257,6 +4250,7 @@ namespace Library.MaterialManagement.Inventory
 						LEFT JOIN HKP.COALevel3 C3 ON C3.Id=IGL1.COALevel3Id
 						LEFT JOIN HKP.COALevel4 C4 ON C4.Id=IGL1.COALevel4Id) IIH ON  IIH.InventoryIssueDetailId=IID.Id
                         LEFT join dbo.EmployeeInformation EI ON EI.SystemId=II.EmployeeId
+                        LEFT join [ORG].[Department] D ON D.Id=EI.DepartmentId
                     where v.VoucherNo is null ANd II.PlantId='" + plantId + "' AND convert(Date,II.IssueDate) BETWEEN  '" + fromDate + @"' AND '" + toDate + @"'";
             }
             var inventoryMaterialList = _sqlRepository.GetDataTable(cmdText);
@@ -4294,27 +4288,27 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1[_row, 31].Text = "Posted (Dr.)";
-            sheet1[_row, 31].CellStyle.Font.Size = 10;
-            sheet1[_row, 31].CellStyle.Font.Bold = true;
-            sheet1[_row, 31].WrapText = true;
-            sheet1[_row, 31].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 31].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 31, _row, 35].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 31, _row, 35].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 31, _row, 35].Merge();
-            sheet1.Range[_row, 31, _row, 35].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 32].Text = "Posted (Dr.)";
+            sheet1[_row, 32].CellStyle.Font.Size = 10;
+            sheet1[_row, 32].CellStyle.Font.Bold = true;
+            sheet1[_row, 32].WrapText = true;
+            sheet1[_row, 32].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 32].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 32, _row, 36].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 32, _row, 36].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 32, _row, 36].Merge();
+            sheet1.Range[_row, 32, _row, 36].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
-            sheet1[_row, 36].Text = "Posted (Cr.)";
-            sheet1[_row, 36].CellStyle.Font.Size = 10;
-            sheet1[_row, 36].CellStyle.Font.Bold = true;
-            sheet1[_row, 36].WrapText = true;
-            sheet1[_row, 36].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-            sheet1[_row, 36].VerticalAlignment = ExcelVAlign.VAlignCenter;
-            sheet1.Range[_row, 36, _row, 40].BorderAround(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 36, _row, 40].BorderInside(ExcelLineStyle.Hair);
-            sheet1.Range[_row, 36, _row, 40].Merge();
-            sheet1.Range[_row, 36, _row, 40].CellStyle.FillBackground = ExcelKnownColors.Tan;
+            sheet1[_row, 37].Text = "Posted (Cr.)";
+            sheet1[_row, 37].CellStyle.Font.Size = 10;
+            sheet1[_row, 37].CellStyle.Font.Bold = true;
+            sheet1[_row, 37].WrapText = true;
+            sheet1[_row, 37].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1[_row, 37].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_row, 37, _row, 41].BorderAround(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 37, _row, 41].BorderInside(ExcelLineStyle.Hair);
+            sheet1.Range[_row, 37, _row, 41].Merge();
+            sheet1.Range[_row, 37, _row, 41].CellStyle.FillBackground = ExcelKnownColors.Tan;
 
 
 
@@ -4363,7 +4357,7 @@ namespace Library.MaterialManagement.Inventory
             //sheet1headreColIndex++;
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Cost Center";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4375,7 +4369,14 @@ namespace Library.MaterialManagement.Inventory
 
 
 
-            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Person Name";
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Issue By";
+            sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
+            sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet1.Range[_rowL, sheet1headreColIndex].CellStyle.Font.Bold = true;
+            sheet1headreColIndex++;
+
+            sheet1.Range[_rowL, sheet1headreColIndex].Text = "Department";
             sheet1.Range[_rowL, sheet1headreColIndex].ColumnWidth = 20;
             sheet1.Range[_rowL, sheet1headreColIndex].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet1.Range[_rowL, sheet1headreColIndex].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -4770,40 +4771,41 @@ namespace Library.MaterialManagement.Inventory
                 report.SetText(ref sheet1, _rowL, 4, inventoryMaterialList.Rows[n]["Entityname"].ToString());
                 report.SetText(ref sheet1, _rowL, 5, inventoryMaterialList.Rows[n]["CostCenterName"].ToString());
                 report.SetText(ref sheet1, _rowL, 6, inventoryMaterialList.Rows[n]["EmployeeName"].ToString());
-                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
-                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["Status"].ToString());
-                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
-                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
-                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
-                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
-                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
-                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 18, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
-                report.SetText(ref sheet1, _rowL, 19, inventoryMaterialList.Rows[n]["UOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 20, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
-                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
-                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
-                report.SetText(ref sheet1, _rowL, 24, inventoryMaterialList.Rows[n]["Policy"].ToString());
-                report.SetText(ref sheet1, _rowL, 25, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 7, inventoryMaterialList.Rows[n]["DepartmentName"].ToString());
+                report.SetText(ref sheet1, _rowL, 8, inventoryMaterialList.Rows[n]["MaterialStorageName"].ToString());
+                report.SetText(ref sheet1, _rowL, 9, inventoryMaterialList.Rows[n]["Status"].ToString());
+                report.SetText(ref sheet1, _rowL, 10, inventoryMaterialList.Rows[n]["IssueDetailId"].ToString());
+                report.SetText(ref sheet1, _rowL, 11, inventoryMaterialList.Rows[n]["MaterialType"].ToString());
+                report.SetText(ref sheet1, _rowL, 12, inventoryMaterialList.Rows[n]["MaterialGroupMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 13, inventoryMaterialList.Rows[n]["MaterialMasterName"].ToString());
+                report.SetText(ref sheet1, _rowL, 14, inventoryMaterialList.Rows[n]["ArticleName"].ToString());
+                report.SetText(ref sheet1, _rowL, 15, inventoryMaterialList.Rows[n]["FirstCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 16, inventoryMaterialList.Rows[n]["SecondCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 17, inventoryMaterialList.Rows[n]["ThirdCharacteristicsValue"].ToString());
+                report.SetText(ref sheet1, _rowL, 18, inventoryMaterialList.Rows[n]["HSNCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 19, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["TransactionQty"].ToString()));
+                report.SetText(ref sheet1, _rowL, 20, inventoryMaterialList.Rows[n]["UOM"].ToString());
+                report.SetText(ref sheet1, _rowL, 21, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgRate"].ToString()));
+                report.SetText(ref sheet1, _rowL, 22, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["AvgAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 23, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyRate"].ToString()), 4);
+                report.SetText(ref sheet1, _rowL, 24, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["PolicyAmount"].ToString()));
+                report.SetText(ref sheet1, _rowL, 25, inventoryMaterialList.Rows[n]["Policy"].ToString());
+                report.SetText(ref sheet1, _rowL, 26, clsStaticInfo.dbl(inventoryMaterialList.Rows[n]["BaseQty"].ToString()));
                 report.SetText(ref sheet1, _rowL, colBaseUOMTotal, inventoryMaterialList.Rows[n]["BaseUOM"].ToString());
-                report.SetText(ref sheet1, _rowL, 27, inventoryMaterialList.Rows[n]["IsPark"].ToString());
-                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
-                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
-                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["Remarks"].ToString());
-                report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["GLCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["GL"].ToString());
-                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["Budget"].ToString());
-                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Activity"].ToString());
-                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
-                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
-                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CGL"].ToString());
-                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
-                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CActivity"].ToString());
-                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 28, inventoryMaterialList.Rows[n]["IsPark"].ToString());
+                report.SetText(ref sheet1, _rowL, 29, inventoryMaterialList.Rows[n]["PostingDate"].ToString());
+                report.SetText(ref sheet1, _rowL, 30, inventoryMaterialList.Rows[n]["PostedBy"].ToString());
+                report.SetText(ref sheet1, _rowL, 31, inventoryMaterialList.Rows[n]["Remarks"].ToString());
+                report.SetText(ref sheet1, _rowL, 32, inventoryMaterialList.Rows[n]["GLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 33, inventoryMaterialList.Rows[n]["GL"].ToString());
+                report.SetText(ref sheet1, _rowL, 34, inventoryMaterialList.Rows[n]["Budget"].ToString());
+                report.SetText(ref sheet1, _rowL, 35, inventoryMaterialList.Rows[n]["Activity"].ToString());
+                report.SetText(ref sheet1, _rowL, 36, inventoryMaterialList.Rows[n]["BudgetRefNo"].ToString());
+                report.SetText(ref sheet1, _rowL, 37, inventoryMaterialList.Rows[n]["CGLCode"].ToString());
+                report.SetText(ref sheet1, _rowL, 38, inventoryMaterialList.Rows[n]["CGL"].ToString());
+                report.SetText(ref sheet1, _rowL, 39, inventoryMaterialList.Rows[n]["CBUdget"].ToString());
+                report.SetText(ref sheet1, _rowL, 40, inventoryMaterialList.Rows[n]["CActivity"].ToString());
+                report.SetText(ref sheet1, _rowL, 41, inventoryMaterialList.Rows[n]["CBudgetRefNo"].ToString());
                 //report.SetText(ref sheet1, _rowL, 43, inventoryMaterialList.Rows[n]["CRLevel1"].ToString());
                 //report.SetText(ref sheet1, _rowL, 44, inventoryMaterialList.Rows[n]["CRLevel2"].ToString());
                 //report.SetText(ref sheet1, _rowL, 45, inventoryMaterialList.Rows[n]["CRLevel3"].ToString());

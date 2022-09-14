@@ -490,7 +490,7 @@ namespace Aplos.Areas.Employees.Controllers
 
                 if (RouteShChild["UpDown"].ToString()=="Up")
                 {
-                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Up'", out dsRouteUp, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Up' and RouteScheduleId='"+ RouteScheduleId + "'", out dsRouteUp, false, "1");
 
                     if (dsRouteUp.Tables[0].Rows.Count > 0)
                     {
@@ -499,7 +499,7 @@ namespace Aplos.Areas.Employees.Controllers
                 }
                 if (RouteShChild["UpDown"].ToString() == "Down")
                 {
-                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Down'", out dsRouteDown, false, "1");
+                    con.OpenDataSetThroughAdapter("select * from RouteScheduleChild where Id <>'" + RouteShChild["Id"] + "' and UpDown='Down' and RouteScheduleId='" + RouteScheduleId + "'", out dsRouteDown, false, "1");
                     if (dsRouteDown.Tables[0].Rows.Count > 0)
                     {
                         throw new Exception("Down is already exists!");

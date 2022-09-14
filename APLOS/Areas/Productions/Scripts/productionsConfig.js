@@ -301,5 +301,9 @@ function ProductionsConfig($routeProvider, $locationProvider) {
             templateUrl: 'Productions/ProductionReportWithParameter/Aplos',
             controller: 'ProductionReportWithParameterController'
         })
+        .when('/pro-sum-rpt', {
+            templateUrl: 'Productions/ProductionSummary/Report',
+            controller: 'ProductionSummaryReportController'
+        })
         ;
 }
