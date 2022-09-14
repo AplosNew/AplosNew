@@ -3125,22 +3125,12 @@ namespace Library.MaterialManagement.Inventory
                 var Head = "";
                 if (Type == "Posted")
                 {
-
                     Head = "Stores Issue Register(Posted)";
-
-
                 }
-
-                else if (Type == "Non Posted")
+                else 
                 {
-
                     Head = "Stores Issue Register(Non-Posted)";
-
-
                 }
-
-
-
 
                 CreateIssueRegisterReportSheet(ref sheet1, report, Head, "Summary", companyId, plantId, fromDate, toDate, Type);
                 workbook.Version = ExcelVersion.Excel2016;
