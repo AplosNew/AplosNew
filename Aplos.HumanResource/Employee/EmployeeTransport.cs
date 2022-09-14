@@ -64,7 +64,7 @@ namespace Aplos.HumanResource
         {
             try
             {
-                string CmdText = @"select Emp.EmployeeCode,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
+                string CmdText = @"select Emp.EmployeeCode,Emp.EmployeeName,Emp.EmployeeStatus, Emp.EmployeeCurrentStatus
 									,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,PR.PaymentLink Skill,DEG.UserName GivenDesignation
 									,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName EntityName
 									,PL.UserName Plant,TG.UserName TransportGroup,'' StoppageId
@@ -98,7 +98,7 @@ namespace Aplos.HumanResource
         {
             try
             {
-                string CmdText = @"select ETA.Id,EI.EmployeeCode,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
+                string CmdText = @"select ETA.Id,EI.EmployeeCode,EI.EmployeeName,EI.EmployeeStatus,EI.EmployeeCurrentStatus,format(EI.DOJ,'dd-MMM-yyyy') DOJ,EI.DOS,R.StandardName [Route]
 							                    ,TD.TransportUserName Transport,SD.UserName [Shift],R.[From],R.[To],RS.Id TripId,RS.TripNo,PR.PaymentLink Skill
 							                    ,DEG.UserName GivenDesignation,S.UserName Section,SS.UserName SubSection,DEPT.UserName Department,E.UserName Entity,PL.UserName Plant
 												,ST.Id StoppageId,ST.UserName Stoppage,ETA.AssignStatus,format(ETA.UnassignDate,'dd-MMM-yyyy') UnassignDate
