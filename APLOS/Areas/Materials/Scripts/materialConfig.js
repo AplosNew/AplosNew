@@ -288,4 +288,8 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/ProcessWiseMaterialAllocation/Aplos',
             controller: 'ProcessWiseMaterialAllocationController'
         })
+        .when('/detention-log', {
+            templateUrl: 'materials/DetentionLog/Aplos',
+            controller: 'DetentionLogController'
+        })
 };
