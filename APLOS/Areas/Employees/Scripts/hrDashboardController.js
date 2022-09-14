@@ -1934,8 +1934,13 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
 
     $scope.dataGrid = "#probationEmpGrid";
     $scope.Print = function () {
-        var gridObj = $($scope.dataGrid).data("ejGrid");
-        var data = gridObj.model.dataSource;
+        var gridObjStockReg = $($scope.dataGrid).data("ejGrid");
+        var data = gridObjStockReg.getFilteredRecords();
+
+        if (data.length == 0) {
+            data = gridObjStockReg.model.dataSource();
+        }
+
         $scope.fileName = 'Employee';
 
         $http({
@@ -1953,7 +1958,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
     };
     $scope.PrintIncGR = function () {
         var gridObj = $($scope.dataGrid).data("ejGrid");
-        var data = gridObj.model.dataSource;
+        var data = gridObj.model.dataSource();
         data = ej.DataManager(data).executeLocal(ej.Query().select(["EmployeeName", "EmployeeCode", "Designation", "DOJ", "IncrementEffectiveDate", "IncDaysToGO", "IncrementNextDueDate", "OperationCode", "CellPhnNo"]));
 
         $scope.fileName="List of Employees"
@@ -1975,7 +1980,7 @@ function hrDashboardController(fileReader, cboService, commonMessage, $scope, $r
     };
     $scope.PrintGRDes = function () {
         var gridObj = $($scope.dataGrid).data("ejGrid");
-        var data = gridObj.model.dataSource;
+        var data = gridObj.model.dataSource();
         data = ej.DataManager(data).executeLocal(ej.Query().select(["EmployeeName", "EmployeeCode", "Shift", "Designation", "EmpCategory", "DOJ", "OperationActivityName", "OperationMasterName", "OperationCode", "CompanyName", "Plant", "Department", "Line", "CellPhnNo"]));
 
         var reportFileName = "List of Employees"
