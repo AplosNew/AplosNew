@@ -32,12 +32,13 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
                 throw " From date can not be greater than To date.";
 
             }
-            $scope.filterComplete();
+         //   $scope.filterComplete();
             $scope.fileName = "OrderReport.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOrderReport",
-                data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
+                //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
