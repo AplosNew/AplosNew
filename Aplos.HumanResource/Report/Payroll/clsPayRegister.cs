@@ -8747,7 +8747,8 @@ where h.HeadCategory='GROSS'
 
                         if (Convert.ToBoolean(dtEmployees.Rows[i]["IsOTEntitled"]) == true)
                         {
-                            FormatText(ref sheet1, ref rtf, _otHour + ":" + tothr + " ", 27);
+                            //FormatText(ref sheet1, ref rtf, _otHour + ":" + tothr + " ", 27);
+                            FormatText(ref sheet1, ref rtf, _otHour + ":" + totalOTHr + " ", 27);
                             FormatText(ref sheet1, ref rtf, Environment.NewLine, 6);
                             FormatText(ref sheet1, ref rtf, _otRateLocal + ":" + otRateBangla + " ", 27);
                         }

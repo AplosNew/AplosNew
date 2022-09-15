@@ -293,7 +293,7 @@ namespace Aplos.Areas.Products.Controllers
 
         #endregion  PO-without-requisition
 
-        #region Purchase-Order-By-Requisition Action function
+        #region Purchase-Order-By-Requisition Action functionEditPOByReq
         [HttpPost]
         public JsonResult CreatePOByReq(PurchaseOrder entity, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {

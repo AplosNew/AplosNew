@@ -3679,7 +3679,7 @@ namespace Library.Service.Employees
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            string Sql = @"SELECT Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
+            string Sql = @"SELECT distinct Format(salaryInfoTo.EffectiveDate , 'dd-MMM-yyyy') As AppraisalDate,
 
 			 CONVERT(NUMERIC(10,2),salaryInfoFrom.EntryAmount) PreviousGross
 		 , CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount) NewGross,CONVERT(NUMERIC(10,2),salaryInfoTo.EntryAmount-salaryInfoFrom.EntryAmount) IncrementAmount,
@@ -3699,7 +3699,8 @@ Union
 SELECT SMB.SystemID,SMB.EmpInfoSystemID,SMB.EffectiveDate,SDB.EntryAmount,SDB.SalaryHeadID FROM SalaryInfoBackMaster SMB
 LEFT JOIN SalaryInfoBack SDB ON SDB.SalaryID=SMB.SystemID
 WHERE SMB.EmpInfoSystemID='" + EmpSystemId + @"'
-) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate and IH.ToSalaryId=salaryInfoTo.SystemID
+) salaryInfoTo on IH.EmpSystemID=salaryInfoTo.EmpInfoSystemID AND IH.ToEffectiveDate=salaryInfoTo.EffectiveDate 
+--and IH.ToSalaryId=salaryInfoTo.SystemID
 LEFT JOIN SalaryHead SH ON SH.SalaryHeadID=salaryInfoTo.SalaryHeadID
 
 LEFT JOIN (
@@ -3740,7 +3741,7 @@ LEFT JOIN hkp.LegalDesignation LD ON IH.ToLegalDesignationId = LD.Id
 
 
 where IH.EmpSystemID='" + EmpSystemId + @"' and sh.HeadCategory='gross' and sh1.HeadCategory='gross'
-ORDER BY convert(date,salaryInfoFrom.EffectiveDate) ";
+--ORDER BY convert(date,salaryInfoFrom.EffectiveDate) ";
             return _sqlRepository.GetDataTable(Sql);
         }
         private DataTable GetEmpHeaderInfo(string EmpSystemId, string languageId)
