@@ -1,6 +1,6 @@
 ﻿'use strict';
-ProductionSummaryReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter'];
-function ProductionSummaryReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter) {
+ProductionSummaryReportController.$inject = ['cboService', 'commonMessage', '$scope', '$rootScope', 'baseService', '$routeParams', '$location', '$http', '$filter','$window'];
+function ProductionSummaryReportController(cboService, commonMessage, $scope, $rootScope, baseService, $routeParams, $location, $http, $filter, $window) {
     $rootScope.title = 'Production Report';
     $scope.path = "Productions/ProductionSummary/";
 
@@ -11,34 +11,78 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
     $scope.downloadgriddataPDFUrl = 'GridReports/DownloadPdf';
     $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
 
-   //The Selection Criteria   
-    $scope.Datelist = [
-        { text: "Ex Factory Date", value: "ExFactoryD" },
-        { text: "Shipment Date", value: "ShipmentD" },
-        { text: "Commitment Date", value: "CommitmentD" }        
-    ];
-    $rootScope.dateC = "Deliver Date";
-    $rootScope.dateCgroup = "ShipmentD";
-    $rootScope.chartTypeG = "ProductionD";
-    $scope.dateValueChange = function () {
-        var obj = $('#dropdownDate').data("ejDropDownList");
-        $rootScope.dateC = obj.option("text");
-        $rootScope.dateCgroup = obj.option("value");
+  
+    $scope.PlantList = [];
+    $scope.getPlant = function () {
+        $http({
+            method: 'GET',
+            url: "humanresource/payrollReports/GetPlantList",
+        }).then(function successCallback(response) {
+            $scope.PlantList = response.data;
+            var index = 0;
+            for (var i = 0; i < $scope.PlantList.length; i++) {
+                if ($scope.PlantList[i].PlantId == $window.plantId) {
+                    index = i;
+                }
+            }
+
+            $('#PlantList').ejDropDownList(
+                {
+                    dataSource: $scope.PlantList,
+                    fields: { text: "PlantName", value: "PlantId" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+        });
     }
+    $scope.getPlant();
+
+    $scope.entityList = [];
+    $scope.getAllEntities = function () {
+        $http({
+            method: 'POST',
+            url: "OrderManagements/productionOrderSchedulingParametersType1/GetEntity"
+        }).then(function successCallback(response) {
+            $scope.entityList = response.data;
+            var index = 0;
+            $('#entityList').ejDropDownList(
+                {
+                    dataSource: $scope.entityList,
+                    fields: { text: "UserName", value: "Id" },
+                    selectedIndex: index, showCheckBox: true, multiSelectMode: ej.MultiSelectMode.VisualMode
+                    , width: 250
+                });
+        });
+    }
+    $scope.getAllEntities();
+
 
     $scope.Report = function () {
         try {
-            if (new Date($scope.fromDate) > new Date($scope.toDate)) {
-                throw " From date can not be greater than To date.";
-
+            if (angular.isUndefinedOrNull($scope.fromDate)) {
+                throw "Select From Date";
             }
-         //   $scope.filterComplete();
-            $scope.fileName = "OrderReport.xlsx";
+
+            if (angular.isUndefinedOrNull($scope.toDate)) {
+                throw "Select To Date";
+            }
+
+            if (new Date($scope.fromDate) > new Date($scope.toDate)) {
+                throw "From date can not be greater than To date.";
+            }
+
+            var DropDownListObj = $("#PlantList").data("ejDropDownList");
+            var PlantId = DropDownListObj.getSelectedValue();
+
+            var DropDownEntityListObj = $("#entityList").data("ejDropDownList");
+            var EntityId = DropDownEntityListObj.getSelectedValue();
+
+            $scope.fileName = "ProductionOrderReport.xlsx";
             $http({
                 method: 'POST',
                 url: $scope.path + "GetOrderReport",
                 //data: { 'parameters': $scope.parameters, 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'dateType': $rootScope.dateCgroup },
-                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate},
+                data: { 'fromDate': $scope.fromDate, 'toDate': $scope.toDate, 'PlantId': PlantId, 'EntityId': EntityId},
                 dataType: 'JSON'
             }).then(function successCallback(response) {
                 if (response.data.Error == false) {
@@ -54,103 +98,6 @@ function ProductionSummaryReportController(cboService, commonMessage, $scope, $r
         } catch (e) {
             ShowResult(e, 'failure');
         }
-    }
-
- 
-    //The Filters 
-    $scope.filters=[];
-    $scope.loadfilters = function () {
-        $http({
-            method: 'GET',
-            url: $scope.path + 'getFilters',
-            dataType: 'JSON'
-        }).then(function successCallback(response) {
-            $scope.filters = response.data;
-            var columnList = [
-                { field: 'Plant', width: 20, headerText: "Plant", type: "string" },
-                { field: 'Entity', width: 20, headerText: "Entity", type: "string" },
-                { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'Buyer', width: 20, headerText: "Buyer", type: "string" },
-                { field: 'ResponsiblePerson', width: 20, headerText: "Responsible Person", type: "string" },
-                      
-                { field: 'ProductionStatus', width: 20, headerText: "PO Status", type: "string" },
-                { field: 'SOStatusId', width: 20, headerText: "SO Status", type: "string" },
-                { field: 'MOStatusId', width: 20, headerText: "MO Status", type: "string" },
-                
-            ];
-            $("#filters").ejGrid({
-                dataSource: $scope.filters,
-                minWidth: 450, minHeight: 400,
-                allowFiltering: true, allowPaging: true, enableTouch: true, responsive: true, allowTextWrap: true, allowScrolling: true,
-                filterSettings: { filterType: "excel" },
-                columns: columnList
-            });
-
-            var gridObj = $("#filters").data("ejGrid");
-            gridObj.refreshContent(true);
-            gridObj.refreshTemplate();
-           $("#filters").children('.e-pager.e-js.e-pager').hide();
-            $("#filters").children('.e-gridcontent.e-droppable.e-js').hide();
-            $("#filters").children('.e-gridcontent').hide();
-        });
-    }
-    $scope.loadfilters();
-
-    // THe Generate Filters
-    $scope.parameters = [];
-    $scope.filterComplete = function () {
-      
-        var g = $("#filters").data("ejGrid");
-        var fl = g.getFilteredRecords();
-        if (fl.length == 0) {
-            fl = $scope.filters;
-        }
-
-
-        var parameters = [];
-        parameters.push({ "Key": "PlantId", "Value": getString(fl, "PlantId") });
-        parameters.push({ "Key": "EntityId", "Value": getString(fl, "EntityId") });
-        parameters.push({ "Key": "CustomerId", "Value": getString(fl, "CustomerId") });
-        parameters.push({ "Key": "BuyerId", "Value": getString(fl, "BuyerId") });
-        parameters.push({ "Key": "ResponsiblePersonId", "Value": getString(fl, "ResponsiblePersonId") });
-      
-        parameters.push({ "Key": "ProductionStatusId", "Value": getString(fl, "ProductionStatusId") });
-        parameters.push({ "Key": "SOStatusId", "Value": getString(fl, "SOStatusId") });
-        parameters.push({ "Key": "MOStatusId", "Value": getString(fl, "MOStatusId") });
-      
-        $scope.parameters = parameters;
-     
-    }
-
-
-    var getString = function (data, column) {
-        var string = "''";
-        var collection = [];
-
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) == false) {
-               /* var replace = data[i][column].replace(",", "','");*/
-                string += ",'" + data[i][column] + "'";
-                collection.push(data[i][column]);
-            }
-        }
-        return string;
-    }
-
-    //Destroy The Grid Before ReBuilding And Clearing of the Filters
-    $scope.clearFilters = function () {
-
-        var gridObj = $("#filters").data("ejGrid");
-        gridObj.clearFiltering();
-    }
-
-      $scope.refreshPage = function (e) {
-        if (e.requestType == "paging") {
-            var gridObj = $("#slabGrid").data("ejGrid");
-       gridObj.refreshContent(true);
-        gridObj.refreshTemplate();
-        }
-        var k = 100;
     }
 
 
