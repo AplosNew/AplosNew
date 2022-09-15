@@ -379,6 +379,12 @@ namespace Library.Accounting.Accounts
 						   FROM [TRN].[BankReconciliation] where BankMasterId='" + bankMasterId + "' AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"'
                             ORDER BY ToDate DESC");
         }
+        public Dictionary<string, object> GetBankReconUploadLastDate(string companyGroupId, string companyId, string bankMasterId)
+        {
+            return _sqlRepository.GetData(@"SELECT TOP(1) REPLACE(CONVERT(CHAR(11), dateadd(DAY,1,ToDate), 106),' ','-') AS FromDate, OpeningBlance, ClosingBalance
+						   FROM [TRN].[BankReconciliationUpload] where BankMasterId='" + bankMasterId + "' AND CompanyGroupId='" + companyGroupId + "' AND CompanyId='" + companyId + @"'
+                            ORDER BY ToDate DESC");
+        }
         public Dictionary<string, object> GetBankReconDrCrTotalAmount(string companyGroupId, string companyId, string bankMasterId, DateTime fromDate, DateTime toDate)
         {
             return _sqlRepository.GetData(@"select sum(x.DrAmount) bankDrAmmount,sum(x.CrAmount) bankCrAmmount from (
@@ -400,6 +406,28 @@ namespace Library.Accounting.Accounts
                                 AND (VD.BankMasterId= '" + bankMasterId + "'  AND V.PostingDate<=CONVERT(DATE,'" + toDate + @"'))
                                 AND (VD.CrAmount<>0.0000) 
                 				) x");
+        }
+        public IEnumerable<object> GetBankReconciliationUploadedData(string companyGroupId, string companyId, string plantId, string bankMasterId)
+        {
+            try
+            {
+                var sql = @"SELECT BRU.Id,B.UserName  BankName,OpeningBlance, ClosingBalance, BankStatementNo, BRU.Remarks,EI.EmployeeName
+                            ,REPLACE(CONVERT(CHAR(11), BRU.FromDate, 106),' ','-') AS FromDate
+                            ,REPLACE(CONVERT(CHAR(11), BRU.ToDate, 106),' ','-') AS ToDate
+                            FROM TRN.BankReconciliationUpload BRU
+                            INNER JOIN [MST].[BankMaster] BM ON BM.Id=BRU.BankMasterId
+                            INNER JOIN [HKP].[Bank] B ON B.Id=BM.BankId
+                            INNER JOIN [dbo].[EmployeeInformation] EI ON EI.SystemId=BRU.EmployeeId
+                            WHERE BRU.CompanyGroupId='" + companyGroupId + @"' AND BRU.CompanyId='" + companyId + @"'  AND BRU.PlantId='" + plantId + @"'
+                            AND BRU.BankMasterId='" + bankMasterId + @"'  ORDER BY BRU.AddedDate DESC";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
         }
     }
 }
