@@ -1197,13 +1197,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         [HttpPost, Authorize]
         //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        public ActionResult GetOrderReport(string fromDate, string toDate, string dateType)
+        public ActionResult GetOrderReport(string fromDate, string toDate,  string PlantId, string EntityId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = OrderReport(fromDate, toDate, "OrderReport");
+                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId,EntityId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1213,8 +1213,9 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         }
 
-        public string OrderReport(string fromDate, string toDate, string SheetName)
+        public string OrderReport(string fromDate, string toDate, string SheetName, string PlantId, string EntityId)
         {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             ExcelEngine excelEngine = null;
             IApplication application = null;
             IWorkbook workbook = null;
@@ -1222,15 +1223,20 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             var filePath = "";
             try
             {
-
+                if (PlantId == "" || PlantId == null)
+                {
+                    PlantId = identity.PlantId;
+                }
+                string Plant = "'" + PlantId.Replace(",", "','") + "'";//replaced with ""
+                string Entity = "'" + EntityId.Replace(",", "','") + "'";//replaced with ""
 
                 excelEngine = new ExcelEngine();
                 application = excelEngine.Excel;
-                workbook = application.Workbooks.Create(3);
-                workbook.Worksheets[2].Name = "Data";
-                sheet = workbook.Worksheets[2];
+                workbook = application.Workbooks.Create(2);
+                workbook.Worksheets[1].Name = "Data";
+                sheet = workbook.Worksheets[1];
                 DataTable dtOrder;
-                OrderReportSQL(fromDate, toDate, out dtOrder);
+                OrderReportSQL(fromDate, toDate, Plant, Entity, out dtOrder);
 
                 int ROW = 6; int COL = 1;
 
@@ -1462,7 +1468,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 ROW++;
 
-                int startRow = ROW;
+               int startRow = ROW;
 
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
@@ -1474,8 +1480,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colProductionOrderID].Text = dtOrder.Rows[i]["ProductionOrderID"].ToString();
                     sheet[ROW, colWorkCenter].Text = dtOrder.Rows[i]["WorkCenter"].ToString();
                     sheet[ROW, colActualDate].Text = dtOrder.Rows[i]["ActualDate"].ToString();
-                    sheet[ROW, colActualQty].Text = dtOrder.Rows[i]["ActualQty"].ToString();
-                    sheet[ROW, colActualCM].Text = dtOrder.Rows[i]["ActualCM"].ToString();
+                    sheet[ROW, colActualQty].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualQty"].ToString());
+                    sheet[ROW, colActualCM].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ActualCM"].ToString());
                     sheet[ROW, colToProcess].Text = dtOrder.Rows[i]["ToProcess"].ToString();
                     sheet[ROW, colProcess].Text = dtOrder.Rows[i]["Process"].ToString();
                     sheet[ROW, colToWorkCenter].Text = dtOrder.Rows[i]["ToWorkCenter"].ToString();
@@ -1515,7 +1521,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                     sheet[ROW, colActualMinutes].Text = dtOrder.Rows[i]["ActualMinutes"].ToString();
                     sheet[ROW, colActualEfficiency].Text = dtOrder.Rows[i]["ActualEfficiency"].ToString();
                     sheet[ROW, colParameter].Text = dtOrder.Rows[i]["Parameter"].ToString();
-                    sheet[ROW, colParameterValue].Text = dtOrder.Rows[i]["ParameterValue"].ToString();
+                    sheet[ROW, colParameterValue].Number = Library.Service.Extension.clsStaticInfo.dbl(dtOrder.Rows[i]["ParameterValue"].ToString());
 
 
 
@@ -1532,7 +1538,6 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.Range[startRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
                 sheet["A" + startRow.ToString()].FreezePanes();
 
-                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
                 ReportUtility reportUtility = new ReportUtility();
                 reportUtility.PlantHeader(ref sheet, endCol, "Order Report", identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
@@ -1559,6 +1564,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
 
+                
+
                 #region Pivot
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
 
@@ -1574,74 +1581,16 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 pivotTable.Fields[colId - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colResponsiblePerson - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colCustomer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyer - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colCommitmentDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colBuyerRefNo - 1].Axis = PivotAxisTypes.Row;
-
-                //pivotTable.Fields[colArticle - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colDeliveryDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colPlanExFactoryDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSalesOrderStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionOrderId - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionStartDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colProductionOrderCategory - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colLSD - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colMainrawMaterialDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOtherRawMaterialDate - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colSPT - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colRemarks - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colorderRemarks - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colorderStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colMainMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colMainMaterialStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOtherRawMaterialRemarks - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colOtherRawMaterialStatus - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colInputRemarks - 1].Axis = PivotAxisTypes.Row;
-                //pivotTable.Fields[colInputStatus - 1].Axis = PivotAxisTypes.Row;
+                pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
+                pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
+               
 
 
                 IPivotField field = pivotTable.Fields[colParameterValue - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
 
-                //field = pivotTable.Fields[colCM - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "CM", PivotSubtotalTypes.Sum);
-
-
-                //field = pivotTable.Fields[colSOQty - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "SO Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colShippedQty - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "Shipped Qty", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colBalShipment - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
-                //pivotTable.DataFields.Add(field, "Bal Shipment", PivotSubtotalTypes.Sum);
-
-
-                //field = pivotTable.Fields[colPlan - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
-                //pivotTable.DataFields.Add(field, "Plan", PivotSubtotalTypes.Sum);
-
-                //field = pivotTable.Fields[colToPlan - 1];
-                //field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(0);
-                //pivotTable.DataFields.Add(field, "To Plan", PivotSubtotalTypes.Sum);
-
-
-                //for (int i = 0; i < pivotTable.Fields.Count; i++)
-                //{
-                //    if (i == colPlant - 1 || i == colEntity - 1 || i == colResponsiblePerson - 1 || i == colCustomer - 1 || i == colBuyer - 1)
-                //        continue;
-                //    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
-                //}
+               
 
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
@@ -1674,13 +1623,11 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 throw ex;
             }
         }
-        private void OrderReportSQL(string fromDate, string toDate, out DataTable dtOrder)
+        private void OrderReportSQL(string fromDate, string toDate, string PlantId, string EntityId, out DataTable dtOrder)
         {
-            string date = "";
-
-
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
+            try
+            {
+                string sql = @"SELECT  PP.Id, trkp.UserName AS Plant,trke.UserName AS Entity,pp.EntityID,pp.WorkCenterMasterId, PP.ProductionOrderID,wcm.UserName AS WorkCenter,FORMAT(PP.ProductionDate,'dd-MMM-yyyy') AS ActualDate,pp.Quantity AS ActualQty,ORD.CM*pp.Quantity AS ActualCM,
                             pt1.SPT AS SAM,isnull(p.UserName,FSFG.UserName) AS Process,isnull(Tp.UserName,TSFG.UserName) AS ToProcess,Twcm.UserName AS ToWorkCenter,ISNULL(pp.UserName,ord.Material) Material,ISNULL(pp.StandardName,ord.Article ) Article              
                             ,ord.Product, ord.ProductCategory,Format(SN.AddedDate,'dd-MMM-yyyy') AS SnapshotDate,
                             sn.Quantity AS PlanQty,ORD.CM*sn.Quantity AS PlanCM,ORD.CM
@@ -1750,8 +1697,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            WHERE ps.ProductionDate BETWEEN '01-Sep-2022' AND '01-Sep-2022' AND ps.EntityID in ('','119','112','121','115','116','117','118','114','120') 
-      		                            --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
+      		                            WHERE ps.ProductionDate BETWEEN '"+ fromDate + @"' AND '"+toDate+ @"' AND ps.EntityID in (" + EntityId + @")
+                                          --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
                             LEFT JOIN dbo.ShiftDefination CPL ON cpl.SystemId=pp.ProductionShiftId
@@ -1781,8 +1728,8 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join trn.MasterOrder MO on mo.Id=moi.MasterOrderId
                                                         left join MasterOrderExchangeRates RT ON RT.TransactionId=MO.Id
                                                         left JOIN org.Company AS com ON com.Id=mo.CompanyId
-                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
-                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN ('','119','112','121','115','116','117','118','114','120'))
+                                                        LEFT JOIN ReportExchangeRates AS rer ON rer.FromCurrencyId=COM.BaseCurrencyId AND rer.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
+                                                        LEFT JOIN ReportExchangeRates AS SAME ON SAME.FromCurrencyId=SAME.ToCurrencyId AND SAME.PlantId=(SELECT top 1 PlantId FROM org.Entity AS e WHERE e.Id IN (" + EntityId + @"))
                                                         LEFT OUTER JOIN trn.Commitment AS c ON c.Id=mo.CommitmentId
                                                         left outer join mst.MaterialMaster mm on mm.id=moi.MaterialMasterId
                                                         LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=moi.ArticleId
@@ -1791,8 +1738,14 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                                         left outer join [HKP].[ProductCategory] PC on pc.Id=pm.ProductCategoryId
                                                         group by mm.UserName,MA.StandardName,PM.UserName,PC.UserName,POD.ProductionOrderId
                                               ) AS ORD on ord.ProductionOrderID=pp.ProductionOrderId
+WHERE trkp.Id IN (" + PlantId + @")
                         ORDER BY PP.ProductionDate, PP.WorkCenterMasterId, PP.ProductionOrderID,p.Sequence";
-            dtOrder = _sqlRepository.GetDataTable(sql);
+                dtOrder = _sqlRepository.GetDataTable(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
 
         }

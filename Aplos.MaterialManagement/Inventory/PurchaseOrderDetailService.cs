@@ -1625,7 +1625,8 @@ namespace Library.MaterialManagement.Inventory
                         string _sql2 = "Update trn.MaterialRequsitionDetails set POQtyStatus='" + 1 + "' where id='" + data.RequisitionDetailId + "'";
                         _sqlRepository.ExecuteSqlCommand(_sql2);
                     }
-
+                   var poRequisitionData= _poRequisitionDetailRepository.Query(r=>r.PoDetailId==data.Id).Select().FirstOrDefault();
+                    _poRequisitionDetailRepository.Delete(poRequisitionData);
                     base.DeleteGraph(data);
                     _unitOfWork.SaveChanges();
                     flag = false;
