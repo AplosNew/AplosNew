@@ -342,11 +342,11 @@ namespace Library.MaterialManagement.Material
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 // Validate Unique User Name
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-                    throw new Exception("Same UserName is already there!!");
-                }
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Same UserName is already there!!");
+                //}
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 
