@@ -93,7 +93,7 @@
                 <div class="form-group" id="div_ToDate" show-errors>
                     <label class="col-sm-1 control-label">From</label>
                     <div class="col-sm-4 pdr3">
-                        <input type="text" ng-model="bankReconciliationNew.FromDate" ng-disabled="true" datepicker class="form-control" tabindex="2">
+                        <input type="text" ng-model="bankReconciliationNew.FromDate" datepicker="checkDocDate();"  class="form-control" required tabindex="2">
                     </div>
                     <label class="col-sm-1 control-label pdl3" style="margin-right: -19px;">To</label>
                     <div class="col-sm-4 show-message">
@@ -242,17 +242,15 @@
                          @*e-allowselection="true"*@
                          e-filtersettings-filterType="excel">
                         <div e-columns>
-                            <div e-column e-field="EmployeeCode" e-headertext="Id" e-width="50"></div>
-                            <div e-column e-field="EmployeeName" e-headertext="Bank" e-width="80"></div>
-                            <div e-column e-field="DOJ" e-headertext="From Date" e-width="60"></div>
-                            <div e-column e-field="DOS" e-headertext="To Date" e-width="60"></div>
-                            <div e-column e-field="EmployeeStatus" e-headertext="By Whom" e-width="60"></div>
-                            <div e-column e-field="SalaryHead" e-headertext="Opening Balance" e-width="80"></div>
-                            <div e-column e-field="HeadType" e-headertext="Closing Balance" e-width="80"></div>
-                            <div e-column e-field="Currency" e-headertext="Statement Ref No" e-width="100"></div>
-                            <div e-column e-field="EntryAmount" e-headertext="Remarks" e-width="100"></div>
-                            <div e-column e-field="isLocked" e-headertext="Currency" e-width="40"></div>
-
+                            <div e-column e-field="Id" e-headertext="Id" e-width="50"></div>
+                            <div e-column e-field="BankName" e-headertext="Bank" e-width="80"></div>
+                            <div e-column e-field="FromDate" e-headertext="From Date" e-width="60"></div>
+                            <div e-column e-field="ToDate" e-headertext="To Date" e-width="60"></div>
+                            <div e-column e-field="EmployeeName" e-headertext="By Whom" e-width="60"></div>
+                            <div e-column e-field="OpeningBlance" e-headertext="Opening Balance" e-width="80"></div>
+                            <div e-column e-field="ClosingBalance" e-headertext="Closing Balance" e-width="80"></div>
+                            <div e-column e-field="BankStatementNo" e-headertext="Statement Ref No" e-width="100"></div>
+                            <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
                         </div>
                     </div>
                 </div>

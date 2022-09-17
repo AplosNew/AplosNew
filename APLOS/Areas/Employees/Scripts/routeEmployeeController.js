@@ -170,6 +170,53 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         angular.element(document.querySelector('#employeeNewPopUp')).modal('hide');
     }
 
+    $scope.saveList = [];
+    function MakeData() {
+        $scope.saveList = [];
+        for (var i = 0; i < $scope.dataList.length; i++) {
+            if ($scope.dataList[i].isSelected == true) {
+                $scope.dataList[i].TripId = $scope.TripId;
+                $scope.dataList[i].AssignStatus = true;
+                $scope.dataList[i].AssignDate = Date.now();
+                $scope.dataList[i].UnassignDate = null;
+                $scope.saveList.push($scope.dataList[i]);
+            }
+        }
+        $scope.SaveEmployeeTransportAllocation();
+    }
+
+    $scope.SaveEmployeeTransportAllocation = function () {
+        try {
+            for (var i = 0; i < $scope.saveList.length; i++) {
+                if (baseService.isUndefinedOrNull($scope.saveList[i].StoppageId)) {
+                    throw 'Stoppage is required !';
+                }
+            }
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'employeeTransportAllocationSave',
+                data: { 'EmployeeList': $scope.saveList },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.view();
+                    $scope.UnassignView();
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+
     $scope.refreshTemplateemployee = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllPartyWise });
     };
@@ -196,20 +243,7 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         gridObj.refreshContent();
     };
 
-    $scope.saveList = [];
-    function MakeData() {
-        $scope.saveList = [];
-        for (var i = 0; i < $scope.dataList.length; i++) {
-            if ($scope.dataList[i].isSelected == true) {
-                $scope.dataList[i].TripId = $scope.TripId;
-                $scope.dataList[i].AssignStatus = true;
-                $scope.dataList[i].AssignDate = Date.now();
-                $scope.dataList[i].UnassignDate = null;
-                $scope.saveList.push($scope.dataList[i]);
-            }
-        }
-        $scope.SaveEmployeeTransportAllocation();
-    }
+ 
 
     function checkExists(list, id) {
         for (var i = 0; i < list.length; i++) {
@@ -220,36 +254,6 @@ function routeEmployeeController(cboService, commonMessage, $scope, $rootScope, 
         return false;
     }
 
-    $scope.SaveEmployeeTransportAllocation = function () {
-        try {
-            for (var i = 0; i < $scope.saveList.length; i++) {
-                    if (baseService.isUndefinedOrNull($scope.saveList[i].StoppageId)) {
-                        throw 'Stoppage is required !';
-                    }
-            }
-           
-            $http({
-                method: 'POST',
-                url: $scope.path + 'employeeTransportAllocationSave',
-                data: { 'EmployeeList': $scope.saveList },
-                dataType: 'JSON'
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    ShowResult(response.data.Message, 'success');
-                    $scope.view();
-                    $scope.UnassignView();
-                }
-            }), function errorCallBack(response) {
-                ShowResult(response.data.Message, 'failure');
-            };
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
-    };
     $scope.StopageDataList = [];
     $scope.GetStopageInformation = function () {
         try {

@@ -132,6 +132,13 @@ namespace Aplos.Areas.Banks.Controllers
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsBankReconcilliationService.GetBankReconLastDate(identity.CompanyGroupId, identity.CompanyId, bankMasterId), JsonRequestBehavior.AllowGet);
         }
+        [HttpGet, Authorize]
+        public JsonResult GetBankReconUploadLastDate(string bankMasterId)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsBankReconcilliationService.GetBankReconUploadLastDate(identity.CompanyGroupId, identity.CompanyId, bankMasterId), JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet, Authorize]
         public JsonResult GetBankReconDrCrTotalAmount(string bankMasterId, DateTime fromDate, DateTime toDate)
@@ -316,6 +323,13 @@ namespace Aplos.Areas.Banks.Controllers
             accountsCommonService.SaveBankReconciliationUploadData(bankReconciliationUploadvm, bankReconciliationUploadedDataList);
 
             return Json(new { Message = AplosMessage.Insert });
+        }
+        [HttpGet, Authorize]
+        public JsonResult LoadBankReconciliationUploadedData(string bankMasterId)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            return Json(accountsBankReconcilliationService.GetBankReconciliationUploadedData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId), JsonRequestBehavior.AllowGet);
         }
         #endregion Operation
     }

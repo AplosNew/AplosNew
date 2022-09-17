@@ -76,7 +76,8 @@ function WorkCenterMasterController(commonMessage, $scope, $rootScope, baseServi
         AccountHolderName: null,
         AccountInCharge: null,
         AccountInChargeName: null,
-        GroupingData: null
+        GroupingData: null,
+        Active: true
     };
     // #region DDL
 

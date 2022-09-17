@@ -126,8 +126,14 @@
                 <h1 class="modal-title" style="font-size:20px; text-align:center; margin:-10px;">SO Details</h1>
             </div>
             <div class="modal-body" style="min-height:300px; min-width:100%;">
-                <div class="row" style="margin: 20px; font-style:italic"> </div>
+               @* <div class="row" style="margin: 20px; font-style:italic"> </div>*@
                 <p style="margin:10px;">
+                    <div class="common-btn">
+                        <ul class="list-inline text-right">
+                            <li> <button data-toggle="modal" ng-click="SODetailsReport();" class="btn" tabindex="10"><i class="glyphicon glyphicon-cloud-download"></i>Report</button></li>
+                        </ul>
+                    </div>
+
                     The Selection that are made are :<b> {{Detail1}} : {{Detail2}} : {{Detail3}}</b>.
                 <p>
 

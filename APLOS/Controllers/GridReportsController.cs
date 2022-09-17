@@ -202,7 +202,7 @@ namespace Aplos.Controllers
 
                     ROW++;
                     sheet.ImportDataTable(data, true, ROW, 1);
-                    sheet[ROW, 1, ROW, data.Columns.Count].ColumnWidth = 16;
+                    sheet[ROW, 1, ROW, data.Columns.Count].ColumnWidth = 18;
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
@@ -378,7 +378,6 @@ namespace Aplos.Controllers
         {
             try
             {
-
                 ExcelEngine excelEngine = new ExcelEngine();
                 string fullPath = HostingEnvironment.MapPath("~/") + FileName;
                 IWorkbook workbook = excelEngine.Excel.Workbooks.Open(fullPath);
