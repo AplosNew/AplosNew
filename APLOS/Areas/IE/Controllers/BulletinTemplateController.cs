@@ -3893,14 +3893,36 @@ namespace Aplos.Areas.IE.Controllers
 
             sheet.Name = "Thread Consumption";
 
-            int ROW = 6;
+            int ROW = 5;
             int endCol = 1;
             int COL = 1;
 
+            DataTable dataHeader = GetBulletinTemplateData();
             DataTable data = GetThreadConsumptionData(bulletinTemplateMasterId);
             DataTable summaryData = GetThreadConsumptionSummaryData(bulletinTemplateMasterId);
 
             #region Headers
+
+            sheet.Range[ROW, COL + 1].Text = "Bulletin Id";
+            sheet.Range[ROW, COL, ROW, COL + 1].Merge();
+            sheet.Range[ROW, COL + 2].Text = " " + dataHeader.Rows[0]["Id"].ToString().Trim();
+            sheet.Range[ROW, COL + 2, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+
+            sheet.Range[ROW, COL + 1].Text = "Bulletin Name";
+            sheet.Range[ROW, COL, ROW, COL + 1].Merge();
+            sheet.Range[ROW, COL + 2].Text = " " + dataHeader.Rows[0]["BulletinName"].ToString().Trim();
+            sheet.Range[ROW, COL + 2, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+
+            sheet.Range[ROW, COL + 1].Text = "Product";
+            sheet.Range[ROW, COL, ROW, COL + 1].Merge();
+            sheet.Range[ROW, COL + 2].Text = " " + dataHeader.Rows[0]["ProductMaster"].ToString().Trim();
+            sheet.Range[ROW, COL, ROW, COL + 3].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+            ROW++;
+            ROW++;
+
+
             report.SetHeaderText(ref sheet, ROW, COL, "Operation", 25, ExcelHAlign.HAlignLeft);
             int ColOperation = COL;
             COL++;

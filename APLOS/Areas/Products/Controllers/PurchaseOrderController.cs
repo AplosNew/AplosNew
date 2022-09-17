@@ -3295,6 +3295,27 @@ LEFT JOIN dbo.EmployeeInformation EI2 ON EI2.SystemId=IR.ApprovedBy
             }
         }
 
+        [Authorize, HttpPost]
+        public JsonResult DeleteServiceAckChargesRow(string Id)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                var rdBuilder = new System.Text.StringBuilder();
+                var voucherSql = @"delete from trn.ServicePOAckTax where ServiceAcknowledgementChargeId='" + Id + "'";
+                var bankJournalSql = @"delete from trn.ServiceAcknowledgementCharge where id='" + Id + "'";
+                rdBuilder.Append(voucherSql);
+                rdBuilder.Append(bankJournalSql);
+                return Json(_sqlRepository.ExecuteSqlCommand(rdBuilder.ToString()), JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Employees.ToString()));
+            }
+        }
 
         [Authorize, HttpGet]
         public JsonResult LoadAllAckServicesData(string id)
