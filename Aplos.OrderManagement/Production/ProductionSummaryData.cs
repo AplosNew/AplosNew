@@ -1855,6 +1855,43 @@ WHERE p.ProductionBookingProcessParameterId=(SELECT Id FROM dbo.ProductionBookin
                 throw ex;
             }
         }
+
+        public IEnumerable<object> GetDetentionParaData(string DetentionId,string processId,string masterId)
+        {
+            try
+            {
+                //var sql = "";
+                // sql = @"select * from DetentionMasterMachineParameter where DetentionMasterId='" + DetentionId + @"' ORDER BY Sequence";
+
+                var sql = "";
+                if (masterId != "null")
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN A.Value IS NOT NULL THEN A.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id DetentionMasterMachineParameterId,P.IsProduction
+FROM dbo.DetentionMasterMachineParameter P
+LEFT JOIN [dbo].[DetentionMasterMachineParameterValue] A ON A.DetentionMasterMachineParameterId=P.Id AND ISNULL(A.MachineMasterTransactionId,'" + masterId + @"')='" + masterId + @"'
+WHERE p.DetentionMasterId='" + DetentionId + @"' ORDER BY P.Sequence";
+                }
+                else
+                {
+                    sql = @"SELECT A.Id,P.UserName,P.Formula,P.FormulaId,P.EntryState,ValueIN = CASE WHEN P.ValueinDecimal=1 THEN 'Decimal' ELSE 'Percentage' END
+,Value=CASE WHEN PD.Value IS NOT NULL THEN PD.Value ELSE (CASE WHEN P.ValueinDecimal=1 THEN P.DefaultValue ELSE P.DefaultValue/100 END) END
+,P.Id DetentionMasterMachineParameterId,P.IsProduction
+FROM dbo.DetentionMasterMachineParameter P
+LEFT JOIN [dbo].[DetentionMasterMachineParameterValue] A ON A.DetentionMasterMachineParameterId=P.Id AND ISNULL(A.MachineMasterTransactionId,'null')='null'
+LEFT JOIN (SELECT * FROM [dbo].[DetentionMasterMachineParameterValue] WHERE MachineMasterTransactionId=(SELECT TOP(1) Id FROM  MachineMasterTransaction WHERE  ProcessId='" + processId + @"' ORDER BY AddedDate DESC))PD ON PD.UserName=P.UserName
+WHERE p.DetentionMasterId='" + DetentionId + @"' ORDER BY P.Sequence";
+                }
+
+                return _sqlRepository.GetDataCollection(sql, null);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public IEnumerable<object> GetProcessDetentionData(string processId,  string entityId, string productionDate, string shiftId, string workcenter)
         {
             try
@@ -1954,7 +1991,75 @@ SELECT MMT.Id, MMT.EntityId, MMT.DetentionId, MMT.DetentionType, MMT.ProcessId, 
             }
         }//End 
 
+        public void ReLoadDetentionFormulaWithValue(string strFormulaID, ref DataTable dtValue, out string lblFormulaValue)
+        {
+            DataSet dsLocal = null;
+            DataView dvLocal = null;
+            DataView dvSlrHd = null;
 
+            string strTemp = "";
+
+            try
+            {
+                dsLocal = new DataSet();
+
+                string strFormulaIDTemp = strFormulaID.Trim();
+
+                lblFormulaValue = "";
+
+                string[] strIdCol = strFormulaIDTemp.Split(' ');
+
+                DataTable dt = new DataTable();
+                dt.TableName = "IDLIST";
+                dt.Columns.Add("ID");
+                DataRow dr = null;
+                foreach (string id in strIdCol)
+                {
+                    dr = dt.NewRow();
+                    dr["ID"] = id.Trim();
+                    dt.Rows.Add(dr);
+                }
+                dsLocal.Tables.Add(dt);
+
+                for (int i = 0; i < dsLocal.Tables[0].Rows.Count; i++)
+                {
+                    strTemp = "";
+
+                    strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    if (strTemp.Trim() == "+" || strTemp.Trim() == "-" || strTemp.Trim() == "*" || strTemp.Trim() == "/" || strTemp.Trim() == "(" || strTemp.Trim() == ")")
+                    {
+                        strTemp = dsLocal.Tables[0].Rows[i]["ID"].ToString();
+                    }
+                    else
+                    {
+                        dvLocal = new DataView();
+                        dvLocal.Table = dtValue;
+
+                        dvLocal.RowFilter = "DetentionMasterMachineParameterId = '" + strTemp.Trim() + "'";
+                        if (dvLocal.Count > 0)
+                        {
+                            if (dvLocal[0]["Amount"].ToString().Trim() == "")
+                            {
+                                strTemp = "0";
+                            }
+                            else
+                            {
+                                strTemp = dvLocal[0]["Amount"].ToString().Trim();
+                            }
+                        }
+                    }
+
+                    lblFormulaValue += strTemp.Trim();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+            }
+        }//End 
         public IEnumerable<object> GetSFGTotalQty(string salesOrderId, string processId, string status)
         {
             try

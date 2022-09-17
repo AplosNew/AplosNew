@@ -68,7 +68,7 @@
             <label class="col-sm-4 control-label">Detention<sup>*</sup></label>
             <div class="col-sm-8 show-message ">
                 <div class="select-style">
-                    <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList" ng-change="getAssetWorkCenterApplicable();" tabindex="6">
+                    <select class="form-control" id="Detention" name="Detention" ng-model="ModelNew.DetentionId" ng-options="item.Value as item.Text for item in DetentionList" ng-change="getAssetWorkCenterApplicable();getDetentionParaPoPUp();GetDetentionTypeById(ModelNew.DetentionId);" tabindex="6">
                         <option value="">---Select---</option>
                     </select>
                 </div>
@@ -85,7 +85,7 @@
             <label class="col-sm-4 control-label">Work Center</label>
             <div class="col-sm-8">
                 <div class="select-style">
-                    <select class="form-control" id="WorkCenter" ng-disabled="IsWorkCenterApplicable==false" name="Work Center" ng-model="ModelNew.WorkCenterId" ng-options="item.Id as item.UserName for item in workcenterList"
+                    <select class="form-control" id="WorkCenter"  name="Work Center" ng-model="ModelNew.WorkCenterId" ng-options="item.Id as item.UserName for item in workcenterList" ng-change="GetEntityProcessByWorkCenter(ModelNew.WorkCenterId);"
                             tabindex="6">
                         <option value="">---Select---</option>
                     </select>
@@ -147,7 +147,7 @@
             </div>
 
         </div>
-        
+
         <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
             <div class="col-sm-8 show-message ">
@@ -167,15 +167,93 @@
             </div>
         </div>
         <div class="form-group" show-errors>
+            <label class="col-sm-4 control-label">Detention Code<sup>*</sup></label>
+            <div class="col-sm-8 show-message ">
+                <div class="select-style">
+                    <select class="form-control" id="DetentionCode" name="Detention Code" ng-model="ModelNew.DetentionCode" ng-change="GetDetentionTypeAndDetentionByCode(ModelNew.DetentionCode);" ng-options="item.Value as item.Text for item in DetentionCodeList"
+                            tabindex="6">
+                        <option value="">---Select---</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" show-errors>
             <label class="col-sm-4 control-label">Remark</label>
             <div class="col-sm-8 show-message">
                 <textarea type="text" name="Remark" ng-model="ModelNew.Remark" row="2" class="form-control" required autocomplete="off" tabindex="4" maxlength="250"></textarea>
             </div>
         </div>
     </div>
+    <div class="col-xs-12">
+        @*<div id="DetentionBookingParameter" ej-grid style="z-index:3;"
+             e-datasource="ParameterList"
+             e-rowdatabound="onactivedatabound"
+             e-allowfiltering="true"
+             e-allowpaging="true"
+             e-allowsorting="true"
+             e-enabletouch="false"
+             e-responsive="true"
+             e-allowselection="true"
+             e-filtersettings-filterType="excel">
+            <div e-columns>
+                <div e-column e-field="Detention" e-headertext="Detention" e-width="100"></div>
+                <div e-column e-template="#Quantity" e-headertext="Detention Machine Parameter" e-width="100"></div>
+            </div>
+        </div>
+
+        <script type="text/template" id="Quantity">
+            <div class="form-group">
+                <div class="col-sm-7" style="padding:0px;">
+                    <input type="text" class="form-control" ng-model="">
+                </div>
+                <div class="col-sm-5 text-left" style="padding:0px;padding-left:2px">
+                    <div class="common-btn">
+                        <ul class="list-inline text-left">
+                            <li><button ng-click="$parent.getDetentionParaPoPUp(this);"  class="btn"><i class="glyphicon glyphicon-list"></i></button></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </script>*@
+        <div class="modal-body form-elements form-horizontal">
+            <div class="row" ng-form name="CostingSOform" ng-show="IsVisible">
+                <div class="col-xs-12">
+                    <div class="table-responsive modal-table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Head</th>
+                                    <th>State</th>
+                                    <th>Value</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in DetentionParaList">
+                                    <td>{{x.UserName}}</td>
+                                    <td>{{x.EntryState}} ({{x.ValueIN}})</td>
+                                    <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="common-btn">
+                <ul class="list-inline text-right">
+                    <li>
+                        @*<button ng-click="CalculateDetention();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate And Save</button>*@
+                        @*<button ng-click="SaveMasterWCParaList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>*@
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="common-btn">
         <ul class="list-inline text-right">
-            <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
+            <li> <button ng-click="CalculateDetention();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>
             <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn" tabindex="11"><i class="glyphicon glyphicon-trash"></i> Delete</button></li>
             <li> <button ng-click="Clear();" class="btn" tabindex="12"><i class="glyphicon glyphicon-refresh"></i> Clear</button></li>
         </ul>
@@ -189,10 +267,13 @@
         <div e-columns>
             <div e-column e-field="Entity" e-headertext="Entity" e-width="12"></div>
             <div e-column e-field="Department" e-headertext="Department" e-width="13"></div>
+            <div e-column e-field="DetentionCode" e-headertext="Detention" e-width="13"></div>
             <div e-column e-field="Detention" e-headertext="Detention" e-width="13"></div>
+            <div e-column e-field="DetentionType" e-headertext="Detention Type" e-width="13"></div>
             <div e-column e-field="Date" e-headertext="Date" e-width="13"></div>
             <div e-column e-field="MachineMaster" e-headertext="Machine" e-width="15"></div>
             <div e-column e-field="Process" e-headertext="Process" e-width="15"></div>
+            <div e-column e-field="WorkCenter" e-headertext="Work Center" e-width="15"></div>
             <div e-column e-field="FromTime" e-headertext="From Time" e-width="15"></div>
             <div e-column e-field="ToTime" e-headertext="To Time" e-width="15"></div>
             <div e-column e-field="Minute" e-headertext="Minute" e-width="15"></div>
@@ -537,6 +618,53 @@
     </div>
 </div>
 
+<!--<div class="modal site-modal in" id="DetentionParaPopup" role="dialog" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">
+                    <i class="glyphicon glyphicon-info-sign"></i> Detention Machine Parameter
+                </h4>
+            </div>
+            <div class="modal-body form-elements form-horizontal">
+                <div class="row" ng-form name="CostingSOform">
+                    <div class="col-xs-12">
+                        <div class="table-responsive modal-table">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Head</th>
+                                        <th>State</th>
+                                        <th>Value</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="x in DetentionParaList">
+                                        <td>{{x.UserName}}</td>
+                                        <td>{{x.EntryState}} ({{x.ValueIN}})</td>
+                                        <td><input class="form-control text-right" ng-disabled="x.FormulaId!=null" type="text" n-decimals="4" ng-model="x.Value" /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="common-btn">
+                    <ul class="list-inline text-right">
+                        <li>
+                            <button ng-click="Calculate();" class="btn" tabindex="9"><i class="glyphicon glyphicon-Calculator"></i> Calculate And Save</button>-->
+                            @*<button ng-click="SaveMasterWCParaList();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> Save</button>*@
+                        <!--</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>-->
 
 <confirm-modal></confirm-modal>
 <script type="text/javascript">
