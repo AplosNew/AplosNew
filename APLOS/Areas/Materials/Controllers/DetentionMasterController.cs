@@ -658,5 +658,135 @@ namespace Aplos.Areas.Materials.Controllers
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public JsonResult CreateProcessParameter(Dictionary<string, object> data, IEnumerable<DetentionMasterMachineParameterFormulaDetail> details)
+        {
+            try
+            {
+                SaveCostingSOTemplateData(data, details);
+                return Json(new { Message = AplosMessage.Insert });
+            }
+            catch (Exception ex)
+            {
+
+                return Json(new { Error = true, Message = ex.Message });
+            }
+
+        }
+
+        private void SaveCostingSOTemplateData(Dictionary<string, object> data, IEnumerable<DetentionMasterMachineParameterFormulaDetail> details)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+
+            try
+            {
+                if (data != null)
+                {
+                    string _Id = "";
+
+                    DataSet dsMaster, dsDestination = null;
+                    DataRow drF;
+                    ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
+
+                    con.OpenDataSetThroughAdapter("select * from DetentionMasterMachineParameter where UserName='" + data["UserName"] + "'  AND  Id<>'" + data["Id"] + "' AND DetentionMasterId='" + data["DetentionMasterId"] + "'", out dsMaster, false, "1");
+                    if (dsMaster.Tables[0].Rows.Count > 0)
+                        throw new Exception("UserName already exists!!!");
+
+
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.DetentionMasterMachineParameter WHERE Id='" + data["Id"] + "'", out dsMaster, false, "1");
+                    con.OpenDataSetThroughAdapter("SELECT * FROM dbo.FormulaDetail Where DetentionMasterMachineParameterId='" + data["Id"] + "'", out dsDestination, false, "1");
+
+                    if (data["EntryState"].ToString() == "Entry")
+                    {
+                        data["Formula"] = DBNull.Value;
+                        data["FormulaId"] = DBNull.Value;
+
+
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                    }
+
+
+                    if (dsMaster.Tables[0].Rows.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenerateIDYearly(DateTime.Now.ToShortDateString().ToString(), nameof(DetentionMasterMachineParameter), out _Id);
+
+                        data["Id"] = _Id;
+                        AddNewRow(dsMaster.Tables[0], data);
+                    }
+                    else
+                    {
+                        _Id = data["Id"].ToString();
+                        EditRow(dsMaster.Tables[0].Rows[0], data);
+                    }
+
+                    string Id = dsMaster.Tables[0].Rows[0]["Id"].ToString();
+
+                    #region NoticePeriodFormulaDetail 
+
+                    if (data["EntryState"].ToString() == "Calculate")
+                    {
+                        while (dsDestination.Tables[0].DefaultView.Count > 0)
+                            dsDestination.Tables[0].DefaultView[0].Delete();
+                        int count = 0;
+                        if (details != null)
+                        {
+
+                            foreach (var item in details)
+                            {
+                                drF = dsDestination.Tables[0].NewRow();
+                                count++;
+                                string pk = _Id + "_" + count;
+                                drF["Id"] = pk;
+                                drF["DetentionMasterMachineParameterId"] = _Id;
+                                drF["Sequence"] = item.Sequence;
+                                drF["DetentionMasterMachineParameterHeadId"] = item.DetentionMasterMachineParameterHeadId;
+                                drF["Component"] = item.Component;
+
+                                dsDestination.Tables[0].Rows.Add(drF);
+                            }
+
+                        }
+                    }
+                    #endregion NoticePeriodFormulaDetail 
+
+                    clsStaticInfo obj = new clsStaticInfo();
+                    obj.SaveDataSets(dsMaster, dsDestination);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+
+        public class DetentionMasterMachineParameter
+        {
+            public string Id { get; set; }
+            public string FormulaDes { get; set; }
+            public string FormulaDesID { get; set; }
+            public string AddedBy { get; set; }
+            public DateTime AddedDate { get; set; }
+            public string AddedFromIP { get; set; }
+            public string UpdatedBy { get; set; }
+            public DateTime UpdatedDate { get; set; }
+            public string UpdatedFromIP { get; set; }
+
+        }
+
+        public class DetentionMasterMachineParameterFormulaDetail
+        {
+            public string Id { get; set; }
+            public decimal Sequence { get; set; }
+            public string Component { get; set; }
+            public string DetentionMasterMachineParameterId { get; set; }
+            public string DetentionMasterMachineParameterHeadId { get; set; }
+
+        }
     }
 }

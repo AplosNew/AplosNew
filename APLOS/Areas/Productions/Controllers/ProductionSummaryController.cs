@@ -215,7 +215,13 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
+        public ActionResult GetDetentionParaData(string DetentionId,string processId,string masterId)
+        {
+            return Json(_productionSummaryData.GetDetentionParaData(DetentionId, processId, masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
         {
             try
             {
@@ -717,6 +723,88 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
             return Json(new { NewData, Message = AplosMessage.Success });
         }
+
+        [Authorize]
+        public JsonResult CalculateDetention(IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("DetentionMasterMachineParameterId");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    _productionSummaryData.ReLoadDetentionFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "DetentionMasterMachineParameterId='" + dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+
+
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
+
 
         #endregion
 
@@ -1758,6 +1846,7 @@ WHERE trkp.Id IN (" + PlantId + @")
         public string Id { get; set; }
         public string ProductionSummaryId { get; set; }
         public string ProductionBookingParameterId { get; set; }
+        public string DetentionMasterMachineParameterId { get; set; }
         public string UserName { get; set; }
         public string Formula { get; set; }
         public string FormulaId { get; set; }
