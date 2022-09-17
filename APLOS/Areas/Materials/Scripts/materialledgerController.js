@@ -7,8 +7,8 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
 	$scope.products = [];
 	$scope.path = 'Materials/MaterialLedger/';
 	$scope.path1 = 'Accounts/InventoryPayable/';
-	//$scope.exportgriddataUrl = 'GridReports/ExcelExport';
-	$scope.exportgriddataUrl = 'GridReports/ExcelExportJson';
+	$scope.exportgriddataUrl = 'GridReports/ExcelExport';
+    $scope.exportgriddataUrlUpd = 'GridReports/ExcelExportUpd';
 
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $controller('baseMaterialAndArticleController', { $scope: $scope, $http: $http });
@@ -315,39 +315,48 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
         var dataList = [];
         var g = $("#GridItemWise").data("ejGrid");
         dataList = g.getFilteredRecords();
-        var ids = "";
-        if (baseService.arrayLength(dataList) > 0) {
-            for (var i = 0; i < dataList.length; i++) {
-                if (ids == "")
-                {
-                    ids = "'','" + dataList[i].SLNo + "'";
-                }
-                else {
-                    ids += ",'" + dataList[i].SLNo + "'";
-                }
-            }
-        }
-        else {
-            for (var i = 0; i < $scope.PurchaseRegisterItemWiseList.length; i++) {
-                if (ids == "") {
-                    ids = "'','" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
-                }
-                else {
-                    ids += ",'" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
-                }
-            }
+
+        if (dataList.length == 0) {
+            dataList = $scope.PurchaseRegisterItemWiseList;
         }
 
-        $scope.fileName = 'PurchaseRegisterItemWise.xlsx';
-        $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+
+        //var ids = "";
+        //if (baseService.arrayLength(dataList) > 0) {
+        //    for (var i = 0; i < dataList.length; i++) {
+        //        if (ids == "")
+        //        {
+        //            ids = "'','" + dataList[i].SLNo + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + dataList[i].SLNo + "'";
+        //        }
+        //    }
+        //}
+        //else {
+        //    for (var i = 0; i < $scope.PurchaseRegisterItemWiseList.length; i++) {
+        //        if (ids == "") {
+        //            ids = "'','" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
+        //        }
+        //        else {
+        //            ids += ",'" + $scope.PurchaseRegisterItemWiseList[i].SLNo + "'";
+        //        }
+        //    }
+        //}
+
+        //$scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';
+        $scope.fileName = 'Purchase Register Item Wise';
 
         $http({
             method: 'POST',
-            url: "Materials/MaterialLedger/PurchaseRegisterItemWiseReport",
+            //url: "Materials/MaterialLedger/PurchaseRegisterItemWiseReport",
+            url: $scope.exportgriddataUrlUpd,
             data: {
-                'ToDate': $scope.report.ToDate,
-                'FromDate': $scope.report.FromDate,
-                'SLNo': ids,
+                //'ToDate': $scope.report.ToDate,
+                //'FromDate': $scope.report.FromDate,
+                //'SLNo': ids,
+                'reportFileName': $scope.fileName,
+                'data': dataList
             },
             dataType: 'JSON'
         }).then(function successCallback(response) {
@@ -355,8 +364,7 @@ function materialledgerController(fileReader, commonMessage, $scope, $rootScope,
                 ShowResult(response.data.Message, 'failure');
             }
             else {
-                $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);
-
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
             }
         }, function errorCallback(response) {
             ShowResult(response.data.Message, 'failure');

@@ -75,15 +75,15 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         }
     }
     $scope.getBankReconLastDate = function (id) {
-        $http.get("Banks/BankReconciliation/GetBankReconLastDate?bankMasterId=" + id)
+        $http.get("Banks/BankReconciliation/GetBankReconUploadLastDate?bankMasterId=" + id)
             .then(function (response) {
 
                 $scope.bankReconciliationNew.FromDate = response.data.FromDate;
-                //$scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
+                $scope.bankReconciliationNew.OpeningBlance = response.data.ClosingBalance;
                 $scope.bankReconciliationNew.ClosingBalance = null;
                 $scope.bankReconciliationNew.BankStatementNo = null;
                 if ($scope.bankReconciliationNew.FromDate == null)
-                    $scope.bankReconciliationNew.FromDate = $filter("dateFiltering")($scope.cutOffDate);
+                    $scope.bankReconciliationNew.FromDate = $filter("dateFiltering")(Date.now());
             });
     }
     $scope.closeEmployeePopUp = function () {
@@ -106,16 +106,12 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
     $scope.LoadData = function () {
         try {
 
-            if (baseService.isUndefinedOrNull($scope.ModelNew.YearNo)) {
-                throw "Please Select Year.";
-            }
-
-            if (baseService.isUndefinedOrNull($scope.ModelNew.MonthNo) || $scope.ModelNew.MonthNo == 0) {
-                throw "Please Select Month.";
+            if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.BankMasterId)) {
+                throw "Please Select Bank.";
             }
             $http({
                 method: 'GET',
-                url: $scope.path + 'LoadData?SalaryHeadId=' + $scope.ModelNew.SalaryHeadId + '&MonthNo=' + $scope.ModelNew.MonthNo + '&YearNo=' + $scope.ModelNew.YearNo
+                url: $scope.path + 'LoadBankReconciliationUploadedData?bankMasterId=' + $scope.bankReconciliationNew.BankMasterId 
 
             }).then(function successCallback(response) {
                 if (response.data.Error === true) {
@@ -196,6 +192,9 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                 if (baseService.isUndefinedOrNull($scope.bankReconciliationNew.EmployeeId)) {
                     throw "Please Select By Whom.";
                 }
+                if (new Date($scope.bankReconciliationNew.ToDate) < new Date($scope.bankReconciliationNew.FromDate)) {
+                    throw "To date must be below or equal to From Date!";
+                }
 
 
                 $http({
@@ -248,7 +247,22 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
 
     //};
 
+    $scope.invalidDocDate = false;
+    $scope.checkDocDate = function () {
+        var msg = "";
+        //if (new Date($scope.voucher.ToDate) > new Date()) {
+        //    $scope.invalidDocDate = true;
+        //    msg = "Doc date must be below or equal to current Date!";
+        //}
+        if (new Date($scope.bankReconciliationNew.ToDate) < new Date($scope.bankReconciliationNew.FromDate)) {
+            msg = "To date must be below or equal to From Date!";
+            $scope.invalidDocDate = true;
+        }
 
+        else $scope.invalidDocDate = false;
+
+        return manualValidation("div_ToDate", $scope.invalidDocDate, msg);
+    };
 
     $scope.save = function () {
 
@@ -284,6 +298,7 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
                     }
                     else {
                         ShowResult(response.Message, 'success');
+                        $scope.LoadData();
                         $scope.BankReconciliationUploadedData = [];
                         $scope.bankReconciliationNew = {};
                         $("#uploadImage").val(null);
