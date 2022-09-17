@@ -327,7 +327,7 @@ where DetentionMasterId='" + detentionId + "'";
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
 
-            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
+            var sql = @"SELECT Id,UserName FROM SCS.WorkCenterMaster WHERE Active=1 AND PlantId='" + identity.PlantId + "'  AND EntityId='" + entityId + "' AND CompanyId='" + identity.CompanyId + "' Order by Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
 
         }

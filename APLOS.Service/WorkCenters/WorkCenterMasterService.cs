@@ -149,7 +149,7 @@ namespace Library.Service.WorkCenters
 								, m.ResponsiblePersonId, RES.EmployeeName AS ResponsiblePersonName
 								, m.MentorId, MNT.EmployeeName AS MentorName, m.BuyerId
                                 , m.AccountHolder, AH.EmployeeName AS AccountHolderName
-                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData
+                                , m.AccountInCharge, AC.EmployeeName AS AccountInChargeName,M.GroupingData,M.Active
                             FROM [SCS].[WorkCenterMaster] m
                             LEFT JOIN [HKP].[WorkCenterCategory] c ON c.Id = m.WorkCenterCategoryId
                             LEFT JOIN [HKP].[WorkCenterSubCategory] sc ON sc.Id = m.WorkCenterSubCategoryId
@@ -739,6 +739,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.Active = from_ui.Active;
 
                     #endregion Add
                 }
@@ -782,6 +783,7 @@ WHERE WSP.WorkCenterMasterId='" + workCenterMasterId + "' ORDER BY SP.Sequence";
                     from_db.AccountHolder = from_ui.AccountHolder;
                     from_db.AccountInCharge = from_ui.AccountInCharge;
                     from_db.GroupingData = from_ui.GroupingData;
+                    from_db.Active = from_ui.Active;
                     #endregion Edit
                 }
             }
