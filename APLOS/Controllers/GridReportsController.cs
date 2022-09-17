@@ -378,7 +378,6 @@ namespace Aplos.Controllers
         {
             try
             {
-
                 ExcelEngine excelEngine = new ExcelEngine();
                 string fullPath = HostingEnvironment.MapPath("~/") + FileName;
                 IWorkbook workbook = excelEngine.Excel.Workbooks.Open(fullPath);

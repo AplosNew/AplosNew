@@ -16,6 +16,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
     $scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
     $scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
+    $scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
 
     $scope.detention = {
         Id: null
@@ -33,6 +34,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         , IsAssetApplicable: false
         , IsWorkCenterApplicable: false
         , IsMachineParaApplicable: false
+        , DetentionCode: null
     };
     $scope.detentionNew = Object.assign({}, $scope.detention);
 
@@ -184,6 +186,9 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             $scope.getDetentionMasterDepartment();
             $scope.getDetentionMasterMachine();
             $scope.getDetentionMasterResponsible();
+            $scope.getautosequenceDetention();
+            $scope.GetProcessParameterData();
+            $scope.GetOrderLineCostingItemCbo();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
             }
@@ -803,7 +808,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
     // #ProcessParameter region
 
-    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+    $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, DetentionMasterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
     $scope.ModelProcessParaNew = Object.assign({}, $scope.ModelProcessPara);
 
     $scope.setCheckedValue = function (name) {
@@ -831,8 +836,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         }
     }
 
-    $scope.GetSequence = function () {
-        $http.get("Processes/ProductionBookingProcessparameter/getautosequence?masterId=" + $scope.masterId)
+    $scope.getautosequenceDetention = function () {
+        $http.get("Processes/ProductionBookingProcessparameter/getautosequenceDetention?masterId=" + $scope.detentionNew.Id)
             .then(
                 function successCallback(response) {
                     $scope.ModelProcessPara.Sequence = response.data;
@@ -843,7 +848,31 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
 
     };
-    $scope.GetSequence();
+    /* $scope.getautosequenceDetention();*/
+
+    $scope.OrderLineCostingItemList = [];
+    $scope.GetOrderLineCostingItemCbo = function () {
+        try {
+            $http({
+                method: 'GET',
+                url: 'Processes/ProductionBookingProcessparameter/GetHeaderItemDetentionCbo?Id=' + $scope.ModelProcessPara.Id + '&masterId=' + $scope.detentionNew.Id,
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    $scope.OrderLineCostingItemList = response.data;
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        } catch (e) {
+            ShowResult(e, 'failure');
+        }
+    };
+
+    $scope.OperatorList = [{ Text: "*", Value: "*" }, { Text: "/", Value: "/" }, { Text: "+", Value: "+" }, { Text: "-", Value: "-" }];
 
     $scope.ModelProcessPara.FormulaDes = null;
     $scope.ModelProcessPara.FormulaDesID = null;
@@ -871,8 +900,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             if (formula === 'SHead') {
 
                 formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                formulaObj.ProductionBookingParameterHeadId = $scope.ModelProcessPara.HeadIdFormula;
+                formulaObj.DetentionMasterMachineParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                formulaObj.DetentionMasterMachineParameterHeadId = $scope.ModelProcessPara.HeadIdFormula;
                 formulaObj.SalaryHead = $("#HeadFormula option:selected").text();
                 formulaObj.Component = null;
                 $scope.FormulaDetails.push(formulaObj);
@@ -886,10 +915,10 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                 for (var i = 0; i < $scope.FormulaDetails.length; i++) {
                     if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
                     } else {
                         $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                        $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId;
                     }
                 }
 
@@ -904,8 +933,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
 
                         formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                        formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                        formulaObj.ProductionBookingParameterHeadId = null;
+                        formulaObj.DetentionMasterMachineParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                        formulaObj.DetentionMasterMachineParameterHeadId = null;
                         formulaObj.Component = $scope.ModelProcessPara.Operator;
                         formulaObj.SalaryHead = $scope.ModelProcessPara.Operator;;
 
@@ -920,7 +949,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                         for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                             $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
 
                         }
 
@@ -941,8 +970,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.DetentionMasterMachineParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.DetentionMasterMachineParameterHeadId = null;
                     formulaObj.SalaryHead = $scope.ModelProcessPara.Precedence;
                     formulaObj.Component = $scope.ModelProcessPara.Precedence;
                     $scope.FormulaDetails.push(formulaObj);
@@ -957,7 +986,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
 
                     }
 
@@ -974,8 +1003,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                 if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.Value)) {
 
                     formulaObj.Sequence = $scope.FormulaDetails.length + 1;
-                    formulaObj.ProductionBookingParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
-                    formulaObj.ProductionBookingParameterHeadId = null;
+                    formulaObj.DetentionMasterMachineParameterId = $scope.ModelProcessPara.Id == null ? null : $scope.ModelProcessPara.Id;
+                    formulaObj.DetentionMasterMachineParameterHeadId = null;
                     formulaObj.SalaryHead = $scope.ModelProcessPara.Value;
                     formulaObj.Component = $scope.ModelProcessPara.Value;
                     $scope.FormulaDetails.push(formulaObj);
@@ -989,7 +1018,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                     for (var i = 0; i < $scope.FormulaDetails.length; i++) {
 
                         $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
-                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                        $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
 
                     }
 
@@ -1024,10 +1053,10 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                 $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
                 //$scope.ModelProcessPara.FormulaDesID += ' ' + $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
-                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
             } else {
                 $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                $scope.ModelProcessPara.FormulaDesID = ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
             }
         }
 
@@ -1040,11 +1069,12 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
         $scope.ModelNew = Object.assign({}, args.data);
         $scope.masterId = $scope.ModelNew.Id;
         $scope.GetSequence();
+        $scope.getautosequenceDetention(); 
         $scope.GetProcessParameterData();
         $scope.GetQualityProcessList();
         $scope.GetOrderLineCostingItemCbo();
         $scope.Action = 'Update';
-        $scope.ModelProcessPara = { Id: null, ProductionBookingProcessParameterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
+        $scope.ModelProcessPara = { Id: null, DetentionMasterId: null, Sequence: 0, UserName: null, SandardName: null, IsProduction: false, IsVisible: false, Active: true, ValueinDecimal: false, ValueinPercentage: true, DefaultValue: null, EntryState: 'Entry', FormulaId: null, Formula: null, AddedBy: null, AddedDate: null, AddedFromIP: null, UpdatedBy: null, UpdatedDate: null, UpdatedFromIP: null, FormulaDescription: null }
         $scope.ModelProcessPara.EntryState = 'Entry';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
@@ -1066,7 +1096,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
             $http({
                 method: 'GET',
-                url: "Processes/ProductionBookingProcessparameter/GetDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
+                url: "Processes/ProductionBookingProcessparameter/GetDetentionDetailList?OrderLineCostingItemId=" + $scope.ModelProcessPara.Id
             }).then(function successCallback(response) {
                 if (baseService.arrayLength(response.data) > 0) {
                     $scope.FormulaDetails = response.data;
@@ -1079,10 +1109,10 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                         if (!baseService.isUndefinedOrNull($scope.ModelProcessPara.FormulaDes)) {
                             $scope.ModelProcessPara.FormulaDes += ' ' + $scope.FormulaDetails[i].SalaryHead;
 
-                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId);
+                            $scope.ModelProcessPara.FormulaDesID += ' ' + ($scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId);
                         } else {
                             $scope.ModelProcessPara.FormulaDes = $scope.FormulaDetails[i].SalaryHead;
-                            $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].ProductionBookingParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].ProductionBookingParameterHeadId;
+                            $scope.ModelProcessPara.FormulaDesID = $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId == null ? $scope.FormulaDetails[i].Component : $scope.FormulaDetails[i].DetentionMasterMachineParameterHeadId;
                         }
                     }
 
@@ -1127,48 +1157,48 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
             return manualValidation(divId, false);
     };
     $scope.masterId = null;
-    $scope.Save = function () {
-        try {
-            $scope.$broadcast('show-errors-check-validity');
-            if ($scope.modelNewForm.$valid) {
-                if ($scope.ModelNew.InPutOutPutRatio <= -1) {
-                    return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't less than -1 or -1.");
+    //$scope.Save = function () {
+    //    try {
+    //        $scope.$broadcast('show-errors-check-validity');
+    //        if ($scope.modelNewForm.$valid) {
+    //            if ($scope.ModelNew.InPutOutPutRatio <= -1) {
+    //                return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't less than -1 or -1.");
 
-                }
-                if ($scope.ModelNew.InPutOutPutRatio > 1) {
-                    return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't greater than 1.");
-                }
+    //            }
+    //            if ($scope.ModelNew.InPutOutPutRatio > 1) {
+    //                return manualValidation('div_Ratio', true, "InPutOutPutRatio value can't greater than 1.");
+    //            }
 
-                $http({
-                    method: 'POST',
-                    url: $scope.saveUrl,
-                    data: { 'data': $scope.ModelNew },
-                    dataType: 'JSON'
-                }).then(function successCallback(response) {
-                    if (response.data.Error === true) {
-                        ShowResult(response.data.Message, 'failure');
-                    }
-                    else {
-                        ShowResult(response.data.Message, 'success');
-                        $scope.ModelNew.Id = response.data.Id;
-                        $scope.masterId = response.data.Id;
-                        $scope.GetData();
+    //            $http({
+    //                method: 'POST',
+    //                url: $scope.saveUrl,
+    //                data: { 'data': $scope.ModelNew },
+    //                dataType: 'JSON'
+    //            }).then(function successCallback(response) {
+    //                if (response.data.Error === true) {
+    //                    ShowResult(response.data.Message, 'failure');
+    //                }
+    //                else {
+    //                    ShowResult(response.data.Message, 'success');
+    //                    $scope.ModelNew.Id = response.data.Id;
+    //                    $scope.masterId = response.data.Id;
+    //                    $scope.GetData();
 
-                    }
-                }), function errorCallBack(response) {
-                    ShowResult(response.data.Message, 'failure');
-                };
-            }
+    //                }
+    //            }), function errorCallBack(response) {
+    //                ShowResult(response.data.Message, 'failure');
+    //            };
+    //        }
 
-        } catch (e) {
-            ShowResult(e, "failure");
-        }
-    };
+    //    } catch (e) {
+    //        ShowResult(e, "failure");
+    //    }
+    //};
 
     $scope.ProcessParameterList = [];
     $scope.GetProcessParameterData = function () {
         $scope.ProcessParameterList = [];
-        $http.get("Processes/ProductionBookingProcessParameter/GetProcessParameterList?masterId=" + $scope.masterId)
+        $http.get("Processes/ProductionBookingProcessParameter/GetProcessDetentionParameterList?masterId=" + $scope.detentionNew.Id)
             .then(
                 function successCallback(response) {
                     $scope.ProcessParameterList = response.data;
@@ -1176,6 +1206,7 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                 function errorCallback(response) {
                     ShowResult(response, 'failure');
                 });
+        var gridObj = $("#GridChild").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
     };
 
     $scope.AddEditRow = function () {
@@ -1206,8 +1237,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
 
     $scope.SaveProcessParameter = function () {
         try {
-            $scope.ModelProcessPara.ProductionBookingProcessParameterId = $scope.masterId;
-            CheckField($scope.ModelProcessPara.ProductionBookingProcessParameterId, "Master");
+            $scope.ModelProcessPara.DetentionMasterId = $scope.detentionNew.Id;
+            CheckField($scope.ModelProcessPara.DetentionMasterId, "Master");
             CheckField($scope.ModelProcessPara.UserName, "User Name");
             CheckField($scope.ModelProcessPara.SandardName, "Sandard Name");
             $scope.AddEditRow();
@@ -1223,7 +1254,8 @@ function DetentionMasterController(cboService, commonMessage, $scope, $rootScope
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.GetSequence();
+                    /*$scope.GetSequence();*/
+                    $scope.getautosequenceDetention();
                     $scope.GetProcessParameterData();
                     $scope.Clear();
                     $scope.FormulaDetails = [];

@@ -285,7 +285,7 @@ namespace Aplos.Areas.Productions.Controllers
                             INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
                             LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
-                            WHERE WCM.PlantId='" + identity.PlantId + "' AND WCM.ProcessId='" + processId + "'  AND ISNULL(WCM.Id,'') IN(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + "') order by p.userName, e.UserName,WCM.sequence";
+                            WHERE WCM.Active=1 AND WCM.PlantId='" + identity.PlantId + "' AND WCM.ProcessId='" + processId + "'  AND ISNULL(WCM.Id,'') IN(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + "') order by p.userName, e.UserName,WCM.sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -369,11 +369,14 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         public ActionResult GetMinute(Dictionary<string, object> data)
         {
             //var ts = Convert.ToDateTime(data["ProductionShiftEndTime"]).Subtract(Convert.ToDateTime(data["ProductionShiftStartTime"]));
-
-            DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
-            DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
-            TimeSpan ts = date2 - date1;
-            int minutes = (int)ts.TotalMinutes;
+            int minutes = 0;
+            if (!string.IsNullOrEmpty(data["ProductionShiftStartTime"].ToString())&& !string.IsNullOrEmpty(data["ProductionShiftEndTime"].ToString()))
+            {
+                DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
+                DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
+                TimeSpan ts = date2 - date1;
+                minutes = (int)ts.TotalMinutes; 
+            }
 
             return Json(minutes, JsonRequestBehavior.AllowGet);
         }
