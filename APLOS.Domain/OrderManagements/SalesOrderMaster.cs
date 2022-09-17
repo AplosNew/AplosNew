@@ -42,6 +42,9 @@ namespace Library.Model.OrderManagements
         public decimal Other { get; set; }
         public decimal DirectProcessCost { get; set; }
         public decimal Commission { get; set; }
+        public string ProductionType { get; set; }
+        public bool ShipmentFromStock { get; set; }
+        public string StockResponsiblePersonId { get; set; }
         #endregion Scalar Properties
 
         #region Audit Properties

@@ -159,7 +159,7 @@ where DetentionMasterId='" + detentionId + "'";
         public JsonResult GetDetentionTypeList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            var sql = @"    ";
+            var sql = @"Select DT.UserName As Text, DT.Id As Value from hkp.DetentionType DT";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }

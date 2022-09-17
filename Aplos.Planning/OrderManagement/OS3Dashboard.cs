@@ -512,10 +512,12 @@ namespace Library.Planning.OrderManagement
                                 po.Id as PRNo , mo.Id as OrderNo , moi.Id as ItemNo, rem.Remarks ,
                                
                                 mo.BuyerReferenceNo,mo.BuyerId,mo.OwnReferenceNo,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,b.UserName as Buyer
+                                ,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
                                from trn.MasterOrder mo 
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
 								left outer join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
 								inner join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+                                LEFT JOIN HKP.OrderCategory OC ON OC.Id = SO.OrderCategoryId
 								left outer join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
 								left outer join org.entity e on e.Id = mo.EntityId
 								left outer join org.Plant p on p.Id = mo.PlantId
