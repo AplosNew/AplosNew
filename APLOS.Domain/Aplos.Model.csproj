@@ -828,6 +828,7 @@
     <Compile Include="Products\GateEntry.cs" />
     <Compile Include="Products\GRNPORequisitionAllocation.cs" />
     <Compile Include="Products\POGVendor.cs" />
+    <Compile Include="Products\GRNPORequisitionMap.cs" />
     <Compile Include="Products\ProductMasterAlternativeUOM.cs" />
     <Compile Include="Products\QualityStdSet.cs" />
     <Compile Include="Products\RequisitionIssueDetail.cs" />
