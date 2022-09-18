@@ -195,6 +195,7 @@
                         <div e-columns>
                             <div e-column e-field="BankStatementDate" e-headertext="Date" e-width="80" e-format="{0:dd-MMM-yyyy}" type="date"></div>
                             <div e-column e-field="BankRefNo" e-headertext="Bank Ref No" e-width="100"></div>
+                            <div e-column e-field="BankParticulars" e-headertext="Bank Particulars" e-width="100"></div>
                             <div e-column e-field="DrAmount" e-headertext="DrAmount" e-width="80"></div>
                             <div e-column e-field="CrAmount" e-headertext="CrAmount" e-width="80"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
@@ -251,23 +252,24 @@
                             <div e-column e-field="ClosingBalance" e-headertext="Closing Balance" e-width="80"></div>
                             <div e-column e-field="BankStatementNo" e-headertext="Statement Ref No" e-width="100"></div>
                             <div e-column e-field="Remarks" e-headertext="Remarks" e-width="100"></div>
+                            <div e-column e-headertext="Action" e-template="#ReportTemplate" e-width="100"></div>
                         </div>
                     </div>
                 </div>
-                @*<script type="text/ng-template" id="DetailsButtons">
-                        <div class="common-btn">
-                            <button style="color: #f3f3ec;background-color: #1c1f32;" title="Actions" class="btn">
-                                <i class="glyphicon glyphicon-th-list" ng-click="$parent.Edit(this);"></i>
-                            </button>
-                        </div>
-                    </script>*@
-                @*<div class="col-xs-12 col-sm-12 col-md-12 ">
+                <script id="ReportTemplate" type="text/template">
                     <div class="common-btn">
-                        <ul class="list-inline text-right">
-                            <li> <button ng-click="DownloadReport();" class="btn"><i class="glyphicon glyphicon-download-alt"></i> Report</button></li>
+                        <ul class="common-btn list-inline text-center">
+                            <li>
+                                <button ng-click="$parent.onClickReportDownloadExcel(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="Excel">
+                                    <i class="fa fa-file-excel-o"></i>
+                                </button>
+                                @*<button ng-click="$parent.onClickGRNID(data);" class="btn small tooltip-here" style="height: 28px; width: 28px; padding: 0px; margin: 0px;" title="GRN">
+                                    <i class="glyphicon glyphicon-file" style="color:orangered;"></i>
+                                </button>*@
+                            </li>
                         </ul>
                     </div>
-                </div>*@
+                </script>
             </div>
         </div>
     </div>

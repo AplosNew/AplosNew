@@ -210,7 +210,7 @@ namespace Aplos.Areas.Products.Controllers
         #region GRN-By-PO
         [HttpPost]
         public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList
-            , IEnumerable<PoRequisitionDetail> requisitionDetailList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+            , IEnumerable<GRNPORequisitionMap> requisitionDetailList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -303,7 +303,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, requisitionDetailList);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -570,7 +570,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -839,7 +839,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -1096,10 +1096,10 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, requisitionDetailList);
             return Json(new { Message = AplosMessage.Success });
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]

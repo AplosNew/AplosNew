@@ -1928,7 +1928,7 @@ namespace Aplos.MaterialManagement
 			try
 			{
 				var  sql = @"
-                         SELECT mrm.Id RequisitionNo,PRD.RequisitionDetailId RowId,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty,uom.UserName UOM,ei.EmployeeName RequisitionBy
+                         SELECT mrm.Id RequisitionNo,PRD.RequisitionDetailId ReqDetailId,PRD.PODetailId,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty Qty,mrd.TransactionQty,uom.UserName UOM,ei.EmployeeName RequisitionBy
 						 FROM trn.MaterialRequsitionDetails mrd 
 						 JOIN trn.MaterialRequsitionMaster mrm on mrm.Id=mrd.MaterialReqqusitionMasterId
 						 JOIN TRN.PoRequisitionDetail PRD ON PRD.RequisitionDetailId=mrd.Id

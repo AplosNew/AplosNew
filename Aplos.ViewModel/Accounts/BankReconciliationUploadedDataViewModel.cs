@@ -8,6 +8,7 @@ namespace Library.ViewModel.Accounts
         public string BankReconciliationUploadId { get; set; }
         public string BankStatementDate { get; set; }
         public string BankRefNo { get; set; }
+        public string BankParticulars { get; set; }
         public decimal DrAmount { get; set; }
         public decimal CrAmount { get; set; }
         public string OwnRefNo { get; set; }

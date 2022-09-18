@@ -24,10 +24,6 @@ namespace Library.Model.Products
         public UnitOfMeasurement BaseUoM { get; set; }
         public string BaseUoMId { get; set; }
 
-        public decimal POBOQQty { get; set; }
-
-        public UnitOfMeasurement POUoM { get; set; }
-        public string POUoMId { get; set; }
 
         #endregion Scalar Properties
 

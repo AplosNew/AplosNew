@@ -10,6 +10,7 @@ using Library.Service.Helpers;
 using Library.Service.Logs;
 using Library.Service.Organizations;
 using Library.Service.Properties;
+using Library.ViewModel.Accounts;
 using Library.ViewModel.OrderManagements;
 using OTSBD;
 using Syncfusion.XlsIO;
@@ -206,6 +207,20 @@ namespace Library.Accounting.Accounts
                         LEFT JOIN [HKP].[Activity] AS A ON VD.ActivityId= A.Id
                         WHERE IR.Id=@receiveId order by VD.CrAmount";
                 return _sqlRepository.GetModelCollection<InventoryReportViewModel>(sql);
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+        }
+        private IEnumerable<BankReconciliationUploadedDataViewModel> GetBankReconciliationUploadedData(string companyId, string plantId, string bankReconciliationUploadId)
+        {
+            try
+            {
+                var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
+                            FROM TRN.BankReconciliationUploadedData 
+                            where BankReconciliationUploadId='" + bankReconciliationUploadId + @"' ";
+                return _sqlRepository.GetModelCollection<BankReconciliationUploadedDataViewModel>(sql);
             }
             catch (CustomException)
             {
@@ -2446,6 +2461,189 @@ namespace Library.Accounting.Accounts
             }
 
             return workbook;
+        }
+
+        #endregion
+
+        #region
+        public IWorkbook GetBankReconciliationUploadedDataReport(string companyId, string plantId, string bankReconciliationUploadId, string sheetHeader)
+        {
+            try
+            {
+                var excelEngine = new ExcelEngine();
+                var report = new ReportUtility();
+                var workbook = report.GetWorkbook(ref excelEngine, 1);
+                var sheet1 = workbook.Worksheets[0];
+                GetBankReconciliationUploadedDataReportSheet(ref sheet1, report, sheetHeader, sheetHeader, companyId, plantId, bankReconciliationUploadId);
+                workbook.Version = ExcelVersion.Excel2013;
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private void GetBankReconciliationUploadedDataReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName
+            , string companyId, string plantId, string bankReconciliationUploadId)
+        {
+            IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
+            dataList = GetBankReconciliationUploadedData(companyId, plantId, bankReconciliationUploadId);
+                   
+
+            if (dataList.Count() == 0) throw new Exception("No Data Found!");
+
+            var plantName = new DataView(_sqlRepository.GetDataTable(@"SELECT UserName from org.Plant WHERE Id='" + plantId + "'")).ToTable(true, "UserName").Rows[0]["UserName"].ToString();
+
+            var sql = @"SELECT BRU.Id,B.UserName  BankName,OpeningBlance, ClosingBalance, BankStatementNo, BRU.Remarks,EI.EmployeeName
+                        ,REPLACE(CONVERT(CHAR(11), BRU.FromDate, 106),' ','-') AS FromDate
+                        ,REPLACE(CONVERT(CHAR(11), BRU.ToDate, 106),' ','-') AS ToDate
+                        ,c.Code BankCurrency
+                        FROM TRN.BankReconciliationUpload BRU
+                        INNER JOIN [MST].[BankMaster] BM ON BM.Id=BRU.BankMasterId
+                        INNER JOIN [HKP].[Bank] B ON B.Id=BM.BankId
+                        INNER JOIN [SCS].[Currency] C ON C.Id=BM.CurrencyId
+                        INNER JOIN [dbo].[EmployeeInformation] EI ON EI.SystemId=BRU.EmployeeId
+                        WHERE BRU.Id='" + bankReconciliationUploadId + "'";
+            var receiveList = _sqlRepository.GetData(sql);
+            
+
+            var shet2EndxlsCol = 1;
+
+            #region Right header
+
+            var _row = 5;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Bank Name");
+            reportUtility.SetText(ref sheet, _row, 2, receiveList["BankName"].ToString());
+            sheet.Range[_row, 2, _row, 3].Merge();
+            _row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Bank Statement No");
+            reportUtility.SetText(ref sheet, _row, 2, receiveList["BankStatementNo"].ToString());
+            sheet.Range[_row, 2, _row, 3].Merge();
+            _row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Currency");
+            reportUtility.SetText(ref sheet, _row, 2, receiveList["BankCurrency"].ToString());
+            sheet.Range[_row, 2, _row, 3].Merge();
+            _row++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Remarks");
+            reportUtility.SetText(ref sheet, _row, 2, receiveList["Remarks"].ToString());
+            sheet.Range[_row, 2, _row, 3].Merge();
+            _row++;
+
+            #endregion
+
+            #region Left Header
+
+            var _rowL = _row;
+            var row = _row + 1;
+            var _rowR = 5;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "From Date");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["FromDate"].ToString());
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "To Date");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["ToDate"].ToString());
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "By Whom");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["EmployeeName"].ToString());
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "Opening Blance");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["OpeningBlance"].ToString());
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "Closing Balance");
+            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["ClosingBalance"].ToString());
+            sheet.Range[_rowR, 5, _rowR, 8].Merge();
+            _rowR++;
+
+
+            #endregion
+
+            #region Table
+
+            var headreColIndex = 1;
+
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Id", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankStatementDate", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankRefNo", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankParticulars", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "DrAmount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "CrAmount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Remarks", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "OwnRefNo", 24); headreColIndex++;
+
+
+
+            shet2EndxlsCol = headreColIndex;
+            var Row_Total_Start = _rowL + 1;
+            double trnCurrencyAmount = 0;
+            double baseCurrencyAmount = 0;
+
+            foreach (var item in dataList)
+            {
+                _rowL++;
+                reportUtility.SetText(ref sheet, _rowL, 1, item.Id);
+                reportUtility.SetText(ref sheet, _rowL, 2, item.BankStatementDate);
+                reportUtility.SetText(ref sheet, _rowL, 3, item.BankRefNo);
+                reportUtility.SetText(ref sheet, _rowL, 4, item.BankParticulars);
+                reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(item.DrAmount));
+                reportUtility.SetText(ref sheet, _rowL, 6, Convert.ToDouble(item.CrAmount));
+                reportUtility.SetText(ref sheet, _rowL, 7, item.Remarks);
+                reportUtility.SetText(ref sheet, _rowL, 8, item.OwnRefNo);
+              
+            }
+
+            _rowL++;
+            sheet.Range[_rowL, 1, _rowL, 3].Merge();
+            reportUtility.SetText(ref sheet, _rowL, 1, null, false);
+
+            
+                sheet.Range[_rowL, 5].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(5) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(5) + (_rowL - 1) + ")";
+                sheet.Range[_rowL, 5].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL, 5].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL, 5].BorderAround(ExcelLineStyle.Hair);
+
+                sheet.Range[_rowL, 6].Formula = "=SUM(" + reportUtility.GetColumnNameForXls(6) + Row_Total_Start + ":" + reportUtility.GetColumnNameForXls(6) + (_rowL - 1) + ")";
+                sheet.Range[_rowL, 6].NumberFormat = reportUtility.NumberFormatDecimalTwo();
+                sheet.Range[_rowL, 6].CellStyle.Font.Bold = true;
+                sheet.Range[_rowL, 6].BorderAround(ExcelLineStyle.Hair);
+            
+
+            #endregion
+
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderInside(ExcelLineStyle.Hair);
+            sheet.Range[(row), 1, _rowL, shet2EndxlsCol - 1].BorderAround(ExcelLineStyle.Hair);
+
+            _rowL++;
+            
+
+            #region Signature
+
+            _rowL = _rowL + 4;
+
+            sheet.Range[_rowL, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            sheet.Range[_rowL, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+            sheet.Range[_rowL, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
+
+            #endregion Signature
+
+
+            sheet.Name = sheetName;
+            sheet.UsedRange.WrapText = true;
+            sheet.UsedRange.CellStyle.Font.Size = 8;
+            reportUtility.CompanyPlantHeader(ref sheet, shet2EndxlsCol, sheetHeader, companyId, plantId, plantName, null);
+            reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
+
         }
 
         #endregion
