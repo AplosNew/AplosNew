@@ -8,6 +8,7 @@ using Library.Crosscutting.Security;
 using Library.Data;
 using Library.Data.Sql;
 using Library.Model.Banks;
+using Library.Model.Enums;
 using Library.Model.Vouchers;
 using Library.Service.Banks;
 using Library.Service.Helpers;
@@ -267,17 +268,17 @@ namespace Aplos.Areas.Banks.Controllers
                             {
                                 string drAmount = "0.0";
                                 string crAmount = "0.0";
-                                drAmount = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
-                                crAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                drAmount = dsExcel.Tables[0].Rows[i][3].ToString().Trim();
+                                crAmount = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
                                 BankReconciliationUploadedDataViewModel vm = new BankReconciliationUploadedDataViewModel();
 
                                 vm.DrAmount = Convert.ToDecimal(string.IsNullOrEmpty(drAmount) ? "0" : drAmount);
                                 vm.CrAmount = Convert.ToDecimal(string.IsNullOrEmpty(crAmount) ? "0" : crAmount);
                                 vm.BankStatementDate = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
-                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][0].ToString().Trim();
                                 vm.BankRefNo = dsExcel.Tables[0].Rows[i][1].ToString().Trim();
-                                vm.Remarks = dsExcel.Tables[0].Rows[i][4].ToString().Trim();
-                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.BankParticulars = dsExcel.Tables[0].Rows[i][2].ToString().Trim();
+                                vm.Remarks = dsExcel.Tables[0].Rows[i][5].ToString().Trim();
+                                vm.OwnRefNo = dsExcel.Tables[0].Rows[i][6].ToString().Trim();
                                 data.Add(vm);
                                 
                             }
@@ -330,6 +331,25 @@ namespace Aplos.Areas.Banks.Controllers
             AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
             return Json(accountsBankReconcilliationService.GetBankReconciliationUploadedData(identity.CompanyGroupId, identity.CompanyId, identity.PlantId, bankMasterId), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
+        public ActionResult GetBankReconciliationUploadedDataReport(ReportFormat reportFormat, string bankReconciliationUploadId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var reportFileName = "UploadedData";
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            var workbook = accountsInventoryPayableReportService.GetBankReconciliationUploadedDataReport(identity.CompanyId, identity.PlantId, bankReconciliationUploadId, reportFileName);
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return View();
+            }
         }
         #endregion Operation
     }
