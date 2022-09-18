@@ -323,72 +323,11 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         var ReportFormat = 'Excel';
         location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
     };
-
-    $scope.downloadgriddataUrlPath = 'GridReports/DownloadUsingFullPath';//DownloadUsingPath
-    $scope.DownloadReport = function () {
-        try {
-            var MonthName = "";
-            $scope.fileName = "ExternalDataUploadFromExcel.xls";
-            if ($scope.SaveDataList.length == 0) {
-                throw "Load Data first..";
-            }
-            var parameters = [];
-            var gridObj = $("#GridUploadedData").data("ejGrid");
-            var filteredRecords = gridObj.getFilteredRecords();
-            if (filteredRecords.length == 0) {
-                filteredRecords = $scope.SaveDataList;
-            }
-
-            parameters.push({ "Key": "EmpSystemId", "Value": getString(filteredRecords, "EmpSystemId") });
-            parameters.push({ "Key": "SalaryHeadID", "Value": getString(filteredRecords, "SalaryHeadID") });
-            parameters.push({ "Key": "HeadType", "Value": getString(filteredRecords, "HeadType") });
-            parameters.push({ "Key": "EntryCurrencyID", "Value": getString(filteredRecords, "EntryCurrencyID") });
-            parameters.push({ "Key": "EntryAmount", "Value": getString(filteredRecords, "EntryAmount") });
-
-            for (var i = 0; i < $scope.monthList.length; i++) {
-                if ($scope.ModelNew.MonthNo == $scope.monthList[i].Value) {
-                    MonthName = $scope.monthList[i].Text;
-                }
-            }
-
-            $http({
-                method: 'POST',
-                url: 'Payrolls/ExternalDataUploadFromExcel/ExternalDataUploadReport',
-                data: {
-                    'EmployeeList': parameters[0].Value, 'SalaryHeadId': $scope.ModelNew.SalaryHeadId, 'MonthNo': $scope.ModelNew.MonthNo, 'YearNo': $scope.ModelNew.YearNo
-                    , 'SalaryHeadIDs': parameters[1].Value, 'HeadType': parameters[2].Value, 'CurrencyID': parameters[3].Value, 'EntryAmount': parameters[4].Value, 'MonthName': MonthName
-                }
-            }).then(function successCallback(response) {
-                if (response.data.Error === true) {
-                    ShowResult(response.data.Message, 'failure');
-                }
-                else {
-                    $rootScope.report($scope.downloadgriddataUrlPath + "?FullPath=" + response.data.FileName + "&fileName=" + $scope.fileName);//downloadgriddataUrlPath
-                }
-            });
-
-        } catch (e) {
-            ShowResult(e, 'failure');
-        }
+    $scope.onClickReportDownloadExcel = function (data) {
+        var reportFormat = "Excel";
+        if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
+        $window.open($scope.path + 'GetBankReconciliationUploadedDataReport?reportFormat=' + reportFormat + '&bankReconciliationUploadId=' + data.Id, '_blank');
     };
-    var getString = function (data, column) {
-        var kk = "";
-        var collection = [];
-        for (var i = 0; i < data.length; i++) {
-            if (collection.includes(data[i][column]) === false) {
-                if (kk === "") {
-                    kk += "'" + data[i][column] + "'";
-                }
-                else {
-                    kk += ",'" + data[i][column] + "'";
-                }
-
-                collection.push(data[i][column]);
-            }
-        }
-        return kk;
-    };
-    $scope.ShowDiv = false;
   
 }
 
