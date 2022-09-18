@@ -505,14 +505,12 @@ namespace Library.Planning.OrderManagement
                 }
 
 
-                var str = @"Select * from (Select distinct so.Id, so.Qty  , format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate , so.AddedDate , format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate , pod.ProductionOrderID , format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate, os.Username as MOOrderStatusId ,
-                                DateDiff(Day,"+Dtype+@", " + DDate + @") as EarlyOrLateBy , prt.Username as customers , e.UserName as Entity , emp.EmployeeName as MResp,
-                                ps.UserName as POStatus, so.OrderStatusId as OrderStatusId,
-                                ee.EmployeeName as EResp ,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate,
-                                po.Id as PRNo , mo.Id as OrderNo , moi.Id as ItemNo, rem.Remarks ,
-                               
-                                mo.BuyerReferenceNo,mo.BuyerId,mo.OwnReferenceNo,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,b.UserName as Buyer
-                                ,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
+                var str = @"Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
+								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,so.Id SONo, so.Qty, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
+								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
+								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day," + Dtype + @", " + DDate + @") as EarlyOrLateBy 
+								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
+
                                from trn.MasterOrder mo 
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
 								left outer join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
