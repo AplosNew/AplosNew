@@ -269,7 +269,8 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterArticleId = mma.Id) and
+                            mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 }
                 else if (storagelevel == "Article")
                 {
@@ -281,7 +282,8 @@ namespace Library.MaterialManagement.Material
 							left join mst.MaterialGroupMaster mgm on mgm.Id = mm.MaterialGroupMasterId	
 							left join hkp.materialtype mt on mt.Id =  mgm.materialtypeid                                                       
 							left join trn.BinAllocationHead bah on bah.MaterialMasterId = mm.Id
-                            where mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
+                            where NOT EXISTS (SELECT * FROM TRN.MaterialAlocation M where M.MaterialMasterId = mm.Id) and 
+mt.Id = '" + materialType + "' and mgm.Id = '" + materialGroup + "' and mm.Id = '" + material + "'";
                 }
                 
                         
@@ -302,7 +304,8 @@ namespace Library.MaterialManagement.Material
                             sb.AccessType, sb.UserLocationType, sb.Remarks, sb.Id as StorageBinMasterId, ba.Id
                             FROM MST.StorageBinMaster sb
 							left join trn.BinAllocationHead ba on ba.StorageBinMasterId = sb.Id
-                        WHERE sb.UserName = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
+                        WHERE not exists(SELECT * FROM TRN.BinAllocation as B where B.StorageBinMasterId = sb.Id) and
+                        sb.UserName = '" + storagelocation + "'  and sb.AccessType = '"+ AccessType + "'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch (Exception ex)
@@ -342,11 +345,11 @@ namespace Library.MaterialManagement.Material
                 ConnectionManager.DAL.ConManager con = new ConnectionManager.DAL.ConManager("1");
 
                 // Validate Unique User Name
-                con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
-                if (dsMaster.Tables[0].Rows.Count > 0)
-                {
-                    throw new Exception("Same UserName is already there!!");
-                }
+                //con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id <> '" + datas["Id"] + "' and UserName='" + datas["UserName"].ToString() + "'", out dsMaster, false, "1");
+                //if (dsMaster.Tables[0].Rows.Count > 0)
+                //{
+                //    throw new Exception("Same UserName is already there!!");
+                //}
 
                 con.OpenDataSetThroughAdapter("select * from " + TableName + " where Id ='" + datas["Id"] + "'", out dsMaster, false, "1");
 

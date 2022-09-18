@@ -1178,6 +1178,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
                 $scope.soModel.ResponsiblePersonId = employee.SystemId;
                 $scope.soModel.ResponsiblePersonName = employee.EmployeeName;
             }
+            else if ($scope.Name === 'Stock') {
+                $scope.soModel.StockResponsiblePersonId = employee.SystemId;
+                $scope.soModel.StockResponsiblePerson = employee.EmployeeName;
+            }
             else if ($scope.Name === 'boq') {
                 $scope.qboqModel.ResponsiblePersonId = employee.SystemId;
                 $scope.qboqModel.ResponsiblePersonName = employee.EmployeeName;
@@ -1761,8 +1765,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     $scope.TotalMOIQty = 0;
     $scope.JobWorkType = '';
 
-
-
     $scope.getSalesOrder = function (x, id, materialMasterId, mName, aName, hsnCodeId, BuyerReferenceNo) {
         $scope.TotalMOIQty = x.TotalQty;
         $scope.JobWorkType = baseService.isUndefinedOrNull(x.JobWorkType) ? x.JobWorkType : x.JobWorkType + '>> ' + baseService.isUndefinedOrNull(x.EntityOrVendorName) ? x.EntityOrVendorName : x.EntityOrVendorName;
@@ -1809,6 +1811,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
+            , ProductionType: null
+            , ShipmentFromStock: null
+            , StockResponsiblePersonId: null
+            , StockResponsiblePerson: null
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -1935,6 +1941,22 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             }
         }
 
+        if (baseService.isUndefinedOrNull($scope.soModel.ProductionType)) {
+            ShowResult("Select Production Type", 'failure', 'soPoUp');
+            return false;
+        }
+        if ($scope.soModel.ProductionType === 'Stock') {
+            if (baseService.isUndefinedOrNull($scope.soModel.StockResponsiblePersonId)) {
+                ShowResult("Select Stock Responsible Person", 'failure', 'soPoUp');
+                return false;
+            }
+        }
+        if (baseService.isUndefinedOrNull($scope.soModel.ShipmentFromStock)) {
+            ShowResult("Select Shipment From Stock", 'failure', 'soPoUp');
+            return false;
+        }
+       
+
         $scope.$broadcast('show-errors-check-validity');
 
         if ($scope.soForm.$valid) {
@@ -1981,9 +2003,6 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         });
     };
 
-
-
-
     function getSalesOrderTaxCategoryUpdateList(salesOrderId) {
         $scope.SoTotalAmount = ((parseFloat($scope.soModel.Qty) * parseFloat($scope.soModel.Rate)) - parseFloat($scope.soModel.Discount)).toFixed(2);
         $http({
@@ -2026,9 +2045,19 @@ function masterOrderController(accountService, $window, cboService, commonMessag
     }
 
     $scope.delivaryDate = null;
+
+    $scope.ShipmentFromStocklist = [
+        { Text: "Yes", Value: 1 },
+        { Text: "No", Value: 0 }
+    ];
     $scope.soEdit = function (data) {
         $scope.TotalProducedQty = 0;
         angular.copy(data, $scope.soModel);
+        if ($scope.soModel.ShipmentFromStock) {
+            $scope.soModel.ShipmentFromStock = 1;
+        } else {
+            $scope.soModel.ShipmentFromStock = 0;
+        }
         $scope.delivaryDate = null;
         $scope.delivaryDate = $scope.soModel.DeliveryDate;
         $scope.soModel.SalesOrderYear = parseInt($scope.soModel.SalesOrderYear);
@@ -2175,6 +2204,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , UpCharge: 0
             , Discount: 0
             , CM: 0
+            , ProductionType: null
+            , ShipmentFromStock: null
+            , StockResponsiblePersonId: null
+            , StockResponsiblePerson: null
         };
     }
 
@@ -2231,6 +2264,10 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , OrderStatusChangedDate: null
         , OrderStatusChangedFromIP: null
         , DestinationDescription: null
+        , ProductionType: null
+        , ShipmentFromStock: null
+        , StockResponsiblePersonId: null
+        , StockResponsiblePerson: null
     };
 
     $scope.SplitSO = function (data) {

@@ -1928,15 +1928,16 @@ namespace Aplos.MaterialManagement
 			try
 			{
 				var  sql = @"
-                         SELECT mrm.Id RequisitionNo,mrd.Id RowId,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty,uom.UserName UOM,ei.EmployeeName RequisitionBy
+                         SELECT mrm.Id RequisitionNo,PRD.RequisitionDetailId ReqDetailId,PRD.PODetailId,mm.UserName Material,mma.StandardName Articel,mrd.TransactionQty Qty,mrd.TransactionQty,uom.UserName UOM,ei.EmployeeName RequisitionBy
 						 FROM trn.MaterialRequsitionDetails mrd 
 						 JOIN trn.MaterialRequsitionMaster mrm on mrm.Id=mrd.MaterialReqqusitionMasterId
-						 JOIN trn.PurchaseOrderDetail pod on pod.RequisitionDetailId=mrd.Id
+						 JOIN TRN.PoRequisitionDetail PRD ON PRD.RequisitionDetailId=mrd.Id
+						 JOIN trn.PurchaseOrderDetail pod on pod.Id=PRD.PODetailId
 						 LEFT JOIN MST.MaterialMaster mm on mm.Id=mrd.MaterialMasterId
 						 LEFT JOIN MST.MaterialMasterArticle mma on mma.Id=mrd.ArticleId
 						 LEFT JOIN dbo.EmployeeInformation ei on ei.SystemId=mrm.ReqEmpId
 						 LEFT JOIN SCS.UnitOfMeasurement uom on uom.Id=mrd.TransactionUoMId
-						 WHERE pod.id='"+ poDetailId + "' AND mrm.PlantId='"+ plantId + @"'";
+						 WHERE pod.id='" + poDetailId + "' AND mrm.PlantId='"+ plantId + @"'";
 
 				return _sqlRepository.GetDataCollection(sql);
 			}

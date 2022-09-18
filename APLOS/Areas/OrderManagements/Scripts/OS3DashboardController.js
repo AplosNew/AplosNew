@@ -4,6 +4,8 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
     $rootScope.title = 'Order Control Dashboard';
     $scope.path = "OrderManagements/OS3Dashboard/";
 
+    $scope.downloadgriddataUrl = 'GridReports/Download';
+    $scope.exportgriddataUrl = 'GridReports/ExcelExportUpd';
 
    //The Selection Criteria
     //New
@@ -537,6 +539,37 @@ function OS3DashboardController(cboService, commonMessage, $scope, $rootScope, b
             }
         }
     });
+
+    $scope.SODetailsReport = function () {
+        $scope.fileName = 'SO Details';
+        var dataList = [];
+        var g = $("#slabClickGrid").data("ejGrid");
+        dataList = g.getFilteredRecords();
+
+        if (dataList.length == 0) {
+            dataList = $scope.DetailList;
+        }
+
+        $http({
+            method: 'POST',
+            url: $scope.exportgriddataUrl,
+            data: {
+                'reportFileName': $scope.fileName,
+                'data': dataList
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $rootScope.report($scope.downloadgriddataUrl + "?FileName=" + response.data.FileName);
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.data.Message, 'failure');
+        });
+
+    };
 
 }
 

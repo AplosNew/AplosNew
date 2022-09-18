@@ -215,6 +215,12 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetDetentionParaData(string DetentionId, string processId, string masterId)
+        {
+            return Json(_productionSummaryData.GetDetentionParaData(DetentionId, processId, masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
         {
             try
@@ -718,6 +724,88 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
             return Json(new { NewData, Message = AplosMessage.Success });
         }
 
+        [Authorize]
+        public JsonResult CalculateDetention(IEnumerable<OpenHeadModelNew> OpenHeadNew)
+        {
+            DataTable dtValue = new DataTable();
+            dtValue.TableName = "TempTable";
+            dtValue.Columns.Add("DetentionMasterMachineParameterId");
+            dtValue.Columns.Add("Amount");
+            string sFormulaResult = null;
+
+            DataSet dsOpenHead = Library.Service.Helpers.DataTableExtensions.ToDataSet<OpenHeadModelNew>(OpenHeadNew);
+            for (int i = 0; i < dsOpenHead.Tables[0].Rows.Count; i++)
+            {
+                if (i == 0)
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+                else if (i > 0 && string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+                    dtValueRow["Amount"] = dsOpenHead.Tables[0].Rows[i]["Value"].ToString().Trim();
+
+                    dtValue.Rows.Add(dtValueRow);
+                }
+
+                if (!string.IsNullOrEmpty(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString()))
+                {
+                    _productionSummaryData.ReLoadDetentionFormulaWithValue(dsOpenHead.Tables[0].Rows[i]["FormulaId"].ToString(), ref dtValue, out string _formulaValue);
+                    sFormulaResult = clsSalaryStructureAplos.Evaluate(_formulaValue).ToString("#####");
+
+                    DataRow dtValueRow = dtValue.NewRow();
+
+                    dtValueRow["DetentionMasterMachineParameterId"] = dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString().Trim();
+
+                    if (sFormulaResult == "" || sFormulaResult == "∞")
+                    {
+                        dtValueRow["Amount"] = 0;
+                    }
+                    else
+                    {
+                        dtValueRow["Amount"] = sFormulaResult;
+                    }
+
+                    dtValue.Rows.Add(dtValueRow);
+
+                    DataView dv = new DataView(dsOpenHead.Tables[0]);
+                    dv.RowFilter = "DetentionMasterMachineParameterId='" + dsOpenHead.Tables[0].Rows[i]["DetentionMasterMachineParameterId"].ToString() + "'";
+                    if (dv.Count > 0)
+                    {
+                        DataRow drmo = dv[0].Row;
+
+                        drmo.BeginEdit();
+                        if (sFormulaResult == "" || sFormulaResult == "∞" || sFormulaResult == "NaN")
+                        {
+                            drmo["Value"] = 0;
+                        }
+                        else
+                        {
+                            drmo["Value"] = sFormulaResult;
+                        }
+                        drmo.EndEdit();
+
+                    }
+
+
+                }
+
+
+            }
+
+
+            List<Dictionary<string, object>> NewData = (List<Dictionary<string, object>>)Library.Service.Helpers.DataTableExtensions.DataTableToJson(dsOpenHead.Tables[0]);
+            return Json(new { NewData, Message = AplosMessage.Success });
+        }
+
+
         #endregion
 
         #region Production Report with parameter
@@ -1197,13 +1285,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         [HttpPost, Authorize]
         //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        public ActionResult GetOrderReport(string fromDate, string toDate,  string PlantId, string EntityId)
+        public ActionResult GetOrderReport(string fromDate, string toDate, string PlantId, string EntityId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId,EntityId);
+                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId, EntityId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1468,7 +1556,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 ROW++;
 
-               int startRow = ROW;
+                int startRow = ROW;
 
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
@@ -1564,7 +1652,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
 
-                
+
 
                 #region Pivot
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
@@ -1583,14 +1671,19 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
-               
+
 
 
                 IPivotField field = pivotTable.Fields[colParameterValue - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
 
-               
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
 
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
@@ -1598,7 +1691,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1697,7 +1790,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            WHERE ps.ProductionDate BETWEEN '"+ fromDate + @"' AND '"+toDate+ @"' AND ps.EntityID in (" + EntityId + @")
+      		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")
                                           --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp
@@ -1758,6 +1851,7 @@ WHERE trkp.Id IN (" + PlantId + @")
         public string Id { get; set; }
         public string ProductionSummaryId { get; set; }
         public string ProductionBookingParameterId { get; set; }
+        public string DetentionMasterMachineParameterId { get; set; }
         public string UserName { get; set; }
         public string Formula { get; set; }
         public string FormulaId { get; set; }

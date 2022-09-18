@@ -45,6 +45,12 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult getautosequenceDetention(string masterId)
+        {
+            return Json(GetSequenceDetention(masterId), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
         public JsonResult GetQualityProcessParameterAutoSequence(string QualityProcessId)
         {
             return Json(GetQualityProcessParameterSequence(QualityProcessId), JsonRequestBehavior.AllowGet);
@@ -57,6 +63,11 @@ namespace Aplos.Areas.Processes.Controllers
         }
 
         [HttpGet, Authorize]
+        public JsonResult GetHeaderItemDetentionCbo(string id, string masterId)
+        {
+            return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[DetentionMasterMachineParameter] WHERE Id<>'" + id + "' AND DetentionMasterId='" + masterId + "'"), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
         public JsonResult GetQualityProcessParameterHeaderItemCbo(string id, string masterId)
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id AS Value, UserName AS Text FROM [dbo].[QualityProcessParameter] WHERE QualityProcessId='"+masterId+"' AND  Id<>'" + id + "'"), JsonRequestBehavior.AllowGet);
@@ -65,6 +76,15 @@ namespace Aplos.Areas.Processes.Controllers
         private double GetSequence(string masterId)
         {
             DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.ProductionBookingParameter Where ProductionBookingProcessParameterId='"+masterId+"'");
+            if (dt.Rows.Count > 0)
+                return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
+
+            return 1;
+        }
+
+        private double GetSequenceDetention(string masterId)
+        {
+            DataTable dt = _sqlRepository.GetDataTable("SELECT  ISNULL(Max(Sequence),0) AS Sequence FROM dbo.DetentionMasterMachineParameter Where DetentionMasterId = '" + masterId + "'");
             if (dt.Rows.Count > 0)
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
@@ -112,6 +132,13 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
         }
 
         [HttpGet, Authorize]
+        public ActionResult GetProcessDetentionParameterList(string masterId)
+        {
+
+            string sql = @"SELECT N.* FROM [dbo].[DetentionMasterMachineParameter] N Where DetentionMasterId='" + masterId + "' Order By N.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet, Authorize]
         public ActionResult GetQualityProcessParameterList(string masterId)
         {
 
@@ -128,6 +155,18 @@ Where N.ProductionBookingProcessParameterId='" + masterId+"'";
                             FROM [dbo].[FormulaDetail] D
                             LEFT JOIN dbo.ProductionBookingParameter SD ON SD.Id=D.ProductionBookingParameterHeadId
                             WHERE ProductionBookingParameterId='" + OrderLineCostingItemId + "' Order By D.Sequence";
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet, Authorize]
+        public ActionResult GetDetentionDetailList(string OrderLineCostingItemId)
+        {
+
+            string sql = @"SELECT D.Sequence,D.DetentionMasterMachineParameterHeadId
+                            ,SalaryHead= CASE WHEN ISNULL(SD.UserName,'')<>'' THEN SD.UserName ELSE D.Component END,D.Component,D.DetentionMasterMachineParameterId
+                            FROM [dbo].[FormulaDetail] D
+                            LEFT JOIN dbo.DetentionMasterMachineParameter SD ON SD.Id=D.DetentionMasterMachineParameterHeadId
+                            WHERE DetentionMasterMachineParameterId='" + OrderLineCostingItemId + "' Order By D.Sequence";
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
 

@@ -738,6 +738,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         //getInventoryMaterialList(Id);
         $scope.productNew.TaxOptionAddiTax = 'Yes';
         getServiceChargeList(Id);
+        getServiceChargeListForCharge(Id);
         getACKTaxList(Id);
         $scope.productId = Id;
         $scope.GetSavedPOList1(Id);
@@ -1271,6 +1272,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
             else {
                 ShowResult(response.data.Message, 'success');
                 getServiceChargeList($scope.productId);
+                getServiceChargeListForCharge($scope.productId);
                 angular.element(document.querySelector('#receiveTaxPopUp')).modal('hide');
 
             }
@@ -1782,7 +1784,7 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
                             , IsNonCreditable: $scope.productNew.IsNonCreditable
                         };
                         $scope.taxCategoryList = [];
-                        getServiceChargeList($scope.productNew.Id);
+                         getServiceChargeList($scope.productNew.Id);
                         //getInventoryMaterialList($scope.productNew.Id);
                         getServiceChargeListForCharge($scope.productNew.Id);
                         //$scope.getDataList();
@@ -1853,5 +1855,30 @@ function ServicePoAcknowledgementController(accountService, addressService, $win
         $scope.productNew.GateEntryDate = x.data.EntryDate;
 
         $scope.POPopUpCloseGateEntry();
+    }
+
+    $scope.delModal = function (id) {
+        //debugger;
+        if (baseService.arrayLength($scope.chargesList) > 0) {
+            if (!baseService.isUndefinedOrNull($scope.productId)) {
+                $http({
+                    method: 'POST',
+                    url: 'Products/PurchaseOrder/DeleteServiceAckChargesRow?Id=' + id,
+                    dataType: 'JSON'
+                }).then(function (response) {
+                    if (response.data.Error === true)
+                        ShowResult('Delete Error', 'failure');
+                    else {
+                        ShowResult('Deleted Service line Successfully', 'success');
+                        getServiceChargeList($scope.productId);
+                        getServiceChargeListForCharge($scope.productId)
+                        //ClearFields();
+                    }
+                    function errorCallBack(response) {
+                        ShowResult(response.data.Message, 'failure');
+                    }
+                });
+            }
+        }
     }
 }

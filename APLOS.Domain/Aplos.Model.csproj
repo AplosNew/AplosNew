@@ -472,6 +472,7 @@
     <Compile Include="Configurations\Products\CompanyGroupWiseProductConfiguration.cs" />
     <Compile Include="Configurations\Products\CompanyGroupWiseProductSubCategoryConfiguration.cs" />
     <Compile Include="Configurations\Products\GatePassDetailsConfiguration.cs" />
+    <Compile Include="Configurations\Products\GRNPORequisitionMapConfiguration.cs" />
     <Compile Include="Configurations\Products\InOutGatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GatePassMasterConfiguration.cs" />
     <Compile Include="Configurations\Products\GRNRejectionDetailsConfiguration.cs" />
@@ -828,6 +829,7 @@
     <Compile Include="Products\GateEntry.cs" />
     <Compile Include="Products\GRNPORequisitionAllocation.cs" />
     <Compile Include="Products\POGVendor.cs" />
+    <Compile Include="Products\GRNPORequisitionMap.cs" />
     <Compile Include="Products\ProductMasterAlternativeUOM.cs" />
     <Compile Include="Products\QualityStdSet.cs" />
     <Compile Include="Products\RequisitionIssueDetail.cs" />
