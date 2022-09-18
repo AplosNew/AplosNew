@@ -395,10 +395,10 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
     $scope.checkValidation = function () {
         $scope.checkgridcheckornot = $filter("filter")($scope.inventoryMaterialListPO, { check: true });
 
-        if ($scope.checkgridcheckornot.length === 0) {
-            ShowResult("Enter atleast one material information", 'failure');
-            return true;
-        }
+        //if ($scope.checkgridcheckornot.length === 0) {
+        //    ShowResult("Enter atleast one material information", 'failure');
+        //    return true;
+        //}
 
         if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
             ShowResult("Enter Doc Ref No", 'failure');
