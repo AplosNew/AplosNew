@@ -506,7 +506,7 @@ namespace Library.Planning.OrderManagement
 
 
                 var str = @"Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
-								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,so.Id SONo, so.Qty, format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate 
+								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,so.Id SONo, so.Qty,DispatchBalance=ISNULL(so.Qty-POLR.TotalQtyNetWeight,0), format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate
 								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
 								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day," + Dtype + @", " + DDate + @") as EarlyOrLateBy 
 								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
@@ -515,6 +515,13 @@ namespace Library.Planning.OrderManagement
 								left join hkp.orderstatus os on os.Id = mo.OrderStatusId
 								left outer join trn.MasterOrderItem moi on moi.MasterOrderId = mo.Id
 								inner join trn.SalesOrder so on so.MasterOrderItemId = moi.Id
+LEFT JOIN trn.PackingLineItem PLI ON PLI.SOId=SO.Id
+								LEFT JOIN 
+(							
+Select (sc.NetWeight * Count(sc.RefNo)) as TotalQtyNetWeight,PackingLineItemId from trn.POLotReference po
+left join dbo.ItemScanChild sc on sc.PackingId = po.Id
+GROUP BY PackingLineItemId,sc.NetWeight
+)POLR ON POLR.PackingLineItemId=PLI.PackingLineItemId	
                                 LEFT JOIN HKP.OrderCategory OC ON OC.Id = SO.OrderCategoryId
 								left outer join trn.ProductionOrderDetail pod on pod.SalesOrderId = so.Id
 								left outer join org.entity e on e.Id = mo.EntityId
