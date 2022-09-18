@@ -5043,6 +5043,14 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                 sheet[ROW, COL].Text = "LCNo";
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colLCNo = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Production Type";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colProductionType = COL;
+                COL++;
+                sheet[ROW, COL].Text = "Shipment From Stock";
+                sheet[ROW, COL].ColumnWidth = 10;
+                int colShipmentFromStock = COL;
 
                 #endregion columns
 
@@ -5086,6 +5094,8 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                     sheet[ROW, colContractId].Text = dtOrderMaster.Rows[i]["ContractId"].ToString();
                     sheet[ROW, colContractName].Text = dtOrderMaster.Rows[i]["ContractName"].ToString();
                     sheet[ROW, colLCNo].Text = dtOrderMaster.Rows[i]["LCNo"].ToString();
+                    sheet[ROW, colProductionType].Text = dtOrderMaster.Rows[i]["ProductionType"].ToString();
+                    sheet[ROW, colShipmentFromStock].Text = dtOrderMaster.Rows[i]["ShipmentFromStock"].ToString();
 
 
                     sheet[ROW, colArticle].Text = dtOrderMaster.Rows[i]["Article"].ToString();
@@ -5840,6 +5850,7 @@ SUM(CASE WHEN SAME.FromCurrencyId=mo.CurrencyId THEN SO.CM* so.Qty ELSE  so.CM* 
                             FORMAT(SO.LSD,'dd-MMM-yyyy') AS LSD,isnull(DATEDIFF(DAY,so.LSD,so.DeliveryDate),0) AS Diff
                             ,uom.UserName AS UOM,so.[Description] AS SODesc,cur.Code AS Currency,trkp.UserName AS Plant,trke.UserName AS Entity,MOI.[Type]
                             ,PRPD.PRBookedQuantity,sopd.SOBookedQuantity,PLN.PRPlanQty,p.UserName AS Customer,PAG.UserName AS CustomerAccountGroup
+                            ,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END
                               FROM trn.MasterOrder MO
                             left outer join MasterOrderExchangeRates RT on RT.TransactionId=MO.Id
 							left JOIN org.Company AS com ON com.Id=mo.CompanyId
