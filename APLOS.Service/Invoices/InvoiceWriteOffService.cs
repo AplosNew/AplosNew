@@ -1273,7 +1273,7 @@ namespace Library.Service.Invoices
                         ToCurrencyRate = voucherVM.CompanyCurrencyRate,
                         ToCurrencyConversion = _voucherService.GetCompanyCurrencyExchange(voucherDetailCr.CurrencyId, companyCurrencyId, voucherVM.CompanyCurrencyRate)
                     };
-                    voucherDetailCurrencyCr.CrAmount = voucherVM.Amount;
+                    voucherDetailCurrencyCr.CrAmount = Math.Round((voucherDetailCr.CrAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
                     if (invoiceWriteOff.RoundingType == RoundingType.RoundDown.ToString())
                         voucherDetailCurrencyCr.CrAmount -= Math.Round((voucherVM.RoundingAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
 

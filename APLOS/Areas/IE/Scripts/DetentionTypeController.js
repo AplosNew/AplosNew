@@ -14,6 +14,16 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
     $scope.searchByList = [{ value: 'Id', name: "Id" }, { value: 'Code', name: "Code" }, { value: 'ShortName', name: "Short Name" }, { value: 'StandardName', name: "Standard Name" }, { value: 'UserName', name: "User Name" }, { value: 'Description', name: "Description" }, { value: 'Remarks', name: "Remarks" }];
 
 
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+
     $scope.getData = function () {
         $http({
             method: 'POST',
@@ -24,6 +34,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
             $scope.ModelList = response.data;
             ClearFields(response.data.Sequence);
             $scope.GetSequence();
+            
         });
     }
     $scope.getData();
@@ -55,6 +66,7 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) {
             $rootScope.toggle();
+            $scope.getBudget();
         }
     };
 
@@ -115,4 +127,143 @@ function DetentionTypeController(cboService, commonMessage, $scope, $rootScope, 
         $scope.ModelNew = Object.assign({}, $scope.ModelTemp);
         $scope.ModelNew.Sequence = seq;
     }
+
+    // Code By Nitesh
+
+    $scope.BudgetCodeList = [];
+    $scope.userBudgetCodeList = [];
+    $scope.getBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetBudgetCode'
+        }).then(function successCallback(response) {
+            $scope.BudgetCodeList = response.data;
+
+            for (var i = 0; i < $scope.userBudgetCodeList.length; i++) {
+                for (var j = 0; j < $scope.BudgetCodeList.length; j++) {
+                    if ($scope.userBudgetCodeList[i].Id === $scope.BudgetCodeList[j].Id) {
+                        $scope.BudgetCodeList[j].chk = true;
+                    }
+                }
+            }
+        });
+    }
+    $scope.chkdBudgetCodeList = [];
+    $scope.BudgetCodeGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.BudgetCodeList.length; i++) {
+            $scope.BudgetCodeList[i].chk = ChkOrUnchk;
+            $scope.chkdBudgetCodeList = $scope.BudgetCodeList[i].chk;
+        }
+
+        var gridObj = $("#GridDetentionMasterBudgetCode").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    $scope.openBudgetCodePopUp = function () {
+        $scope.getBudgetCode();
+        angular.element(document.querySelector('#BudgetCodePopUp')).modal('show');
+    }
+
+    $scope.closeBudgetCodePopUp = function () {
+        angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
+    };
+
+    function checkBudgetCodeExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    $scope.DepartmentDataList = [];
+    $scope.SaveBudgetCode = function () {
+
+        try {
+           
+            if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
+                angular.forEach($scope.BudgetCodeList, function (a) {
+                    if (checkBudgetCodeExist($scope.userBudgetCodeList, a.Id) === false) {
+                        if (a.chk) {
+                            var ob = {};
+                            ob.Id = null;
+                            ob.ManPowerBudgetId = a.ManPowerBudgetId;
+                            ob.departmentTypeId = a.Id;
+                            ob.Code = a.Code;
+                            ob.Entity = a.Entity;
+                            
+                            $scope.userBudgetCodeList.push(ob);
+                            ob = {};
+                        }
+                    }
+
+                });
+            }
+            
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'SaveBudgetCode',
+                data: {
+                    'data': $scope.userBudgetCodeList,
+                    'detentionTypeId': $scope.ModelNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    
+                   
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        $scope.closeBudgetCodePopUp();
+    };
+
+    $scope.getBudget = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getBudget',
+            data: { 'detentionTypeId': $scope.ModelNew.Id },
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.userBudgetCodeList = [];
+            $scope.userBudgetCodeList = resp.data;
+        });
+    }
+
+    $scope.removeDeptRowModal = function (name, index, listName, tempId, listId) {
+        try {
+            $scope.popUpIndex = index;
+            $scope.listName = listName;
+            $scope.tempDeptId = tempId;
+            $scope.listId = listId;
+            $scope.message_confirmation = "Are you sure you want to delete [" + name + "] permanently ?";
+            angular.element(document.querySelector('#confirmRemoveDeptPopUp')).modal('show');
+        }
+        catch (e) {
+            ShowResult(e, 'Error');
+        }
+    };
 }

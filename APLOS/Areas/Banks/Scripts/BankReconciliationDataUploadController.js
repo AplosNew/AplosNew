@@ -316,9 +316,6 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         }
     };
 
-
-
-    
     $scope.GetSampleFile = function () {
         var ReportFormat = 'Excel';
         location.href = $scope.path + 'GetSampleFile?reportFormat=' + ReportFormat;
@@ -328,7 +325,33 @@ function bankReconciliationDataUploadController($scope, $http, $location, $rootS
         if (baseService.isUndefinedOrNull(data.Id)) return ShowResult('No Id found', 'failure');
         $window.open($scope.path + 'GetBankReconciliationUploadedDataReport?reportFormat=' + reportFormat + '&bankReconciliationUploadId=' + data.Id, '_blank');
     };
-  
+    $scope.onClickDeletePopUp = function (x) {
+        var data = x;
+        $scope.bankReconciliationUploadId = data.Id;
+        $scope.message_delete_confirmation = "Are you sure to Delete?";
+        angular.element(document.querySelector('#confirmDeletePopUp')).modal('show');
+    };
+    $scope.delete = function (bankReconciliationUploadId) {
+        $http({
+            method: "POST",
+            url: $scope.path + 'DeleteBankReconciliationUploadedData',
+            data: {
+                "bankReconciliationUploadId": bankReconciliationUploadId
+            },
+            dataType: "JSON"
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, "failure");
+            }
+            else {
+                ShowResult(response.data.Message, "success");
+                $scope.LoadData();
+            }
+        }, function errorCallback(response) {
+            ShowResult(response.status.Message, "failure");
+        });
+        return true;
+    };
 }
 
 

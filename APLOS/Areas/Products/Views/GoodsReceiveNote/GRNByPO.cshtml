@@ -961,13 +961,8 @@
                         <thead>
                             <tr ng-show="inventoryMaterialListPO.length">
                                 <th>
-                                    @*<div class="checkbox-site text-center">
-                                            <label>
-                                                <input type="checkbox" ng-click="CheckAll($event);">
-                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
-                                            </label>
-                                        </div>*@
                                 </th>
+                                <th>QualityStatus</th>
                                 <th ng-show="x.POID !='null' && x.POID!='null'">PO Id</th>
                                 <th ng-show="x.InventoryReceiveDetailId !='null' && x.InventoryReceiveDetailId!='null'">PORowId</th> @*ng-show="x.InventoryReceiveDetailId !='null' && x.PurchaseDocAcceptanceDetailId==='null'"*@
                                 <th ng-hide="GriddataSelected.length===0 || GriddataSelected.length>0">AcceptanceId</th>
@@ -990,12 +985,9 @@
                                 <th ng-hide="false">Balance</th>
                                 <th>IsClosed</th>
                                 <th>ShortageQty</th>
-
-
                                 <th>RejectionQty</th>
                                 <th>ApprovedQty</th>
                                 <th>NetQty</th>
-
                                 <th>MaterialRate(TRN)</th>
                                 <th>MaterialAmount(TRN)</th>
                                 <th>
@@ -1015,7 +1007,6 @@
                                 <th>MaterialLotNumber </th>
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
-                                <th>QualityStatus</th>
                                 <th class="col-sm-1" colspan="2"></th>
                             </tr>
                             <tr ng-show="inventoryMaterialList.length">
@@ -1027,6 +1018,7 @@
                                         </label>
                                     </div>
                                 </th>
+                                <th>QualityStatus</th>
                                 <th>PO Id</th>
                                 <th>RowId</th>
                                 <th>Material Group</th>
@@ -1067,7 +1059,7 @@
                                 <th>MaterialLotNumber </th>
                                 <th>MaterialDiameter</th>
                                 <th>MaterialType</th>
-                                <th>QualityStatus</th>
+
                                 <th class="col-sm-1" colspan="2"></th>
                             </tr>
 
@@ -1081,6 +1073,16 @@
                                             <input type="checkbox" ng-click="Change($event,$index,x)" ng-model="x.check" ng-disabled="x.TransactionQty===0 || x.TransactionQty==='' || x.TransactionQty===null">
                                             <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
                                         </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
+                                            <option value=""></option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Reject">Reject</option>
+                                        </select>
                                     </div>
                                 </td>
                                 <td ng-show="x.POID !='null' && x.POID!='null'">{{x.POID}}</td>
@@ -1152,18 +1154,7 @@
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                                <td>
-                                    <div class="select-style">
-                                        <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
-                                            <option value=""></option>
-                                            <option value="Approved">Approved</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Reject">Reject</option>
-                                        </select>
-                                    </div>
 
-
-                                </td>
 
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
@@ -1172,7 +1163,7 @@
                                         @*<li><button ng-click="GRNAllowcationForRequisition(x,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="GRN Allocation For Requisition" ng-hide="x.PurchaseDocumentAcceptanceId!=null">Allocation For Requisition</button></li>*@
                                         @*<li><button ng-click="PODetailsUpdatePOPUp(x.PODetailsID,x.MaterialMasterId)" class="btn btn-action tooltip-here" data-placement="top" title="GRN Allocation to Requisition"><i class="glyphicon glyphicon-zoom-out"></i></button></li>*@
                                         @*<li><button ng-click="valuePassInDelModal(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Remove"><i class="glyphicon glyphicon-remove"></i></button></li>*@
-                                        <li><button ng-click="ViewRequisitionDetail(x.PODetailsID)" class="btn btn-action tooltip-here" data-placement="top" id="MEdit" title="View Requisition Detail" ng-hide="x.PurchaseDocumentAcceptanceId!=null">View Requisition Detail</button></li>
+                                        <li><button ng-click="ViewRequisitionDetail(x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" ng-disabled="x.TransactionQty==0||x.TransactionQty==''" data-placement="top" id="MEdit" title="View Requisition Detail" >View Requisition Detail</button></li>
                                     </ul>
                                 </td>
                                 <td></td>
@@ -1226,6 +1217,16 @@
                                         </label>
                                     </div>
                                 </td>
+                                <td>
+                                    <div class="select-style">
+                                        <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
+                                            <option value=""></option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Reject">Reject</option>
+                                        </select>
+                                    </div>
+                                </td>
                                 <td>{{x.POId}}</td>
                                 <td>{{x.InventoryReceiveDetailId}}</td>
                                 <td>{{x.MaterialGroupMasterName}}</td>
@@ -1274,18 +1275,7 @@
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.LotNumber" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Diameter" ng-disabled="false"></td>
                                 <td class="text-right"><input type="text" class="form-control text-right" width="200" ng-model="x.Type" ng-disabled="false"></td>
-                                <td>
-                                    <div class="select-style">
-                                        <select name="Quality Status" style="height:30px;" ng-model="x.QualityStatus" class="form-control">
-                                            <option value=""></option>
-                                            <option value="Approved">Approved</option>
-                                            <option value="Pending">Pending</option>
-                                            <option value="Reject">Reject</option>
-                                        </select>
-                                    </div>
 
-
-                                </td>
                                 <td class="text-right">
                                     <ul class="list-inline action-list">
                                         <li><button ng-click="getReceiveTaxList(x, false,$index,x.InventoryReceiveDetailId)" class="btn btn-action tooltip-here" data-placement="top" title="Tax Info"><i class="glyphicon glyphicon-info-sign"></i></button></li>
@@ -3396,7 +3386,7 @@
                                 <th>RowId</th>
                                 <th>Material</th>
                                 <th>Articel</th>
-                                <th rowspan="2">Qty</th>
+                                <th>Qty</th>
                                 <th>GRN Qty</th>
                                 <th>Requisition By</th>
                                 <th></th>
@@ -3405,17 +3395,17 @@
                         <tbody>
                             <tr ng-repeat="x in requisitionDetailList">
                                 <td>{{x.RequisitionNo}}</td>
-                                <td>{{x.RowId}}</td>
+                                <td>{{x.ReqDetailId}}</td>
                                 <td>{{x.Material}}</td>
                                 <td>{{x.Articel}}</td>
-                                <td>{{x.Qty}}</td>
-                                <td>{{x.UOM}}</td>
+                                <td>{{x.Qty}}{{x.UOM}}</td>
                                 <td><input type="text" n-decimals="2" class="form-control text-right" ng-model="x.TransactionQty"></td>
                                 <td>{{x.RequisitionBy}}</td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:2| number:2 }}</strong></td>
+                                <td colspan="5">Total</td>
+                                <td  class="text-right"><strong>{{requisitionDetailList | sumByKey : 'Qty'| setDecimal:2| number:2 }}</strong></td>
                                 <td></td>
                             </tr>
 

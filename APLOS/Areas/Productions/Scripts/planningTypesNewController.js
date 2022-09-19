@@ -124,6 +124,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.GetSavedHolidayData();
         $scope.GetLatestPlanDate();
         $scope.GetSavedDateData();
+        $scope.GetPlanCapacityData();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         $scope.Action = 'Update';
     };

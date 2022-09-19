@@ -429,5 +429,40 @@ namespace Library.Accounting.Accounts
                     ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
             }
         }
+        public void DeleteBankReconciliationUploadedData(string bankReconciliationUploadId)
+        {
+            var flag = false;
+            try
+            {
+                flag = true;
+                var vendorAdWr = new System.Text.StringBuilder();
+                var vendorAdWrsql = "";
+
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationUploadedData where BankReconciliationUploadId='" + bankReconciliationUploadId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                vendorAdWrsql = @"DELETE FROM TRN.BankReconciliationUpload WHERE Id='" + bankReconciliationUploadId + "' ";
+                vendorAdWr.Append(vendorAdWrsql);
+                _sqlRepository.ExecuteSqlCommand(vendorAdWr.ToString());
+
+                flag = false;
+
+
+            }
+            catch (CustomException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomException(ex.Message, ex,
+                    Logger.ThrowError(GetType().Name, MethodBase.GetCurrentMethod().Name, null,
+                    ErrorType.ServiceError, null, ex.Message, ex.GetType().Name, false, ModuleEnum.Accounts.ToString()));
+            }
+            finally
+            {
+                //if (flag)
+                //_unitOfWork.Rollback();
+            }
+        }
     }
 }
