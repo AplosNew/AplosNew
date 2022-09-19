@@ -5,17 +5,35 @@
     <div class="row">
         <input type="hidden" name="Id" ng-model="ModalNew.Id">
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Entity<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
                         <select class="form-control" ng-model="ModelNew.EntityId" name="Entity" required>
-                            <option value=""></option>
+                            <option value="">--Please Select--</option>
                             <option ng-repeat="option in entityList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
+            </div>*@
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <input ej-dropdownlist e-enablefiltersearch="true"  e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>
+                </div>
             </div>
+
+            @*<div class="form-group">
+                <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <div class="select-style">
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                    </div>
+                </div>
+            </div>*@
 
             <div class="form-group">
                 <label class="col-sm-4 control-label">Responsible Person<sup>*</sup></label>
@@ -30,59 +48,36 @@
             </div>
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Department<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Contact No.<sup>*</sup></label>
                 <div class="col-sm-6">
-                    <div class="select-style">
-                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DepartmentList" e-value="ModalNew.DepartmentId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                    </div>
+                    <input type="text" name="Workcenter" ng-model="ModalNew.Workcenter" class="form-control" maxlength="200" tabindex="5">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Workcenter<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <div class="select-style">
-                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="WorkCenterList" e-value="ModalNew.WorkCenterId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Issue By No.<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Workcenter" ng-model="ModalNew.WorkcenterId" class="form-control" maxlength="200" tabindex="5">
-                </div>
-            </div>
+           
         </div>
 
         <div class="col-xs-12 col-sm-6 col-md-6">
-            <div class="form-group">
+
+
+            @*<div class="form-group">
                 <label class="col-sm-4 control-label">Process<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
-                        <select class="form-control" ng-model="ModalNew.ProcessId" name="Process" ng-change="getDetentionList(); WorkCenter();" required>
-                            <option value=""></option>
+                        <select class="form-control" ng-model="ModalNew.ProcessId" name="Process" ng-change="WorkCenter();" required>
+                            <option value="">--Please Select--</option>
                             <option ng-repeat="option in ProcesssList" value="{{option.Value}}">{{option.Text}}</option>
                         </select>
                     </div>
                 </div>
-            </div>
+            </div>*@
 
             <div class="form-group">
-                <label class="col-sm-4 control-label">Detention<sup>*</sup></label>
+                <label class="col-sm-4 control-label">Detention Type<sup>*</sup></label>
                 <div class="col-sm-6">
                     <div class="select-style">
-                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionList" e-value="ModalNew.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
+                        <input ej-dropdownlist e-enablefiltersearch="true" e-datasource="DetentionTypeList" e-value="ModalNew.DetentionId" e-fields-value="Value" e-fields-text="Text" e-width="100%" />
                     </div>
-                </div>
-            </div>
-
-
-
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Contact No.<sup>*</sup></label>
-                <div class="col-sm-6">
-                    <input type="text" name="Workcenter" ng-model="ModalNew.Workcenter" class="form-control" maxlength="200" tabindex="5">
                 </div>
             </div>
 
@@ -92,6 +87,15 @@
                     <textarea name="Remarks" ng-model="ModalNew.Remarks" class="form-control ng-pristine ng-valid ng-isolate-scope ng-empty ng-valid-maxlength ng-touched" rows="3" maxlength="50" tabindex="6"></textarea>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Issue By No.<sup>*</sup></label>
+                <div class="col-sm-6">
+                    <input type="text" name="Workcenter" ng-model="ModalNew.WorkcenterId" class="form-control" maxlength="200" tabindex="5">
+                </div>
+            </div>
+
+
             <div class="common-btn">
                 <ul class="list-inline text-right">
                     <li> <button ng-click="Save();" class="btn" tabindex="9"><i class="glyphicon glyphicon-floppy-disk"></i> {{Action}}</button></li>

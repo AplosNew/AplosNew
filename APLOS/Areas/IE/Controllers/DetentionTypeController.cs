@@ -69,6 +69,21 @@ namespace Aplos.Areas.IE.Controllers
 
         }
 
+        // Code ByNitesh
+        [HttpPost]
+        public ActionResult GetBudgetCode()
+        {
+            
+            string sql = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position from MST.ManpowerBudget MP
+                            left join ORG.Entity E on E.Id = MP.EntityId
+                            left join ORG.Position P on P.Id = MP.PositionId
+                            where MP.Active = 1";
+
+
+
+            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult GetList(string column, string value)
         {
@@ -221,6 +236,64 @@ namespace Aplos.Areas.IE.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
+        }
+
+        // Code By Nitesh
+        [HttpPost]
+        public JsonResult SaveBudgetCode(List<Dictionary<string, object>> data, string detentionTypeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            ConnectionManager.DAL.ConManager objCon;
+            DataSet dsMasterOrder;
+            string id = string.Empty;
+            try
+            {
+                string mosql = "SELECT * FROM DetentionTypeBudgetCode WHERE DetentionTypeId ='" + detentionTypeId + "'";
+                objCon = new ConnectionManager.DAL.ConManager("1");
+                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
+
+                string cId = string.Empty;
+                string DetentionMasterDepartmentId = "";
+
+
+                foreach (var item in data)
+                {
+
+                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
+                    dv.RowFilter = "Id='" + item["Id"] + "'";
+
+                    if (dv.Count == 0)
+                    {
+                        bplib.clsGenID genid = new bplib.clsGenID();
+                        genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
+
+                        item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
+                        item["DetentionTypeId"] = detentionTypeId;
+                       
+                        AddNewRow(dsMasterOrder.Tables[0], item);
+                    }
+
+                }
+                clsStaticInfo obj = new clsStaticInfo();
+                obj.SaveDataSets(dsMasterOrder);
+                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getBudget(string detentionTypeId)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            string str = @"select DTBC.Id, MB.Code, DT.UserName DetentionType from [dbo].[DetentionTypeBudgetCode] DTBC
+LEFT JOIN MST.ManpowerBudget MB on MB.Id = DTBC.ManpowerBudgetId
+LEFT JOIN HKP.DetentionType DT on DT.Id = DTBC.DetentionTypeId
+where DT.Id='" + detentionTypeId + @"'";
+
+            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
     }
 }

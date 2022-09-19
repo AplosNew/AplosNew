@@ -41,13 +41,13 @@ namespace Library.MaterialManagement.Material
         #endregion Entity Specific
 
         // Workcenter
-        public IEnumerable<object> GetWorkCenter(string processId)
+        public IEnumerable<object> GetWorkCenter()
         {
             try
             {
                 var sql = @"select WM.StandardName Text, WM.Id Value from SCS.WorkCenterMaster WM
-                            left join HKP.Process P on P.Id = WM.ProcessId
-                            where WM.ProcessId = '"+ processId + "'";
+                            
+                            where WM.Active = 'true'";
                 return _sqlRepository.GetDataCollection(sql);
             }
             catch(Exception ex)
@@ -103,7 +103,7 @@ namespace Library.MaterialManagement.Material
                 var sql = @"select distinct DT.UserName As Text, DT.Id As Value from DetentionMasterDepartment DD
                         left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
                         left join hkp.DetentionType DT ON DT.id=DM.DetentionTypeId
-            where DepartmentId='" + departmentid + "'";
+            --where DepartmentId='" + departmentid + "'";
 
                 return _sqlRepository.GetDataCollection(sql);
             }

@@ -1,6 +1,7 @@
 ﻿using Library.Core;
 using Library.Data;
 using Library.Data.Sql;
+using Library.Model.Banks;
 using Library.Model.Currencies;
 using Library.Model.Enums;
 using Library.Model.Vouchers;
@@ -213,14 +214,14 @@ namespace Library.Accounting.Accounts
                 throw;
             }
         }
-        private IEnumerable<BankReconciliationUploadedDataViewModel> GetBankReconciliationUploadedData(string companyId, string plantId, string bankReconciliationUploadId)
+        private IEnumerable<BankReconciliationUploadedData> GetBankReconciliationUploadedData(string companyId, string plantId, string bankReconciliationUploadId)
         {
             try
             {
                 var sql = @"SELECT Id,REPLACE(CONVERT(CHAR(11), BankStatementDate, 106),' ','-') AS  BankStatementDate, BankRefNo, BankParticulars, DrAmount, CrAmount, Remarks, OwnRefNo
                             FROM TRN.BankReconciliationUploadedData 
                             where BankReconciliationUploadId='" + bankReconciliationUploadId + @"' ";
-                return _sqlRepository.GetModelCollection<BankReconciliationUploadedDataViewModel>(sql);
+                return _sqlRepository.GetModelCollection<BankReconciliationUploadedData>(sql);
             }
             catch (CustomException)
             {
@@ -2486,7 +2487,7 @@ namespace Library.Accounting.Accounts
         private void GetBankReconciliationUploadedDataReportSheet(ref IWorksheet sheet, ReportUtility reportUtility, string sheetHeader, string sheetName
             , string companyId, string plantId, string bankReconciliationUploadId)
         {
-            IEnumerable<BankReconciliationUploadedDataViewModel> dataList;
+            IEnumerable<BankReconciliationUploadedData> dataList;
             dataList = GetBankReconciliationUploadedData(companyId, plantId, bankReconciliationUploadId);
                    
 
@@ -2533,6 +2534,12 @@ namespace Library.Accounting.Accounts
             sheet.Range[_row, 2, _row, 3].Merge();
             _row++;
 
+            reportUtility.SetMasterHeaderText(ref sheet, _row, 1, "Opening Blance");
+            reportUtility.SetText(ref sheet, _row, 2, receiveList["OpeningBlance"].ToString());
+            sheet.Range[_row, 2, _row, 3].Merge();
+            _row++;
+
+            
             #endregion
 
             #region Left Header
@@ -2556,11 +2563,6 @@ namespace Library.Accounting.Accounts
             sheet.Range[_rowR, 5, _rowR, 8].Merge();
             _rowR++;
 
-            reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "Opening Blance");
-            reportUtility.SetText(ref sheet, _rowR, 5, receiveList["OpeningBlance"].ToString());
-            sheet.Range[_rowR, 5, _rowR, 8].Merge();
-            _rowR++;
-
             reportUtility.SetMasterHeaderText(ref sheet, _rowR, 4, "Closing Balance");
             reportUtility.SetText(ref sheet, _rowR, 5, receiveList["ClosingBalance"].ToString());
             sheet.Range[_rowR, 5, _rowR, 8].Merge();
@@ -2574,7 +2576,7 @@ namespace Library.Accounting.Accounts
             var headreColIndex = 1;
 
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Id", 24); headreColIndex++;
-            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankStatementDate", 24); headreColIndex++;
+            reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "Date", 24); headreColIndex++;
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankRefNo", 24); headreColIndex++;
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "BankParticulars", 24); headreColIndex++;
             reportUtility.SetHeaderText(ref sheet, _rowL, headreColIndex, "DrAmount", 24, ExcelHAlign.HAlignRight); headreColIndex++;
@@ -2593,7 +2595,7 @@ namespace Library.Accounting.Accounts
             {
                 _rowL++;
                 reportUtility.SetText(ref sheet, _rowL, 1, item.Id);
-                reportUtility.SetText(ref sheet, _rowL, 2, item.BankStatementDate);
+                reportUtility.SetText(ref sheet, _rowL, 2, Convert.ToDateTime(item.BankStatementDate).ToString("dd-MMM-yyyy"));
                 reportUtility.SetText(ref sheet, _rowL, 3, item.BankRefNo);
                 reportUtility.SetText(ref sheet, _rowL, 4, item.BankParticulars);
                 reportUtility.SetText(ref sheet, _rowL, 5, Convert.ToDouble(item.DrAmount));
@@ -2604,7 +2606,7 @@ namespace Library.Accounting.Accounts
             }
 
             _rowL++;
-            sheet.Range[_rowL, 1, _rowL, 3].Merge();
+            sheet.Range[_rowL, 1, _rowL, 4].Merge();
             reportUtility.SetText(ref sheet, _rowL, 1, null, false);
 
             
@@ -2627,23 +2629,106 @@ namespace Library.Accounting.Accounts
             _rowL++;
             
 
-            #region Signature
-
-            _rowL = _rowL + 4;
-
-            sheet.Range[_rowL, 1].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            sheet.Range[_rowL, 3].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-            sheet.Range[_rowL, 5].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-
-            #endregion Signature
-
-
             sheet.Name = sheetName;
             sheet.UsedRange.WrapText = true;
             sheet.UsedRange.CellStyle.Font.Size = 8;
             reportUtility.CompanyPlantHeader(ref sheet, shet2EndxlsCol, sheetHeader, companyId, plantId, plantName, null);
             reportUtility.PageSetup(ref sheet, 5, ExcelPageOrientation.Landscape);
 
+        }
+
+        public IWorkbook GetSampleFile(string Name, string CompanyGroupId, string PlantId, string CompanyId, string PlantName)
+        {
+            #region declare
+            clsReport objRpt = null;
+            clsStaticInfo objStatic = null;
+            objStatic = new clsStaticInfo();
+            string OTConsiderOn = string.Empty;
+           
+            #endregion
+            try
+            {
+                ReportUtility ru = new ReportUtility();
+
+                ExcelEngine excelEngine = null;
+                IApplication application = null;
+                var workbook = ru.GetWorkbook(ref excelEngine, 1);
+                workbook.Version = ExcelVersion.Excel2013;
+
+                objRpt = new clsReport();
+                string toDay = DateTime.Now.ToString("dd-MMM-yyyy");
+
+                excelEngine = new ExcelEngine();
+                application = excelEngine.Excel;
+                workbook = application.Workbooks.Create(2);
+
+                int xlsRow = 1, xlsCol = 1;
+                int endXlsCol = 1;
+
+                #region Lunch Out
+                IWorksheet sheet1 = null;
+                sheet1 = workbook.Worksheets[0];
+                IWorksheet sheetSource = null;
+                sheetSource = workbook.Worksheets[1];
+                xlsRow = 1;
+
+                #region ------------------Column Header------------------
+
+               
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Date"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BankRefNo"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "BankParticulars"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "DrAmount"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "CrAmount"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "Remarks"); xlsCol += 1;
+                ru.SetHeaderText(ref sheet1, xlsRow, xlsCol, "OwnRefNo"); 
+              
+                endXlsCol = xlsCol;
+
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderInside(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].BorderAround(ExcelLineStyle.Hair);
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].WrapText = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].CellStyle.Font.Bold = true;
+                sheet1.Range[xlsRow, 1, xlsRow, endXlsCol].RowHeight = 23;
+
+                xlsRow++;
+
+                #endregion ------------------Column Header------------------
+
+                #region UsedRange Alignment
+
+                sheet1.UsedRange.WrapText = true;
+                sheet1.UsedRange.CellStyle.Font.Size = 10;
+                sheet1.Range["A1"].CellStyle.Font.Size = 10;
+                sheet1.Range["A2"].CellStyle.Font.Size = 10;
+                sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;
+
+                #endregion UsedRange Alignment
+
+                #region Page Setup
+                sheet1.PageSetup.TopMargin = 0.5;
+                sheet1.PageSetup.BottomMargin = 0.7;
+                sheet1.PageSetup.PrintTitleRows = "$1:$5";
+                sheet1.PageSetup.RightFooter = "&\"Times New Roman\"&06" + "Page " + "&p" + " of " + "&N";
+                sheet1.PageSetup.LeftFooter = "&\"Times New Roman\"&06" + "Printed By: " + Name + "\n" + "Print Date && Time: " + DateTime.Now.ToString("dd-MMM-yyyy h:MM tt").ToString();
+                sheet1.PageSetup.LeftMargin = 0.5;
+                sheet1.PageSetup.RightMargin = 0.2;
+                sheet1.PageSetup.Orientation = ExcelPageOrientation.Landscape;
+                sheet1.PageSetup.FitToPagesTall = 0;
+                sheet1.PageSetup.FitToPagesWide = 1;
+                sheet1.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
+                sheet1.IsDisplayZeros = false;
+                sheet1.Name = "Sheet1";
+                #endregion Page Setup
+
+                #endregion  Lunch Out
+
+                return workbook;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         #endregion
