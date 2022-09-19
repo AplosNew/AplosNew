@@ -1,4 +1,9 @@
 ﻿<togglable name="{{FormTitle}}"></togglable>
+<style>
+    .modellgModify {
+        width: 1200px;
+    }
+</style>
 <div class="row">
     <div ng-form="fileNewForm" id="ganttContainer">
         <div class="form-element-ctrl form-horizontal">
@@ -1437,7 +1442,7 @@
 <!-- #endregion Attribute-->
 <!-- #region SO -->
 <div class="modal fade site-modal in" id="soPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">
                 {{mName}} > Sales Order
@@ -1570,7 +1575,26 @@
                                 <input type="text" datepicker name="Main RM Inhouse Date" ng-model="soModel.MainRawMaterialInhouseDate" class="form-control" required tabindex="117">
                             </div>
                         </div>
-
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Production Type<sup>*</sup></label>
+                            <div class="col-sm-3 show-message">
+                                <div class="select-style">
+                                    <select name="Production Type" class="form-control" ng-model="soModel.ProductionType" tabindex="102">
+                                        <option value="">--Select--</option>
+                                        <option value="Order">Order</option>
+                                        <option value="Stock">Stock</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <div class="input-group">
+                                    <input type="text" name="Stock Responsible Person" ng-model="soModel.StockResponsiblePerson" class="form-control" readonly tabindex="115">
+                                    <span class="input-group-btn">
+                                        <button ng-click="showEmployeeListPopUp('Stock');" class="btn single-small-btn" tabindex="11"><i class="glyphicon glyphicon-search"></i></button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="SO Description">Description</label>
                             <div class="col-sm-8">
@@ -1679,6 +1703,24 @@
                                 <input type="text" datepicker name="Other RM Inhouse Date" ng-model="soModel.OtherRawMaterialInhouseDate" class="form-control" required tabindex="116">
                             </div>
                         </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shipment From Stock<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    @*<select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" tabindex="102">
+                                        <option value="">--Select--</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>*@
+                                    <div class="select-style">
+                                        <select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" ng-options="item.Value as item.Text for item in ShipmentFromStocklist" required tabindex="102">
+                                            <option value="">--Select--</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Reason</label>
                             <div class="col-sm-8">
@@ -1693,8 +1735,8 @@
                                 <button ng-click="saveSalesOrder();" class="btn" title="{{soModel.Id==null?'Save & Confirm Costing':'Update & Confirm Costing'}}"><i class=""></i> {{soModel.Id==null?'Save & Confirm Costing':'Update & Confirm Costing'}}</button>
                             </li>
                             @*<li>
-                                    <button ng-click="ShowCostingSORatePopup();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Costing Confirmation">SCC</button>
-                                </li>*@
+                                <button ng-click="ShowCostingSORatePopup();" class="btn btn-action tooltip-here" tooltip data-placement="top" title="SO Costing Confirmation">SCC</button>
+                            </li>*@
                             <li>
                                 <button ng-click="closeSOPopUp();" class="btn">Close</button>
                             </li>
@@ -2407,7 +2449,7 @@
 <!-- #endregion Sales Order Tax -->
 <!-- #region soSplitPoUp -->
 <div class="modal fade site-modal in" id="soSplitPoUp" role="dialog" data-backdrop="static" style="overflow-y: auto !important;">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modellgModify">
         <div class="modal-content">
             <div class="modal-header">
                 {{mName}} >Split Sales Order
@@ -2467,19 +2509,19 @@
                             </div>
                         </div>
                         @*<div class="form-group" show-errors>
-                                <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                                <div class="col-sm-6 show-message">
-                                    <input type="text" n-decimals="4" name="Rate" ng-model="soSplitModel.Rate" class="form-control text-right" required tabindex="110">
-                                </div>
-                                <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
+                            <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
+                            <div class="col-sm-6 show-message">
+                                <input type="text" n-decimals="4" name="Rate" ng-model="soSplitModel.Rate" class="form-control text-right" required tabindex="110">
+                            </div>
+                            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
 
-                                    <div class="select-style">
-                                        <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                            <option value="">--Select--</option>
-                                        </select>
-                                    </div>
+                                <div class="select-style">
+                                    <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
+                                        <option value="">--Select--</option>
+                                    </select>
                                 </div>
-                            </div>*@
+                            </div>
+                        </div>*@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Up Charge</label>
                             <div class="col-sm-8">
@@ -2503,7 +2545,18 @@
                                 <input type="text" datepicker name="Main RM Inhouse Date" ng-model="soSplitModel.MainRawMaterialInhouseDate" class="form-control" required tabindex="117">
                             </div>
                         </div>
-
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Production Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Production Type" class="form-control" ng-model="soSplitModel.ProductionType" tabindex="102">
+                                        <option value="">--Select--</option>
+                                        <option value="Order">Order</option>
+                                        <option value="Stock">Stock</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Description</label>
                             <div class="col-sm-8">
@@ -2566,17 +2619,17 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">Discount</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-                                </div>
-                            </div>*@
+                            <label class="col-sm-4 control-label">Discount</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
+                            </div>
+                        </div>*@
                         @*<div class="form-group">
-                                <label class="col-sm-4 control-label">CM</label>
-                                <div class="col-sm-8">
-                                    <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-                                </div>
-                            </div>*@
+                            <label class="col-sm-4 control-label">CM</label>
+                            <div class="col-sm-8">
+                                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
+                            </div>
+                        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -2587,6 +2640,18 @@
                             <label class="col-sm-4 control-label">Other RM Inhouse Date<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
                                 <input type="text" datepicker name="Other RM Inhouse Date" ng-model="soSplitModel.OtherRawMaterialInhouseDate" class="form-control" required tabindex="116">
+                            </div>
+                        </div>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Shipment From Stock<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="Shipment From Stock" class="form-control" ng-model="soSplitModel.ShipmentFromStock" tabindex="102">
+                                        <option value="">--Select--</option>
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">

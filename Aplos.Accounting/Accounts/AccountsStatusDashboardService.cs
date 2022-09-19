@@ -3637,7 +3637,13 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, COL].ColumnWidth = 20;
                 COL++;
 
-               
+
+                worksheet[ROW, COL].Text = "Actual Balance";
+                worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                int colActualBalance = COL;
+                worksheet[ROW, COL].ColumnWidth = 20;
+                COL++;
+
                 worksheet[ROW, COL].Text = "Over DueMoreThan30";
                 worksheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colODueMoreThan30 = COL;
@@ -3739,6 +3745,9 @@ group by Id) O60 ON O60.Id=IV.Id
                     worksheet[ROW, colBooksBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["BooksBalance"].ToString());
                     worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
 
+                    worksheet[ROW, colActualBalance].Number = clsStaticInfo.dbl(dsData.Rows[i]["ActualBalance"].ToString());
+                    worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+
                     worksheet[ROW, colODueMoreThan30].Number = clsStaticInfo.dbl(dsData.Rows[i]["OverDueMoreThan30"].ToString());
                     worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
 
@@ -3790,6 +3799,9 @@ group by Id) O60 ON O60.Id=IV.Id
                 worksheet[ROW, colBooksBalance].NumberFormat = "#,##0.00;(#,##0.00)";
                 worksheet[ROW, colBooksBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
+                worksheet[ROW, colActualBalance].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colActualBalance) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colActualBalance) + (ROW - 1).ToString() + ")";
+                worksheet[ROW, colActualBalance].NumberFormat = "#,##0.00;(#,##0.00)";
+                worksheet[ROW, colActualBalance].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
                 worksheet[ROW, colODueMoreThan30].Formula = "SUM(" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + StartDataRow + ":" + clsStaticInfo.GetxlsCol(colODueMoreThan30) + (ROW - 1).ToString() + ")";
                 worksheet[ROW, colODueMoreThan30].NumberFormat = "#,##0.00;(#,##0.00)";
@@ -3879,7 +3891,7 @@ group by Id) O60 ON O60.Id=IV.Id
 				 ,ISNULL(SUM(X.GrossSales),0 )GrossSales 
 				,ISNULL( SUM(X.Receipts),0 )Receipts
 				,ISNULL( SUM(X.Balance),0) Balance
-
+                ,ISNULL( SUM(X.ActualBalance),0) ActualBalance
                 ,ISNULL( SUM(X.BooksGrossSales) ,0)BooksGrossSales
 				,ISNULL( SUM(X.BooksReceipts) ,0)BooksReceipts
 				,SUM(X.BooksBalance) BooksBalance
@@ -3902,6 +3914,7 @@ group by Id) O60 ON O60.Id=IV.Id
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS GrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS Receipts
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS Balance
+                , ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                 , ISNULL(IVD.InvoiceBooksAmount,0) AS BooksGrossSales
 				, ISNULL(IVD.SetOffBooksAmount,0) AS BooksReceipts
 				, ISNULL(IVD.InvoiceBooksAmount,0)-ISNULL(IVD.SetOffBooksAmount,0) AS BooksBalance
@@ -4002,7 +4015,7 @@ group by Id) O60 ON O60.Id=IV.Id
 			      ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				 , ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*IV.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance
@@ -4106,7 +4119,7 @@ group by Id) O60 ON O60.Id=IV.Id
                    ,ISNULL(IVD.Amount,0) AS GrossSales
 				,ISNULL(IVD.WrittenOffAmount ,0) AS Receipts
 				, ISNULL(IVD.Amount-IVD.WrittenOffAmount,0) AS Balance
-
+                , ISNULL(IVD.Amount,0)-ISNULL(IV.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS ActualBalance
                  ,ISNULL(IVD.Amount*CC.CompanyCurrencyRate,0) AS BooksGrossSales
 				,ISNULL(IVD.WrittenOffAmount*CC.CompanyCurrencyRate,0) AS BooksReceipts
 				, ISNULL((IVD.Amount*CC.CompanyCurrencyRate)-(IVD.WrittenOffAmount*CC.CompanyCurrencyRate),0) AS BooksBalance

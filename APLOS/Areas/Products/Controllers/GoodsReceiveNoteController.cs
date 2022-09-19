@@ -209,7 +209,8 @@ namespace Aplos.Areas.Products.Controllers
 
         #region GRN-By-PO
         [HttpPost]
-        public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
+        public JsonResult CreateGRNBYPO(InventoryReceive entity, string entityMatAndImat, IEnumerable<InventoryReceiveTax> receiveTaxList, IEnumerable<InventoryMaterialViewModel> chargesListPO, IEnumerable<InventoryReceiveTax> POServiceTaxList
+            , IEnumerable<GRNPORequisitionMap> requisitionDetailList, string GRNType, string AcceptanceId, string CheckedByStatusForNoti, string ApprovedByStatusForNoti)
         {
             if (string.IsNullOrEmpty(CheckedByStatusForNoti) && string.IsNullOrEmpty(ApprovedByStatusForNoti))
             {
@@ -302,7 +303,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType, requisitionDetailList);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -443,13 +444,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetRequisitionDetailByPODetail(string podetailId)
-        {
-            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(inventoryReceiveQueryService.GetRequisitionDetailByPODetail(identity.PlantId, podetailId), JsonRequestBehavior.AllowGet);
-        }
+       
         #endregion GRN-By-PO
 
         #region GRN-BOQ-PO
@@ -569,7 +564,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException("Vendor / Docref / Docdate cannot duplicate!");
             }
 
-            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat1, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -838,7 +833,7 @@ namespace Aplos.Areas.Products.Controllers
 
                 }
             }
-            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType);
+            DetailCreate(entity, entityMatAndImat, receiveTaxList, entity.Id, entity.MaterialStorageId, GRNType,null);
             ServiceChargesCreateNew(chargesListPO, POServiceTaxList, entity.Id, AcceptanceId);
             return Json(new { entity, Message = AplosMessage.Success + " GRN no <b>" + entity.Id + "</b>" });
         }
@@ -1095,10 +1090,10 @@ namespace Aplos.Areas.Products.Controllers
             return Json(_inventoryReveiveService.GetToCurrencyRate(currencyId, baseCurrencyId, Convert.ToDateTime(docDate), identity.CompanyId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
-        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public JsonResult DetailCreate(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList)
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType);
+            _inventoryDetailService.InsertOrUpdateGraphNew(entity, entityMat, taxCategoryList, id, MaterialStorageId, GRNType, requisitionDetailList);
             return Json(new { Message = AplosMessage.Success });
         }
         [Authorize, HttpPost, ChaildAction(ParentActionName = nameof(Create))]
@@ -1230,8 +1225,14 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPO(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetRequsitionQtyListByPO(GridParameter parameters, string poIds)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.GetRequsitionQtyListByPO(parameters, poIds), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
@@ -4923,8 +4924,8 @@ UNION ALL
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPOBOQ(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetServiceChargeListPOBOQ(string receiveId, string AcceptanceId)

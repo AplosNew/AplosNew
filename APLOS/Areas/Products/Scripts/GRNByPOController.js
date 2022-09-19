@@ -391,15 +391,32 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         $scope.Action = 'Update';
         if (!$rootScope.isCollapsed) $rootScope.toggle();
     };
+    $scope.ReqAllocation = function (podetail) {
+        $scope.RowLength = $filter("filter")($scope.requisitionListByPo, { PODetailId: podetail.PODetailsID });
+        
+            for (var i = 0; i < $scope.requisitionListByPo.length; i++) {
+                if ($scope.requisitionListByPo[i].PODetailId == podetail.PODetailsID) {
+                    if ($scope.RowLength.length == 1) {
+                        $scope.requisitionListByPo[i].TransactionQty = podetail.TransactionQty;
+                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
+                    }
+                    else {
+                        if (baseService.isUndefinedOrNull($scope.requisitionListByPo[i].TransactionQty) || $scope.requisitionListByPo[i].TransactionQty==0) {
+                            ShowResult("Please input Requsition Qty of RowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
+                            return true;
+                            break;
+                        }
+                        $scope.requisitionListByPoForSave.push($scope.requisitionListByPo[i]);
+                    }
+            }
+        }
+        return false;
+    }
 
+    $scope.requisitionListByPoForSave = [];
     $scope.checkValidation = function () {
         $scope.checkgridcheckornot = $filter("filter")($scope.inventoryMaterialListPO, { check: true });
-
-        if ($scope.checkgridcheckornot.length === 0) {
-            ShowResult("Enter atleast one material information", 'failure');
-            return true;
-        }
-
+        $scope.requisitionListByPoForSave = [];
         if (baseService.isUndefinedOrNull($scope.productNew.DocRefNo)) {
             ShowResult("Enter Doc Ref No", 'failure');
             return true;
@@ -463,7 +480,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                     ShowResult("Please select quality statusin PORowId" + $scope.inventoryMaterialListPO[i].InventoryReceiveDetailId, 'failure');
                     return true;
                 }
+
                 $scope.inventoryMaterialListPOnew.push($scope.inventoryMaterialListPO[i]);
+                $scope.ReqAllocation($scope.inventoryMaterialListPO[i]);
             }
         }
         if ($scope.chargesListPO.length > 0) {
@@ -477,7 +496,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                 }
             }
         }
-
+       
 
         return false;
     }
@@ -555,6 +574,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
                                         'receiveTaxList': $scope.POMaterialTaxList,
                                         'chargesListPO': $scope.chargesListPOnew,
                                         'POServiceTaxList': $scope.POServiceTaxList,
+                                        'requisitionDetailList': $scope.requisitionListByPoForSave,
                                         'GRNType': 'GRNBYPO',
                                         'AcceptanceId': $scope.AcceptanceId,
                                         'CheckedByStatusForNoti': $scope.CheckedByStatusForNoti,
@@ -1820,6 +1840,27 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         });
     }
 
+    $scope.requisitionDetailList = [];
+    $scope.ViewRequisitionDetail = function (poDatailId) {
+        $scope.requisitionDetailList = [];
+        $scope.requisitionDetailList = $filter("filter")($scope.requisitionListByPo, { 'PODetailId': poDatailId });
+        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
+
+    }
+    $scope.CloseRequisitionPopUP = function () {
+        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
+
+    }
+
+    $scope.requisitionListByPo = [];
+    function GetRequisitionListByPO(poIds) {
+        //debugger;
+        $http.get($scope.path + 'GetRequsitionQtyListByPO?poIds=' + poIds)
+            .then(function (response) {
+                $scope.requisitionListByPo = [];
+                $scope.requisitionListByPo = response.data.Rows;
+            });
+    }
 
     $scope.load = function () {
 
@@ -1874,6 +1915,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
 
             getPartyPlantList();
             GetInventoryMaterialListByPO(id1, $scope.AcceptanceId);
+            GetRequisitionListByPO(id1);
             getServiceChargeListPO(id1);
             $scope.productNew.PO = $scope.status;
 
@@ -2112,9 +2154,9 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
             .then(function (response) {
                 $scope.inventoryMaterialListPO = [];
                 $scope.inventoryMaterialListPO = response.data.Rows;
-                $scope.POID = $scope.inventoryMaterialListPO.POID;
-                $scope.PreBal = $scope.inventoryMaterialListPO.Balance;
-                $scope.PODetailsID = $scope.inventoryMaterialListPO.InventoryReceiveDetailId;
+                //$scope.POID = $scope.inventoryMaterialListPO.POID;
+                //$scope.PreBal = $scope.inventoryMaterialListPO.Balance;
+                //$scope.PODetailsID = $scope.inventoryMaterialListPO.InventoryReceiveDetailId;
                 $scope.productNew.InvoicingByAddress = $scope.inventoryMaterialListPO[0].InvoicingByAddress;
                 $scope.productNew.DeliveryByAddress = $scope.inventoryMaterialListPO[0].DeliveryByAddress;
                 $scope.inventoryMaterialListPO.BaseAmount = '0';
@@ -2745,27 +2787,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         }
         var TotalServiceTaxAmount = Math.round($filter('sumByKey')($filter('filter')($scope.POServiceTaxList), 'TaxAmount') * 100 + Number.EPSILON) / 100;
         $scope.recalculateMaterialByServiceAmount();
-        //for (var i = 0; i < $scope.inventoryMaterialListPO.length; i++) {
-
-        //    if ($scope.inventoryMaterialListPO[i].POID == data.InventoryReceiveId) {
-        //        var TotalServiceAmount = Math.round($filter('sumByKey')($filter('filter')($scope.chargesListPO, { 'InventoryReceiveId': data.InventoryReceiveId }), 'Amount') * 100 + Number.EPSILON) / 100;
-        //        var TotalTrnAmount = Math.round($filter('sumByKey')($filter('filter')($scope.inventoryMaterialListPO, { 'POID': $scope.inventoryMaterialListPO[i].POID }), 'TrnAmount') * 100 + Number.EPSILON) / 100;
-        //        $scope.inventoryMaterialListPO[i].ServiceCharge = Math.round(((TotalServiceAmount / TotalTrnAmount).toFixed(2) * $scope.inventoryMaterialListPO[i].TrnAmount.toFixed(2)) * 100 + Number.EPSILON) / 100;
-        //        $scope.inventoryMaterialListPO[i].ServiceTax = Math.round(((TotalServiceTaxAmount / TotalTrnAmount).toFixed(2) * $scope.inventoryMaterialListPO[i].TrnAmount.toFixed(2)) * 100 + Number.EPSILON) / 100;
-        //    }
-
-        //    if ($scope.productNew.IsNonCreditable == 1) {
-
-        //        $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)).toFixed(2);
-        //        $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].BaseTaxAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge) + parseFloat($scope.inventoryMaterialListPO[i].ServiceTax)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-        //    }
-        //    else {
-        //        $scope.inventoryMaterialListPO[i].TotalMaterialTranAmount = (parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)).toFixed(2);
-        //        $scope.inventoryMaterialListPO[i].TotalMaterialBaseAmount = ((parseFloat($scope.inventoryMaterialListPO[i].TrnAmount) + parseFloat($scope.inventoryMaterialListPO[i].ServiceCharge)) * $scope.productNew.ToCurrencyRate).toFixed(2);
-        //    }
-
-        //}
-
+       
     };
 
 
@@ -3639,20 +3661,7 @@ function GRNByPOController(addressService, $window, factoryService, cboService, 
         angular.element(document.querySelector('#ValueSet')).modal('hide');
     }
 
-    $scope.requisitionDetailList = [];
-    $scope.ViewRequisitionDetail = function (poDatailId) {
-        $scope.requisitionDetailList = [];
-        $http.get($scope.path + 'GetRequisitionDetailByPODetail?podetailId=' + poDatailId)
-            .then(function (response) {
-                $scope.requisitionDetailList = response.data;
-            });
-        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('show');
 
-    }
-    $scope.CloseRequisitionPopUP = function () {
-        angular.element(document.querySelector('#ListOfRequisitionPopUP')).modal('hide');
-
-    }
     $scope.GRNAllowcationForSO = function (x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID) {
         $scope.Action1 = 'Update'
         GRNAllowcationForSOList(x, MaterialMasterId, InventoryReceiveDetailId, PODetailsID);

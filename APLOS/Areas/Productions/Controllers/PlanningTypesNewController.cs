@@ -285,7 +285,7 @@ namespace Aplos.Areas.Productions.Controllers
                             INNER JOIN org.Entity AS e ON e.Id=wcm.EntityId
                             INNER JOIN org.Plant AS p ON p.Id=wcm.PlantId
                             LEFT JOIN SCS.UnitOfMeasurement AS uom ON uom.Id = WCM.UoMId
-                            WHERE WCM.PlantId='" + identity.PlantId + "' AND WCM.ProcessId='" + processId + "'  AND ISNULL(WCM.Id,'') IN(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + "') order by p.userName, e.UserName,WCM.sequence";
+                            WHERE WCM.Active=1 AND WCM.PlantId='" + identity.PlantId + "' AND WCM.ProcessId='" + processId + "'  AND ISNULL(WCM.Id,'') IN(SELECT WorkCenterMasterId FROM [SCS].[WorkCenterMasterSubProcess] WHERE SubProcessId='"+ subprocessId + "') order by p.userName, e.UserName,WCM.sequence";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
@@ -369,11 +369,14 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         public ActionResult GetMinute(Dictionary<string, object> data)
         {
             //var ts = Convert.ToDateTime(data["ProductionShiftEndTime"]).Subtract(Convert.ToDateTime(data["ProductionShiftStartTime"]));
-
-            DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
-            DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
-            TimeSpan ts = date2 - date1;
-            int minutes = (int)ts.TotalMinutes;
+            int minutes = 0;
+            if (!string.IsNullOrEmpty(data["ProductionShiftStartTime"].ToString())&& !string.IsNullOrEmpty(data["ProductionShiftEndTime"].ToString()))
+            {
+                DateTime date1 = Convert.ToDateTime(data["ProductionShiftStartTime"]);
+                DateTime date2 = Convert.ToDateTime(data["ProductionShiftEndTime"]);
+                TimeSpan ts = date2 - date1;
+                minutes = (int)ts.TotalMinutes; 
+            }
 
             return Json(minutes, JsonRequestBehavior.AllowGet);
         }
@@ -735,6 +738,40 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
             dr.EndEdit();
         }
 
+        public ActionResult GetPlanCapacityDataByPlanningType(string PlanningTypesId)
+        {
+            try
+            {
+                string sql = @"SELECT PW.WorkCenterMasterId,WCM.UserName WorkCenter,FORMAT(WCD.StartDate,'dd-MMM-yyyy')EffectiveDate,FORMAT(PD.PlanningDate,'dd-MMM-yyyy')PlanningDate,ps.ShiftId,sd.UserName [Shift]
+,ApplicableShift=CASE WHEN PD.PlanningDate>=WCD.StartDate THEN 0 ELSE 1 END
+,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END,PWD.WeekDays
+,NetWorkingShift=CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END
+,[From]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END
+,[To]=CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END
+,NetWorkingMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
+,PlanShift=(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)
+,PlanMinute=(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)
+,'' Remark
+,Capacity=WCM.Capacity* ((CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)-(CASE WHEN(CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END)>0 THEN sd.WorkingHour ELSE 0 END)) 
+,0 CapacityInMinute,0 CapacityInVolume
+  FROM dbo.PlanningTypesWorkCenter AS PW
+LEFT JOIN [SCS].[WorkCenterMaster] WCM ON WCM.Id = PW.WorkCenterMasterId
+LEFT JOIN [SCS].[WorkCenterMasterEffectiveDate] WCD ON PW.WorkCenterMasterId=WCD.WorkCenterMasterId
+LEFT JOIN [dbo].[PlanningTypesDate] PD ON PD.PlanningTypesId=PW.PlanningTypesId 
+LEFT JOIN [dbo].[PlanningTypesShift] PS ON PS.PlanningTypesId=PW.PlanningTypesId 
+LEFT JOIN [dbo].ShiftDefination AS sd ON PS.ShiftId=sd.SystemID 
+LEFT JOIN [dbo].[PlanningTypesWeekDays] PWD ON PWD.PlanningTypesId=PW.PlanningTypesId AND DATENAME(weekday,PD.PlanningDate)=PWD.WeekDays
+--LEFT JOIN [dbo].[PlanningTypesHoliday] PHD ON PHD.PlanningTypesId=PW.PlanningTypesId 
+WHERE PW.PlanningTypesId='" + PlanningTypesId + "'";
+                return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+     
 
         #endregion
     }
