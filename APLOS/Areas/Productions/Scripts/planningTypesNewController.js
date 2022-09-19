@@ -124,6 +124,7 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
         $scope.GetSavedHolidayData();
         $scope.GetLatestPlanDate();
         $scope.GetSavedDateData();
+        $scope.GetPlanCapacityData();
         if (!$rootScope.isCollapsed) $rootScope.toggle();
         $scope.Action = 'Update';
     };
@@ -877,4 +878,22 @@ function planningTypesNewController(cboService, commonMessage, $scope, $rootScop
     }
 
     //#endregion
+
+    //#region     
+
+    $scope.PlanCapacityList = [];
+    $scope.GetPlanCapacityData = function () {
+        if (!baseService.isUndefinedOrNull($scope.planningTypesNew.Id)) {
+    $http.get('Productions/PlanningTypesNew/GetPlanCapacityDataByPlanningType?PlanningTypesId=' + $scope.planningTypesNew.Id)
+                .then(function (response) {
+                    if (baseService.arrayLength(response.data) > 0) {
+                        $scope.PlanCapacityList = response.data;
+                    }
+                });
+        }
+    }
+
+
+    //#endregion
+
 }
