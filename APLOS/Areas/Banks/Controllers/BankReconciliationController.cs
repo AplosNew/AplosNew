@@ -351,6 +351,34 @@ namespace Aplos.Areas.Banks.Controllers
                     return View();
             }
         }
+        [HttpGet, Authorize]
+        public ActionResult GetSampleFile(ReportFormat reportFormat)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            AccountsInventoryPayableReportService accountsInventoryPayableReportService = new AccountsInventoryPayableReportService(_sqlRepository);
+            IWorkbook workbook = accountsInventoryPayableReportService.GetSampleFile(identity.Name, identity.CompanyGroupId, identity.PlantId, identity.CompanyId, identity.PlantName);
+            var reportFileName = "BankReconciliation Data upload Sample File";
+            switch (reportFormat)
+            {
+                case ReportFormat.Pdf:
+                    return RenderReportAsPdf(workbook, reportFileName);
+
+                case ReportFormat.Excel:
+                    return RenderReportAsExcel(workbook, reportFileName);
+
+                default:
+                    return RenderReportAsExcel(workbook, reportFileName);
+            }
+
+        }
+        [HttpPost]
+        public ActionResult DeleteBankReconciliationUploadedData(string bankReconciliationUploadId)
+        {
+            AccountsBankReconcilliationService accountsBankReconcilliationService = new AccountsBankReconcilliationService(_sqlRepository);
+
+            accountsBankReconcilliationService.DeleteBankReconciliationUploadedData(bankReconciliationUploadId);
+            return Json(new { Message = AplosMessage.Deleted });
+        }
         #endregion Operation
     }
 }
