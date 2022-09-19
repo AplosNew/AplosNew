@@ -506,10 +506,10 @@ namespace Library.Planning.OrderManagement
 
 
                 var str = @"Select * from (Select  e.UserName as Entity,prt.Username as Customers,b.UserName as Buyer, mo.BuyerReferenceNo,mo.OwnReferenceNo
-								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,so.Id SONo, so.Qty,DispatchBalance=ISNULL(so.Qty-POLR.TotalQtyNetWeight,0), format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate
+								,moi.BuyerReferenceNo as IBuyerReferenceNo,moi.OwnReferenceNo as IOwnReferenceNo,mma.StandardName Article,so.Id SONo, so.Qty,DispatchBalance=ISNULL(so.Qty-POLR.TotalQtyNetWeight,0), format(so.DeliveryDate,'dd-MMM-yyyy') as DeliveryDate, format(so.CommitmentDate,'dd-MMM-yyyy') as CommitmentDate
 								,format((SELECT MAX(xp1.ProductionDate) FROM ProductionPlanningType1 Xp1 WHERE Xp1.ProductionOrderID=pod.ProductionOrderID),'dd-MMM-yyyy') as ProductionDate,  format((case when so.PlanExFactoryDate is null then so.CommitmentDate else PlanExFactoryDate end) , 'dd-MMM-yyyy') as DDate
 								,mo.Id as OrderNo,moi.Id as ItemNo,po.Id as PRNo,emp.EmployeeName as MResp,DateDiff(Day," + Dtype + @", " + DDate + @") as EarlyOrLateBy 
-								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks,mma.StandardName Article
+								,so.OrderStatusId as OrderStatusId,ps.UserName as POStatus,OC.UserName OrderType,SO.ProductionType,ShipmentFromStock=CASE WHEN SO.ShipmentFromStock=1 THEN 'Yes' ELSE 'No' END,so.AddedDate  , pod.ProductionOrderID , os.Username as MOOrderStatusId ,ee.EmployeeName as EResp ,mo.BuyerId,rem.Remarks
 
                                FROM TRN.MasterOrder mo 
 								LEFT JOIN HKP.orderstatus os on os.Id = mo.OrderStatusId

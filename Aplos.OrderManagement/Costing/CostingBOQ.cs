@@ -1666,33 +1666,33 @@ namespace Library.OrderManagement.Costing
 
 
                 COL = 1;
-                sheet[ROW, COL].Text = "Customer";
-                int colCustomerSO = COL;
+                sheet[ROW, COL].Text = "Item";
+                int colItem = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Master Order";
-                int colMasterOrderSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Item No";
-                int colItemNoSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "Delivery Date";
-                int colDeliveryDateSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "SO Id";
-                int colSOIdSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "SO Qty";
-                int colSOQtySO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "BOM No";
-                int colBOMNoSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "BOM Remarks";
-                int colBOMRemarksSO = COL;
-                COL++;
-                sheet[ROW, COL].Text = "BOM Items";
-                int colBOMItemsSO = COL;
 
+                sheet[ROW, COL].Text = "UOM";
+                int colUOMs = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Required Quantity";
+                int colRequiredQuantity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plan Quantity";
+                int colPlanQuantity = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Currency";
+                int colCurrencys = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Required Amount";
+                int colRequiredAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Plan Amount";
+                int colPlanAmounts = COL;
+            
 
                 endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
@@ -1707,16 +1707,13 @@ namespace Library.OrderManagement.Costing
                 for (int i = 0; i < dtSO.Rows.Count; i++)
                 {
 
-                    sheet[ROW, colCustomerSO].Text = dtSO.Rows[i]["Customer"].ToString();
-                    sheet[ROW, colMasterOrderSO].Text = dtSO.Rows[i]["MasterOrderId"].ToString();
-                    sheet[ROW, colItemNoSO].Text = dtSO.Rows[i]["MasterOrderItemId"].ToString();
-                    sheet[ROW, colSOIdSO].Text = dtSO.Rows[i]["SalesOrderId"].ToString();
-                    sheet[ROW, colDeliveryDateSO].Text = dtSO.Rows[i]["DeliveryDate"].ToString();
-                    sheet[ROW, colSOQtySO].Number = clsStaticInfo.dbl(dtSO.Rows[i]["Qty"].ToString());
-
-                    sheet[ROW, colBOMNoSO].Text = dtSO.Rows[i]["BOMList"].ToString();
-                    sheet[ROW, colBOMRemarksSO].Text = dtSO.Rows[i]["BOMRemarks"].ToString();
-                    sheet[ROW, colBOMItemsSO].Text = dtSO.Rows[i]["ItemList"].ToString();
+                    sheet[ROW, colItem].Text = dtSO.Rows[i]["Customer"].ToString();
+                    sheet[ROW, colUOMs].Text = dtSO.Rows[i]["MasterOrderId"].ToString();
+                    sheet[ROW, colRequiredQuantity].Number = clsStaticInfo.dbl(dtSO.Rows[i]["Qty"].ToString());
+                    sheet[ROW, colPlanQuantity].Number = clsStaticInfo.dbl(dtSO.Rows[i]["Qty"].ToString());
+                    sheet[ROW, colCurrencys].Text = dtSO.Rows[i]["MasterOrderId"].ToString();
+                    sheet[ROW, colRequiredAmount].Number = clsStaticInfo.dbl(dtSO.Rows[i]["Qty"].ToString());
+                    sheet[ROW, colPlanAmounts].Number = clsStaticInfo.dbl(dtSO.Rows[i]["Qty"].ToString());
 
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
@@ -1725,7 +1722,7 @@ namespace Library.OrderManagement.Costing
                     ROW++;
 
                 }
-                sheet.Range[StartRow, colSOQtySO, ROW, colSOQtySO].NumberFormat = clsStaticInfo.NumberFormat();
+                //sheet.Range[StartRow, colSOQtySO, ROW, colSOQtySO].NumberFormat = clsStaticInfo.NumberFormat();
 
                 string strFileName = "BOM Report " + CostingBOQMasterId + ".xlsx";
                 workbook.SaveAs(strFileName, ExcelSaveType.SaveAsXLS, System.Web.HttpContext.Current.Response, ExcelDownloadType.PromptDialog);
