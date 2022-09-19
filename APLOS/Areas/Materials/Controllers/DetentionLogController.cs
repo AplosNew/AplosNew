@@ -66,10 +66,10 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
-        public ActionResult GetWorkCenter(string processId)
+        public ActionResult GetWorkCenter()
         {
 
-            return Json(dl.GetWorkCenter(processId), JsonRequestBehavior.AllowGet);
+            return Json(dl.GetWorkCenter(), JsonRequestBehavior.AllowGet);
         }
     }
 }
