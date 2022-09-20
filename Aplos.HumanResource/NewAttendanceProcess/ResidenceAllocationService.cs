@@ -209,6 +209,22 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
             dr.EndEdit();
         }
         #endregion Add & Edit Row
+
+        #region TAB POSITION
+        public IEnumerable<object> getPositionTabGridData()
+        {
+            try
+            {
+                string sql = @"Select P.Code PositionCode, MP.Code BudgetCode from MST.ManpowerBudget MP
+                            left join ORG.Position P on P.Id = MP.PositionId";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+        #endregion TAB POSITION
     }
     #endregion Residence Master
 
@@ -368,7 +384,7 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
                                         PR.UserName PositionName,DEG.UserName GivenDesignation,DEPT.UserName Department,S.UserName Section,EMP.SectionId,SS.UserName SubSection
                                         ,PL.UserName Plant,LDEG.UserName LegalDesignation, L.UserName Line,FORMAT(emp.DOJ,'dd-MMM-yyyy') DOJ,FORMAT(emp.DOS,'dd-MMM-yyyy') DOS
                                         ,EMP.EmployeeCodePreFix,EMP.EmployeeCodeNumeric, RG.UserName ResidenceGroup, PR.PaymentLink Skill, EC.UserName EmployeeCategory
-                                        ,RM.Location
+                                        ,RM.Location, RM.ResidenceCategory, EMP.GenderID
 										FROM EmployeeInformation EMP
                                         LEFT JOIN MST.ManpowerBudget PMB ON EMP.BudgetCode=PMB.Id
                                         LEFT JOIN ORG.Position PR ON PMB.PositionId=PR.Id

@@ -96,21 +96,22 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
 
 
     // Detention Type By Department
-    
-    
+
+    $scope.DetentionTypeList = [];
     $scope.getDetentionTypeListByDepartment = function (departmentid) {
         $http({
-            method: 'GET',
+            method: 'POST',
             url: 'Materials/DetentionLog/getDetentionTypeListByDepartment?departmentid=' + departmentid
         }).then(function successCallback(response) {
-            //$scope.DetentionList = null;
-            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
-                    $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
-                }
-            }
+            $scope.DetentionTypeList = response.data;
+            //for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+            //    if ($scope.ProcessDetentionLists[i].DetentionId == null) {
+            //        $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
+            //    }
+            //}
         });
     }
+    $scope.getDetentionTypeListByDepartment();
 
     $scope.ProcesssList = [];
     $scope.getProcessList = function () {
@@ -128,12 +129,18 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     $scope.WorkCenter = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/GetWorkCenter?processId=' + $scope.ModalNew.ProcessId
+            url: 'Materials/DetentionLog/GetWorkCenter',
         }).then(function successCallback(response) {
             $scope.WorkCenterList = response.data;
 
         });
     }
+    $scope.WorkCenter();
+    // Get Workcenter by pressing on key suggest
+    
+   
+
+    // Get Workcenter by pressing on key suggest end
 
     $scope.DetentionList = [];
     $scope.getDetentionList = function () {

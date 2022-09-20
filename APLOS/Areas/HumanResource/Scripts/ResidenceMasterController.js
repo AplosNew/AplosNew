@@ -10,6 +10,18 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.deleteUrl = $scope.path + 'delete/';   
     baseService.init($scope.getListUrl);
 
+    //  #region Tab change
+    $scope.tab = 1;
+    $scope.setTab = function (newTab) {
+        $scope.tab = newTab;
+
+
+    };
+    $scope.isSet = function (tabNum) {
+        return $scope.tab === tabNum;
+    };
+     //  #endregion Tab change
+
     // POP CLOSED FOR PLANT
     $scope.closePlantPop = function () {
         angular.element(document.querySelector('#PlantPop')).modal('hide');
@@ -70,6 +82,8 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
         });
     }
     $scope.getData();
+
+    
 
     $scope.getPlant = function () {
         $http({
@@ -178,11 +192,21 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
    
-    $scope.Get = function (args) {
-        $scope.ModalNew = Object.assign({}, args.data);
+    //$scope.Get = function (args) {
+    //    $scope.ModalNew = Object.assign({}, args.data);
        
-        $scope.Action = 'Update';
+    //    $scope.Action = 'Update';
         
+    //};
+
+    $scope.Get = function (args) {
+
+        $scope.ModalNew = Object.assign({}, args.data);
+        $scope.Action = 'Update';
+        if (!$rootScope.isCollapsed) {
+            $rootScope.toggle();
+
+        }
     };
 
     $scope.Save = function () {
@@ -303,4 +327,19 @@ function ResidenceMasterController(cboService, commonMessage, $scope, $rootScope
             ];
         }
     }
+
+    //  #region  Position Tab
+
+    $scope.PositionTabgridList = [];
+    $scope.getPositionTabGridData = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'getPositionTabGridData',
+            dataType:'JSON'
+        }).then(function successCallback(response) {
+            $scope.PositionTabgridList = response.data;
+        })
+    }
+    $scope.getPositionTabGridData();
+    // #endregion Position Tab
 }
