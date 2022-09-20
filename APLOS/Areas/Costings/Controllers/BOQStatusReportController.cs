@@ -57,11 +57,13 @@ namespace Aplos.Areas.Costings.Controllers
             try
             {
                 var sql = @"SELECT distinct BOM.CustomerId PartyId,PC.UserName Customer,MOI.BuyerReferenceNo,MOI.OwnReferenceNo,MO.Id MasterOrderId,MOI.Id LineItemId
+							,SO.Id SOId,CPO.PONumber PONo
                              FROM BOQ  boq
 							  left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+							  left join trn.SalesOrder SO on SO.CostingBOQMasterId=BOM.Id
 							  left join HKP.Party PC on PC.Id=BOM.CustomerId
 							 left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-                             left  join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+                             left  join [TRN].[CustomerPO] CPO on CPO.MasterOrderId=MO.Id
                              left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
                              where BOM.CustomerId <>''  
 							  and moi.OrderCostingMasterTemplateId<>''";
@@ -425,59 +427,87 @@ namespace Aplos.Areas.Costings.Controllers
         {
             try
             {
-                var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article
-										,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
-										,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
-										,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
-										, grnboq.GRNBaseQty
-										, grnboq.GRNAmount
-										, grnboq.GRNUOM
-										, BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
-										, issueboq.IssueBaseQty
-										, issueboq.IssueAmount
-										, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
-										,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
+                //      var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article
+                //,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
+                //,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
+                //,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+                //, grnboq.GRNBaseQty
+                //, grnboq.GRNAmount
+                //, grnboq.GRNUOM
+                //, BalancePOQty=poboq.POBOQQty-grnboq.GRNBaseQty
+                //, issueboq.IssueBaseQty
+                //, issueboq.IssueAmount
+                //, BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
+                //,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
+                //FROM BOQ  boq
+                //LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
+                //LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
+                //LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
+                //LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
+                //LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
+                //LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
+                //LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
+                //   LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                //left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
+                //left join HKP.Party PC on PC.Id=BOM.CustomerId
+                //--left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
+                //   left join TRN.MasterOrder MO on MO.PartyId=PC.Id
+                //left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
+                //left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
+                //			FROM  trn.POBOQMAP pomap 
+                //			JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
+                //			LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=pod.TransactionUoMId
+                //			GROUP BY pomap.BOQDetailId,UOM.UserName
+                //			) poboq ON poboq.BOQDetailId=boq.Id
+
+                //left join (SELECT gpa.BOQDetailId,sum(gpa.TransactionQty) GRNBaseQty,UOM.UserName GRNUOM,sum(IRD.TotalMaterialTranAmount ) GRNAmount
+                //				FROM trn.GRNPORequisitionAllocation gpa 
+                //				JOIN trn.InventoryReceiveDetail IRD ON gpa.InventoryReceiveDetailId=IRD.Id
+                //				LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=IRD.TransactionUoMId
+                //				GROUP BY gpa.BOQDetailId,UOM.UserName
+                //			) grnboq ON grnboq.BOQDetailId=poboq.BOQDetailId
+
+                //left join (SELECT iihb.BOQDetailId,sum(iihb.Qty) IssueBaseQty ,sum(iihb.Qty*iih.Rate) IssueAmount
+                //			FROM trn.InventoryIssueHistoryBOQ iihb 
+                //			join TRN.InventoryIssueHistory iih on iihb.InventoryIssueHistoryId=iih.Id
+                //			GROUP BY iihb.BOQDetailId
+
+                //) issueboq ON issueboq.BOQDetailId=poboq.BOQDetailId
+
+
+                //                              where PC.Id in(" + parameters["PartyId"] + @")
+                //                              AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
+                //                              AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
+                //                              AND MO.Id in(" + parameters["MasterOrderId"] + @")
+                //                              AND moi.Id in(" + parameters["LineItemId"] + @")";
+
+                var sql = @"SELECT distinct boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,mma.StandardName AS Article
+										,boq.SKUDesc,boq.POCriteria,boq.Consumption
+										,boq.BOMQty,boq.BOMQtyBase,boq.RequiredQty
+										,MO.Id MasterOrderId
+										,moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineItemId
+										,PAR.UserName PartyName,B.UserName BuyerName,mma.StandardName Product
 										FROM BOQ  boq
-										LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
 										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
-										LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
-										LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
-										LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
-										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
-										LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
-									    LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
 										left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-										left join HKP.Party PC on PC.Id=BOM.CustomerId
-										--left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
-									    left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-										left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
-										left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
-													FROM  trn.POBOQMAP pomap 
-													JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
-													LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=pod.TransactionUoMId
-													GROUP BY pomap.BOQDetailId,UOM.UserName
-													) poboq ON poboq.BOQDetailId=boq.Id
+										left join CostingBOQItems BOMI on BOMI.CostingBOQMasterId=BOM.Id
+										left join TRN.SalesOrder SO on SO.Id=BOMI.SalesOrderId
+										left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id 
+									    left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId 
+										left  join [TRN].[CustomerPO] CPO on CPO.MasterOrderId=MO.Id
+										left join HKP.Party PAR on PAR.Id=MO.PartyId
+										left join HKP.Buyer B on B.Id=MO.BuyerId
 
-										left join (SELECT gpa.BOQDetailId,sum(gpa.TransactionQty) GRNBaseQty,UOM.UserName GRNUOM,sum(IRD.TotalMaterialTranAmount ) GRNAmount
-														FROM trn.GRNPORequisitionAllocation gpa 
-														JOIN trn.InventoryReceiveDetail IRD ON gpa.InventoryReceiveDetailId=IRD.Id
-														LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=IRD.TransactionUoMId
-														GROUP BY gpa.BOQDetailId,UOM.UserName
-													) grnboq ON grnboq.BOQDetailId=poboq.BOQDetailId
-
-										left join (SELECT iihb.BOQDetailId,sum(iihb.Qty) IssueBaseQty ,sum(iihb.Qty*iih.Rate) IssueAmount
-													FROM trn.InventoryIssueHistoryBOQ iihb 
-													join TRN.InventoryIssueHistory iih on iihb.InventoryIssueHistoryId=iih.Id
-													GROUP BY iihb.BOQDetailId
-
-										) issueboq ON issueboq.BOQDetailId=poboq.BOQDetailId
-
-
-                                        where PC.Id in(" + parameters["PartyId"] + @")
+                                        where PAR.Id in(" + parameters["PartyId"] + @")
                                         AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
                                         AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
                                         AND MO.Id in(" + parameters["MasterOrderId"] + @")
-                                        AND moi.Id in(" + parameters["LineItemId"] + @")";
+                                        AND moi.Id in(" + parameters["LineItemId"] + @")
+                                        AND SO.Id in(" + parameters["SOId"] + @")                                       
+                                        AND CPO.PONumber in(" + parameters["PONo"] + @")
+
+                                        order by boq.[Sequence]";
 
                 return _sqlRepository.GetDataTable(sql);
             }
@@ -493,25 +523,29 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,mma.StandardName AS Article
 										,boq.SKUDesc,boq.POCriteria,boq.Consumption
-										,boq.BOMQty,boq.BOMQtyBase,boq.RequiredQty
-										,MO.Id MasterOrderId
+										,boq.BOMQty,boq.BOMQtyBase,boq.RequiredQty,MO.Id MasterOrderId
+										,CPO.PONumber,SO.Id SOId
 										,moi.BuyerReferenceNo,moi.OwnReferenceNo,moi.Id LineItemId
 										,PAR.UserName PartyName,B.UserName BuyerName,mma.StandardName Product
 										FROM BOQ  boq
 										LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
 										left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-										left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
-									    left join TRN.MasterOrder MO on MO.PartyId=BOM.CustomerId
+										left join CostingBOQItems BOMI on BOMI.CostingBOQMasterId=BOM.Id
+										left join TRN.SalesOrder SO on SO.Id=BOMI.SalesOrderId
+									    left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId=moi.Id 
+									    left join TRN.MasterOrder MO on MO.Id=moi.MasterOrderId
+										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId 
+                                        left  join [TRN].[CustomerPO] CPO on CPO.MasterOrderId=MO.Id
 										left join HKP.Party PAR on PAR.Id=MO.PartyId
 										left join HKP.Buyer B on B.Id=MO.BuyerId
-										left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId 
-										LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=moi.ArticleId 
 
                                         where PAR.Id in(" + parameters["PartyId"] + @")
                                         AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
                                         AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
                                         AND MO.Id in(" + parameters["MasterOrderId"] + @")
-                                        AND moi.Id in(" + parameters["LineItemId"] + @")";
+                                        AND moi.Id in(" + parameters["LineItemId"] + @")
+                                        AND SO.Id in(" + parameters["SOId"] + @")                                       
+                                        AND CPO.PONumber in(" + parameters["PONo"] + @")";
 
                 return _sqlRepository.GetData(sql);
             }

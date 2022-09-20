@@ -1549,7 +1549,7 @@ namespace Library.OrderManagement.Costing
 					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
 					LEFT JOIN HKP.Party P on P.Id=pc.VendorId
 					
-					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' 
+					where pc.OrderCostingMasterTemplateId='" + OrderCostingId + @"' and I.Id is not null
 					order by pc.Sequence";
 
 
