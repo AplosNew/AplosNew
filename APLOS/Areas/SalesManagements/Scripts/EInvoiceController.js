@@ -148,4 +148,12 @@ function EInvoiceController(cboService, commonMessage, $window, $scope, $rootSco
 
     }
 
+
+    $scope.Clear = function () {
+        $scope.masterOrderItemList = [];
+        $scope.salesMaterialList = [];
+        $scope.invoiceList = [];
+        $scope.postedSalesList = [];
+        $scope.selectedpostedSalesList = [];
+    }
 }
