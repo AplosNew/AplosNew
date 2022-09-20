@@ -4986,10 +4986,10 @@ ORDER BY IR.ID DESC";
                           ,G.UpdatedBy
                           ,G.UpdatedDate
                           ,G.UpdatedFromIp
-                          ,EI.FirstName As MaterialReceivedBy,G.GateEntryTime
+                          ,EI.EmployeeName As MaterialReceivedBy,G.GateEntryTime
                           ,IR.Id GRNId
-						  ,Isnull(EI1.SystemId +'-'+ EI1.FirstName,'') AS EmployeeName
-                          ,Isnull(EI1.SystemId +'-'+ EI1.FirstName,'') AS EmployeeName1
+						  ,EI1.SystemId +'-'+  EI1.EmployeeName EmployeeName
+                          ,EI.SystemId +'-'+   EI.EmployeeName  EmployeeName1
                       FROM TRN.[GateEntry] G
                       LEFT Join hkp.Party p ON P.Id= G.PartyId
 					  LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
@@ -5001,7 +5001,7 @@ ORDER BY IR.ID DESC";
                       LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
                       --Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
                       Where G.FlagStatus!='Cancel' AND G.PlantId='" + identity.PlantId + @"' --and G.Id not in (select GateEntryNo from trn.InventoryReceive)
-                    Order By G.AddedDate,G.Id Desc";
+                    Order By G.AddedDate Desc";
 				}
 				else
 				{
@@ -5028,9 +5028,9 @@ ORDER BY IR.ID DESC";
                           ,G.UpdatedBy
                           ,G.UpdatedDate
                           ,G.UpdatedFromIp
-                          ,EI.FirstName As MaterialReceivedBy,G.GateEntryTime
+                           ,EI.EmployeeName As MaterialReceivedBy,G.GateEntryTime
                           ,IR.Id GRNId
-						  ,Isnull(EI1.SystemId +'-'+ EI1.FirstName,'') AS EmployeeName
+,EI1.SystemId +'-'+  EI1.EmployeeName EmployeeName
                       FROM TRN.[GateEntry] G
                       LEFT Join hkp.Party p ON P.Id= G.PartyId
 					  LEFT Join ORG.CompanyGroup CG ON CG .Id= G.CompanyGroupId
@@ -5042,7 +5042,7 @@ ORDER BY IR.ID DESC";
                       LEFT JOIN dbo.PlantWiseGate PWG ON PWG.Id=G.PlantWiseGateId
                       Left JOIN SEC.UserPlantGate UPG ON UPG.PlantGateId=PWG.Id
                       Where G.FlagStatus!='Cancel' AND G.PlantId='" + identity.PlantId + @"' AND UPG.UserId='" + UserId + @"'--and G.Id not in (select GateEntryNo from trn.InventoryReceive)
-                      Order By G.AddedDate,G.Id Desc";
+                      Order By G.AddedDate Desc";
 
 				}
 
