@@ -1498,7 +1498,7 @@
                                 </div>
                             </div>
                         </div>
-
+                        
                         <div class="form-group">
                             <label class="col-sm-4 control-label">SO Production Allocation</label>
 
@@ -1538,25 +1538,25 @@
                             </div>
                         </div>
                         @*<div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
-                            <div class="col-sm-6 show-message">
-                                <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
-                            </div>
-                            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
-                                {{currency}}
-                                <div class="select-style">
-                                    <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
-                                        <option value="">--Select--</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Rate<sup>*</sup></label>
+            <div class="col-sm-6 show-message">
+                <input type="text" n-decimals="4" name="Rate" ng-model="soModel.Rate" class="form-control text-right" required tabindex="110">
+            </div>
+            <div class="col-sm-2" style="padding-left:0px;padding-right:0px;margin-left:-15px;">
+                {{currency}}
+                <div class="select-style">
+                    <select name="Currency" class="form-control" ng-model="fileNew.CurrencyId" disabled ng-options="item.Value as item.Text for item in currencyList" tabindex="16">
+                        <option value="">--Select--</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
                         @*<div class="form-group" show-errors>
-                            <label class="col-sm-4 control-label">Sales Expense<sup>*</sup></label>
-                            <div class="col-sm-8  show-message">
-                                <input type="text" n-decimals="2" name="Sales Expense" ng-model="soModel.SalesExpense" ng-keyup="SetNetSalesRealization();" class="form-control text-right" tabindex="113" required>
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Sales Expense<sup>*</sup></label>
+            <div class="col-sm-8  show-message">
+                <input type="text" n-decimals="2" name="Sales Expense" ng-model="soModel.SalesExpense" ng-keyup="SetNetSalesRealization();" class="form-control text-right" tabindex="113" required>
+            </div>
+        </div>*@
 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Responsible Person</label>
@@ -1650,9 +1650,17 @@
                                 <input type="text" name="Booked Quantity" ng-model="ProdBookedQty" disabled class="form-control text-right" tabindex="101">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="control-label" style="color:blue"></label>
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="PackingType" class="form-control" ng-model="soModel.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Plan Ex-Factory Date</label>
                             <div class="col-sm-8">
@@ -1667,30 +1675,30 @@
                         </div>
 
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Discount</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Net Sales Realization</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">CM</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
-                            </div>
-                        </div>
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Net Sales Realization</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="NetSalesRealization" disabled ng-model="soModel.NetSalesRealization" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>
 
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Up Charge</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
-                            </div>
-                        </div>*@
+        <div class="form-group">
+            <label class="col-sm-4 control-label">Up Charge</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="UpCharge" ng-model="soModel.UpCharge" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">
@@ -1708,10 +1716,10 @@
                             <div class="col-sm-8 show-message">
                                 <div class="select-style">
                                     @*<select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" tabindex="102">
-                                        <option value="">--Select--</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
-                                    </select>*@
+                        <option value="">--Select--</option>
+                        <option value="1">Yes</option>
+                        <option value="0">No</option>
+                    </select>*@
                                     <div class="select-style">
                                         <select name="Shipment From Stock" class="form-control" ng-model="soModel.ShipmentFromStock" ng-options="item.Value as item.Text for item in ShipmentFromStocklist" required tabindex="102">
                                             <option value="">--Select--</option>
@@ -2611,7 +2619,16 @@
                                 </div>
                             </div>
                         </div>
-
+                        <div class="form-group" show-errors>
+                            <label class="col-sm-4 control-label">Packing Type<sup>*</sup></label>
+                            <div class="col-sm-8 show-message">
+                                <div class="select-style">
+                                    <select name="PackingType" class="form-control" ng-model="soSplitModel.PackingTypeId" ng-options="item.Value as item.Text for item in packingTypeList" required tabindex="105" ng-change="GetSOBookedQtyAndLevel(soModel.Id);">
+                                        <option value="">--Select--</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label" title="Destination Description">Destination Description</label>
                             <div class="col-sm-8">
@@ -2619,17 +2636,17 @@
                             </div>
                         </div>
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">Discount</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">Discount</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="2" name="Discount" ng-model="soSplitModel.Discount" class="form-control text-right" tabindex="112">
+            </div>
+        </div>*@
                         @*<div class="form-group">
-                            <label class="col-sm-4 control-label">CM</label>
-                            <div class="col-sm-8">
-                                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
-                            </div>
-                        </div>*@
+            <label class="col-sm-4 control-label">CM</label>
+            <div class="col-sm-8">
+                <input type="text" n-decimals="4" name="CM" ng-model="soSplitModel.CM" class="form-control text-right" tabindex="113">
+            </div>
+        </div>*@
                         <div class="form-group" show-errors>
                             <label class="col-sm-4 control-label">LSD<sup>*</sup></label>
                             <div class="col-sm-8 show-message">

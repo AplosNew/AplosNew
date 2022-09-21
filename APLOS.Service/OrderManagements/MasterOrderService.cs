@@ -623,7 +623,7 @@ namespace Library.Service.OrderManagements
                             ,(SELECT ISNULL(sum(Qty),0) FROM TRN.FirstCharacteristics AS FCS WHERE SO.Id= FCS.SalesOrderId) SKUQty
                             , isTax=(SELECT ISNULL(COUNT(DISTINCT SalesOrderId),0) FROM [TRN].[SalesOrderTax] WHERE SalesOrderId=SO.Id)
                             ,ISNULL(POD.ProductionOrderId,'') ProductionOrderId,SO.Reason,SO.Description,SO.CM,SO.SalesOrderYear,SO.WeekNo
-                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson
+                            ,SO.ProductionBookedQty,SO.ProductionBookingLevel,SO.SalesExpense,SO.CM,SO.DirectMaterialCost,SO.DirectProcessCost,SO.Commission,SO.ValueLoss,SO.Other,SO.StockResponsiblePersonId,SO.ShipmentFromStock,SO.ProductionType,SEMP.EmployeeName StockResponsiblePerson,SO.PackingTypeId,PT.UserName PackingType
                     FROM [TRN].[SalesOrder] AS SO
                    -- LEFT JOIN TRN.FirstCharacteristics SKU ON SKU.SalesOrderId=SO.Id
                     JOIN [TRN].[MasterOrderItem] AS MOI ON SO.MasterOrderItemId = MOI.Id
@@ -632,6 +632,7 @@ namespace Library.Service.OrderManagements
                     LEFT JOIN dbo.EmployeeInformation AS SEMP ON SEMP.SystemId = SO.StockResponsiblePersonId
                     LEFT JOIN TRN.ProductionOrderDetail POD ON POD.SalesOrderId=SO.Id
                     LEFT JOIN [MST].[Destination] D ON D.Id=SO.DestinationId
+                    LEFT JOIN HKP.PackingType PT ON PT.Id=SO.PackingTypeId
                     WHERE SO.MasterOrderItemId='" + masterItemId + "' ORDER BY SO.DeliveryDate";
                 return _sqlRepository.GetDataCollection(sql);
             }
