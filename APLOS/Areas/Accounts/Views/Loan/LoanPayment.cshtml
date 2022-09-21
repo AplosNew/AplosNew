@@ -118,8 +118,8 @@
                                 </div>
                             </div>
                             <div class="form-group" ng-show="voucher.PaymentSource=='Loan'">
-                                <label class="col-sm-4 col-xs-4 control-label" title="Transaction Type" tooltip>Loan<sup>*</sup></label>
-                                <div class="col-sm-8 show-message">
+                                <label class="col-sm-3 col-xs-3 control-label" title="Transaction Type" tooltip>Loan<sup>*</sup></label>
+                                <div class="col-sm-9 show-message">
                                     <div class="input-group">
                                         <input type="text" name="Code" ng-model="loanAddition.LoanDocRefNo" class="form-control" readonly>
                                         <span class="input-group-btn">
@@ -130,14 +130,30 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8">
-                            <div class="form-group" show-errors>
-                                <label class="col-sm-2 col-xs-2 col-md-2 control-label">Narration<sup>*</sup></label>
-                                <div class="col-sm-10 col-md-10 col-xs-10 show-message">
-                                    <textarea rows="1" type="text" name="Narration" tabindex="17" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="col-xs-8 col-sm-8 col-md-8">
+                                <div class="form-group" show-errors>
+                                    <label class="col-sm-2 col-xs-2 col-md-2 control-label">Narration<sup>*</sup></label>
+                                    <div class="col-sm-10 col-md-10 col-xs-10 show-message">
+                                        <textarea rows="1" type="text" name="Narration" tabindex="17" class="form-control" ng-model="voucher.Narration" required capitalize></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">Is Change</label>
+                                    <div class="col-sm-9">
+                                        <div class="checkbox-site">
+                                            <label>
+                                                <input tabindex="3" type="checkbox" ng-model="voucher.IsSplit">
+                                                <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
 
                         <div class="clearfix"></div>
                         <div class="col-md-7 col-sm-7 col-xs-7">
@@ -268,6 +284,12 @@
                                     <label class="col-sm-6 control-label">Setoff Books Amount<sup>*</sup></label>
                                     <div class="col-sm-5 show-message">
                                         <input type="text" maxlength="50" ng-model="loanAddition.LoanSetOffAmount" ng-keyup="exchangeGainLossAmountloanAddition()" class="form-control text-right" tabindex="19" n-decimals="2">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="div_Setoff_BankBooksAmount" ng-show="voucher.IsSplit==true">
+                                    <label class="col-sm-6 control-label">Setoff Books Amount<sup>*</sup></label>
+                                    <div class="col-sm-5 show-message">
+                                        <input type="text" maxlength="50" ng-model="voucher.LoanSetOffAmount" ng-keyup="exchangeGainLossAmountChangeBooksAmount()" class="form-control text-right" tabindex="19" n-decimals="2">
                                     </div>
                                 </div>
 
