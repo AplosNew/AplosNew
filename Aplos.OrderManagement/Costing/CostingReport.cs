@@ -3046,7 +3046,7 @@ namespace Library.OrderManagement.Costing
 					LEFT JOIN MST.MaterialMaster MM on MM.Id=pc.MaterialMasterId
 
 					
-					where pc.CostingMasterTemplateId='" + CostingTempleteId + @"' 
+					where pc.CostingMasterTemplateId='" + CostingTempleteId + @"' and I.CostingComponentId is not null
 					order by pc.Sequence";
 
 
