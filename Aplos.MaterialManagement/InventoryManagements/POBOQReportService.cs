@@ -1362,10 +1362,10 @@ WHERE po.Id='" + POID+@"'";
             int colMatDescription = COL; COL++;
             wTable.Rows[ROW].Cells[colMatDescription].Width = 100;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
-            range.ApplyCharacterFormat(FontBold);
-            int colDescription = COL; COL++;
-            wTable.Rows[ROW].Cells[colDescription].Width = 60;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDescription = COL; COL++;
+            //wTable.Rows[ROW].Cells[colDescription].Width = 60;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Reff No");
@@ -1378,9 +1378,9 @@ WHERE po.Id='" + POID+@"'";
             int colDeliveryDate = COL; COL++;
             //wTable.Rows[ROW].Cells[colDeliveryDate].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Origin");//TRN.PurchaseOrderDetail ->CountryId
-            range.ApplyCharacterFormat(FontBold);
-            int colOriginCountry = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Origin");//TRN.PurchaseOrderDetail ->CountryId
+            //range.ApplyCharacterFormat(FontBold);
+            //int colOriginCountry = COL; COL++;
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
@@ -1518,10 +1518,10 @@ WHERE po.Id='" + POID+@"'";
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SKUDesc"].ToString());
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
                 TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
-                TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
+                //TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
                 TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
-                TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
+                //TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
@@ -1557,7 +1557,7 @@ WHERE po.Id='" + POID+@"'";
 
             for (int C = 1; C <= wTable.LastCell.GetCellIndex(); C++)
             {
-                if (C == colMaterialGroup || C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colUOM || C == colMatDescription || C == colRefferenceNo || C == colDescription || C == colDeliveryDate || C == colOriginCountry || dicTaxes.ContainsValue(C))
+                if (C == colMaterialGroup || C == colRate || C == colArticle || C == colChar1 || C == colChar2 || C == colChar3 || C == colUOM || C == colMatDescription || C == colRefferenceNo  || C == colDeliveryDate  || dicTaxes.ContainsValue(C))
                     continue;
 
                 double value = 0;
