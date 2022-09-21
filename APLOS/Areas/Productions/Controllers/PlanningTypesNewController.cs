@@ -742,7 +742,7 @@ WHERE PWC.PlanningTypesId='" + PlanningTypesId + "'";
         {
             try
             {
-                string sql = @"SELECT PW.WorkCenterMasterId,WCM.UserName WorkCenter,FORMAT(WCD.StartDate,'dd-MMM-yyyy')EffectiveDate,FORMAT(PD.PlanningDate,'dd-MMM-yyyy')PlanningDate,ps.ShiftId,sd.UserName [Shift]
+                string sql = @"SELECT CP.Id,PW.WorkCenterMasterId,WCM.UserName WorkCenter,FORMAT(WCD.StartDate,'dd-MMM-yyyy')EffectiveDate,FORMAT(PD.PlanningDate,'dd-MMM-yyyy')PlanningDate,ps.ShiftId,sd.UserName [Shift]
 ,ApplicableShift=CASE WHEN PD.PlanningDate>=WCD.StartDate THEN 0 ELSE 1 END
 ,WeekOff= CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END,PWD.WeekDays
 ,NetWorkingShift=CASE WHEN (CASE WHEN PWD.IsWorkingDay=1 THEN 0 ELSE 1 END)>0 THEN 0 ELSE 1 END
@@ -761,7 +761,8 @@ LEFT JOIN [dbo].[PlanningTypesDate] PD ON PD.PlanningTypesId=PW.PlanningTypesId
 LEFT JOIN [dbo].[PlanningTypesShift] PS ON PS.PlanningTypesId=PW.PlanningTypesId 
 LEFT JOIN [dbo].ShiftDefination AS sd ON PS.ShiftId=sd.SystemID 
 LEFT JOIN [dbo].[PlanningTypesWeekDays] PWD ON PWD.PlanningTypesId=PW.PlanningTypesId AND DATENAME(weekday,PD.PlanningDate)=PWD.WeekDays
---LEFT JOIN [dbo].[PlanningTypesHoliday] PHD ON PHD.PlanningTypesId=PW.PlanningTypesId 
+--LEFT JOIN [dbo].[PlanningTypesHoliday] PHD ON PHD.PlanningTypesId=PW.PlanningTypesId
+LEFT JOIN [dbo].[CapacityPlanning] CP ON CP.PlanningTypesId=PW.PlanningTypesId
 WHERE PW.PlanningTypesId='" + PlanningTypesId + "'";
                 return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
             }

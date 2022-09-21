@@ -444,13 +444,7 @@ namespace Aplos.Areas.Products.Controllers
                 throw new CustomException(Resources.IdNotFound);
         }
 
-        [Authorize, HttpGet]
-        public JsonResult GetRequisitionDetailByPODetail(string podetailId)
-        {
-            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(inventoryReceiveQueryService.GetRequisitionDetailByPODetail(identity.PlantId, podetailId), JsonRequestBehavior.AllowGet);
-        }
+       
         #endregion GRN-By-PO
 
         #region GRN-BOQ-PO
@@ -1231,8 +1225,14 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPO(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.QueryOnlyPO(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+        }
+        [Authorize, HttpGet]
+        public JsonResult GetRequsitionQtyListByPO(GridParameter parameters, string poIds)
+        {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
+            return Json(inventoryReceiveQueryService.GetRequsitionQtyListByPO(parameters, poIds), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialPayable(string inveReveiveId, string employeeId, bool isReversCharge)
@@ -1508,8 +1508,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGRNUNApproval()
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 
@@ -4924,8 +4925,8 @@ UNION ALL
         [Authorize, HttpGet]
         public JsonResult GetInventoryMaterialListByOnlyPOBOQ(GridParameter parameters, string inveReveiveId, string AcceptanceId)
         {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryMaterialService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
+            BOQQueryService bOQQueryService = new BOQQueryService(_sqlRepository);
+            return Json(bOQQueryService.QueryOnlyPOBOQ(parameters, inveReveiveId, AcceptanceId), JsonRequestBehavior.AllowGet);
         }
         [Authorize, HttpGet]
         public JsonResult GetServiceChargeListPOBOQ(string receiveId, string AcceptanceId)

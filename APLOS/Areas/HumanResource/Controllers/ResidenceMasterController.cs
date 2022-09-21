@@ -100,5 +100,20 @@ namespace Aplos.Areas.HumanResource.Controllers
             }
         }
         #endregion Save Operations
+
+        #region TAB POSITION
+        [HttpPost]
+        public ActionResult getPositionTabGridData()
+        {
+            try
+            {
+                return Json(rm.getPositionTabGridData(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion TAB POSITION
     }
 }

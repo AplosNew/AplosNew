@@ -2663,7 +2663,7 @@ namespace Library.MaterialManagement.Inventory
                                     potax.HSNCodeId = itemDetail.HSNCodeId;
                                     potax.TaxCategoryId = item.TaxCategoryId;
                                     potax.Percentage = item.Percentage;
-                                    potax.TaxAmount = item.TaxAmount;
+                                    potax.TaxAmount = receiveDetail.TransactionAmount* (item.Percentage/100);
                                     potax.ModelState = ModelState.Added;
                                     AuditService.AddedLog(potax);
                                     _receiveTaxRepository.Insert(potax);
