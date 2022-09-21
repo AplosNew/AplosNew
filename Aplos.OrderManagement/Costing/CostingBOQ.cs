@@ -1505,10 +1505,7 @@ namespace Library.OrderManagement.Costing
                 //sheet[ROW, 5].ColumnWidth = 25;
                 sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
 
-                int endColumn = 5;
-                sheet.Range[6, 1, 10, endColumn].BorderAround(ExcelLineStyle.Hair);
-                sheet.Range[6, 1, 10, endColumn].BorderInside(ExcelLineStyle.Hair);
-
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 ROW++;
                 ROW++;
                 #endregion
@@ -1621,6 +1618,7 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
 
                 ROW++;
                 int StartRow = ROW; //row 20
@@ -1702,13 +1700,13 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[StartRow, colBOMAmount, ROW, colBOMAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
                 sheet.Range[StartRow, colBOMQty, ROW, colBOMQty].NumberFormat = clsStaticInfo.NumberFormat(2);
 
-                string HeaderCaption = string.Format("BOM Report (#{0}),Prepared By:{1}, BOM Creation Date:{2}",
-                    CostingBOQMasterId
-                     , dtEmployeeData.Rows[0]["PreparedBy"].ToString()
-                     , dtEmployeeData.Rows[0]["CostingDate"].ToString());
+                //string HeaderCaption = string.Format("BOM Report (#{0}),Prepared By:{1}, BOM Creation Date:{2}",
+                //    CostingBOQMasterId
+                //     , dtEmployeeData.Rows[0]["PreparedBy"].ToString()
+                //     , dtEmployeeData.Rows[0]["CostingDate"].ToString());3
 
                 ReportUtility reportUtility = new ReportUtility();
-                reportUtility.PlantHeader(ref sheet, endCol, HeaderCaption, identity.PlantId);
+                reportUtility.PlantHeader(ref sheet, endCol,null, identity.PlantId);
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
