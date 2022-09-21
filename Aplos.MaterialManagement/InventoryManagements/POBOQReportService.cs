@@ -1362,10 +1362,10 @@ WHERE po.Id='" + POID+@"'";
             int colMatDescription = COL; COL++;
             wTable.Rows[ROW].Cells[colMatDescription].Width = 100;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
-            range.ApplyCharacterFormat(FontBold);
-            int colDescription = COL; COL++;
-            wTable.Rows[ROW].Cells[colDescription].Width = 60;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Description");
+            //range.ApplyCharacterFormat(FontBold);
+            //int colDescription = COL; COL++;
+            //wTable.Rows[ROW].Cells[colDescription].Width = 60;
 
 
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Reff No");
@@ -1378,9 +1378,9 @@ WHERE po.Id='" + POID+@"'";
             int colDeliveryDate = COL; COL++;
             //wTable.Rows[ROW].Cells[colDeliveryDate].Width = 50;
 
-            range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Origin");//TRN.PurchaseOrderDetail ->CountryId
-            range.ApplyCharacterFormat(FontBold);
-            int colOriginCountry = COL; COL++;
+            //range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Origin");//TRN.PurchaseOrderDetail ->CountryId
+            //range.ApplyCharacterFormat(FontBold);
+            //int colOriginCountry = COL; COL++;
             range = wTable.Rows[ROW].Cells[COL].AddParagraph().AppendText("Qty");
             range.ApplyCharacterFormat(FontBold);
             int colQty = COL; COL++;
