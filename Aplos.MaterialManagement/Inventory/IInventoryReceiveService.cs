@@ -109,12 +109,6 @@ namespace Library.MaterialManagement.Inventory
 		IEnumerable<object> GetListForGRNAp(string plantId);
 		IEnumerable<object> GetListForGRNApprovalHoldReject(string plantId);
 
-
-		IEnumerable<object> GetListForGRNUNApproval(string plantId);
-
-       
-
-
         void PoApproved(string PoId, string PoValue);
 
       
