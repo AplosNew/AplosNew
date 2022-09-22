@@ -434,7 +434,7 @@ namespace Aplos.Areas.Costings.Controllers
             sheet.Range[endRow, ColConsumption, endRow, ColConsumption].HorizontalAlignment = ExcelHAlign.HAlignCenter;
             sheet.Range[endRow, ColBOMQty, endRow, ColRequiredQty].Merge();
 
-            sheet.Range[endRow, ColBOMAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(Consumption)", null));
+            sheet.Range[endRow, ColBOMAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(BOMAmount)", null));
             sheet.Range[endRow, ColBOMAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
             sheet.Range[endRow, ColBOMAmount].CellStyle.Font.Bold = true;
             sheet.Range[endRow, ColBOMAmount, endRow, ColBOMAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -515,8 +515,9 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
                 ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
-                ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
-                ,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+                ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
+				,boq.Rate*BOQ.BOMQty AS BOMAmount
+				, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty
                 , grnboq.GRNBaseQty
                 , grnboq.GRNAmount
                 , grnboq.GRNUOM
@@ -524,7 +525,8 @@ namespace Aplos.Areas.Costings.Controllers
                 , issueboq.IssueBaseQty
                 , issueboq.IssueAmount
                 , BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
-                ,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
+                ,PC.Id PartyId,PC.UserName Customer
+				,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
                 FROM BOQ  boq
                 LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
                 LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
@@ -533,14 +535,14 @@ namespace Aplos.Areas.Costings.Controllers
                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
                 LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
-                   LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
                 left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-               left join CostingBOQItems BOMI on BOMI.CostingBOQMasterId = BOM.Id
-               left join TRN.SalesOrder SO on SO.Id = BOMI.SalesOrderId
-                left join TRN.MasterOrderItem AS moi on SO.MasterOrderItemId = moi.Id
-               left join TRN.MasterOrder MO on MO.Id = moi.MasterOrderId
-			   left join [TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id and CPO.Id=SO.CustomerPOId
+                left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId = moi.Id
+                left join TRN.MasterOrder MO on MO.Id = moi.MasterOrderId
                 left join HKP.Party PC on PC.Id = MO.PartyId
+               left join TRN.SalesOrder SO on SO.CostingBOQMasterId = BOM.Id
+			   left join [TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id and CPO.Id=SO.CustomerPOId
+
                 left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
                 			FROM  trn.POBOQMAP pomap 
                 			JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
