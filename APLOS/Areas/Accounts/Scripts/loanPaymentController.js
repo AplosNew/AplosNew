@@ -53,6 +53,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         ProfitAmount: "",
         TransactionType: "LoanTaken",
         IsSchedule: false,
+        IsSplit: false,
         CompanyCurrencyRate:1
     };
     $scope.loanAddition = {
@@ -750,6 +751,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     };
 
     $scope.exchangeGainLossAmount = function (amount) {
+        $scope.voucher.LoanSetOffAmount = Math.abs($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat(amount);
         if (dramount > balance) {
             amount = $scope.voucher.Balance;
@@ -800,6 +802,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
     };
 
     $scope.exchangeGainLossCal = function (rate) {
+        $scope.voucher.LoanSetOffAmount = Math.abs($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
         if ($scope.voucher.PaymentSource == "Loan") {
             $scope.loanAddition.Amount = Math.abs(amount * $scope.voucher.CompanyCurrencyRate).toFixed(2);
             if ($scope.loanAddition.Amount < $scope.loanAddition.LoanSetOffAmount) {
@@ -843,6 +846,7 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
         }
     };
     $scope.exchangeGainLossAmountloanAddition = function () {
+        if ($scope.voucher.PaymentSource == "Loan") {
         var balance = parseFloat($scope.voucher.Balance), dramount = parseFloat($scope.loanAddition.LoanSetOffAmount);
         if (dramount > balance) {
             $scope.loanAddition.LoanSetOffAmount = $scope.voucher.Balance;
@@ -864,6 +868,33 @@ function loanPaymentController(accountService, bankService, cboService, commonMe
                 $scope.voucher.ExchangeAmount = 0;
                 $scope.voucher.ExchangeType = null;
             }
+            }
+        }
+    };
+    $scope.exchangeGainLossAmountChangeBooksAmount = function () {
+        if ($scope.voucher.IsSplit == true) {
+            var balance = parseFloat(($scope.voucher.Balance * $scope.voucher.CompanyCurrencyRate).toFixed(2)), dramount = parseFloat($scope.voucher.LoanSetOffAmount), booksLoanAmount = parseFloat(($scope.voucher.Amount * $scope.voucher.ToCurrencyRate).toFixed(2));
+            if (dramount > balance) {
+                $scope.voucher.LoanSetOffAmount = balance;
+                ShowResult("Payment Amount should not exceed Loan Amount.", "failure");
+            }
+            else {
+                CloseShowResult();
+            }
+           
+            if (booksLoanAmount > $scope.voucher.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs(booksLoanAmount - $scope.voucher.LoanSetOffAmount).toFixed(2);
+                $scope.voucher.ExchangeType = "ExchangeGain";
+            }
+            else if (booksLoanAmount < $scope.voucher.LoanSetOffAmount) {
+                $scope.voucher.ExchangeAmount = Math.abs($scope.voucher.LoanSetOffAmount - booksLoanAmount).toFixed(2);
+                $scope.voucher.ExchangeType = "ExchangeLoss";
+            }
+            else {
+                $scope.voucher.ExchangeAmount = 0;
+                $scope.voucher.ExchangeType = null;
+            }
+            
         }
     };
 

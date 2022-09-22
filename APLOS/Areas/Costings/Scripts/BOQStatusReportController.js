@@ -34,10 +34,12 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
             $scope.filters = response.data;
             var columnList = [
                 { field: 'Customer', width: 20, headerText: "Customer", type: "string" },
-                { field: 'BuyerReferenceNo', width: 20, headerText: "BuyerReferenceNo", type: "string" },
-                { field: 'OwnReferenceNo', width: 20, headerText: "OwnReferenceNo", type: "string" },
-                { field: 'MasterOrderId', width: 20, headerText: "MasterOrderId", type: "string" },
-                { field: 'LineItemId', width: 20, headerText: "LineItemId", type: "string" },
+                { field: 'BuyerReferenceNo', width: 20, headerText: "Buyer Reference No", type: "string" },
+                { field: 'OwnReferenceNo', width: 20, headerText: "Own Reference No", type: "string" },
+                { field: 'MasterOrderId', width: 20, headerText: "Master Order Id", type: "string" },
+                { field: 'LineItemId', width: 20, headerText: "Line Item Id", type: "string" },
+                { field: 'SOId', width: 20, headerText: "SO Id", type: "string" },
+                { field: 'PONo', width: 20, headerText: "PO No", type: "string" },
 
             ];
             $("#filters").ejGrid({
@@ -75,6 +77,8 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
         parameters.push({ "Key": "OwnReferenceNo", "Value": getString(fl, "OwnReferenceNo") });
         parameters.push({ "Key": "MasterOrderId", "Value": getString(fl, "MasterOrderId") });
         parameters.push({ "Key": "LineItemId", "Value": getString(fl, "LineItemId") });
+        parameters.push({ "Key": "SOId", "Value": getString(fl, "SOId") });
+        parameters.push({ "Key": "PONo", "Value": getString(fl, "PONo") });
 
         $scope.parameters = parameters;
     }
@@ -111,9 +115,18 @@ function BOQStatusReportController(cboService, commonMessage, $scope, $rootScope
     $scope.downloadgriddataUrl = 'GridReports/Download';
     $scope.getBOQStatusReport = function () {
         $scope.filterComplete();
+        //var dataList = [];
+        //var g = $("#filters").data("ejGrid");
+        //dataList = g.getFilteredRecords();
+
+        //if (dataList.length == 0) {
+        //    dataList = $scope.parameters;
+        //}
+
         $http({
             method: 'POST',
             url: $scope.path + "GetBOQStatusReport",
+            //data: { 'parameters': dataList },
             data: { 'parameters': $scope.parameters },
             dataType: 'JSON'
         }).then(function successCallback(response) {

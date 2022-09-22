@@ -831,6 +831,7 @@ namespace Library.Accounting.Accounts
                         BankReconciliationUploadId = bankReconciliationUpload.Id,
                         BankStatementDate = item.BankStatementDate,
                         BankRefNo = item.BankRefNo,
+                        BankParticulars = item.BankParticulars,
                         DrAmount = item.DrAmount,
                         CrAmount = item.CrAmount,
                         Remarks = item.Remarks,

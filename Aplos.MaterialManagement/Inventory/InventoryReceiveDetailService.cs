@@ -43,7 +43,8 @@ namespace Library.MaterialManagement.Inventory
         private readonly IRepositoryAsync<GRNRejectionDetails> _gRNRejectionDetailsRepository;
         private readonly IRepositoryAsync<GRNAcceptanceMap> _GRNAcceptanceMapRepository;
         private readonly IRepositoryAsync<GRNBOQMAP> _GRNBOQMAPRepository;
-        private readonly IRepositoryAsync<POGGRNMap> _POGGRNMapRepository;
+        //  private readonly IRepositoryAsync<POGGRNMap> _POGGRNMapRepository;
+        private readonly IRepositoryAsync<GRNPORequisitionMap> _GRNPORequisitionMapRepository;
 
         private readonly IRepositoryAsync<PurchaseDocAcceptanceTax> _PurchaseDocAcceptanceTaxRepository;
 
@@ -70,7 +71,8 @@ namespace Library.MaterialManagement.Inventory
             , IRepositoryAsync<GRNPORequisitionAllocation> gRNPOAllocationRepository
             , IRepositoryAsync<GRNRejectionDetails> gRNRejectionDetailsRepository
             , IRepositoryAsync<GRNAcceptanceMap> GRNAcceptanceMapRepository
-            , IRepositoryAsync<POGGRNMap> POGGRNMapRepository
+            , IRepositoryAsync<GRNPORequisitionMap> GRNPORequisitionMapRepository
+            // , IRepositoryAsync<POGGRNMap> POGGRNMapRepository
             , IRepositoryAsync<PurchaseDocAcceptanceTax> PurchaseDocAcceptanceTaxRepository
             , IRepositoryAsync<PurchaseReturn> PurchaseReturnRepository
             , IRepositoryAsync<PurchaseReturnDetail> PurchaseReturnDetailRepository
@@ -95,7 +97,8 @@ namespace Library.MaterialManagement.Inventory
             _gRNRejectionDetailsRepository = gRNRejectionDetailsRepository;
             _GRNAcceptanceMapRepository = GRNAcceptanceMapRepository;
             _GRNBOQMAPRepository = GRNBOQMAPRepository;
-            _POGGRNMapRepository = POGGRNMapRepository;
+            _GRNPORequisitionMapRepository = GRNPORequisitionMapRepository;
+            // _POGGRNMapRepository = POGGRNMapRepository;
             _PurchaseDocAcceptanceTaxRepository = PurchaseDocAcceptanceTaxRepository;
             _PurchaseReturnRepository = PurchaseReturnRepository;
             _PurchaseReturnDetailRepository = PurchaseReturnDetailRepository;
@@ -363,7 +366,7 @@ namespace Library.MaterialManagement.Inventory
             return sID;
         }
         //PO GRN
-        public void InsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType)
+        public void InsertOrUpdateGraphNew(InventoryReceive entity, IEnumerable<InventoryMaterialViewModel> entityMat, IEnumerable<InventoryReceiveTax> taxCategoryList, string id, string MaterialStorageId, string GRNType, IEnumerable<GRNPORequisitionMap> requisitionDetailList)
         {
             var flag = false;
             Library.Service.Extension.Conversions.UOMConversion conversion = new Library.Service.Extension.Conversions.UOMConversion();
@@ -652,19 +655,31 @@ namespace Library.MaterialManagement.Inventory
                                 };
                                 AuditService.AddedLog(RejectionDetails);
                                 _gRNRejectionDetailsRepository.Insert(RejectionDetails);
-                                int POGGRNMapId = 1;
-                                var POGGRNMaps = new POGGRNMap
+                                if (requisitionDetailList != null)
                                 {
-                                    CompanyGroupId = identity.CompanyGroupId,
-                                    CompanyId = identity.CompanyId,
-                                    PlantId = identity.PlantId,
-                                    Id = grndId.ToString() + POGGRNMapId,
-                                    GRNId = entity.Id,
-                                    PoId = receiveDetail.POID,
-                                    PoDetailId = receiveDetail.PODetailsID
-                                };
-                                AuditService.AddedLog(POGGRNMaps);
-                                _POGGRNMapRepository.Insert(POGGRNMaps);
+                                    foreach (var item in requisitionDetailList.Where(r=>r.PODetailId== receiveDetail.PODetailsID))
+                                    {
+                                        item.Id = base.GetAutoNumber(nameof(GRNPORequisitionMap), PKGeneratorEnum.Yearly, null, DateTime.Now);
+                                        item.InventoryReceiveDetailId = receiveDetail.Id;
+                                        AuditService.AddedLog(item);
+                                        _GRNPORequisitionMapRepository.Insert(item);
+                                    }
+                                }
+                               
+                                //int POGGRNMapId = 1;
+                                //var POGGRNMaps = new POGGRNMap
+                                //{
+                                //    CompanyGroupId = identity.CompanyGroupId,
+                                //    CompanyId = identity.CompanyId,
+                                //    PlantId = identity.PlantId,
+                                //    Id = grndId.ToString() + POGGRNMapId,
+                                //    GRNId = entity.Id,
+                                //    PoId = receiveDetail.POID,
+                                //    PoDetailId = receiveDetail.PODetailsID
+                                //};
+                                //AuditService.AddedLog(POGGRNMaps);
+                                //_POGGRNMapRepository.Insert(POGGRNMaps);
+
 
                             }
                             catch (DivideByZeroException ex)
@@ -1179,20 +1194,6 @@ namespace Library.MaterialManagement.Inventory
                                 };
                                 AuditService.AddedLog(RejectionDetails);
                                 _gRNRejectionDetailsRepository.Insert(RejectionDetails);
-                                int POGGRNMapId = 1;
-                                var POGGRNMaps = new POGGRNMap
-                                {
-                                    CompanyGroupId = identity.CompanyGroupId,
-                                    CompanyId = identity.CompanyId,
-                                    PlantId = identity.PlantId,
-                                    Id = grndId.ToString() + POGGRNMapId,
-                                    GRNId = entity.Id,
-                                    PoId = receiveDetail.POID,
-                                    PoDetailId = receiveDetail.PODetailsID
-                                };
-                                AuditService.AddedLog(POGGRNMaps);
-                                _POGGRNMapRepository.Insert(POGGRNMaps);
-
                             }
                             catch (DivideByZeroException ex)
                             {

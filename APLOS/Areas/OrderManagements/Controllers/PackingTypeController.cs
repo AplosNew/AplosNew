@@ -17,13 +17,13 @@ using System.Web.Mvc;
 
 #endregion Using
 
-namespace Aplos.Areas.IE.Controllers
+namespace Aplos.Areas.OrderManagements.Controllers
 {
-    public class DetentionTypeController : BaseController
+    public class PackingTypeController  : BaseController
     {
         //abcd
         //this is my code from tarek
-        string TableName = "hkp.DetentionType";
+        string TableName = "hkp.PackingType";
         //authentication for
         //GetList Create Delete
 
@@ -31,7 +31,7 @@ namespace Aplos.Areas.IE.Controllers
         #region Constructor
 
         private readonly ISqlRepository _sqlRepository;
-        public DetentionTypeController(ISqlRepository R)
+        public PackingTypeController(ISqlRepository R)
         {
             _sqlRepository = R;
         }
@@ -45,7 +45,7 @@ namespace Aplos.Areas.IE.Controllers
             return View();
         }
 
-        [AllowAnonymous]
+        [Authorize, HttpGet]
         public JsonResult GetCbo()
         {
             return Json(_sqlRepository.GetDataCollection("SELECT Id as Value,UserName AS Text FROM " + TableName + ""), JsonRequestBehavior.AllowGet);
@@ -56,7 +56,7 @@ namespace Aplos.Areas.IE.Controllers
         {
             try
             {
-                var _master = _sqlRepository.GetDataCollection("select * from hkp.DetentionType wher Id = '" + Id + "' ");
+                var _master = _sqlRepository.GetDataCollection("select * from hkp.PackingType wher Id = '" + Id + "' ");
 
 
                 return Json(new { master = _master }, JsonRequestBehavior.AllowGet);
@@ -67,21 +67,6 @@ namespace Aplos.Areas.IE.Controllers
                 return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
             }
 
-        }
-
-        // Code ByNitesh
-        [HttpPost]
-        public ActionResult GetBudgetCode()
-        {
-            
-            string sql = @"select MP.Id ManPowerBudgetId, MP.Code, E.UserName Entity, P.UserName Position from MST.ManpowerBudget MP
-                            left join ORG.Entity E on E.Id = MP.EntityId
-                            left join ORG.Position P on P.Id = MP.PositionId
-                            where MP.Active = 1";
-
-
-
-            return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
@@ -131,7 +116,7 @@ namespace Aplos.Areas.IE.Controllers
                     bplib.clsGenID genid = new bplib.clsGenID();
                     genid.GenID(TableName, out _Id);
 
-                    data["Id"] = "DT" + _Id;
+                    data["Id"] = "PT" + _Id;
                     AddNewRow(dsMaster.Tables[0], data);
                 }
                 else
@@ -203,9 +188,6 @@ namespace Aplos.Areas.IE.Controllers
             dr["AddedBy"] = identity.Name;
             dr["AddedDate"] = System.DateTime.Now.ToString();
             dr["AddedFromIP"] = identity.IPAddress;
-            dr["UpdatedBy"] = identity.Name;
-            dr["UpdatedDate"] = System.DateTime.Now.ToString();
-            dr["UpdatedFromIP"] = identity.IPAddress;
 
             dt.Rows.Add(dr);
         }
@@ -236,64 +218,6 @@ namespace Aplos.Areas.IE.Controllers
                 return clsStaticInfo.dbl(dt.Rows[0]["Sequence"].ToString()) + 1;
 
             return 1;
-        }
-
-        // Code By Nitesh
-        [HttpPost]
-        public JsonResult SaveBudgetCode(List<Dictionary<string, object>> data, string detentionTypeId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            ConnectionManager.DAL.ConManager objCon;
-            DataSet dsMasterOrder;
-            string id = string.Empty;
-            try
-            {
-                string mosql = "SELECT * FROM DetentionTypeBudgetCode WHERE DetentionTypeId ='" + detentionTypeId + "'";
-                objCon = new ConnectionManager.DAL.ConManager("1");
-                objCon.OpenDataSetThroughAdapter(mosql, out dsMasterOrder, false, "1");
-
-                string cId = string.Empty;
-                string DetentionMasterDepartmentId = "";
-
-
-                foreach (var item in data)
-                {
-
-                    DataView dv = new DataView(dsMasterOrder.Tables[0]);
-                    dv.RowFilter = "Id='" + item["Id"] + "'";
-
-                    if (dv.Count == 0)
-                    {
-                        bplib.clsGenID genid = new bplib.clsGenID();
-                        genid.GenID("DetentionMasterDepartment", out DetentionMasterDepartmentId);
-
-                        item["Id"] = "DMD-" + DetentionMasterDepartmentId + "-" + (1);
-                        item["DetentionTypeId"] = detentionTypeId;
-                       
-                        AddNewRow(dsMasterOrder.Tables[0], item);
-                    }
-
-                }
-                clsStaticInfo obj = new clsStaticInfo();
-                obj.SaveDataSets(dsMasterOrder);
-                return Json(new { Error = false, Data = data, Message = AplosMessage.Updated });
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        [Authorize, HttpPost]
-        public ActionResult getBudget(string detentionTypeId)
-        {
-            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            string str = @"select DTBC.Id, MB.Code, DT.UserName DetentionType from [dbo].[DetentionTypeBudgetCode] DTBC
-LEFT JOIN MST.ManpowerBudget MB on MB.Id = DTBC.ManpowerBudgetId
-LEFT JOIN HKP.DetentionType DT on DT.Id = DTBC.DetentionTypeId
-where DT.Id='" + detentionTypeId + @"'";
-
-            return Json(_sqlRepository.GetDataCollection(str), JsonRequestBehavior.AllowGet);
         }
     }
 }

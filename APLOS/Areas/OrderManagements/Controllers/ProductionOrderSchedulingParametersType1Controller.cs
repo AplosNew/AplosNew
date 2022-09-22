@@ -2628,7 +2628,7 @@ INNER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[Wo
         private DataTable dtAllAvailableWrokcenters(string entityid, string processid)
         {
 
-            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' WC.[Active]=1 
+            string sql = @"SELECT WC.* FROM  [SCS].[WorkCenterMaster] WC WHERE WC.EntityId IN(" + entityid + @") AND WC.ProcessId='" + processid + @"' AND WC.[Active]=1 
                                 ";
             DataTable dtWorkCenter = _sqlRepository.GetDataTable(sql);
 
@@ -2930,7 +2930,7 @@ ORDER BY k.Entity,K.WorkCenterMasterId,CONVERT(DATE, K.ProductionDate) ";
                             LEFT OUTER JOIN (SELECT WorkCenterMasterId,MAX(StartDate) AS StartDate FROM [SCS].[WorkCenterMasterEffectiveDate] GROUP BY WorkCenterMasterId) E ON e.WorkCenterMasterId=wc.Id
                             LEFT OUTER JOIN EmployeeInformation AS ei ON ei.SystemId=wc.ResponsiblePersonId
                              WHERE WC.EntityID='" + entityid
-                + @"' WC.[Active]=1 AND  AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
+                + @"' AND WC.[Active]=1 AND WC.ProcessId='" + processid + "' ORDER BY WC.Sequence";
             DataTable _dtWC = _sqlRepository.GetDataTable(sqlWC);
 
 

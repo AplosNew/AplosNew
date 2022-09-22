@@ -630,11 +630,11 @@ WHERE s.RowState='Parked' AND s.Id " + Ids + "";
 ,am.Address2 BuyerAddr2,ST.UserName BuyerLocation,P.PINCode BuyerPinCode,ST.UserName BuyerState, am.Phone BuyerPhoneNumber,am.Email BuyerEmailId
 ,'' DispatchName,'' DispatchAddr1,''DispatchAddr2,''DispatchLocation,''DispatchPinCode,''DispatchState,''ShippingGSTIN,''ShippingLegalName,''ShippingTradeName
 ,''ShippingAddr1,''ShippingAddr2,''ShippingLocation,''ShippingPinCode,''ShippingState,''SlNo,mma.StandardName ProductDescription,''IsService,h.Code HSNcode   
-,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,FORMAT(sm.TransactionRate,'N4') UnitPrice,FORMAT(sm.TransactionAmount,'N2') GrossAmount,'' Discount,''PreTaxValue
-,FORMAT(sm.TransactionAmount,'N2') Taxablevalue,FORMAT(TAxInfo1.Percentage,'N2') GSTRate,FORMAT(TAxInfo1.Amount,'N4') IgstAmt,FORMAT(TAxInfo2.Amount,'N2') SgstAmt,FORMAT(TAxInfo3.Amount,'N2') CgstAmt,'' CessRate,''CessAmtAdval
-,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,FORMAT(sm.NetAmount,'N2') ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
-,FORMAT(sm.NetAmount,'N2') TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
-,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorList
+,''Barcode, sm.TransactionQty Quantity,''FreeQuantity,uom.Code Unit,CONVERT(numeric(10,2),sm.TransactionRate) UnitPrice,CONVERT(numeric(10,2),sm.TransactionAmount)GrossAmount,'' Discount,''PreTaxValue
+,CONVERT(numeric(10,2),sm.TransactionAmount)Taxablevalue,CONVERT(numeric(10,2),TAxInfo1.Percentage) GSTRate,CONVERT(numeric(10,2),TAxInfo1.Amount) IgstAmt,CONVERT(numeric(10,2),TAxInfo2.Amount) SgstAmt,CONVERT(numeric(10,2),TAxInfo3.Amount) CgstAmt,'' CessRate,''CessAmtAdval
+,''CessNonAdvalAmt,''StateCessRate,''StateCessAdvalAmt,''StateCessNonAdvalAmt,''OtherCharges,CONVERT(numeric(10,2),sm.NetAmount) ItemTotal,''BatchName,''BatchExpiryDt,''WarrantyDt
+,CONVERT(numeric(10,2),sm.NetAmount)TotalInvoicevalue,''ShippingBillNo,''ShippingBillDt,''[Port],''Refundclaim,''ForeignCurrency,''CountryCode,''ExportDutyAmount,''TransID,''TransName 
+,''TransMode,''Distance,''TransDocNo,''TransDocDate,''VehicleNo,''VehicleType,''ErrorListst
   FROM TRN.Sales S
 LEFT JOIN TRN.SalesMaterial AS sm ON sm.SalesId=s.Id 
 LEFT JOIN MST.MaterialMaster AS mm ON sm.MaterialMasterId=mm.Id
@@ -907,7 +907,7 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
 
                 xlsCol += 1;
                 colIsService = xlsCol;
-                sheet1.Range[xlsRow, colIsService].Text = "IsService";
+                sheet1.Range[xlsRow, colIsService].Text = "Is_Service";
                 sheet1.Range[xlsRow, colIsService].ColumnWidth = 14;
 
                 xlsCol += 1;
@@ -962,53 +962,53 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
 
                 xlsCol += 1;
                 colGSTRate = xlsCol;
-                sheet1.Range[xlsRow, colGSTRate].Text = "GST Rate";
+                sheet1.Range[xlsRow, colGSTRate].Text = "GST Rate(%)";
                 sheet1.Range[xlsRow, colGSTRate].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colSgstAmt = xlsCol;
-                sheet1.Range[xlsRow, colSgstAmt].Text = "Sgst Amt";
+                sheet1.Range[xlsRow, colSgstAmt].Text = "Sgst Amt(Rs)";
                 sheet1.Range[xlsRow, colSgstAmt].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colCgstAmt = xlsCol;
-                sheet1.Range[xlsRow, colCgstAmt].Text = "Cgst Amt";
+                sheet1.Range[xlsRow, colCgstAmt].Text = "Cgst Amt(Rs)";
                 sheet1.Range[xlsRow, colCgstAmt].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colIgstAmt = xlsCol;
-                sheet1.Range[xlsRow, colIgstAmt].Text = "Igst Amt";
+                sheet1.Range[xlsRow, colIgstAmt].Text = "Igst Amt(Rs)";
                 sheet1.Range[xlsRow, colIgstAmt].ColumnWidth = 14;
 
 
                 xlsCol += 1;
                 colCessRate = xlsCol;
-                sheet1.Range[xlsRow, colCessRate].Text = "Cess Rate";
+                sheet1.Range[xlsRow, colCessRate].Text = "Cess Rate(%)";
                 sheet1.Range[xlsRow, colCessRate].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colCessAmtAdval = xlsCol;
-                sheet1.Range[xlsRow, colCessAmtAdval].Text = "Cess Amt Adval";
+                sheet1.Range[xlsRow, colCessAmtAdval].Text = "Cess Amt Adval(Rs)";
                 sheet1.Range[xlsRow, colCessAmtAdval].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colCessNonAdvalAmt = xlsCol;
-                sheet1.Range[xlsRow, colCessNonAdvalAmt].Text = "Cess Non Adval Amt";
+                sheet1.Range[xlsRow, colCessNonAdvalAmt].Text = "Cess Non Adval Amt(Rs)";
                 sheet1.Range[xlsRow, colCessNonAdvalAmt].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colStateCessRate = xlsCol;
-                sheet1.Range[xlsRow, colStateCessRate].Text = "State Cess Rate";
+                sheet1.Range[xlsRow, colStateCessRate].Text = "State Cess Rate(%)";
                 sheet1.Range[xlsRow, colStateCessRate].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colStateCessAdvalAmt = xlsCol;
-                sheet1.Range[xlsRow, colStateCessAdvalAmt].Text = "State Cess Adval Amt";
+                sheet1.Range[xlsRow, colStateCessAdvalAmt].Text = "State Cess Adval Amt(Rs)";
                 sheet1.Range[xlsRow, colStateCessAdvalAmt].ColumnWidth = 14;
 
                 xlsCol += 1;
                 colStateCessNonAdvalAmt = xlsCol;
-                sheet1.Range[xlsRow, colStateCessNonAdvalAmt].Text = "State Cess Non Adval Amt";
+                sheet1.Range[xlsRow, colStateCessNonAdvalAmt].Text = "State Cess Non Adval Amt(Rs)";
                 sheet1.Range[xlsRow, colStateCessNonAdvalAmt].HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet1.Range[xlsRow, colStateCessNonAdvalAmt].ColumnWidth = 14;
 
@@ -1040,6 +1040,52 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 colTotalInvoicevalue = xlsCol;
                 sheet1.Range[xlsRow, colTotalInvoicevalue].Text = "Total Invoice value";
                 sheet1.Range[xlsRow, colTotalInvoicevalue].ColumnWidth = 14;
+
+                xlsCol += 1;
+               int colSgstAmts = xlsCol;
+                sheet1.Range[xlsRow, colSgstAmts].Text = "Sgst Amt";
+                sheet1.Range[xlsRow, colSgstAmts].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colCgstAmts = xlsCol;
+                sheet1.Range[xlsRow, colCgstAmts].Text = "Cgst Amt";
+                sheet1.Range[xlsRow, colCgstAmts].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colIgstAmts = xlsCol;
+                sheet1.Range[xlsRow, colIgstAmts].Text = "Igst Amt";
+                sheet1.Range[xlsRow, colIgstAmts].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colCessAmt = xlsCol;
+                sheet1.Range[xlsRow, colCessAmt].Text = "Cess Amt";
+                sheet1.Range[xlsRow, colCessAmt].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colStateCessAmt = xlsCol;
+                sheet1.Range[xlsRow, colStateCessAmt].Text = "State Cess Amt";
+                sheet1.Range[xlsRow, colStateCessAmt].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colDiscounts = xlsCol;
+                sheet1.Range[xlsRow, colDiscounts].Text = "Discount";
+                sheet1.Range[xlsRow, colDiscounts].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colOtherChargess = xlsCol;
+                sheet1.Range[xlsRow, colOtherChargess].Text = "Other chargess";
+                sheet1.Range[xlsRow, colOtherChargess].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colRoundoff = xlsCol;
+                sheet1.Range[xlsRow, colRoundoff].Text = "Round off";
+                sheet1.Range[xlsRow, colRoundoff].ColumnWidth = 14;
+
+                xlsCol += 1;
+                int colTotalInvoicevalues = xlsCol;
+                sheet1.Range[xlsRow, colTotalInvoicevalues].Text = "Total Invoice value";
+                sheet1.Range[xlsRow, colTotalInvoicevalues].ColumnWidth = 14;
+
 
                 xlsCol += 1;
                 colShippingBillNo = xlsCol;
@@ -1185,39 +1231,45 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                     sheet1.Range[xlsRow, colIsService].Text = dtdata.Rows[i]["IsService"].ToString();
                     sheet1.Range[xlsRow, colHSNcode].Text = dtdata.Rows[i]["HSNcode"].ToString();
                     sheet1.Range[xlsRow, colBarcode].Text = dtdata.Rows[i]["Barcode"].ToString();
-                    sheet1.Range[xlsRow, colQuantity].Number = clsStaticInfo.dbl(dtdata.Rows[i]["Quantity"].ToString());
-                    sheet1.Range[xlsRow, colQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colQuantity].Text = dtdata.Rows[i]["Quantity"].ToString();
+                    //sheet1.Range[xlsRow, colQuantity].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colFreeQuantity].Text = dtdata.Rows[i]["FreeQuantity"].ToString();
-                    sheet1.Range[xlsRow, colUnit].Number = clsStaticInfo.dbl(dtdata.Rows[i]["Unit"].ToString());
-                    sheet1.Range[xlsRow, colUnit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(4);
-                    sheet1.Range[xlsRow, colUnitPrice].Number = clsStaticInfo.dbl(dtdata.Rows[i]["UnitPrice"].ToString());
-                    sheet1.Range[xlsRow, colUnitPrice].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet1.Range[xlsRow, colGrossAmount].Number = clsStaticInfo.dbl(dtdata.Rows[i]["GrossAmount"].ToString());
-                    sheet1.Range[xlsRow, colGrossAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colUnit].Text = dtdata.Rows[i]["Unit"].ToString();
+                    //sheet1.Range[xlsRow, colUnit].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(4);
+                    sheet1.Range[xlsRow, colUnitPrice].Text = dtdata.Rows[i]["UnitPrice"].ToString();
+                    //sheet1.Range[xlsRow, colUnitPrice].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colGrossAmount].Text = dtdata.Rows[i]["GrossAmount"].ToString();
+                    //sheet1.Range[xlsRow, colGrossAmount].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colDiscount].Text = dtdata.Rows[i]["Discount"].ToString();
+                    sheet1.Range[xlsRow, colDiscounts].Text = dtdata.Rows[i]["Discount"].ToString();
                     sheet1.Range[xlsRow, colPreTaxValue].Text = dtdata.Rows[i]["PreTaxValue"].ToString();
-                    sheet1.Range[xlsRow, colTaxablevalue].Number = clsStaticInfo.dbl(dtdata.Rows[i]["Taxablevalue"].ToString());
-                    sheet1.Range[xlsRow, colTaxablevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet1.Range[xlsRow, colGSTRate].Number = clsStaticInfo.dbl(dtdata.Rows[i]["GSTRate"].ToString());
-                    sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
-                    sheet1.Range[xlsRow, colIgstAmt].Number = clsStaticInfo.dbl(dtdata.Rows[i]["IgstAmt"].ToString());
-                    sheet1.Range[xlsRow, colIgstAmt].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colTaxablevalue].Text = dtdata.Rows[i]["Taxablevalue"].ToString();
+                    //sheet1.Range[xlsRow, colTaxablevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colGSTRate].Text = dtdata.Rows[i]["GSTRate"].ToString();
+                    //sheet1.Range[xlsRow, colGSTRate].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colIgstAmt].Text =dtdata.Rows[i]["IgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colIgstAmts].Text = dtdata.Rows[i]["IgstAmt"].ToString();
                     sheet1.Range[xlsRow, colSgstAmt].Text = dtdata.Rows[i]["SgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colSgstAmts].Text = dtdata.Rows[i]["SgstAmt"].ToString();
                     sheet1.Range[xlsRow, colCgstAmt].Text = dtdata.Rows[i]["CgstAmt"].ToString();
+                    sheet1.Range[xlsRow, colCgstAmts].Text = dtdata.Rows[i]["CgstAmt"].ToString();
                     sheet1.Range[xlsRow, colCessRate].Text = dtdata.Rows[i]["CessRate"].ToString();
                     sheet1.Range[xlsRow, colCessAmtAdval].Text = dtdata.Rows[i]["CessAmtAdval"].ToString();
+                    sheet1.Range[xlsRow, colCessAmt].Text = dtdata.Rows[i]["CessAmtAdval"].ToString();
+                    sheet1.Range[xlsRow, colStateCessAmt].Text = "";
                     sheet1.Range[xlsRow, colCessNonAdvalAmt].Text = dtdata.Rows[i]["CessNonAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colStateCessRate].Text = dtdata.Rows[i]["StateCessRate"].ToString();
                     sheet1.Range[xlsRow, colStateCessAdvalAmt].Text = dtdata.Rows[i]["StateCessAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colStateCessNonAdvalAmt].Text = dtdata.Rows[i]["StateCessNonAdvalAmt"].ToString();
                     sheet1.Range[xlsRow, colOtherCharges].Text = dtdata.Rows[i]["OtherCharges"].ToString();
-                    sheet1.Range[xlsRow, colItemTotal].Number = clsStaticInfo.dbl(dtdata.Rows[i]["ItemTotal"].ToString());
-                    sheet1.Range[xlsRow, colItemTotal].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colOtherChargess].Text = dtdata.Rows[i]["OtherCharges"].ToString();
+                    sheet1.Range[xlsRow, colItemTotal].Text = dtdata.Rows[i]["ItemTotal"].ToString();
+                    sheet1.Range[xlsRow, colTotalInvoicevalues].Text = dtdata.Rows[i]["ItemTotal"].ToString();
                     sheet1.Range[xlsRow, colBatchName].Text = dtdata.Rows[i]["BatchName"].ToString();
                     sheet1.Range[xlsRow, colBatchExpiryDt].Text = dtdata.Rows[i]["BatchExpiryDt"].ToString();
                     sheet1.Range[xlsRow, colWarrantyDt].Text = dtdata.Rows[i]["WarrantyDt"].ToString();
-                    sheet1.Range[xlsRow, colTotalInvoicevalue].Number = clsStaticInfo.dbl(dtdata.Rows[i]["TotalInvoicevalue"].ToString());
-                    sheet1.Range[xlsRow, colTotalInvoicevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
+                    sheet1.Range[xlsRow, colTotalInvoicevalue].Text = dtdata.Rows[i]["TotalInvoicevalue"].ToString();
+                    //sheet1.Range[xlsRow, colTotalInvoicevalue].NumberFormat = OTSBD.clsStaticInfo.NumberFormat(2);
                     sheet1.Range[xlsRow, colShippingBillNo].Text = dtdata.Rows[i]["ShippingBillNo"].ToString();
                     sheet1.Range[xlsRow, colShippingBillDt].Text = dtdata.Rows[i]["ShippingBillDt"].ToString();
                     sheet1.Range[xlsRow, colPort].Text = dtdata.Rows[i]["Port"].ToString();
@@ -1326,7 +1378,7 @@ WHERE s.RowState='Parked' AND sm.Id IN(" + Ids + ")";
                 sheet1.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
                 sheet1.IsDisplayZeros = false;
                 sheet1.UsedRange.WrapText = true;
-                sheet1.UsedRange.NumberFormat = "#,##0.00";
+                //sheet1.UsedRange.NumberFormat = "#,##0.00";
                 sheet1.Range["A1"].CellStyle.Font.Size = 14;
                 sheet1.Range["A2"].CellStyle.Font.Size = 10;
                 sheet1.UsedRange.IgnoreErrorOptions = ExcelIgnoreError.All;

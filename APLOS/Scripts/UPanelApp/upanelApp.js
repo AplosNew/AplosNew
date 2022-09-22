@@ -1077,6 +1077,7 @@ upanelApp.controller("RouteEmployeeReportController", RouteEmployeeReportControl
 upanelApp.controller("SurveyandFeedbackController", SurveyandFeedbackController)
 upanelApp.controller("ProductionSummaryReportController", ProductionSummaryReportController)
 upanelApp.controller("maintenanceSchedulingController", maintenanceSchedulingController)
+upanelApp.controller("DetentionTypeController", DetentionTypeController)
 
 
 upanelApp.config(AccessControllerConfig);

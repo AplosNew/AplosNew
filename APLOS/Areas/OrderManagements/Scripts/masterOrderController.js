@@ -893,6 +893,13 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         $scope.paymentTermList = response.data;
     });
 
+    $scope.packingTypeList = [];
+    $http({
+        method: 'GET',
+        url: 'OrderManagements/PackingType/GetCbo'
+    }).then(function successCallback(response) {
+        $scope.packingTypeList = response.data;
+    });
 
     //#region ResponsiblePerson
     //$scope.GetResponsiblePersonList = function () {
@@ -1815,6 +1822,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
+            , PackingTypeId: null
         };
         getSalesOrderList();
         $scope.getDestination();
@@ -1909,57 +1917,59 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         //    ShowResult("Please enter mandatory fields", 'failure', 'soPoUp');
         //    return false;
         //}
-        if ($scope.soModel.Qty <= 0) {
-            ShowResult("Sales order quantity can't be zero", 'failure', 'soPoUp');
-            return false;
-        }
-        if ($scope.soModel.Rate < $scope.soModel.Discount) {
-            ShowResult("Sales order discount can't greater than Rate", 'failure', 'soPoUp');
-            return false;
-        }
-
-        if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
-            if ($scope.delivaryDate !== $scope.soModel.DeliveryDate) {
-                if (baseService.isUndefinedOrNull($scope.soModel.Reason)) {
-                    ShowResult("Reason is required on Delivery Date change.", 'failure', 'soPoUp');
-                    return false;
-                }
-            }
-        }
-
-        if ($scope.soModel.OrderStatusId !== 'Active') {
-            if ($scope.soModel.ProductionBookedQty < 0) {
-                ShowResult("Production Booked Qty can't less than 0.", 'failure', 'soPoUp');
-                return false;
-            }
-
-            if ($scope.soModel.ProductionBookingLevel == 'ProductionOrder') {
-                if ($scope.ProdBookedQty < $scope.soModel.ProductionBookedQty) {
-                    ShowResult("Production Booked Qty '[" + $scope.soModel.ProductionBookedQty + "]' can't greater than Produced Qty '[" + $scope.ProdBookedQty + "]'.", 'failure', 'soPoUp');
-                    return false;
-                }
-            }
-        }
-
-        if (baseService.isUndefinedOrNull($scope.soModel.ProductionType)) {
-            ShowResult("Select Production Type", 'failure', 'soPoUp');
-            return false;
-        }
-        if ($scope.soModel.ProductionType === 'Stock') {
-            if (baseService.isUndefinedOrNull($scope.soModel.StockResponsiblePersonId)) {
-                ShowResult("Select Stock Responsible Person", 'failure', 'soPoUp');
-                return false;
-            }
-        }
-        if (baseService.isUndefinedOrNull($scope.soModel.ShipmentFromStock)) {
-            ShowResult("Select Shipment From Stock", 'failure', 'soPoUp');
-            return false;
-        }
        
 
         $scope.$broadcast('show-errors-check-validity');
 
         if ($scope.soForm.$valid) {
+            if ($scope.soModel.Qty <= 0) {
+                ShowResult("Sales order quantity can't be zero", 'failure', 'soPoUp');
+                return false;
+            }
+            if ($scope.soModel.Rate < $scope.soModel.Discount) {
+                ShowResult("Sales order discount can't greater than Rate", 'failure', 'soPoUp');
+                return false;
+            }
+
+            if (!baseService.isUndefinedOrNull($scope.soModel.Id)) {
+                if ($scope.delivaryDate !== $scope.soModel.DeliveryDate) {
+                    if (baseService.isUndefinedOrNull($scope.soModel.Reason)) {
+                        ShowResult("Reason is required on Delivery Date change.", 'failure', 'soPoUp');
+                        return false;
+                    }
+                }
+            }
+
+            if ($scope.soModel.OrderStatusId !== 'Active') {
+                if ($scope.soModel.ProductionBookedQty < 0) {
+                    ShowResult("Production Booked Qty can't less than 0.", 'failure', 'soPoUp');
+                    return false;
+                }
+
+                if ($scope.soModel.ProductionBookingLevel == 'ProductionOrder') {
+                    if ($scope.ProdBookedQty < $scope.soModel.ProductionBookedQty) {
+                        ShowResult("Production Booked Qty '[" + $scope.soModel.ProductionBookedQty + "]' can't greater than Produced Qty '[" + $scope.ProdBookedQty + "]'.", 'failure', 'soPoUp');
+                        return false;
+                    }
+                }
+            }
+
+            if (baseService.isUndefinedOrNull($scope.soModel.ProductionType)) {
+                ShowResult("Select Production Type", 'failure', 'soPoUp');
+                return false;
+            }
+            if ($scope.soModel.ProductionType === 'Stock') {
+                if (baseService.isUndefinedOrNull($scope.soModel.StockResponsiblePersonId)) {
+                    ShowResult("Select Stock Responsible Person", 'failure', 'soPoUp');
+                    return false;
+                }
+            }
+            if (baseService.isUndefinedOrNull($scope.soModel.ShipmentFromStock)) {
+                ShowResult("Select Shipment From Stock", 'failure', 'soPoUp');
+                return false;
+            }
+
+
             if (baseService.isUndefinedOrNull($scope.soModel.Id)) {
                 $http({
                     method: 'POST'
@@ -2208,6 +2218,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
             , ShipmentFromStock: null
             , StockResponsiblePersonId: null
             , StockResponsiblePerson: null
+            , PackingTypeId:null
         };
     }
 
@@ -2268,6 +2279,7 @@ function masterOrderController(accountService, $window, cboService, commonMessag
         , ShipmentFromStock: null
         , StockResponsiblePersonId: null
         , StockResponsiblePerson: null
+        , PackingTypeId: null
     };
 
     $scope.SplitSO = function (data) {

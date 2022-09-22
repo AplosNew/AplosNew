@@ -215,13 +215,13 @@ namespace Aplos.Areas.Productions.Controllers
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetDetentionParaData(string DetentionId,string processId,string masterId)
+        public ActionResult GetDetentionParaData(string DetentionId, string processId, string masterId)
         {
             return Json(_productionSummaryData.GetDetentionParaData(DetentionId, processId, masterId), JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet, Authorize]
-        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate,string shiftId, string workcenter)
+        public ActionResult GetProcessDetentionData(string processId, string entityId, string productionDate, string shiftId, string workcenter)
         {
             try
             {
@@ -1285,13 +1285,13 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
         [HttpPost, Authorize]
         //public ActionResult GetOrderReport(Dictionary<string, string> parameters, string fromDate, string toDate, string dateType)
-        public ActionResult GetOrderReport(string fromDate, string toDate,  string PlantId, string EntityId)
+        public ActionResult GetOrderReport(string fromDate, string toDate, string PlantId, string EntityId)
         {
             try
             {
                 string fileName = "";
                 // fileName = OrderReport(parameters, fromDate, toDate, dateType, "OrderReport");
-                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId,EntityId);
+                fileName = OrderReport(fromDate, toDate, "OrderReport", PlantId, EntityId);
                 return Json(new { FileName = fileName, Error = false }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -1556,7 +1556,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
 
                 ROW++;
 
-               int startRow = ROW;
+                int startRow = ROW;
 
                 for (int i = 0; i < dtOrder.Rows.Count; i++)
                 {
@@ -1652,7 +1652,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 sheet.PageSetup.PaperSize = ExcelPaperSize.PaperA4;
                 sheet.PageSetup.CenterHorizontally = true;
 
-                
+
 
                 #region Pivot
                 string fPath = fPath = System.Web.Hosting.HostingEnvironment.MapPath("~/") + "OrderTempReport" + identity.UserId + ".xlsx";
@@ -1671,14 +1671,19 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 pivotTable.Fields[colEntity - 1].Axis = PivotAxisTypes.Row;
                 pivotTable.Fields[colParameter - 1].Axis = PivotAxisTypes.Column;
                 pivotTable.Fields[colProcess - 1].Axis = PivotAxisTypes.Data;
-               
+
 
 
                 IPivotField field = pivotTable.Fields[colParameterValue - 1];
                 field.NumberFormat = Library.Service.Extension.clsStaticInfo.NumberFormat(2);
                 pivotTable.DataFields.Add(field, "ParameterValue", PivotSubtotalTypes.Sum);
 
-               
+                for (int i = 0; i < pivotTable.Fields.Count; i++)
+                {
+                    if (i == colPlant - 1 || i == colEntity - 1 || i == colBuyerOrderNo - 1)
+                        continue;
+                    pivotTable.Fields[i].Subtotals = PivotSubtotalTypes.None;
+                }
 
                 pivotTable.ShowDrillIndicators = false;
                 pivotTable.Options.RowLayout = PivotTableRowLayout.Tabular;
@@ -1686,7 +1691,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                 pivotTable.BuiltInStyle = PivotBuiltInStyles.PivotStyleMedium15;
 
                 sheet = workbook.Worksheets[0];
-                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Order Report", identity.CompanyId, identity.CompanyName, "");
+                reportUtility.CompanyPlantHeaderNew(ref sheet, 1, "Poduction Order Report", identity.CompanyId, identity.CompanyName, "");
 
                 reportUtility.PageSetup(ref sheet, 6, ExcelPageOrientation.Landscape);
                 sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignLeft;
@@ -1785,7 +1790,7 @@ MMT.Remark, MMT.AddedBy, MMT.AddedDate, MMT.AddedFromIP, MMT.UpdatedBy, MMT.Upda
                                     FROM trn.ProductionSummary AS ps 
                                   left outer join mst.MaterialMaster mm on mm.id=ps.MaterialMasterId
                                   LEFT OUTER JOIN [MST].[MaterialMasterArticle] MA ON ma.Id=ps.ArticleId
-      		                            WHERE ps.ProductionDate BETWEEN '"+ fromDate + @"' AND '"+toDate+ @"' AND ps.EntityID in (" + EntityId + @")
+      		                            WHERE ps.ProductionDate BETWEEN '" + fromDate + @"' AND '" + toDate + @"' AND ps.EntityID in (" + EntityId + @")
                                           --AND ps.ProcessId=(select XX.ProcessId from trn.ProductionOrderProcessSet AS XX where XX.IsBaseProcess=1 and XX.ProductionOrderID=ps.ProductionOrderId)
                                   GROUP BY  ps.Id,ps.ProcessId,mm.UserName,ma.StandardName,ps.FromSFGInventoryId,ps.ToProcessId,ps.ToSFGInventoryId,  ps.EntityId,ps.SalesOrderId,ps.ProductionShiftId, ps.ProductionOrderId,ps.ProductionDate,ps.WorkCenterMasterId,ps.ToWorkCenterMasterId
                             ) AS pp

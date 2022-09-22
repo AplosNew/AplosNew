@@ -198,11 +198,14 @@ namespace Aplos.Controllers
 
                     int ROW = 4;
                     sheet[ROW, 1].Text = ReportHeader;
+                    sheet[ROW, 1, ROW, data.Columns.Count].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet[ROW, 1, ROW, data.Columns.Count].HorizontalAlignment = ExcelHAlign.HAlignCenter;
                     sheet[ROW, 1].CellStyle.Font.Bold = true;
-
                     ROW++;
+
                     sheet.ImportDataTable(data, true, ROW, 1);
                     sheet[ROW, 1, ROW, data.Columns.Count].ColumnWidth = 18;
+                    sheet[ROW, 1, ROW, data.Columns.Count].WrapText = true;
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderAround(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].BorderInside(ExcelLineStyle.Hair);
                     sheet[ROW, 1, ROW, data.Columns.Count].CellStyle.ColorIndex = ExcelKnownColors.Gold;
