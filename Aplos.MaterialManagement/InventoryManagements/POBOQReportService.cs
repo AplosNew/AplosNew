@@ -1461,38 +1461,39 @@ WHERE po.Id='" + POID+@"'";
                 }
             }
             #endregion column headers
-            if (dv.Count > 0)
-            {
-                wTable.Rows.Add(TemplateRow);
+            //if (dv.Count > 0)
+            //{
+            //    wTable.Rows.Add(TemplateRow);
 
-                WTableRow TROW = wTable.LastRow;
-                for (int CE = 0; CE < TROW.Cells.Count; CE++)
-                {
-                    foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
-                    {
-                        item.Text = "";
-                    }
-                    TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
-                }
-                for (int i = 0; i < dv.Count; i++)
-                {
+            //    WTableRow TROW = wTable.LastRow;
+            //    for (int CE = 0; CE < TROW.Cells.Count; CE++)
+            //    {
+            //        foreach (WParagraph item in TROW.Cells[CE].Paragraphs)
+            //        {
+            //            item.Text = "";
+            //        }
+            //        TROW.Cells[CE].Width = wTable.Rows[0].Cells[CE].Width;
+            //    }
+            //    for (int i = 0; i < dv.Count; i++)
+            //    {
 
-                    range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
-                    range.ApplyCharacterFormat(FontBold);
-                    range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
-                    range.ApplyCharacterFormat(FontBold);
-                }
-                ROW++;
-            }
-            else
-            {
-                ROW++;
-                wTable.AddRow();
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()]].AddParagraph().AppendText("Rate(%)");
+            //        range.ApplyCharacterFormat(FontBold);
+            //        range = wTable.Rows[ROW].Cells[dicTaxes[dv[i]["TaxCode"].ToString()] + 1].AddParagraph().AppendText("Amount");
+            //        range.ApplyCharacterFormat(FontBold);
+            //    }
+            //    ROW++;
+            //}
+            //else
+            //{
+            //    ROW++;
+            //    wTable.AddRow();
 
-            }
+            //}
             #endregion column headers
             double totalValue = 0;
             int sl = 0;
+            ROW++;
             int startRow = 0;
             for (int i = 0; i < dsOrderMaster.Rows.Count; i++)
             {
@@ -1523,9 +1524,9 @@ WHERE po.Id='" + POID+@"'";
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
                 //TROW.Cells[colOriginCountry].AddParagraph().AppendText(dsOrderMaster.Rows[i]["CountryOfOrigin"].ToString());
                 TROW.Cells[colQty].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["POTransactionQty"].ToString()).ToString("#,##0.00"));
+                TROW.Cells[colUOM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
                 TROW.Cells[colRate].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TransactionRate"].ToString()).ToString("#,##0.0000"));
                 TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
-                TROW.Cells[colUOM].AddParagraph().AppendText(dsOrderMaster.Rows[i]["TransactionUoM"].ToString());
                 //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString()).ToString("#,##0.00"));
                 totalValue += clsStdLib.dbl(dsOrderMaster.Rows[i]["TrnAmount"].ToString());
                 //TROW.Cells[colTotalTaxableAmount].AddParagraph().AppendText(totalValue.ToString("F2"));
