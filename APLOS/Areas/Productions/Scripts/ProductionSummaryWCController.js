@@ -50,7 +50,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         WorkCenterMasterId: null,
         ProductionDate: $filter("date")(Date.now(), 'dd-MMM-yyyy'),
         ProductionShiftId: null,
-        ProductionGrade: null,
+        ProductionGrade: $scope.gradeList[0].Value,
         Quantity: 0,
         UOM: 0,
         MOQty: 0,
@@ -1616,6 +1616,7 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
         $scope.Newobject.DepartmentName = e.data.DepartmentName;
         angular.element(document.querySelector('#DepartmentPop')).modal('hide');
         $scope.getDetentionTypeListByDepartment($scope.Newobject.DepartmentId);
+        $scope.getDetentionListByDepartment($scope.Newobject.DepartmentId);
     }
 
     $scope.closeDepartmentPopUp = function () {
@@ -1665,7 +1666,19 @@ function ProductionSummaryWCController(cboService, commonMessage, $scope, $rootS
             }
         });
     }
-    
+    $scope.getDetentionListByDepartment = function (departmentid) {
+        $http({
+            method: 'GET',
+            url: 'IE/MachineMasterTransaction/getDetentionListByDepartment?departmentid=' + departmentid
+        }).then(function successCallback(response) {
+            //$scope.DetentionList = null;
+            for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
+                if ($scope.ProcessDetentionLists[i].DetentionId == null) {
+                    $scope.ProcessDetentionLists[i].DetentionList = response.data;
+                }
+            }
+        });
+    }
 
     $scope.refreshTemplateProductionSummaryDetentionWC = function (args) {
         $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllDetentionWorkCenter });
