@@ -1508,8 +1508,9 @@ namespace Aplos.Areas.Products.Controllers
         [Authorize, HttpGet]
         public JsonResult GetListForGRNUNApproval()
         {
+            InventoryReceiveQueryService inventoryReceiveQueryService = new InventoryReceiveQueryService(_sqlRepository);
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-            return Json(_inventoryReveiveService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
+            return Json(inventoryReceiveQueryService.GetListForGRNUNApproval(identity.PlantId), JsonRequestBehavior.AllowGet);
         }
 
 

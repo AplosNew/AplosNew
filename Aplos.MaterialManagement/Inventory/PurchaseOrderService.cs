@@ -7079,7 +7079,7 @@ ORDER BY IR.ID DESC";
 										, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 										, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 										,pgl.CtnId
-										,IR.AddedBy
+										,IR.AddedBy,IR.AddedDate
 										,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
 										,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,PO.RequisitionId
                                         ,DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,isnull(IR.Tolerance,0) Tolerance
@@ -7143,7 +7143,7 @@ ORDER BY IR.ID DESC";
 										, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 										, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 										,pgl.CtnId
-										,IR.AddedBy
+										,IR.AddedBy,IR.AddedDate
 										,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
 										,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,PO.RequisitionId
                                          ,DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,isnull(IR.Tolerance,0) Tolerance
@@ -7208,7 +7208,7 @@ ORDER BY IR.ID DESC";
 										, S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 										, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
 										,pgl.CtnId
-										,IR.AddedBy
+										,IR.AddedBy,IR.AddedDate
 										,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
 										,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,IR.AuthorizedBy AS ApprovedById,IR.CheckedBy AS CheckedById,PO.RequisitionId
                                          ,DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END,isnull(IR.Tolerance,0) Tolerance
@@ -7279,7 +7279,7 @@ ORDER BY IR.ID DESC";
                                     , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,pgl.CtnId
-                                    ,IR.AddedBy
+                                    ,IR.AddedBy,IR.AddedDate
                                     ,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PO.RequisitionId
                                      ,DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END
@@ -7347,7 +7347,7 @@ ORDER BY IR.ID DESC";
                                     , S1.UserName AS InvoicingState,S1.Id AS InvoicingStateId , S2.UserName AS DeliveryState, PT.UserName AS PaymentTermName, CP.TaxApplicable, CP.IsTaxApplicableChangeable, IR.IsTaxApplicable
 									, IR.IsApproved, IR.IsPaymentHold, SP.Id AS PlantStateId
                                     ,pgl.CtnId
-                                    ,IR.AddedBy
+                                    ,IR.AddedBy,IR.AddedDate
                                     ,IR.CheckedByStatus AS CheckedByStatus,PT.PaymentMode
 			                        ,IR.AuthorizedByStatus AS AuthorizedByStatus,eI.EmployeeName AS CheckedBy,eI1.EmployeeName AS ApprovedBy,PO.RequisitionId
                                      ,DiscountAmount=CASE WHEN IR.DiscountAmount IS NULL THEN 0 ELSE IR.DiscountAmount END

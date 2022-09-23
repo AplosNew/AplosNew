@@ -283,7 +283,16 @@ namespace Aplos.Areas.Accounts.Controllers
             }
             else
             {
-                return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+                if (voucherVM.IsSplit == true)
+                {
+                    //Change Books Amount
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOffChangeBooksAmount(voucherVM, loanRepaymentSchedulelist)) });
+                }
+                else
+                {
+                    return Json(new { Message = string.Format(AplosMessage.VoucherSave, _loanService.InsertLoanWriteOff(voucherVM, loanRepaymentSchedulelist)) });
+                }
+                    
             }
             
         }
