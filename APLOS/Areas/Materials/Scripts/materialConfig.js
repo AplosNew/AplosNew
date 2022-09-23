@@ -292,4 +292,9 @@ function MaterialConfig($routeProvider, $locationProvider) {
             templateUrl: 'materials/DetentionLog/Aplos',
             controller: 'DetentionLogController'
         })
+
+        .when('/detention-logout', {
+            templateUrl: 'materials/DetentionLogout/Aplos',
+            controller: 'DetentionLogoutController'
+        })
 };

@@ -292,6 +292,13 @@ namespace Aplos.Areas.Costings.Controllers
             sheet[ROW, COL].ColumnWidth = 15;
             int ColRequiredQty = COL;
             COL++;
+
+            sheet[ROW, COL].Text = "BOM Amount";
+            sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
+            sheet[ROW, COL].ColumnWidth = 15;
+            int ColBOMAmount = COL;
+            COL++;
+
             sheet[ROW, COL].Text = "PO BOQ Qty";
             sheet[ROW, COL].HorizontalAlignment = ExcelHAlign.HAlignRight;
             sheet[ROW, COL].ColumnWidth = 15;
@@ -388,6 +395,7 @@ namespace Aplos.Areas.Costings.Controllers
                 sheet[ROW, ColSKUDescription].Text = data.Rows[i]["SKUDesc"].ToString();
                 sheet[ROW, ColPOCriteria].Text = data.Rows[i]["POCriteria"].ToString();
                 sheet[ROW, ColConsumption].Text = data.Rows[i]["Consumption"].ToString();
+                sheet[ROW, ColBOMAmount].Text = data.Rows[i]["BOMAmount"].ToString();
                 sheet[ROW, ColBOMQty].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQty"].ToString());
                 sheet[ROW, ColBOQUOM].Text = data.Rows[i]["BOQUOM"].ToString();
                 sheet[ROW, ColBOMQtyBase].Number = clsStaticInfo.dbl(data.Rows[i]["BOMQtyBase"].ToString());
@@ -412,6 +420,58 @@ namespace Aplos.Areas.Costings.Controllers
                 ROW++;
 
             }
+
+            //Total Start
+            var endRow = ROW++;
+
+            sheet.Range[endRow, ColRowId].Text = "Total";
+            sheet.Range[endRow, ColRowId, endRow, ColPOCriteria].Merge();
+            sheet.Range[endRow, ColRowId].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColConsumption].Number = clsStaticInfo.dbl(data.Compute("SUM(Consumption)", null));
+            sheet.Range[endRow, ColConsumption].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[endRow, ColConsumption].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColConsumption, endRow, ColConsumption].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[endRow, ColConsumption, endRow, ColConsumption].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[endRow, ColBOMQty, endRow, ColRequiredQty].Merge();
+
+            sheet.Range[endRow, ColBOMAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(BOMAmount)", null));
+            sheet.Range[endRow, ColBOMAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[endRow, ColBOMAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColBOMAmount, endRow, ColBOMAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[endRow, ColBOMAmount, endRow, ColBOMAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[endRow, ColBOMAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColPOBOQQty, endRow, ColPOTrnBOQQty].Merge();
+
+            sheet.Range[endRow, ColPOAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(POAmount)", null));
+            sheet.Range[endRow, ColPOAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[endRow, ColPOAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColPOAmount, endRow, ColPOAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[endRow, ColPOAmount, endRow, ColPOAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[endRow, ColPOAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColBalanceBOQ, endRow, ColGRNBaseQty].Merge();
+
+            sheet.Range[endRow, ColGRNAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(GRNAmount)", null));
+            sheet.Range[endRow, ColGRNAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[endRow, ColGRNAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColGRNAmount, endRow, ColGRNAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[endRow, ColGRNAmount, endRow, ColGRNAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[endRow, ColGRNAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColGRNUOM, endRow, ColIssueBaseQty].Merge();
+
+            sheet.Range[endRow, ColIssueAmount].Number = clsStaticInfo.dbl(data.Compute("SUM(IssueAmount)", null));
+            sheet.Range[endRow, ColIssueAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+            sheet.Range[endRow, ColIssueAmount].CellStyle.Font.Bold = true;
+            sheet.Range[endRow, ColIssueAmount, endRow, ColIssueAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+            sheet.Range[endRow, ColIssueAmount, endRow, ColIssueAmount].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+            sheet.Range[endRow, ColIssueAmount].CellStyle.Font.Bold = true;
+
+            sheet.Range[endRow, 1, endRow, endCol].BorderAround(ExcelLineStyle.Hair);
+            sheet.Range[endRow, 1, endRow, endCol].BorderInside(ExcelLineStyle.Hair);
+
+            endRow++;
+            endRow++;
+
+            //Total End
             //IListObject table = sheet.ListObjects.Create("Table1", sheet.Range[6, 1, ROW, endCol]);
             //table.BuiltInTableStyle = TableBuiltInStyles.TableStyleMedium7;
             sheet.UsedRange.WrapText = true;
@@ -455,8 +515,9 @@ namespace Aplos.Areas.Costings.Controllers
             {
                 var sql = @"SELECT boq.Id RowId,boq.[Sequence],boq.ItemRefNo,ci.UserName AS CostingItem,boq.BOQCriteria,c.Code AS Currency,p.UserName AS Vendor,mm.UserName AS Material,mma.StandardName AS Article,BOM.Id BOMId
                 ,cv1.UserName AS SKU1,cv2.UserName AS SKU2,boq.SKUDesc,boq.POCriteria,boq.Consumption
-                ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty, poboq.POBOQQty,poboq.POUOM
-                ,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty 
+                ,boq.BOMQty,UOM.UserName BOQUOM,boq.BOMQtyBase,boq.RequiredQty
+				,boq.Rate*BOQ.BOMQty AS BOMAmount
+				, poboq.POBOQQty,poboq.POUOM,poboq.POTrnBOQQty,poboq.POAmount,BalanceBOQ=boq.BOMQtyBase-poboq.POBOQQty
                 , grnboq.GRNBaseQty
                 , grnboq.GRNAmount
                 , grnboq.GRNUOM
@@ -464,7 +525,8 @@ namespace Aplos.Areas.Costings.Controllers
                 , issueboq.IssueBaseQty
                 , issueboq.IssueAmount
                 , BalanceGRNQty=grnboq.GRNBaseQty-issueboq.IssueBaseQty
-                ,PC.Id PartyId,PC.UserName Customer,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
+                ,PC.Id PartyId,PC.UserName Customer
+				,MO.Id MasterOrderId,MO.BuyerReferenceNo,MO.OwnReferenceNo,moi.Id LineItemId
                 FROM BOQ  boq
                 LEFT JOIN SCS.UnitOfMeasurement UOM ON UOM.Id=boq.UoMId
                 LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
@@ -473,12 +535,14 @@ namespace Aplos.Areas.Costings.Controllers
                 LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
                 LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
                 LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
-                   LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
+                LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
                 left join costingboqmaster BOM on BOM.Id=boq.CostingBOQMasterId
-                left join HKP.Party PC on PC.Id=BOM.CustomerId
-                --left join TRN.SalesOrder SO on SO.Id=boq.SalesOrderId
-                   left join TRN.MasterOrder MO on MO.PartyId=PC.Id
-                left join TRN.MasterOrderItem AS moi on MO.Id=moi.MasterOrderId
+                left join TRN.MasterOrderItem AS moi on boq.MasterOrderItemId = moi.Id
+                left join TRN.MasterOrder MO on MO.Id = moi.MasterOrderId
+                left join HKP.Party PC on PC.Id = MO.PartyId
+               left join TRN.SalesOrder SO on SO.CostingBOQMasterId = BOM.Id
+			   left join [TRN].[CustomerPO] CPO on CPO.MasterOrderId = MO.Id and CPO.Id=SO.CustomerPOId
+
                 left join(SELECT pomap.BOQDetailId,sum(pomap.POBOQQty) POBOQQty,sum(pomap.TransactionQty) POTrnBOQQty,UOM.UserName POUOM,SUM(pod.BaseAmount) POAmount 
                 			FROM  trn.POBOQMAP pomap 
                 			JOIN trn.PurchaseOrderDetail pod on pod.Id=pomap.PODetailId
@@ -505,7 +569,9 @@ namespace Aplos.Areas.Costings.Controllers
                                               AND moi.BuyerReferenceNo in(" + parameters["BuyerReferenceNo"] + @")
                                               AND moi.OwnReferenceNo in(" + parameters["OwnReferenceNo"] + @")
                                               AND MO.Id in(" + parameters["MasterOrderId"] + @")
-                                              AND moi.Id in(" + parameters["LineItemId"] + @")";
+                                              AND moi.Id in(" + parameters["LineItemId"] + @")
+                                              AND SO.Id in(" + parameters["SOId"] + @")                                       
+                                        AND CPO.PONumber in(" + parameters["PONo"] + @")";
 
                 
                 return _sqlRepository.GetDataTable(sql);

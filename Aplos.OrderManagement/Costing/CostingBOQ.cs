@@ -1353,27 +1353,34 @@ namespace Library.OrderManagement.Costing
         {
 
 
-            string MainQtuery = @"SELECT boq.SalesOrderId,d.UserName AS Destination,cv1.UserName AS SKU1,cv2.UserName AS SKU2,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
-                                    ci.Id, ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
-                                    mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson,
-                                    boq.BOMQty,boq.RequiredQty,uom.UserName AS UOM,boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount,BOQ.BOQCriteria,c.Code AS Currency
-                                    ,boq.POCriteria,OPCD.GrossConsumption
-                                    FROM BOQ
+            string MainQtuery = @"SELECT distinct boq.Id,boq.CostingBOQMasterId,boq.CostingItemId,so.Id SalesOrderId,d.UserName AS Destination,cv1.UserName AS SKU1,cv2.UserName AS SKU2
+                                    ,BOQ.IncompleteMaterial,cb.AddedBy AS PreparedBy,FORMAT(cb.AddedDate,'dd-MMM-yyyy') AS CostingDate,
+                                     ci.Sequence,ci.UserName AS ItemDesc,mm.UserName AS Material,mma.StandardName AS Article,BOQ.ItemRefNo,p.UserName AS Vendor,
+                                    mm.Code AS MaterialCode,mma.Code AS ArticleCode,emp.EmployeeName AS ResponsiblePerson
+									--,so.Qty SOQty
+									,isnull(boq.OrderQty,0) SOQty
+                                   ,isnull(boq.BOMQty,0) BOMQty,isnull(so.Qty*OPCD.GrossConsumption,0) RequiredQty,isnull(OPCD.Rate,0) UnitRate,uom.UserName AS UOM
+								   --,boq.Rate*BOQ.RequiredQty AS PlanAmount,boq.Rate*BOQ.BOMQty AS BOMAmount
+								   ,isnull(boq.BOMQty*OPCD.Rate,0) PlanAmount,isnull((so.Qty*OPCD.GrossConsumption)*OPCD.Rate,0) AS RequiredAmount
+								   ,BOQ.BOQCriteria,c.Code AS Currency
+                                    ,boq.POCriteria,isnull(OPCD.GrossConsumption,0) GrossConsumption
+                                    FROM BOQ boq
                                     LEFT JOIN CostingBOQMaster AS cb ON cb.Id=boq.CostingBOQMasterId
+                                    --LEFT JOIN CostingBOQ AS CBOQ ON CBOQ.CostingBOQMasterId=cb.Id
                                     LEFT JOIN hkp.Party AS p ON p.Id=boq.VendorId
                                     LEFT JOIN employeeinformation emp ON emp.SystemId=cb.EmployeeSystemId
-
-                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=boq.SalesOrderId
+									LEFT JOIN (Select DISTINCT SalesOrderId,CostingBOQMasterId,CostingItemId,OrderProcurementCostingDirectMaterialId from CostingBOQItems )CBI on CBI.CostingBOQMasterId=boq.CostingBOQMasterId AND CBI.CostingItemId=boq.CostingItemId --AND so.Id=CBI.SalesOrderId
+									LEFT JOIN OrderProcurementCostingDirectMaterial OPCD on OPCD.Id=CBI.OrderProcurementCostingDirectMaterialId AND CBI.CostingItemId=OPCD.CostingItemId AND boq.CostingItemId=OPCD.CostingItemId
+                                    LEFT JOIN trn.SalesOrder AS so ON so.Id=CBI.SalesOrderId
                                     LEFT JOIN mst.Destination AS d ON d.Id=so.DestinationId
                                     LEFT JOIN hkp.CostingItem AS ci ON ci.Id=boq.CostingItemId
                                     LEFT JOIN mst.MaterialMaster AS mm ON mm.Id=boq.MaterialMasterId
                                     LEFT JOIN mst.MaterialMasterArticle AS mma ON mma.Id=boq.ArticleId
                                     LEFT JOIN scs.UnitOfMeasurement AS uom ON uom.Id=boq.UoMId
                                     LEFT JOIN scs.Currency AS c ON c.Id=boq.CurrencyId
-
                                     LEFT JOIN hkp.CharacteristicsValue AS cv1 ON cv1.Id=boq.FGFirstCharacteristicsValueId
                                     LEFT JOIN hkp.CharacteristicsValue AS cv2 ON cv2.Id=boq.FGSecondCharacteristicsValueId
-                                    left join OrderProcurementCostingDirectMaterial OPCD on OPCD.CostingItemId=ci.Id
+
                                     WHERE BOQ.CostingBOQMasterId='" + CostingBOQMasterId + @"' --AND ISNULL(BOQ.BOMQty,0)>0
                                     
                                     ORDER BY ci.Sequence";
@@ -1504,6 +1511,16 @@ namespace Library.OrderManagement.Costing
                 sheet[report.GetColumnNameForXls(5) + ROW + ":" + report.GetColumnNameForXls(6) + ROW].Merge();
                 //sheet[ROW, 5].ColumnWidth = 25;
                 sheet.Range[ROW, 5].VerticalAlignment = ExcelVAlign.VAlignTop;
+                ROW++;
+
+                report.SetMasterHeaderText(ref sheet, ROW, 1, "SO Quantity");
+                //sheet[ROW, 1].ColumnWidth = 20;
+                sheet.Range[ROW, 1].VerticalAlignment = ExcelVAlign.VAlignTop;
+                sheet.Range[ROW, 1].HorizontalAlignment = ExcelHAlign.HAlignLeft;
+                report.SetText(ref sheet, ROW, 2, headerData["SOQuantity"].ToString());
+                sheet[report.GetColumnNameForXls(2) + ROW + ":" + report.GetColumnNameForXls(3) + ROW].Merge();
+                sheet[ROW, 2].ColumnWidth = 20;
+                sheet.Range[ROW, 2].VerticalAlignment = ExcelVAlign.VAlignTop;
 
                 sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 ROW++;
@@ -1513,7 +1530,8 @@ namespace Library.OrderManagement.Costing
                 #region Middle Data
 
                 sheet[ROW, COL].Text = "Responsible Person:" + dtEmployeeData.Rows[0]["ResponsiblePerson"].ToString();
-                sheet.Range[ROW, 1, ROW, 10].Merge();
+                sheet.Range[ROW, COL].CellStyle.Font.Size = 15;
+                sheet.Range[ROW, 1, ROW, 19].Merge();
                 ROW++;
 
                 sheet[ROW, COL].Text = "Sl.No";
@@ -1522,7 +1540,7 @@ namespace Library.OrderManagement.Costing
                 COL++;
 
                 sheet[ROW, COL].Text = "Item Ref#";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colItemRefNo = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Item";
@@ -1530,13 +1548,10 @@ namespace Library.OrderManagement.Costing
                 int colItemDesc = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Criteria";
-                //sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].ColumnWidth = 20;
                 int colBOQCriteria = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Material Code";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colMaterialCode = COL;
-                COL++;
+                
                 sheet[ROW, COL].Text = "Material";
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colMaterial = COL;
@@ -1545,20 +1560,17 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].ColumnWidth = 20;
                 int colArticle = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Article Code";
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colArticleCode = COL;
-                COL++;
+                
                 sheet[ROW, COL].Text = "Vendor";
-                sheet[ROW, COL].ColumnWidth = 20;
+                sheet[ROW, COL].ColumnWidth = 25;
                 int colVendor = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SO Id";
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colSalesOrderId = COL;
                 COL++;
                 sheet[ROW, COL].Text = "Destination";
-                sheet[ROW, COL].ColumnWidth = 12;
+                sheet[ROW, COL].ColumnWidth = 16;
                 int colDestination = COL;
                 COL++;
                 sheet[ROW, COL].Text = "SKU1";
@@ -1582,32 +1594,46 @@ namespace Library.OrderManagement.Costing
                 sheet[ROW, COL].Text = "UOM";
                 sheet[ROW, COL].ColumnWidth = 8;
                 int colUOM = COL;
-
                 COL++;
-                sheet[ROW, COL].Text = "Required Qty";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colRequiredQty = COL;
 
+                sheet[ROW, COL].Text = "SO Qty";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colSOQty = COL;
                 COL++;
+
                 sheet[ROW, COL].Text = "Plan Qty";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 sheet[ROW, COL].ColumnWidth = 10;
                 int colBOMQty = COL;
                 COL++;
+
+                sheet[ROW, COL].Text = "Required Qty";
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 12;
+                int colRequiredQty = COL;
+
+                COL++;
                 sheet[ROW, COL].Text = "Currency";
-                sheet[ROW, COL].ColumnWidth = 8;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colCurrency = COL;
                 COL++;
-                sheet[ROW, COL].Text = "Reqired Amount";
-                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
-                int colBOMAmount = COL;
+
+                sheet[ROW, COL].Text = "Unit Rate";
+                sheet[ROW, COL].ColumnWidth = 18;
+                int colUnitRate = COL;
                 COL++;
+                
                 sheet[ROW, COL].Text = "Plan Amount";
                 sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
-                sheet[ROW, COL].ColumnWidth = 10;
+                sheet[ROW, COL].ColumnWidth = 15;
                 int colPlanAmount = COL;
+                COL++;
+
+                sheet[ROW, COL].Text = "Reqired Amount";
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet[ROW, COL].ColumnWidth = 15;
+                int colBOMAmount = COL;
+                
 
                 #endregion
 
@@ -1637,7 +1663,7 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colArticle].Text = dtEmployeeData.Rows[i]["Article"].ToString();
                     sheet[ROW, colVendor].Text = dtEmployeeData.Rows[i]["Vendor"].ToString();
                     sheet[ROW, colUOM].Text = dtEmployeeData.Rows[i]["UOM"].ToString();
-                    sheet[ROW, colCurrency].Text = dtEmployeeData.Rows[i]["Currency"].ToString();
+                    sheet[ROW, colSOQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["SOQty"].ToString());
                     sheet[ROW, colBOQCriteria].Text = dtEmployeeData.Rows[i]["BOQCriteria"].ToString();
                     sheet[ROW, colItemRefNo].Text = dtEmployeeData.Rows[i]["ItemRefNo"].ToString();
                     sheet[ROW, colPOCriteria].Text = dtEmployeeData.Rows[i]["POCriteria"].ToString();
@@ -1645,7 +1671,9 @@ namespace Library.OrderManagement.Costing
                     sheet[ROW, colGrossConsumption].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["GrossConsumption"].ToString());
                     sheet[ROW, colBOMQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["BOMQty"].ToString());
                     sheet[ROW, colRequiredQty].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["RequiredQty"].ToString());
-                    sheet[ROW, colBOMAmount].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["BOMAmount"].ToString());
+                    sheet[ROW, colCurrency].Text = dtEmployeeData.Rows[i]["Currency"].ToString();
+                    sheet[ROW, colUnitRate].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["UnitRate"].ToString());
+                    sheet[ROW, colBOMAmount].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["RequiredAmount"].ToString());
                     sheet[ROW, colPlanAmount].Number = clsStaticInfo.dbl(dtEmployeeData.Rows[i]["PlanAmount"].ToString());
 
 
@@ -1654,6 +1682,7 @@ namespace Library.OrderManagement.Costing
 
                     sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
 
                     ROW++;
 
@@ -1663,30 +1692,32 @@ namespace Library.OrderManagement.Costing
 
                 //sheet.UsedRange.WrapText = true;
                 sheet.UsedRange.VerticalAlignment = ExcelVAlign.VAlignTop;
-                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 8f;
+                sheet.Range[StartRow, 1, ROW, endCol].CellStyle.Font.Size = 11f;
 
                 //Total Start
                 var endRow = ROW++;
 
-                sheet.Range[endRow, 1].Text = "Total";
-                sheet.Range[endRow, 1, endRow, 19].Merge();
-                sheet.Range[endRow, 1].CellStyle.Font.Bold = true;
-                sheet.Range[endRow, 20].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(BOMAmount)", null));
-                sheet.Range[endRow, 20].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[endRow, 20].CellStyle.Font.Bold = true;
-                sheet.Range[endRow, 20, endRow, 20].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[endRow, 20, endRow, 20].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[endRow, colSlNo].Text = "Total";
+                sheet.Range[endRow, colSlNo, endRow, colCurrency].Merge();
+                sheet.Range[endRow, colSlNo].CellStyle.Font.Bold = true;
+                //sheet.Range[endRow, colSlNo].CellStyle.Font.Size = 11;
+                
+                //sheet.Range[endRow, colBOMAmount].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("avg(RequiredAmount)", null));
+                //sheet.Range[endRow, colBOMAmount].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[endRow, colBOMAmount].CellStyle.Font.Bold = true;
+                //sheet.Range[endRow, colBOMAmount, endRow, colBOMAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet.Range[endRow, colBOMAmount, endRow, colBOMAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[endRow, 21].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", null));
-                sheet.Range[endRow, 21].NumberFormat = clsStaticInfo.NumberFormat(2); 
-                sheet.Range[endRow, 21].CellStyle.Font.Bold = true;
-                sheet.Range[endRow, 21, endRow, 21].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[endRow, 21, endRow, 21].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                sheet.Range[endRow, 21].CellStyle.Font.Bold = true;
+                sheet.Range[endRow, colPlanAmount].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", null));
+                sheet.Range[endRow, colPlanAmount].NumberFormat = clsStaticInfo.NumberFormat(2); 
+                sheet.Range[endRow, colPlanAmount].CellStyle.Font.Bold = true;
+                sheet.Range[endRow, colPlanAmount, endRow, colPlanAmount].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[endRow, colPlanAmount, endRow, colPlanAmount].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                sheet.Range[endRow, colPlanAmount].CellStyle.Font.Bold = true;
 
                 sheet.Range[endRow, 1, endRow, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[endRow, 1, endRow, endCol].BorderInside(ExcelLineStyle.Hair);
-
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 endRow++;
                 endRow++;
 
@@ -1712,8 +1743,13 @@ namespace Library.OrderManagement.Costing
                 sheet.Range[1, 1, 6, endCol].HorizontalAlignment = ExcelHAlign.HAlignLeft;
 
 
-                ROW += 4;
+                ROW += 3;
 
+
+                sheet[ROW, 1].Text = "BOM SUMMARY:";
+                sheet.Range[ROW, 1].CellStyle.Font.Size = 15;
+                sheet.Range[ROW, 1, ROW, 19].Merge();
+                ROW++;
 
 
                 COL = 1;
@@ -1731,41 +1767,51 @@ namespace Library.OrderManagement.Costing
 
                 sheet[ROW, COL].Text = "Gross Consumption";
                 //int colGrossConsumption = COL;
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 COL++;
 
                 sheet[ROW, COL].Text = "Required Quantity";
                 //int colRequiredQuantity = COL;
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 COL++;
 
                 sheet[ROW, COL].Text = "Plan Quantity";
                 //int colPlanQuantity = COL;
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 COL++;
 
                 sheet[ROW, COL].Text = "Currency";
                 //int colCurrencys = COL;
                 COL++;
 
+
+                sheet[ROW, COL].Text = "Unit Rate";
+                //int colUnitRate = COL;
+                COL++;
+
                 sheet[ROW, COL].Text = "Required Amount";
                 int colRequiredAmount = COL;
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 COL++;
 
                 sheet[ROW, COL].Text = "Plan Amount";
+                sheet[ROW, COL].CellStyle.HorizontalAlignment = ExcelHAlign.HAlignRight;
                 int colPlanAmounts = COL;
-            
+
 
                 endCol = COL;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Font.Bold = true;
                 sheet.Range[ROW, 1, ROW, endCol].CellStyle.Interior.ColorIndex = ExcelKnownColors.Grey_40_percent;
                 sheet.Range[ROW, 1, ROW, endCol].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[ROW, 1, ROW, endCol].BorderInside(ExcelLineStyle.Hair);
-
+                sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                 //ROW++;
                 //StartRow = ROW;
                 DataTable dtSO = _sqlRepository.GetDataTable(new Library.OrderManagement.Production.ProductionOrder().GetExistingSalesOrderListForReport(CostingBOQMasterId));
 
-                DataTable dtM = new DataView(dtEmployeeData).ToTable(true, "Id", "ItemDesc", "UOM", "Currency", "Article");
+                DataTable dtM = new DataView(dtEmployeeData).ToTable(true, "CostingBOQMasterId", "ItemDesc", "UOM", "Currency", "Article");
                 DataView dvM = new DataView(dtM);
-                dvM.RowFilter = "Id='" + dtEmployeeData.Rows[0]["Id"].ToString() + "'";
+                dvM.RowFilter = "CostingBOQMasterId='" + dtEmployeeData.Rows[0]["CostingBOQMasterId"].ToString() + "'";
 
                 var edRow = ROW;
                 var col = endCol;
@@ -1783,7 +1829,7 @@ namespace Library.OrderManagement.Costing
                     sheet.Range[edRow, col].Text = dtM.Rows[i]["UOM"].ToString(); col++;
 
 
-                    double GrossConsumption = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(GrossConsumption)", "Id='" + dtM.Rows[i]["Id"].ToString() + "'"));
+                    double GrossConsumption = clsStaticInfo.dbl(dtEmployeeData.Compute("avg(GrossConsumption)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
                     sheet.Range[edRow, col].Number = GrossConsumption;
                     sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
@@ -1791,41 +1837,47 @@ namespace Library.OrderManagement.Costing
                     col++;
 
                     //double MTotalSPT = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(TotalSPT)", "MachineVarientId='" + dtM.Rows[i]["MachineVarientId"].ToString() + "'"));
-                    double BOMQuantity = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(BOMQty)", "Id='" + dtM.Rows[i]["Id"].ToString() + "'"));
+                    double BOMQuantity = clsStaticInfo.dbl(dtEmployeeData.Compute("avg(RequiredQty)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
                     sheet.Range[edRow, col].Number = BOMQuantity;
                     sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     col++;
 
-                    double PlanQuantity = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(RequiredQty)", "Id='" + dtM.Rows[i]["Id"].ToString() + "'"));
+                    double PlanQuantity = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(BOMQty)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
                     sheet.Range[edRow, col].Number = PlanQuantity;
                     sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     col++;
 
                     sheet.Range[edRow, col].Text = dtM.Rows[i]["Currency"].ToString(); col++;
 
-                    double BOMAmount = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(BOMAmount)", "Id='" + dtM.Rows[i]["Id"].ToString() + "'"));
-                    sheet.Range[edRow, col].Number = BOMAmount;
+                    double UnitRate = clsStaticInfo.dbl(dtEmployeeData.Compute("avg(UnitRate)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
+                    sheet.Range[edRow, col].Number = UnitRate;
                     sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
                     col++;
 
-                    double PlanAmount = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", "Id='" + dtM.Rows[i]["Id"].ToString() + "'"));
+                    double RequiredAmount = clsStaticInfo.dbl(dtEmployeeData.Compute("avg(RequiredAmount)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
+                    sheet.Range[edRow, col].Number = RequiredAmount;
+                    sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
+                    sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    col++;
+
+                    double PlanAmount = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", "ItemDesc='" + dtM.Rows[i]["ItemDesc"].ToString() + "'"));
                     sheet.Range[edRow, col].Number = PlanAmount;
                     sheet.Range[edRow, col].NumberFormat = clsStaticInfo.NumberFormat(2);
                     sheet.Range[edRow, col, edRow, col].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignCenter;
-                    //col++;
-
+                    sheet.Range[edRow, col, edRow, col].HorizontalAlignment = ExcelHAlign.HAlignRight;
+                    
 
                     int endCols = col;
                     sheet.Range[edRow, 1, edRow, endCols].BorderAround(ExcelLineStyle.Hair);
                     sheet.Range[edRow, 1, edRow, endCols].BorderInside(ExcelLineStyle.Hair);
-
+                    sheet.UsedRange.CellStyle.Font.FontName = "Arial Narrow";
                     edRow++;
                 }
 
@@ -1835,20 +1887,20 @@ namespace Library.OrderManagement.Costing
                 var cols = 1;
                 sheet.Range[edRow, cols].Text = "TOTAL";
                 sheet.Range[edRow, cols].CellStyle.Font.Bold = true;
-                sheet.Range[edRow, cols, edRow, 7].Merge();
+                sheet.Range[edRow, cols, edRow, 8].Merge();
 
-                sheet.Range[edRow, 8].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(BOMAmount)",null));
-                sheet.Range[edRow, 8].NumberFormat = clsStaticInfo.NumberFormat(2);
-                sheet.Range[edRow, 8].CellStyle.Font.Bold = true;
-                sheet.Range[edRow, 8, edRow, 8].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[edRow, 8, edRow, 8].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                //sheet.Range[edRow, 9].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(RequiredAmount)", null));
+                //sheet.Range[edRow, 9].NumberFormat = clsStaticInfo.NumberFormat(2);
+                //sheet.Range[edRow, 9].CellStyle.Font.Bold = true;
+                //sheet.Range[edRow, 9, edRow, 9].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                //sheet.Range[edRow, 9, edRow, 9].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                sheet.Range[edRow, 9].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", null));
-                sheet.Range[edRow, 9].CellStyle.Font.Bold = true;
-                sheet.Range[edRow, 9, edRow, 9].VerticalAlignment = ExcelVAlign.VAlignCenter;
-                sheet.Range[edRow, 9, edRow, 9].HorizontalAlignment = ExcelHAlign.HAlignCenter;
+                sheet.Range[edRow, 10].Number = clsStaticInfo.dbl(dtEmployeeData.Compute("SUM(PlanAmount)", null));
+                sheet.Range[edRow, 10].CellStyle.Font.Bold = true;
+                sheet.Range[edRow, 10, edRow, 10].VerticalAlignment = ExcelVAlign.VAlignCenter;
+                sheet.Range[edRow, 10, edRow, 10].HorizontalAlignment = ExcelHAlign.HAlignRight;
 
-                int endColl = 9;
+                int endColl = 10;
                 sheet.Range[edRow, 1, edRow, endColl].BorderAround(ExcelLineStyle.Hair);
                 sheet.Range[edRow, 1, edRow, endColl].BorderInside(ExcelLineStyle.Hair);
 
@@ -1910,6 +1962,10 @@ namespace Library.OrderManagement.Costing
 									,SalesOrderId=STUFF((SELECT distinct ','+  XITM.Id
                                     from trn.SalesOrder AS XITM
                                     where XITM.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
+                                    
+                                     ,SOQuantity=STUFF((SELECT distinct ','+ cast(SO.Qty as varchar)
+                                    from trn.SalesOrder SO
+                                    where SO.CostingBOQMasterId=cost.Id for xml path(''),TYPE).value('.', 'VARCHAR(MAX)'), 1, 1, '')
 
 									from CostingBOQMaster AS cost
 									LEFT JOIN [HKP].[Party] AS P ON cost.CustomerId = P.Id

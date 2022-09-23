@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Library.MaterialManagement.Material;
+using Aplos.Properties;
 
 namespace Aplos.Areas.Materials.Controllers
 {
@@ -45,6 +46,20 @@ namespace Aplos.Areas.Materials.Controllers
         }
 
         [Authorize, HttpPost]
+        public ActionResult getRespPersonContactNo(string ResponsiblePersonId)
+        {
+
+            return Json(dl.getRespPersonContactNo(ResponsiblePersonId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult getIssueByNo(string loginId)
+        {
+
+            return Json(dl.getIssueByNo(loginId), JsonRequestBehavior.AllowGet);
+        }
+
+        [Authorize, HttpPost]
         public ActionResult getDetentionTypeListByDepartment(string departmentid)
         {
 
@@ -71,5 +86,35 @@ namespace Aplos.Areas.Materials.Controllers
 
             return Json(dl.GetWorkCenter(), JsonRequestBehavior.AllowGet);
         }
+
+        #region Save Operations
+        [Authorize, HttpPost]
+        public JsonResult Save(Dictionary<string, object> data)
+        {
+
+            try
+            {
+                return Json(new { Error = "No", Data = dl.Save(data), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [Authorize, HttpPost]
+        public JsonResult saveDtentionLogResPerson(List<Dictionary<string, object>> data, string detentionLogId)
+        {
+
+            try
+            {
+                return Json(new { Error = "No", Data = dl.saveDtentionLogResPerson(data, detentionLogId), Message = AplosMessage.Success }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+                return Json(new { Error = "Yes", Msg = e.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion Save Operations
     }
 }
