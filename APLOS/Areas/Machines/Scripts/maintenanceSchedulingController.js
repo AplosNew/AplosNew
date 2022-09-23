@@ -18,12 +18,12 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getStorage = $scope.path + 'StorageSql';
     $scope.deleteUrl = $scope.path + 'Delete';
-    $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
-    $scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
-    $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
-    $scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
-    $scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
-    $scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
+    //$scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
+    //$scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
+    //$scope.MachineSaveUrl = $scope.path + 'CreateMachine';
+    //$scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
+    //$scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
+    //$scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
 
     $scope.CategoryList = [
         {
