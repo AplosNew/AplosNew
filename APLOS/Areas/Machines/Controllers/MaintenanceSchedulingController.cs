@@ -103,7 +103,7 @@ namespace Aplos.Areas.Machines.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaintenanceSchedule);
 
-                return Json(new { Error = false, Data = ScheduleData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -151,6 +151,24 @@ namespace Aplos.Areas.Machines.Controllers
             dr["UpdatedDate"] = System.DateTime.Now.ToString();
             dr["UpdatedFromIP"] = identity.IPAddress;
             dr.EndEdit();
+        }
+
+        [Authorize, HttpPost]
+        public ActionResult ScheduleDelete(string id)
+        {
+            try
+            {
+                ConnectionManager.clsConnection conC = new ConnectionManager.clsConnection();
+                conC.BeginTransaction();
+                conC.executeQuery("delete from TRN.MaintenanceScheduling where Id ='" + id + @"'");
+                conC.CommitTransaction();
+
+                return Json(new { Error = false, Message = AplosMessage.Deleted }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         private double GetSequence()
         {
@@ -549,8 +567,8 @@ MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-
-        public void CreateAsset(List<Dictionary<string, object>> DataList)
+        [Authorize, HttpPost]
+        public ActionResult CreateAsset(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -585,7 +603,7 @@ MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA
                         obj.SaveDataSets(dsProdBooked);
                     }
                 }
-
+                return Json(new { Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
