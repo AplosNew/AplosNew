@@ -1083,11 +1083,11 @@ namespace Library.Service.Invoices
                         else
                             glTransactionDetail.CrAmount = voucherVM.BankAmount;
 
-                        if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
-                        {
-                            voucherVM.BankBookAmount = Math.Round((voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate), 3, MidpointRounding.AwayFromZero);
+                        //if (bankMaster["CurrencyId"].ToString() == voucherVM.CurrencyId)
+                        //{
+                        //    voucherVM.BankBookAmount = Math.Round((voucherVM.BankBookAmount * voucherVM.CompanyCurrencyRate),3, MidpointRounding.AwayFromZero);
 
-                        }
+                        //}
 
                         // INSRT INTO GLTransactionDetail
 

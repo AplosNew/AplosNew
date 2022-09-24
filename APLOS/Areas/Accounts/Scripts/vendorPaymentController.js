@@ -713,13 +713,20 @@ function vendorPaymentController(bankService, accountService, cboService, common
         if ($scope.voucher.BankMasterId != null) {
             $scope.voucher.Amount = Math.round($filter("sumByKey")($filter("filter")($scope.voucherDetailList), "Amount") * 1000 + Number.EPSILON) / 1000 + Math.round($filter("sumByKey")($filter("filter")($scope.bankChargesList), "CompanyCurrencyAmount") * 1000 + Number.EPSILON) / 1000;
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
+                //if ($scope.voucher.ExchangeType == 'ExchangeLoss')
+                //    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
+                //else if ($scope.voucher.ExchangeType == 'ExchangeGain')
+                //    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
+                //else
+                //    $scope.voucher.BankBookAmount = $scope.voucher.Amount
+                //    $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
+                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) + $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else if ($scope.voucher.ExchangeType == 'ExchangeGain')
-                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
+                    $scope.voucher.BankBookAmount = Math.round((($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) - $scope.voucher.ExchangeAmount) * 1000 + Number.EPSILON) / 1000;
                 else
-                    $scope.voucher.BankBookAmount = $scope.voucher.Amount
-                $scope.voucher.BankAmount = $scope.voucher.BankBookAmount;
+                    $scope.voucher.BankBookAmount = Math.round(($scope.voucher.Amount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000
+                    $scope.voucher.BankAmount = $scope.voucher.Amount;
             }
             if ($scope.voucher.CurrencyId != $scope.voucher.BankCurrencyId) {
                 if ($scope.voucher.ExchangeType == 'ExchangeLoss')
@@ -736,7 +743,8 @@ function vendorPaymentController(bankService, accountService, cboService, common
         if ($scope.voucher.BankMasterId != null) {
             $scope.BaseAmountObj.Type = 'Bank';
             if ($scope.voucher.CurrencyId == $scope.voucher.BankCurrencyId) {
-                $scope.BaseAmountObj.BaseCrAmount = Math.round(($scope.voucher.BankBookAmount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+                //$scope.BaseAmountObj.BaseCrAmount = Math.round(($scope.voucher.BankBookAmount * $scope.voucher.CompanyCurrencyRate) * 1000 + Number.EPSILON) / 1000;
+                $scope.BaseAmountObj.BaseCrAmount = $scope.voucher.BankBookAmount;
             }
             else {
 
