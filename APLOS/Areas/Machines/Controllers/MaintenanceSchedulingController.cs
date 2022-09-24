@@ -103,7 +103,7 @@ namespace Aplos.Areas.Machines.Controllers
                 clsStaticInfo _info = new clsStaticInfo();
                 _info.SaveDataSets(dsMaintenanceSchedule);
 
-                return Json(new { Error = false, Data = ScheduleData, Sequence = GetSequence(), Message = AplosMessage.Insert });
+                return Json(new { Error = false, Data = ScheduleData, Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)
@@ -567,8 +567,8 @@ MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA
                             FROM DetentionMaster";
             return Json(_sqlRepository.GetDataCollection(sql, null), JsonRequestBehavior.AllowGet);
         }
-
-        public void CreateAsset(List<Dictionary<string, object>> DataList)
+        [Authorize, HttpPost]
+        public ActionResult CreateAsset(List<Dictionary<string, object>> DataList)
         {
             ConnectionManager.DAL.ConManager objCon;
             DataSet dsProdBooked;
@@ -603,7 +603,7 @@ MA.Id as AssetId,MA.AssetName,WC.UserName as WorkCenter,MA.WorkCenterMasterId,MA
                         obj.SaveDataSets(dsProdBooked);
                     }
                 }
-
+                return Json(new { Message = AplosMessage.Insert });
 
             }
             catch (Exception ex)

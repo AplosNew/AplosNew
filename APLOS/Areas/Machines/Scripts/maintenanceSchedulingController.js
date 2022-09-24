@@ -12,6 +12,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.path = 'Machines/MaintenanceScheduling/';
     $scope.saveUrl = $scope.path + 'create';
     $scope.saveUrlAsset = $scope.path + 'createAsset';
+    $scope.saveUrlItem = $scope.path + 'createItem';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getUrl = $scope.path + 'get';
@@ -139,7 +140,10 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , IsAuditable: null
         , ByWhom:null
         , Remarks: null
+        , MaintenanceSchedulingId:null
     };
+    $scope.ItemNew = Object.assign({}, $scope.Item);
+
     $scope.Stores = {
         Id: null
         , SNO: null
@@ -411,7 +415,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
                 }
                 else {
                     ShowResult(response.data.Message, 'success');
-                    $scope.NewObject = response.data;
+                   /* $scope.NewObject = response.data;*/
                    /* $scope.LoadMaintenanceList($scope.NewObject.Data.Id);*/
                     $scope.LoadMaintenanceMasterList();
                     ScheduleClearFields();
@@ -421,6 +425,30 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
                 ShowResult(response.data.Message, 'failure');
             }
         }    
+    };
+
+    $scope.ItemSave = function () {
+        $scope.$broadcast('show-errors-check-validity');
+        if ($scope.MaintenanceScheduleItemForm.$valid) {
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlItem,
+                data: { 'ScheduleData': $scope.ItemNew },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadItemDetails();
+                    ItemClearFields();
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
     };
 
     //$scope.Delete = function () {
@@ -581,6 +609,12 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         $scope.Action = "Save";
         $scope.scheduleNew = Object.assign({}, $scope.schedule);
        /* $scope.MaintenanceList = [];*/
+    }
+
+    function ItemClearFields() {
+        $scope.Action = "Save";
+        $scope.ItemNew = Object.assign({}, $scope.item);
+        /* $scope.MaintenanceList = [];*/
     }
 
     //$scope.processPopUpDataList = function () {
@@ -1007,7 +1041,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
             }
             else {
                 ShowResult(response.data.Message, 'success');
-                $scope.getDetentionMasterProcess();
+                $scope.LoadMaintenanceMasterList();
             }
             function errorCallBack(response) {
                 ShowResult(response.data.Message, 'failure');
