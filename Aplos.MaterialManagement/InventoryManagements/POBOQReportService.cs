@@ -1904,7 +1904,7 @@ WHERE po.Id='" + POID+@"'";
                 TROW.Cells[colChar2].AddParagraph().AppendText(dsOrderMaster.Rows[i]["SecondCharacteristicsValue"].ToString());
                 TROW.Cells[colChar3].AddParagraph().AppendText(dsOrderMaster.Rows[i]["ThirdCharacteristicsValue"].ToString());
                 //TROW.Cells[colHSNCode].AddParagraph().AppendText(dsOrderMaster.Rows[i]["HSNCode"].ToString());
-                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDetail"].ToString());
+                TROW.Cells[colMatDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["MaterialDescription"].ToString());
                 TROW.Cells[colDescription].AddParagraph().AppendText(dsOrderMaster.Rows[i]["Description"].ToString());
                 TROW.Cells[colRefferenceNo].AddParagraph().AppendText(dsOrderMaster.Rows[i]["RefferenceNo"].ToString());
                 TROW.Cells[colDeliveryDate].AddParagraph().AppendText(dsOrderMaster.Rows[i]["DeliveryDate"].ToString());
@@ -2199,6 +2199,7 @@ WHERE po.Id='" + POID+@"'";
                     END
 					,boq.RMDescription MaterialDescription,boq.SKUDesc
                     ,MLC.LCRef MasterLCNo,MLC.LCDate MasterLCDate
+					,CPO.PONumber BuyerPONumber
 
                     FROM TRN.PurchaseOrder PO
                     LEFT JOIN ORG.CompanyGroup CGroup ON CGroup.Id = PO.CompanyGroupId
@@ -2213,6 +2214,8 @@ WHERE po.Id='" + POID+@"'";
 					LEFT JOIN [dbo].[Contract] CNO ON CNO.Id = PO.ContractId
                     LEFT JOIN [dbo].[MasterLC] MLC ON MLC.Id = CNO.MasterLCId
                     LEFT JOIN trn.MasterOrder AS mo ON mo.Id=cno.MasterOrderId
+					--new add CustomerPO
+					LEFT JOIN [TRN].[CustomerPO] CPO ON CPO.MasterOrderId = mo.Id
 					LEFT JOIN [dbo].[PurchaseLC] PLC ON PLC.Id = PO.PurchaseLCId
 	               -- LEFT JOIN [HKP].[Bank] B ON B.Id = PLC.BenificiaryBankId
                     LEFT JOIN SCS.Country POCountry ON POD.CountryId = POCountry.Id
