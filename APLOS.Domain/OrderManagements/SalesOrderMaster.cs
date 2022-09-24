@@ -107,6 +107,7 @@ namespace Library.Model.OrderManagements
         public string CustomerPOId { get; set; }
         public string OrderCategoryId { get; set; }
         public string ResponsiblePersonId { get; set; }
+        public string PackingTypeId { get; set; }
 
         #endregion Navigation Properties
     }

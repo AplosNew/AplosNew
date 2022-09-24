@@ -38,6 +38,10 @@ namespace Library.Model.IE
         public string Description { get; set; }
 
         public string Remarks { get; set; }
+        public string MachineMake { get; set; }
+        public string MachineModel { get; set; }
+        public string MachinePerticulars { get; set; }
+
         public string SkillId { get; set; }
         public decimal ProductionMachineQty { get; set; }
         public decimal SampleMachineQty { get; set; }

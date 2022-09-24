@@ -2203,7 +2203,7 @@ namespace Aplos.Areas.Banks.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult GetList()
         {
             var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
@@ -2271,27 +2271,6 @@ namespace Aplos.Areas.Banks.Controllers
             }
 
         }
-
-
-        //[HttpGet, Authorize]
-        //public ActionResult GetPostDateChequeReport(ReportFormat reportFormat, string POId)
-        //{
-        //    var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
-        //    //AccountsBankService accountsBankService = new AccountsBankService(_sqlRepository);
-
-        //    var workbook = _accountsBankService.PostDateChequeReport(out string reportFileName, POId);
-        //    switch (reportFormat)
-        //    {
-        //        case ReportFormat.Pdf:
-        //            return RenderReportAsPdf(workbook, reportFileName);
-
-        //        case ReportFormat.Excel:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-
-        //        default:
-        //            return RenderReportAsExcel(workbook, reportFileName);
-        //    }
-        //}
 
         [HttpGet, Authorize]
         public ActionResult DownloadUsingFullPath(string FullPath, string fileName)

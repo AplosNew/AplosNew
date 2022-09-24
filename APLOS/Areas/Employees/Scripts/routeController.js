@@ -87,8 +87,15 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
             ValidationMasterRoute();
 
             var StopageList = [];
+            var ob = {};
             for (var i = 0; i < $scope.StopageListNew.length; i++) {
-                StopageList.push($scope.StopageListNew[i]);
+                ob.Id = null;
+                ob.RouteId = $scope.routeNew.Id;
+                ob.StoppageId = $scope.StopageListNew[i].StopagePrimaryId;
+                ob.UpDistanceFrom = $scope.StopageListNew[i].UpDistanceFrom;
+                ob.DownDistanceFrom = $scope.StopageListNew[i].DownDistanceFrom;
+                StopageList.push(ob);
+                ob = {};
             }
             if (StopageList.length == 0) {
                 throw "Please Select Stopage";
@@ -98,7 +105,7 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                 $http({
                     method: 'POST',
                     url: $scope.saveUrl,
-                    data: { 'Route': $scope.routeNew, 'StopageList': StopageList },
+                    data: { 'data': $scope.routeNew, 'StopageList': StopageList },
                     dataType: 'JSON'
                 }).then(function successCallback(response) {
                     if (response.data.Error === true) {
@@ -107,11 +114,12 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
                     else {
                         ShowResult(response.data.Message, 'success');
                         $scope.Action = 'Update';
+                        $scope.routeNew.Id = response.data.Route.Id;
                        $scope.getData();
                         $scope.getRouteStopageData();
-                        if ($rootScope.isCollapsed) {
-                            $rootScope.toggle();
-                        }
+                        //if ($rootScope.isCollapsed) {
+                        //    $rootScope.toggle();
+                        //}
                     }
                 }), function errorCallBack(response) {
                     ShowResult(response.data.Message, 'failure');
@@ -395,14 +403,12 @@ function routeController(cboService, commonMessage, $scope, $rootScope, baseServ
 
 
 
-    $scope.Clear = function (obj) {
-        ClearFields();
-        $scope.Action = 'Save';
-    };
-    function ClearFields() { 
+    $scope.ClearMain = function () {
         $scope.routeNew = Object.assign({}, $scope.route);
         $scope.StopageListNew = [];
-    }
+        $scope.Action = 'Save';
+    };
+   
 
     $scope.Delete = function () {
         if (!baseService.isUndefinedOrNull($scope.routeNew.Id)) {

@@ -1073,6 +1073,7 @@ namespace Aplos.Areas.Products.Controllers
                 entity.MasterOrderId = null;
                 //entity.CheckedBy = "";
                 entity.AddedBy = null;
+                entity.RequisitionId = null;
                 entity.EmployeeId = identity.EmployeeId;
                 _purchaseOrderService.Update(entity);
             }

@@ -507,6 +507,7 @@ angular.module("apanelApp", ["ngRoute", "ngCookies", "angularUtils.directives.di
     .controller("StorageBinMasterController", StorageBinMasterController)
     .controller("OTRegionController", OTRegionController)
     .controller("QualityProcessController", QualityProcessController)
+    .controller("PackingTypeController", PackingTypeController)
     
     
   

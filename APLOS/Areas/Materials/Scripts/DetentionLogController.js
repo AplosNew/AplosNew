@@ -8,72 +8,31 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
     $scope.getUrl = $scope.path + 'get';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getStorage = $scope.path + 'StorageSql';
-    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrl = $scope.path + 'Save';
     $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
 
+    var LogTime = new Date();
     $scope.ModalTemp = {
         Id: null,
-        DetentionId: null,
-        ProcessId: null,
+        DetentionTypeId: null,        
         WorkCenterId: null,
-        ResponsibleContactNo: null,
+        CellPhnNo: null,
         IssueByNo: null,
         Remarks: null,
-        EntityId:null
+        LoginTime: LogTime,
         
     };
     $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
 
-    $scope.entityList = [];
-    $scope.getAllEntities = function () {
-        $http({
-            method: 'POST',
-            url: $scope.path + "GetEntity"
-        }).then(function successCallback(response) {
-            $scope.entityList = response.data;
-            
-        });
-    }
-    $scope.getAllEntities();
-
-    
-    // Department
-    $scope.openDeprtmentPopUp = function () {
-        $scope.getDepartment();
-        angular.element(document.querySelector('#DepartmentPop')).modal('show');
-    }
-
-    $scope.DepartmentList = [];
-    $scope.getDepartment = function () {
-        $http({
-            method: 'POST',
-            url: 'Materials/DetentionLog/GetDetentionDepartment',
-            dataType: 'JSON'
-        }).then(function successCallback(resp) {
-            $scope.DepartmentList = resp.data;
-        });
-    }
-    $scope.getDepartment();
-
-    $scope.doubleDepartment = function (e) {
-        $scope.Newobject.DepartmentId = e.data.DepartmentId;
-        $scope.Newobject.DepartmentName = e.data.DepartmentName;
-        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
-        $scope.getDetentionTypeListByDepartment($scope.Newobject.DepartmentId);
-    }
-
-    $scope.closeDepartmentPopUp = function () {
-        angular.element(document.querySelector('#DepartmentPop')).modal('hide');
-    }
-
-
+   
     // Responsible Person
     $scope.openEmployeePopUp = function () {
         $scope.getsR();
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('show');
     }
     $scope.ResponsibleList = [];
+    $scope.userResponsiblePersonList = [];
     $scope.getsR = function () {
         $http({
             method: 'POST',
@@ -81,14 +40,93 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             dataType: 'JSON'
         }).then(function succ(resp) {
             $scope.ResponsibleList = resp.data;
+
+            for (var i = 0; i < $scope.userResponsiblePersonList.length; i++) {
+                for (var j = 0; j < $scope.ResponsibleList.length; j++) {
+                    if ($scope.userResponsiblePersonList[i].Id === $scope.ResponsibleList[j].Id) {
+                        $scope.ResponsibleList[j].chk = true;
+                    }
+                }
+            }
         });
     }
 
-    $scope.doubleResponsible = function (e) {
-        $scope.Newobject.ResponsiblePersonId = e.data.ResponsiblePersonId;
-        $scope.Newobject.ResponsiblePerson = e.data.ResponsiblePerson;
-        angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
+    //-------------------------------------------------------------------------
+    $scope.chkdResponsiblePersonList = [];
+    $scope.ResponsiblePersonGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+            $scope.ResponsibleList[i].chk = ChkOrUnchk;
+            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+        }
+
+        var gridObj = $("#GridResponsible").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+
+
+    function checkResponsiblePersonExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
     }
+
+    
+    $scope.SendResponsiblePerson = function () {        
+            if (baseService.arrayLength($scope.ResponsibleList) > 0) {
+                angular.forEach($scope.ResponsibleList, function (a) {
+                    //if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
+                        if (a.chk) {
+                            var ob = {};
+                            ob.Id = null;
+                            ob.ResponsiblePersonId = a.ResponsiblePersonId; 
+                            ob.EmployeeCode = a.EmployeeCode;
+                            ob.EmployeeName = a.ResponsiblePerson;
+                            ob.CellPhnNo = a.CellPhnNo;
+                            ob.Department = a.Department;
+                            ob.Section = a.Section;
+                            ob.SubSection = a.SubSection;
+                            ob.LegalDesignation = a.LegalDesignation;
+
+                            $scope.userResponsiblePersonList.push(ob);
+                            ob = {};
+                        }
+                    //}
+
+                });
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+
+           
+       
+        $scope.closeResponsiblePopUp();
+    };
+    //-------------------------------------------------------------------------
+
+
+    //$scope.ResponsiblePersonId = null;
+    //$scope.ResponsiblePersonName = null;
+    //$scope.doubleResponsible = function (e) {
+    //    $scope.ResponsiblePersonId = e.data.ResponsiblePersonId;
+    //    $scope.ResponsiblePersonName = e.data.ResponsiblePerson;
+    //    angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
+    //    $scope.getRespPersonContactNo();
+    //}
 
     $scope.closeResponsiblePopUp = function () {
         angular.element(document.querySelector('#ResponiblePersonPop')).modal('hide');
@@ -104,11 +142,7 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
             url: 'Materials/DetentionLog/getDetentionTypeListByDepartment?departmentid=' + departmentid
         }).then(function successCallback(response) {
             $scope.DetentionTypeList = response.data;
-            //for (var i = 0; i < $scope.ProcessDetentionLists.length; i++) {
-            //    if ($scope.ProcessDetentionLists[i].DetentionId == null) {
-            //        $scope.ProcessDetentionLists[i].DetentionTypeList = response.data;
-            //    }
-            //}
+           
         });
     }
     $scope.getDetentionTypeListByDepartment();
@@ -142,16 +176,175 @@ function DetentionLogController(cboService, commonMessage, $scope, $rootScope, b
 
     // Get Workcenter by pressing on key suggest end
 
-    $scope.DetentionList = [];
-    $scope.getDetentionList = function () {
+    
+
+    $scope.getRespPersonContactNo = function () {
         $http({
             method: 'POST',
-            url: 'Materials/DetentionLog/getDetention?processId=' + $scope.ModalNew.ProcessId
+            url: 'Materials/DetentionLog/getRespPersonContactNo?ResponsiblePersonId=' + $scope.ResponsiblePersonId,
         }).then(function successCallback(response) {
-            $scope.DetentionList = response.data;
-           
-           
-        });
+            $scope.ModalNew.CellPhnNo = response.data[0].CellPhnNo;
+        })
     }
-    //$scope.getDetentionList();
+
+    $scope.getIssueByNo = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLog/getIssueByNo',
+        }).then(function successCallback(response) {
+            $scope.ModalNew.IssueByNo = response.data[0].IssueByNo;
+        })
+    }
+    $scope.getIssueByNo();
+
+    $scope.Save = function () {
+        $http({
+            method: 'POST',
+            url: 'Materials/DetentionLog/Save',
+            data: {
+                'data': $scope.ModalNew,
+                'ResponsiblePersonId': $scope.ResponsiblePersonId,
+            },
+            dataType: 'JSON'
+        }).then(function successCallback(response) {
+            if (response.data.Error === true) {
+                ShowResult(response.data.Message, 'failure');
+            }
+            else {
+                $scope.ModalNew.Id = response.data.Data.Id;
+                $scope.SaveResponsiblePerson();
+                ShowResult(response.data.Message, 'success');
+                
+            }
+        }), function errorCallBack(response) {
+            ShowResult(response.data.Message, 'failure');
+        }
+    }
+
+
+    //-------------------------------------------------------------------------
+    $scope.chkdResponsiblePersonList = [];
+    $scope.ResponsiblePersonGridAllCheck = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAll });
+    };
+
+    function CheckBoxSelectAll(e) {
+
+
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
+        }
+
+        for (var i = 0; i < $scope.ResponsibleList.length; i++) {
+            $scope.ResponsibleList[i].chk = ChkOrUnchk;
+            $scope.chkdResponsiblePersonList = $scope.ResponsibleList[i].chk;
+        }
+
+        var gridObj = $("#GridResponsible").data("ejGrid");
+        gridObj.refreshContent();
+    };
+
+    
+
+    function checkResponsiblePersonExist(list, Id) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].Id === Id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
+    $scope.SaveResponsiblePerson = function () {
+        try {
+
+            if (baseService.arrayLength($scope.BudgetCodeList) > 0) {
+                angular.forEach($scope.ResponsibleList, function (a) {
+                    if (checkResponsiblePersonExist($scope.userResponsiblePersonList, a.Id) === false) {
+                        if (a.chk) {
+                            var ob = {};
+                            ob.Id = null;
+                            //ob.EmployeeCode = a.EmployeeCode;
+                            //ob.EmployeeName = a.ResponsiblePerson;
+                            //ob.Department = a.Department;
+                            //ob.Section = a.Section;
+                            //ob.SubSection = a.SubSection;
+                            //ob.LegalDesignation = a.LegalDesignation;
+
+                            $scope.userResponsiblePersonList.push(ob);
+                            ob = {};
+                        }
+                    }
+
+                });
+            }
+
+            $scope.$broadcast('show-errors-check-validity');
+
+            $http({
+                method: 'POST',
+                url: $scope.path + 'saveDtentionLogResPerson',
+                data: {
+                    'data': $scope.userResponsiblePersonList,
+                    'detentionLogId': $scope.ModalNew.Id
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+                    ShowResult(response.data.Message, 'success');
+
+
+                }
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            }
+        }
+        catch (ex) {
+            ShowResult(ex, 'failure');
+        }
+        $scope.closeResponsiblePopUp();
+    };
+    //-------------------------------------------------------------------------
+
+
+    $scope.Clear = function () {
+        ClearFields();
+        return true;
+    };
+
+
+    function ClearFields() {
+        $scope.Action = 'Save';
+        $scope.ModalNew = {
+            Id: null,
+            DetentionTypeId: null,
+            WorkCenterId: null,           
+            Remarks: null,
+            
+        };
+        $scope.getIssueByNo();
+        $scope.ModalNew = Object.assign({}, $scope.ModalTemp);
+        $scope.userResponsiblePersonList = [];
+        
+        //ob = {};
+    }
+
+    $scope.saveDtentionLogResPerson = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'saveDtentionLogResPerson',
+            data: {
+                'data': $scope.userResponsiblePersonList,
+                'detentionLogId': $scope.ModalNew.Id
+            },
+            dataType:'JSON'
+        }).then(function successCallback(response) {
+
+        })
+    }
 }

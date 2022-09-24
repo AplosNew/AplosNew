@@ -211,6 +211,52 @@ left join hkp.EmployeeCategory eg on eg.Id = rm.EmployeeCategoryId";
         #endregion Add & Edit Row
 
         #region TAB POSITION
+        public IEnumerable<object> getEntity()
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select E.UserName Text, E.Id Value from ORG.Entity E
+                               where E.PlantId = '" + identity.PlantId + "' and E.Active = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getBudgetCode(string entityId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select distinct Code, Id Value from MST.ManpowerBudget
+                                where EntityId = '"+ entityId + "' and Active = 1";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public IEnumerable<object> getPositionCode(string MPBudgetId)
+        {
+            try
+            {
+                var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+                string sql = @"select distinct P.UserName Text, P.Id Value from ORG.Position P
+                               left join MST.ManpowerBudget MB on MB.PositionId = P.Id
+                               where MB.Id = '"+ MPBudgetId + "'";
+                return _sqlRepository.GetDataCollection(sql);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
         public IEnumerable<object> getPositionTabGridData()
         {
             try
