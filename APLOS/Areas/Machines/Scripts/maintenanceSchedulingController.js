@@ -10,19 +10,20 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.EstimationLevelList = [];
     $scope.Action = 'Save';
     $scope.path = 'Machines/MaintenanceScheduling/';
+    $scope.saveUrl = $scope.path + 'create';
+    $scope.saveUrlAsset = $scope.path + 'createAsset';
+    $scope.updateUrl = $scope.path + 'edit';
     $scope.getListUrl = $scope.path + 'getlist';
     $scope.getUrl = $scope.path + 'get';
     $scope.getSeqUrl = $scope.path + 'getautosequence';
     $scope.getStorage = $scope.path + 'StorageSql';
-    $scope.saveUrl = $scope.path + 'create';
-    $scope.updateUrl = $scope.path + 'edit';
     $scope.deleteUrl = $scope.path + 'Delete';
-    $scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
-    $scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
-    $scope.MachineSaveUrl = $scope.path + 'CreateMachine';
-    $scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
-    $scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
-    $scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
+    //$scope.ProcesssaveUrl = $scope.path + 'CreateProcess';
+    //$scope.DepartmentSaveUrl = $scope.path + 'CreateDepartment';
+    //$scope.MachineSaveUrl = $scope.path + 'CreateMachine';
+    //$scope.ResponsibleSaveUrl = $scope.path + 'CreateResponsible';
+    //$scope.employeeUrl = $scope.path + 'GetEmployeeListInChargePerson';
+    //$scope.saveProcessParameterUrl = $scope.path + 'CreateProcessParameter';
 
     $scope.CategoryList = [
         {
@@ -117,6 +118,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         , MaxScheduleDays: null
         , StandardScheduleMinutes: null
         , IsActive: false
+        , Particulars:null
     };
     $scope.scheduleNew = Object.assign({}, $scope.schedule);
 
@@ -156,18 +158,41 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         //$scope.Detail.pop();
     }
 
-    $scope.DetentionList = [];
-    $scope.LoadDetentionList = function () {
-        $http({
+    //$scope.DetentionList = [];
+    //$scope.LoadDetentionList = function () {
+    //    $http({
 
-            method: 'Get',
-            url: 'Materials/DetentionMaster/LoadDetentionList'
-        }).then(function successCallback(response) {
-            $scope.DetentionList = response.data;
+    //        method: 'Get',
+    //        url: 'Materials/DetentionMaster/LoadDetentionList'
+    //    }).then(function successCallback(response) {
+    //        $scope.DetentionList = response.data;
+    //    }
+    //    )
+    //}
+    //$scope.LoadDetentionList();
+
+    $scope.refreshTemplateMachineAsset = function (args) {
+        $("#headchk").ejCheckBox({ "change": CheckBoxSelectAllAsset });
+    };
+    function CheckBoxSelectAllAsset(e) {
+        var ChkOrUnchk = false;
+        if (e.model.checkState === "check") {
+            ChkOrUnchk = true;
         }
-        )
-    }
-    $scope.LoadDetentionList();
+
+        var filtered = $("#GridMachine").data("ejGrid").getFilteredRecords();
+        if (angular.isUndefinedOrNull(filtered) || filtered.length == 0) {
+            for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
+                $scope.ScheduleMachineList[i].Flag = ChkOrUnchk;
+            }
+        }
+        else {
+            for (var j = 0; j < filtered.length; j++) {
+                filtered[j].Flag = ChkOrUnchk;
+            }
+        }
+        var gridObj = $("#GridMachine").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    };
 
     $scope.MaintenanceMasterList = [];
     $scope.LoadMaintenanceMasterList = function () {
@@ -183,30 +208,67 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     }
     $scope.LoadMaintenanceMasterList();
     $scope.Id;
-    $scope.MaintenanceList = [];
-    $scope.LoadMaintenanceList = function (data) {
-        $http({
-            method: 'Get',
-            url: 'Machines/MaintenanceScheduling/LoadMaintenanceList?ScheduleID=' + data
-        }).then(function successCallback(response) {
-            $scope.MaintenanceList = response.data;
-            var gridObj = $("#GridMaintenanceScheduling").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
-        }
-        )
-    }
+    //$scope.MaintenanceList = [];
+    //$scope.LoadMaintenanceList = function (data) {
+    //    $http({
+    //        method: 'Get',
+    //        url: 'Machines/MaintenanceScheduling/LoadMaintenanceList?ScheduleID=' + data
+    //    }).then(function successCallback(response) {
+    //        $scope.MaintenanceList = response.data;
+    //        var gridObj = $("#GridMaintenanceScheduling").data("ejGrid"); gridObj.refreshContent(); gridObj.refreshTemplate();
+    //    }
+    //    )
+    //}
 
     $scope.ScheduleMachineList = [];
-    $scope.LoadMachineDetails = function () {
+    $scope.LoadMachineDetails = function (data) {
         $http({
 
             method: 'Get',
-            url: 'Machines/MaintenanceScheduling/LoadMachineDetails'
+            url: 'Machines/MaintenanceScheduling/LoadMachineDetails?Id=' + data
         }).then(function successCallback(response) {
             $scope.ScheduleMachineList = response.data;
         }
         )
     }
 
+    $scope.MachineSave = function () {
+        try {
+
+            $scope.SaveList = [];
+            for (var i = 0; i < $scope.ScheduleMachineList.length; i++) {
+                if ($scope.ScheduleMachineList[i].Flag == true) {
+                    $scope.ScheduleMachineList[i].MaintenanceSchedulingId = $scope.scheduleNew.Id;
+                    $scope.SaveList.push($scope.ScheduleMachineList[i]);
+                }
+            }
+
+
+            $http({
+                method: 'POST',
+                url: $scope.saveUrlAsset,
+                data: {
+                    "DataList": $scope.SaveList,
+                },
+                dataType: 'JSON'
+            }).then(function successCallback(response) {
+                if (response.data.Error === true) {
+                    ShowResult(response.data.Message, 'failure');
+                }
+                else {
+
+                    ShowResult(response.data.Message, 'success');
+                    $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId);
+                    $scope.Action = 'Save';
+                }
+
+            }), function errorCallBack(response) {
+                ShowResult(response.data.Message, 'failure');
+            };
+        } catch (ex) {
+            ShowResult(ex, 'Info');
+        }
+    };
 
     $scope.ScheduleItemList = [];
     $scope.LoadItemDetails = function () {
@@ -251,11 +313,40 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
     $scope.doubleMachine = function (e) {
         $scope.scheduleNew.MachineMasterId = e.data.MachineMasterId;
         $scope.scheduleNew.MachineName = e.data.MachineMaster;
+        $scope.scheduleNew.Make = e.data.Make;
+        $scope.scheduleNew.Model = e.data.Model;
+        $scope.scheduleNew.Particulars = e.data.Particulars;
         angular.element(document.querySelector('#MachinePop')).modal('hide');
     }
 
     $scope.closeMachinePopUp = function () {
         angular.element(document.querySelector('#MachinePop')).modal('hide');
+    }
+
+    $scope.selectBudgetCode = function () {
+        $scope.getBudgetCode();
+        angular.element(document.querySelector('#BudgetCodePopUp')).modal('show');
+    }
+
+    $scope.BudgetCodeList = [];
+    $scope.getBudgetCode = function () {
+        $http({
+            method: 'POST',
+            url: $scope.path + 'GetBudgetCode',
+            dataType: 'JSON'
+        }).then(function succ(resp) {
+            $scope.BudgetCodeList = resp.data;
+        });
+    }
+
+    $scope.doubleBudgetCode = function (e) {
+        $scope.scheduleNew.ResponsiblePersoneBgtCodeId = e.data.ManPowerBudgetId;
+        $scope.scheduleNew.ResponsiblePersoneBgtCode = e.data.Code;
+        angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
+    }
+
+    $scope.closeBudgetCodePopUp = function () {
+        angular.element(document.querySelector('#BudgetCodePopUp')).modal('hide');
     }
 
     $scope.employeeParameters = {
@@ -334,7 +425,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
                 else {
                     ShowResult(response.data.Message, 'success');
                     $scope.NewObject = response.data;
-                    $scope.LoadMaintenanceList($scope.NewObject.Data.Id);
+                   /* $scope.LoadMaintenanceList($scope.NewObject.Data.Id);*/
                     $scope.LoadMaintenanceMasterList();
                     ScheduleClearFields();
                  
@@ -383,9 +474,10 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         }).then(function successCallback(response) {
             $scope.scheduleNew = response.data.schedule[0];
             $scope.scheduleNew.MachineName = response.data.schedule[0].MachineName;
-            $scope.ScheduleTest = response.data.schedule[0].ResponsiblePersoneBgtCode;
-            $scope.LoadMaintenanceList($scope.scheduleNew.Id);
-            $scope.LoadMachineDetails();
+            $scope.scheduleNew.MachineMasterId = response.data.schedule[0].MachineMasterId
+            $scope.scheduleNew.ResponsiblePersoneBgtCode = response.data.schedule[0].ResponsiblePersoneBgtCode;
+           /* $scope.LoadMaintenanceList($scope.scheduleNew.Id);*/
+            $scope.LoadMachineDetails($scope.scheduleNew.MachineMasterId);
             $scope.LoadItemDetails();
             if (!$rootScope.isCollapsed) {
                 $rootScope.toggle();
@@ -502,7 +594,7 @@ function maintenanceSchedulingController(cboService, commonMessage, $scope, $roo
         $scope.Action = "Save";
         $scope.ScheduleTest = null;
         $scope.scheduleNew = Object.assign({}, $scope.schedule);
-        $scope.MaintenanceList = [];
+       /* $scope.MaintenanceList = [];*/
     }
 
     $scope.processPopUpDataList = function () {

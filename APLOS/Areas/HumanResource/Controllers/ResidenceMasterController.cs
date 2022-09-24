@@ -103,6 +103,45 @@ namespace Aplos.Areas.HumanResource.Controllers
 
         #region TAB POSITION
         [HttpPost]
+        public ActionResult getEntity()
+        {
+            try
+            {
+                return Json(rm.getEntity(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getBudgetCode(string entityId)
+        {
+            try
+            {
+                return Json(rm.getBudgetCode(entityId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult getPositionCode(string MPBudgetId)
+        {
+            try
+            {
+                return Json(rm.getBudgetCode(MPBudgetId), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Error = true, Message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
         public ActionResult getPositionTabGridData()
         {
             try

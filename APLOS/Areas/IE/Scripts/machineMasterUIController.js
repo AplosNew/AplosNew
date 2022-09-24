@@ -55,7 +55,10 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
         ConnectedAir: null,
         RunningAir: null,
         MaintanenceScheduleApplicable: false,
-        Active: true
+        Active: true,
+        MachineMake: null,
+        MachineModel: null,
+        MachinePerticulars:null
     };
     $scope.modelNew = Object.assign({}, $scope.model);
     $scope.modelA = {
@@ -282,11 +285,11 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
 
 
     $scope.Save = function () {
-        debugger;
+       /* debugger;*/
         angular.copy($scope.modelNew, $scope.model);
         $scope.$broadcast('show-errors-check-validity');
         try {
-            if ($scope.modelNewForm.$valid) {
+           /* if ($scope.modelNewForm.$valid) {*/
                 if ($scope.Action === 'Save') {
                     $http({
                         method: 'POST',
@@ -335,7 +338,7 @@ function machineMasterUIController(cboService, commonMessage, $scope, $rootScope
                         throw response.data.Message;
                     });
                 }
-            }
+          /*  }*/
         } catch (e) {
             ShowResult(e, 'failure');
         }

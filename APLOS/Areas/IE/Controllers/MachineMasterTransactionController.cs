@@ -184,6 +184,16 @@ where DetentionMasterId='" + detentionId + "'";
 
             return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
         }
+        [Authorize, HttpGet]
+        public JsonResult getDetentionListByDepartment(string departmentid)
+        {
+            var identity = (CustomIdentity)Thread.CurrentPrincipal.Identity;
+            var sql = @"select distinct DM.DetentionUserName As Text, DM.Id As Value from DetentionMasterDepartment DD
+                        left join DetentionMaster DM ON DM.Id=DD.DetentionMasterId
+            where DepartmentId='" + departmentid + "'";
+
+            return Json(_sqlRepository.GetDataCollection(sql), JsonRequestBehavior.AllowGet);
+        }
         [Authorize, HttpPost]
         public JsonResult GetAssetTypeList(string machineMasterId)
         {
