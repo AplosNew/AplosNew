@@ -163,7 +163,7 @@
                     <ul class="list-inline text-right">
                         <li> <button ng-click="Save();" class="btn" ng-disabled="selectedStoppageList.length===0"><i class="glyphicon glyphicon-floppy-disk" tabindex="1012"></i> {{Action}}</button></li>
                         <li> <button data-toggle="modal" data-target="#confirmPopUp" class="btn"><i class="glyphicon glyphicon-trash" tabindex="1013"></i> Delete</button></li>
-                        <li> <button ng-click="Clear();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="1014"></i> Clear</button></li>
+                        <li> <button ng-click="ClearMain();" class="btn"><i class="glyphicon glyphicon-refresh" tabindex="1014"></i> Clear</button></li>
                     </ul>
                 </div>
             </div>
@@ -611,7 +611,7 @@
 
 
 <div class="table-responsive aplos-grid-toggle">
-    <div id="GridEdit" ng-init="chkinit2()" ej-grid e-datasource="ModelList" e-recorddoubleclick="recorddoubleclick" e-load="loadGridEdit"
+    <div id="GridM" ng-init="chkinit2()" ej-grid e-datasource="ModelList" e-recorddoubleclick="recorddoubleclick" e-load="loadGridEdit"
          e-allowfiltering="true" e-allowpaging="true" e-allowsorting="true" e-enabletouch="false" e-responsive="true"
          e-allowselection="true" e-filtersettings-filterType="excel" e-allowtextwrap="true">
         <div e-columns>
