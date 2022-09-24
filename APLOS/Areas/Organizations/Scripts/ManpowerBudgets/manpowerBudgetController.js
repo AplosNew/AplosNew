@@ -139,6 +139,8 @@ function manpowerBudgetController(commonMessage, $scope, $rootScope, baseService
         Female: 0,
         TotalNumber: 0,
         Active: true,
+        TransportVacancy:0,
+        ResidenceVacancy:0
     }
     $scope.manPowerbudgetmasterNew = Object.assign({}, $scope.manPowerbudgetmaster);
 
